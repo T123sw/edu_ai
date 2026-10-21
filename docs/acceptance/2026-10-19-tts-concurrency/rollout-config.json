@@ -1,0 +1,14 @@
+{
+  "time": "20261019T062439Z",
+  "safe_settings": {
+    "TTS_API_BASE": "http://127.0.0.1:8191/v1",
+    "QWEN_TTS_REQUEST_BATCH_SIZE": "4",
+    "QWEN_TTS_BATCH_MAX_CHARS": "1600",
+    "QWEN_TTS_MAX_PENDING": "64",
+    "PODCAST_AUDIO_CONCURRENCY": "8",
+    "HYPERFRAMES_AUDIO_CONCURRENCY": "8",
+    "DURABLE_JOB_CONTROL_WORKERS": "2"
+  },
+  "worker_args": "--workers 5 --control-workers 0",
+  "private_backup": "/home/zxqs_ep/.local/state/edu-ai-tts-concurrency"
+}

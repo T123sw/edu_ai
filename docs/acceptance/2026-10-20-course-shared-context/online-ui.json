@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "source": "Nginx published assets, local preview data; production business APIs intercepted",
+  "checks": [
+    "progress header absent",
+    "course draft retained across nodes",
+    "course message retained across nodes",
+    "mobile directory visible without horizontal overflow"
+  ],
+  "interceptedApiRequests": []
+}

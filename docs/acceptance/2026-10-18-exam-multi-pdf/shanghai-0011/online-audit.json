@@ -1,0 +1,158 @@
+{
+  "observed_at": 1792303139.4306908,
+  "tag": "多PDF验收 shanghai-0011 1792301263930",
+  "generations": [
+    {
+      "generation_id": "examgen_81e4fb0cf344ae88bed8942e4ef3e5b0",
+      "job_id": "examgen_81e4fb0cf344ae88bed8942e4ef3e5b0",
+      "turn": {
+        "id": "turn_1792301304002_0742083967",
+        "status": "cancelled",
+        "failure_code": "",
+        "created_at": 1792301304.3772838,
+        "updated_at": 1792301814.9832447
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 7198,
+          "layout_blocks": 104,
+          "images": 6
+        }
+      ],
+      "blueprint_count": 45,
+      "local_events": 12228,
+      "upstream_events": 12226,
+      "done_received": true,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 102,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 5,
+          "deepseek-v4-flash": 97
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_68e855e548756020104f2348db6cfdbe",
+      "job_id": "job_82a81bd8967f487e",
+      "turn": {
+        "id": "turn_1792301911690_3182fa8cd8",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792301911.8099303,
+        "updated_at": 1792303001.1263144
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 7198,
+          "layout_blocks": 104,
+          "images": 6
+        }
+      ],
+      "blueprint_count": 45,
+      "local_events": 50874,
+      "upstream_events": 50874,
+      "done_received": true,
+      "summary": {
+        "failed": 3,
+        "success": false,
+        "completed": 42,
+        "requested": 45,
+        "template_count": 45
+      },
+      "failed_questions": [
+        {
+          "ordinal": 14,
+          "issues": [
+            "independent_calculation_failed",
+            "single_choice_not_unique: computed correct options ['A', 'B', 'C']",
+            "Solver statement (must be checked, not blindly copied): 题目要求选出“错误”的叙述。逐项核对：\n\nA：当前关键字数为 5，表长为 7，装填因子 α=5/7。若把表长扩大为 14 并重新散列，装填因子变为 5/14，通常冲突减少、平均查找长度降低。该叙述正确。\n\nB：h(22)=22 mod 7=1。槽 1 存的是 15，不是 22，发生冲突；按线性探测继续检查槽 2，槽 2 存的是 22，找到。因此依次探测槽 1、槽 2，共 2 次。该叙述正确。\n\nC：线性探测、二次探测、双重散列都属于开放寻址法处理冲突的方式。该叙述正确。\n\nD：散列函数中引入的运算越多、计算过程越复杂，并不必然使查找性能越好；查找性能主要取决于散列是否均匀、装填因子和冲突处理方法等。该叙述错误。\n\n因此错误的是 D。",
+            "Executed calculator evidence: [{\"expression\": \"22 % 7\", \"actual\": 1, \"matches\": null, \"name\": \"h22\"}, {\"expression\": \"5 / 7\", \"actual\": 0.7142857142857143, \"matches\": null, \"name\": \"alpha\"}, {\"expression\": \"5 / 14\", \"actual\": 0.35714285714285715, \"matches\": null, \"name\": \"alpha14\"}, {\"expression\": \"h22 == 1 and 1 < 7 and 2 < 7\", \"actual\": true, \"matches\": null, \"name\": \"probe_slots_valid\"}]"
+          ]
+        },
+        {
+          "ordinal": 40,
+          "issues": [
+            "independent_solution_unverified",
+            "Independent solver did not provide an answer"
+          ]
+        },
+        {
+          "ordinal": 45,
+          "issues": [
+            "arithmetic_claim_invalid: -1 = -1, not 5",
+            "arithmetic_claim_invalid: -1 = -1, not 5"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 155,
+        "models": {
+          "deepseek-v4-flash": 130,
+          "deepseek-v4-flash-vision-exp": 25
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_ad6a4d4e12a721bb8594f8124bbc32e1",
+      "job_id": "job_0b15f20dc96c4725",
+      "turn": {
+        "id": "turn_1792303030348_29fba6e368",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792303030.537466,
+        "updated_at": 1792303105.1064699
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 7198,
+          "layout_blocks": 104,
+          "images": 6
+        }
+      ],
+      "blueprint_count": 45,
+      "local_events": 9311,
+      "upstream_events": 9311,
+      "done_received": true,
+      "summary": {
+        "failed": 1,
+        "success": false,
+        "completed": 44,
+        "requested": 45,
+        "template_count": 45
+      },
+      "failed_questions": [
+        {
+          "ordinal": 40,
+          "issues": [
+            "independent_solution_unverified",
+            "Independent solver did not provide an answer"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 14,
+        "models": {
+          "deepseek-v4-flash": 11,
+          "deepseek-v4-flash-vision-exp": 3
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 0,
+    "unchanged_in_latest": 0
+  },
+  "hotfix_preservation": {
+    "compared_generation_id": "examgen_ad6a4d4e12a721bb8594f8124bbc32e1",
+    "accepted_before": 15,
+    "unchanged_in_latest": 15,
+    "missing_or_changed_ids": []
+  }
+}

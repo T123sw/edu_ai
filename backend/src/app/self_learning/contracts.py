@@ -71,12 +71,19 @@ class ClassroomLocator(Contract):
     content_hash: Identifier | None = None
 
 
+class HyperframesLocator(Contract):
+    kind: Literal['hyperframes']
+    seconds: Nonnegative
+    segment_id: Identifier | None = None
+    content_hash: Identifier | None = None
+
+
 class QuizLocator(Contract):
     kind: Literal['quiz']
     question_index: Annotated[int, Field(strict=True, ge=0, le=9999)]
 
 
-Locator = Annotated[DocumentLocator | PdfLocator | VideoLocator | ClassroomLocator | QuizLocator, Field(discriminator='kind')]
+Locator = Annotated[DocumentLocator | PdfLocator | VideoLocator | ClassroomLocator | HyperframesLocator | QuizLocator, Field(discriminator='kind')]
 
 
 class ReadingContext(Contract):

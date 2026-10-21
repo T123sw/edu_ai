@@ -1,0 +1,42 @@
+{
+  "preparation_id": "prep_b2f06dd7d6344386936420c991931ae4",
+  "topic": "我想学习快速排序",
+  "submitted_at_utc": "2026-10-13T17:43:14.966215+00:00",
+  "failed_at_utc": "2026-10-13T17:44:19.128283+00:00",
+  "attempt": 1,
+  "stage": "plan",
+  "research_phase": "review",
+  "error_code": "RESEARCH_CONTEXT_BUDGET",
+  "classroom_generation_started": false,
+  "cause": "Eight identical findings and their quotations were serialized in both draft_findings and summary.findings. The projection's protected base exceeded its 48000-byte guard before the next model call.",
+  "fix": "Remove only exact finalized draft duplicates from the model projection, with explicit references to summary.findings. Preserve changed and unselected drafts, durable state, requirements, quotations and the existing budget.",
+  "real_checkpoint_readonly_replay": {
+    "old_code_error_reproduced": true,
+    "base_bytes_before": 49363,
+    "base_bytes_after": 32445,
+    "bounded_view_bytes_after": 47935,
+    "bounded_view_limit": 48000,
+    "review_request_input_upper_bound": 51212,
+    "review_request_output_limit": 6000,
+    "model_context_limit": 128000,
+    "state_unchanged": true,
+    "summary_unchanged": true,
+    "path_unchanged": true,
+    "live_model_calls": 0
+  },
+  "regression": {
+    "context_view_research_flow_harness_research": {"passed": 46, "skipped": 1},
+    "stages_robustness_adapters_context_memory_provider_recovery": {"passed": 55, "skipped": 22},
+    "skips": "PostgreSQL variants require a configured isolated test database.",
+    "git_diff_check": "passed"
+  },
+  "deployment": {
+    "status": "pending_backend_restart",
+    "running_backend_pid": 3240552,
+    "running_backend_started_at_utc": "2026-10-13T17:13:45+00:00",
+    "restart_attempt": "systemctl --no-ask-password restart edu-ai-backend",
+    "restart_result": "Interactive authentication required",
+    "task_retried": false,
+    "full_course_delivery_verified": false
+  }
+}

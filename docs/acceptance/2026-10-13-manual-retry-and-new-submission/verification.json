@@ -1,0 +1,54 @@
+{
+  "verified_at_utc": "2026-10-13T19:02:06.280910+00:00",
+  "changes": {
+    "manual_retry": "Explicit retry replaces deadline with now + the task seconds limit (default 3600); automatic provider retry, release and reclaim retain deadline. Existing limits, consumed usage and reservations remain unchanged. Exhausted consumption cannot be refunded by retry.",
+    "resource_recovery": "Copy the last checkpoint, keep sources and completed drafts, increment only incomplete resource spec revisions and enqueue new child jobs with renewed deadline. Superseded resources cannot be claimed or saved; their late provider usage can still settle. Old attempt checkpoint and artifacts remain diagnostic records.",
+    "new_submission": "Confirmed acceptance clears the pending request identity. A new explicit submission of the same text gets a fresh UUID. Uncertain network outcomes reuse the pending v2 UUID, including after refresh. Old v1 permanently saved identities are ignored. Progress restoration never automatically retries."
+  },
+  "tests": {
+    "backend_related_sqlite_and_postgresql": {
+      "passed": 157,
+      "skipped": 3,
+      "failed": 0,
+      "seconds": 273.75
+    },
+    "browser_progress_and_task_center": {
+      "passed": 17,
+      "failed": 0,
+      "seconds": 55.5,
+      "apis": "scripted responses; actual built frontend"
+    },
+    "browser_lost_acceptance_response": {
+      "passed": 1,
+      "failed": 0
+    },
+    "frontend_types": "passed",
+    "frontend_lint": {
+      "errors": 0,
+      "existing_fast_refresh_warnings": 2
+    },
+    "frontend_build": "passed",
+    "git_diff_check": "passed",
+    "published_frontend_nginx": {
+      "passed": 7,
+      "failed": 0,
+      "apis": "scripted responses; frontend loaded through actual production Nginx"
+    }
+  },
+  "real_failed_checkpoint_replay": "real-checkpoint-replay.json",
+  "deployment": "deployment.json",
+  "production_model_calls_during_verification": 0,
+  "original_production_task_modified": false,
+  "source_sha256": {
+    "backend/src/app/course_preparation/lifecycle_repository.py": "04860841225c28275865dccc2041871902d97f29091d324af26b5a7ca12a014a",
+    "backend/src/app/course_preparation/manual_retry.py": "390c65ec01ef8334fe3fa9637ba91efae887a3a014149a27a492d1991e501803",
+    "backend/src/app/course_preparation/artifact_store.py": "f4d40c8833b9116c8e4c151a34ed94d27317391d08ec430f9cb35c42cd84bb25",
+    "frontend/src/liveLearning/Preparation.tsx": "bae2dbd719bd34de7b6c39b1e7654faa15b790a1370b7588137eeac7c21a360f"
+  },
+  "validation_setup_note": "The first browser run hit an unrelated old preview already occupying port 5198 and failed against old UI. Replaced the test endpoint with a free port and verified served index equals the newly built index before rerunning; the verified build passed. Initial isolated replay omitted original child-job rows and correctly failed CHILD_JOB_MISSING; final replay copied the corresponding durable job records and passed.",
+  "limits": [
+    "No complete course generation or classroom playback was executed in this change.",
+    "Production backend still requires a service restart; administrator authentication blocked automatic restart.",
+    "Unfinished resources start a new generation revision; partial unfinished native scenes remain in old diagnostics and are not adopted as completed resources."
+  ]
+}

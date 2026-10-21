@@ -1,0 +1,1723 @@
+[
+  {
+    "at": 1792484581.962022,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00296054407954216,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/SKILL.md",
+    "sha256": "dd67af24e6ca148769f191abd68e670bade17c4b8c847d1ff9aa847fbd7ffe23"
+  },
+  {
+    "at": 1792484582.4831738,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00491180457174778,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/BRIEF.md",
+    "sha256": "a3bd3e5d4e2923e8d1a310bb8eabd2d8b81fe01c6b1ba4a92503d9903d4fce73"
+  },
+  {
+    "at": 1792484587.7623744,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0012746360152959824,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/REQUEST.json",
+    "sha256": "c34e089dfdc93e72cf484714df1a19a2b309e5ee3805ed1c5578ebdb6216f680"
+  },
+  {
+    "at": 1792484588.416216,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.4882821119390428,
+    "command": "ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/ && ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/ 2>/dev/null; cat /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/teaching-brief.json",
+    "exit_code": 0,
+    "command_id": "b5d34a2a32cd45f1882c9cdb6da7ed90"
+  },
+  {
+    "at": 1792484592.1167908,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20385974925011396,
+    "command": "ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/; echo ---; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/; echo ---; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/ /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/references/",
+    "exit_code": 2,
+    "command_id": "88b1158af49a45fba9a4fe1687b30c82"
+  },
+  {
+    "at": 1792484594.538351,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0016289218328893185,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/SKILL.md",
+    "sha256": "db87c1909eff755d810f83de6064bfb7c52a76e76ba388d4b00c98893dddcb1f"
+  },
+  {
+    "at": 1792484594.9687884,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20691057574003935,
+    "command": "ls -R /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/",
+    "exit_code": 0,
+    "command_id": "d8aff62aab6e4244ad3504709e6f7b3b"
+  },
+  {
+    "at": 1792484600.3826468,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20524454722180963,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f && mkdir -p videos && npx hyperframes init \"videos/transformer-attention-motivation\" --non-interactive --example=blank --skill=general-video 2>&1 | tail -40",
+    "exit_code": null,
+    "command_id": "feb429d218d7442d906a5e1030182ce0"
+  },
+  {
+    "at": 1792484603.5102139,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.12494290620088577,
+    "exit_code": 0,
+    "command_id": "feb429d218d7442d906a5e1030182ce0"
+  },
+  {
+    "at": 1792484606.38165,
+    "tool": "prepare_project",
+    "ok": true,
+    "elapsed": 0.20399882970377803,
+    "exit_code": null,
+    "command_id": "0c6189e4d6034f419ca0804d2a773a2d"
+  },
+  {
+    "at": 1792484612.691674,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.6606561969965696,
+    "exit_code": 0,
+    "command_id": "0c6189e4d6034f419ca0804d2a773a2d"
+  },
+  {
+    "at": 1792484618.9517798,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20338146714493632,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && ls -la && echo --- && cat hyperframes.json && echo --- && cat package.json && echo --- && ls assets",
+    "exit_code": 0,
+    "command_id": "349f088234324a71b98bfdf8a6901b7f"
+  },
+  {
+    "at": 1792484619.7565157,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0003511738032102585,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/production-loop.md",
+    "sha256": "95b09c92c768de0736a77f5e3f8f88260ee38e80e96bfcbf804694a9fac624c5"
+  },
+  {
+    "at": 1792484623.04358,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0010158647783100605,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/SKILL.md",
+    "sha256": "a8d6fe52471be6bcf1816ba0b9eb16c6d1efc830c668de533d6bee8d41d86e11"
+  },
+  {
+    "at": 1792484623.2027647,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0008505899459123611,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/storyboard-format.md",
+    "sha256": "f3fda31a65c89f0a6e10a9739b004568a9a0d7e2c8c56609b766b4ff36eedec6"
+  },
+  {
+    "at": 1792484625.9640434,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005134418606758118,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/media-use/references/audio.md",
+    "sha256": "13409d128c10b55016f29c9bec55f53ac0ab63061fc87d054a45492467a9456d"
+  },
+  {
+    "at": 1792484626.1067314,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0014700423926115036,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/blueprints-index.md",
+    "sha256": "601228ddcfda89ed6add52bd08becf53296764e155126fb5e7100eb29caaa46e"
+  },
+  {
+    "at": 1792484633.3542774,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005343947559595108,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/minimal-composition.md",
+    "sha256": "0884abd9feeeea48d0de3d517c3d074859b9c322318401a928b9d1f9ee2cf851"
+  },
+  {
+    "at": 1792484633.9531844,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2330673672258854,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && find . -name \"*.mjs\" | sort && echo --- && ls hyperframes-animation hyperframes-creative hyperframes/references",
+    "exit_code": 0,
+    "command_id": "d1b4398b0e254b28a3ad0d760959e128"
+  },
+  {
+    "at": 1792484640.2780423,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0008342331275343895,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts/lib/frame-packets-core.mjs",
+    "sha256": "fd9062f3c955f89e5520fec3f88d25f92f44e91cf42988e387ae993175999c87"
+  },
+  {
+    "at": 1792484641.0192978,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.000629836693406105,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/frame-worker-core.md",
+    "sha256": "75a1aafaf2e656ba075cfcf13c1f79bc825005f90aa78f0cafe6778df2493226"
+  },
+  {
+    "at": 1792484646.584252,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00033603422343730927,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/sub-agents/frame-worker.md",
+    "sha256": "447395b986126769a0d169c468f3f24b324781761130bc5155802656d1f22999"
+  },
+  {
+    "at": 1792484647.313605,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21300677955150604,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer && ls && echo === && cat scripts/frame-packets.mjs && echo === && ls examples 2>/dev/null; find . -name \"frame.md\" -o -name \"*.frame.md\" | head",
+    "exit_code": 0,
+    "command_id": "9ec5612c7c17400193372643c743b125"
+  },
+  {
+    "at": 1792484651.2595174,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.001593742985278368,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/assemble-index.mjs",
+    "sha256": "cee8b2b4041e6da58c47d8ac6f19c616e10d79c719bf544744f7f31af430fb37"
+  },
+  {
+    "at": 1792484658.840849,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.001195256132632494,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-creative/references/video-composition.md",
+    "sha256": "037a966583e4b5fc4c3385ef6217560d36237ec638d2b68b5808950c873e424b"
+  },
+  {
+    "at": 1792484659.1400647,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00046268803998827934,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/rules-index.md",
+    "sha256": "e6142e35d7090934fc139ec490df97fd3c7d4995d35745417afc52476aecd7ca"
+  },
+  {
+    "at": 1792484663.9563732,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0009591961279511452,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-creative/references/house-style.md",
+    "sha256": "3adc51745bfce9719b63ba74251fcf9e5b9eed56b1e0d8c3928f47c3703eba92"
+  },
+  {
+    "at": 1792484664.3909059,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002204496879130602,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/script-format.md",
+    "sha256": "7637028d866d3d4a21d0b7934d6db4f73585a28c28da060d00cecc39c47e2e3d"
+  },
+  {
+    "at": 1792484695.7258358,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0004883459769189358,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/frame.md"
+  },
+  {
+    "at": 1792484696.267305,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.000394181814044714,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/SCRIPT.md"
+  },
+  {
+    "at": 1792484704.9417505,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0018822639249265194,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/audio_request.json"
+  },
+  {
+    "at": 1792484707.3201656,
+    "tool": "prepare_narration",
+    "ok": true,
+    "elapsed": 0.20559658808633685
+  },
+  {
+    "at": 1792484727.0979912,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 11.985213386826217,
+    "exit_code": 0,
+    "command_id": "a8a4caa86aed4b5fb1215bdf477c4220"
+  },
+  {
+    "at": 1792484730.247415,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.004186639562249184,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/audio_meta.json",
+    "sha256": "ef75f46704db14123c1422fa9567e955a70b071ce02ffd1f216821022ae09ab4"
+  },
+  {
+    "at": 1792484784.339904,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0008748541586101055,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/STORYBOARD.md"
+  },
+  {
+    "at": 1792484791.8561614,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2024435931816697,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts/frame-packets.mjs --project \"$PWD\" --storyboard \"$PWD/STORYBOARD.md\" && ls -la .hyperframes/frame-packets/ && ls assets/fonts assets/audio | head",
+    "exit_code": null,
+    "command_id": "fcf4cb2fd62e46a3ab80ab9837c9ffb8"
+  },
+  {
+    "at": 1792484797.0440366,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.26662000408396125,
+    "exit_code": 0,
+    "command_id": "fcf4cb2fd62e46a3ab80ab9837c9ffb8"
+  },
+  {
+    "at": 1792484816.3359923,
+    "tool": "run_workers",
+    "ok": true,
+    "elapsed": 1.4460855210199952,
+    "workers": [
+      {
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "queued",
+        "submitted_at": 1792484815.023937,
+        "prompt_sha256": "2d6ed777a61bdec85ae729c644a8ab5834ed737bc956495193774f821403dd8e"
+      },
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "queued",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f"
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "queued",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525"
+      },
+      {
+        "worker_id": "f35229554936471886adb565668f4126",
+        "status": "queued",
+        "submitted_at": 1792484816.3331888,
+        "prompt_sha256": "eea851c66ef8c543ad380716d0fe6bee1fd592d6877a2d3d74fad5b07d5bad25"
+      }
+    ]
+  },
+  {
+    "at": 1792484822.3501601,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002453621942549944,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/frame.md",
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "sha256": "d89e0f7eb4e764a9e27cf29b8dc1dcff4421d5b363094888bf0470ec110a1b42"
+  },
+  {
+    "at": 1792484823.0453541,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.015535612124949694,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/01-why-transformer.md",
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "sha256": "d918b3a5246478434541409baa1259e64386de880deeef6993c083589cd68c45"
+  },
+  {
+    "at": 1792484823.1104558,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2056800383143127,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && sed -n '1,70p' transitions.mjs && echo ==== && node transitions.mjs --help 2>&1 | head -40",
+    "exit_code": null,
+    "command_id": "748bd83bfdbf459c86bd23e5c8fea583"
+  },
+  {
+    "at": 1792484823.8221943,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0010018320754170418,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/_role.md",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "sha256": "2a6fd31c09082f9564e613599d11873fb941036389373bb47b275228ce5844e3"
+  },
+  {
+    "at": 1792484824.390804,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.003051691222935915,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/_role.md",
+    "worker_id": "f35229554936471886adb565668f4126",
+    "sha256": "2a6fd31c09082f9564e613599d11873fb941036389373bb47b275228ce5844e3"
+  },
+  {
+    "at": 1792484824.5170946,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.004321544896811247,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/frame.md",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "sha256": "d89e0f7eb4e764a9e27cf29b8dc1dcff4421d5b363094888bf0470ec110a1b42"
+  },
+  {
+    "at": 1792484825.252227,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002640971913933754,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/07-self-attention.md",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "sha256": "8a26eae8d59aca70f38eb715599fe9726234cabdd1c9b2d6d25d6e52901996fe"
+  },
+  {
+    "at": 1792484825.6028624,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0027476977556943893,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/09-transformer-overview.md",
+    "worker_id": "f35229554936471886adb565668f4126",
+    "sha256": "d780f2bbc22da8cf150e67eb9e2375d83338be48121fd062d1ef36c04bfad785"
+  },
+  {
+    "at": 1792484826.4888496,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0016587339341640472,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/08-parallel-distance.md",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "sha256": "c52190c14ce12494143036de8047d7a0bdef531a96973ca5fd93f52419520665"
+  },
+  {
+    "at": 1792484830.013045,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00864828983321786,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/02-seq2seq-problem.md",
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "sha256": "4f3b27b5574a709463c6b73314b9c8d54a1ce48a1f98293d1acd37596fb5d630"
+  },
+  {
+    "at": 1792484831.8935604,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.006030819844454527,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/03-encoder-decoder.md",
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "sha256": "754f40f85d4a031c3f91a5b81b3921c7b6dd59d687292326a870c10c781e3d8f"
+  },
+  {
+    "at": 1792484833.0052276,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0026341788470745087,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/04-rnn-limits.md",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "sha256": "00339312725f2683c69eac63b998246474ea67af7448107c4aa1ed3216a7a820"
+  },
+  {
+    "at": 1792484833.7876046,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0019682669080793858,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/10-question-recap.md",
+    "worker_id": "f35229554936471886adb565668f4126",
+    "sha256": "d49a564579812e5466738f2d3e831d85befde42c17967a7c8abe51372a301684"
+  },
+  {
+    "at": 1792484834.8870316,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0016617621295154095,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/05-attention-intuition.md",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "sha256": "0b0c5ebeba85da6a7f545ba07a1e1eb6efa5918adc67d9e330811a6118c149f3"
+  },
+  {
+    "at": 1792484835.010916,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0004777410067617893,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/frame.md",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "sha256": "d89e0f7eb4e764a9e27cf29b8dc1dcff4421d5b363094888bf0470ec110a1b42"
+  },
+  {
+    "at": 1792484835.4137611,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.003346425946801901,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/STORYBOARD.md"
+  },
+  {
+    "at": 1792484835.6700444,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0014765062369406223,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/frame.md",
+    "worker_id": "f35229554936471886adb565668f4126",
+    "sha256": "d89e0f7eb4e764a9e27cf29b8dc1dcff4421d5b363094888bf0470ec110a1b42"
+  },
+  {
+    "at": 1792484836.6135144,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.003476690035313368,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/STORYBOARD.md"
+  },
+  {
+    "at": 1792484838.097923,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.03490895824506879,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/audio_meta_assembly.json"
+  },
+  {
+    "at": 1792484842.1742744,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2072335728444159,
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && ls -la && echo \"---\" && ls -R compositions 2>/dev/null | head -40 && echo \"---assets---\" && ls assets assets/fonts 2>/dev/null",
+    "exit_code": 0,
+    "command_id": "c34c8d716da9402184c81d10adcb72ae"
+  },
+  {
+    "at": 1792484843.0305798,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.003109404817223549,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/frame-packets/06-two-steps.md",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "sha256": "f4c2d895e8b59f5cf63c002ec202ca2969808fec13ffd6d8155e1c8147e0f274"
+  },
+  {
+    "at": 1792484843.5270295,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.229774028994143,
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && ls -la && ls -la compositions/frames/ 2>/dev/null && ls assets/ assets/fonts/ 2>/dev/null",
+    "exit_code": 2,
+    "command_id": "c23e5acba0664a8a9b5af504fac5d59e"
+  },
+  {
+    "at": 1792484843.7485309,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20683554839342833,
+    "worker_id": "f35229554936471886adb565668f4126",
+    "command": "ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/ 2>&1; echo \"---\"; ls /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/",
+    "exit_code": 0,
+    "command_id": "1bfe7f91632b4bbe84e96327ddbe2e1e"
+  },
+  {
+    "at": 1792484849.0673714,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.001876946073025465,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/index.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "sha256": "993ad359ae498368b593e9f4214256cd8b848c46226394688c40b373fa31ae5c"
+  },
+  {
+    "at": 1792484851.6980693,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20738173089921474,
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && find assets -maxdepth 2 | head -40",
+    "exit_code": 0,
+    "command_id": "0259d436478045829961d1d0ee0b23df"
+  },
+  {
+    "at": 1792484852.062309,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21008459012955427,
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && ls -la && echo '--- compositions ---' && find compositions -maxdepth 2 -type f | head -50",
+    "exit_code": 0,
+    "command_id": "3bbf4907045447e3983d23280b144f59"
+  },
+  {
+    "at": 1792484853.258017,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20962805999442935,
+    "worker_id": "f35229554936471886adb565668f4126",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && ls assets && echo \"--- index head ---\" && head -c 3000 index.html",
+    "exit_code": 0,
+    "command_id": "3eee48cc3c894e359fc0ef6f80bfd56c"
+  },
+  {
+    "at": 1792484861.6129348,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.03864417318254709,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/sub-compositions.md",
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "sha256": "7caf63046ea0d1915b51e4eb49897101e36dc716ea1195f9a34cef4ba9c18f64"
+  },
+  {
+    "at": 1792484863.7890306,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20950364787131548,
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && cat index.html && echo '--- assets ---' && ls assets && ls assets/fonts",
+    "exit_code": 0,
+    "command_id": "3fbc827be0ba41c281c175ec0a23fa40"
+  },
+  {
+    "at": 1792484886.9893963,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20496005797758698,
+    "worker_id": "f35229554936471886adb565668f4126",
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes && sed -n 1,160p references/sub-compositions.md",
+    "exit_code": 2,
+    "command_id": "7c7fd1af4fba4b8181ecaadf6265a99e"
+  },
+  {
+    "at": 1792484890.2759366,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20296782488003373,
+    "worker_id": "f35229554936471886adb565668f4126",
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes && ls && find . -name \"sub-compositions.md\" -not -path \"*/node_modules/*\" | head",
+    "exit_code": null,
+    "command_id": "ad8b4673fb8d4a0989b6cee28eed1239"
+  },
+  {
+    "at": 1792484892.147671,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.097340756095946,
+    "workers": [
+      {
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "running",
+        "submitted_at": 1792484815.023937,
+        "prompt_sha256": "2d6ed777a61bdec85ae729c644a8ab5834ed737bc956495193774f821403dd8e",
+        "started_at": 1792484815.5813851
+      },
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "running",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f",
+        "started_at": 1792484816.7479682
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "running",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525",
+        "started_at": 1792484817.172831
+      },
+      {
+        "worker_id": "f35229554936471886adb565668f4126",
+        "status": "running",
+        "submitted_at": 1792484816.3331888,
+        "prompt_sha256": "eea851c66ef8c543ad380716d0fe6bee1fd592d6877a2d3d74fad5b07d5bad25",
+        "started_at": 1792484817.5645318
+      }
+    ]
+  },
+  {
+    "at": 1792484893.116069,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002054504118859768,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/sub-compositions.md",
+    "worker_id": "f35229554936471886adb565668f4126",
+    "sha256": "7caf63046ea0d1915b51e4eb49897101e36dc716ea1195f9a34cef4ba9c18f64"
+  },
+  {
+    "at": 1792484942.9281807,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 45.998141614254564,
+    "workers": [
+      {
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "running",
+        "submitted_at": 1792484815.023937,
+        "prompt_sha256": "2d6ed777a61bdec85ae729c644a8ab5834ed737bc956495193774f821403dd8e",
+        "started_at": 1792484815.5813851
+      },
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "running",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f",
+        "started_at": 1792484816.7479682
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "running",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525",
+        "started_at": 1792484817.172831
+      },
+      {
+        "worker_id": "f35229554936471886adb565668f4126",
+        "status": "running",
+        "submitted_at": 1792484816.3331888,
+        "prompt_sha256": "eea851c66ef8c543ad380716d0fe6bee1fd592d6877a2d3d74fad5b07d5bad25",
+        "started_at": 1792484817.5645318
+      }
+    ]
+  },
+  {
+    "at": 1792484988.9104607,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.007266114931553602,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/01-why-transformer.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792484993.3368793,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.66829416016117,
+    "workers": [
+      {
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "running",
+        "submitted_at": 1792484815.023937,
+        "prompt_sha256": "2d6ed777a61bdec85ae729c644a8ab5834ed737bc956495193774f821403dd8e",
+        "started_at": 1792484815.5813851
+      },
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "running",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f",
+        "started_at": 1792484816.7479682
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "running",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525",
+        "started_at": 1792484817.172831
+      },
+      {
+        "worker_id": "f35229554936471886adb565668f4126",
+        "status": "running",
+        "submitted_at": 1792484816.3331888,
+        "prompt_sha256": "eea851c66ef8c543ad380716d0fe6bee1fd592d6877a2d3d74fad5b07d5bad25",
+        "started_at": 1792484817.5645318
+      }
+    ]
+  },
+  {
+    "at": 1792485001.978083,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.002622690051794052,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/09-transformer-overview.html",
+    "worker_id": "f35229554936471886adb565668f4126"
+  },
+  {
+    "at": 1792485020.4444346,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0060405489057302475,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/09-transformer-overview.html",
+    "worker_id": "f35229554936471886adb565668f4126"
+  },
+  {
+    "at": 1792485028.7233202,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.00884971022605896,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/02-seq2seq-problem.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485031.6677213,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.006706551648676395,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/09-transformer-overview.html",
+    "worker_id": "f35229554936471886adb565668f4126"
+  },
+  {
+    "at": 1792485046.7422674,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 48.1237725331448,
+    "workers": [
+      {
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "running",
+        "submitted_at": 1792484815.023937,
+        "prompt_sha256": "2d6ed777a61bdec85ae729c644a8ab5834ed737bc956495193774f821403dd8e",
+        "started_at": 1792484815.5813851
+      },
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "running",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f",
+        "started_at": 1792484816.7479682
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "running",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525",
+        "started_at": 1792484817.172831
+      },
+      {
+        "worker_id": "f35229554936471886adb565668f4126",
+        "status": "running",
+        "submitted_at": 1792484816.3331888,
+        "prompt_sha256": "eea851c66ef8c543ad380716d0fe6bee1fd592d6877a2d3d74fad5b07d5bad25",
+        "started_at": 1792484817.5645318
+      }
+    ]
+  },
+  {
+    "at": 1792485049.7864656,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.003747296053916216,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/01-why-transformer.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485051.5450995,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.004534034989774227,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/02-seq2seq-problem.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485062.9167125,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.00385371595621109,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/02-seq2seq-problem.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485064.5264046,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0057188160717487335,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/02-seq2seq-problem.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485074.85063,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.006577002815902233,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/02-seq2seq-problem.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485076.2170303,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0073668560944497585,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/02-seq2seq-problem.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485096.7775578,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0059839640744030476,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/04-rnn-limits.html",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d"
+  },
+  {
+    "at": 1792485101.8282926,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.006607569754123688,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/07-self-attention.html",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485106.2118099,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 48.730642687063664,
+    "workers": [
+      {
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "running",
+        "submitted_at": 1792484815.023937,
+        "prompt_sha256": "2d6ed777a61bdec85ae729c644a8ab5834ed737bc956495193774f821403dd8e",
+        "started_at": 1792484815.5813851
+      },
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "running",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f",
+        "started_at": 1792484816.7479682
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "running",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525",
+        "started_at": 1792484817.172831
+      },
+      {
+        "worker_id": "f35229554936471886adb565668f4126",
+        "status": "running",
+        "submitted_at": 1792484816.3331888,
+        "prompt_sha256": "eea851c66ef8c543ad380716d0fe6bee1fd592d6877a2d3d74fad5b07d5bad25",
+        "started_at": 1792484817.5645318
+      }
+    ]
+  },
+  {
+    "at": 1792485108.5296762,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0013939598575234413,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/04-rnn-limits.motion.json",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d"
+  },
+  {
+    "at": 1792485115.4091349,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.005849742330610752,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/03-encoder-decoder.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485118.2116187,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0019305362366139889,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/10-question-recap.html",
+    "worker_id": "f35229554936471886adb565668f4126"
+  },
+  {
+    "at": 1792485141.9702294,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2076799892820418,
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && ls -l compositions/frames 2>/dev/null; echo \"--- counts ---\"; for f in compositions/frames/*.html; do echo \"$f: $(wc -c < $f) bytes, sets=$(grep -c 'immediateRender: false' $f)\"; done",
+    "exit_code": null,
+    "command_id": "21fcaba1ea534bf4a67fe0a9f8364173"
+  },
+  {
+    "at": 1792485142.2355268,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.006084735970944166,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/05-attention-intuition.html",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d"
+  },
+  {
+    "at": 1792485142.365202,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.002759557217359543,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/10-question-recap.html",
+    "worker_id": "f35229554936471886adb565668f4126"
+  },
+  {
+    "at": 1792485144.049643,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.004269099794328213,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/10-question-recap.html",
+    "worker_id": "f35229554936471886adb565668f4126"
+  },
+  {
+    "at": 1792485148.6883023,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.00709875300526619,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/08-parallel-distance.html",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485155.1192997,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2091072117909789,
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 01-why-transformer.html 02-seq2seq-problem.html 03-encoder-decoder.html; do echo \"===== $f\"; echo \"first: $(head -c 20 $f | tr -d '\\n')\"; echo \"last: $(tail -c 30 $f | tr -d '\\n')\"; grep -n 'data-composition-id=' $f; grep -n 'window.__timelines' $f; grep -c 'class=\"clip\"' $f; grep -n 'data-track-index' $f | head -5; echo \"bad: $(grep -cE '<audio|<img|http://|https://|transition:|Math.random|Date.now|@keyframes|<body|<html' $f)\"; echo \"font-face: $(grep -c 'NotoSansSC-Variable.ttf' $f)\"; done",
+    "exit_code": null,
+    "command_id": "081f2dca506842378d2d3d3d3f6924ca"
+  },
+  {
+    "at": 1792485155.6853318,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0004780329763889313,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/05-attention-intuition.motion.json",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d"
+  },
+  {
+    "at": 1792485161.1605644,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0016771876253187656,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/09-transformer-overview.motion.json",
+    "worker_id": "f35229554936471886adb565668f4126"
+  },
+  {
+    "at": 1792485163.192879,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0011505438014864922,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/10-question-recap.motion.json",
+    "worker_id": "f35229554936471886adb565668f4126"
+  },
+  {
+    "at": 1792485165.9499164,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 50.4315124778077,
+    "workers": [
+      {
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "running",
+        "submitted_at": 1792484815.023937,
+        "prompt_sha256": "2d6ed777a61bdec85ae729c644a8ab5834ed737bc956495193774f821403dd8e",
+        "started_at": 1792484815.5813851
+      },
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "running",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f",
+        "started_at": 1792484816.7479682
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "running",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525",
+        "started_at": 1792484817.172831
+      },
+      {
+        "worker_id": "f35229554936471886adb565668f4126",
+        "status": "running",
+        "submitted_at": 1792484816.3331888,
+        "prompt_sha256": "eea851c66ef8c543ad380716d0fe6bee1fd592d6877a2d3d74fad5b07d5bad25",
+        "started_at": 1792484817.5645318
+      }
+    ]
+  },
+  {
+    "at": 1792485166.6642008,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.25622998364269733,
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 01-why-transformer.html 02-seq2seq-problem.html 03-encoder-decoder.html; do echo \"===== $f\"; grep -nE '<audio|<img|transition:|Math\\.random|Date\\.now|@keyframes|<body|<html|https?://' $f | sed 's/^/  HIT /'; grep -n 'window.__timelines' $f; grep -c 'class=\"clip\"' $f; done 2>&1 | head -60",
+    "exit_code": 0,
+    "command_id": "7a9bb181e65c4da5a975b0e2b1ae01dc"
+  },
+  {
+    "at": 1792485174.237048,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0071910410188138485,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/07-self-attention.html",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485176.5344598,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.020505537278950214,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/08-parallel-distance.html",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485177.709529,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20562017802149057,
+    "worker_id": "f35229554936471886adb565668f4126",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && node -e '\nconst fs=require(\"fs\");\nfor (const f of [\"09-transformer-overview.html\",\"10-question-recap.html\"]) {\n  const s=fs.readFileSync(f,\"utf8\");\n  const t=s.trim();\n  console.log(\"=== \"+f);\n  console.log(\" starts:\", t.slice(0,10).replace(/\\n/g,\"\\\\n\"), \"| ends:\", JSON.stringify(t.slice(-12)));\n  console.log(\" template tags:\", (s.match(/<template>/g)||[]).length, (s.match(/<\\/template>/g)||[]).length);\n  console.log(\" doctype/html/body:\", /<!doctype|<html|<body|<head/i.test(s));\n  console.log(\" timelines reg:\", (s.match(/__timelines\\[/g)||[]).length, \"| timelines paused:\", (s.match(/timeline\\(\\{ paused: true \\}\\)/g)||[]).length);\n  console.log(\" gsap script:\", /<script src=\"assets\\/gsap.min.js\"><\\/script>/.test(s));\n  console.log(\" audio/img/http:\", /<audio|<img|https?:\\/\\/(?!www\\.w3\\.org)/.test(s));\n  console.log(\" css transition:\", /transition\\s*:/.test(s), \"| random:\", /Math\\.random/.test(s), \"| yoyo/repeat:\", /yoyo|repeat:/.test(s), \"| date.now:\", /Date\\.now/.test(s));\n  const clips=[...s.matchAll(/class=\"clip[^\"]*\"([^>]*)>/g)].map(m=>m[1]);\n  console.log(\" clips:\", clips.length, clips.map(a=>/data-start/.test(a)&&/data-duration/.test(a)&&/data-track-index/.test(a)).join(\",\"));\n  console.log(\" comp id:\", (s.match(/data-composition-id=\"([^\"]+)\"/)||[])[1], \"| font-face:\", (s.match(/@font-face/g)||[]).length);\n  const ids=[...s.matchAll(/id=\"([^\"]+)\"/g)].map(m=>m[1]);\n  console.log(\" ids not letter-first:\", ids.filter(i=>!/^[a-zA-Z]/.test(i)).join(\",\") || \"none\");\n  console.log(\" font-size <28:\", [...s.matchAll(/font-size:\\s*(\\d+)px/g)].map(m=>+m[1]).filter(v=>v<28).join(\",\") || \"none\");\n}\n'",
+    "exit_code": null,
+    "command_id": "5779d9fd71cd46aa9b4fc0b9edded044"
+  },
+  {
+    "at": 1792485180.4568286,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20349090360105038,
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 01-why-transformer.html 02-seq2seq-problem.html 03-encoder-decoder.html; do echo \"== $f\"; grep -oE 'font-size: [0-9]+px' $f | sort -u | tr '\\n' ' '; echo; grep -oE '(^|[^-])font-family:[^;]+' $f | sort -u | tr '\\n' ' '; echo; done",
+    "exit_code": 0,
+    "command_id": "f49ea10c9b754584ae4a14f22f4b9f3a"
+  },
+  {
+    "at": 1792485191.6380534,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.003937582951039076,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/08-parallel-distance.html",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485191.8936808,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.861756933387369,
+    "worker_id": "f35229554936471886adb565668f4126",
+    "exit_code": 0,
+    "command_id": "5779d9fd71cd46aa9b4fc0b9edded044"
+  },
+  {
+    "at": 1792485201.7316844,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.007994440849870443,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/03-encoder-decoder.html",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485203.2580984,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0016678599640727043,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/01-why-transformer.motion.json",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485204.2181284,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20299662230536342,
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 07-self-attention.html 08-parallel-distance.html; do echo \"=== $f\"; head -c 40 \"$f\" | od -c | head -2; echo \"--- tail:\"; tail -c 30 \"$f\"; echo; echo \"counts: template=$(grep -c '<template' $f) /template=$(grep -c '</template>' $f) audio=$(grep -c '<audio' $f) img=$(grep -c '<img' $f) http=$(grep -c 'http' $f) rand=$(grep -c 'Math.random\\|Date.now' $f) trans=$(grep -c 'transition:' $f) timelines=$(grep -c '__timelines\\[' $f) paused=$(grep -c 'paused: true' $f) clips=$(grep -c 'class=\"clip' $f)\"; grep -o 'id=\"[^\"]*\"' \"$f\" | grep -vE 'id=\"[A-Za-z]' | head; done; echo \"=== ids starting without letter check done\"",
+    "exit_code": null,
+    "command_id": "8e73ddf5177e4cf696f1e5803a0099ca"
+  },
+  {
+    "at": 1792485211.1553845,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 4.3598003685474396e-05,
+    "worker_id": "f35229554936471886adb565668f4126"
+  },
+  {
+    "at": 1792485214.60856,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.003946200013160706,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/06-two-steps.html",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d"
+  },
+  {
+    "at": 1792485215.7637696,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0016379491426050663,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/02-seq2seq-problem.motion.json",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485217.7653465,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22862663120031357,
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 07-self-attention.html 08-parallel-distance.html; do echo \"== $f\"; grep -c '<template' $f; grep -c '</template>' $f; grep -c '<audio' $f; grep -c '<img' $f; grep -c 'http' $f; grep -c 'Math.random' $f; grep -c 'Date.now' $f; grep -c '__timelines\\[' $f; grep -c 'paused: true' $f; grep -c 'data-composition-id' $f; grep -c 'data-track-index' $f; done",
+    "exit_code": 0,
+    "command_id": "c7d5ec5fa298439d827a120dc9eb155c"
+  },
+  {
+    "at": 1792485217.788291,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0016369330696761608,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/03-encoder-decoder.motion.json",
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485228.9052439,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.009347991086542606,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/04-rnn-limits.html",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d"
+  },
+  {
+    "at": 1792485229.2940748,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 50.36543037183583,
+    "workers": [
+      {
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "running",
+        "submitted_at": 1792484815.023937,
+        "prompt_sha256": "2d6ed777a61bdec85ae729c644a8ab5834ed737bc956495193774f821403dd8e",
+        "started_at": 1792484815.5813851
+      },
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "running",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f",
+        "started_at": 1792484816.7479682
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "running",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525",
+        "started_at": 1792484817.172831
+      },
+      {
+        "worker_id": "f35229554936471886adb565668f4126",
+        "status": "succeeded",
+        "submitted_at": 1792484816.3331888,
+        "prompt_sha256": "eea851c66ef8c543ad380716d0fe6bee1fd592d6877a2d3d74fad5b07d5bad25",
+        "started_at": 1792484817.5645318,
+        "finished_at": 1792485217.9116793,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/workers/f35229554936471886adb565668f4126.json"
+      }
+    ]
+  },
+  {
+    "at": 1792485231.1311584,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.004212324973195791,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/06-two-steps.html",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d"
+  },
+  {
+    "at": 1792485231.606817,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21189617505297065,
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 07-self-attention.html 08-parallel-distance.html; do echo \"== $f\"; echo \"-- ids not starting with a letter:\"; grep -o 'id=\"[^\"]*\"' $f | grep -vE 'id=\"[A-Za-z]' ; echo \"-- transform in inline styles:\"; grep -o 'style=\"[^\"]*\"' $f | grep -i transform ; echo \"-- css props animated via 'fromTo/to' list:\"; grep -o \"tl\\.\\(fromTo\\|to\\)('#[^']*'\" $f | sort -u; done",
+    "exit_code": 0,
+    "command_id": "3cfcc78b0f7a483e9d498b10b2a899d9"
+  },
+  {
+    "at": 1792485233.0211942,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20284165581688285,
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 01-why-transformer 02-seq2seq-problem 03-encoder-decoder; do python3 -m json.tool $f.motion.json > /dev/null && echo \"$f.motion.json OK\"; done; echo \"--- sibling shape ---\"; cat 04-rnn-limits.motion.json; echo \"--- files ---\"; ls -l 0[123]-*.html 0[123]-*.json",
+    "exit_code": null,
+    "command_id": "b6b2faf0dfa84fc69949ab9728a119e7"
+  },
+  {
+    "at": 1792485246.6514218,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20307287573814392,
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && grep -n \"rowTop\\|void \" 06-two-steps.html | head",
+    "exit_code": 0,
+    "command_id": "6aa846b9ed1f4a519f3eaa6e646de62a"
+  },
+  {
+    "at": 1792485249.050259,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0023551969788968563,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/07-self-attention.html",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "sha256": "1d884dc61f0bcfa5cbd4f27b75b20064626f53e5e83919a3d603c37e67708882"
+  },
+  {
+    "at": 1792485249.2493773,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.8411089163273573,
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "exit_code": 0,
+    "command_id": "b6b2faf0dfa84fc69949ab9728a119e7"
+  },
+  {
+    "at": 1792485258.657794,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.014086425304412842,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/06-two-steps.html",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d"
+  },
+  {
+    "at": 1792485262.1509073,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2124944836832583,
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && echo \"--- cursor rule ---\"; grep -n -A8 '#f03-cursor {' 03-encoder-decoder.html; echo \"--- template tags ---\"; for f in 01*.html 02*.html 03*.html; do echo \"$f open=$(grep -c '<template>' $f) close=$(grep -c '</template>' $f) styles=$(grep -c '<style>' $f) scripts=$(grep -c '<script' $f)\"; done; echo \"--- root class check ---\"; grep -n 'id=\"root\"' 01*.html 02*.html 03*.html",
+    "exit_code": null,
+    "command_id": "1e373c820dcf4c618d5f3f548a51a9bb"
+  },
+  {
+    "at": 1792485267.5518503,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.007234183140099049,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/07-self-attention.html",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485269.8997078,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0059454538859426975,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/07-self-attention.html",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485274.2114584,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0007533612661063671,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/06-two-steps.motion.json",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d"
+  },
+  {
+    "at": 1792485279.361266,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 2.4759530890733004,
+    "worker_id": "c926979826e340a58c5eea8199ad4911",
+    "exit_code": 0,
+    "command_id": "1e373c820dcf4c618d5f3f548a51a9bb"
+  },
+  {
+    "at": 1792485281.8907714,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005435128696262836,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/08-parallel-distance.html",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "sha256": "5c6a4e4a1ecfbca5103b584b339a3dcc0876cd54c7342d4dbd37471c907cdd10"
+  },
+  {
+    "at": 1792485288.2010794,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20342446584254503,
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 04-rnn-limits.html 05-attention-intuition.html 06-two-steps.html; do echo \"=== $f ===\"; echo \"first: $(head -c 20 $f | tr -d '\\n')\"; echo \"last: $(tail -c 40 $f | tr -d '\\n' | tail -c 20)\"; echo \"clips: $(grep -c 'class=\\\"clip\\\"' $f)  clipattrs: $(grep -c 'data-track-index' $f)\"; echo \"timeline regs: $(grep -c '__timelines' $f)\"; echo \"transitions/random: $(grep -c 'transition:\\|Math.random\\|Date.now\\|@keyframes' $f)\"; echo \"fontface: $(grep -c '@font-face' $f)\"; echo \"audio/img: $(grep -c '<audio\\|<img' $f)\"; echo \"comp id: $(grep -o 'data-composition-id=\\\"[^\\\"]*\\\"' $f)\"; done",
+    "exit_code": null,
+    "command_id": "55eacc76f7ad46c9a96bfa9bae7882fd"
+  },
+  {
+    "at": 1792485293.5633895,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 49.66439860407263,
+    "workers": [
+      {
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "running",
+        "submitted_at": 1792484815.023937,
+        "prompt_sha256": "2d6ed777a61bdec85ae729c644a8ab5834ed737bc956495193774f821403dd8e",
+        "started_at": 1792484815.5813851
+      },
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "running",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f",
+        "started_at": 1792484816.7479682
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "running",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525",
+        "started_at": 1792484817.172831
+      }
+    ]
+  },
+  {
+    "at": 1792485296.1884868,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 5.874410271644592e-05,
+    "worker_id": "c926979826e340a58c5eea8199ad4911"
+  },
+  {
+    "at": 1792485301.024517,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.01232330221682787,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/08-parallel-distance.html",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485302.810325,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20668642921373248,
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 05-attention-intuition.html 06-two-steps.html; do echo \"=== $f\"; echo \"timeline regs: $(grep -c '__timelines' $f)\"; echo \"transition/random: $(grep -c 'transition:\\|Math.random\\|Date.now\\|@keyframes' $f)\"; echo \"fontface: $(grep -c '@font-face' $f)\"; echo \"audio/img: $(grep -c '<audio\\|<img' $f)\"; echo \"comp id: $(grep -o 'data-composition-id=\\\"[^\\\"]*\\\"' $f)\"; done; echo '--- ids not starting with a letter ---'; grep -ho 'id=\"[^\"]*\"' *.html | sort -u | grep -v 'id=\"f0'",
+    "exit_code": null,
+    "command_id": "983ad84f82c843c98cb3d8882cf5b8b5"
+  },
+  {
+    "at": 1792485317.0666409,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20787112461403012,
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && ls && grep -n \"data-composition-id\\|gsap.min.js\\|__timelines\\[\" 03-encoder-decoder.html | head",
+    "exit_code": null,
+    "command_id": "f699d58e3f3b49d3975a2c4209fa35e6"
+  },
+  {
+    "at": 1792485318.1847365,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.00171628687530756,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/07-self-attention.motion.json",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485319.7260659,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0016889921389520168,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames/08-parallel-distance.motion.json",
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485330.9335344,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20283703738823533,
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && ls -la && node -e \"['07-self-attention.motion.json','08-parallel-distance.motion.json'].forEach(f=>{const j=require('fs').readFileSync(f,'utf8');JSON.parse(j);console.log(f,'OK')})\" && grep -c 'clip\" data-start' 07-self-attention.html 08-parallel-distance.html 2>/dev/null; grep -o 'class=\"clip[^\"]*\"' 07-self-attention.html 08-parallel-distance.html",
+    "exit_code": null,
+    "command_id": "16d3805b506c49da8380269a362038d8"
+  },
+  {
+    "at": 1792485341.7384357,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.7787806992419064,
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+    "exit_code": 0,
+    "command_id": "16d3805b506c49da8380269a362038d8"
+  },
+  {
+    "at": 1792485342.073752,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2033327859826386,
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 04-rnn-limits 05-attention-intuition 06-two-steps; do node -e \"\nconst fs=require('fs');\nconst s=fs.readFileSync('$f.html','utf8');\nconst m=[...s.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)];\nfs.writeFileSync('/tmp/$f.js', m[m.length-1][1]);\nconsole.log('$f script blocks:', m.length);\n\"; node --check /tmp/$f.js && echo \"$f JS OK\"; done",
+    "exit_code": null,
+    "command_id": "e87bcf9ad0e640ae9a439c0d0aad0041"
+  },
+  {
+    "at": 1792485348.705519,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20334838284179568,
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 04-rnn-limits 05-attention-intuition 06-two-steps; do node -e \"const fs=require('fs');const s=fs.readFileSync('$f.html','utf8');const m=[...s.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)];fs.writeFileSync('/tmp/x.js',m[m.length-1][1]);console.log('$f blocks',m.length);\"; node --check /tmp/x.js; echo \"exit=$?\"; done",
+    "exit_code": null,
+    "command_id": "e4618bcd9bd847a88e90c0ce32a562dc"
+  },
+  {
+    "at": 1792485353.492738,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 1.6371719539165497e-05,
+    "worker_id": "388d4f136cec44b6b9e679b3792def2c"
+  },
+  {
+    "at": 1792485355.2343671,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 48.539509936235845,
+    "workers": [
+      {
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "succeeded",
+        "submitted_at": 1792484815.023937,
+        "prompt_sha256": "2d6ed777a61bdec85ae729c644a8ab5834ed737bc956495193774f821403dd8e",
+        "started_at": 1792484815.5813851,
+        "finished_at": 1792485304.7608204,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/workers/c926979826e340a58c5eea8199ad4911.json"
+      },
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "running",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f",
+        "started_at": 1792484816.7479682
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "running",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525",
+        "started_at": 1792484817.172831
+      }
+    ]
+  },
+  {
+    "at": 1792485355.9525604,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.001909404993057251,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/e4618bcd9bd847a88e90c0ce32a562dc.log",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "sha256": "e27a69f02011cc13f4f437e400fe3c00d2a724d3e7e0ca0fe4985d58d80b92d1"
+  },
+  {
+    "at": 1792485372.1917677,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2272710157558322,
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/compositions/frames && for f in 04-rnn-limits 05-attention-intuition 06-two-steps; do node -e \"const j=require('./$f.motion.json');console.log('$f', j.duration_s, j.rules.length, 'rules')\"; done",
+    "exit_code": null,
+    "command_id": "518fb498de57412db896875e6b3cbb7d"
+  },
+  {
+    "at": 1792485379.888458,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0007805740460753441,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/518fb498de57412db896875e6b3cbb7d.log",
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+    "sha256": "b539955a54180c6708749d57878a5ce7f5ea91c8191122512594ac0c7886a719"
+  },
+  {
+    "at": 1792485392.5848973,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 1.9061844795942307e-05,
+    "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d"
+  },
+  {
+    "at": 1792485397.4087012,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 34.90853293472901,
+    "workers": [
+      {
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "succeeded",
+        "submitted_at": 1792484815.4428687,
+        "prompt_sha256": "64ea2f0aa30f03bd65fee7e4b1c73ce52478d77de8ddb1079e59f918af6d220f",
+        "started_at": 1792484816.7479682,
+        "finished_at": 1792485396.609072,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/workers/71bdfa929a6f4b59babd8d2e63a3c96d.json"
+      },
+      {
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "succeeded",
+        "submitted_at": 1792484815.8325834,
+        "prompt_sha256": "b3276f9b28a4fb0e8ca92071b870be5c4fffe0fbeeefcf8f2f47c828bb523525",
+        "started_at": 1792484817.172831,
+        "finished_at": 1792485357.6839192,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/workers/388d4f136cec44b6b9e679b3792def2c.json"
+      }
+    ]
+  },
+  {
+    "at": 1792485402.1696005,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2361875269562006,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && ls -la compositions/frames/ && echo === && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/assemble-index.mjs --storyboard STORYBOARD.md --hyperframes \"$PWD\" --audio-meta \"$PWD/audio_meta_assembly.json\"",
+    "exit_code": null,
+    "command_id": "a7e63640a6084e7db8a37e29f54ca013"
+  },
+  {
+    "at": 1792485408.1408718,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.9332282212562859,
+    "exit_code": 0,
+    "command_id": "a7e63640a6084e7db8a37e29f54ca013"
+  },
+  {
+    "at": 1792485415.4466012,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2151971417479217,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/transitions.mjs inject --storyboard STORYBOARD.md --hyperframes \"$PWD\" && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/transitions.mjs verify --storyboard STORYBOARD.md --index \"$PWD/index.html\"",
+    "exit_code": null,
+    "command_id": "4a4bcea21515460e860e9a426fcaca06"
+  },
+  {
+    "at": 1792485422.5042999,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.2658948479220271,
+    "exit_code": 0,
+    "command_id": "4a4bcea21515460e860e9a426fcaca06"
+  },
+  {
+    "at": 1792485429.7741404,
+    "tool": "prepare_project",
+    "ok": true,
+    "elapsed": 0.22928746603429317,
+    "exit_code": null,
+    "command_id": "a922ba78db58403eb78082bd592f6099"
+  },
+  {
+    "at": 1792485437.5774171,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.059442120604217,
+    "exit_code": 0,
+    "command_id": "a922ba78db58403eb78082bd592f6099"
+  },
+  {
+    "at": 1792485442.138327,
+    "tool": "check_project",
+    "ok": true,
+    "elapsed": 0.20474314410239458,
+    "exit_code": null,
+    "command_id": "faaeecb55cc949f28eb40954b567366a"
+  },
+  {
+    "at": 1792485460.1299214,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 14.322273551020771,
+    "exit_code": 0,
+    "command_id": "faaeecb55cc949f28eb40954b567366a"
+  },
+  {
+    "at": 1792485469.1337636,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20313694002106786,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && npx hyperframes snapshot --at \"12.9,41.4,71.9,103.8,135.5,164.5,192.8,219.5,249.5,278.8\" 2>&1 | tail -25",
+    "exit_code": null,
+    "command_id": "0c10c93e08bb450fa64bddbde2625bc7"
+  },
+  {
+    "at": 1792485482.4458518,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 6.90832901885733,
+    "exit_code": 0,
+    "command_id": "0c10c93e08bb450fa64bddbde2625bc7"
+  },
+  {
+    "at": 1792485490.7504647,
+    "tool": "inspect_image",
+    "ok": true,
+    "elapsed": 1.3493408970534801,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/.hyperframes/artifacts/snapshots/7125e5bc-7654-449f-8046-941335907240/contact-sheet-1.jpg"
+  },
+  {
+    "at": 1792485496.9434505,
+    "tool": "render_project",
+    "ok": true,
+    "elapsed": 0.21017443388700485,
+    "exit_code": null,
+    "command_id": "ead170d1cc5a4fbe819e20947bb6e099"
+  },
+  {
+    "at": 1792485548.618249,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.99669970199466,
+    "exit_code": null,
+    "command_id": "ead170d1cc5a4fbe819e20947bb6e099"
+  },
+  {
+    "at": 1792485599.7519937,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.79859059303999,
+    "exit_code": null,
+    "command_id": "ead170d1cc5a4fbe819e20947bb6e099"
+  },
+  {
+    "at": 1792485653.4147518,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.649612666107714,
+    "exit_code": null,
+    "command_id": "ead170d1cc5a4fbe819e20947bb6e099"
+  },
+  {
+    "at": 1792485705.3625786,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 47.16955677093938,
+    "exit_code": null,
+    "command_id": "ead170d1cc5a4fbe819e20947bb6e099"
+  },
+  {
+    "at": 1792485759.5240958,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.79812545515597,
+    "exit_code": null,
+    "command_id": "ead170d1cc5a4fbe819e20947bb6e099"
+  },
+  {
+    "at": 1792485812.8933194,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 46.371540603693575,
+    "exit_code": null,
+    "command_id": "ead170d1cc5a4fbe819e20947bb6e099"
+  },
+  {
+    "at": 1792485832.1331923,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 14.424331109039485,
+    "exit_code": 0,
+    "command_id": "ead170d1cc5a4fbe819e20947bb6e099"
+  },
+  {
+    "at": 1792485840.5196834,
+    "tool": "complete_project",
+    "ok": true,
+    "elapsed": 0.7072223229333758
+  }
+]

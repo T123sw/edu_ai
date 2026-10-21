@@ -1,0 +1,54 @@
+{
+  "status": "implemented-and-verified-restart-required",
+  "verifiedAtUtc": "2026-10-16T06:25:44.206327+00:00",
+  "changes": [
+    "Separate implementation and acceptance model calls with disjoint schemas",
+    "Acceptance receives current saved complete referenceFiles and code hash, plus requirements and prior checks",
+    "Persist implementation between stages and resume it after model interruption",
+    "Allow repair of current acceptance targets/actions/assertions while preserving prior checks and requirements",
+    "Document actual locator/count/text/value/action semantics in model-facing schema descriptions",
+    "Version application prompt package to keep existing workers on the original contract"
+  ],
+  "modelCallFormula": "1 + 2 * steps, plus 2 calls per full repair round",
+  "tests": {
+    "full": {
+      "passed": 186,
+      "skipped": 6,
+      "log": "full-final.log"
+    },
+    "finalWorkflowAndContracts": {
+      "passed": 80,
+      "log": "versioned.log"
+    }
+  },
+  "realModel": {
+    "passed": true,
+    "steps": 4,
+    "finalChecks": 9,
+    "modelCalls": 13,
+    "repairRounds": 2,
+    "seconds": 121.84,
+    "record": "real-model-verification.json",
+    "isolatedStorage": true,
+    "originalFailedTaskRetried": false
+  },
+  "activation": {
+    "restartAttempt": "sudo -n systemctl restart edu-ai-backend",
+    "result": "sudo: a password is required",
+    "backendRestartCompleted": false,
+    "productionActivationConfirmed": false,
+    "legacyPromptHashesUnchanged": true
+  },
+  "sourceManifest": {
+    "backend/src/app/pbl/project_generator.py": "2db7d2bcb96740025d840c5dd28a938c52e7db30e65e475c631db46f99a996b9",
+    "backend/src/app/pbl/project_service.py": "bc91eb1dc045835a5d78f990df1a71ae25218f4c34524853ea2ff9ffeb97c2d4",
+    "backend/src/app/pbl/project_schemas.py": "aa5030ab40fafaf69be3b237d5dfdb9357e891840b9e2cc38fa84939d9c45846",
+    "backend/src/app/pbl/project_workflow.py": "a8ce29fe842b6114e63a96cae55de93b28cc859a57a7c734559a3589ba35b1c8",
+    "backend/src/app/pbl/skills/build-pbl-project-v2/SKILL.md": "cc86d4009b1d85baa62458cb4f61ab9c2808dc8714138998e57746e16f4dfa4a",
+    "backend/src/app/pbl/skills/build-pbl-project-v2/references/acceptance.md": "6ab551d4582346fb3543bf1f7b021a551531bff8bffff8211f3ac95968c7702b",
+    "backend/src/app/pbl/skills/build-pbl-project-v2/references/integration.md": "c264ee4b900833cb9e48f7c368b325f2b56924ea5e435d96c7bd68e0c590c9c4",
+    "backend/src/app/pbl/skills/build-pbl-project-v2/references/planning.md": "5da13725f826ac07478788a633bf6e96aa1cc8a377c15d793598db75a1e4a559",
+    "backend/src/app/pbl/skills/build-pbl-project-v2/references/step-unit.md": "aca51488f510c96b8883cc35b84f2eb07f528c6028fa5b54f5e278ef3a24a414",
+    "backend/src/app/pbl/skills/build-pbl-project-v2/references/verification.md": "1c3ffec91fe1c2240b661a202615af61a125e3770935cb909841968fb7b4f1cb"
+  }
+}

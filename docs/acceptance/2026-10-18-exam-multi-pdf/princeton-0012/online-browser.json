@@ -1,0 +1,67 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "多PDF验收 princeton-0012 1792303148554",
+  "startedAt": "2026-10-18T05:59:08.554Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-18T05:59:12.833Z",
+      "attempt": 0,
+      "generation_id": "examgen_35e5a3c3a60689b856c8dceed6a80463",
+      "job_id": "examgen_35e5a3c3a60689b856c8dceed6a80463",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T06:00:15.396Z",
+      "attempt": 0,
+      "generation_id": "examgen_35e5a3c3a60689b856c8dceed6a80463",
+      "job_id": "examgen_35e5a3c3a60689b856c8dceed6a80463",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T06:00:46.586Z",
+      "attempt": 0,
+      "generation_id": "examgen_35e5a3c3a60689b856c8dceed6a80463",
+      "job_id": "examgen_35e5a3c3a60689b856c8dceed6a80463",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_35e5a3c3a60689b856c8dceed6a80463"
+  ],
+  "retries": 0,
+  "refresh_recovery": true,
+  "failure": "Error: page.waitForTimeout: Target page, context or browser has been closed",
+  "first_terminal_before_upgrade": {
+    "generation_id": "examgen_35e5a3c3a60689b856c8dceed6a80463",
+    "job_id": "examgen_35e5a3c3a60689b856c8dceed6a80463",
+    "status": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "exam_ready": false,
+    "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+  },
+  "stop_reason": "First complete 0012 generation retained; known JSON-code-fence parser bug fixed in 0013; no redundant retry requested by this observer."
+}

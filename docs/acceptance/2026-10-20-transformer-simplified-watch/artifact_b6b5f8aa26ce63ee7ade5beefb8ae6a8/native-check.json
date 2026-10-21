@@ -1,0 +1,1354 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 11,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"op-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"qkv-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/02-qkv.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"sc-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/03-scoring.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"sm-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/04-softmax.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"out-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/05-output.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "overlapping_gsap_tweens",
+        "severity": "warning",
+        "message": "GSAP tweens overlap on \"#out-sweep\" for opacity between 25.65s and 26.00s.",
+        "selector": "#out-sweep",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/05-output.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Shorten the earlier tween, move the later tween, or add `overwrite: \"auto\"`."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"ex-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/06-example.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "composition_file_too_large",
+        "severity": "warning",
+        "message": "This HTML composition file has 347 lines. Smaller sub-compositions are easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/06-example.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Split this sub-composition further into smaller .html files, then mount them from the parent with data-composition-src so each file stays small enough to inspect, revise, and validate independently."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"sh-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/07-single-head.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"mh-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/08-multihead.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"wr-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/compositions/frames/09-wrapup.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      }
+    ],
+    "filesScanned": 10
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 9,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-01-opening-voice\" is 21.17s but its slot (data-duration) is 22.10s — the slot is shortened to the media length when rendered. Set data-duration to ~21.17s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "327.5",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-02-qkv-voice\" is 40.70s but its slot (data-duration) is 41.30s — the slot is shortened to the media length when rendered. Set data-duration to ~40.70s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "327.5",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-03-scoring-voice\" is 33.82s but its slot (data-duration) is 34.40s — the slot is shortened to the media length when rendered. Set data-duration to ~33.82s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "327.5",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-04-softmax-voice\" is 28.22s but its slot (data-duration) is 28.80s — the slot is shortened to the media length when rendered. Set data-duration to ~28.22s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "327.5",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-05-output-voice\" is 33.34s but its slot (data-duration) is 33.90s — the slot is shortened to the media length when rendered. Set data-duration to ~33.34s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "327.5",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-06-example-voice\" is 66.14s but its slot (data-duration) is 66.70s — the slot is shortened to the media length when rendered. Set data-duration to ~66.14s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "327.5",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-07-single-head-voice\" is 22.85s but its slot (data-duration) is 23.40s — the slot is shortened to the media length when rendered. Set data-duration to ~22.85s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "327.5",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-08-multihead-voice\" is 41.57s but its slot (data-duration) is 42.20s — the slot is shortened to the media length when rendered. Set data-duration to ~41.57s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "327.5",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-09-wrapup-voice\" is 33.50s but its slot (data-duration) is 34.70s — the slot is shortened to the media length when rendered. Set data-duration to ~33.50s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "327.5",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      }
+    ]
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 24,
+    "findings": [
+      {
+        "code": "panel_out_of_canvas",
+        "severity": "info",
+        "time": 18.194,
+        "selector": "#op-glow",
+        "message": "Painted panel extends outside the composition canvas.",
+        "rect": {
+          "left": 1146.09,
+          "top": 238.85,
+          "right": 1953.91,
+          "bottom": 791.32,
+          "width": 807.81,
+          "height": 552.46
+        },
+        "containerSelector": "#root",
+        "text": "",
+        "fixHint": "Move the panel inward, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 33.91
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 1146.09,
+          "y": 238.85,
+          "width": 807.81,
+          "height": 552.46
+        },
+        "firstSeen": 18.194,
+        "lastSeen": 18.194,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          18.194
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 22.35,
+        "selector": "#op-eyebrow",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 110,
+          "top": 45,
+          "right": 1060.42,
+          "bottom": 94,
+          "width": 950.42,
+          "height": 49
+        },
+        "containerSelector": "#qkv-eyebrow",
+        "text": "Transformer 入门 · 节点 2 自注意力与多头注意力",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 110,
+          "y": 45,
+          "width": 950.42,
+          "height": 49
+        },
+        "firstSeen": 22.35,
+        "lastSeen": 22.35,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          22.35
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 22.35,
+        "selector": "div.op-foot > span:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 110,
+          "top": 840,
+          "right": 480.33,
+          "bottom": 884,
+          "width": 370.33,
+          "height": 44
+        },
+        "containerSelector": "div.qkv-foot > span:nth-of-type(1)",
+        "text": "回顾 → 推导 → 手算 → 多头",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 110,
+          "y": 840,
+          "width": 370.33,
+          "height": 44
+        },
+        "firstSeen": 22.35,
+        "lastSeen": 22.35,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          22.35
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 22.35,
+        "selector": "div.op-foot > span:nth-of-type(2)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 1718.19,
+          "top": 840,
+          "right": 1810,
+          "bottom": 884,
+          "width": 91.81,
+          "height": 44
+        },
+        "containerSelector": "div.qkv-foot > span:nth-of-type(2)",
+        "text": "01 / 09",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 1718.19,
+          "y": 840,
+          "width": 91.81,
+          "height": 44
+        },
+        "firstSeen": 22.35,
+        "lastSeen": 22.35,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          22.35
+        ]
+      },
+      {
+        "code": "panel_out_of_canvas",
+        "severity": "info",
+        "time": 54.583,
+        "selector": "#qkv-glow",
+        "message": "Painted panel extends outside the composition canvas.",
+        "rect": {
+          "left": -40,
+          "top": 114.66,
+          "right": 720,
+          "bottom": 785.52,
+          "width": 760,
+          "height": 670.86
+        },
+        "containerSelector": "#root",
+        "text": "",
+        "fixHint": "Move the panel inward, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 40
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/02-qkv.html",
+        "bbox": {
+          "x": -40,
+          "y": 114.66,
+          "width": 760,
+          "height": 670.86
+        },
+        "firstSeen": 54.583,
+        "lastSeen": 54.583,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          54.583
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 63.65,
+        "selector": "#qkv-eyebrow",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 110,
+          "top": 45,
+          "right": 563.13,
+          "bottom": 94,
+          "width": 453.13,
+          "height": 49
+        },
+        "containerSelector": "#sc-eyebrow",
+        "text": "步骤 1 / 4 三个线性映射",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/02-qkv.html",
+        "bbox": {
+          "x": 110,
+          "y": 45,
+          "width": 453.13,
+          "height": 49
+        },
+        "firstSeen": 63.65,
+        "lastSeen": 63.65,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          63.65
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 63.65,
+        "selector": "div.qkv-foot > span:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 110,
+          "top": 840,
+          "right": 273.45,
+          "bottom": 884,
+          "width": 163.45,
+          "height": 44
+        },
+        "containerSelector": "div.sc-foot > span:nth-of-type(1)",
+        "text": "同源 ≠ 相同",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/02-qkv.html",
+        "bbox": {
+          "x": 110,
+          "y": 840,
+          "width": 163.45,
+          "height": 44
+        },
+        "firstSeen": 63.65,
+        "lastSeen": 63.65,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          63.65
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 63.65,
+        "selector": "div.qkv-foot > span:nth-of-type(2)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 1718.19,
+          "top": 840,
+          "right": 1810,
+          "bottom": 884,
+          "width": 91.81,
+          "height": 44
+        },
+        "containerSelector": "div.sc-foot > span:nth-of-type(2)",
+        "text": "02 / 09",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/02-qkv.html",
+        "bbox": {
+          "x": 1718.19,
+          "y": 840,
+          "width": 91.81,
+          "height": 44
+        },
+        "firstSeen": 63.65,
+        "lastSeen": 63.65,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          63.65
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 98.05,
+        "selector": "div.sc-foot > span:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 110,
+          "top": 840,
+          "right": 380.09,
+          "bottom": 884,
+          "width": 270.09,
+          "height": 44
+        },
+        "containerSelector": "div.sm-foot > div:nth-of-type(1)",
+        "text": "打分：相似度 = 点积",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/03-scoring.html",
+        "bbox": {
+          "x": 110,
+          "y": 840,
+          "width": 270.09,
+          "height": 44
+        },
+        "firstSeen": 98.05,
+        "lastSeen": 98.05,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          98.05
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 98.05,
+        "selector": "div.sc-foot > span:nth-of-type(2)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 1718.19,
+          "top": 840,
+          "right": 1810,
+          "bottom": 884,
+          "width": 91.81,
+          "height": 44
+        },
+        "containerSelector": "div.sm-foot > div:nth-of-type(2)",
+        "text": "03 / 09",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/03-scoring.html",
+        "bbox": {
+          "x": 1718.19,
+          "y": 840,
+          "width": 91.81,
+          "height": 44
+        },
+        "firstSeen": 98.05,
+        "lastSeen": 98.05,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          98.05
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 126.85,
+        "selector": "div.sm-foot > div:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 826.5,
+          "right": 509.47,
+          "bottom": 870.5,
+          "width": 389.47,
+          "height": 44
+        },
+        "containerSelector": "div.out-foot > div:nth-of-type(1)",
+        "text": "按行 softmax：同行求和为一",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/04-softmax.html",
+        "bbox": {
+          "x": 120,
+          "y": 826.5,
+          "width": 389.47,
+          "height": 44
+        },
+        "firstSeen": 126.85,
+        "lastSeen": 126.85,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          126.85
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 126.85,
+        "selector": "div.sm-foot > div:nth-of-type(2)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 1708.19,
+          "top": 826.5,
+          "right": 1800,
+          "bottom": 870.5,
+          "width": 91.81,
+          "height": 44
+        },
+        "containerSelector": "div.out-foot > div:nth-of-type(2)",
+        "text": "04 / 09",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/04-softmax.html",
+        "bbox": {
+          "x": 1708.19,
+          "y": 826.5,
+          "width": 91.81,
+          "height": 44
+        },
+        "firstSeen": 126.85,
+        "lastSeen": 126.85,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          126.85
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 127.361,
+        "selector": "#out-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": -43.75,
+          "top": 711.5,
+          "right": 1856,
+          "bottom": 861.5,
+          "width": 1899.75,
+          "height": 150
+        },
+        "containerSelector": "#el-05-output > div:nth-of-type(1)",
+        "text": "softmax(Q·K / √d)·V",
+        "fixHint": "Text is 1900px x 150px inside 1920px x 1080px and overflows by up to 44px; widen the container to at least ~1964px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 43.75
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/05-output.html",
+        "bbox": {
+          "x": -43.75,
+          "y": 711.5,
+          "width": 1899.75,
+          "height": 150
+        },
+        "firstSeen": 127.361,
+        "lastSeen": 127.361,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          127.361
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 127.361,
+        "selector": "#out-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": -43.75,
+          "top": 678,
+          "right": 1856,
+          "bottom": 895,
+          "width": 1899.75,
+          "height": 217
+        },
+        "containerSelector": "#root",
+        "text": "softmax(Q·K / √d)·V",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 43.75
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/05-output.html",
+        "bbox": {
+          "x": -43.75,
+          "y": 678,
+          "width": 1899.75,
+          "height": 217
+        },
+        "firstSeen": 127.361,
+        "lastSeen": 127.361,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          127.361
+        ]
+      },
+      {
+        "code": "connector_orphan",
+        "severity": "info",
+        "time": 127.361,
+        "selector": "svg.out-wires > path:nth-of-type(1)",
+        "message": "Connector shaft is visible while both endpoints are not on stage.",
+        "rect": {
+          "left": 320,
+          "top": 293.92,
+          "right": 870,
+          "bottom": 358.92,
+          "width": 550,
+          "height": 65
+        },
+        "containerSelector": "svg.out-wires",
+        "fixHint": "Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.",
+        "dataAttributes": {
+          "data-hf-svg-reference-aliases": "[{\"name\":\"mask\",\"localName\":\"mask\",\"namespaceURI\":null,\"before\":\"url(#out-mask-0)\",\"after\":\"url(#out-mask-0)\"}]"
+        },
+        "sourceFile": "compositions/frames/05-output.html",
+        "bbox": {
+          "x": 320,
+          "y": 293.92,
+          "width": 550,
+          "height": 65
+        },
+        "firstSeen": 127.361,
+        "lastSeen": 127.361,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          127.361
+        ]
+      },
+      {
+        "code": "connector_orphan",
+        "severity": "info",
+        "time": 127.361,
+        "selector": "svg.out-wires > path:nth-of-type(2)",
+        "message": "Connector shaft is visible while both endpoints are not on stage.",
+        "rect": {
+          "left": 466,
+          "top": 358.92,
+          "right": 870,
+          "bottom": 393.92,
+          "width": 404,
+          "height": 35
+        },
+        "containerSelector": "svg.out-wires",
+        "fixHint": "Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.",
+        "dataAttributes": {
+          "data-hf-svg-reference-aliases": "[{\"name\":\"mask\",\"localName\":\"mask\",\"namespaceURI\":null,\"before\":\"url(#out-mask-1)\",\"after\":\"url(#out-mask-1)\"}]"
+        },
+        "sourceFile": "compositions/frames/05-output.html",
+        "bbox": {
+          "x": 466,
+          "y": 358.92,
+          "width": 404,
+          "height": 35
+        },
+        "firstSeen": 127.361,
+        "lastSeen": 127.361,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          127.361
+        ]
+      },
+      {
+        "code": "connector_orphan",
+        "severity": "info",
+        "time": 127.361,
+        "selector": "svg.out-wires > path:nth-of-type(3)",
+        "message": "Connector shaft is visible while both endpoints are not on stage.",
+        "rect": {
+          "left": 612,
+          "top": 358.92,
+          "right": 870,
+          "bottom": 493.92,
+          "width": 258,
+          "height": 135
+        },
+        "containerSelector": "svg.out-wires",
+        "fixHint": "Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.",
+        "dataAttributes": {
+          "data-hf-svg-reference-aliases": "[{\"name\":\"mask\",\"localName\":\"mask\",\"namespaceURI\":null,\"before\":\"url(#out-mask-2)\",\"after\":\"url(#out-mask-2)\"}]"
+        },
+        "sourceFile": "compositions/frames/05-output.html",
+        "bbox": {
+          "x": 612,
+          "y": 358.92,
+          "width": 258,
+          "height": 135
+        },
+        "firstSeen": 127.361,
+        "lastSeen": 127.361,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          127.361
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 163.75,
+        "selector": "#ex-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": -43.79,
+          "top": 711.48,
+          "right": 1855.96,
+          "bottom": 861.48,
+          "width": 1899.75,
+          "height": 150
+        },
+        "containerSelector": "#el-06-example > div:nth-of-type(1)",
+        "text": "softmax(Q·K / √d)·V",
+        "fixHint": "Text is 1900px x 150px inside 1920px x 1080px and overflows by up to 44px; widen the container to at least ~1964px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 43.79
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/06-example.html",
+        "bbox": {
+          "x": -43.79,
+          "y": 711.48,
+          "width": 1899.75,
+          "height": 150
+        },
+        "firstSeen": 163.75,
+        "lastSeen": 200.139,
+        "occurrences": 2,
+        "heldMs": 0,
+        "times": [
+          163.75,
+          200.139
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 163.75,
+        "selector": "#ex-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": -43.79,
+          "top": 677.98,
+          "right": 1855.96,
+          "bottom": 894.98,
+          "width": 1899.75,
+          "height": 217
+        },
+        "containerSelector": "#root",
+        "text": "softmax(Q·K / √d)·V",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 43.79
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/06-example.html",
+        "bbox": {
+          "x": -43.79,
+          "y": 677.98,
+          "width": 1899.75,
+          "height": 217
+        },
+        "firstSeen": 163.75,
+        "lastSeen": 200.139,
+        "occurrences": 2,
+        "heldMs": 0,
+        "times": [
+          163.75,
+          200.139
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 236.528,
+        "selector": "#sh-halo",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -327.63,
+          "top": -387.63,
+          "right": 807.63,
+          "bottom": 747.63,
+          "width": 1135.26,
+          "height": 1135.26
+        },
+        "containerSelector": "#el-07-single-head > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 327.63,
+          "top": 387.63
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/07-single-head.html",
+        "bbox": {
+          "x": -327.63,
+          "y": -387.63,
+          "width": 1135.26,
+          "height": 1135.26
+        },
+        "firstSeen": 236.528,
+        "lastSeen": 236.528,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          236.528
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 250.892,
+        "selector": "#sh-eyebrow",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 73,
+          "right": 275.05,
+          "bottom": 122,
+          "width": 155.05,
+          "height": 49
+        },
+        "containerSelector": "#mh-eyebrow",
+        "text": "课堂设问",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/07-single-head.html",
+        "bbox": {
+          "x": 120,
+          "y": 73,
+          "width": 155.05,
+          "height": 49
+        },
+        "firstSeen": 250.892,
+        "lastSeen": 250.892,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          250.892
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 272.917,
+        "selector": "#mh-halo",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -312.95,
+          "top": -372.95,
+          "right": 792.95,
+          "bottom": 732.95,
+          "width": 1105.9,
+          "height": 1105.9
+        },
+        "containerSelector": "#el-08-multihead > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 312.95,
+          "top": 372.95
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/08-multihead.html",
+        "bbox": {
+          "x": -312.95,
+          "y": -372.95,
+          "width": 1105.9,
+          "height": 1105.9
+        },
+        "firstSeen": 272.917,
+        "lastSeen": 272.917,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          272.917
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 293.026,
+        "selector": "#mh-title-a",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 118,
+          "right": 441.61,
+          "bottom": 210,
+          "width": 321.61,
+          "height": 92
+        },
+        "containerSelector": "#wr-eyebrow",
+        "text": "多头注意力",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/08-multihead.html",
+        "bbox": {
+          "x": 120,
+          "y": 118,
+          "width": 321.61,
+          "height": 92
+        },
+        "firstSeen": 293.026,
+        "lastSeen": 293.026,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          293.026
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 309.306,
+        "selector": "#wr-halo",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -327.33,
+          "top": -387.33,
+          "right": 807.33,
+          "bottom": 747.33,
+          "width": 1134.65,
+          "height": 1134.65
+        },
+        "containerSelector": "#el-09-wrapup > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 327.33,
+          "top": 387.33
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/09-wrapup.html",
+        "bbox": {
+          "x": -327.33,
+          "y": -387.33,
+          "width": 1134.65,
+          "height": 1134.65
+        },
+        "firstSeen": 309.306,
+        "lastSeen": 309.306,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          309.306
+        ]
+      }
+    ],
+    "duration": 327.5,
+    "samples": [
+      18.194,
+      54.583,
+      90.972,
+      127.361,
+      163.75,
+      200.139,
+      236.528,
+      272.917,
+      309.306
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 24,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      18.194,
+      90.972,
+      163.75,
+      236.528,
+      309.306
+    ],
+    "checked": 82,
+    "passed": 82
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "saved": {
+    "id": "2567a396-32f6-4296-bd12-4e012ea44e03",
+    "revision": null,
+    "report": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/.hyperframes/artifacts/checks/2567a396-32f6-4296-bd12-4e012ea44e03.json",
+    "attribution": "unversioned"
+  },
+  "_meta": {
+    "version": "0.8.168",
+    "updateAvailable": false
+  }
+}

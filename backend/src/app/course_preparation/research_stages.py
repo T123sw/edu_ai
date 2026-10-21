@@ -40,7 +40,8 @@ class ResearchStages:
         def reserve(value):
             checkpoint['research_state']=value.model_dump(mode='json')
             self.repository.checkpoint(context,checkpoint)
-        remaining=(datetime.fromisoformat(context.deadline)-datetime.now(timezone.utc)).total_seconds()
+        from .runtime_contracts import remaining_seconds
+        remaining = remaining_seconds(context.deadline)
         if state.blocker is not None:
             checkpoint['research_blocker']=state.blocker.model_dump(mode='json')
             checkpoint.pop('plan',None)
@@ -65,11 +66,14 @@ class ResearchStages:
                 if exc.code != 'CONTEXT_BUDGET_EXCEEDED' or restarts>=2 or latest.calls<=starting_calls:
                     raise
                 checkpoint['research_context_restarts']=restarts+1
-                from .research_context_view import build_research_context_view
-                checkpoint['research_context_estimated_bytes']=build_research_context_view(
-                    latest,required_ids=(),max_bytes=48000)['context_view']['estimated_bytes']
+                from .research_context_view import build_model_research_context
+                checkpoint['research_context_estimated_bytes']=build_model_research_context(
+                    latest,agent.model)['context_view']['estimated_bytes']
                 self.repository.checkpoint(context,checkpoint)
-                return checkpoint,latest
+                # A session can exhaust its context just after persisting a
+                # summary/path. Project that durable state below before the
+                # caller advances stages, exactly as on a normal return.
+                state=latest
         else:
             state=agent.step(request,state,timeout=max(1,min(90,remaining)),reserve=reserve)
         if self.memory:
@@ -159,7 +163,8 @@ class ResearchStages:
         checked=dict(checkpoint.get('node_research_checks',{}))
         pending=next((n for n in state.path.nodes if n.node_key not in checked),None)
         if self.node_reviewer and pending:
-            if state.calls >= 60: raise ResearchError('BUDGET_EXHAUSTED','节点研究调用上限')
+            if context.deadline is not None and state.calls >= 60:
+                raise ResearchError('BUDGET_EXHAUSTED','节点研究调用上限')
             state=state.model_copy(update={'calls':state.calls+1})
             checkpoint['research_state']=state.model_dump(mode='json')
             self.repository.checkpoint(context,checkpoint)
@@ -187,7 +192,8 @@ class ResearchStages:
                     source=sources[citation.source_id]
                     if citation.quote not in source.content: raise ResearchError('EVIDENCE_CHANGED','节点引用失效')
                     selected.append({'finding_id':finding_id,'claim':finding.claim,
-                        'source_id':source.source_id,'url':source.url,'quote':citation.quote,'source_hash':source.content_sha256})
+                        'source_id':source.source_id,'url':source.url,'quote':citation.quote,'source_hash':source.content_sha256,
+                        'source_excerpt':source.content[max(0,source.content.find(citation.quote)-1200):source.content.find(citation.quote)+len(citation.quote)+2400]})
             if not selected: raise ResearchError('NODE_EVIDENCE_GAP','节点缺少已读依据')
             node_evidence[node.node_key]=selected
         checkpoint['node_evidence']=node_evidence

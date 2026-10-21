@@ -1,0 +1,48 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/zxqs_ep/data/main-review/hyperframes-native-workflow/lesson.mp4':
+  Metadata:
+    minor_version   : 512;512
+    major_brand     : isom;isom
+    compatible_brands: isomiso2avc1mp41;isomiso2avc1mp41
+    hyperframes_version: 0.8.168
+    hyperframes_renderer: hyperframes
+    encoder         : Lavf63.1.101
+  Duration: 00:00:43.63, start: 0.000000, bitrate: 565 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1920x1080 [SAR 1:1 DAR 16:9], 365 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      encoder         : Lavc63.1.101 libx264
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 192 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+[Parsed_volumedetect_0 @ 0x557790676300] n_samples: 0
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))
+  Stream #0:1 -> #0:1 (aac (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, null, to 'pipe:':
+  Metadata:
+    minor_version   : 512;512
+    major_brand     : isom;isom
+    compatible_brands: isomiso2avc1mp41;isomiso2avc1mp41
+    hyperframes_version: 0.8.168
+    hyperframes_renderer: hyperframes
+    encoder         : Lavf63.1.101
+  Stream #0:0(und): Video: wrapped_avframe, yuv420p(tv, bt709, progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 30 fps, 30 tbn (default)
+    Metadata:
+      encoder         : Lavc63.1.101 wrapped_avframe
+      handler_name    : VideoHandler
+  Stream #0:1(und): Audio: pcm_s16le, 48000 Hz, stereo, s16, 1536 kb/s (default)
+    Metadata:
+      encoder         : Lavc63.1.101 pcm_s16le
+      handler_name    : SoundHandler
+frame=  654 fps=0.0 q=-0.0 size=N/A time=00:00:21.88 bitrate=N/A speed=43.8x elapsed=0:00:00.50    
+[Parsed_volumedetect_0 @ 0x7feddc0037c0] n_samples: 4188800
+[Parsed_volumedetect_0 @ 0x7feddc0037c0] mean_volume: -21.0 dB
+[Parsed_volumedetect_0 @ 0x7feddc0037c0] max_volume: -3.2 dB
+[Parsed_volumedetect_0 @ 0x7feddc0037c0] histogram_3db: 48
+[Parsed_volumedetect_0 @ 0x7feddc0037c0] histogram_4db: 282
+[Parsed_volumedetect_0 @ 0x7feddc0037c0] histogram_5db: 1016
+[Parsed_volumedetect_0 @ 0x7feddc0037c0] histogram_6db: 2054
+[Parsed_volumedetect_0 @ 0x7feddc0037c0] histogram_7db: 4607
+[out#0/null @ 0x55779040d780] video:542KiB audio:8181KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame= 1309 fps=0.0 q=-0.0 Lsize=N/A time=00:00:43.63 bitrate=N/A speed=46.8x elapsed=0:00:00.93    

@@ -45,10 +45,11 @@ def test_cancel_revision_conflict_and_public_owner_isolation(runtime_engine):
     assert service.get_public('alice', claim.preparation_id)['status'] == 'running'
 
 
-def test_deadline_survives_retry_and_wait_releases_slot(runtime_engine):
+def test_manual_retry_renews_deadline_and_wait_releases_slot(runtime_engine):
     now = [datetime.now(timezone.utc)]
     service = repo(runtime_engine, now)
     value = service.submit('alice', request(), limits=BudgetLimits(seconds=200))
+    assert datetime.fromisoformat(value['created_at']).tzinfo is not None
     claim = service.claim('worker')
     service.release(claim, delay_seconds=30)
     assert service.claim('other') is None
@@ -57,10 +58,50 @@ def test_deadline_survives_retry_and_wait_releases_slot(runtime_engine):
     assert newer and newer.lease_token != claim.lease_token
     service.fail(newer, 'PROVIDER_UNAVAILABLE')
     deadline = service.get_public('alice', claim.preparation_id)['budget']['deadline']
-    assert service.retry('alice', claim.preparation_id)['budget']['deadline'] == deadline
+    renewed = service.retry('alice', claim.preparation_id)['budget']['deadline']
+    assert service.get_public('alice', claim.preparation_id)['created_at'] == value['created_at']
+    assert datetime.fromisoformat(renewed) == now[0] + timedelta(seconds=200)
+    assert renewed != deadline
     now[0] += timedelta(seconds=200)
     assert service.claim('expired') is None
     assert service.get_public('alice', value['preparation_id'])['error_code'] == 'DEADLINE_EXCEEDED'
+
+
+def test_expired_manual_retry_preserves_checkpoint_and_spent_and_reserved_budget(runtime_engine):
+    now = [datetime.now(timezone.utc)]
+    service = repo(runtime_engine, now)
+    value = service.submit('alice', request(), limits=BudgetLimits(seconds=60))
+    claim = service.claim('worker')
+    service.checkpoint(claim, {'research_summary': {'findings': ['saved evidence']}})
+    completed = service.begin_action(claim, 'done', 'model', {}, BudgetCost(calls=1, tokens=80))
+    service.finish_action(claim, completed['action_id'], {}, BudgetCost(calls=1, tokens=50))
+    pending = service.begin_action(claim, 'inflight', 'model_completion', {}, BudgetCost(calls=1, tokens=90))
+    service.fail(claim, 'DEADLINE_EXCEEDED')
+    now[0] += timedelta(hours=2)
+    before = service.get_public('alice', value['preparation_id'])['budget']
+    resumed = service.retry('alice', value['preparation_id'])
+    for key in ('consumed', 'reserved', 'limits'):
+        assert resumed['budget'][key] == before[key]
+    assert datetime.fromisoformat(resumed['budget']['deadline']) == now[0] + timedelta(seconds=60)
+    newer = service.claim('next')
+    assert newer.checkpoint == {'research_summary': {'findings': ['saved evidence']}}
+    with pytest.raises(StaleLease):
+        service.checkpoint(claim, {'late': True})
+    service.finish_action(claim, pending['action_id'], {}, BudgetCost(calls=1, tokens=30))
+    assert service.get_public('alice', value['preparation_id'])['budget']['consumed']['tokens'] == 80
+
+
+def test_manual_retry_cannot_refund_exhausted_calls(runtime_engine):
+    service = repo(runtime_engine)
+    value = service.submit('alice', request(), limits=BudgetLimits(calls=1))
+    claim = service.claim('worker')
+    action = service.begin_action(claim, 'spent', 'model', {}, BudgetCost(calls=1))
+    service.finish_action(claim, action['action_id'], {})
+    service.fail(claim, 'BUDGET_EXHAUSTED')
+    before = service.get_public('alice', value['preparation_id'])
+    with pytest.raises(BudgetExceeded, match='BUDGET_EXHAUSTED:calls'):
+        service.retry('alice', value['preparation_id'])
+    assert service.get_public('alice', value['preparation_id']) == before
 
 
 def test_unknown_write_reconciles_receipt_without_resubmission(runtime_engine):

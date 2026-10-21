@@ -1,0 +1,10 @@
+[
+  "src/liveLearning/preparationProgress.test.ts",
+  "src/liveLearning/PreparationTaskSummary.tsx",
+  "src/liveLearning/preparationProgress.ts",
+  "src/liveLearning/Preparation.tsx",
+  "src/liveLearning/PreparationProgress.tsx",
+  "src/selfLearning/Classroom.tsx",
+  "src/selfLearning/model.ts",
+  "src/selfLearning/classroomEditorial.css"
+]

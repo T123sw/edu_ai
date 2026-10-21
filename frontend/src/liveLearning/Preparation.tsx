@@ -2,13 +2,14 @@ import { serialPolling } from './serialPolling';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import { Icon } from '../selfLearning/ui';
+import { preparationError, type PreparationTask } from './preparationProgress';
 
 export type UploadRef = { document_id: string; version: number; filename?: string };
-export type PreparationOptions = { uploads: UploadRef[]; overrides: { include_classroom?: boolean; total_minutes?: number; language?: string; depth?: 'introductory' | 'intermediate' | 'advanced'; required_resource_types?: string[] } };
-export const defaultOptions: PreparationOptions = { uploads: [], overrides: { include_classroom: true } };
+export type PreparationOptions = { uploads: UploadRef[]; overrides: { video_preferences?: { target_minutes?: number; narration?: boolean }; include_classroom?: boolean; total_minutes?: number; language?: string; depth?: 'introductory' | 'intermediate' | 'advanced'; required_resource_types?: string[] } };
+export const defaultOptions: PreparationOptions = { uploads: [], overrides: { include_classroom: true, required_resource_types: ['report', 'quiz'] } };
 const base = '/api/course-preparations';
 type Intermediate = { brief?: { topic?: string; learning_goal?: string; prior_knowledge?: string; total_minutes?: number; language?: string; depth?: string; assumptions?: string[]; material_gaps?: string[]; desired_outcomes?: string[]; source_policy?: { mode: string } }; input_documents?: { document_id: string; filename: string; complete: boolean; parts: { kind: string; summary: string }[] }[]; research_summary?: { findings?: { claim: string }[] }; plan?: { title: string; nodes: { node_key: string; title: string; minutes: number; objectives: string[] }[] }; quality?: { decision: string; limitations?: string[] } };
-type Task = { preparation_id: string; status: string; stage: string; revision: number; error_code?: string; result_ref?: { course_ready: boolean; course_id: string } };
+type Task = import('./preparationProgress').PreparationTask;
 const labels: Record<string, string> = { normalize: '理解学习目标', ingest: '读取上传资料', research_scope: '搜索并核验资料', plan: '规划学习路径', research_nodes: '检查各节点依据', produce: '生成学习资料', review: '检查课程质量', repair: '修复资料', commit: '保存课程' };
 
 export function PreparationOptionsForm({ value, onChange, onUploadingChange }: { value: PreparationOptions; onChange: Dispatch<SetStateAction<PreparationOptions>>; onUploadingChange?: (value: boolean) => void }) {
@@ -16,7 +17,7 @@ export function PreparationOptionsForm({ value, onChange, onUploadingChange }: {
   const [uploading, setUploading] = useState(false);
   return <fieldset disabled={uploading} className="sl-preparation-options"><legend className="sl-intake-sr-only">课程生成与学习资料</legend>
     <div className="sl-intake-toolbar">
-    <button type="button" role="switch" aria-label="生成 AI 课堂" aria-checked={value.overrides.include_classroom !== false} className="sl-intake-classroom" title="为每个知识点生成讲解与互动课堂" onClick={() => onChange(previous => ({ ...previous, overrides: { ...previous.overrides, include_classroom: previous.overrides.include_classroom === false } }))}>
+    <button type="button" role="switch" aria-label="生成 AI 课堂" aria-checked={value.overrides.include_classroom !== false} className="sl-intake-classroom" title="每个知识点均生成报告和习题，开启后额外生成视频课堂" onClick={() => onChange(previous => ({ ...previous, overrides: { ...previous.overrides, include_classroom: previous.overrides.include_classroom === false } }))}>
       <span>AI 课堂</span><span className="sl-intake-switch" aria-hidden="true"><span /></span><span aria-hidden="true">{value.overrides.include_classroom !== false ? '已开启' : '已关闭'}</span>
     </button>
     <label className="sl-intake-upload"><Icon name="upload" size={16} /><span>添加资料</span><input aria-label="添加资料" className="sl-intake-sr-only" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.jp2,.webp,.gif,.bmp,.html,.md,.markdown,.txt" onChange={async e => {
@@ -60,11 +61,11 @@ export function PreparationTasks({ owner, refreshKey }: { owner: string; refresh
   };
   if (!tasks.length && !error) return null;
   return <section className="sl-preparation-tasks" aria-label="课程准备任务"><h2>课程准备</h2>{error && <p role="alert">{error}</p>}{tasks.map(task => <article key={task.preparation_id}>
-    <p>{task.status === 'succeeded' ? '课程已准备好' : labels[task.stage] || task.stage} · {{ queued: '排队中', running: '进行中', failed: '未完成', canceled: '已取消', succeeded: '已完成' }[task.status] || task.status}{task.error_code && ` · ${task.error_code}`}</p>
+    <p>{task.status === 'succeeded' ? '课程已准备好' : labels[task.stage] || task.stage} · {{ queued: '排队中', running: '进行中', failed: '未完成', canceled: '已取消', succeeded: '已完成' }[task.status] || task.status}{task.error_code && ` · ${preparationError(task.error_code)}`}</p>
     <button onClick={async () => { try { const value = await apiRequest<Intermediate>(`${base}/${task.preparation_id}/intermediates`); setDetails(d => ({ ...d, [task.preparation_id]: value })); } catch (c) { setError(c instanceof Error ? c.message : '读取失败'); } }}>查看资料汇总与路径</button>
     {task.status === 'failed' && <button onClick={() => void control(task, 'retry')}>继续重试</button>}
     {!['succeeded', 'failed', 'canceled'].includes(task.status) && <button onClick={() => void control(task, 'cancel')}>取消任务</button>}
-    {task.status === 'succeeded' && task.result_ref?.course_ready && <a href={`#/classroom/${encodeURIComponent(task.result_ref.course_id)}`}>进入学习</a>}
+    {(task.result_ref?.course_ready || task.result_ref?.course_available || task.result_ref?.path_available) && task.result_ref.course_id && <a href={`#/classroom/${encodeURIComponent(task.result_ref.course_id)}`}>{task.result_ref?.course_available || task.result_ref?.course_ready ? '进入学习' : '查看学习路径'}</a>}
     {Boolean(details[task.preparation_id]) && <details open><summary>中间产物</summary><IntermediateView value={details[task.preparation_id]} /></details>}
   </article>)}</section>;
 }
@@ -79,15 +80,21 @@ function IntermediateView({ value }: { value: Intermediate }) {
   </div>;
 }
 
-export async function submitPreparation(owner: string, goal: string, options: PreparationOptions) {
-  const payload = { operation: 'create_course', goal: goal.trim() || '请根据上传资料推断学习目标并安排课程；没有明确的信息请列为假设。', uploads: options.uploads.map(({ document_id, version }) => ({ document_id, version })), overrides: options.overrides };
+export async function submitPreparation(owner: string, goal: string, options: PreparationOptions, signal?: AbortSignal) {
+  const payload = { operation: 'create_course', goal: goal.trim() || '请根据上传资料推断学习目标并安排课程；没有明确的信息请列为假设。', uploads: options.uploads.map(({ document_id, version }) => ({ document_id, version })), overrides: { ...options.overrides, required_resource_types: Array.from(new Set(['report', 'quiz', ...(options.overrides.required_resource_types || [])])) } };
   const key = `preparation:pending:${owner}`;
   const serialized = JSON.stringify(payload);
-  let previous: { serialized: string; request_id: string } | undefined;
+  let previous: { version?: number; serialized: string; request_id: string } | undefined;
   try { previous = JSON.parse(localStorage.getItem(key) || 'null'); } catch { /* Invalid local data is not a submitted request. */ }
-  const request_id = previous?.serialized === serialized ? previous.request_id : crypto.randomUUID();
-  localStorage.setItem(key, JSON.stringify({ serialized, request_id }));
-  const result = await apiRequest<Task>(base, { method: 'POST', body: JSON.stringify({ ...payload, request_id }) });
-  // Retain the accepted request ID: repeating the same input after refresh stays idempotent.
+  // v1 retained successful submissions forever. Only unresolved v2 submissions
+  // may reuse an ID: the same goal can intentionally create another course.
+  const request_id = previous?.version === 2 && previous.serialized === serialized && typeof previous.request_id === 'string'
+    ? previous.request_id : crypto.randomUUID();
+  try { localStorage.setItem(key, JSON.stringify({ version: 2, serialized, request_id })); } catch { /* Storage is optional. */ }
+  const result = await apiRequest<PreparationTask>(base, { method: 'POST', body: JSON.stringify({ ...payload, request_id }), signal });
+  try {
+    // Do not clear another tab's in-flight submission.
+    if (JSON.parse(localStorage.getItem(key) || 'null')?.request_id === request_id) localStorage.removeItem(key);
+  } catch { /* Progress and submission still work without browser storage. */ }
   return result;
 }

@@ -1,0 +1,3 @@
+[submodule "vendor/hyperframes"]
+	path = vendor/hyperframes
+	url = https://github.com/heygen-com/hyperframes.git

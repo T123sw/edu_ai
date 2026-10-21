@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from app.services.tutoring_response_policy import TUTORING_RESPONSE_POLICY
 from app.services.classroom_qa_prompt import ClassroomQaAnswerError
 
 
@@ -76,7 +77,8 @@ def build_resource_qa_messages(
         "你是课程学习区的 AI 助教。只基于服务端提供的完整资源相关段落回答当前问题。\n"
         f"{answer_policy}\n"
         "回答正文通常为 80～500 个中文字符；证据不足时明确说明。\n"
-        "transition_text 用一句简短的话引导用户继续查看当前资料。\n"
+        "transition_text 用一句简短的话衔接相关学习内容，不重复背景或另加测验。\n"
+        f"{TUTORING_RESPONSE_POLICY}\n"
         '只输出 JSON：{"answer_text":"...","transition_text":"..."}。'
     )
     evidence = [

@@ -317,11 +317,11 @@ def test_brief_quote_can_reference_explicit_route_changes():
         agent._execute('save_preparation_brief',invalid,request,state,timeout=10,reserve=lambda _:None)
 
 
-def test_finding_supports_multiple_sources_with_a_bounded_reference_list():
+def test_finding_supports_all_relevant_sources_without_a_reference_quota():
     from app.course_preparation.research_contracts import ReferencedFinding
-    from pydantic import ValidationError
-    assert len(ReferencedFinding(finding_id='f',claim='多来源依据',citation_refs=[f'q{i}_1' for i in range(5)]).citation_refs)==5
-    with pytest.raises(ValidationError):ReferencedFinding(finding_id='f',claim='多来源依据',citation_refs=[f'q{i}_1' for i in range(9)])
+    for count in (5, 9, 30):
+        finding = ReferencedFinding(finding_id='f', claim='多来源依据', citation_refs=[f'q{i}_1' for i in range(count)])
+        assert len(finding.citation_refs) == count
 
 
 def test_course_node_count_is_checked_without_inventing_a_teaching_requirement():

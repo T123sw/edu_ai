@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-17",
+  "stage": "M3 implementation partial; milestone acceptance incomplete",
+  "deployed": false,
+  "exam_ready": false,
+  "source": {
+    "repository": "https://github.com/HKUDS/DeepTutor.git",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "version": "1.6.14",
+    "license": "Apache-2.0",
+    "patches": [
+      {
+        "file": "0003-exam-blueprint.patch",
+        "sha256": "404ca259b6630fb603cbf3643e6972559dc3d95c159b5269e91b9978413db8a6"
+      }
+    ],
+    "previous_patch_sets": [
+      [
+        {
+          "file": "0001-exam-foundation.patch",
+          "sha256": "424d88d55cbd39078b9937917c14366d9b0ac648a1ce0e9dfacbb7e3f69fc358"
+        }
+      ],
+      [
+        {
+          "file": "0002-runtime-integration.patch",
+          "sha256": "4b1f287cfd287b3a6c8088ade78c17499ef9d4ef2d2bbc450dd83ab182bc8720"
+        }
+      ]
+    ]
+  },
+  "tests": {
+    "upstream_distinct": 227,
+    "upstream_final_changed_area_subset": 54,
+    "bridge": 36,
+    "backend_isolated": 68,
+    "distinct_total": 331,
+    "pip_check": true,
+    "source_patch_check": true
+  },
+  "real_model": {
+    "model": "deepseek-v4-flash",
+    "parser": "pypdf-validation-only",
+    "production_writes": false,
+    "paper_pages": 2,
+    "expected_types": [
+      "choice",
+      "choice",
+      "choice",
+      "choice",
+      "choice",
+      "choice",
+      "choice",
+      "choice",
+      "choice",
+      "choice",
+      "fill_in_blank",
+      "fill_in_blank",
+      "fill_in_blank",
+      "fill_in_blank",
+      "fill_in_blank"
+    ],
+    "structure_matches_known_fixture": true,
+    "source_hash_matches": true,
+    "last_question_original_number": "15",
+    "first_attempt": {
+      "seconds": 91.21,
+      "accepted_questions": 12,
+      "failed_questions": 3,
+      "model_calls": 37,
+      "tokens": 111303
+    },
+    "explicit_retry": {
+      "seconds": 22.92,
+      "automatic_accepted_questions": 15,
+      "automatic_failed_questions": 0,
+      "model_calls": 10,
+      "tokens": 30028,
+      "reused_question_numbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        12,
+        15
+      ],
+      "rewritten_question_numbers": [
+        11,
+        13,
+        14
+      ],
+      "automatic_saved": true
+    },
+    "manual_quality_accepted": false,
+    "manual_quality_audit": "manual-quality-audit.json"
+  },
+  "pending": [
+    "Automatic textbook/paper/answer-sheet roles",
+    "Valid MinerU credentials and real OCR/image acceptance",
+    "Reliable question correctness and novelty validation",
+    "M4 exam versions, attempts, grading and UI"
+  ]
+}

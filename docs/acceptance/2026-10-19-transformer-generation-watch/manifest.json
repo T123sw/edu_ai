@@ -1,0 +1,1244 @@
+{
+  "goal": "我想学习一下transformer",
+  "nodes": [
+    {
+      "order": 1,
+      "title": "为什么需要 Transformer：循环结构的瓶颈与注意力的登场",
+      "checks": [
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "walkthrough-example",
+            "question_id": null
+          },
+          "check_id": "n1-why-transformer:check:60f0a7992a275a21655e576b",
+          "resource_id": "resource_f73039e83ef3dc6af0712364bb8af20c",
+          "objective_ids": [
+            "n1-why-transformer:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "discussion-and-check",
+            "question_id": null
+          },
+          "check_id": "n1-why-transformer:check:41124ceda132044aaf9c4596",
+          "resource_id": "resource_f73039e83ef3dc6af0712364bb8af20c",
+          "objective_ids": [
+            "n1-why-transformer:o1",
+            "n1-why-transformer:o2",
+            "n1-why-transformer:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q1-rnn-sequential"
+          },
+          "check_id": "n1-why-transformer:check:74ac86c5047e287389b64b85",
+          "resource_id": "resource_03cafbf7599ebdc1708b87c23b2b17b0",
+          "objective_ids": [
+            "n1-why-transformer:o1"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q2-why-long-seq"
+          },
+          "check_id": "n1-why-transformer:check:cfe4a4c6c1404c643ac7c0a7",
+          "resource_id": "resource_03cafbf7599ebdc1708b87c23b2b17b0",
+          "objective_ids": [
+            "n1-why-transformer:o1"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q8-explain-three-sentences"
+          },
+          "check_id": "n1-why-transformer:check:18a45fc4fa56c8ef35a64a77",
+          "resource_id": "resource_03cafbf7599ebdc1708b87c23b2b17b0",
+          "objective_ids": [
+            "n1-why-transformer:o1",
+            "n1-why-transformer:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q3-core-claim"
+          },
+          "check_id": "n1-why-transformer:check:cf173388ca266207610ee96c",
+          "resource_id": "resource_03cafbf7599ebdc1708b87c23b2b17b0",
+          "objective_ids": [
+            "n1-why-transformer:o2"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q4-path-length"
+          },
+          "check_id": "n1-why-transformer:check:ca8c81afb020a7dfdde627c6",
+          "resource_id": "resource_03cafbf7599ebdc1708b87c23b2b17b0",
+          "objective_ids": [
+            "n1-why-transformer:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q5-table-compare"
+          },
+          "check_id": "n1-why-transformer:check:890a10bcd47c1b699b73fd64",
+          "resource_id": "resource_03cafbf7599ebdc1708b87c23b2b17b0",
+          "objective_ids": [
+            "n1-why-transformer:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q6-complexity-tradeoff"
+          },
+          "check_id": "n1-why-transformer:check:eb789d623e28c556241939fd",
+          "resource_id": "resource_03cafbf7599ebdc1708b87c23b2b17b0",
+          "objective_ids": [
+            "n1-why-transformer:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q7-cost-and-mitigation"
+          },
+          "check_id": "n1-why-transformer:check:b5dd22d52a609049bb9c4e48",
+          "resource_id": "resource_03cafbf7599ebdc1708b87c23b2b17b0",
+          "objective_ids": [
+            "n1-why-transformer:o3"
+          ],
+          "resource_version": 1
+        }
+      ],
+      "node_id": "n1-why-transformer",
+      "required": true,
+      "resources": [
+        {
+          "order": 1,
+          "purpose": "为什么需要 Transformer：循环结构的瓶颈与注意力的登场",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_f0b49fcee0240a603fcf094c7342e11f",
+          "source_refs": [
+            "ev_6620b2677ead538fb749358f",
+            "ev_43a8e293a651f5515edcb291",
+            "ev_6f1914c42e75dd30c762cf51",
+            "ev_07d4076146beb1adbf0871a7",
+            "ev_6c0b57c1a14f68e95fadf6cc"
+          ],
+          "objective_ids": [
+            "n1-why-transformer:o1",
+            "n1-why-transformer:o2",
+            "n1-why-transformer:o3"
+          ],
+          "resource_type": "classroom",
+          "content_sha256": "520682a659dac3532a95bcf2dfabe1a2e66ba6ceb5d854ad38e95a175f2fa6c7",
+          "objective_coverage": "planned"
+        },
+        {
+          "order": 2,
+          "purpose": "为什么需要 Transformer：循环结构的瓶颈与注意力的登场",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_f73039e83ef3dc6af0712364bb8af20c",
+          "source_refs": [
+            "ev_6620b2677ead538fb749358f",
+            "ev_43a8e293a651f5515edcb291",
+            "ev_6f1914c42e75dd30c762cf51",
+            "ev_07d4076146beb1adbf0871a7",
+            "ev_6c0b57c1a14f68e95fadf6cc"
+          ],
+          "objective_ids": [
+            "n1-why-transformer:o1",
+            "n1-why-transformer:o2",
+            "n1-why-transformer:o3"
+          ],
+          "resource_type": "report",
+          "content_sha256": "a9189626941f47e0a48841048eb1aa6c205ae4bfe8ee9ba6c700c7b82ccdaaff",
+          "objective_coverage": "verified"
+        },
+        {
+          "order": 3,
+          "purpose": "为什么需要 Transformer：循环结构的瓶颈与注意力的登场",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_03cafbf7599ebdc1708b87c23b2b17b0",
+          "source_refs": [
+            "ev_6620b2677ead538fb749358f",
+            "ev_43a8e293a651f5515edcb291",
+            "ev_6f1914c42e75dd30c762cf51",
+            "ev_07d4076146beb1adbf0871a7",
+            "ev_6c0b57c1a14f68e95fadf6cc"
+          ],
+          "objective_ids": [
+            "n1-why-transformer:o1",
+            "n1-why-transformer:o2",
+            "n1-why-transformer:o3"
+          ],
+          "resource_type": "quiz",
+          "content_sha256": "13b465a6df515024d227bab0e6daba654cde61f44eeb9d746568b539c3aa08d3",
+          "objective_coverage": "verified"
+        }
+      ],
+      "objectives": [
+        {
+          "text": "用自己的话说明循环模型沿位置逐步计算隐藏状态为何导致训练无法并行、长序列受限",
+          "objective_id": "n1-why-transformer:o1"
+        },
+        {
+          "text": "说出 Transformer 完全摒弃循环与卷积、仅靠注意力建立全局依赖这一核心主张",
+          "objective_id": "n1-why-transformer:o2"
+        },
+        {
+          "text": "用“顺序操作数”和“任意两位置路径长度”两个指标对比自注意力层与循环层",
+          "objective_id": "n1-why-transformer:o3"
+        }
+      ],
+      "delivery_state": "ready",
+      "estimated_minutes": 10,
+      "generation_status": "ready",
+      "prerequisite_node_ids": [],
+      "pending_resource_types": []
+    },
+    {
+      "order": 2,
+      "title": "自注意力与缩放点积：Q、K、V 如何算出加权和",
+      "checks": [
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "sec-example",
+            "question_id": null
+          },
+          "check_id": "n2-self-attention:check:7c4622f190a8ef37eca9566b",
+          "resource_id": "resource_f4834a0b8726cb473e2dbaf503992be7",
+          "objective_ids": [
+            "n2-self-attention:o4"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "sec-selfcheck",
+            "question_id": null
+          },
+          "check_id": "n2-self-attention:check:2a27448b1465359e33dcd542",
+          "resource_id": "resource_f4834a0b8726cb473e2dbaf503992be7",
+          "objective_ids": [
+            "n2-self-attention:o3",
+            "n2-self-attention:o4"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q1-qkv-roles"
+          },
+          "check_id": "n2-self-attention:check:daf9fca70451243c13521198",
+          "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+          "objective_ids": [
+            "n2-self-attention:o1"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q2-decoupling"
+          },
+          "check_id": "n2-self-attention:check:a4ef196e475f2b1202d451d8",
+          "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+          "objective_ids": [
+            "n2-self-attention:o1"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q3-formula-steps"
+          },
+          "check_id": "n2-self-attention:check:3b0ac6c6122b09ffb94e07d6",
+          "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+          "objective_ids": [
+            "n2-self-attention:o2"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q4-scaling-reason"
+          },
+          "check_id": "n2-self-attention:check:00b8716d09c95de11c778943",
+          "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+          "objective_ids": [
+            "n2-self-attention:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q5-no-scaling-dk64"
+          },
+          "check_id": "n2-self-attention:check:bcbba871a2c49305e097733b",
+          "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+          "objective_ids": [
+            "n2-self-attention:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q6-hand-calc-weights"
+          },
+          "check_id": "n2-self-attention:check:7bd7b9edc7faef5fff0679b6",
+          "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+          "objective_ids": [
+            "n2-self-attention:o4"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q7-hand-calc-output"
+          },
+          "check_id": "n2-self-attention:check:6782b7851618c0f956a2b591",
+          "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+          "objective_ids": [
+            "n2-self-attention:o4"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q9-true-false-rowsum"
+          },
+          "check_id": "n2-self-attention:check:f51519b079ea144078b6650c",
+          "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+          "objective_ids": [
+            "n2-self-attention:o4"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q8-true-false-weights"
+          },
+          "check_id": "n2-self-attention:check:14e2970f6b0a94eb0f3381f7",
+          "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+          "objective_ids": [
+            "n2-self-attention:o1"
+          ],
+          "resource_version": 1
+        }
+      ],
+      "node_id": "n2-self-attention",
+      "required": true,
+      "resources": [
+        {
+          "order": 1,
+          "purpose": "自注意力与缩放点积：Q、K、V 如何算出加权和",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_77ce3c35fcdeb86d3d3db7e4e6a73c61",
+          "source_refs": [
+            "ev_d2326186e8e5ed07b75cf1ea",
+            "ev_43a8e293a651f5515edcb291",
+            "ev_6c0b57c1a14f68e95fadf6cc"
+          ],
+          "objective_ids": [
+            "n2-self-attention:o1",
+            "n2-self-attention:o2",
+            "n2-self-attention:o3",
+            "n2-self-attention:o4"
+          ],
+          "resource_type": "classroom",
+          "content_sha256": "ca0f5bbea78684511fe0599d3282f667cb1a4b8514695b307d7ab2a35761c35c",
+          "objective_coverage": "planned"
+        },
+        {
+          "order": 2,
+          "purpose": "自注意力与缩放点积：Q、K、V 如何算出加权和",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_f4834a0b8726cb473e2dbaf503992be7",
+          "source_refs": [
+            "ev_d2326186e8e5ed07b75cf1ea",
+            "ev_43a8e293a651f5515edcb291",
+            "ev_6c0b57c1a14f68e95fadf6cc"
+          ],
+          "objective_ids": [
+            "n2-self-attention:o1",
+            "n2-self-attention:o2",
+            "n2-self-attention:o3",
+            "n2-self-attention:o4"
+          ],
+          "resource_type": "report",
+          "content_sha256": "2632e01138447ac765814edd4663a0b0f38b5a15055bfa778cecb7560a14f9f4",
+          "objective_coverage": "verified"
+        },
+        {
+          "order": 3,
+          "purpose": "自注意力与缩放点积：Q、K、V 如何算出加权和",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+          "source_refs": [
+            "ev_d2326186e8e5ed07b75cf1ea",
+            "ev_43a8e293a651f5515edcb291",
+            "ev_6c0b57c1a14f68e95fadf6cc"
+          ],
+          "objective_ids": [
+            "n2-self-attention:o1",
+            "n2-self-attention:o2",
+            "n2-self-attention:o3",
+            "n2-self-attention:o4"
+          ],
+          "resource_type": "quiz",
+          "content_sha256": "4788aa66375b818795cb1a88fd57cde1efeb4d57db3df73f9f83e6cd3d63d8dc",
+          "objective_coverage": "verified"
+        }
+      ],
+      "objectives": [
+        {
+          "text": "解释 Query（我想找什么）、Key（我是什么）、Value（我的内容）三个角色的分工，以及相似度计算与信息传递为何解耦",
+          "objective_id": "n2-self-attention:o1"
+        },
+        {
+          "text": "写出 Attention(Q,K,V)=softmax(QK^T/√dk)V 并说明每一步在做什么",
+          "objective_id": "n2-self-attention:o2"
+        },
+        {
+          "text": "说明除以 √dk 的原因：dk 大时点积幅值变大，会把 softmax 推入梯度极小的区域",
+          "objective_id": "n2-self-attention:o3"
+        },
+        {
+          "text": "对一个 3 个 token 的简化例子手工完成打分、softmax 归一化与加权求和",
+          "objective_id": "n2-self-attention:o4"
+        }
+      ],
+      "delivery_state": "ready",
+      "estimated_minutes": 18,
+      "generation_status": "ready",
+      "prerequisite_node_ids": [
+        "n1-why-transformer"
+      ],
+      "pending_resource_types": []
+    },
+    {
+      "order": 3,
+      "title": "多头注意力：多个子空间并行关注",
+      "checks": [
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "self-check",
+            "question_id": null
+          },
+          "check_id": "n3-multihead:check:4e4b99ce9544b0b1648b5dde",
+          "resource_id": "resource_8577ef1cfc5802b949df43b3e765351e",
+          "objective_ids": [
+            "n3-multihead:o1",
+            "n3-multihead:o2",
+            "n3-multihead:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q1"
+          },
+          "check_id": "n3-multihead:check:cbdc2fc289213d846f29c1b6",
+          "resource_id": "resource_8ecdcd2b54647ff8029a8550fdfe4ee2",
+          "objective_ids": [
+            "n3-multihead:o1"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q6"
+          },
+          "check_id": "n3-multihead:check:1958a184178facaa8dd01516",
+          "resource_id": "resource_8ecdcd2b54647ff8029a8550fdfe4ee2",
+          "objective_ids": [
+            "n3-multihead:o1",
+            "n3-multihead:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q4"
+          },
+          "check_id": "n3-multihead:check:a73ecaead109f73cb7adfa7b",
+          "resource_id": "resource_8ecdcd2b54647ff8029a8550fdfe4ee2",
+          "objective_ids": [
+            "n3-multihead:o2"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q5"
+          },
+          "check_id": "n3-multihead:check:971163d03a9bba5fb29487f0",
+          "resource_id": "resource_8ecdcd2b54647ff8029a8550fdfe4ee2",
+          "objective_ids": [
+            "n3-multihead:o2"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q2"
+          },
+          "check_id": "n3-multihead:check:090e712b9c7270f7022f7c74",
+          "resource_id": "resource_8ecdcd2b54647ff8029a8550fdfe4ee2",
+          "objective_ids": [
+            "n3-multihead:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q3"
+          },
+          "check_id": "n3-multihead:check:586d1d70166ce2468c965b36",
+          "resource_id": "resource_8ecdcd2b54647ff8029a8550fdfe4ee2",
+          "objective_ids": [
+            "n3-multihead:o3"
+          ],
+          "resource_version": 1
+        }
+      ],
+      "node_id": "n3-multihead",
+      "required": true,
+      "resources": [
+        {
+          "order": 1,
+          "purpose": "多头注意力：多个子空间并行关注",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_0187982d8a327a9949d6b1cc5eff9c58",
+          "source_refs": [
+            "ev_6c0b57c1a14f68e95fadf6cc",
+            "ev_1fba05e38bee69d3b8cb60eb",
+            "ev_121bde89f2927417cbf70ddc"
+          ],
+          "objective_ids": [
+            "n3-multihead:o1",
+            "n3-multihead:o2",
+            "n3-multihead:o3"
+          ],
+          "resource_type": "classroom",
+          "content_sha256": "5e8add8aae582fd16b731a1a503937edc1916a7c52bd355a9bcae17cb642d100",
+          "objective_coverage": "planned"
+        },
+        {
+          "order": 2,
+          "purpose": "多头注意力：多个子空间并行关注",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_8577ef1cfc5802b949df43b3e765351e",
+          "source_refs": [
+            "ev_6c0b57c1a14f68e95fadf6cc",
+            "ev_1fba05e38bee69d3b8cb60eb",
+            "ev_121bde89f2927417cbf70ddc"
+          ],
+          "objective_ids": [
+            "n3-multihead:o1",
+            "n3-multihead:o2",
+            "n3-multihead:o3"
+          ],
+          "resource_type": "report",
+          "content_sha256": "3676e06a85779fa5f76fcec57139cf02ed84c9ca5902fa58616e957e30ff6ec2",
+          "objective_coverage": "verified"
+        },
+        {
+          "order": 3,
+          "purpose": "多头注意力：多个子空间并行关注",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_8ecdcd2b54647ff8029a8550fdfe4ee2",
+          "source_refs": [
+            "ev_6c0b57c1a14f68e95fadf6cc",
+            "ev_1fba05e38bee69d3b8cb60eb",
+            "ev_121bde89f2927417cbf70ddc"
+          ],
+          "objective_ids": [
+            "n3-multihead:o1",
+            "n3-multihead:o2",
+            "n3-multihead:o3"
+          ],
+          "resource_type": "quiz",
+          "content_sha256": "aa859b595cb984db937f4e761c333f684bd30b1234858ed24836a2aeb3a290cb",
+          "objective_coverage": "verified"
+        }
+      ],
+      "objectives": [
+        {
+          "text": "写出 MultiHead(Q,K,V)=Concat(head_1..head_h)W^O 与 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V)",
+          "objective_id": "n3-multihead:o1"
+        },
+        {
+          "text": "说明多头为何优于单头：可同时关注不同表示子空间、不同位置的信息，而单头平均会抑制这一点",
+          "objective_id": "n3-multihead:o2"
+        },
+        {
+          "text": "复述原论文配置 h=8、dk=dv=dmodel/h=64，并解释为何总计算量与全维单头相近",
+          "objective_id": "n3-multihead:o3"
+        }
+      ],
+      "delivery_state": "ready",
+      "estimated_minutes": 10,
+      "generation_status": "ready",
+      "prerequisite_node_ids": [
+        "n2-self-attention"
+      ],
+      "pending_resource_types": []
+    },
+    {
+      "order": 4,
+      "title": "位置编码、残差与层归一化、前馈网络：让注意力真正可用",
+      "checks": [
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "self-check",
+            "question_id": null
+          },
+          "check_id": "n4-position-ffn-norm:check:b90ce57c653f0398ef61fbfd",
+          "resource_id": "resource_6ef65c3193a49f97c2c8dd771f179a2c",
+          "objective_ids": [
+            "n4-position-ffn-norm:o1",
+            "n4-position-ffn-norm:o3",
+            "n4-position-ffn-norm:o4"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "pairing-practice",
+            "question_id": null
+          },
+          "check_id": "n4-position-ffn-norm:check:f6d2dcbed45dc6d652b9c076",
+          "resource_id": "resource_6ef65c3193a49f97c2c8dd771f179a2c",
+          "objective_ids": [
+            "n4-position-ffn-norm:o1",
+            "n4-position-ffn-norm:o3",
+            "n4-position-ffn-norm:o4"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q1-position-necessity"
+          },
+          "check_id": "n4-position-ffn-norm:check:549ac7b7bce90a756d4c6f72",
+          "resource_id": "resource_fc6c946659da6131968c64a19abd2b05",
+          "objective_ids": [
+            "n4-position-ffn-norm:o1"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q2-add-not-concat"
+          },
+          "check_id": "n4-position-ffn-norm:check:a6e9231d9ef520319e34f612",
+          "resource_id": "resource_fc6c946659da6131968c64a19abd2b05",
+          "objective_ids": [
+            "n4-position-ffn-norm:o1"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q3-sinusoid-formula"
+          },
+          "check_id": "n4-position-ffn-norm:check:263e2a466dd18ca567a07d73",
+          "resource_id": "resource_fc6c946659da6131968c64a19abd2b05",
+          "objective_ids": [
+            "n4-position-ffn-norm:o2"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q4-extrapolation-claim"
+          },
+          "check_id": "n4-position-ffn-norm:check:f7cb3d74b5641c6be45eea1a",
+          "resource_id": "resource_fc6c946659da6131968c64a19abd2b05",
+          "objective_ids": [
+            "n4-position-ffn-norm:o2"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q5-residual-layernorm"
+          },
+          "check_id": "n4-position-ffn-norm:check:e83dfcdba481d4b66f9cf817",
+          "resource_id": "resource_fc6c946659da6131968c64a19abd2b05",
+          "objective_ids": [
+            "n4-position-ffn-norm:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q6-ffn-properties"
+          },
+          "check_id": "n4-position-ffn-norm:check:b030e9903069f21d89eb34e0",
+          "resource_id": "resource_fc6c946659da6131968c64a19abd2b05",
+          "objective_ids": [
+            "n4-position-ffn-norm:o4"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q7-ffn-dimension-calc"
+          },
+          "check_id": "n4-position-ffn-norm:check:6e5432e89b80a3280418c1ec",
+          "resource_id": "resource_fc6c946659da6131968c64a19abd2b05",
+          "objective_ids": [
+            "n4-position-ffn-norm:o4"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q8-component-matching"
+          },
+          "check_id": "n4-position-ffn-norm:check:3c87b56c81eb15c4197fbcfa",
+          "resource_id": "resource_fc6c946659da6131968c64a19abd2b05",
+          "objective_ids": [
+            "n4-position-ffn-norm:o1",
+            "n4-position-ffn-norm:o3",
+            "n4-position-ffn-norm:o4"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q9-self-check"
+          },
+          "check_id": "n4-position-ffn-norm:check:be2f0dbceab5a5fc184aa705",
+          "resource_id": "resource_fc6c946659da6131968c64a19abd2b05",
+          "objective_ids": [
+            "n4-position-ffn-norm:o1",
+            "n4-position-ffn-norm:o4"
+          ],
+          "resource_version": 1
+        }
+      ],
+      "node_id": "n4-position-ffn-norm",
+      "required": true,
+      "resources": [
+        {
+          "order": 1,
+          "purpose": "位置编码、残差与层归一化、前馈网络：让注意力真正可用",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_7eadbc2612be47d8d2e3c67000d7de88",
+          "source_refs": [
+            "ev_6c0b57c1a14f68e95fadf6cc",
+            "ev_07d4076146beb1adbf0871a7",
+            "ev_6f1914c42e75dd30c762cf51",
+            "ev_d2326186e8e5ed07b75cf1ea",
+            "ev_43a8e293a651f5515edcb291"
+          ],
+          "objective_ids": [
+            "n4-position-ffn-norm:o1",
+            "n4-position-ffn-norm:o2",
+            "n4-position-ffn-norm:o3",
+            "n4-position-ffn-norm:o4"
+          ],
+          "resource_type": "classroom",
+          "content_sha256": "baf8e33c6239e69c2decff516d30bef2ede56bd5de27182b0d33754acd626bd4",
+          "objective_coverage": "planned"
+        },
+        {
+          "order": 2,
+          "purpose": "位置编码、残差与层归一化、前馈网络：让注意力真正可用",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_6ef65c3193a49f97c2c8dd771f179a2c",
+          "source_refs": [
+            "ev_6c0b57c1a14f68e95fadf6cc",
+            "ev_07d4076146beb1adbf0871a7",
+            "ev_6f1914c42e75dd30c762cf51",
+            "ev_d2326186e8e5ed07b75cf1ea",
+            "ev_43a8e293a651f5515edcb291"
+          ],
+          "objective_ids": [
+            "n4-position-ffn-norm:o1",
+            "n4-position-ffn-norm:o2",
+            "n4-position-ffn-norm:o3",
+            "n4-position-ffn-norm:o4"
+          ],
+          "resource_type": "report",
+          "content_sha256": "f21465114bfbe419a7f96dd362d85a83ca6fc78894cb1295148728aed5c48ea3",
+          "objective_coverage": "verified"
+        },
+        {
+          "order": 3,
+          "purpose": "位置编码、残差与层归一化、前馈网络：让注意力真正可用",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_fc6c946659da6131968c64a19abd2b05",
+          "source_refs": [
+            "ev_6c0b57c1a14f68e95fadf6cc",
+            "ev_07d4076146beb1adbf0871a7",
+            "ev_6f1914c42e75dd30c762cf51",
+            "ev_d2326186e8e5ed07b75cf1ea",
+            "ev_43a8e293a651f5515edcb291"
+          ],
+          "objective_ids": [
+            "n4-position-ffn-norm:o1",
+            "n4-position-ffn-norm:o2",
+            "n4-position-ffn-norm:o3",
+            "n4-position-ffn-norm:o4"
+          ],
+          "resource_type": "quiz",
+          "content_sha256": "b3333467d3e489fa5c0f753bf05aca1b31543abc17a3a9c93f0baa168e3bec26",
+          "objective_coverage": "verified"
+        }
+      ],
+      "objectives": [
+        {
+          "text": "说明自注意力本身位置无关，因此必须把位置编码加到输入嵌入上，且两者维度同为 dmodel 才能相加",
+          "objective_id": "n4-position-ffn-norm:o1"
+        },
+        {
+          "text": "写出正弦余弦位置编码公式并说明其设计意图（相对位置可线性表示、可能外推到更长序列）",
+          "objective_id": "n4-position-ffn-norm:o2"
+        },
+        {
+          "text": "解释残差连接与层归一化的作用：子层输出为 LayerNorm(x + Sublayer(x))，保证深层网络训练稳定",
+          "objective_id": "n4-position-ffn-norm:o3"
+        },
+        {
+          "text": "说明逐位置前馈网络 FFN(x)=max(0, xW1+b1)W2+b2 对每个位置独立做非线性变换，位置间共享参数、层间不共享",
+          "objective_id": "n4-position-ffn-norm:o4"
+        }
+      ],
+      "delivery_state": "ready",
+      "estimated_minutes": 12,
+      "generation_status": "ready",
+      "prerequisite_node_ids": [
+        "n2-self-attention"
+      ],
+      "pending_resource_types": []
+    },
+    {
+      "order": 5,
+      "title": "编码器-解码器结构与训练/推理流程",
+      "checks": [
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "sec-self-check",
+            "question_id": null
+          },
+          "check_id": "n5-encoder-decoder:check:fd228a44ce3ca5005013a891",
+          "resource_id": "resource_0a863e6382670020c6049f0bce9fa84e",
+          "objective_ids": [
+            "n5-encoder-decoder:o1",
+            "n5-encoder-decoder:o2",
+            "n5-encoder-decoder:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q1"
+          },
+          "check_id": "n5-encoder-decoder:check:3dfd254d4e48d40b8ff42a11",
+          "resource_id": "resource_faf3ba3576c7640207585076a8340946",
+          "objective_ids": [
+            "n5-encoder-decoder:o1"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q6"
+          },
+          "check_id": "n5-encoder-decoder:check:17dd27890ddb869b18ea0679",
+          "resource_id": "resource_faf3ba3576c7640207585076a8340946",
+          "objective_ids": [
+            "n5-encoder-decoder:o1"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q2"
+          },
+          "check_id": "n5-encoder-decoder:check:81201772157800996920dd12",
+          "resource_id": "resource_faf3ba3576c7640207585076a8340946",
+          "objective_ids": [
+            "n5-encoder-decoder:o2"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q3"
+          },
+          "check_id": "n5-encoder-decoder:check:6185bdcedfa95c15da184f62",
+          "resource_id": "resource_faf3ba3576c7640207585076a8340946",
+          "objective_ids": [
+            "n5-encoder-decoder:o2"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q4"
+          },
+          "check_id": "n5-encoder-decoder:check:08b15e9f1ccc410d0441af03",
+          "resource_id": "resource_faf3ba3576c7640207585076a8340946",
+          "objective_ids": [
+            "n5-encoder-decoder:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q5"
+          },
+          "check_id": "n5-encoder-decoder:check:0d839a38be07a00d0b7d82c6",
+          "resource_id": "resource_faf3ba3576c7640207585076a8340946",
+          "objective_ids": [
+            "n5-encoder-decoder:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q8"
+          },
+          "check_id": "n5-encoder-decoder:check:ea4327e8ab4f6e26310f515b",
+          "resource_id": "resource_faf3ba3576c7640207585076a8340946",
+          "objective_ids": [
+            "n5-encoder-decoder:o3"
+          ],
+          "resource_version": 1
+        },
+        {
+          "mode": "practice",
+          "locator": {
+            "page": null,
+            "section_id": null,
+            "question_id": "q7"
+          },
+          "check_id": "n5-encoder-decoder:check:383e0567449395228bd483a5",
+          "resource_id": "resource_faf3ba3576c7640207585076a8340946",
+          "objective_ids": [
+            "n5-encoder-decoder:o4"
+          ],
+          "resource_version": 1
+        }
+      ],
+      "node_id": "n5-encoder-decoder",
+      "required": true,
+      "resources": [
+        {
+          "order": 1,
+          "purpose": "编码器-解码器结构与训练/推理流程",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_8b503bac1d065bb5fe03996666fe9635",
+          "source_refs": [
+            "ev_d2326186e8e5ed07b75cf1ea",
+            "ev_6c0b57c1a14f68e95fadf6cc",
+            "ev_1fba05e38bee69d3b8cb60eb",
+            "ev_6f1914c42e75dd30c762cf51",
+            "ev_43a8e293a651f5515edcb291"
+          ],
+          "objective_ids": [
+            "n5-encoder-decoder:o1",
+            "n5-encoder-decoder:o2",
+            "n5-encoder-decoder:o3",
+            "n5-encoder-decoder:o4"
+          ],
+          "resource_type": "classroom",
+          "content_sha256": "66ee7c281d87c1cc8635cf895b30253588b4f8a3b39f55cd2331bcee29e19db9",
+          "objective_coverage": "planned"
+        },
+        {
+          "order": 2,
+          "purpose": "编码器-解码器结构与训练/推理流程",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_0a863e6382670020c6049f0bce9fa84e",
+          "source_refs": [
+            "ev_d2326186e8e5ed07b75cf1ea",
+            "ev_6c0b57c1a14f68e95fadf6cc",
+            "ev_1fba05e38bee69d3b8cb60eb",
+            "ev_6f1914c42e75dd30c762cf51",
+            "ev_43a8e293a651f5515edcb291"
+          ],
+          "objective_ids": [
+            "n5-encoder-decoder:o1",
+            "n5-encoder-decoder:o2",
+            "n5-encoder-decoder:o3",
+            "n5-encoder-decoder:o4"
+          ],
+          "resource_type": "report",
+          "content_sha256": "411af19b120fe3d0fca3b5891211086d93a55f43ad04ba40661d30d6c663ad9b",
+          "objective_coverage": "verified"
+        },
+        {
+          "order": 3,
+          "purpose": "编码器-解码器结构与训练/推理流程",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_faf3ba3576c7640207585076a8340946",
+          "source_refs": [
+            "ev_d2326186e8e5ed07b75cf1ea",
+            "ev_6c0b57c1a14f68e95fadf6cc",
+            "ev_1fba05e38bee69d3b8cb60eb",
+            "ev_6f1914c42e75dd30c762cf51",
+            "ev_43a8e293a651f5515edcb291"
+          ],
+          "objective_ids": [
+            "n5-encoder-decoder:o1",
+            "n5-encoder-decoder:o2",
+            "n5-encoder-decoder:o3",
+            "n5-encoder-decoder:o4"
+          ],
+          "resource_type": "quiz",
+          "content_sha256": "58a89377238d463beaa047688c1a732a811a7fadf6cd2354b95634fe70b5351e",
+          "objective_coverage": "verified"
+        }
+      ],
+      "objectives": [
+        {
+          "text": "描述编码器把输入序列映射为连续表示、解码器据此自回归逐元素生成输出的整体流程",
+          "objective_id": "n5-encoder-decoder:o1"
+        },
+        {
+          "text": "列出编码器每层两个子层与解码器每层三个子层，并说明三种多头注意力用法中 Q/K/V 的来源",
+          "objective_id": "n5-encoder-decoder:o2"
+        },
+        {
+          "text": "解释解码器掩码（softmax 输入非法连接设为 −∞）配合输出右移如何保证位置 i 只依赖小于 i 的已知输出",
+          "objective_id": "n5-encoder-decoder:o3"
+        },
+        {
+          "text": "概述训练与推理的基本轮廓：Adam + warmup 学习率、dropout 与标签平滑、推理用束搜索",
+          "objective_id": "n5-encoder-decoder:o4"
+        }
+      ],
+      "delivery_state": "ready",
+      "estimated_minutes": 10,
+      "generation_status": "ready",
+      "prerequisite_node_ids": [
+        "n3-multihead",
+        "n4-position-ffn-norm"
+      ],
+      "pending_resource_types": []
+    }
+  ],
+  "space": "personal",
+  "version": 21,
+  "audience": "希望入门学习 Transformer 的学习者（具体背景未知）",
+  "course_id": "learn-65488c25779346448e1dcbe0b809d73e",
+  "assumptions": [
+    "用户未说明学习时长，按默认 60 分钟整课预算安排",
+    "用户未指定材料语言，按提问语言推断为中文",
+    "用户未说明已有基础，按入门深度组织内容",
+    "用户未说明具体用途（如 NLP 应用、论文阅读或工程实现），按通用原理入门处理"
+  ],
+  "limitations": [
+    "五个节点的独立审阅均为 pass 且与当前内容摘要绑定，未发现跨节点阻塞缺陷；先修顺序 n1→n2→n3→n4→n5 成立（n5 依赖 n3 多头与 n4 位置编码/残差/FFN，n4 依赖 n2 自注意力），无循环依赖。",
+    "目标覆盖完整：n1 覆盖“为何取代循环结构”，n2 覆盖 Q/K/V 与缩放点积手算，n3 覆盖多头，n4 覆盖位置编码、残差/层归一化、前馈网络，n5 覆盖编码器-解码器与训练/推理流程，与 brief 的四项 desired_outcomes 一一对应；唯一需求 req-goal-transformer 在各节点均有承担。",
+    "时长风险（建议性，不阻断）：各节点报告+习题估算合计约 137 分钟，远超 60 分钟整课预算；n1（约 21.9 分钟 vs 10）、n2（约 26.3 vs 18）、n3（约 18.4 vs 10）、n4（约 32.1 vs 12）、n5（约 20.8 vs 10）均超节点预算，学习者实际投入会显著高于预期，可按需精简习题数量。",
+    "n2 报告与习题使用同一组 Q/K 但 V 不同，输出数值不一致；习题已自带 V 定义，不构成错误，但学习者混用会得到不同结果，建议后续版本统一示例数据。",
+    "中文教程来源的教学示意数值（注意力权重百分比、“余额/账户 0.35”等）非论文实验数据，正文已标注；现代位置编码（RoPE、ALiBi）与 BERT/GPT/T5 变体仅作延伸了解，未逐项核对原始论文。",
+    "原论文超参数（N=6、dmodel=512、h=8、dff=2048、warmup 4000、beam 4 等）为 2017 年配置，不代表后续实现；本路径为原理层面，不含可运行代码，手算练习无自动判分。",
+    "AI 课堂按 classroom_review_policy 不做生成后内容审查，本轮未评判课堂正文、配图与交互，也未将其列为修复目标。",
+    "报告与习题的估时（阅读约 7 分钟、习题约 11.4 分钟）合计超过节点 10 分钟预算，属建议性提示，不阻断交付；实际课堂视频仅约 1.2 分钟，学习者可按需取舍。",
+    "报告中的“小明把书给了小红，因为她明天要考试”为教学自拟示例，用于说明单头平均抑制多关系，非原论文实验内容；文中已明确 BLEU 数值仅来自原论文英德翻译开发集。",
+    "节点仅覆盖多头注意力，位置编码、残差/层归一化、前馈网络与编码器-解码器结构由后续节点承担，本节点未涉及，符合路径分工。",
+    "习题 q3 对“计算量相近”的解释以 dk/dv 线性增长为主，未展开投影矩阵参数量的同量级论证（报告中有说明），属简化表述，不影响正确性。",
+    "报告与习题的估时（阅读约 8 分钟、习题约 18.3 分钟）合计已超过本节点 18 分钟预算，整课必需资源估时约 137 分钟也远超 60 分钟目标；按规则时长仅作参考，不阻断交付，但学习者实际完成时间可能明显长于预期。",
+    "习题 q6/q7 的手算例子与报告第五节使用同一组 Q/K，但 V 不同（报告 V=[[1,0],[0,2],[3,0]]，习题 V=[[1,0],[0,1],[1,1]]），两处输出数值不同；习题已明确给出自己的 V，不构成错误，但学习者若混用会得到不一致结果。",
+    "报告与习题中的代词示例百分比（如 65%）及“余额/账户 0.35”类数值来自中文教程的教学示意，非论文实验数据，已在正文与解析中标注。",
+    "本节点仅覆盖单头缩放点积自注意力；多头、位置编码、残差/层归一化、前馈网络与编码器-解码器结构留给后续节点，报告第七节已明确边界。",
+    "未提供可运行代码，手算练习需学习者自行纸笔完成，无自动判分。",
+    "报告与习题的估算时长（约 8.9 分钟阅读 + 13 分钟习题）明显超过本节点 10 分钟预算，整课已知必需时长约 137 分钟也远超 60 分钟目标；按规则时长仅作建议，不阻断交付，但学习者实际投入会显著高于预期。",
+    "习题 q2 选项 B 把“内存约束限制批处理”表述为“长序列占用更多内存从而限制批大小”，与原论文“样本内无法并行、显存限制跨样本批处理”的因果链略有简化，属可接受的通俗化，但严格说内存压力主要来自激活值随序列长度增长而非顺序性本身。",
+    "报告第四节用 6 词、d=512、600 词等示例数值说明复杂度，均为教学示意而非实验数据，文中已声明。",
+    "本节点仅覆盖“为什么需要 Transformer”，注意力内部计算、多头、位置编码、编码器-解码器结构由后续节点承担，单独看本节点不足以完成整课目标。",
+    "AI 课堂按策略不做内容审查，本轮未评判课堂讲解、配图与交互。",
+    "报告与习题的估时（8.5 分钟阅读 + 12.27 分钟答题）明显超过本节点 10 分钟预算，仅作内容量参考，不阻断交付；若学习者严格按 60 分钟整课推进，本节点可能被压缩。",
+    "训练/推理超参数（Adam β1=0.9/β2=0.98/ε=1e-9、warmup 4000 步、Pdrop=0.1、标签平滑 0.1、beam size 4、长度惩罚 0.6、8 块 P100 12 小时）均为 2017 年原论文 base/big 配置，不代表后续实现；报告已作此说明。",
+    "现代变体（BERT/RoBERTa、GPT/LLaMA/Claude、T5/BART）来自 Datawhale 中文教程概述，未逐项核对原始论文，报告已标注为延伸了解。",
+    "本节点为原理理解层面，不含可运行代码；习题 q6 为简答题，需学习者自行组织表述，无自动判分依据。",
+    "AI 课堂按 classroom_review_policy 不做生成后内容审查，本轮未评判课堂正文、配图与交互。",
+    "报告与习题的估算时长（约 14.5 分钟阅读 + 17.6 分钟答题）明显超过节点 12 分钟预算，属建议性提示，不阻断交付；若需严格控时，可考虑精简习题数量。",
+    "报告 §2.2 手算示例中 d_model=4 的玩具设置与真实 d_model=512 不同，已在文中标注；位置编码“相加优于拼接”与层归一化/批归一化对比属补充说明，原论文未做对应论证，文中已声明。",
+    "现代位置编码（RoPE、ALiBi、相对位置编码）仅作延伸提及，依据为中文教程概述，未逐项核对原始论文。",
+    "习题 q7 的运算量估算按“每个输出元素一次乘加”简化统计，未计入偏置加法与实现层面的常数因子。",
+    "未上传任何资料，全部依据来自公开来源：原始论文《Attention Is All You Need》(NIPS 2017) 与两篇中文教学材料（个人博客、Datawhale Easy-Vibe 教程）。",
+    "中文教程中的注意力权重数值（如“余额”与“账户”0.35）为教学示意，非原论文实验数据，仅用于建立直觉。",
+    "现代位置编码（RoPE、ALiBi、相对位置编码）与仅编码器/仅解码器变体来自中文教程概述，未逐项核对原始论文，仅作延伸了解。",
+    "原论文超参数（N=6、dmodel=512、h=8、dff=2048、warmup 4000 步等）为 2017 年 base/big 模型配置，不代表所有后续 Transformer 实现。",
+    "本路径为原理理解层面，不含可运行代码实现；60 分钟为入门概览，不承诺全面掌握。",
+    "未上传任何资料，全部依据来自公开来源：原始论文 NIPS 2017 版与两篇中文教学材料（个人博客、Datawhale Easy-Vibe 教程）。",
+    "中文教程中的注意力权重数值（如“余额”与“账户”0.35）为教学示意，非原论文实验数据，路径中仅作直觉说明。",
+    "现代位置编码（RoPE、ALiBi、相对位置编码）与仅编码器/仅解码器变体来自中文教程的概述，未逐项核对原始论文，仅作延伸了解。",
+    "本次未上传任何资料，Transformer 的原理、公式推导与示例需由研究阶段从公开来源补充"
+  ],
+  "manifest_id": "manifest_35baad82b2f65f5a42d1c42cff0fb9b2",
+  "route_version": 1,
+  "delivery_state": "complete",
+  "schema_version": 1,
+  "estimated_minutes": 60,
+  "quality_report_id": "quality_074473a7716884af549956d91e10bf39640e8ac5672bc2547373b4ad4277267f",
+  "created_by_preparation_id": "prep_65488c25779346448e1dcbe0b809d73e"
+}

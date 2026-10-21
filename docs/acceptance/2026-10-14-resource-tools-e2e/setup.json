@@ -1,0 +1,6 @@
+{
+  "courseId": "resource-e2e-b25c130f",
+  "chapterId": "resource-e2e-b25c130f-variables",
+  "createdAt": "2026-10-14T09:02:42.467Z",
+  "setup": "Dedicated test account/course via real authenticated APIs; no generated-resource mocks or database overrides"
+}

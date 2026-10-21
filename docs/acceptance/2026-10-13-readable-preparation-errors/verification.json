@@ -1,0 +1,53 @@
+{
+  "scope": "Readable failure explanations and diagnosis of the latest failed task; no resource generation pipeline or task quota change",
+  "backend_regressions": {
+    "passed_unique": 70,
+    "skipped": 1,
+    "initial_run": "68 passed, 1 skipped, 2 failed due to incorrect exception-message expectation in the new owner-isolation test",
+    "corrected_failure_suite": "12 passed across SQLite and PostgreSQL; exception type assertion corrected"
+  },
+  "frontend": {
+    "unit_tests_passed": 5,
+    "browser_tests_passed": 20,
+    "type_check": "passed",
+    "lint": "0 errors; 2 existing fast-refresh warnings in Preparation.tsx",
+    "vite_build": "passed",
+    "viewports": [
+      1440,
+      390
+    ],
+    "published_nginx_browser_tests_passed": 5,
+    "browser_api_responses": "mocked for failure/retry UI assertions; real failure aggregation separately verified against read-only production database"
+  },
+  "real_task": {
+    "preparation_id": "prep_95f2f8fee55d43538396f4e5035661af",
+    "read_only_db_validation": true,
+    "planned_resources": 12,
+    "saved_drafts": 4,
+    "failed_resources": 8,
+    "failures": {
+      "context_overflow": 1,
+      "task_cost_reservation_exhausted": 6,
+      "quiz_answer_explanation_conflict": 1
+    },
+    "duration_was_not_exhausted": true,
+    "native_pages_generated_before_mapping_failure": true
+  },
+  "diagnosis": {
+    "mapping_input_upper_bound": 127799,
+    "mapping_output_reservation": 6000,
+    "context_limit": 128000,
+    "budget_consumed_micro_usd": 9454630,
+    "budget_limit_micro_usd": 10000000,
+    "cost_basis": "internal conservative accounting, not confirmed provider billing or account balance",
+    "quiz_issue": "Question 1 answer marked A (7 and 3), while its own explanation concludes B (6 and 3)."
+  },
+  "delivery_boundary": {
+    "frontend_published": true,
+    "backend_restart_required": true,
+    "no_production_task_mutated": true,
+    "no_paid_model_generation_retried": true,
+    "full_course_success_not_verified": true,
+    "context_overflow_and_budget_limits_not_changed": true
+  }
+}

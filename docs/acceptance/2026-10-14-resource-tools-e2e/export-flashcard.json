@@ -1,0 +1,29 @@
+{
+  "cards": [
+    {
+      "id": "card-1",
+      "back": "b 与 a 引用同一个列表对象，b 是 a 的别名，而不是新列表。",
+      "front": "在 Python 中，a=[1,2]; b=a 后，a 与 b 是什么关系？",
+      "category": "核心概念",
+      "source_doc_id": null
+    },
+    {
+      "id": "card-2",
+      "back": "a 和 b 都看到 [1,2,3]，因为 b 与 a 引用同一列表，修改 b 也会改变 a 所见内容。",
+      "front": "若 a=[1,2]; b=a; b.append(3)，a 和 b 看到的内容分别是什么？",
+      "category": "核心概念",
+      "source_doc_id": null
+    },
+    {
+      "id": "card-3",
+      "back": "b=a.copy() 创建浅拷贝；对于嵌套列表等对象，a 与 b 仍会共享它们。",
+      "front": "b=a.copy() 创建的是什么样的拷贝？嵌套列表会怎样？",
+      "category": "核心概念",
+      "source_doc_id": null
+    }
+  ],
+  "count": 3,
+  "title": "验收·闪卡·Python 变量绑定与列表浅拷贝",
+  "difficulty": "medium",
+  "show_sources": true
+}

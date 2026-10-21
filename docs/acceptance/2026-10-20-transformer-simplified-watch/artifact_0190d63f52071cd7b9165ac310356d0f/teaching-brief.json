@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 13.363787174224854,
+  "decisions": {
+    "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置与有效个人偏好均为空，故采用 defaults 的约 5 分钟目标时长，围绕单个编码器层的两子层与 Add&Norm 安排充分解释与分步图示，不压缩成一分钟概述，也不为凑时长加入无关内容。节点 10 分钟学习预算包含阅读与练习，不作为成片时长。配音：用户未要求无配音，defaults.narration=true，采用中文配音讲解。画幅采用 defaults 的 16:9，并遵循课程视觉契约。交付类型为约 5 分钟常规教学解释视频，按原生路由走 general-video；flow=automation、storyboard=no。课堂练习与自测留给习题资源，详细阅读留给报告资源，视频不插入题目。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792484615.9071014,
+  "brief_sha256": "c1fa7509fac6a297deff8a407809eed4c91898394b7fe3d32d8ba23310d40b10",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"编码器层 = 多头自注意力 + Add&Norm + 逐位置前馈网络 + Add&Norm，堆叠 N 层后输出 memory\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织）\"\n---\n\n## Intent\n\n这是「Transformer 入门」课程中「编码器结构：两子层与 Add&Norm」这一节点的教学视频，中文讲解，面向希望系统学习 Transformer 的初学者（用户未说明具体背景，按入门深度组织）。目标是把单个编码器层讲清楚：它由两个子层组成——多头自注意力子层与逐位置前馈网络子层，每个子层后都接残差连接与层归一化（合称 Add&Norm）；整个编码器由 N 个相同的编码器层堆叠（论文中 N=6），并行处理、只做一次前向传播，输出高阶上下文表示（常称 memory）供解码器使用。语气清晰、结构感强，像老师在白板上一步步画图讲解，而不是念论文。\n\n## Assets\n\n- 无用户提供的附件素材；本节点全部依据研究阶段检索到的公开中文教材、技术博客与论文解读（如 kangshitao 博客、Microsoft AI-System 教材第 2.9 节、cnblogs/rossiXYZ 的 Transformer 解读），未直接引用原始论文全文。视频中的结构图需由创作阶段自行绘制，不得伪造素材路径或引用不存在的图片文件。\n\n## Customizations\n\n- 按「输入 + 位置编码 → 多头自注意力 → Add&Norm → 前馈网络 → Add&Norm」的顺序，逐步画出单个编码器层的数据流图（分步呈现，不要一次塞满整张图）。\n- 用对比方式点出：自注意力跨位置交换信息，而前馈网络是逐位置独立变换、不跨位置交互。\n- 明确标注哪些操作保持张量形状不变（残差相加、层归一化），便于学习者理解为什么能层层堆叠。\n- 视觉遵循课程统一契约：1920x1080、深色背景 #0f172a、前景 #f8fafc、强调色 #38bdf8、字体 Noto Sans SC；正文不小于 32px，图示标签不小于 28px，标题不小于 48px；密集图示拆成多步而不是缩小字号。\n\n## Notes\n\n必须讲清的内容（教师演示部分，视频必须覆盖）：\n\n1. 编码器由 N 个相同的编码器层堆叠而成，论文中 N=6；原图只画一个 EncoderLayer 并标注 Nx。\n2. 每个编码器层包含两个子层：多头自注意力层（Multi-Head Attention）与逐位置前馈全连接层（Position-wise Feed-Forward Network，两层线性变换中间夹 ReLU）。\n3. 每个子层后都有残差连接与层归一化，二者合称 Add&Norm；残差连接把子层新产生的数据与原始输入相加，缓解深层网络的梯度消失；层归一化使数据更稳定（均值 0、方差 1），便于后续处理。\n4. 编码器对输入并行处理、只做一次前向传播；最后一个编码器层的输出即编码器输出，是对原始输入的高阶抽象表示，代码中常称 memory，会送入解码器堆栈的每一个解码器层。\n5. 每个编码器层输出的张量维度与输入一致（[batch_size, seq_len, embedding_dim]），这是残差连接能成立的前提。\n\n演示深度与边界：\n\n- 入门级原理讲解，不写 PyTorch 代码、不涉及训练实践。\n- 自注意力与多头注意力的 QKV 计算细节、位置编码的正弦/余弦公式属于先修节点（自注意力与多头注意力、位置编码），本视频只需一句话衔接，不重复展开；不展开 RoPE、ALiBi 等后续变体。\n- 不规划其他节点内容，不固定场景数量。\n\n留给其他资源的部分：\n\n- 课堂练习（给模块清单排序、标注哪些操作保持张量形状不变）与自测（画出单个编码器层数据流并说明为何每个子层后都要 Add&Norm；说出编码器输出被称为什么、交给谁使用）由习题资源承担，视频不插入题目、不做测验。\n- 更详细的阅读材料（论文原文、教材章节）由报告资源承担。\n\n语音与画幅：\n\n- 需要中文配音讲解（用户未指定配音风格，采用清晰、平稳的教学讲解语气）。\n- 画幅 16:9，时长约 5 分钟（用户未指定视频时长，采用默认目标时长；节点 10 分钟学习预算包含阅读与练习，不等同视频时长）。\n\n排除项：用户未提出排除要求；不加入与编码器结构无关的内容来凑时长。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

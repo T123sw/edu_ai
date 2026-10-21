@@ -4,6 +4,9 @@ description: 将学习需求、上传材料和研究证据组织为有先修关�
 ---
 # 规划学习路径
 
+局部补充/修订边界（supplement_node / revise_resource）：本次 path 只有 target.node_id 一个节点，prerequisite_keys 仅引用本次 path 内部节点，因此应为空；这不表示删除原课程先修关系。原节点的先修、顺序、目标与其他资源由程序从 existing_target.manifest 原样保留，提交只追加/修订本节点资源。核对 node_key 与 objectives 和原节点一致即可，不要求把外部先修节点加入局部 path，也不能因此拒绝交付。仍须核对教学内容、代码、答案与证据的实质正确性。
+
+
 以 phase 选择流程。只使用当前挂载工具；已加载本 Skill 时不重复调用 skill。每轮提交一个动作后结束，程序校验、保存并交接下一阶段。
 
 | 阶段 | 输入 | 工具 | 交接 |
@@ -13,9 +16,11 @@ description: 将学习需求、上传材料和研究证据组织为有先修关�
 
 ## 新建或基于研究结果规划：plan
 
+推荐按知识点、先修关系与学习目标组织路径，未明确节点数时由模型决定，不固定四个，也不按视频时长或教学环节凑节点。课程内的视频仍有完整教学安排；后续由视频简报转换模型分配视频、报告和习题职责。独立一条视频及已有节点补充不扩大本次范围。
+
 1. 同时核对用户原话与 brief，保留核心目标、基础、时间、输出语言、排除项和资料缺口。不能仅为满足结构检查而遗漏原始目标，也不能把记忆偏好当作掌握事实。
 2. 读取 summary.findings 及其真实引文。当前 evidence 可能只保留已验证引用片段，不能声称已读整本资料或尚未提供的内容。路径节点必须有已读证据支持。
-3. 从先修知识到目标能力分解节点，避免同一内容反复出现。每个节点提交稳定 node_key、标题、可观察 objectives、minutes、prerequisite_keys、learning_activities、self_check，以及 requirement_ids、finding_ids、source_ids。
+3. 从先修知识到目标能力组织节点，严格遵守 brief.node_count 和原始需求明确的知识点数量。一个知识点内的直觉、定义、例题、边界、交互和测验是该节点的学习活动，不因活动不同拆成多个节点；课堂场景数不是路径节点数。每个节点提交稳定 node_key、标题、可观察 objectives、minutes、prerequisite_keys、learning_activities、self_check，以及 requirement_ids、finding_ids、source_ids。
 4. prerequisite_keys 必须指向前面已有节点；实际使用前一节点引入的概念时应有先修边，不能靠全部留空掩盖知识依赖。无循环、无不存在 ID。
 5. 整条路径覆盖每条 requirement_id；节点 source_ids 必须来自该节点 finding_ids 的引文，不能关联不支持目标的来源凑数。保留用户“先例子后原理”等教学要求。
 6. 每个节点有匹配基础的活动和一道自测，用可观察行为检查学习目标；参考 brief.total_minutes 分配 minutes，仅用于控制内容规模。短时间不能承诺全面掌握。

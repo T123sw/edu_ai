@@ -1,0 +1,24 @@
+{
+  "/": {
+    "status": 200,
+    "sha256": "2b11b9f78cdd8f47d035719304729ac0dc2444054eaf42c0844ffb54c7ef18ad",
+    "seconds": 0.002
+  },
+  "/backend/health": {
+    "status": 200,
+    "health": "ok",
+    "seconds": 0.014
+  },
+  "/backend/openapi.json": {
+    "status": 200,
+    "seconds": 0.023
+  },
+  "/backend/api/personal-studio": {
+    "status": 401,
+    "seconds": 0.005
+  },
+  "/backend/api/personal-studio/resources/podcast/release-probe/audio": {
+    "status": 401,
+    "seconds": 0.006
+  }
+}

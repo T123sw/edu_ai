@@ -1,0 +1,94 @@
+[
+  {
+    "width": 1440,
+    "role": "student",
+    "forms": [
+      "report",
+      "quiz",
+      "flashcard",
+      "mind_map"
+    ],
+    "layout": {
+      "mainWidth": 1440,
+      "railWidth": 46,
+      "railHeight": 102,
+      "background": "rgba(0, 0, 0, 0)",
+      "overflow": false
+    },
+    "passed": true
+  },
+  {
+    "width": 390,
+    "role": "student",
+    "forms": [
+      "report",
+      "quiz",
+      "flashcard",
+      "mind_map"
+    ],
+    "layout": {
+      "mainWidth": 390,
+      "railWidth": 40,
+      "railHeight": 88,
+      "background": "rgba(0, 0, 0, 0)",
+      "overflow": false
+    },
+    "passed": true
+  },
+  {
+    "width": 320,
+    "role": "student",
+    "forms": [
+      "report",
+      "quiz",
+      "flashcard",
+      "mind_map"
+    ],
+    "layout": {
+      "mainWidth": 320,
+      "railWidth": 40,
+      "railHeight": 88,
+      "background": "rgba(0, 0, 0, 0)",
+      "overflow": false
+    },
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "role": "teacher",
+    "forms": [
+      "report",
+      "quiz",
+      "mind_map",
+      "lesson_plan",
+      "blog"
+    ],
+    "layout": {
+      "mainWidth": 1440,
+      "railWidth": 46,
+      "railHeight": 102,
+      "background": "rgba(0, 0, 0, 0)",
+      "overflow": false
+    },
+    "passed": true
+  },
+  {
+    "width": 390,
+    "role": "teacher",
+    "forms": [
+      "report",
+      "quiz",
+      "mind_map",
+      "lesson_plan",
+      "blog"
+    ],
+    "layout": {
+      "mainWidth": 390,
+      "railWidth": 40,
+      "railHeight": 88,
+      "background": "rgba(0, 0, 0, 0)",
+      "overflow": false
+    },
+    "passed": true
+  }
+]

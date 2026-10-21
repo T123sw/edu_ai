@@ -1,0 +1,40 @@
+{
+  "observed_at": 1792303416.7022583,
+  "tag": "多PDF验收 shanghai 1792299392138",
+  "generations": [
+    {
+      "generation_id": "examgen_0b2dd1ba43552aa58f39a63c5b58a743",
+      "job_id": "examgen_0b2dd1ba43552aa58f39a63c5b58a743",
+      "turn": {
+        "id": "turn_1792299469408_30a088af27",
+        "status": "cancelled",
+        "failure_code": "",
+        "created_at": 1792299469.9578993,
+        "updated_at": 1792299955.421994
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 7198,
+          "layout_blocks": 104,
+          "images": 6
+        }
+      ],
+      "blueprint_count": 45,
+      "local_events": 21181,
+      "upstream_events": 21187,
+      "done_received": false,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 126,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 7,
+          "deepseek-v4-flash": 119
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0
+}

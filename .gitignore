@@ -126,3 +126,32 @@ openmaic-sidecar/dev.log
 
 # Local stage execution artifacts; versioned acceptance records live under docs/acceptance.
 /artifacts/
+
+# Interactive experiment acceptance build
+/frontend/dist-practice/
+/frontend/dist-practice-native/
+
+# Reusable licensed fonts installed by scripts/prepare-hyperframes-runtime.py
+/hyperframes-runtime/assets/fonts/
+
+# Local release snapshots, exploratory builds, and editor backups.
+/frontend/dist-*/
+/frontend/test-results-*/
+*.bak.*
+*.bak-*
+/test_backend_tts.mp3
+/data/
+
+# Acceptance source and summaries are versioned; generated media and raw runs stay local.
+/docs/acceptance/**/*.png
+/docs/acceptance/**/*.jpg
+/docs/acceptance/**/*.jpeg
+/docs/acceptance/**/*.wav
+/docs/acceptance/**/*.mp3
+/docs/acceptance/**/*.mp4
+/docs/acceptance/**/*.zip
+/docs/acceptance/**/*.jsonl
+/docs/acceptance/**/.host/
+/docs/acceptance/**/native-render/
+/docs/acceptance/**/checkpoint.json
+/docs/acceptance/**/actions.json

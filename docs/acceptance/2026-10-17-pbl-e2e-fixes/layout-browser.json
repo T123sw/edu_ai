@@ -1,0 +1,49 @@
+{
+  "name": "layout",
+  "exerciseId": "pbl_4f6ee33f2ce560660e33ed674111db3f",
+  "steps": [
+    {
+      "id": "build-page",
+      "passed": true,
+      "cumulative": 7
+    }
+  ],
+  "checks": 7,
+  "errors": [],
+  "requestFailures": [
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://col.csbops.io/data/sandpack",
+      "error": "net::ERR_TIMED_OUT"
+    }
+  ],
+  "emptyStarterRejected": true,
+  "previewText": "我的作品\n\n记录我的学习成果\n\n天气卡片\n\n用 React 做的一个能显示天气信息的小卡片。\n\n读书笔记\n\n记录我读书时摘抄和感想的小工具。\n\n像素画\n\n在网页上绘制像素风格图案的练习作品。",
+  "previewRendered": true,
+  "previewControls": [],
+  "refreshPreservesCodeAndStep": true,
+  "regressionRejected": true,
+  "repairedCodePasses": true,
+  "mobileNoPageOverflow": true,
+  "previewViewports": [
+    {
+      "outerWidth": 390,
+      "width": 349,
+      "scrollWidth": 349
+    },
+    {
+      "outerWidth": 320,
+      "width": 279,
+      "scrollWidth": 279
+    }
+  ],
+  "privateAnswersExcluded": true,
+  "passed": true
+}

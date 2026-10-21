@@ -1,0 +1,10 @@
+{
+  "generation_id": "examgen_68e855e548756020104f2348db6cfdbe",
+  "ordinal": 45,
+  "before": [
+    "arithmetic_claim_invalid: -1 = -1, not 5",
+    "arithmetic_claim_invalid: -1 = -1, not 5"
+  ],
+  "after": [],
+  "boundary": "Deterministic recheck of the exact frozen production payload against deployed 0012; not a new complete paper generation or semantic validation."
+}

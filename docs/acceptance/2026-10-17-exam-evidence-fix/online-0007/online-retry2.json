@@ -1,0 +1,57 @@
+{
+  "boundary": "Second explicit production page retry; same uploaded PDF and request lineage",
+  "tag": "计算证据修复验收 1792259743007",
+  "startedAt": "2026-10-17T18:09:52.507Z",
+  "transitions": [
+    {
+      "at": "2026-10-17T18:09:56.066Z",
+      "generation_id": "examgen_8fda3c85c0e36592ec259f17ef6581fe",
+      "job_id": "job_ac8d8ca6d3b3426f",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-17T18:10:30.778Z",
+      "generation_id": "examgen_8fda3c85c0e36592ec259f17ef6581fe",
+      "job_id": "job_ac8d8ca6d3b3426f",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-17T18:10:47.109Z",
+      "generation_id": "examgen_8fda3c85c0e36592ec259f17ef6581fe",
+      "job_id": "job_ac8d8ca6d3b3426f",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    }
+  ],
+  "errors": [],
+  "retry_http": 202,
+  "job_id": "job_ac8d8ca6d3b3426f",
+  "generation_id": "examgen_8fda3c85c0e36592ec259f17ef6581fe",
+  "completed": false,
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "finishedAt": "2026-10-17T18:10:49.497Z"
+}

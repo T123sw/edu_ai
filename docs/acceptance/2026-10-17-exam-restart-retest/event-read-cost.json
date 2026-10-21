@@ -1,0 +1,7 @@
+{
+  "sample_count": 30,
+  "reads_per_sample": 3,
+  "mean_ms": 6.44,
+  "median_ms": 4.71,
+  "note": "Read-only sample of the lease/cancel checks performed per streamed event; includes first-connection warmup. Does not measure event inserts or large record rewriting."
+}

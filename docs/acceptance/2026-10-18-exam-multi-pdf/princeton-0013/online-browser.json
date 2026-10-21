@@ -1,0 +1,124 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "多PDF验收 princeton-0013 1792304153987",
+  "startedAt": "2026-10-18T06:15:53.987Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/examgen_84063a92be99187d60738b6e120f254b/retry",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-18T06:15:58.477Z",
+      "attempt": 0,
+      "generation_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "job_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T06:16:55.548Z",
+      "attempt": 0,
+      "generation_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "job_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T06:17:26.386Z",
+      "attempt": 0,
+      "generation_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "job_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T06:27:54.299Z",
+      "attempt": 0,
+      "generation_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "job_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    },
+    {
+      "at": "2026-10-18T06:27:56.959Z",
+      "attempt": 1,
+      "generation_id": "examgen_430578a8dc08cca2fdf6d810f9ce4f70",
+      "job_id": "job_80194ea9f74b499c",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T06:28:48.064Z",
+      "attempt": 1,
+      "generation_id": "examgen_430578a8dc08cca2fdf6d810f9ce4f70",
+      "job_id": "job_80194ea9f74b499c",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T06:30:25.833Z",
+      "attempt": 1,
+      "generation_id": "examgen_430578a8dc08cca2fdf6d810f9ce4f70",
+      "job_id": "job_80194ea9f74b499c",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_84063a92be99187d60738b6e120f254b",
+    "examgen_430578a8dc08cca2fdf6d810f9ce4f70"
+  ],
+  "retries": 1,
+  "refresh_recovery": true,
+  "pending_job_id": "job_80194ea9f74b499c",
+  "completed": false,
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "expected_questions": 9,
+  "source": "princeton",
+  "finishedAt": "2026-10-18T06:30:29.162Z"
+}

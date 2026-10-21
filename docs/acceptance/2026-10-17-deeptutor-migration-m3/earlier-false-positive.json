@@ -1,0 +1,25 @@
+{
+  "stage": "Earlier review prompt, superseded during M3 development",
+  "automatic_success": true,
+  "manual_acceptance": false,
+  "finding": "The second question still asks the original merge-sort complexity fact and gives away the formula in its stem. Automatic reviewer incorrectly accepted it.",
+  "question": {
+    "qa_pair": {
+      "question_id": "q_de16db8df3b4aae8b4a7",
+      "question": "A team must sort a list of 1,024 records, and their only hard guarantee is that the algorithm's running time never exceeds a constant multiple of $n \\log_2 n$ comparisons for *any* input ordering, including the worst one. Among the classic comparison-based sorts, merge sort is the standard choice because its worst-case running time is ____.",
+      "question_type": "fill_in_blank",
+      "options": null,
+      "correct_answers": [],
+      "blank_answers": [],
+      "children": [],
+      "correct_answer": "O(n log n)",
+      "explanation": "Merge sort always splits the array into two halves (about $\\log_2 n$ levels of recursion) and each level does linear work to merge, giving $\\Theta(n \\log n)$ comparisons regardless of the input order. Unlike quick sort, whose worst case degrades to $O(n^2)$ on already-sorted or badly pivoted input, merge sort's worst case is the same as its average case: $O(n \\log n)$. For $n = 1024$ that is roughly $1024 \\times 10 = 10{,}240$ comparisons at each level's total, i.e. on the order of $n \\log n$ work overall.",
+      "difficulty": "easy",
+      "concentration": "Merge sort worst-case time complexity"
+    },
+    "metadata": {
+      "blueprint_id": "q_de16db8df3b4aae8b4a7",
+      "review_passed": true
+    }
+  }
+}

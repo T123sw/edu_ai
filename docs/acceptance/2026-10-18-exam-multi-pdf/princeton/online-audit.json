@@ -1,0 +1,74 @@
+{
+  "observed_at": 1792303416.483739,
+  "tag": "多PDF验收 princeton 1792299379143",
+  "generations": [
+    {
+      "generation_id": "examgen_ea14bf7164cd22722a7ada6fd139dc86",
+      "job_id": "examgen_ea14bf7164cd22722a7ada6fd139dc86",
+      "turn": {
+        "id": "turn_1792299443409_5adc422427",
+        "status": "failed",
+        "failure_code": "",
+        "created_at": 1792299443.6339364,
+        "updated_at": 1792299453.1741052
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 13780,
+          "layout_blocks": 175,
+          "images": 49
+        }
+      ],
+      "blueprint_count": 0,
+      "local_events": 6,
+      "upstream_events": 6,
+      "done_received": true,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 1,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 1
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_7a63b6bb9eac02a8a5745339fbd3a0d2",
+      "job_id": "job_ce53f3fd1a744259",
+      "turn": {
+        "id": "turn_1792299518783_f9aa306809",
+        "status": "failed",
+        "failure_code": "",
+        "created_at": 1792299518.934706,
+        "updated_at": 1792299552.298966
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 13780,
+          "layout_blocks": 175,
+          "images": 49
+        }
+      ],
+      "blueprint_count": 0,
+      "local_events": 6,
+      "upstream_events": 6,
+      "done_received": true,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 9,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 9
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 0,
+    "unchanged_in_latest": 0
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "case": "form",
+  "topic": "用 React 做一个本地活动报名表，只做一个完整交互步骤。页面有姓名输入框和报名按钮。空字符串或只有空格的姓名提交后显示“请输入姓名”；合法姓名提交后显示“报名成功：”加去掉首尾空格的姓名。修改姓名时清除旧的成功或错误提示。不要联网、持久化、手机号或其他字段。",
+  "exerciseId": "pbl_a4d0ef791d18f67cc1c750628a3c6b7b",
+  "generationPassed": true,
+  "job": {
+    "schema_version": 2,
+    "version": 8,
+    "edu_job_id": "pbl_a4d0ef791d18f67cc1c750628a3c6b7b",
+    "kind": "generate_pbl",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "编程项目已就绪，可以开始实现",
+    "owner_user_id": "matrix_form",
+    "owner": "matrix_form",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_a4d0ef791d18f67cc1c750628a3c6b7b",
+    "input_summary": {
+      "title": "用 React 做一个本地活动报名表，只做一个完整交互步骤。页面有姓名输入框和报名按钮。空字符串或只有空格的姓名提交后显示“请输入姓名”；合法姓名提交后显示“报名成功：”加去掉首尾空格的姓名。修改姓名时清除旧的成功或错误提示。不要联网、持久化、手机号或其他字段。",
+      "topic": "用 React 做一个本地活动报名表，只做一个完整交互步骤。页面有姓名输入框和报名按钮。空字符串或只有空格的姓名提交后显示“请输入姓名”；合法姓名提交后显示“报名成功：”加去掉首尾空格的姓名。修改姓名时清除旧的成功或错误提示。不要联网、持久化、手机号或其他字段。",
+      "exercise_id": "pbl_a4d0ef791d18f67cc1c750628a3c6b7b"
+    },
+    "result_ref": {
+      "exercise_id": "pbl_a4d0ef791d18f67cc1c750628a3c6b7b",
+      "resource_type": "pbl_exercise"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-10-17T07:31:30.280570+00:00",
+    "started_at": "2026-10-17T07:34:15.398570+00:00",
+    "finished_at": "2026-10-17T07:34:46.416401+00:00",
+    "updated_at": "2026-10-17T07:34:46.416401+00:00"
+  },
+  "events": [
+    {
+      "seconds": 2.56,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 167.55,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 171.71,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：完成活动报名表交互"
+      ]
+    },
+    {
+      "seconds": 175.91,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：完成活动报名表交互"
+      ]
+    },
+    {
+      "seconds": 198.95,
+      "state": [
+        "succeeded",
+        "completed",
+        "编程项目已就绪，可以开始实现"
+      ]
+    }
+  ],
+  "seconds": 198.97,
+  "idempotentCreate": true,
+  "stepCount": 1,
+  "checkCount": 6
+}

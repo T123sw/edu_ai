@@ -1,0 +1,48 @@
+{
+  "generation_checks": [
+    {
+      "generation_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "paper_http": 409,
+      "anonymous_http": 401,
+      "answer_fields": [],
+      "blueprint_count": 9,
+      "blueprint_types": {
+        "compound": 8,
+        "fill_in_blank": 1
+      },
+      "blueprint_child_counts": [
+        2,
+        2,
+        5,
+        3,
+        4,
+        4,
+        8,
+        0,
+        5
+      ]
+    },
+    {
+      "generation_id": "examgen_430578a8dc08cca2fdf6d810f9ce4f70",
+      "paper_http": 409,
+      "anonymous_http": 401,
+      "answer_fields": [],
+      "blueprint_count": 9,
+      "blueprint_types": {
+        "compound": 8,
+        "fill_in_blank": 1
+      },
+      "blueprint_child_counts": [
+        2,
+        2,
+        5,
+        3,
+        4,
+        4,
+        8,
+        0,
+        5
+      ]
+    }
+  ]
+}

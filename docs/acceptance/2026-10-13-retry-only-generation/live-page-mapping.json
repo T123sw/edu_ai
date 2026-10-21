@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "source_preparation_id": "prep_95f2f8fee55d43538396f4e5035661af",
+  "scenes": 8,
+  "content_unchanged": true,
+  "objective_bindings": 18,
+  "provider_calls": 8,
+  "usage": [
+    {
+      "failed": false,
+      "actual": {
+        "calls": 1,
+        "tokens": 5262,
+        "cost_micro_usd": 52620
+      }
+    },
+    {
+      "failed": false,
+      "actual": {
+        "calls": 1,
+        "tokens": 5833,
+        "cost_micro_usd": 58330
+      }
+    },
+    {
+      "failed": false,
+      "actual": {
+        "calls": 1,
+        "tokens": 5844,
+        "cost_micro_usd": 58440
+      }
+    },
+    {
+      "failed": false,
+      "actual": {
+        "calls": 1,
+        "tokens": 6312,
+        "cost_micro_usd": 63120
+      }
+    },
+    {
+      "failed": false,
+      "actual": {
+        "calls": 1,
+        "tokens": 15903,
+        "cost_micro_usd": 159030
+      }
+    },
+    {
+      "failed": false,
+      "actual": {
+        "calls": 1,
+        "tokens": 6300,
+        "cost_micro_usd": 63000
+      }
+    },
+    {
+      "failed": false,
+      "actual": {
+        "calls": 1,
+        "tokens": 4507,
+        "cost_micro_usd": 45070
+      }
+    },
+    {
+      "failed": false,
+      "actual": {
+        "calls": 1,
+        "tokens": 5804,
+        "cost_micro_usd": 58040
+      }
+    }
+  ],
+  "max_input_upper_bound": 55837,
+  "classroom_extra_model_reviews": 0,
+  "production_task_modified": false,
+  "whole_course_regenerated": false
+}

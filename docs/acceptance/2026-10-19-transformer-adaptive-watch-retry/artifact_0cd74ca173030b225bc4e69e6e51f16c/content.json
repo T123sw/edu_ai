@@ -1,0 +1,869 @@
+{
+  "title": "Transformer 与循环网络：并行计算与长距离依赖",
+  "content": {
+    "title": "Transformer 与循环网络：并行计算、路径长度与计算代价",
+    "questions": [
+      {
+        "id": "q-rnn-parallel",
+        "stem": "关于循环网络（RNN/LSTM）在训练时的并行性，下列说法正确的是：",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "循环网络沿序列位置顺序计算，隐藏状态 h_t 依赖 h_{t-1}，因此同一个训练样本内部无法并行计算各时间步",
+          "循环网络可以像自注意力一样，把序列所有位置一次性并行计算，只是参数量更大",
+          "循环网络无法并行，是因为它不能使用 GPU，只能运行在 CPU 上",
+          "循环网络在训练样本内部可以并行，但在不同样本之间不能并行"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：循环模型把位置与计算时间步对齐，h_t 是 h_{t-1} 与位置 t 输入的函数，这种固有的顺序性排除了训练样本内的并行化。B 错误：一次性并行计算所有位置正是 Transformer 自注意力层的特点，循环网络做不到。C 错误：并行受限的根源是计算图上的顺序依赖，而不是硬件类型；循环网络同样可以在 GPU 上运行，只是时间步之间必须串行。D 错误：恰好相反，样本之间（批处理）是可以并行的，受限的是样本内部的时间步。"
+      },
+      {
+        "id": "q-transformer-parallel",
+        "stem": "Transformer 相比循环网络能获得更高并行度，最根本的原因是：",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "Transformer 使用了更大的批量大小和更多的 GPU",
+          "Transformer 摒弃了循环结构，完全依赖注意力机制建立输入输出之间的全局依赖，各位置的计算不再需要等待前一个位置的结果",
+          "Transformer 用卷积替代了循环，卷积核可以并行滑动",
+          "Transformer 去掉了位置编码，因此各位置之间完全无关"
+        ],
+        "difficulty": "easy",
+        "explanation": "B 正确：原始论文明确指出 Transformer 摒弃循环、完全依赖注意力建立全局依赖，从而允许更多并行化。A 错误：更大的批量和更多 GPU 是工程手段，不能消除模型结构中的顺序依赖，循环网络即使堆硬件，样本内时间步仍须串行。C 错误：Transformer 恰恰是摒弃了循环和卷积，并非用卷积替代循环。D 错误：Transformer 需要位置编码注入顺序信息，各位置之间通过注意力强相关，并非无关。"
+      },
+      {
+        "id": "q-path-length",
+        "stem": "设序列长度为 n。按原始论文“Why Self-Attention”一节的比较，关于“任意两个位置之间的最大路径长度”（即信号在网络中前向/反向传播需要经过的路径），下列哪项描述正确？",
+        "type": "single_choice",
+        "answer": "C",
+        "options": [
+          "自注意力层需要 O(n) 个顺序操作，循环层只需恒定数量的顺序操作",
+          "自注意力层与循环层都需要 O(n) 个顺序操作，二者路径长度相同",
+          "自注意力层通过恒定数量的顺序操作连接所有位置，而循环层需要 O(n) 个顺序操作，因此自注意力的路径更短",
+          "自注意力层的路径长度为 O(n²)，循环层为 O(n)"
+        ],
+        "difficulty": "medium",
+        "explanation": "C 正确：论文表 1 的结论是自注意力层用恒定数量的顺序执行操作连接所有位置，循环层需要 O(n) 个顺序操作，路径越短越容易学习长距离依赖。A 错误：把两者说反了。B 错误：两者路径长度并不相同，这正是自注意力在长距离依赖上的优势来源。D 错误：O(n²) 是自注意力每层的计算复杂度（随序列长度增长），不是路径长度；路径长度衡量的是顺序操作个数。"
+      },
+      {
+        "id": "q-complexity",
+        "stem": "关于自注意力层的计算代价，下列说法正确的有（多选）：",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "每层的计算复杂度随序列长度 n 呈 O(n²) 增长",
+          "当序列长度 n 小于表示维度 d 时，自注意力层比循环层更快，这在机器翻译常用的子词表示中通常是这种情况",
+          "若显式物化注意力矩阵，其空间开销随 n 呈 O(n²) 增长",
+          "自注意力每层复杂度是 O(n²)，所以它在任何序列长度下都比循环层慢"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：自注意力要计算所有位置对之间的注意力分数，每层复杂度随 n 呈 O(n²) 增长，这是它相对循环网络的主要代价。B 正确：论文指出当 n < d 时自注意力层比循环层更快，机器翻译中先进的子词/字节对表示通常满足这一条件。C 正确：注意力矩阵是 n×n 的，显式物化时空间为 O(n²)（FlashAttention 等做法可减少显存占用，但不改变这一基本量级）。D 错误：O(n²) 是渐近量级，且论文明确给出 n < d 时自注意力更快；不能由复杂度量级推出“任何长度都更慢”。"
+      },
+      {
+        "id": "q-tradeoff",
+        "stem": "判断：Transformer 完全依赖注意力机制，因此它在并行性和长距离依赖上都优于循环网络，且没有任何代价。",
+        "type": "true_false",
+        "answer": "错误",
+        "difficulty": "easy",
+        "explanation": "前半句“完全依赖注意力、并行性更好、路径更短”成立，但“没有任何代价”不成立。自注意力每层的计算复杂度随序列长度呈 O(n²) 增长，序列很长时计算与显存开销显著上升；论文也提到可把注意力限制在以输出位置为中心、大小为 r 的邻域，代价是最大路径长度增加到 O(n/r)。因此优势与代价需要同时说明。"
+      },
+      {
+        "id": "q-compare-table",
+        "stem": "请用三行对比表（或三句话）比较循环层与自注意力层，分别从以下三个维度说明：(1) 训练样本内能否并行；(2) 任意两个位置之间的最大路径长度（顺序操作数）；(3) 每层计算复杂度随序列长度 n 的增长情况。",
+        "type": "short_answer",
+        "answer": "参考要点：(1) 并行性：循环层因 h_t 依赖 h_{t-1}，样本内各时间步必须顺序计算，无法并行；自注意力层各位置可同时计算，可高度并行。(2) 路径长度：循环层任意两位置间需 O(n) 个顺序操作；自注意力层用恒定数量的顺序操作连接所有位置，路径更短，更易学习长距离依赖。(3) 复杂度：循环层每层为 O(n·d²)（随 n 线性增长）；自注意力层每层为 O(n²·d)（随 n 呈平方增长），当 n < d 时自注意力更快。",
+        "difficulty": "medium",
+        "explanation": "评分要点：三个维度各占一部分。并行性要指出顺序依赖的来源是隐藏状态的递推关系；路径长度要给出“恒定 vs O(n)”的对比并说明路径短有利于学习长距离依赖；复杂度要区分线性与平方增长，并说明 n < d 时自注意力更快这一前提。只写“Transformer 更好”而不给维度对比不得分。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 9.18
+      },
+      "spec_digest": "1619ee001ce040fab82a5d9a1f97c98c5388f422ca8887688f16ce59cb33fcf6",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q-rnn-parallel"
+          },
+          "objective_id": "n6-vs-rnn:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q-transformer-parallel"
+          },
+          "objective_id": "n6-vs-rnn:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q-path-length"
+          },
+          "objective_id": "n6-vs-rnn:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q-compare-table"
+          },
+          "objective_id": "n6-vs-rnn:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q-complexity"
+          },
+          "objective_id": "n6-vs-rnn:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q-tradeoff"
+          },
+          "objective_id": "n6-vs-rnn:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q-transformer-parallel"
+          },
+          "explanation": "该题考查 Transformer 完全依赖注意力、摒弃循环结构因而可高度并行，落实“核心结构/机制”中注意力机制的作用。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q-compare-table"
+          },
+          "explanation": "该题要求从并行性、路径长度、复杂度三维度对比循环层与自注意力层，落实对自注意力机制特点的理解。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需回忆循环网络隐藏状态的递推关系，并逐一排除“硬件限制”“样本间并行”等常见混淆，判断顺序依赖发生在样本内部。",
+          "question_id": "q-rnn-parallel",
+          "thinking_seconds": 30
+        },
+        {
+          "reason": "需区分结构层面的并行来源与工程手段（批量、GPU），并排除“用卷积替代循环”“去掉位置编码”两个错误说法。",
+          "question_id": "q-transformer-parallel",
+          "thinking_seconds": 30
+        },
+        {
+          "reason": "需回忆论文表 1 中“恒定顺序操作 vs O(n) 顺序操作”的结论，并区分路径长度与计算复杂度两个不同指标。",
+          "question_id": "q-path-length",
+          "thinking_seconds": 50
+        },
+        {
+          "reason": "多选需逐项判断：平方复杂度、n<d 时更快的条件、注意力矩阵空间开销，以及由量级推出“任何长度都更慢”的逻辑错误。",
+          "question_id": "q-complexity",
+          "thinking_seconds": 60
+        },
+        {
+          "reason": "需识别判断句前半正确、后半“没有任何代价”错误，并回忆 O(n²) 代价作为反例。",
+          "question_id": "q-tradeoff",
+          "thinking_seconds": 25
+        },
+        {
+          "reason": "需按三个维度分别组织循环层与自注意力层的对比，写出顺序操作数与复杂度量级，并补充 n<d 的前提，属于综合回忆与表述。",
+          "question_id": "q-compare-table",
+          "thinking_seconds": 120
+        }
+      ],
+      "teaching_context_digest": "a471a53b549b708875692d5a1d192b8be9277d4aa584d6600c2e23189c32444c"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "六道题分别覆盖并行性（q-rnn-parallel、q-transformer-parallel）、路径长度（q-path-length）、O(n²) 代价（q-complexity、q-tradeoff）与三维度综合对比（q-compare-table），真实支持本节点 req-transformer-basics 分工中的注意力机制与相对 RNN 的特点。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题独立求解：q-rnn-parallel 选 A、q-transformer-parallel 选 B、q-path-length 选 C、q-complexity 选 A,B,C、q-tradeoff 判“错误”、q-compare-table 参考要点（O(n·d²) vs O(n²·d)，n<d 时自注意力更快）均与论文表 1 一致，未发现事实或量级错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "习题逐题求解并对照解析：各干扰项均对应真实误区（硬件限制、样本间并行、卷积替代循环、去掉位置编码、把复杂度当路径长度），解析给出明确错误原因，无随意数字或猜测式解释。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序为并行性→路径长度→复杂度→代价判断→综合对比表，与节点活动“对比表练习”和自检问题一致；难度 easy/medium 分布适合入门，题干自足且未泄露答案。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "解析中的“恒定顺序操作 vs O(n)”“n<d 时更快”“O(n²) 复杂度”“邻域 r 使路径增至 O(n/r)”均可对应 research_context 中论文第 4 节与 CS336 笔记的引文，未出现无依据断言。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "六题覆盖三个节点目标（o1 并行、o2 路径长度、o3 复杂度代价），题型含单选、多选、判断、简答，答案与解析齐全，无缺项。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "version": 1,
+          "decision": "revise",
+          "structural_issues": [
+            "本轮输出格式或映射校验失败：preparation_content_envelope_missing。按本轮格式重交完整封装及必需教学映射；原生题目 JSON 应放在 content 字段内。"
+          ]
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "六道题分别覆盖并行性（q-rnn-parallel、q-transformer-parallel）、路径长度（q-path-length）、O(n²) 代价（q-complexity、q-tradeoff）与三维度综合对比（q-compare-table），真实支持本节点 req-transformer-basics 分工中的注意力机制与相对 RNN 的特点。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解：q-rnn-parallel 选 A、q-transformer-parallel 选 B、q-path-length 选 C、q-complexity 选 A,B,C、q-tradeoff 判“错误”、q-compare-table 参考要点（O(n·d²) vs O(n²·d)，n<d 时自注意力更快）均与论文表 1 一致，未发现事实或量级错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题逐题求解并对照解析：各干扰项均对应真实误区（硬件限制、样本间并行、卷积替代循环、去掉位置编码、把复杂度当路径长度），解析给出明确错误原因，无随意数字或猜测式解释。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为并行性→路径长度→复杂度→代价判断→综合对比表，与节点活动“对比表练习”和自检问题一致；难度 easy/medium 分布适合入门，题干自足且未泄露答案。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "解析中的“恒定顺序操作 vs O(n)”“n<d 时更快”“O(n²) 复杂度”“邻域 r 使路径增至 O(n/r)”均可对应 research_context 中论文第 4 节与 CS336 笔记的引文，未出现无依据断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "六题覆盖三个节点目标（o1 并行、o2 路径长度、o3 复杂度代价），题型含单选、多选、判断、简答，答案与解析齐全，无缺项。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q-complexity 的 C 项解析称 FlashAttention“不改变这一基本量级”，严格说它减少的是显存物化而非注意力计算量，可改为“减少显存占用但不改变 n×n 分数矩阵的计算量”，避免读者误以为空间复杂度也被改变。",
+              "q-compare-table 的参考答案给出 O(n·d²) 与 O(n²·d)，可补一句“d 为表示维度、d_k 为每头维度”，使入门读者不混淆两个符号。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q-rnn-parallel",
+                "option_checks": [
+                  {
+                    "reasoning": "正确描述了循环网络隐藏状态的递推依赖导致样本内无法并行，与论文“固有的顺序性质排除了训练样本内的并行化”一致。",
+                    "option_text": "循环网络沿序列位置顺序计算，隐藏状态 h_t 依赖 h_{t-1}，因此同一个训练样本内部无法并行计算各时间步",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：循环模型把位置与计算时间步对齐，h_t 是 h_{t-1} 与位置 t 输入的函数，这种固有的顺序性排除了训练样本内的并行化。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析摘录准确复述 h_t 依赖 h_{t-1} 与位置 t 输入，并据此推出样本内不可并行，推理成立。"
+                  },
+                  {
+                    "reasoning": "错误：一次性并行计算所有位置是自注意力层的特点，循环网络受递推依赖限制做不到，与参数量无关。",
+                    "option_text": "循环网络可以像自注意力一样，把序列所有位置一次性并行计算，只是参数量更大",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：一次性并行计算所有位置正是 Transformer 自注意力层的特点，循环网络做不到。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出“一次性并行计算所有位置正是自注意力层的特点”，准确对应本项错误所在。"
+                  },
+                  {
+                    "reasoning": "错误：并行受限源于计算图的顺序依赖而非硬件；循环网络同样可在 GPU 上运行，只是时间步串行。",
+                    "option_text": "循环网络无法并行，是因为它不能使用 GPU，只能运行在 CPU 上",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：并行受限的根源是计算图上的顺序依赖，而不是硬件类型；循环网络同样可以在 GPU 上运行，只是时间步之间必须串行。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "两段摘录分别指出根源是顺序依赖而非硬件类型、循环网络也能在 GPU 上运行，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：恰好相反，样本之间可以批处理并行，受限的是样本内部的时间步。",
+                    "option_text": "循环网络在训练样本内部可以并行，但在不同样本之间不能并行",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：恰好相反，样本之间（批处理）是可以并行的，受限的是样本内部的时间步。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出样本间可并行、受限的是样本内部时间步，与本项说法正好相反，判断成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "循环网络 h_t = f(h_{t-1}, x_t)，时间步之间存在数据依赖，同一训练样本内各时间步必须串行；样本之间（批处理）可以并行。因此 A 正确，B、C、D 均错。"
+              },
+              {
+                "question_id": "q-transformer-parallel",
+                "option_checks": [
+                  {
+                    "reasoning": "错误：批量与 GPU 数量是工程手段，不能消除循环结构中的顺序依赖，不是“最根本原因”。",
+                    "option_text": "Transformer 使用了更大的批量大小和更多的 GPU",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：更大的批量和更多 GPU 是工程手段，不能消除模型结构中的顺序依赖，循环网络即使堆硬件，样本内时间步仍须串行。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析区分工程手段与结构依赖，并指出循环网络堆硬件后样本内时间步仍须串行，批评成立。"
+                  },
+                  {
+                    "reasoning": "正确：论文明确指出 Transformer 摒弃循环、完全依赖注意力建立全局依赖，从而允许更多并行化。",
+                    "option_text": "Transformer 摒弃了循环结构，完全依赖注意力机制建立输入输出之间的全局依赖，各位置的计算不再需要等待前一个位置的结果",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：原始论文明确指出 Transformer 摒弃循环、完全依赖注意力建立全局依赖，从而允许更多并行化。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析与论文引言表述一致，正确说明本项为何成立。"
+                  },
+                  {
+                    "reasoning": "错误：Transformer 同时摒弃了循环和卷积，并非用卷积替代循环。",
+                    "option_text": "Transformer 用卷积替代了循环，卷积核可以并行滑动",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：Transformer 恰恰是摒弃了循环和卷积，并非用卷积替代循环。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析准确指出 Transformer 摒弃循环和卷积，本项“用卷积替代循环”不成立。"
+                  },
+                  {
+                    "reasoning": "错误：Transformer 需要位置编码注入顺序信息，各位置通过注意力强相关，并非无关。",
+                    "option_text": "Transformer 去掉了位置编码，因此各位置之间完全无关",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：Transformer 需要位置编码注入顺序信息，各位置之间通过注意力强相关，并非无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出位置编码的必要性与注意力带来的强相关，正确否定本项。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Transformer 摒弃循环，完全依赖注意力建立全局依赖，各位置计算互不等待，因此结构上可高度并行；更大批量/更多 GPU 是工程手段，卷积替代循环与去掉位置编码均与事实不符。答案 B。"
+              },
+              {
+                "question_id": "q-path-length",
+                "option_checks": [
+                  {
+                    "reasoning": "错误：把两者说反了，自注意力是恒定顺序操作，循环层才是 O(n)。",
+                    "option_text": "自注意力层需要 O(n) 个顺序操作，循环层只需恒定数量的顺序操作",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：把两者说反了。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出本项把两者说反，与表 1 结论一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "错误：两者路径长度不同，自注意力为恒定、循环层为 O(n)，这正是其长距离依赖优势来源。",
+                    "option_text": "自注意力层与循环层都需要 O(n) 个顺序操作，二者路径长度相同",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：两者路径长度并不相同，这正是自注意力在长距离依赖上的优势来源。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明路径长度并不相同并指出优势来源，判断准确。"
+                  },
+                  {
+                    "reasoning": "正确：与论文表 1 的“恒定顺序操作 vs O(n) 顺序操作”及路径越短越易学长距离依赖的结论一致。",
+                    "option_text": "自注意力层通过恒定数量的顺序操作连接所有位置，而循环层需要 O(n) 个顺序操作，因此自注意力的路径更短",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：论文表 1 的结论是自注意力层用恒定数量的顺序执行操作连接所有位置，循环层需要 O(n) 个顺序操作，路径越短越容易学习长距离依赖。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析准确复述表 1 结论并给出路径短有利于长距离依赖的理由。"
+                  },
+                  {
+                    "reasoning": "错误：O(n²) 是自注意力每层计算复杂度，不是路径长度；路径长度衡量顺序操作个数。",
+                    "option_text": "自注意力层的路径长度为 O(n²)，循环层为 O(n)",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：O(n²) 是自注意力每层的计算复杂度（随序列长度增长），不是路径长度；路径长度衡量的是顺序操作个数。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "两段摘录区分了计算复杂度与路径长度两个指标，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文表 1：自注意力层用恒定数量的顺序操作连接所有位置，循环层需 O(n) 个顺序操作，故自注意力任意两位置路径更短、更易学长距离依赖；O(n²) 是计算复杂度而非路径长度。答案 C。"
+              },
+              {
+                "question_id": "q-complexity",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：需计算所有位置对的注意力分数，每层复杂度随 n 呈 O(n²) 增长。",
+                    "option_text": "每层的计算复杂度随序列长度 n 呈 O(n²) 增长",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：自注意力要计算所有位置对之间的注意力分数，每层复杂度随 n 呈 O(n²) 增长，这是它相对循环网络的主要代价。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析给出“所有位置对”这一来源并指出是相对循环网络的主要代价，推理成立。"
+                  },
+                  {
+                    "reasoning": "正确：论文明确给出 n<d 时自注意力层更快，并说明机器翻译的子词/字节对表示通常满足该条件。",
+                    "option_text": "当序列长度 n 小于表示维度 d 时，自注意力层比循环层更快，这在机器翻译常用的子词表示中通常是这种情况",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：论文指出当 n < d 时自注意力层比循环层更快，机器翻译中先进的子词/字节对表示通常满足这一条件。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析与论文第 4 节表述一致，条件与适用范围均准确。"
+                  },
+                  {
+                    "reasoning": "正确：注意力矩阵为 n×n，显式物化时空间 O(n²)。",
+                    "option_text": "若显式物化注意力矩阵，其空间开销随 n 呈 O(n²) 增长",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：注意力矩阵是 n×n 的，显式物化时空间为 O(n²)（FlashAttention 等做法可减少显存占用，但不改变这一基本量级）。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析说明 n×n 矩阵导致 O(n²) 空间，并补充 FlashAttention 减少显存但不改变基本量级，表述可接受。"
+                  },
+                  {
+                    "reasoning": "错误：由 O(n²) 渐近量级不能推出任何长度都更慢，论文反而给出 n<d 时自注意力更快。",
+                    "option_text": "自注意力每层复杂度是 O(n²)，所以它在任何序列长度下都比循环层慢",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：O(n²) 是渐近量级，且论文明确给出 n < d 时自注意力更快；不能由复杂度量级推出“任何长度都更慢”。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "两段摘录分别指出渐近量级与 n<d 的反例，正确否定本项的逻辑跳跃。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "A 成立：自注意力每层 O(n²·d)。B 成立：论文指出 n<d 时自注意力比循环层更快，机器翻译子词表示通常满足。C 成立：显式物化 n×n 注意力矩阵空间 O(n²)。D 不成立：O(n²) 是渐近量级，不能推出任何长度都更慢。答案 A,B,C。"
+              },
+              {
+                "question_id": "q-tradeoff",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "前半句成立：完全依赖注意力、并行性更好、路径更短；但“没有任何代价”不成立，自注意力每层 O(n²) 复杂度，长序列计算与显存开销显著上升。故判断为“错误”。"
+              },
+              {
+                "question_id": "q-compare-table",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "参考作答：(1) 并行性——循环层 h_t 依赖 h_{t-1}，样本内时间步必须串行；自注意力各位置可同时计算。(2) 路径长度——循环层 O(n) 个顺序操作，自注意力恒定数量顺序操作，路径更短。(3) 复杂度——循环层每层 O(n·d²) 随 n 线性，自注意力每层 O(n²·d) 随 n 平方，n<d 时自注意力更快。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q-transformer-parallel 直接考查 Transformer 摒弃循环、完全依赖注意力因而可高度并行，真实支持 req-transformer-basics 中注意力机制作用的贡献。",
+                "locator": {
+                  "question_id": "q-transformer-parallel"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-compare-table 要求从并行性、路径长度、复杂度三维度对比循环层与自注意力层，落实对自注意力机制特点的理解。",
+                "locator": {
+                  "question_id": "q-compare-table"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-rnn-parallel 作为 o1 的练习，考查循环网络样本内顺序依赖导致无法并行，与目标一致。",
+                "locator": {
+                  "question_id": "q-rnn-parallel"
+                },
+                "binding_id": "n6-vs-rnn:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-transformer-parallel 作为 o1 的检测，正确选项即“摒弃循环、完全依赖注意力、各位置无需等待”，直接对应目标。",
+                "locator": {
+                  "question_id": "q-transformer-parallel"
+                },
+                "binding_id": "n6-vs-rnn:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-path-length 作为 o2 的练习，考查恒定顺序操作 vs O(n) 顺序操作及路径更短更易学长距离依赖。",
+                "locator": {
+                  "question_id": "q-path-length"
+                },
+                "binding_id": "n6-vs-rnn:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-compare-table 作为 o2 的检测，要求写出“恒定 vs O(n)”路径长度对比并说明其意义。",
+                "locator": {
+                  "question_id": "q-compare-table"
+                },
+                "binding_id": "n6-vs-rnn:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-complexity 作为 o3 的练习，逐项考查 O(n²) 复杂度、n<d 前提与空间开销。",
+                "locator": {
+                  "question_id": "q-complexity"
+                },
+                "binding_id": "n6-vs-rnn:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-tradeoff 作为 o3 的检测，通过判断“没有任何代价”错误并要求给出 O(n²) 反例，落实代价目标。",
+                "locator": {
+                  "question_id": "q-tradeoff"
+                },
+                "binding_id": "n6-vs-rnn:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 2,
+          "decision": "pass",
+          "content_sha256": "4926981b8911e539033395def563d4457347ba2aa15763b35663c6cc8f6ceb24"
+        }
+      ],
+      "version": 2,
+      "decision": "pass",
+      "suggestions": [
+        "q-complexity 的 C 项解析称 FlashAttention“不改变这一基本量级”，严格说它减少的是显存物化而非注意力计算量，可改为“减少显存占用但不改变 n×n 分数矩阵的计算量”，避免读者误以为空间复杂度也被改变。",
+        "q-compare-table 的参考答案给出 O(n·d²) 与 O(n²·d)，可补一句“d 为表示维度、d_k 为每头维度”，使入门读者不混淆两个符号。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "4926981b8911e539033395def563d4457347ba2aa15763b35663c6cc8f6ceb24",
+      "question_checks": [
+        {
+          "question_id": "q-rnn-parallel",
+          "option_checks": [
+            {
+              "reasoning": "正确描述了循环网络隐藏状态的递推依赖导致样本内无法并行，与论文“固有的顺序性质排除了训练样本内的并行化”一致。",
+              "option_text": "循环网络沿序列位置顺序计算，隐藏状态 h_t 依赖 h_{t-1}，因此同一个训练样本内部无法并行计算各时间步",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：循环模型把位置与计算时间步对齐，h_t 是 h_{t-1} 与位置 t 输入的函数，这种固有的顺序性排除了训练样本内的并行化。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析摘录准确复述 h_t 依赖 h_{t-1} 与位置 t 输入，并据此推出样本内不可并行，推理成立。"
+            },
+            {
+              "reasoning": "错误：一次性并行计算所有位置是自注意力层的特点，循环网络受递推依赖限制做不到，与参数量无关。",
+              "option_text": "循环网络可以像自注意力一样，把序列所有位置一次性并行计算，只是参数量更大",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：一次性并行计算所有位置正是 Transformer 自注意力层的特点，循环网络做不到。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出“一次性并行计算所有位置正是自注意力层的特点”，准确对应本项错误所在。"
+            },
+            {
+              "reasoning": "错误：并行受限源于计算图的顺序依赖而非硬件；循环网络同样可在 GPU 上运行，只是时间步串行。",
+              "option_text": "循环网络无法并行，是因为它不能使用 GPU，只能运行在 CPU 上",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：并行受限的根源是计算图上的顺序依赖，而不是硬件类型；循环网络同样可以在 GPU 上运行，只是时间步之间必须串行。",
+              "independent_correct": false,
+              "explanation_reasoning": "两段摘录分别指出根源是顺序依赖而非硬件类型、循环网络也能在 GPU 上运行，批评准确。"
+            },
+            {
+              "reasoning": "错误：恰好相反，样本之间可以批处理并行，受限的是样本内部的时间步。",
+              "option_text": "循环网络在训练样本内部可以并行，但在不同样本之间不能并行",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：恰好相反，样本之间（批处理）是可以并行的，受限的是样本内部的时间步。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出样本间可并行、受限的是样本内部时间步，与本项说法正好相反，判断成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "循环网络 h_t = f(h_{t-1}, x_t)，时间步之间存在数据依赖，同一训练样本内各时间步必须串行；样本之间（批处理）可以并行。因此 A 正确，B、C、D 均错。"
+        },
+        {
+          "question_id": "q-transformer-parallel",
+          "option_checks": [
+            {
+              "reasoning": "错误：批量与 GPU 数量是工程手段，不能消除循环结构中的顺序依赖，不是“最根本原因”。",
+              "option_text": "Transformer 使用了更大的批量大小和更多的 GPU",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 错误：更大的批量和更多 GPU 是工程手段，不能消除模型结构中的顺序依赖，循环网络即使堆硬件，样本内时间步仍须串行。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析区分工程手段与结构依赖，并指出循环网络堆硬件后样本内时间步仍须串行，批评成立。"
+            },
+            {
+              "reasoning": "正确：论文明确指出 Transformer 摒弃循环、完全依赖注意力建立全局依赖，从而允许更多并行化。",
+              "option_text": "Transformer 摒弃了循环结构，完全依赖注意力机制建立输入输出之间的全局依赖，各位置的计算不再需要等待前一个位置的结果",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：原始论文明确指出 Transformer 摒弃循环、完全依赖注意力建立全局依赖，从而允许更多并行化。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析与论文引言表述一致，正确说明本项为何成立。"
+            },
+            {
+              "reasoning": "错误：Transformer 同时摒弃了循环和卷积，并非用卷积替代循环。",
+              "option_text": "Transformer 用卷积替代了循环，卷积核可以并行滑动",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：Transformer 恰恰是摒弃了循环和卷积，并非用卷积替代循环。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析准确指出 Transformer 摒弃循环和卷积，本项“用卷积替代循环”不成立。"
+            },
+            {
+              "reasoning": "错误：Transformer 需要位置编码注入顺序信息，各位置通过注意力强相关，并非无关。",
+              "option_text": "Transformer 去掉了位置编码，因此各位置之间完全无关",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：Transformer 需要位置编码注入顺序信息，各位置之间通过注意力强相关，并非无关。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出位置编码的必要性与注意力带来的强相关，正确否定本项。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "Transformer 摒弃循环，完全依赖注意力建立全局依赖，各位置计算互不等待，因此结构上可高度并行；更大批量/更多 GPU 是工程手段，卷积替代循环与去掉位置编码均与事实不符。答案 B。"
+        },
+        {
+          "question_id": "q-path-length",
+          "option_checks": [
+            {
+              "reasoning": "错误：把两者说反了，自注意力是恒定顺序操作，循环层才是 O(n)。",
+              "option_text": "自注意力层需要 O(n) 个顺序操作，循环层只需恒定数量的顺序操作",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 错误：把两者说反了。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出本项把两者说反，与表 1 结论一致，批评成立。"
+            },
+            {
+              "reasoning": "错误：两者路径长度不同，自注意力为恒定、循环层为 O(n)，这正是其长距离依赖优势来源。",
+              "option_text": "自注意力层与循环层都需要 O(n) 个顺序操作，二者路径长度相同",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：两者路径长度并不相同，这正是自注意力在长距离依赖上的优势来源。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析说明路径长度并不相同并指出优势来源，判断准确。"
+            },
+            {
+              "reasoning": "正确：与论文表 1 的“恒定顺序操作 vs O(n) 顺序操作”及路径越短越易学长距离依赖的结论一致。",
+              "option_text": "自注意力层通过恒定数量的顺序操作连接所有位置，而循环层需要 O(n) 个顺序操作，因此自注意力的路径更短",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 正确：论文表 1 的结论是自注意力层用恒定数量的顺序执行操作连接所有位置，循环层需要 O(n) 个顺序操作，路径越短越容易学习长距离依赖。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析准确复述表 1 结论并给出路径短有利于长距离依赖的理由。"
+            },
+            {
+              "reasoning": "错误：O(n²) 是自注意力每层计算复杂度，不是路径长度；路径长度衡量顺序操作个数。",
+              "option_text": "自注意力层的路径长度为 O(n²)，循环层为 O(n)",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：O(n²) 是自注意力每层的计算复杂度（随序列长度增长），不是路径长度；路径长度衡量的是顺序操作个数。",
+              "independent_correct": false,
+              "explanation_reasoning": "两段摘录区分了计算复杂度与路径长度两个指标，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "论文表 1：自注意力层用恒定数量的顺序操作连接所有位置，循环层需 O(n) 个顺序操作，故自注意力任意两位置路径更短、更易学长距离依赖；O(n²) 是计算复杂度而非路径长度。答案 C。"
+        },
+        {
+          "question_id": "q-complexity",
+          "option_checks": [
+            {
+              "reasoning": "正确：需计算所有位置对的注意力分数，每层复杂度随 n 呈 O(n²) 增长。",
+              "option_text": "每层的计算复杂度随序列长度 n 呈 O(n²) 增长",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：自注意力要计算所有位置对之间的注意力分数，每层复杂度随 n 呈 O(n²) 增长，这是它相对循环网络的主要代价。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析给出“所有位置对”这一来源并指出是相对循环网络的主要代价，推理成立。"
+            },
+            {
+              "reasoning": "正确：论文明确给出 n<d 时自注意力层更快，并说明机器翻译的子词/字节对表示通常满足该条件。",
+              "option_text": "当序列长度 n 小于表示维度 d 时，自注意力层比循环层更快，这在机器翻译常用的子词表示中通常是这种情况",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：论文指出当 n < d 时自注意力层比循环层更快，机器翻译中先进的子词/字节对表示通常满足这一条件。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析与论文第 4 节表述一致，条件与适用范围均准确。"
+            },
+            {
+              "reasoning": "正确：注意力矩阵为 n×n，显式物化时空间 O(n²)。",
+              "option_text": "若显式物化注意力矩阵，其空间开销随 n 呈 O(n²) 增长",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 正确：注意力矩阵是 n×n 的，显式物化时空间为 O(n²)（FlashAttention 等做法可减少显存占用，但不改变这一基本量级）。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析说明 n×n 矩阵导致 O(n²) 空间，并补充 FlashAttention 减少显存但不改变基本量级，表述可接受。"
+            },
+            {
+              "reasoning": "错误：由 O(n²) 渐近量级不能推出任何长度都更慢，论文反而给出 n<d 时自注意力更快。",
+              "option_text": "自注意力每层复杂度是 O(n²)，所以它在任何序列长度下都比循环层慢",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：O(n²) 是渐近量级，且论文明确给出 n < d 时自注意力更快；不能由复杂度量级推出“任何长度都更慢”。",
+              "independent_correct": false,
+              "explanation_reasoning": "两段摘录分别指出渐近量级与 n<d 的反例，正确否定本项的逻辑跳跃。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "A 成立：自注意力每层 O(n²·d)。B 成立：论文指出 n<d 时自注意力比循环层更快，机器翻译子词表示通常满足。C 成立：显式物化 n×n 注意力矩阵空间 O(n²)。D 不成立：O(n²) 是渐近量级，不能推出任何长度都更慢。答案 A,B,C。"
+        },
+        {
+          "question_id": "q-tradeoff",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "前半句成立：完全依赖注意力、并行性更好、路径更短；但“没有任何代价”不成立，自注意力每层 O(n²) 复杂度，长序列计算与显存开销显著上升。故判断为“错误”。"
+        },
+        {
+          "question_id": "q-compare-table",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "参考作答：(1) 并行性——循环层 h_t 依赖 h_{t-1}，样本内时间步必须串行；自注意力各位置可同时计算。(2) 路径长度——循环层 O(n) 个顺序操作，自注意力恒定数量顺序操作，路径更短。(3) 复杂度——循环层每层 O(n·d²) 随 n 线性，自注意力每层 O(n²·d) 随 n 平方，n<d 时自注意力更快。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q-transformer-parallel 直接考查 Transformer 摒弃循环、完全依赖注意力因而可高度并行，真实支持 req-transformer-basics 中注意力机制作用的贡献。",
+          "locator": {
+            "question_id": "q-transformer-parallel"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q-compare-table 要求从并行性、路径长度、复杂度三维度对比循环层与自注意力层，落实对自注意力机制特点的理解。",
+          "locator": {
+            "question_id": "q-compare-table"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q-rnn-parallel 作为 o1 的练习，考查循环网络样本内顺序依赖导致无法并行，与目标一致。",
+          "locator": {
+            "question_id": "q-rnn-parallel"
+          },
+          "binding_id": "n6-vs-rnn:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q-transformer-parallel 作为 o1 的检测，正确选项即“摒弃循环、完全依赖注意力、各位置无需等待”，直接对应目标。",
+          "locator": {
+            "question_id": "q-transformer-parallel"
+          },
+          "binding_id": "n6-vs-rnn:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q-path-length 作为 o2 的练习，考查恒定顺序操作 vs O(n) 顺序操作及路径更短更易学长距离依赖。",
+          "locator": {
+            "question_id": "q-path-length"
+          },
+          "binding_id": "n6-vs-rnn:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q-compare-table 作为 o2 的检测，要求写出“恒定 vs O(n)”路径长度对比并说明其意义。",
+          "locator": {
+            "question_id": "q-compare-table"
+          },
+          "binding_id": "n6-vs-rnn:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q-complexity 作为 o3 的练习，逐项考查 O(n²) 复杂度、n<d 前提与空间开销。",
+          "locator": {
+            "question_id": "q-complexity"
+          },
+          "binding_id": "n6-vs-rnn:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q-tradeoff 作为 o3 的检测，通过判断“没有任何代价”错误并要求给出 O(n²) 反例，落实代价目标。",
+          "locator": {
+            "question_id": "q-tradeoff"
+          },
+          "binding_id": "n6-vs-rnn:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "f25e9f91151a35fbd2d161dcd8b1bde97de5e428edfd3327d30368f92d5bd5a7",
+      "numeric_verification": {
+        "version": 1,
+        "coverage": "source_bound_claims_and_literal_softmax",
+        "questions": [
+          {
+            "checks": [],
+            "question_index": 0
+          },
+          {
+            "checks": [],
+            "question_index": 1
+          },
+          {
+            "checks": [],
+            "question_index": 2
+          },
+          {
+            "checks": [],
+            "question_index": 3
+          },
+          {
+            "checks": [],
+            "question_index": 4
+          },
+          {
+            "checks": [],
+            "question_index": 5
+          }
+        ]
+      },
+      "option_binding_version": 1
+    }
+  }
+}

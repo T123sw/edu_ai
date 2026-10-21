@@ -1,0 +1,1432 @@
+{
+  "_failure_detail": {
+    "code": "RESOURCE_CONTENT_REJECTED",
+    "phase": "resource_review",
+    "message": "第 3 题：数值断言无法复算：此时指数 2i/dmodel = 0/512 = 0，频率因子 10000^0 = 1，故该维取 sin(pos/1) = sin(pos)。；请提供受支持的算式或明确其验证限制; 第 3 题：数值断言无法复算：此时指数同为 0/512 = 0，频率因子 10000^0 = 1，故该维取 cos(pos/1) = cos(pos)。；请提供受支持的算式或明确其验证限制; 第 5 题：数值断言无法复算：分子分母同除以 n·d（n、d 均为正数，可约），得 n/d。；请提供受支持的算式或明确其验证限制",
+    "category": "content",
+    "artifact_id": null,
+    "retry_scope": "content",
+    "budget_metric": null,
+    "content_digest": "592cef3519a6873eaff4491c7c949a38d499e80dfbf36f9ad5a5d26946b5eff0"
+  },
+  "_review_candidate": {
+    "content": {
+      "title": "位置编码的必要性与 Transformer 相对循环网络的优势（随堂检测）",
+      "questions": [
+        {
+          "id": "q1",
+          "stem": "Transformer 的编码器与解码器都不含循环也不含卷积。若完全不加位置编码，只把词嵌入送入自注意力层，最直接的后果是什么？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "模型无法利用词序：同一组词的不同排列会得到相同的注意力计算结果",
+            "模型无法把词映射为向量，因为缺少位置编码时词嵌入维度不匹配",
+            "模型只能处理长度为 1 的序列，更长的序列会因维度溢出而报错",
+            "模型会自动退化为循环网络，逐词顺序处理输入"
+          ],
+          "difficulty": "medium",
+          "explanation": "自注意力对输入位置的置换是等变的：把输入序列的各个位置重新排列，输出也只是相应地被重新排列，注意力权重本身不区分“第几个词”。因此若不加位置信息，模型无法区分“狗咬人”和“人咬狗”。A 正确。B 错误：词嵌入本身就把词映射为 dmodel 维向量，与是否加位置编码无关，维度也不会因此不匹配。C 错误：自注意力可以处理任意长度 n 的序列，复杂度随 n 增长，但不存在“只能处理长度 1”的限制。D 错误：Transformer 的架构中根本没有循环单元，不会因为缺少位置编码而“退化”成循环网络。"
+        },
+        {
+          "id": "q2",
+          "stem": "关于原论文中位置编码的使用方式，下列哪些说法正确？",
+          "type": "multiple_choice",
+          "answer": "A,B,D",
+          "options": [
+            "位置编码的维度与词嵌入相同（都是 dmodel），因此两者可以直接相加",
+            "位置编码被加到编码器栈底部和解码器栈底部的输入嵌入上",
+            "位置编码与词嵌入是拼接成 2·dmodel 维向量后再送入第一层",
+            "正弦位置编码是固定公式算出的，不随训练更新参数"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：论文明确指出位置编码与嵌入具有相同的维度 dmodel，正是为了两者能够相加。B 正确：位置编码加在编码器和解码器栈底部的输入嵌入上，而不是每一层都重新加。C 错误：论文采用的是相加而非拼接；若拼接，维度会变成 2·dmodel，与后续各子层假定的 dmodel 维输入不符。D 正确：正弦版本由公式直接计算，没有可训练参数；论文也实验过可学习的位置嵌入，两者结果几乎相同，但正弦版本本身是固定的。"
+        },
+        {
+          "id": "q3",
+          "stem": "设 dmodel = 512，按正弦位置编码公式 PE(pos,2i)=sin(pos/10000^(2i/dmodel))、PE(pos,2i+1)=cos(pos/10000^(2i/dmodel))，位置 pos 的编码向量中第 0 维与第 1 维分别等于什么？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "sin(pos) 与 cos(pos)",
+            "cos(pos) 与 sin(pos)",
+            "sin(pos/10000) 与 cos(pos/10000)",
+            "sin(pos/512) 与 cos(pos/512)"
+          ],
+          "difficulty": "medium",
+          "explanation": "按公式，偶数维 2i 用 sin、奇数维 2i+1 用 cos，两者的频率因子都是 10000^(2i/dmodel)。第 0 维：令 2i=0，得 i=0；此时指数 2i/dmodel = 0/512 = 0，频率因子 10000^0 = 1，故该维取 sin(pos/1) = sin(pos)。第 1 维：令 2i+1=1，得 i=0；此时指数同为 0/512 = 0，频率因子 10000^0 = 1，故该维取 cos(pos/1) = cos(pos)。所以 A 正确。B 把 sin 与 cos 的位置对调，与“偶数维用 sin、奇数维用 cos”的规定相反。C 把频率因子误当成 10000^1，相当于令指数 2i/dmodel = 1，但 i=0 时指数为 0，频率因子应为 1。D 把频率因子误写成 10000^(pos/512)，混淆了指数中的 2i/dmodel 与位置 pos 的取值。注意：这里只代入 i=0 这一对维度，其余维度随 i 增大频率因子递减，波长从 2π 递增到 10000·2π。"
+        },
+        {
+          "id": "q4",
+          "stem": "按原论文表 1 的比较，关于“每层计算复杂度”“最少顺序操作数”“任意两位置间最大路径长度”三项，下列哪一组取值正确？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "自注意力：O(n²·d)、O(1)、O(1)；循环层：O(n·d²)、O(n)、O(n)",
+            "自注意力：O(n·d²)、O(n)、O(n)；循环层：O(n²·d)、O(1)、O(1)",
+            "自注意力：O(n²·d)、O(n)、O(1)；循环层：O(n·d²)、O(1)、O(n)",
+            "自注意力：O(n²·d)、O(1)、O(n)；循环层：O(n·d²)、O(n)、O(1)"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：自注意力每层复杂度为 O(n²·d)（n 个位置两两计算注意力），所有位置可用常数个顺序操作连接，故顺序操作数 O(1)、最大路径长度 O(1)；循环层每层复杂度 O(n·d²)（n 步、每步 d×d 的矩阵运算），必须逐步推进，故顺序操作数 O(n)、最大路径长度 O(n)。B 把两者整体对调。C 把自注意力的顺序操作数写成 O(n)、循环层的写成 O(1)，与“循环必须顺序、注意力可并行”的事实相反。D 把两者的最大路径长度对调，自注意力任意两位置一步可达，路径长度应为 O(1)。"
+        },
+        {
+          "id": "q5",
+          "stem": "按每层复杂度比较，当序列长度 n 小于表示维度 d 时，自注意力层（O(n²·d)）比循环层（O(n·d²)）更快。",
+          "type": "true_false",
+          "answer": "正确",
+          "difficulty": "easy",
+          "explanation": "把两个每层复杂度相除：(n²·d)/(n·d²)。分子分母同除以 n·d（n、d 均为正数，可约），得 n/d。当 n 小于 d 时，比值 n/d 小于 1，即自注意力每层的操作量小于循环层，论文据此指出在句子表示这类 n 通常小于 d 的场景中自注意力更快。需要注意这只是每层操作次数的渐近量级比较；实际耗时还受实现、并行度和访存影响，不能据此断言任何具体硬件上一定更快。"
+        },
+        {
+          "id": "q6",
+          "stem": "原论文为什么选择正弦/余弦函数作为位置编码？请写出两条理由，并说明其中“相对位置可线性表示”具体指什么性质。",
+          "type": "short_answer",
+          "answer": "理由一：对任意固定偏移 k，PE(pos+k) 可以表示为 PE(pos) 的线性函数，因此模型容易学会按相对位置进行关注。理由二：正弦版本由固定公式生成，可能使模型外推到比训练时更长的序列。具体性质：对固定偏移 k，存在一个只依赖 k、不依赖 pos 的线性变换（旋转矩阵），把位置 pos 的编码映射为位置 pos+k 的编码。",
+          "difficulty": "medium",
+          "explanation": "论文原文给出的两条理由是：假设该函数能让模型容易学习按相对位置关注，因为对任意固定偏移 k，PE(pos+k) 可表示为 PE(pos) 的线性函数；以及选择正弦版本是因为它可能让模型外推到比训练更长的序列。所谓“线性表示”指存在只依赖 k 的线性变换（对每一对 sin/cos 维度是旋转），与 pos 的绝对值无关，因此相对位移在编码空间中表现为统一的可学习变换。补充：论文也实验了可学习的位置嵌入，两者结果几乎相同，但可学习版本受训练时最大长度限制，外推性不如正弦版本。"
+        },
+        {
+          "id": "q7",
+          "stem": "某同学说：“既然自注意力每层只需 O(1) 个顺序操作、最大路径长度也是 O(1)，那它一定全面优于循环层。”请指出这一说法忽略了什么，并说明在长序列场景下自注意力需要付出的代价。",
+          "type": "short_answer",
+          "answer": "该说法只看了并行度和路径长度，忽略了每层计算复杂度：自注意力为 O(n²·d)，随序列长度平方增长；循环层为 O(n·d²)，随长度线性增长。当 n 远大于 d 时，自注意力的每层计算量反而更大，长序列下显存与计算开销显著上升。因此自注意力在并行度和长程依赖路径上占优，但在长序列上要付出 O(n²) 的代价，需要靠限制注意力范围等手段缓解。",
+          "difficulty": "hard",
+          "explanation": "论文从三个角度比较：每层计算复杂度、最少顺序操作数、最大路径长度。自注意力在顺序操作数（O(1) vs O(n)）和最大路径长度（O(1) vs O(n)）上占优，路径越短越容易学习长程依赖；但每层复杂度是 O(n²·d)，比循环层的 O(n·d²) 多一个 n/d 因子。因此“全面优于”不成立：n 小于 d 时自注意力每层计算量更小，n 远大于 d 时则相反，长序列下 O(n²) 的注意力矩阵会带来显著的计算与显存代价。"
+        }
+      ]
+    },
+    "artifact_id": "artifact_08358432df2370a79370b34e349745e3",
+    "resource_id": "resource_08358432df2370a79370b34e349745e3",
+    "spec_digest": "0ff06ea9022033a364566cfa348e528f6b4cafbc94a9ed1c1c5c565564feebfa",
+    "review_state": {
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本节点分工为位置编码必要性与 Transformer 相对循环网络优势；q1/q2 覆盖位置信息注入与相加方式，q3/q6 覆盖正弦公式与选择理由，q4/q5/q7 覆盖三项对比与 n<d 条件，真实支持 req-goal-transformer 在本节点的贡献。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "q1 置换等变、q2 同维相加且加在栈底、q3 第0/1维为 sin(pos)/cos(pos)、q4 表1三项取值、q5 约分得 n/d、q6 两条理由与旋转性质、q7 忽略 O(n²·d) 的说明均与论文一致，未发现事实或推导错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题逐题求解：q1 选 A、q2 选 A,B,D、q3 选 A、q4 选 A、q5 判断正确、q6/q7 简答要点齐全；干扰项均对应可解释的具体错误（整体对调、sin/cos 对调、频率因子误取 10000^1 或 10000^(pos/512)）。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "7 题按“为何需要位置编码→如何相加→公式代入→三项对比→复杂度条件→选择理由→局限”递进，难度 easy/medium/hard 分布合理，与节点 10 分钟预算和入门深度匹配；估算 12.47 分钟仅为内容量参考，不作为门槛。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "全部断言可追溯到 research_context 中《Attention Is All You Need》第 3.5 节与第 4 节及表 1 的原文摘录，未出现无依据的外部结论；未声称核查论文全文之外的材料。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个节点目标均有对应题目（o1:q1/q2，o2:q3/q6，o3:q4/q7，o4:q5），题干自足、答案与解析齐全，无选项题也给出参考答案与解析；未越界到实现或训练调参内容。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q3 解析末句“波长从 2π 递增到 10000·2π”可补一句“i 越大波长越长”，避免读者把递增方向与频率因子递减混淆。",
+              "q5 为判断题，可在解析中显式写出“n<d ⇒ n/d<1”的符号化结论，便于学习者自查。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：无位置信息时注意力权重只依赖内容，词序不同的排列得到相同（重排后）结果，模型无法利用词序。",
+                    "option_text": "模型无法利用词序：同一组词的不同排列会得到相同的注意力计算结果",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "自注意力对输入位置的置换是等变的：把输入序列的各个位置重新排列，输出也只是相应地被重新排列，注意力权重本身不区分“第几个词”。因此若不加位置信息，模型无法区分“狗咬人”和“人咬狗”。A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第0-1段说明置换等变并推出无法区分“狗咬人/人咬狗”，第2段判定 A 正确，与独立求解一致。"
+                  },
+                  {
+                    "reasoning": "错误：词嵌入层本身把词映射为 dmodel 维向量，与是否加位置编码无关，不存在维度不匹配。",
+                    "option_text": "模型无法把词映射为向量，因为缺少位置编码时词嵌入维度不匹配",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：词嵌入本身就把词映射为 dmodel 维向量，与是否加位置编码无关，维度也不会因此不匹配。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出词嵌入本身即 dmodel 维、与位置编码无关，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：自注意力可处理任意长度 n，复杂度随 n 增长但无“只能处理长度 1”的限制。",
+                    "option_text": "模型只能处理长度为 1 的序列，更长的序列会因维度溢出而报错",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：自注意力可以处理任意长度 n 的序列，复杂度随 n 增长，但不存在“只能处理长度 1”的限制。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明复杂度随 n 增长而非长度限制，理由成立。"
+                  },
+                  {
+                    "reasoning": "错误：Transformer 架构中不存在循环单元，不会因缺少位置编码而退化为循环网络。",
+                    "option_text": "模型会自动退化为循环网络，逐词顺序处理输入",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：Transformer 的架构中根本没有循环单元，不会因为缺少位置编码而“退化”成循环网络。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出架构中无循环单元，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "自注意力对位置置换等变，输出随输入重排而重排，权重不区分第几个词；不加位置编码则无法区分“狗咬人”与“人咬狗”，故选 A。B 错在词嵌入本就映射为 dmodel 维；C 错在自注意力可处理任意长度；D 错在架构中无循环单元。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：位置编码与嵌入同为 dmodel 维，正是为了能逐元素相加。",
+                    "option_text": "位置编码的维度与词嵌入相同（都是 dmodel），因此两者可以直接相加",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文明确指出位置编码与嵌入具有相同的维度 dmodel，正是为了两者能够相加。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用论文“同维以便相加”的表述，与原文一致。"
+                  },
+                  {
+                    "reasoning": "正确：位置编码加在编码器与解码器栈底部的输入嵌入上，而非每层重复加。",
+                    "option_text": "位置编码被加到编码器栈底部和解码器栈底部的输入嵌入上",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：位置编码加在编码器和解码器栈底部的输入嵌入上，而不是每一层都重新加。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析准确复述“栈底部输入嵌入”这一位置，并补充“不是每层都加”，无误。"
+                  },
+                  {
+                    "reasoning": "错误：论文采用相加，拼接会使维度变为 2·dmodel，与后续子层假定的 dmodel 维输入不符。",
+                    "option_text": "位置编码与词嵌入是拼接成 2·dmodel 维向量后再送入第一层",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：论文采用的是相加而非拼接；若拼接，维度会变成 2·dmodel，与后续各子层假定的 dmodel 维输入不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析先指出相加而非拼接，再给出维度 2·dmodel 的具体后果，批评成立。"
+                  },
+                  {
+                    "reasoning": "正确：正弦位置编码由公式直接计算，无可训练参数；论文另实验的可学习版本结果几乎相同，但不改变正弦版本固定这一事实。",
+                    "option_text": "正弦位置编码是固定公式算出的，不随训练更新参数",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：正弦版本由公式直接计算，没有可训练参数；论文也实验过可学习的位置嵌入，两者结果几乎相同，但正弦版本本身是固定的。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析区分正弦固定与可学习版本，并说明两者结果几乎相同，表述准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文将同维 dmodel 的位置编码加到编码器与解码器栈底部的输入嵌入上，故 A、B 正确；C 错在论文用相加而非拼接，拼接会得 2·dmodel 维；D 正确，正弦版本由固定公式计算无可训练参数。答案 A,B,D。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：i=0 时指数为 0，频率因子为 1，偶数维取 sin(pos)、奇数维取 cos(pos)。",
+                    "option_text": "sin(pos) 与 cos(pos)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "按公式，偶数维 2i 用 sin、奇数维 2i+1 用 cos，两者的频率因子都是 10000^(2i/dmodel)。第 0 维：令 2i=0，得 i=0；代入指数 2i/dmodel = 0/512 = 0，于是频率因子 10000^0 = 1，该维取 sin(pos/1) = sin(pos)。第 1 维：令 2i+1=1，得 i=0；代入同一指数 0/512 = 0，频率因子 10000^0 = 1，该维取 cos(pos/1) = cos(pos)。所以 A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析逐维代入 i=0，得指数 0/512=0、频率因子 10000^0=1，推出 sin(pos) 与 cos(pos)，推导正确。"
+                  },
+                  {
+                    "reasoning": "错误：sin 与 cos 的位置对调，违反“偶数维用 sin、奇数维用 cos”的规定。",
+                    "option_text": "cos(pos) 与 sin(pos)",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 把 sin 与 cos 的位置对调，与“偶数维用 sin、奇数维用 cos”的规定相反。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出该选项把 sin/cos 对调，与公式规定相反，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：把频率因子当作 10000^1，相当于令指数为 1，但 i=0 时指数为 0，因子应为 1。",
+                    "option_text": "sin(pos/10000) 与 cos(pos/10000)",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 把频率因子误当成 10000^1，相当于令指数 2i/dmodel = 1，但 i=0 时指数为 0，频率因子应为 1。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析给出可解释的错误算式（误取指数为 1），与选项数值对应，成立。"
+                  },
+                  {
+                    "reasoning": "错误：把频率因子写成 10000^(pos/512)，混淆了指数 2i/dmodel 与位置 pos。",
+                    "option_text": "sin(pos/512) 与 cos(pos/512)",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 把频率因子误写成 10000^(pos/512)，混淆了指数中的 2i/dmodel 与位置 pos 的取值。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出该选项把 pos 混入指数，与选项形式 sin(pos/512) 对应，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "0",
+                    "excerpt": "代入指数 2i/dmodel = 0/512 = 0，于是频率因子 10000^0 = 1，该维取 sin(pos/1) = sin(pos)。",
+                    "expression": "0/512",
+                    "end_segment": 2,
+                    "source_field": "explanation",
+                    "start_segment": 2,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "1",
+                    "excerpt": "代入指数 2i/dmodel = 0/512 = 0，于是频率因子 10000^0 = 1，该维取 sin(pos/1) = sin(pos)。",
+                    "expression": "10000^0",
+                    "end_segment": 2,
+                    "source_field": "explanation",
+                    "start_segment": 2,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "0",
+                    "excerpt": "代入同一指数 0/512 = 0，频率因子 10000^0 = 1，该维取 cos(pos/1) = cos(pos)。",
+                    "expression": "0/512",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "1",
+                    "excerpt": "代入同一指数 0/512 = 0，频率因子 10000^0 = 1，该维取 cos(pos/1) = cos(pos)。",
+                    "expression": "10000^0",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "第0维对应 2i=0 即 i=0，指数 2i/dmodel=0/512=0，频率因子 10000^0=1，取 sin(pos/1)=sin(pos)；第1维对应 2i+1=1 即 i=0，指数同为 0，取 cos(pos/1)=cos(pos)。故第0、1维为 sin(pos) 与 cos(pos)，选 A。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：三项取值与论文表1完全一致。",
+                    "option_text": "自注意力：O(n²·d)、O(1)、O(1)；循环层：O(n·d²)、O(n)、O(n)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：自注意力每层复杂度为 O(n²·d)（n 个位置两两计算注意力），所有位置可用常数个顺序操作连接，故顺序操作数 O(1)、最大路径长度 O(1)；循环层每层复杂度 O(n·d²)（n 步、每步 d×d 的矩阵运算），必须逐步推进，故顺序操作数 O(n)、最大路径长度 O(n)。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析分别给出自注意力与循环层的复杂度、顺序操作数与路径长度并说明原因，与表1一致。"
+                  },
+                  {
+                    "reasoning": "错误：把自注意力与循环层的三项取值整体对调。",
+                    "option_text": "自注意力：O(n·d²)、O(n)、O(n)；循环层：O(n²·d)、O(1)、O(1)",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 把两者整体对调。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出整体对调，与选项内容相符。"
+                  },
+                  {
+                    "reasoning": "错误：把自注意力顺序操作数写成 O(n)、循环层写成 O(1)，与循环必须顺序、注意力可并行的事实相反。",
+                    "option_text": "自注意力：O(n²·d)、O(n)、O(1)；循环层：O(n·d²)、O(1)、O(n)",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 把自注意力的顺序操作数写成 O(n)、循环层的写成 O(1)，与“循环必须顺序、注意力可并行”的事实相反。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析定位到顺序操作数对调并给出理由，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：把两者最大路径长度对调，自注意力任意两位置一步可达，应为 O(1)。",
+                    "option_text": "自注意力：O(n²·d)、O(1)、O(n)；循环层：O(n·d²)、O(n)、O(1)",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 把两者的最大路径长度对调，自注意力任意两位置一步可达，路径长度应为 O(1)。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出路径长度对调并说明自注意力为 O(1)，成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "表1：自注意力每层复杂度 O(n²·d)、顺序操作 O(1)、最大路径长度 O(1)；循环层 O(n·d²)、O(n)、O(n)。故 A 正确；B 整体对调，C 顺序操作数对调，D 路径长度对调。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "n/d",
+                    "excerpt": "分子分母同除以 n·d（n、d 均为正数，可约），得 n/d。",
+                    "expression": "(n^2*d)/(n*d^2)",
+                    "end_segment": 1,
+                    "source_field": "explanation",
+                    "start_segment": 1,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "比值 (n²·d)/(n·d²)=n/d；n<d 时 n/d<1，自注意力每层操作量更小，故命题正确。但仅为渐近量级比较，实际耗时还受实现与访存影响。"
+              },
+              {
+                "question_id": "q6",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "两条理由：①对固定偏移 k，PE(pos+k) 是 PE(pos) 的线性函数，便于学习按相对位置关注；②正弦版本由固定公式生成，可能外推到比训练更长的序列。“线性表示”指存在只依赖 k 的线性变换（每对 sin/cos 维度上是旋转），与 pos 绝对值无关。"
+              },
+              {
+                "question_id": "q7",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "该说法只看了顺序操作数与路径长度，忽略每层复杂度：自注意力 O(n²·d) 随 n 平方增长，循环层 O(n·d²) 随 n 线性增长；n 远大于 d 时自注意力每层计算量更大，长序列下注意力矩阵带来显著计算与显存代价，需用限制注意力范围等手段缓解。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 直接考查无循环无卷积时缺少位置编码的后果，真实支持 req-goal-transformer 在本节点对架构原理理解的贡献。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 要求给出自注意力与循环层三项取值，真实落实对两者工作机制差异的理解。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1 的检测题，考查为何必须注入位置信息，与目标一致。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o1 的练习，考查位置编码与词嵌入同维相加及加在栈底，覆盖“如何相加”。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的练习，要求代入公式写出第0/1维，落实正弦公式书写。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 作为 o2 的检测题，要求写出选择正弦编码的两条理由及线性表示性质，与目标一致。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o3 的练习，逐项核对复杂度、顺序操作数与路径长度三项对比。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 作为 o3 的检测题，要求指出“全面优于”忽略了每层复杂度，覆盖三角度比较的局限。",
+                "locator": {
+                  "question_id": "q7"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o4 的检测题，通过约分 n/d 判断 n<d 时自注意力更快，落实复杂度条件。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "revise",
+          "content_sha256": "8ac67abf422feb41dd45f17b63472eb2b72b66ec0d38cf9afedf210bca54bdb8"
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本节点分工为位置编码必要性与相对循环网络优势；q1/q2 覆盖位置信息注入与相加方式，q3 覆盖正弦公式，q4/q5/q7 覆盖三项比较与 n<d 条件，q6 覆盖选择理由，真实支持 req-goal-transformer 在本节点的贡献。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解：q1 选 A（自注意力对位置置换等变）；q2 选 A,B,D（同维相加、加在栈底、正弦固定）；q3 第 0/1 维为 sin(pos)、cos(pos)；q4 选 A（O(n²·d)/O(1)/O(1) 对 O(n·d²)/O(n)/O(n)）；q5 判断正确（n/d<1）；q6、q7 参考答案与论文一致，未发现事实或推导错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q3 用 dmodel=512、i=0 的具体代入，q5 用 n=64/d=512 与 n=1024/d=512 两个数值对照，q1 用“狗咬人/人咬狗”实例，均与题干数据一致且可复算。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为“为何需要位置编码→如何相加→公式代入→三项比较→n<d 条件→选择理由→反驳‘全面优于’”，与节点目标 o1–o4 顺序一致，7 题在 10 分钟节点预算内可完成（估算 13.39 分钟仅为参考，不作门槛）。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "所有断言（同维相加、加在栈底、正弦公式、线性表示与外推、表 1 三项取值、n<d 更快）均可对应 research_context 中《Attention Is All You Need》第 3.5 节与第 4 节原文，未引入无依据的外部结论。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个目标均有 practice/check 题覆盖（o1:q1,q2；o2:q3,q6；o3:q4,q7；o4:q5），题型含单选、多选、判断、简答，语言为中文、深度入门，符合受众与排除项（不涉及实现与训练调参）。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q3 解析末尾的“复算说明”与 q5 解析中的数值对照偏冗长，可精简为一句结论，避免冲淡对干扰项的说明。",
+              "q2 为多选但答案含三项，可考虑增加一个更贴近真实误区的干扰项（如“位置编码在每一层都重新相加”），使区分度更高。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：无位置信息时自注意力对置换等变，无法区分词序。",
+                    "option_text": "模型无法利用词序：同一组词的不同排列会得到相同的注意力计算结果",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "自注意力对输入位置的置换是等变的：把输入序列的各个位置重新排列，输出也只是相应地被重新排列，注意力权重本身不区分“第几个词”。因此若不加位置信息，模型无法区分“狗咬人”和“人咬狗”。A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0–1 段说明置换等变并给出“狗咬人/人咬狗”例子，第 2 段判定 A 正确，与独立求解一致。"
+                  },
+                  {
+                    "reasoning": "错误：词嵌入本身即 dmodel 维向量，与是否加位置编码无关。",
+                    "option_text": "模型无法把词映射为向量，因为缺少位置编码时词嵌入维度不匹配",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：词嵌入本身就把词映射为 dmodel 维向量，与是否加位置编码无关，维度也不会因此不匹配。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3 段指出词嵌入已把词映射为 dmodel 维向量、维度不会因此不匹配，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：自注意力可处理任意长度 n，只是复杂度随 n 增长。",
+                    "option_text": "模型只能处理长度为 1 的序列，更长的序列会因维度溢出而报错",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：自注意力可以处理任意长度 n 的序列，复杂度随 n 增长，但不存在“只能处理长度 1”的限制。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4 段说明可处理任意长度、不存在“只能处理长度 1”的限制，理由成立。"
+                  },
+                  {
+                    "reasoning": "错误：Transformer 无循环单元，不会退化为循环网络。",
+                    "option_text": "模型会自动退化为循环网络，逐词顺序处理输入",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：Transformer 的架构中根本没有循环单元，不会因为缺少位置编码而“退化”成循环网络。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 5 段指出架构中根本没有循环单元，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "自注意力对输入位置置换等变，输出仅随之置换，权重不区分位置序号；不加位置信息则“狗咬人”与“人咬狗”得到相同结果，故选 A。B、C、D 均与架构事实不符。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：同维 dmodel 是能够相加的前提。",
+                    "option_text": "位置编码的维度与词嵌入相同（都是 dmodel），因此两者可以直接相加",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文明确指出位置编码与嵌入具有相同的维度 dmodel，正是为了两者能够相加。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段引用论文“位置编码与嵌入同维以便相加”，与原文一致。"
+                  },
+                  {
+                    "reasoning": "正确：位置编码加在编码器与解码器栈底部的输入嵌入上。",
+                    "option_text": "位置编码被加到编码器栈底部和解码器栈底部的输入嵌入上",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：位置编码加在编码器和解码器栈底部的输入嵌入上，而不是每一层都重新加。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 1 段说明加在栈底而非每层重复加，符合论文表述。"
+                  },
+                  {
+                    "reasoning": "错误：论文采用相加，拼接会使维度变为 2·dmodel，与后续子层输入维度不符。",
+                    "option_text": "位置编码与词嵌入是拼接成 2·dmodel 维向量后再送入第一层",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：论文采用的是相加而非拼接；若拼接，维度会变成 2·dmodel，与后续各子层假定的 dmodel 维输入不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2–3 段指出相加而非拼接，并给出维度变为 2·dmodel 的具体后果，批评成立。"
+                  },
+                  {
+                    "reasoning": "正确：正弦位置编码由公式直接计算，无可训练参数。",
+                    "option_text": "正弦位置编码是固定公式算出的，不随训练更新参数",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：正弦版本由公式直接计算，没有可训练参数；论文也实验过可学习的位置嵌入，两者结果几乎相同，但正弦版本本身是固定的。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 4–5 段说明正弦版本固定、无可训练参数，并补充可学习版本结果几乎相同，表述准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文中位置编码与嵌入同为 dmodel 维故可相加（A 对）；加在编码器与解码器栈底部的输入嵌入上（B 对）；采用相加而非拼接，拼接会变 2·dmodel 维（C 错）；正弦版本由固定公式生成无可训练参数（D 对）。答案 A,B,D。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：i=0 时指数为 0，频率因子为 1，两维分别为 sin(pos) 与 cos(pos)。",
+                    "option_text": "sin(pos) 与 cos(pos)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "按公式，偶数维 2i 用 sin、奇数维 2i+1 用 cos，两者的频率因子都是 10000^(2i/dmodel)。第 0 维：令 2i=0，得 i=0；代入指数 2i/dmodel = 0/512 = 0，于是频率因子 10000^0 = 1，该维取 sin(pos/1) = sin(pos)。第 1 维：令 2i+1=1，得 i=0；代入同一指数 0/512 = 0，频率因子 10000^0 = 1，该维取 cos(pos/1) = cos(pos)。所以 A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0–5 段逐步代入 i=0，得 0/512=0、10000^0=1，进而 sin(pos)、cos(pos)，推导正确。"
+                  },
+                  {
+                    "reasoning": "错误：偶数维用 sin、奇数维用 cos，该选项把两者对调。",
+                    "option_text": "cos(pos) 与 sin(pos)",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 把 sin 与 cos 的位置对调，与“偶数维用 sin、奇数维用 cos”的规定相反。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 6 段指出 B 把 sin 与 cos 位置对调，与公式规定相反，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：i=0 时指数为 0 而非 1，频率因子应为 1 而非 10000。",
+                    "option_text": "sin(pos/10000) 与 cos(pos/10000)",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 把频率因子误当成 10000^1，相当于令指数 2i/dmodel = 1，但 i=0 时指数为 0，频率因子应为 1。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 7 段指出 C 误把频率因子当作 10000^1，并说明 i=0 时指数为 0，错误原因具体成立。"
+                  },
+                  {
+                    "reasoning": "错误：指数是 2i/dmodel 而非 pos/512，频率因子不是 10000^(pos/512)。",
+                    "option_text": "sin(pos/512) 与 cos(pos/512)",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 把频率因子误写成 10000^(pos/512)，混淆了指数中的 2i/dmodel 与位置 pos 的取值。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 8 段指出 D 混淆了指数中的 2i/dmodel 与位置 pos，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "0",
+                    "excerpt": "代入指数 2i/dmodel = 0/512 = 0，于是频率因子 10000^0 = 1，该维取 sin(pos/1) = sin(pos)。",
+                    "expression": "0/512",
+                    "end_segment": 2,
+                    "source_field": "explanation",
+                    "start_segment": 2,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "1",
+                    "excerpt": "代入指数 2i/dmodel = 0/512 = 0，于是频率因子 10000^0 = 1，该维取 sin(pos/1) = sin(pos)。",
+                    "expression": "10000^0",
+                    "end_segment": 2,
+                    "source_field": "explanation",
+                    "start_segment": 2,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "0",
+                    "excerpt": "代入同一指数 0/512 = 0，频率因子 10000^0 = 1，该维取 cos(pos/1) = cos(pos)。",
+                    "expression": "0/512",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "1",
+                    "excerpt": "代入同一指数 0/512 = 0，频率因子 10000^0 = 1，该维取 cos(pos/1) = cos(pos)。",
+                    "expression": "10000^0",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "0",
+                    "excerpt": "若需数值验证，可任取 pos = 0：sin(0) = 0、cos(0) = 1，与 sin(0/1)、cos(0/1) 一致；",
+                    "expression": "sin(0)",
+                    "end_segment": 13,
+                    "source_field": "explanation",
+                    "start_segment": 13,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "1",
+                    "excerpt": "若需数值验证，可任取 pos = 0：sin(0) = 0、cos(0) = 1，与 sin(0/1)、cos(0/1) 一致；",
+                    "expression": "cos(0)",
+                    "end_segment": 13,
+                    "source_field": "explanation",
+                    "start_segment": 13,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "第 0 维对应 2i=0 即 i=0，指数 2i/dmodel=0/512=0，频率因子 10000^0=1，取 sin(pos/1)=sin(pos)；第 1 维对应 2i+1=1 即 i=0，同一指数 0，取 cos(pos/1)=cos(pos)。故选 A。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：三项取值与表 1 完全一致。",
+                    "option_text": "自注意力：O(n²·d)、O(1)、O(1)；循环层：O(n·d²)、O(n)、O(n)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：自注意力每层复杂度为 O(n²·d)（n 个位置两两计算注意力），所有位置可用常数个顺序操作连接，故顺序操作数 O(1)、最大路径长度 O(1)；循环层每层复杂度 O(n·d²)（n 步、每步 d×d 的矩阵运算），必须逐步推进，故顺序操作数 O(n)、最大路径长度 O(n)。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0–1 段分别给出自注意力与循环层的三项取值及理由（两两计算、逐步推进），与表 1 一致。"
+                  },
+                  {
+                    "reasoning": "错误：把自注意力与循环层的三项取值整体对调。",
+                    "option_text": "自注意力：O(n·d²)、O(n)、O(n)；循环层：O(n²·d)、O(1)、O(1)",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 把两者整体对调。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段指出 B 把两者整体对调，判断准确。"
+                  },
+                  {
+                    "reasoning": "错误：自注意力顺序操作数应为 O(1)、循环层为 O(n)，该选项对调。",
+                    "option_text": "自注意力：O(n²·d)、O(n)、O(1)；循环层：O(n·d²)、O(1)、O(n)",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 把自注意力的顺序操作数写成 O(n)、循环层的写成 O(1)，与“循环必须顺序、注意力可并行”的事实相反。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3 段指出 C 把顺序操作数对调，与“循环必须顺序、注意力可并行”相反，批评成立。"
+                  },
+                  {
+                    "reasoning": "错误：自注意力最大路径长度应为 O(1)，循环层为 O(n)，该选项对调。",
+                    "option_text": "自注意力：O(n²·d)、O(1)、O(n)；循环层：O(n·d²)、O(n)、O(1)",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 把两者的最大路径长度对调，自注意力任意两位置一步可达，路径长度应为 O(1)。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4 段指出 D 对调最大路径长度，并说明自注意力任意两位置一步可达，理由成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文表 1：自注意力每层复杂度 O(n²·d)、最少顺序操作数 O(1)、最大路径长度 O(1)；循环层 O(n·d²)、O(n)、O(n)。故选 A。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "n/d",
+                    "excerpt": "分子分母同除以 n·d（n、d 均为正数，可约），得 n/d。",
+                    "expression": "(n^2*d)/(n*d^2)",
+                    "end_segment": 1,
+                    "source_field": "explanation",
+                    "start_segment": 1,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "0.125",
+                    "excerpt": "代入具体数值可验证：取 n = 64、d = 512，则 n/d = 64/512 = 0.125 < 1，自注意力每层操作量约为循环层的八分之一；",
+                    "expression": "64/512",
+                    "end_segment": 6,
+                    "source_field": "explanation",
+                    "start_segment": 6,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "2",
+                    "excerpt": "取 n = 1024、d = 512，则 n/d = 2 > 1，自注意力每层操作量约为循环层的两倍。",
+                    "expression": "1024/512",
+                    "end_segment": 7,
+                    "source_field": "explanation",
+                    "start_segment": 7,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "比值 (n²·d)/(n·d²)=n/d；n<d 时 n/d<1，自注意力每层操作量更小，故命题正确。"
+              },
+              {
+                "question_id": "q6",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "两条理由：对固定偏移 k，PE(pos+k) 是 PE(pos) 的线性函数（每对 sin/cos 维度上是只依赖 k 的旋转），便于学习按相对位置关注；正弦版本由固定公式生成，可能外推到比训练更长的序列。"
+              },
+              {
+                "question_id": "q7",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "该说法只考虑顺序操作数与路径长度，忽略每层复杂度：自注意力 O(n²·d) 随 n 平方增长，循环层 O(n·d²) 线性增长；n 远大于 d 时自注意力每层计算量更大，长序列下注意力矩阵带来显著计算与显存代价，需限制注意力范围等手段缓解。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 通过“不加位置编码会怎样”的单选题，真实检验对无循环无卷积架构需注入位置信息的理解，支持 req-goal-transformer 在本节点的贡献。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 要求给出自注意力与循环层在复杂度、顺序操作数、路径长度三项上的取值，真实落实对两者工作机制差异的理解。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 check 检验“为何必须注入位置信息”，与 o1 一致。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 practice 检验位置编码与词嵌入同维相加、加在栈底，覆盖 o1 的“如何相加”部分。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 practice 要求代入正弦公式求第 0/1 维，直接对应 o2 的公式书写与代入。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 作为 check 要求写出选择正弦编码的两条理由并解释线性表示性质，覆盖 o2 的理由部分。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 practice 逐项核对三项比较取值，对应 o3 的三角度比较。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 作为 check 要求指出“全面优于”忽略每层复杂度并说明长序列代价，覆盖 o3 的路径与并行度对比。",
+                "locator": {
+                  "question_id": "q7"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 check 通过 (n²·d)/(n·d²)=n/d 判断 n<d 时更快，直接对应 o4 的复杂度与条件。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 2,
+          "decision": "revise",
+          "content_sha256": "28c76ef1dd099eb0731f078d8c606557efbe28aab4a874bdf3def2bb955cf98f"
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本节点分工为位置编码必要性与 Transformer 相对循环网络优势；q1/q2 覆盖位置信息注入与相加方式，q3/q6 覆盖正弦公式与选择理由，q4/q5/q7 覆盖三项比较与 n<d 条件，真实支持 req-goal-transformer 在本节点的贡献。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "q3 中 i=0 时指数 0/512=0、10000^0=1，故第 0/1 维为 sin(pos)/cos(pos)；q5 中 (n²·d)/(n·d²)=n/d，n<d 时比值小于 1；q4 三项取值与论文表 1 一致；q6 的线性表示与旋转矩阵描述正确，q7 指出 O(n²) 代价，均无事实错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题逐题核验：q1 用“狗咬人/人咬狗”说明置换等变，q3 用 dmodel=512、i=0 的具体代入，q5 用 n/d 比值，q7 用 n 远大于 d 的反例，干扰项均对应可解释的具体错误算式（如 10000^1、10000^(pos/512)、整体对调）。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "7 题按“为何需要位置编码→如何相加→公式代入→三项比较→复杂度条件→选择理由→局限”递进，与节点活动（对比表、公式、小结）顺序一致；难度 easy/medium/hard 分布合理，题干不泄露答案，答案位置有 A/B/C/D 分布。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "内容与提供的《Attention Is All You Need》第 3.5 节与第 4 节及表 1 原文一致（同维相加、正弦公式、线性表示与外推、O(n²·d)/O(n·d²)、O(1)/O(n) 顺序操作与路径长度），未超出所给依据。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个节点目标均有对应题目（o1:q1/q2，o2:q3/q6，o3:q4/q7，o4:q5），题型含单选、多选、判断、简答，语言为中文、入门深度，未引入实现或训练调参等排除内容。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q2 为多选，答案 A,B,D 三项正确，可考虑增加一个更贴近真实误区的干扰项（如“位置编码在每一层都重新相加”），使多选区分度更高。",
+              "q5 判断题题干已含“按每层复杂度比较”的限定，建议在解析中再明确“这是渐近量级而非实测耗时”，现有解析已含此说明，可保持。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：自注意力对位置置换等变，缺少位置信息时“狗咬人”与“人咬狗”得到相同结果。",
+                    "option_text": "模型无法利用词序：同一组词的不同排列会得到相同的注意力计算结果",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "自注意力对输入位置的置换是等变的：把输入序列的各个位置重新排列，输出也只是相应地被重新排列，注意力权重本身不区分“第几个词”。因此若不加位置信息，模型无法区分“狗咬人”和“人咬狗”。A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0-1 段说明置换等变与词序不可区分，第 2 段判定 A 正确，均与事实一致。"
+                  },
+                  {
+                    "reasoning": "错误：词嵌入本身就把词映射为 dmodel 维向量，与是否加位置编码无关。",
+                    "option_text": "模型无法把词映射为向量，因为缺少位置编码时词嵌入维度不匹配",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：词嵌入本身就把词映射为 dmodel 维向量，与是否加位置编码无关，维度也不会因此不匹配。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出词嵌入维度与位置编码无关，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：自注意力可处理任意长度 n，只是复杂度随 n 增长。",
+                    "option_text": "模型只能处理长度为 1 的序列，更长的序列会因维度溢出而报错",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：自注意力可以处理任意长度 n 的序列，复杂度随 n 增长，但不存在“只能处理长度 1”的限制。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明不存在“只能处理长度 1”的限制，批评成立。"
+                  },
+                  {
+                    "reasoning": "错误：Transformer 架构中没有循环单元，不会退化为循环网络。",
+                    "option_text": "模型会自动退化为循环网络，逐词顺序处理输入",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：Transformer 的架构中根本没有循环单元，不会因为缺少位置编码而“退化”成循环网络。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出架构无循环单元，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "自注意力对位置置换等变，输出随输入重排而重排，权重不区分位置；不加位置编码则无法区分词序，故 A 正确。B 错：词嵌入本身即 dmodel 维；C 错：可处理任意长度；D 错：架构无循环单元。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：位置编码与嵌入同为 dmodel 维，正是为了相加。",
+                    "option_text": "位置编码的维度与词嵌入相同（都是 dmodel），因此两者可以直接相加",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文明确指出位置编码与嵌入具有相同的维度 dmodel，正是为了两者能够相加。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用论文同维相加的表述，准确。"
+                  },
+                  {
+                    "reasoning": "正确：位置编码加在编码器和解码器栈底部的输入嵌入上。",
+                    "option_text": "位置编码被加到编码器栈底部和解码器栈底部的输入嵌入上",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：位置编码加在编码器和解码器栈底部的输入嵌入上，而不是每一层都重新加。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析与论文“bottoms of the encoder and decoder stacks”一致。"
+                  },
+                  {
+                    "reasoning": "错误：论文采用相加而非拼接，拼接会使维度变为 2·dmodel。",
+                    "option_text": "位置编码与词嵌入是拼接成 2·dmodel 维向量后再送入第一层",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：论文采用的是相加而非拼接；若拼接，维度会变成 2·dmodel，与后续各子层假定的 dmodel 维输入不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出相加而非拼接并说明维度后果，批评成立。"
+                  },
+                  {
+                    "reasoning": "正确：正弦位置编码由固定公式计算，无可训练参数。",
+                    "option_text": "正弦位置编码是固定公式算出的，不随训练更新参数",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：正弦版本由公式直接计算，没有可训练参数；论文也实验过可学习的位置嵌入，两者结果几乎相同，但正弦版本本身是固定的。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析说明正弦版本固定、可学习版本结果几乎相同，准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "A 正确（同维 dmodel 故可相加）；B 正确（加在编码器与解码器栈底部输入嵌入）；C 错误（论文用相加而非拼接，拼接会变 2·dmodel 维）；D 正确（正弦版本固定无参数）。答案 A,B,D。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：偶数维用 sin、奇数维用 cos，i=0 时频率因子为 1，得 sin(pos) 与 cos(pos)。",
+                    "option_text": "sin(pos) 与 cos(pos)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "按公式，偶数维 2i 用 sin、奇数维 2i+1 用 cos，两者的频率因子都是 10000^(2i/dmodel)。第 0 维：令 2i=0，得 i=0；此时指数 2i/dmodel = 0/512 = 0，频率因子 10000^0 = 1，故该维取 sin(pos/1) = sin(pos)。第 1 维：令 2i+1=1，得 i=0；此时指数同为 0/512 = 0，频率因子 10000^0 = 1，故该维取 cos(pos/1) = cos(pos)。所以 A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析逐步代入 i=0，指数 0/512=0、10000^0=1，结论 sin(pos)/cos(pos) 正确。"
+                  },
+                  {
+                    "reasoning": "错误：把 sin 与 cos 的维度位置对调，与公式规定相反。",
+                    "option_text": "cos(pos) 与 sin(pos)",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 把 sin 与 cos 的位置对调，与“偶数维用 sin、奇数维用 cos”的规定相反。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 sin/cos 对调，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：i=0 时指数为 0，频率因子应为 1 而非 10000。",
+                    "option_text": "sin(pos/10000) 与 cos(pos/10000)",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 把频率因子误当成 10000^1，相当于令指数 2i/dmodel = 1，但 i=0 时指数为 0，频率因子应为 1。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出误把频率因子当作 10000^1，批评成立。"
+                  },
+                  {
+                    "reasoning": "错误：把指数 2i/dmodel 与位置 pos 混淆，频率因子不是 10000^(pos/512)。",
+                    "option_text": "sin(pos/512) 与 cos(pos/512)",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 把频率因子误写成 10000^(pos/512)，混淆了指数中的 2i/dmodel 与位置 pos 的取值。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出混淆指数与 pos，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "0",
+                    "excerpt": "此时指数 2i/dmodel = 0/512 = 0，频率因子 10000^0 = 1，故该维取 sin(pos/1) = sin(pos)。",
+                    "expression": "0/512",
+                    "end_segment": 2,
+                    "source_field": "explanation",
+                    "start_segment": 2,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "1",
+                    "excerpt": "此时指数 2i/dmodel = 0/512 = 0，频率因子 10000^0 = 1，故该维取 sin(pos/1) = sin(pos)。",
+                    "expression": "10000^0",
+                    "end_segment": 2,
+                    "source_field": "explanation",
+                    "start_segment": 2,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "0",
+                    "excerpt": "此时指数同为 0/512 = 0，频率因子 10000^0 = 1，故该维取 cos(pos/1) = cos(pos)。",
+                    "expression": "0/512",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "1",
+                    "excerpt": "此时指数同为 0/512 = 0，频率因子 10000^0 = 1，故该维取 cos(pos/1) = cos(pos)。",
+                    "expression": "10000^0",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "第 0 维：2i=0→i=0，指数 0/512=0，10000^0=1，取 sin(pos/1)=sin(pos)；第 1 维：2i+1=1→i=0，指数同为 0，取 cos(pos)。故 A 正确。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：三项取值与表 1 完全一致。",
+                    "option_text": "自注意力：O(n²·d)、O(1)、O(1)；循环层：O(n·d²)、O(n)、O(n)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：自注意力每层复杂度为 O(n²·d)（n 个位置两两计算注意力），所有位置可用常数个顺序操作连接，故顺序操作数 O(1)、最大路径长度 O(1)；循环层每层复杂度 O(n·d²)（n 步、每步 d×d 的矩阵运算），必须逐步推进，故顺序操作数 O(n)、最大路径长度 O(n)。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析给出自注意力与循环层三项取值及理由，与论文表 1 一致。"
+                  },
+                  {
+                    "reasoning": "错误：把两者三项取值整体对调。",
+                    "option_text": "自注意力：O(n·d²)、O(n)、O(n)；循环层：O(n²·d)、O(1)、O(1)",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 把两者整体对调。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出整体对调，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：自注意力顺序操作数应为 O(1)、循环层为 O(n)，此项对调。",
+                    "option_text": "自注意力：O(n²·d)、O(n)、O(1)；循环层：O(n·d²)、O(1)、O(n)",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 把自注意力的顺序操作数写成 O(n)、循环层的写成 O(1)，与“循环必须顺序、注意力可并行”的事实相反。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出顺序操作数对调，与“循环必须顺序、注意力可并行”一致。"
+                  },
+                  {
+                    "reasoning": "错误：自注意力最大路径长度应为 O(1)，循环层为 O(n)，此项对调。",
+                    "option_text": "自注意力：O(n²·d)、O(1)、O(n)；循环层：O(n·d²)、O(n)、O(1)",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 把两者的最大路径长度对调，自注意力任意两位置一步可达，路径长度应为 O(1)。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出路径长度对调，自注意力任意两位置一步可达，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文表 1：自注意力 O(n²·d)、O(1)、O(1)；循环层 O(n·d²)、O(n)、O(n)。故 A 正确，B 整体对调，C 顺序操作数对调，D 路径长度对调。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "n/d",
+                    "excerpt": "分子分母同除以 n·d（n、d 均为正数，可约），得 n/d。",
+                    "expression": "(n^2*d)/(n*d^2)",
+                    "end_segment": 1,
+                    "source_field": "explanation",
+                    "start_segment": 1,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "(n²·d)/(n·d²)=n/d；n<d 时 n/d<1，自注意力每层操作量更小，故命题正确。"
+              },
+              {
+                "question_id": "q6",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "两条理由：对固定偏移 k，PE(pos+k) 是 PE(pos) 的线性函数（每对 sin/cos 维度上是只依赖 k 的旋转），便于学习相对位置关注；正弦版本可能外推到更长序列。"
+              },
+              {
+                "question_id": "q7",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "该说法忽略每层计算复杂度：自注意力 O(n²·d) 随 n 平方增长，循环层 O(n·d²) 线性增长；n 远大于 d 时自注意力每层计算量更大，长序列下注意力矩阵带来显著计算与显存代价。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 直接考查无循环无卷积时缺少位置编码的后果，真实支持 req-goal-transformer 在本节点的架构原理理解。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 以对比表取值题考查自注意力与循环层三项差异，真实落实工作机制差异的理解。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1 的检测题，考查为何必须注入位置信息，定位准确。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o1 的练习，考查位置编码与词嵌入同维相加及加在栈底，定位准确。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的练习，代入 i=0 写出第 0/1 维公式，定位准确。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 作为 o2 的检测题，要求写出选择正弦编码的两条理由及线性表示性质，定位准确。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o3 的练习，覆盖复杂度、顺序操作数、路径长度三项比较，定位准确。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 作为 o3 的检测题，要求指出“全面优于”忽略的复杂度代价，定位准确。",
+                "locator": {
+                  "question_id": "q7"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o4 的检测题，考查 O(n²·d) 与 O(n·d²) 及 n<d 条件，定位准确。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 3,
+          "decision": "revise",
+          "content_sha256": "592cef3519a6873eaff4491c7c949a38d499e80dfbf36f9ad5a5d26946b5eff0"
+        }
+      ],
+      "version": 4,
+      "feedback": [
+        "第 3 题：数值断言无法复算：此时指数 2i/dmodel = 0/512 = 0，频率因子 10000^0 = 1，故该维取 sin(pos/1) = sin(pos)。；请提供受支持的算式或明确其验证限制",
+        "第 3 题：数值断言无法复算：此时指数同为 0/512 = 0，频率因子 10000^0 = 1，故该维取 cos(pos/1) = cos(pos)。；请提供受支持的算式或明确其验证限制",
+        "第 5 题：数值断言无法复算：分子分母同除以 n·d（n、d 均为正数，可约），得 n/d。；请提供受支持的算式或明确其验证限制"
+      ],
+      "preparation": {
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 12.47
+        },
+        "spec_digest": "0ff06ea9022033a364566cfa348e528f6b4cafbc94a9ed1c1c5c565564feebfa",
+        "schema_version": 1,
+        "objective_bindings": [
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q1"
+            },
+            "objective_id": "n5-positional-encoding-and-advantages:o1"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q2"
+            },
+            "objective_id": "n5-positional-encoding-and-advantages:o1"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q3"
+            },
+            "objective_id": "n5-positional-encoding-and-advantages:o2"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q6"
+            },
+            "objective_id": "n5-positional-encoding-and-advantages:o2"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q4"
+            },
+            "objective_id": "n5-positional-encoding-and-advantages:o3"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q7"
+            },
+            "objective_id": "n5-positional-encoding-and-advantages:o3"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q5"
+            },
+            "objective_id": "n5-positional-encoding-and-advantages:o4"
+          }
+        ],
+        "applied_requirements": [
+          {
+            "locator": {
+              "question_id": "q1"
+            },
+            "explanation": "通过“不加位置编码会怎样”的单选题，落实对 Transformer 无循环无卷积架构原理的理解。",
+            "requirement_id": "req-goal-transformer"
+          },
+          {
+            "locator": {
+              "question_id": "q4"
+            },
+            "explanation": "通过对比表取值题，落实对自注意力与循环层工作机制差异的理解。",
+            "requirement_id": "req-goal-transformer"
+          }
+        ],
+        "question_time_estimates": [
+          {
+            "reason": "需回忆自注意力对位置置换的等变性，并逐一排除“维度不匹配”“只能处理长度1”“退化为循环网络”三种错误说法。",
+            "question_id": "q1",
+            "thinking_seconds": 45
+          },
+          {
+            "reason": "需逐项判断四个陈述：同维相加、加在栈底、拼接还是相加、正弦版本是否可训练，属多选需完整核对。",
+            "question_id": "q2",
+            "thinking_seconds": 50
+          },
+          {
+            "reason": "需把 i=0 代入公式，分别算出第 0 维与第 1 维的指数 2i/dmodel=0 与频率因子 10000^0=1，再与四个干扰项比对。",
+            "question_id": "q3",
+            "thinking_seconds": 60
+          },
+          {
+            "reason": "需回忆表 1 三项取值并逐组核对，排除整体对调、顺序操作数对调、路径长度对调三类错误组合。",
+            "question_id": "q4",
+            "thinking_seconds": 55
+          },
+          {
+            "reason": "需做 (n²·d)/(n·d²)=n/d 的约分，判断 n<d 时比值小于 1，并注意这只是每层操作量比较。",
+            "question_id": "q5",
+            "thinking_seconds": 35
+          },
+          {
+            "reason": "需回忆论文两条理由并用自己的话说明“固定偏移 k 下 PE(pos+k) 是 PE(pos) 的线性函数”这一性质，属简答组织。",
+            "question_id": "q6",
+            "thinking_seconds": 90
+          },
+          {
+            "reason": "需识别“全面优于”忽略了每层复杂度，比较 O(n²·d) 与 O(n·d²) 的 n/d 因子，并说明长序列下 O(n²) 的计算与显存代价。",
+            "question_id": "q7",
+            "thinking_seconds": 100
+          }
+        ],
+        "teaching_context_digest": "2905c834423552631bc1dec2868603f9f301f2923c74758bd9d5f9c992ce42c2"
+      },
+      "needs_repair": true
+    },
+    "owner_user_id": "teacher",
+    "content_digest": "592cef3519a6873eaff4491c7c949a38d499e80dfbf36f9ad5a5d26946b5eff0",
+    "preparation_id": "prep_4406eb8b05ec47bdb9b1609e35e31ab5",
+    "schema_version": 1,
+    "recovery_attempt": 0,
+    "resource_version": 1,
+    "parent_attempt_no": 1,
+    "teaching_context_digest": "2905c834423552631bc1dec2868603f9f301f2923c74758bd9d5f9c992ce42c2"
+  }
+}

@@ -1,0 +1,722 @@
+{
+  "plan": {
+    "schemaVersion": 1,
+    "title": "Express 无请求体查询服务",
+    "goal": "用 Node.js + Express 构建一个只处理 GET 请求的查询服务：GET /health 返回 {\"status\":\"ok\"}；GET /square?n=数字 返回 {\"result\":平方值}，缺少 n 或 n 不是有效数字时返回 400 与 {\"error\":\"invalid n\"}。平方计算逻辑与路由定义分处不同文件，服务监听 3000 端口。",
+    "runtimeKind": "sandpack_project",
+    "runtime": {
+      "template": "node",
+      "entry": "/index.js",
+      "dependencies": {
+        "express": "4.19.2"
+      },
+      "moduleType": "commonjs"
+    },
+    "editableFiles": [
+      "/index.js",
+      "/routes/health.js",
+      "/routes/square.js",
+      "/lib/square.js"
+    ],
+    "requirements": [
+      {
+        "id": "health-endpoint",
+        "description": "GET /health 返回 HTTP 200，响应体为 JSON {\"status\":\"ok\"}。"
+      },
+      {
+        "id": "square-endpoint",
+        "description": "GET /square?n=数字 在 n 为有效数字时返回 HTTP 200，响应体为 JSON {\"result\":平方值}。"
+      },
+      {
+        "id": "square-invalid",
+        "description": "GET /square 缺少 n 参数，或 n 不是有效数字时，返回 HTTP 400，响应体为 JSON {\"error\":\"invalid n\"}。"
+      },
+      {
+        "id": "get-only",
+        "description": "服务只提供 GET 路由；对 /health 与 /square 使用非 GET 方法（如 POST）不返回成功结果。"
+      },
+      {
+        "id": "separated-files",
+        "description": "平方计算函数定义在 lib/square.js 中，路由定义在 routes/square.js 中，路由模块通过 require 引用计算模块，index.js 挂载路由。"
+      }
+    ],
+    "steps": [
+      {
+        "id": "health-service",
+        "title": "搭建服务并实现健康检查",
+        "objective": "创建 Express 应用并实现 GET /health 返回 {\"status\":\"ok\"}，路由放在独立文件中。",
+        "dependsOn": [],
+        "entryCondition": "从初始 Node 模板工程开始，只有 index.js 中的原生 http 示例。",
+        "deliverable": "一个监听 3000 端口的 Express 服务，GET /health 返回 200 与 JSON {\"status\":\"ok\"}；健康检查路由定义在 routes/health.js 中并由 index.js 挂载。",
+        "requirementIds": [
+          "health-endpoint",
+          "get-only"
+        ],
+        "focusFiles": [
+          "/index.js",
+          "/routes/health.js"
+        ],
+        "newCheckIds": [
+          "health-ok",
+          "health-post-not-ok"
+        ]
+      },
+      {
+        "id": "square-service",
+        "title": "实现平方查询与参数校验",
+        "objective": "新增 GET /square 路由，使用独立计算模块计算平方，并对缺失或非法 n 返回 400 错误。",
+        "dependsOn": [
+          "health-service"
+        ],
+        "entryCondition": "上一步的 Express 服务已能响应 GET /health。",
+        "deliverable": "GET /square?n=数字 返回 200 与 {\"result\":平方值}；缺少 n 或 n 非有效数字时返回 400 与 {\"error\":\"invalid n\"}。平方计算在 lib/square.js 中，路由在 routes/square.js 中，由 index.js 挂载；/health 行为保持不变。",
+        "requirementIds": [
+          "health-endpoint",
+          "square-endpoint",
+          "square-invalid",
+          "get-only",
+          "separated-files"
+        ],
+        "focusFiles": [
+          "/index.js",
+          "/routes/square.js",
+          "/lib/square.js"
+        ],
+        "newCheckIds": [
+          "square-valid",
+          "square-missing",
+          "square-invalid-value",
+          "square-post-not-ok",
+          "square-uses-lib"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "health-ok",
+        "stepId": "health-service",
+        "kind": "http_scenario",
+        "requirementIds": [
+          "health-endpoint"
+        ],
+        "setup": "启动服务后，向运行在 3000 端口的服务发起请求。",
+        "actions": [
+          "GET /health"
+        ],
+        "expected": [
+          "状态码 200",
+          "响应体 JSON 为 {\"status\":\"ok\"}"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "health-post-not-ok",
+        "stepId": "health-service",
+        "kind": "http_scenario",
+        "requirementIds": [
+          "get-only"
+        ],
+        "setup": "启动服务后，向运行在 3000 端口的服务发起请求。",
+        "actions": [
+          "POST /health"
+        ],
+        "expected": [
+          "不返回 200 成功结果"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "square-valid",
+        "stepId": "square-service",
+        "kind": "http_scenario",
+        "requirementIds": [
+          "square-endpoint"
+        ],
+        "setup": "启动服务后，向运行在 3000 端口的服务发起请求。",
+        "actions": [
+          "GET /square?n=7",
+          "GET /square?n=0",
+          "GET /square?n=-3"
+        ],
+        "expected": [
+          "n=7 时状态码 200，响应体 JSON 为 {\"result\":49}",
+          "n=0 时状态码 200，响应体 JSON 为 {\"result\":0}",
+          "n=-3 时状态码 200，响应体 JSON 为 {\"result\":9}"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "square-missing",
+        "stepId": "square-service",
+        "kind": "http_scenario",
+        "requirementIds": [
+          "square-invalid"
+        ],
+        "setup": "启动服务后，向运行在 3000 端口的服务发起请求。",
+        "actions": [
+          "GET /square"
+        ],
+        "expected": [
+          "状态码 400",
+          "响应体 JSON 为 {\"error\":\"invalid n\"}"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "square-invalid-value",
+        "stepId": "square-service",
+        "kind": "http_scenario",
+        "requirementIds": [
+          "square-invalid"
+        ],
+        "setup": "启动服务后，向运行在 3000 端口的服务发起请求。",
+        "actions": [
+          "GET /square?n=abc",
+          "GET /square?n="
+        ],
+        "expected": [
+          "n=abc 时状态码 400，响应体 JSON 为 {\"error\":\"invalid n\"}",
+          "n 为空时状态码 400，响应体 JSON 为 {\"error\":\"invalid n\"}"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "square-post-not-ok",
+        "stepId": "square-service",
+        "kind": "http_scenario",
+        "requirementIds": [
+          "get-only"
+        ],
+        "setup": "启动服务后，向运行在 3000 端口的服务发起请求。",
+        "actions": [
+          "POST /square?n=7"
+        ],
+        "expected": [
+          "不返回 200 成功结果"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "square-uses-lib",
+        "stepId": "square-service",
+        "kind": "http_scenario",
+        "requirementIds": [
+          "separated-files"
+        ],
+        "setup": "启动服务后，向运行在 3000 端口的服务发起请求，验证平方结果来自独立计算模块 lib/square.js。",
+        "actions": [
+          "GET /square?n=12",
+          "GET /square?n=2.5"
+        ],
+        "expected": [
+          "n=12 时状态码 200，响应体 JSON 为 {\"result\":144}",
+          "n=2.5 时状态码 200，响应体 JSON 为 {\"result\":6.25}"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      }
+    ]
+  },
+  "completed": [
+    {
+      "candidate": {
+        "unit": {
+          "stepId": "health-service",
+          "title": "搭建服务并实现健康检查",
+          "objective": "创建 Express 应用并实现 GET /health 返回 {\"status\":\"ok\"}，路由放在独立文件中。",
+          "instructionsMarkdown": "本步要把初始工程里的原生 http 示例改造成一个 Express 服务，并实现第一个查询接口：健康检查。\n\n完成后应达到：\n\n- 服务使用 Express，监听 3000 端口。\n- 访问 `GET /health` 时返回 HTTP 200，响应体是 JSON `{\"status\":\"ok\"}`。\n- 健康检查的路由定义在 `routes/health.js` 中，由 `index.js` 引入并挂载。\n- 服务只提供 GET 路由；对 `/health` 使用 POST 等非 GET 方法不应得到 200 成功结果。\n\n起点是初始 Node 模板：`index.js` 里只有一段原生 `http` 的示例代码，`routes/health.js`、`routes/square.js`、`lib/square.js` 目前是空文件。本步只需关注 `index.js` 与 `routes/health.js`，其余文件留到下一步。\n\n`routes/health.js` 应导出一个 Express 路由对象（例如用 `express.Router()` 创建），在其中定义 `GET /health` 的处理函数，返回 JSON。`index.js` 负责创建 Express 应用、挂载这个路由模块，并让服务监听 3000 端口。\n\n注意：Express 默认对未匹配的方法返回 404，这已经满足“非 GET 不返回成功”的要求，不需要额外写 POST 处理。\n\n### 代码约定\n\n- 服务必须监听 3000 端口，检查会向该端口发起真实请求。\n- `GET /health` 的响应体必须是 JSON 对象 `{\"status\":\"ok\"}`，字段名与值都要一致。\n- 路由文件路径固定为 `routes/health.js`，由 `index.js` 通过 `require` 引入。",
+          "explanationMarkdown": "Express 用 `express()` 创建应用，用 `app.use()` 或 `app.get()` 挂载路由。把路由拆到独立文件时，常见做法是在路由文件里 `const router = express.Router()`，定义 `router.get('/health', handler)`，再 `module.exports = router`；在 `index.js` 里 `app.use(require('./routes/health'))` 即可。\n\n处理函数接收 `(req, res)`。`res.json({ status: 'ok' })` 会自动设置 `Content-Type: application/json` 并返回 200。\n\nExpress 只对已注册的方法和路径组合响应；未注册的方法会落到默认 404，因此不需要为 POST 单独写处理。",
+          "hints": [
+            "先在 index.js 里用 `const express = require('express')` 替换原生 http 示例。",
+            "路由文件里用 `express.Router()` 创建路由对象，定义 `router.get('/health', ...)`，最后 `module.exports = router`。",
+            "处理函数里用 `res.json({ status: 'ok' })` 返回 JSON。",
+            "在 index.js 里用 `app.use(require('./routes/health'))` 挂载路由，再 `app.listen(3000)`。"
+          ],
+          "focusFiles": [
+            "/index.js",
+            "/routes/health.js"
+          ],
+          "checkIds": [
+            "health-ok",
+            "health-post-not-ok"
+          ]
+        },
+        "behaviorCases": [
+          {
+            "requirementId": "health-endpoint",
+            "setup": "Express 服务已在 3000 端口启动，健康检查路由已挂载。",
+            "action": "发送 GET /health 请求。",
+            "expected": "返回状态码 200，响应体为 JSON {\"status\":\"ok\"}。",
+            "checkId": "health-ok"
+          },
+          {
+            "requirementId": "get-only",
+            "setup": "Express 服务已在 3000 端口启动，只注册了 GET /health。",
+            "action": "向 /health 发送 POST 请求。",
+            "expected": "不返回 200 成功结果（Express 默认 404）。",
+            "checkId": "health-post-not-ok"
+          }
+        ],
+        "checks": [
+          {
+            "id": "health-ok",
+            "label": "GET /health 返回 200 与 JSON {\"status\":\"ok\"}",
+            "engine": "http",
+            "requests": [
+              {
+                "method": "GET",
+                "path": "/health",
+                "body": null,
+                "status": 200,
+                "jsonBody": {
+                  "status": "ok"
+                },
+                "text": null
+              }
+            ],
+            "viewport": null
+          },
+          {
+            "id": "health-post-not-ok",
+            "label": "POST /health 不返回 200 成功结果",
+            "engine": "http",
+            "requests": [
+              {
+                "method": "POST",
+                "path": "/health",
+                "body": null,
+                "status": 404,
+                "jsonBody": null,
+                "text": null
+              }
+            ],
+            "viewport": null
+          }
+        ],
+        "faultyFiles": {
+          "/index.js": "const express = require('express');\n\nconst app = express();\n\napp.use(require('./routes/health'));\n\napp.listen(3000, () => {\n  console.log('Server running at http://localhost:3000/');\n});\n",
+          "/routes/health.js": "const express = require('express');\n\nconst router = express.Router();\n\nrouter.get('/health', (req, res) => {\n  res.json({ status: 'ok' });\n});\n\nrouter.post('/health', (req, res) => {\n  res.json({ status: 'ok' });\n});\n\nmodule.exports = router;\n",
+          "/routes/square.js": "",
+          "/lib/square.js": ""
+        },
+        "faultyCheckId": "health-post-not-ok",
+        "referenceFiles": {
+          "/index.js": "const express = require('express');\n\nconst app = express();\n\napp.use(require('./routes/health'));\n\napp.listen(3000, () => {\n  console.log('Server running at http://localhost:3000/');\n});\n",
+          "/routes/health.js": "const express = require('express');\n\nconst router = express.Router();\n\nrouter.get('/health', (req, res) => {\n  res.json({ status: 'ok' });\n});\n\nmodule.exports = router;\n",
+          "/routes/square.js": "",
+          "/lib/square.js": ""
+        }
+      },
+      "validated": true,
+      "qualityWarnings": [],
+      "referenceHash": "6b625cab44636a72d1251d9116845346902d9794c9bcdd2b91024d95c3f3fcc0",
+      "faultyHash": "f58a2b6020e4502b3ba48ca4bc73e287b6fb8b6cae49b1af8bbf4aececebfbb9",
+      "evidence": {
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "health-ok",
+              "status": "passed",
+              "message": "GET /health → 200"
+            },
+            {
+              "caseId": "health-post-not-ok",
+              "status": "passed",
+              "message": "POST /health → 404"
+            }
+          ],
+          "durationMs": 24236.300497
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "health-ok",
+              "status": "failed",
+              "message": "响应不是 JSON：<script src=\"/__csb_runtime.js?t=1792249909161\"></script>\nHello world"
+            },
+            {
+              "caseId": "health-post-not-ok",
+              "status": "failed",
+              "message": "POST /health → 200\n预期状态 404"
+            }
+          ],
+          "durationMs": 13970.471582
+        },
+        "faulty": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "health-post-not-ok",
+              "status": "failed",
+              "message": "POST /health → 200\n预期状态 404"
+            }
+          ],
+          "durationMs": 13129.950101
+        },
+        "previousRegression": {
+          "stepId": "health-service",
+          "referenceHash": "6b625cab44636a72d1251d9116845346902d9794c9bcdd2b91024d95c3f3fcc0",
+          "previousHash": "1fc45356e3921c75b34f96a971b4c0d76ba9c14244dc07f930ddfa681c59836b",
+          "checkIds": [],
+          "skipped": true,
+          "reason": "首步没有前序验收"
+        }
+      }
+    },
+    {
+      "candidate": {
+        "unit": {
+          "stepId": "square-service",
+          "title": "实现平方查询与参数校验",
+          "objective": "新增 GET /square 路由，使用独立计算模块计算平方，并对缺失或非法 n 返回 400 错误。",
+          "instructionsMarkdown": "上一步的服务已经能响应 `GET /health`。这一步给它加一个查询接口：`GET /square?n=数字`，把 `n` 的平方算出来返回。\n\n**要做出的效果**\n\n- 当 `n` 是有效数字时，比如 `GET /square?n=7`，返回状态码 200，响应体是 JSON `{\"result\":49}`。`n=0` 返回 `{\"result\":0}`，`n=-3` 返回 `{\"result\":9}`，小数如 `n=2.5` 返回 `{\"result\":6.25}`。\n- 当请求里没有 `n`（`GET /square`），或者 `n` 不是有效数字（如 `n=abc`、`n=` 空值）时，返回状态码 400，响应体是 JSON `{\"error\":\"invalid n\"}`。\n- 服务仍然只提供 GET 路由，对 `/square` 用 POST 不会得到 200 成功结果。\n- 上一步的 `GET /health` 行为保持不变。\n\n**代码组织要求**\n\n平方计算逻辑要单独放在 `lib/square.js` 里，导出一个函数供路由使用；`/square` 的路由定义放在 `routes/square.js` 里，通过 `require` 引用计算模块；`index.js` 负责把这两个路由模块挂载到 Express 应用上。",
+          "explanationMarkdown": "Express 的 `Router` 可以把一组路由封装成独立模块，再用 `app.use()` 挂到应用上。上一步的 `routes/health.js` 就是这样做的，这一步的 `routes/square.js` 可以照同样的方式组织。\n\n查询参数从 `req.query` 读取，`req.query.n` 是字符串。判断“有效数字”时要注意：`Number('')` 是 `0`，`Number('abc')` 是 `NaN`，所以不能只靠 `Number()` 判断。常见做法是先确认参数存在且不是空字符串，再转成数字并检查 `Number.isFinite()`。\n\n把计算单独抽到 `lib/square.js`，路由只负责读参数、校验、返回响应，这样计算逻辑可以独立测试和复用。校验失败时用 `res.status(400).json({ error: 'invalid n' })` 返回错误。",
+          "hints": [
+            "`req.query.n` 拿到的是字符串，先判断它是否存在且不为空，再转数字。",
+            "用 `Number.isFinite(Number(n))` 判断是否为有效数字，能同时排除 `NaN` 和空字符串转换出的 `0`。",
+            "`routes/square.js` 里 `const square = require('../lib/square');`，注意相对路径。",
+            "`index.js` 里用 `app.use(require('./routes/square'));` 挂载新路由，和 health 一样。",
+            "错误响应写成 `res.status(400).json({ error: 'invalid n' })`，成功响应写成 `res.json({ result: square(n) })`。"
+          ],
+          "focusFiles": [
+            "/index.js",
+            "/routes/square.js",
+            "/lib/square.js"
+          ],
+          "checkIds": [
+            "square-valid",
+            "square-missing",
+            "square-invalid-value",
+            "square-post-not-ok",
+            "square-uses-lib"
+          ]
+        },
+        "behaviorCases": [
+          {
+            "requirementId": "square-endpoint",
+            "setup": "服务运行中，n 为正整数 7",
+            "action": "GET /square?n=7",
+            "expected": "状态码 200，JSON {\"result\":49}",
+            "checkId": "square-valid"
+          },
+          {
+            "requirementId": "square-endpoint",
+            "setup": "服务运行中，n 为 0",
+            "action": "GET /square?n=0",
+            "expected": "状态码 200，JSON {\"result\":0}",
+            "checkId": "square-valid"
+          },
+          {
+            "requirementId": "square-endpoint",
+            "setup": "服务运行中，n 为负整数 -3",
+            "action": "GET /square?n=-3",
+            "expected": "状态码 200，JSON {\"result\":9}",
+            "checkId": "square-valid"
+          },
+          {
+            "requirementId": "square-invalid",
+            "setup": "服务运行中，请求不带 n 参数",
+            "action": "GET /square",
+            "expected": "状态码 400，JSON {\"error\":\"invalid n\"}",
+            "checkId": "square-missing"
+          },
+          {
+            "requirementId": "square-invalid",
+            "setup": "服务运行中，n 为非数字字符串 abc",
+            "action": "GET /square?n=abc",
+            "expected": "状态码 400，JSON {\"error\":\"invalid n\"}",
+            "checkId": "square-invalid-value"
+          },
+          {
+            "requirementId": "square-invalid",
+            "setup": "服务运行中，n 为空字符串",
+            "action": "GET /square?n=",
+            "expected": "状态码 400，JSON {\"error\":\"invalid n\"}",
+            "checkId": "square-invalid-value"
+          },
+          {
+            "requirementId": "get-only",
+            "setup": "服务运行中，对 /square 使用 POST 方法",
+            "action": "POST /square?n=7",
+            "expected": "不返回 200 成功结果",
+            "checkId": "square-post-not-ok"
+          },
+          {
+            "requirementId": "separated-files",
+            "setup": "服务运行中，n 为 12，验证结果来自独立计算模块",
+            "action": "GET /square?n=12",
+            "expected": "状态码 200，JSON {\"result\":144}",
+            "checkId": "square-uses-lib"
+          },
+          {
+            "requirementId": "separated-files",
+            "setup": "服务运行中，n 为小数 2.5",
+            "action": "GET /square?n=2.5",
+            "expected": "状态码 200，JSON {\"result\":6.25}",
+            "checkId": "square-uses-lib"
+          }
+        ],
+        "checks": [
+          {
+            "id": "square-valid",
+            "label": "GET /square 对有效数字返回 200 与平方结果（7→49，0→0，-3→9）",
+            "engine": "http",
+            "requests": [
+              {
+                "method": "GET",
+                "path": "/square?n=7",
+                "body": null,
+                "status": 200,
+                "jsonBody": {
+                  "result": 49
+                },
+                "text": null
+              },
+              {
+                "method": "GET",
+                "path": "/square?n=0",
+                "body": null,
+                "status": 200,
+                "jsonBody": {
+                  "result": 0
+                },
+                "text": null
+              },
+              {
+                "method": "GET",
+                "path": "/square?n=-3",
+                "body": null,
+                "status": 200,
+                "jsonBody": {
+                  "result": 9
+                },
+                "text": null
+              }
+            ],
+            "viewport": null
+          },
+          {
+            "id": "square-missing",
+            "label": "GET /square 缺少 n 时返回 400 与 {\"error\":\"invalid n\"}",
+            "engine": "http",
+            "requests": [
+              {
+                "method": "GET",
+                "path": "/square",
+                "body": null,
+                "status": 400,
+                "jsonBody": {
+                  "error": "invalid n"
+                },
+                "text": null
+              }
+            ],
+            "viewport": null
+          },
+          {
+            "id": "square-invalid-value",
+            "label": "GET /square 的 n 非数字或为空时返回 400 与 {\"error\":\"invalid n\"}",
+            "engine": "http",
+            "requests": [
+              {
+                "method": "GET",
+                "path": "/square?n=abc",
+                "body": null,
+                "status": 400,
+                "jsonBody": {
+                  "error": "invalid n"
+                },
+                "text": null
+              },
+              {
+                "method": "GET",
+                "path": "/square?n=",
+                "body": null,
+                "status": 400,
+                "jsonBody": {
+                  "error": "invalid n"
+                },
+                "text": null
+              }
+            ],
+            "viewport": null
+          },
+          {
+            "id": "square-post-not-ok",
+            "label": "POST /square 不返回 200 成功结果",
+            "engine": "http",
+            "requests": [
+              {
+                "method": "POST",
+                "path": "/square?n=7",
+                "body": null,
+                "status": 404,
+                "jsonBody": null,
+                "text": null
+              }
+            ],
+            "viewport": null
+          },
+          {
+            "id": "square-uses-lib",
+            "label": "GET /square 通过独立计算模块返回正确平方（12→144，2.5→6.25）",
+            "engine": "http",
+            "requests": [
+              {
+                "method": "GET",
+                "path": "/square?n=12",
+                "body": null,
+                "status": 200,
+                "jsonBody": {
+                  "result": 144
+                },
+                "text": null
+              },
+              {
+                "method": "GET",
+                "path": "/square?n=2.5",
+                "body": null,
+                "status": 200,
+                "jsonBody": {
+                  "result": 6.25
+                },
+                "text": null
+              }
+            ],
+            "viewport": null
+          }
+        ],
+        "faultyFiles": {},
+        "faultyCheckId": null,
+        "referenceFiles": {
+          "/index.js": "const express = require('express');\n\nconst app = express();\n\napp.use(require('./routes/health'));\napp.use(require('./routes/square'));\n\napp.listen(3000, () => {\n  console.log('Server running at http://localhost:3000/');\n});\n",
+          "/routes/health.js": "const express = require('express');\n\nconst router = express.Router();\n\nrouter.get('/health', (req, res) => {\n  res.json({ status: 'ok' });\n});\n\nmodule.exports = router;\n",
+          "/routes/square.js": "const express = require('express');\nconst square = require('../lib/square');\n\nconst router = express.Router();\n\nrouter.get('/square', (req, res) => {\n  const raw = req.query.n;\n\n  if (raw === undefined || raw === '') {\n    return res.status(400).json({ error: 'invalid n' });\n  }\n\n  const n = Number(raw);\n\n  if (!Number.isFinite(n)) {\n    return res.status(400).json({ error: 'invalid n' });\n  }\n\n  res.json({ result: square(n) });\n});\n\nmodule.exports = router;\n",
+          "/lib/square.js": "function square(n) {\n  return n * n;\n}\n\nmodule.exports = square;\n"
+        }
+      },
+      "validated": true,
+      "qualityWarnings": [
+        "未提供可执行负例，负例区分度未验证"
+      ],
+      "referenceHash": "244628699b165a8b62bf5de8a50bd5b12e6931c23539fb583dffc53dbf04fbe3",
+      "faultyHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "evidence": {
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "health-ok",
+              "status": "passed",
+              "message": "GET /health → 200"
+            },
+            {
+              "caseId": "health-post-not-ok",
+              "status": "passed",
+              "message": "POST /health → 404"
+            },
+            {
+              "caseId": "square-valid",
+              "status": "passed",
+              "message": "GET /square?n=7 → 200\nGET /square?n=0 → 200\nGET /square?n=-3 → 200"
+            },
+            {
+              "caseId": "square-missing",
+              "status": "passed",
+              "message": "GET /square → 400"
+            },
+            {
+              "caseId": "square-invalid-value",
+              "status": "passed",
+              "message": "GET /square?n=abc → 400\nGET /square?n= → 400"
+            },
+            {
+              "caseId": "square-post-not-ok",
+              "status": "passed",
+              "message": "POST /square?n=7 → 404"
+            },
+            {
+              "caseId": "square-uses-lib",
+              "status": "passed",
+              "message": "GET /square?n=12 → 200\nGET /square?n=2.5 → 200"
+            }
+          ],
+          "durationMs": 46417.271958
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "square-valid",
+              "status": "failed",
+              "message": "GET /square?n=7 → 404\n预期状态 200"
+            },
+            {
+              "caseId": "square-missing",
+              "status": "failed",
+              "message": "GET /square → 404\n预期状态 400"
+            },
+            {
+              "caseId": "square-invalid-value",
+              "status": "failed",
+              "message": "GET /square?n=abc → 404\n预期状态 400"
+            },
+            {
+              "caseId": "square-post-not-ok",
+              "status": "passed",
+              "message": "POST /square?n=7 → 404"
+            },
+            {
+              "caseId": "square-uses-lib",
+              "status": "failed",
+              "message": "GET /square?n=12 → 404\n预期状态 200"
+            }
+          ],
+          "durationMs": 26228.858593
+        },
+        "faulty": null,
+        "previousRegression": {
+          "stepId": "square-service",
+          "referenceHash": "244628699b165a8b62bf5de8a50bd5b12e6931c23539fb583dffc53dbf04fbe3",
+          "previousHash": "6b625cab44636a72d1251d9116845346902d9794c9bcdd2b91024d95c3f3fcc0",
+          "checkIds": [
+            "health-ok",
+            "health-post-not-ok"
+          ],
+          "passed": true,
+          "results": [
+            {
+              "caseId": "health-ok",
+              "status": "passed",
+              "message": "GET /health → 200"
+            },
+            {
+              "caseId": "health-post-not-ok",
+              "status": "passed",
+              "message": "POST /health → 404"
+            }
+          ],
+          "durationMs": 11415.677762
+        }
+      }
+    }
+  ],
+  "skillVersions": {
+    "plan": "ce36dc701284e1fb22a89d9b22df5b84fda2b476ce939458ac140276bfd1524f",
+    "review_plan": "74a499b33a2da92b2e052a86bb21917e729e5f8aa9ec9f93e0c5180b77d5a455",
+    "build_step": "ecb505c64b343998ebfe179ccd4b7b8ad0a6b3d5aa5b77faa72e46c4f741300f",
+    "repair_step": "d1c8d1ff7896f990c01ec354e2a1c6a90b9870b8f631b991225169779c027faf",
+    "build_checks": "23612a7386516e82d806f9fe850176f306d736b20ec2978037f51ae55349fa8c",
+    "repair_checks": "d2ca5d72aca24dcac1a4a405d64a73d414223c197a2e07d8e4a25a2f25a8e798",
+    "validate": "e4c36c324a079d3ae529876643d210e2bd4232a338fa2eec4a28b20f666373c8",
+    "publish": "862add4ae35ac2ca876f72e5b93ab73bdb45ee09d8cc4a0c17f826c6eaab48ff"
+  }
+}

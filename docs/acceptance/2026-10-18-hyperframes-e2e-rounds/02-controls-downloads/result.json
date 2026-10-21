@@ -1,0 +1,171 @@
+{
+  "scenario": "02-controls-downloads",
+  "started": "2026-10-18T04:58:05.687Z",
+  "base": "http://127.0.0.1",
+  "course": "hf-e2e-20261017160234",
+  "material_id": "published-c3b736d8ac969ce79217",
+  "version": 2,
+  "digest": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448",
+  "checks": [
+    {
+      "name": "production-player-ready"
+    },
+    {
+      "name": "double-speed-advances-clock",
+      "delta": 2.6287710000000004
+    },
+    {
+      "name": "pause-freezes-clock"
+    },
+    {
+      "name": "mute-and-volume-restoration"
+    },
+    {
+      "name": "chapter-and-transcript-seek"
+    },
+    {
+      "name": "three-real-browser-downloads",
+      "downloads": [
+        {
+          "name": "下载 MP4",
+          "filename": "lesson.mp4",
+          "bytes": 2577386,
+          "sha256": "d0aa730b70288c31fd3dc2fbb47d9b38515cc0aa824bb7f6a230588616f1a1a6"
+        },
+        {
+          "name": "下载 SRT",
+          "filename": "lesson.srt",
+          "bytes": 467,
+          "sha256": "4971f54f72909e43a2a8570c8367c9b09b8c758e389f29cf17f8cca8891604bf"
+        },
+        {
+          "name": "下载 HTML 项目 ZIP",
+          "filename": "project.zip",
+          "bytes": 708729,
+          "sha256": "a328a816b6593fc1453d378dca6b42d77db576e605395dab99ebe4a71f059b92"
+        }
+      ]
+    },
+    {
+      "name": "audio-before-question",
+      "audio": [
+        {
+          "state": "running",
+          "rms": 0.14058956865702418
+        }
+      ],
+      "seconds": 24.43397941043084
+    },
+    {
+      "name": "question-freezes-exact-current-context",
+      "seconds": 24.492029297052156,
+      "segment": "seg-02"
+    },
+    {
+      "name": "real-model-answer-succeeded",
+      "elapsedSeconds": 15.412
+    },
+    {
+      "name": "current-answer-citation-jump-and-reload"
+    },
+    {
+      "name": "audio-after-answer-resume",
+      "audio": [
+        {
+          "state": "running",
+          "rms": 0.07414247950239582
+        }
+      ],
+      "seconds": 25.120494292517005
+    },
+    {
+      "name": "resume-after-question"
+    }
+  ],
+  "errors": [],
+  "httpFailures": [],
+  "requestsFailed": [],
+  "question": {
+    "request_id": "135fc259-fbc9-403c-9631-1b2a19048026",
+    "question": "根据当前风扇例子的 T−30+b>0，如果 b=-2，温度恰好 32°C 时启动吗？多少度才启动？请区分等于与大于，并引用当前片段。",
+    "reading_context": {
+      "resource_ref": {
+        "course_id": "hf-e2e-20261017160234",
+        "material_type": "classroom",
+        "material_id": "published-c3b736d8ac969ce79217",
+        "version": 2
+      },
+      "locator": {
+        "kind": "hyperframes",
+        "seconds": 24.492029297052156,
+        "segment_id": "seg-02",
+        "content_hash": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+      },
+      "selected_text": "",
+      "classroom": {
+        "status": "paused",
+        "position": {
+          "seconds": 24.492029297052156,
+          "segment_id": "seg-02"
+        }
+      }
+    }
+  },
+  "answer": {
+    "turn_id": "answer-7de0d412c4c74a2191ba9442d6f93ff4",
+    "session_id": "learning-14275f3cfdb4305849dd41e4641a7398447c6dd9cf9bcaeb86dc5316bd8ed4ad",
+    "request_id": "135fc259-fbc9-403c-9631-1b2a19048026",
+    "topic_id": "bias",
+    "status": "succeeded",
+    "stage": "succeeded",
+    "attempt": 1,
+    "result": {
+      "actions": [],
+      "citations": [
+        {
+          "title": "神经元的偏置：平移直线与降低启动阈值",
+          "locator": {
+            "kind": "hyperframes",
+            "seconds": 24.492029297052156,
+            "segment_id": "seg-02",
+            "content_hash": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+          },
+          "visibility": "course",
+          "citation_id": "ctx_01",
+          "content_hash": "584044dd3b1ccdcbe8caf4443c4a78ed59dad71ea6496496e19b06b659bd5d04",
+          "resource_ref": {
+            "version": 2,
+            "course_id": "hf-e2e-20261017160234",
+            "material_id": "published-c3b736d8ac969ce79217",
+            "material_type": "classroom"
+          }
+        }
+      ],
+      "observation": null,
+      "citation_ids": [
+        "ctx_01"
+      ],
+      "memory_epoch": 0,
+      "model_rounds": 1,
+      "role_version": "learning-role-v3",
+      "tool_attempts": 0,
+      "teaching_skill": {
+        "mode": "classroom",
+        "name": "teach-current-topic",
+        "version": "6426cc3a24b06e8da8147a43206c7bd080aa183056f1dcf8dd833e28e2899d54"
+      },
+      "answer_markdown": "不启动。b = −2 时，启动条件是 **T > 30 − (−2) = 32**，也就是温度必须**严格大于 32°C**；恰好 32°C 时，判断式左边为 0，不满足“> 0”，所以风扇不启动。\n\n代入验证：T = 32、b = −2 时，T − 30 + b = 32 − 30 − 2 = 0，不满足大于 0。\n\n所以 b = −2 时，要**超过 32°C**（比如 32.1°C）才启动。\n\n这和你当前停在 17 秒左右、正在讲的“正偏置降低启动阈值”那段是同一套逻辑：阈值 = 30 − b。b = 2 时阈值降到 28，b = 0 时是 30，b = −2 时阈值升到 32——负偏置把门槛往上推，让激活更难，正是讲稿里“负偏置则相反”的方向。\n\n注意区分：\n\n- **等于阈值**：判断式等于 0，不启动。\n- **大于阈值**：判断式大于 0，启动。",
+      "source_revision": 129,
+      "preparation_receipts": [],
+      "suggested_action_ids": []
+    },
+    "error_code": null,
+    "committed_effects": []
+  },
+  "citation": {
+    "text": "来源：神经元的偏置：平移直线与降低启动阈值 · v2",
+    "href": "?learningPlayer=1#ai?course_id=hf-e2e-20261017160234&material_type=classroom&material_id=published-c3b736d8ac969ce79217&version=2&visibility=course&citation=1&seconds=24.492029297052156&segment_id=seg-02"
+  },
+  "status": "passed",
+  "finished": "2026-10-18T04:58:41.391Z"
+}

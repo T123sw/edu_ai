@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "firstTextMs": 1086,
+  "first": {
+    "request_id": "7f1af434-94e2-4f6d-811c-98e7ac7ba1cc",
+    "question": "刚才我选了不交换，为什么错了？请根据实际操作解释。",
+    "reply_to": null,
+    "context_id": "2af90aa6-8b59-4c00-855c-fb536590850a",
+    "target_context_id": "2af90aa6-8b59-4c00-855c-fb536590850a",
+    "revision": "5a22528f95ccb2bfd3384497b14cc5284d8849133a10e411ef08fd03ede9fc8e",
+    "run_id": "3f99dc7f-5138-4dcb-bf9e-48f05a266378",
+    "state_revision": 16,
+    "attempt_id": "9ce7ca5d-9b5c-443e-9898-73fdab8b4a3d",
+    "phase": "guided",
+    "focus_label": "选择交换",
+    "status": "complete",
+    "answer": "你这次选“不交换”之所以错，是因为当前高亮的一对相邻元素是 **5 和 2**（第 0 轮、比较位置 0↔1）。冒泡排序的判定规则是：只有前一个元素**严格大于**后一个元素时才交换。这里 5 > 2 成立，所以应当选“交换”，让较大的 5 向右移动一位。\n\n“不交换”只在两者相等或前一个更小时才正确，比如演示里比较 5 和 9 时，5 不大于 9，就不交换。你这次把“5 大于 2”的情形误判成了不需要交换。\n\n另外说明一下：这次判定失败后，系统已撤销该次判定，数组恢复为 [5, 2, 9, 1, 7, 3]，比较位置仍在 0↔1，比较次数和交换次数都还是 0，你可以重新判断。\n\n想一想：如果这一对是 2 和 5（前小后大），你会选哪个？为什么？",
+    "error": "",
+    "created_at": 1792225947.7813077,
+    "updated_at": 1792225949.938317
+  },
+  "second": {
+    "request_id": "37189f5e-5500-4318-8511-fcf6489e47a3",
+    "question": "我理解了，是因为前面的 5 比后面的 2 大，所以升序排序要交换。",
+    "reply_to": "7f1af434-94e2-4f6d-811c-98e7ac7ba1cc",
+    "context_id": "617cd749-1050-4f63-9575-255015679916",
+    "target_context_id": "2af90aa6-8b59-4c00-855c-fb536590850a",
+    "revision": "5a22528f95ccb2bfd3384497b14cc5284d8849133a10e411ef08fd03ede9fc8e",
+    "run_id": "3f99dc7f-5138-4dcb-bf9e-48f05a266378",
+    "state_revision": 16,
+    "attempt_id": "9ce7ca5d-9b5c-443e-9898-73fdab8b4a3d",
+    "phase": "guided",
+    "focus_label": "选择交换",
+    "status": "complete",
+    "answer": "你的理解是对的：前一个 5 大于后一个 2，升序排序要让小的在前，所以这一对需要交换，5 向右移动一位。\n\n再补一点：交换后 5 会继续和右边的 9 比较，5 不大于 9 就停下，这样每轮扫描都会把当前未排序部分的最大值推到末尾。\n\n现在你可以回到页面重新选“交换”并确认。",
+    "error": "",
+    "created_at": 1792225950.2580428,
+    "updated_at": 1792225951.6690702
+  },
+  "restoredReplyAfterReload": true,
+  "persistence": "isolated filesystem",
+  "provider": "configured real model"
+}

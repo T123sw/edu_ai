@@ -1,0 +1,74 @@
+[
+  {
+    "source": "stable-0.wav",
+    "output": "aligned-stable-0.wav",
+    "before_hz": 214.6,
+    "after_hz": 245.09,
+    "source_duration": 19.44,
+    "output_duration": 19.44,
+    "seconds": 5.19
+  },
+  {
+    "source": "stable-1.wav",
+    "output": "aligned-stable-1.wav",
+    "before_hz": 218.35,
+    "after_hz": 238.11,
+    "source_duration": 24.32,
+    "output_duration": 24.243166666666667,
+    "seconds": 4.33
+  },
+  {
+    "source": "stable-2.wav",
+    "output": "aligned-stable-2.wav",
+    "before_hz": 243.68,
+    "after_hz": 243.68,
+    "source_duration": 19.36,
+    "output_duration": 19.346791666666668,
+    "seconds": 3.6
+  },
+  {
+    "source": "stable-3.wav",
+    "output": "aligned-stable-3.wav",
+    "before_hz": 267.27,
+    "after_hz": 239.49,
+    "source_duration": 16.32,
+    "output_duration": 16.32,
+    "seconds": 2.96
+  },
+  {
+    "source": "repeat-0.wav",
+    "output": "aligned-repeat-0.wav",
+    "before_hz": 220.89,
+    "after_hz": 252.27,
+    "source_duration": 20.32,
+    "output_duration": 20.32,
+    "seconds": 3.74
+  },
+  {
+    "source": "repeat-1.wav",
+    "output": "aligned-repeat-1.wav",
+    "before_hz": 220.89,
+    "after_hz": 252.27,
+    "source_duration": 20.32,
+    "output_duration": 20.32,
+    "seconds": 3.73
+  },
+  {
+    "source": "repeat-2.wav",
+    "output": "aligned-repeat-2.wav",
+    "before_hz": 201.39,
+    "after_hz": 235.38,
+    "source_duration": 17.36,
+    "output_duration": 17.36,
+    "seconds": 3.26
+  },
+  {
+    "source": "long-0.wav",
+    "output": "aligned-long-0.wav",
+    "before_hz": 288.11,
+    "after_hz": 230.67,
+    "source_duration": 54.24,
+    "output_duration": 54.24,
+    "seconds": 8.89
+  }
+]

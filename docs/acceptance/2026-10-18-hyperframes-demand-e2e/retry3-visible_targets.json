@@ -1,0 +1,46 @@
+{
+  "seg_b_zero": [
+    "#s3-title",
+    "#s3-graph"
+  ],
+  "seg_check1": [
+    "#s9-title",
+    "#s9-q"
+  ],
+  "seg_check2": [
+    "#s10-title",
+    "#s10-q"
+  ],
+  "seg_summary": [
+    "#s11-title",
+    "#s11-graph"
+  ],
+  "seg_parallel": [
+    "#s7-title",
+    "#s7-graph"
+  ],
+  "seg_slope_why": [
+    "#s6-title",
+    "#s6-graph"
+  ],
+  "seg_b_negative": [
+    "#s5-title",
+    "#s5-graph"
+  ],
+  "seg_b_positive": [
+    "#s4-title",
+    "#s4-graph"
+  ],
+  "seg_misconception": [
+    "#s8-title",
+    "#s8-wrong"
+  ],
+  "seg_intro_question": [
+    "#s1-title",
+    "#s1-graph"
+  ],
+  "seg_yintercept_derive": [
+    "#s2-title",
+    "#s2-card"
+  ]
+}

@@ -1,0 +1,854 @@
+{
+  "at": 1792412663.0026715,
+  "browserSkipped": true,
+  "errors": [
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-kicker\" starts with a digit, and the selector `#07-kicker` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-kicker",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-fidx\" starts with a digit, and the selector `#07-fidx` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-fidx",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-headline\" starts with a digit, and the selector `#07-headline` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-headline",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-p-dim\" starts with a digit, and the selector `#07-p-dim` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-p-dim",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-p-linear\" starts with a digit, and the selector `#07-p-linear` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-p-linear",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-p-softmax\" starts with a digit, and the selector `#07-p-softmax` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-p-softmax",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-w1-line\" starts with a digit, and the selector `#07-w1-line` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-w1-line",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-w1-head\" starts with a digit, and the selector `#07-w1-head` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-w1-head",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-w2-line\" starts with a digit, and the selector `#07-w2-line` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-w2-line",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-w2-head\" starts with a digit, and the selector `#07-w2-head` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-w2-head",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-bars-micro\" starts with a digit, and the selector `#07-bars-micro` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-bars-micro",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-chip-0\" starts with a digit, and the selector `#07-chip-0` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-chip-0",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-track-0\" starts with a digit, and the selector `#07-track-0` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-track-0",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-fill-0\" starts with a digit, and the selector `#07-fill-0` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-fill-0",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-win-glow\" starts with a digit, and the selector `#07-win-glow` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-win-glow",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-win-ring\" starts with a digit, and the selector `#07-win-ring` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-win-ring",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-sel-label\" starts with a digit, and the selector `#07-sel-label` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-sel-label",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-sum-note\" starts with a digit, and the selector `#07-sum-note` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-sum-note",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-loop-line\" starts with a digit, and the selector `#07-loop-line` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-loop-line",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-loop-head\" starts with a digit, and the selector `#07-loop-head` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-loop-head",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"07-loop-label\" starts with a digit, and the selector `#07-loop-label` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#07-loop-label",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/07-output-softmax.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-kicker\" starts with a digit, and the selector `#08-kicker` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-kicker",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-fidx\" starts with a digit, and the selector `#08-fidx` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-fidx",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-headline\" starts with a digit, and the selector `#08-headline` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-headline",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-lab-in\" starts with a digit, and the selector `#08-lab-in` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-lab-in",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-lab-tg\" starts with a digit, and the selector `#08-lab-tg` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-lab-tg",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-mask\" starts with a digit, and the selector `#08-mask` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-mask",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-mask-lab\" starts with a digit, and the selector `#08-mask-lab` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-mask-lab",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-p-decoder\" starts with a digit, and the selector `#08-p-decoder` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-p-decoder",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-arrow-a0\" starts with a digit, and the selector `#08-arrow-a0` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-arrow-a0",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-arrow-h0\" starts with a digit, and the selector `#08-arrow-h0` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-arrow-h0",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-arrow-a1\" starts with a digit, and the selector `#08-arrow-a1` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-arrow-a1",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-arrow-h1\" starts with a digit, and the selector `#08-arrow-h1` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-arrow-h1",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-arrow-a2\" starts with a digit, and the selector `#08-arrow-a2` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-arrow-a2",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-arrow-h2\" starts with a digit, and the selector `#08-arrow-h2` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-arrow-h2",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-slot-0\" starts with a digit, and the selector `#08-slot-0` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-slot-0",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-slot-1\" starts with a digit, and the selector `#08-slot-1` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-slot-1",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-slot-2\" starts with a digit, and the selector `#08-slot-2` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-slot-2",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-slot-note\" starts with a digit, and the selector `#08-slot-note` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-slot-note",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-p-adam\" starts with a digit, and the selector `#08-p-adam` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-p-adam",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-adam-tokens\" starts with a digit, and the selector `#08-adam-tokens` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-adam-tokens",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-p-warmup\" starts with a digit, and the selector `#08-p-warmup` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-p-warmup",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-lr-panel\" starts with a digit, and the selector `#08-lr-panel` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-lr-panel",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-lr-rise\" starts with a digit, and the selector `#08-lr-rise` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-lr-rise",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-lr-decay\" starts with a digit, and the selector `#08-lr-decay` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-lr-decay",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-lr-dot\" starts with a digit, and the selector `#08-lr-dot` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-lr-dot",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-annotation\" starts with a digit, and the selector `#08-annotation` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-annotation",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-p-dropout\" starts with a digit, and the selector `#08-p-dropout` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-p-dropout",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-glow-dropout\" starts with a digit, and the selector `#08-glow-dropout` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-glow-dropout",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-p-smooth\" starts with a digit, and the selector `#08-p-smooth` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-p-smooth",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-glow-smooth\" starts with a digit, and the selector `#08-glow-smooth` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-glow-smooth",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-note\" starts with a digit, and the selector `#08-note` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-note",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    },
+    {
+      "code": "id_requires_css_escape",
+      "severity": "error",
+      "message": "id=\"08-caveat\" starts with a digit, and the selector `#08-caveat` used in this composition is invalid: querySelector and GSAP throw a SyntaxError, and CSS drops the rule.",
+      "selector": "#08-caveat",
+      "dataAttributes": {},
+      "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/08-training.html",
+      "bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "time": 0,
+      "fixHint": "Rename the id to start with a letter (recommended), or build selectors with `#${CSS.escape(id)}` at runtime."
+    }
+  ]
+}

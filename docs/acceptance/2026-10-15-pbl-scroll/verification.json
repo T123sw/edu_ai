@@ -1,0 +1,29 @@
+{
+  "typecheck": "passed",
+  "eslint": "passed",
+  "scrollCases": 3,
+  "runtimeCases": 7,
+  "codeScrollBoundary": "passed",
+  "animation": "real animation frames include multiple intermediate scroll positions; normal-motion and reduced-motion paths covered",
+  "coverage": [
+    "initial question and half-height workbench visible on same page",
+    "wheel down enters full viewport; wheel up on workbench toolbar returns",
+    "wheel over partial editor/preview enters workbench rather than getting captured by iframe",
+    "same editor/iframe nodes retained; actual preview click counter survives round trip",
+    "code scrolling including upper boundary does not flip the page",
+    "full long-problem reading; changing to short step preserves full workspace position",
+    "AI draft and saved history retained, isolated step replies and retry behavior",
+    "algorithm input, actual Worker checks and project cumulative checks",
+    "desktop, tablet and mobile layout from 1920px to 320px"
+  ],
+  "testCorrection": "Return/enter helper initially read stale focus state or geometry before the previous scroll committed. It now waits two animation frames and checks actual stage geometry. Final layout and real-preview round-trip checks passed.",
+  "limits": "Business/auth/storage/tutor APIs mocked; actual React preview and algorithm Worker used in runtime regressions. Scroll cases block external runtime. No model calls or production learner-data changes.",
+  "iframeBoundaryFix": "Full-workspace mode locks native outer scrolling with overflow-y:hidden; explicit toolbar gestures/buttons still return to the problem. Final real-preview test confirmed counter state survives return/re-entry and iframe wheel-up keeps the workspace focused. Earlier archived failure was confounded by the helper timing race and does not independently prove an iframe defect.",
+  "finalBuiltChecks": {
+    "scrollCases": 3,
+    "realPreviewRoundTripAndIframeWheelCases": 1,
+    "status": "passed"
+  },
+  "productionScrollCases": 3,
+  "reconciledLatestPublishedVersion": true
+}

@@ -1,0 +1,75 @@
+{
+  "publishedAt": "20261015T033906Z",
+  "frontendPublished": true,
+  "checkerPublished": false,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-pbl-brief-final",
+  "backup": "/tmp/edu-pbl-brief-backup-20261015T033906Z",
+  "previousIndexSha256": "b80f217c9100efb82e317173cec6ac8ed01c88591b251eabb5e51881fa8d584b",
+  "releaseIndexSha256": "d764d3cda0626d0d65c23c13feb85c6cf4e3456610357632cc08c5989e69bec1",
+  "nginxIndexMatches": true,
+  "sourceManifest": {
+    "src/pbl/WorkbenchChrome.tsx": {
+      "previous": "d6d18e59deba574c6f6f330f2021875c726375a6907f31bfd6279b5e658ea606",
+      "new": "8a7c0f0cb408b3eb3b28c5b4b1a64d4a08693cff6ada9df5d4323ecbcf7bd36b"
+    },
+    "src/pbl/WorkbenchBrief.tsx": {
+      "previous": null,
+      "new": "5a207fe6a6e70abe1f4b3e302e0c179589402ee703823d8bbd82e2917733363b"
+    },
+    "src/pbl/workbenchBrief.css": {
+      "previous": null,
+      "new": "efbc50ba7dc8ac82d93704cb5d23913af1deca242f55e126e54b40e5d9f71d34"
+    },
+    "src/pbl/AlgorithmWorkspace.tsx": {
+      "previous": "706c5d33009950e6576fe64a8f2286996bc2d698d9de0eb5b547e7b5db003271",
+      "new": "8d9bdc6d1396b4464f6b68db8cd503c93d991dcabc70b6b5450c21d73bdbde4a"
+    },
+    "src/pbl/ProjectWorkspace.tsx": {
+      "previous": "6a825894c7d5355b62cdbf9d46b107b5d094c1ee5320c47e6833cc7f014b7dde",
+      "new": "3471dd041798dc39f9a29625e204f90204d140961a8457f96753f1ee8014e74d"
+    },
+    "tests/live-learning/pbl-brief.spec.ts": {
+      "previous": null,
+      "new": "2f93f58536e1c838ac7e4d650b11211046c3237099506612fc88593e5a8f13c9"
+    },
+    "tests/live-learning/pbl-scroll.spec.ts": {
+      "previous": "58eda8aad9f01357be947149f9cd07be18a839f4738b4ade26a461a8c3f09acb",
+      "new": "96770225af886214f189dc9e5c700c5a48538640b15afcf08f7d2269df9913d2"
+    },
+    "tests/live-learning/pbl-project.spec.ts": {
+      "previous": "50353196da92e4603ad36a1ab6c8c0493d2f821a7581c93cec560ee4cbb93f68",
+      "new": "2b1284755a46a67123c941597401c6464ec008ba3aba686f7ea0cffa41a676a7"
+    },
+    "tests/live-learning/pbl.spec.ts": {
+      "previous": "a30c2d6f6da4a4d2f62d68e00be73c637d8806e84de693c1b24be9899d234f87",
+      "new": "da57cc5799687313c3dab2701b0aa66d3c3ba21e6fd227248b6d35a7030bc856"
+    }
+  },
+  "basedOnVerifiedPreviousRelease": true,
+  "sharedComponents": [
+    "WorkbenchHeading",
+    "AlgorithmBrief",
+    "ProjectBrief"
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "layoutCases": 6,
+    "runtimeCases": 3
+  },
+  "changes": [
+    "Remove problem dialog and redundant entry",
+    "Show requirements, examples and acceptance inline",
+    "Separate current-step checks from cumulative checks",
+    "Responsive two-column reading area with inline optional reference"
+  ],
+  "verificationLimits": "Business/auth/storage/tutor APIs mocked. Heading/layout cases block external runtime; regression cases use real React preview and algorithm Worker. No real model calls or production learner-data writes.",
+  "backendChanges": false,
+  "sourceSnapshot": "/tmp/edu-pbl-brief-source/frontend",
+  "releaseFilesVerified": 477,
+  "selectedSourceMatches": true,
+  "productionLayoutCases": 3,
+  "productionLayoutStatus": "passed"
+}

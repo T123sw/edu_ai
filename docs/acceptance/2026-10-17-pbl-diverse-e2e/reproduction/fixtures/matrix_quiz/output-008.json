@@ -1,0 +1,27 @@
+{
+  "unit": {
+    "stepId": "submit-and-feedback",
+    "title": "提交判定与锁定",
+    "objective": "实现未选不能提交、提交后显示对错与正确答案并锁定本题。",
+    "instructionsMarkdown": "上一步你已经能显示第一题并选中选项。这一步让测验真正能“作答”。\n\n需要完成的效果：\n\n- 在选项下方放一个“提交”按钮。没有选中任何选项时，这个按钮不可用；选中选项后按钮变为可用。\n- 点击“提交”后，页面显示本题反馈：答对显示“回答正确”，答错显示“回答错误”，并且无论对错都显示正确答案（例如“正确答案：5”）。\n- 提交之后，本题被锁定：再点击其他选项不会改变选择，提交按钮也不再可用，不能重复提交。\n\n本步只处理第一题的提交与反馈，下一题切换和总分留到后面步骤。\n\n**代码约定**\n\n- 提交按钮使用 `data-testid=\"submit\"`，文字为“提交”。\n- 反馈文字放在一个元素里，使用 `data-testid=\"feedback\"`，内容为“回答正确”或“回答错误”。\n- 正确答案放在一个元素里，使用 `data-testid=\"correct-answer\"`，内容为“正确答案：”加正确答案文字（如“正确答案：5”）。\n- 选项继续沿用上一步的 `data-testid=\"option\"` 与 `role=\"radio\"`，选中状态用 `aria-checked` 表示。\n- 这些标记只供系统识别，不会改变页面外观。",
+    "explanationMarkdown": "这一步的核心是把“选择”和“提交”分开，并引入一个“本题是否已提交”的状态。\n\n思路提示：\n\n1. 新增一个状态记录本题是否已提交，例如 `const [submitted, setSubmitted] = useState(false)`。\n2. 提交按钮的 `disabled` 属性可以写成“没有选中选项”或“已经提交”时为真，这样同时满足“未选不能提交”和“提交后不能再提交”。\n3. 点击选项时，如果本题已提交就不再更新选择，从而锁定本题。\n4. 提交时把 `submitted` 设为 `true`，并根据 `selected === q.answer` 判断对错，渲染对应反馈和正确答案。\n\n注意反馈和正确答案只在提交后出现，未提交时不要显示。",
+    "hints": [
+      "用一个布尔状态记录本题是否已提交，提交按钮的 disabled 同时考虑“未选择”和“已提交”两种情况。",
+      "点击选项的处理函数里先判断是否已提交，已提交就直接返回，不再改变选择。",
+      "对错判断就是比较当前选择和这道题的正确答案是否相等。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "submit-disabled-without-selection",
+      "submit-shows-feedback",
+      "locked-after-submit"
+    ]
+  },
+  "referenceFiles": {
+    "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nconst QUESTIONS = [\n  { question: '2+3 等于多少？', options: ['4', '5', '6'], answer: '5' },\n  { question: '水的化学式是什么？', options: ['H2O', 'CO2', 'O2'], answer: 'H2O' },\n  { question: '一周有几天？', options: ['5', '6', '7'], answer: '7' },\n];\n\nexport default function App() {\n  const [current, setCurrent] = useState(0);\n  const [selected, setSelected] = useState(null);\n  const [submitted, setSubmitted] = useState(false);\n\n  const q = QUESTIONS[current];\n  const isCorrect = selected === q.answer;\n\n  function handleSelect(opt) {\n    if (submitted) return;\n    setSelected(opt);\n  }\n\n  function handleSubmit() {\n    if (selected === null || submitted) return;\n    setSubmitted(true);\n  }\n\n  return (\n    <main className=\"quiz\">\n      <p className=\"progress\" data-testid=\"progress\">\n        第 {current + 1} 题 / 共 {QUESTIONS.length} 题\n      </p>\n      <h1 className=\"question\" data-testid=\"question\">{q.question}</h1>\n      <div className=\"options\" role=\"radiogroup\">\n        {q.options.map((opt) => (\n          <button\n            key={opt}\n            type=\"button\"\n            role=\"radio\"\n            aria-checked={selected === opt ? 'true' : 'false'}\n            data-testid=\"option\"\n            className={'option' + (selected === opt ? ' selected' : '')}\n            onClick={() => handleSelect(opt)}\n          >\n            {opt}\n          </button>\n        ))}\n      </div>\n      <button\n        type=\"button\"\n        data-testid=\"submit\"\n        className=\"submit\"\n        disabled={selected === null || submitted}\n        onClick={handleSubmit}\n      >\n        提交\n      </button>\n      {submitted && (\n        <div className=\"feedback-area\">\n          <p className=\"feedback\" data-testid=\"feedback\">\n            {isCorrect ? '回答正确' : '回答错误'}\n          </p>\n          <p className=\"correct-answer\" data-testid=\"correct-answer\">\n            正确答案：{q.answer}\n          </p>\n        </div>\n      )}\n    </main>\n  );\n}\n",
+    "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\nmain.quiz { padding: 24px; max-width: 480px; }\n.progress { color: #666; margin: 0 0 12px; }\n.question { font-size: 20px; margin: 0 0 16px; }\n.options { display: flex; flex-direction: column; gap: 10px; }\n.option {\n  padding: 10px 14px;\n  border: 1px solid #ccc;\n  border-radius: 8px;\n  background: #fff;\n  font-size: 16px;\n  text-align: left;\n  cursor: pointer;\n}\n.option.selected { border-color: #2f6fed; background: #e8f0ff; }\n.submit {\n  margin-top: 16px;\n  padding: 10px 20px;\n  border: none;\n  border-radius: 8px;\n  background: #2f6fed;\n  color: #fff;\n  font-size: 16px;\n  cursor: pointer;\n}\n.submit:disabled { background: #b9c4d8; cursor: not-allowed; }\n.feedback-area { margin-top: 16px; }\n.feedback { font-size: 16px; font-weight: bold; margin: 0 0 6px; }\n.correct-answer { color: #444; margin: 0; }\n"
+  }
+}

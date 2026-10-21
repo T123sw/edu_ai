@@ -13,13 +13,14 @@ def submit_classroom(command, manager, *, existing_job=None):
     return asyncio.run(submit_classroom_generation_job(
         existing_job=existing_job, course_id=command.course_id, owner=command.owner_user_id, course_storage_manager=manager,
         scope_type=command.scope_type, scope_id=command.scope_id,
-        requirement=config['title'] + '\n' + config['focus'] + '\n已确认方案：\n' + config['confirmed_outline'] + '\n课堂结构与质量要求：\n' + resource_contract('classroom'),
+        requirement=config['title'] + '\n' + config['focus'] + '\n已确认需求：\n' + config['confirmed_outline'] + '\n原生制作交接约定：\n' + resource_contract('classroom'),
         topic=config['title'], audience=config['audience'], objectives=organization.get('objectives', []),
         web_research_context=json.dumps({'evidence': config['research_context'], 'organization': organization}, ensure_ascii=False),
         source_mode=command.source_mode, selected_doc_ids=command.selected_doc_ids,
-        enable_web_search=False, enable_tts=options.get('enable_tts', False),
-        include_visuals=options.get('include_visuals', True), scene_count=len(config['harness_chapters']),
-        duration_minutes=options.get('duration_minutes', 25),
+        enable_web_search=False, enable_tts=options.get('enable_tts'),
+        include_visuals=options.get('include_visuals'),
+        duration_minutes=options.get('duration_minutes'),
+        video_preferences=options.get('video_preferences'),
         idempotency_key=command.idempotency_key, material_id=command.material_id,
         material_metadata={'harness_config': config, 'review_policy': command.review_policy},
         deadline_seconds=command.deadline_seconds,
@@ -76,10 +77,12 @@ class ResourceJobsMixin:
             from .reviewed_resource import verified_resource
             passed = verified_resource(artifact, kind)
             result['verification'] = {'decision': 'pass' if passed else 'fail', 'checks': 'version_bound_resource_review'}
+            if kind in ('classroom', 'quiz') and ((artifact or {}).get('generation_state') or {}).get('resource_review', {}).get('decision') == 'skipped':
+                result['verification'].update(checks='version_bound_structural_validation', semantic_review='skipped')
             if passed:
                 result['artifact'] = {'artifact_id': job.result_ref.get('material_id') or job.result_ref.get('classroom_id'),
                     'artifact_type': kind, 'title': artifact.get('title'),
-                    'content': artifact.get('content') if kind != 'classroom' else {'stage': artifact['stage'], 'scenes': artifact['scenes']}}
+                    'content': artifact.get('content') or {'stage': artifact.get('stage'), 'scenes': artifact.get('scenes')}}
         return result
 
     def cancel_resource_job(self, args):

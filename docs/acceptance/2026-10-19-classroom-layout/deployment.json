@@ -1,0 +1,20 @@
+{
+  "status": "frontend-published",
+  "publishedAt": "20261019T063430Z",
+  "source": "/tmp/edu-hf-layout-cleanup-source",
+  "release": "/tmp/edu-hf-layout-cleanup-release",
+  "backupIndex": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-classroom-layout-20261019T063430Z/index.html",
+  "previousIndexSha256": "762d3a797fac5801c0617dd7bd743ac0166a1c8870d8388ae8d2eaf6fdcbc36c",
+  "releaseIndexSha256": "f1bbff50a15b69dc1914d16ea24d4fa0523311972d2a7dc28e334e3d2dad6a5a",
+  "backendRestarted": false,
+  "verification": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "realVideoPreview": "passed: two saved videos, audible playback, seek, reading context, three downloads each, refresh, mobile",
+    "progressiveDelivery": "passed: fixture metadata with real videos; no playback remount",
+    "online": "passed: current course 69.53s video playback, top-right export menu, no redundant controls/status card, desktop/mobile, no page errors"
+  },
+  "generationDefaultsChanged": false,
+  "nginxIndexVerified": true
+}

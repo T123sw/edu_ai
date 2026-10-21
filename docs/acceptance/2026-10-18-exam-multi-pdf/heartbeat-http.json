@@ -1,0 +1,23 @@
+[
+  {
+    "heartbeat_seconds": 1,
+    "read_timeout_seconds": 0.05,
+    "idle_generation_seconds": 0.2,
+    "blank_lines": 0,
+    "events": [],
+    "completed": false
+  },
+  {
+    "heartbeat_seconds": 0.01,
+    "read_timeout_seconds": 0.05,
+    "idle_generation_seconds": 0.2,
+    "blank_lines": 18,
+    "events": [
+      {
+        "seq": 42,
+        "type": "done"
+      }
+    ],
+    "completed": true
+  }
+]

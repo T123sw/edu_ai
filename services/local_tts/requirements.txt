@@ -1,0 +1,7 @@
+# Install in a separate Python 3.12 environment when provisioning a new host.
+# FFmpeg and a working CUDA PyTorch build are also required.
+qwen-tts==0.1.1
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+soundfile>=0.13,<1
+librosa>=0.11,<2

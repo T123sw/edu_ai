@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-16",
+  "milestone": "M2",
+  "status": "implementation_ready_validation_partial",
+  "deployed": false,
+  "exam_ready": false,
+  "upstream": {
+    "repository": "https://github.com/HKUDS/DeepTutor.git",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "version": "1.6.14",
+    "license": "Apache-2.0",
+    "patches": [
+      {
+        "file": "0002-runtime-integration.patch",
+        "sha256": "4b1f287cfd287b3a6c8088ade78c17499ef9d4ef2d2bbc450dd83ab182bc8720"
+      }
+    ],
+    "previous_patch_sets": [
+      [
+        {
+          "file": "0001-exam-foundation.patch",
+          "sha256": "424d88d55cbd39078b9937917c14366d9b0ac648a1ce0e9dfacbb7e3f69fc358"
+        }
+      ]
+    ]
+  },
+  "tests": {
+    "upstream_passed": 227,
+    "final_prompt_subset_repeated_passed": 54,
+    "service_passed": 24,
+    "isolated_backend_passed": 57,
+    "distinct_passed": 308,
+    "isolated_backend_warnings": 1
+  },
+  "process_restart": {
+    "real_http": true,
+    "real_process_kill_and_restart": true,
+    "model_boundary": "controlled HTTP test double",
+    "terminal_status": "failed",
+    "duplicate_keeps_turn": true,
+    "model_requests": 1,
+    "other_owner_status": 404,
+    "recovery_done_event": true,
+    "production_writes": false,
+    "services_stopped": true
+  },
+  "samples": [
+    {
+      "artifact": "custom-result.json",
+      "seconds": 22.51,
+      "question_types": [
+        "choice",
+        "fill_in_blank"
+      ],
+      "completed": 2,
+      "failed": 0,
+      "calls": 8,
+      "tokens": 21256,
+      "model_seconds": 13.299535317346454
+    },
+    {
+      "artifact": "mimic-result.json",
+      "seconds": 8.06,
+      "question_types": [
+        "choice",
+        "fill_in_blank"
+      ],
+      "completed": 2,
+      "failed": 0,
+      "calls": 3,
+      "tokens": 6108,
+      "model_seconds": 4.562149336561561
+    },
+    {
+      "artifact": "mimic-new-question-result.json",
+      "seconds": 11.94,
+      "question_types": [
+        "choice",
+        "fill_in_blank"
+      ],
+      "completed": 2,
+      "failed": 0,
+      "calls": 3,
+      "tokens": 6332,
+      "model_seconds": 5.127958904951811
+    }
+  ],
+  "mineru_live_validation": {
+    "status": "blocked",
+    "http_status": 401,
+    "message": "user authenticate failed"
+  },
+  "pdf_validation_parser": "pypdf-validation-only (synthetic native-text PDF, no production fallback)",
+  "quality_gaps": [
+    "mimic concept drift",
+    "mimic near-copy",
+    "long-paper coverage and complex types deferred to M3"
+  ],
+  "shared_database_fixture_incident": {
+    "cause": "Legacy tests inherited PostgreSQL persistence despite temporary file roots",
+    "test_jobs_restored_from_last_historical_event": [
+      "job-1",
+      "legacy-job"
+    ],
+    "test_material_removed": "course-1/report/report-1",
+    "recent_fixture_versions_removed": 2,
+    "other_jobs_changed_in_regression_window": 0,
+    "exact_pretest_job_row_snapshot_available": false,
+    "note": "Historical test snapshots restored; no claim of byte-exact restoration of undocumented pre-test fixture state."
+  },
+  "pip_check": "No broken requirements found.",
+  "requirements_lock_sha256": "f28a4470733f732ce0a973aa77f598c845533d6495183a01034f30aa4f766616",
+  "artifacts_sha256": {
+    "upstream-tests.txt": "48cb44c5fa8531ba6e64c2f4f96188b0780e752e80fbe8f549c461e0c404b93b",
+    "question-final-tests.txt": "abe10bbe6177e83deec0598b7facc5162b23219e123958cdf66f55861a31c296",
+    "service-tests.txt": "16965ef959e0e64daf4a7872ba36d81a8c7733f195417492ea20fd7a33a99c70",
+    "backend-isolated-tests.txt": "c88992e6b69adec8f532d87037b8a051343eaf3b9253e08347eaa05464ac1554",
+    "restart.json": "1d538047a2cc135edca995621727ba9a8093bace4076415b22f165afeb1e4805",
+    "isolation-remediation.json": "f2d7905fee7c8a80c41497f71553a920fe0296f37b33341a167e7714f7aef7de",
+    "real-generation.json": "77e1dbdfd722dd35d076a6fd94fdc950b5eeeb234cb8cc5b6a45365f16db7b56",
+    "custom-result.json": "e1fc5fd3818edb1919b6f2fbe26be651ecff0764cbec7ec6256694924b9efe4c",
+    "mimic-result.json": "543336c32f1c934d0300798e53e802f3ae363b808fa951ca352ec0eb9c6e8b08",
+    "custom-parsed.json": "bef9f9f465cef79c25035acb434d1656e54abfbec55bf0a44b69ed7cb9d27cc5",
+    "mimic-parsed.json": "3c1c6aab29e458382cdc72a01197ecfeed27d6a41e0558217a081be34f261bf6",
+    "sample-paper.pdf": "6ca9b95786d996413488cf4b8a60db50612a64c6dc3e7e612e959287414faf49",
+    "sample-context.txt": "1696aedadd826c9eeb2b8a3388e688b05f9a91d56c8fa5e6488ccb446529c17a",
+    "mimic-new-question-result.json": "f74c62ffb5ac6b725a3402c3bf910a5342a915b47a9a98cb35988cb86461f94a",
+    "mimic-new-question-run.json": "a3d851123173365e44ba9c0260eee5327b29a9dedbf6f08e54ed2d07d4af770c"
+  }
+}

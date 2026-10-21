@@ -1,0 +1,49 @@
+{
+  "upload_status": 201,
+  "parser": "mineru-local",
+  "characters": 2074,
+  "layout_blocks": 17,
+  "seconds": 4.22,
+  "knowledge_ingestion_calls": 0,
+  "embedding_calls": 0,
+  "llm_calls": 0,
+  "production_business_writes": false,
+  "http_calls": [
+    {
+      "method": "POST",
+      "host": "127.0.0.1",
+      "path": "/v1/tasks",
+      "status": 202
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "path": "/v1/tasks/job_019398002638f540162c92fc",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "path": "/v1/tasks/job_019398002638f540162c92fc",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "path": "/v1/tasks/job_019398002638f540162c92fc",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "path": "/v1/tasks/job_019398002638f540162c92fc",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "path": "/v1/tasks/job_019398002638f540162c92fc/result",
+      "status": 200
+    }
+  ]
+}

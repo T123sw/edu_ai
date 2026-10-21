@@ -1,0 +1,15 @@
+{
+  "initialization_seconds": 0.353,
+  "checks_seconds": 0.423,
+  "questions": 10,
+  "calls": {
+    "room": 1,
+    "material": 1
+  },
+  "nested_seconds": {
+    "room": 0.337,
+    "material": 0.064
+  },
+  "database_read_only": true,
+  "provider_calls": 0
+}

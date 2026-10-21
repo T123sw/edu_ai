@@ -1,0 +1,30 @@
+{
+  "duration_seconds": 294.5,
+  "total_seconds": 1209.7104315757751,
+  "narration_characters": 1709,
+  "segments": 9,
+  "native_workflow": "general-video",
+  "scene_worker_groups": 3,
+  "render_workers_in_this_run": 2,
+  "stages_seconds": {
+    "brief_conversion": 8.07,
+    "native_preparation_to_dispatch": 226.59,
+    "scene_group_execution_wall": 315.48,
+    "assembly_checks_until_render": 67.94,
+    "render_and_completion_poll": 584.95,
+    "completion_import_and_other": 6.68
+  },
+  "decoded": true,
+  "audio_stream": true,
+  "input": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/input.json",
+  "workspace": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/workflows/66b63f4861d6b510c5bcb9d427b67e2c1a278b4f438647c15f94586a3764959f",
+  "video": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/workflows/66b63f4861d6b510c5bcb9d427b67e2c1a278b4f438647c15f94586a3764959f/videos/bubble-sort-python/renders/video.mp4",
+  "original_result": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/result.json",
+  "frontend_course_id": "bubble-sort-five-minute-20261019",
+  "limitations": [
+    "Starts with previously researched node teaching context; not a fresh full-course frontend generation.",
+    "This run started before the render default changed to 4.",
+    "Technical playback validation, not complete teaching fact review.",
+    "One relative audio path call failed and retried; host resolution now fixed and regression tested."
+  ]
+}

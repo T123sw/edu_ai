@@ -18,6 +18,7 @@ from core.course_storage import CourseStorageManager
 
 
 _DURABLE_JOB_KINDS = {
+    JobKind.GENERATE_EXAM,
     JobKind.REVISE_ARTIFACT,
     JobKind.GENERATE_CLASSROOM,
     JobKind.RENDER_VIDEO,
@@ -135,7 +136,7 @@ class JobReconciliationService:
         command = dict(task.command or {})
         resource_type = str(command.get("resource_type") or "").strip()
         course_id = str(command.get("course_id") or task.course_id or "").strip()
-        material_id = str(command.get("material_id") or "").strip()
+        material_id = task.task_id if task.workflow_type == "personal_studio" else str(command.get("material_id") or "").strip()
         if not resource_type or not course_id:
             return None
         if not material_id:
@@ -170,6 +171,11 @@ class JobReconciliationService:
             task.owner_user_id or ""
         ).strip():
             return None
+        if task.workflow_type == "personal_studio":
+            if not material.get("studio_complete"):
+                return None
+            return {"resource_type": "personal_resource", "material_type": resource_type,
+                    "material_id": material_id, "version": material["version"]}
         return {
             "resource_type": "course_material",
             "course_id": course_id,
@@ -181,6 +187,22 @@ class JobReconciliationService:
         for job in jobs:
             task = self.task_store.get_durable(job.edu_job_id)
             if task is None:
+                if job.kind == JobKind.GENERATE_EXAM:
+                    # The private immutable command exists before the public job.
+                    # Recover a crash between ledger creation and queue enqueue.
+                    from app.exam_generation.repository import GenerationRepository
+                    from app.services.platform_task_handlers import enqueue_platform_task
+                    try:
+                        record = GenerationRepository().get(job.owner_user_id, job.edu_job_id)
+                        if record.get("job_id") != job.edu_job_id:
+                            raise ValueError("Generation job identity mismatch")
+                        enqueue_platform_task(job=job, workflow_type="exam_generate",
+                            command={"generation_id": record["id"]}, task_store=self.task_store)
+                    except Exception:
+                        update_job(job.edu_job_id, status=JobStatus.FAILED, step="recovery_failed",
+                            progress=100, message="生成任务恢复失败，请重新提交",
+                            error_code="EXAM_RECOVERY_FAILED", error_message="生成输入记录不可用")
+                    continue
                 if job.kind in _DURABLE_JOB_KINDS:
                     update_job(
                         job.edu_job_id,

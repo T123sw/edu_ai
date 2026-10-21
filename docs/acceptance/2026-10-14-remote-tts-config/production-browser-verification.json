@@ -1,0 +1,38 @@
+{
+  "production_frontend": true,
+  "production_backend": true,
+  "api_intercepted": false,
+  "remote_model": "qwen-audio-3.1-tts-flash",
+  "playing": [
+    {
+      "duration": 2.136,
+      "currentTime": 2.136,
+      "paused": true,
+      "muted": false,
+      "volume": 1
+    },
+    {
+      "duration": 7.176,
+      "currentTime": 0.613225,
+      "paused": false,
+      "muted": false,
+      "volume": 1
+    }
+  ],
+  "paused": true,
+  "nextPage": "2 / 6",
+  "requests": [
+    {
+      "path": "/backend/api/self-learning/courses/learn-f13e2b0434204729a7835fff8298595e/materials/classroom/resource_e430b696a7531691d58c5f10fb281c5c/versions/1/narration/scene_8JGzyL4jWq/action_l_VfCr3I?segment=0",
+      "status": 200,
+      "seconds": 0.454
+    },
+    {
+      "path": "/backend/api/self-learning/courses/learn-f13e2b0434204729a7835fff8298595e/materials/classroom/resource_e430b696a7531691d58c5f10fb281c5c/versions/1/narration/scene_8JGzyL4jWq/action_l_VfCr3I?segment=1",
+      "status": 200,
+      "seconds": 1.441
+    }
+  ],
+  "errors": [],
+  "browser_speech_fallbacks": 0
+}

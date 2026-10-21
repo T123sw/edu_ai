@@ -1,0 +1,55 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/render-baseline/video/renders/comparison.mp4':
+  Metadata:
+    minor_version   : 512
+    major_brand     : isom
+    compatible_brands: isomiso2avc1mp41
+    hyperframes_version: 0.8.168
+    hyperframes_renderer: hyperframes
+    encoder         : Lavf63.1.101
+  Duration: 00:01:05.33, start: 0.000000, bitrate: 1049 kb/s
+  Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709), 1920x1080 [SAR 1:1 DAR 16:9], 850 kb/s, 30 fps, 30 tbr, 15360 tbn, 60 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+      encoder         : Lavc63.1.101 libx264
+  Stream #0:1(und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 191 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+      vendor_id       : [0][0][0][0]
+Input #1, mov,mp4,m4a,3gp,3g2,mj2, from '/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/render-two-workers/video/renders/comparison.mp4':
+  Metadata:
+    minor_version   : 512
+    major_brand     : isom
+    compatible_brands: isomiso2avc1mp41
+    hyperframes_version: 0.8.168
+    hyperframes_renderer: hyperframes
+    encoder         : Lavf63.1.101
+  Duration: 00:01:05.33, start: 0.000000, bitrate: 1049 kb/s
+  Stream #1:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709), 1920x1080 [SAR 1:1 DAR 16:9], 850 kb/s, 30 fps, 30 tbr, 15360 tbn, 60 tbc (default)
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+      encoder         : Lavc63.1.101 libx264
+  Stream #1:1(und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 191 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+      vendor_id       : [0][0][0][0]
+Stream mapping:
+  Stream #0:0 (h264) -> fps
+  Stream #1:0 (h264) -> fps
+  ssim -> Stream #0:0 (wrapped_avframe)
+Press [q] to stop, [?] for help
+Output #0, null, to 'pipe:':
+  Metadata:
+    minor_version   : 512
+    major_brand     : isom
+    compatible_brands: isomiso2avc1mp41
+    hyperframes_version: 0.8.168
+    hyperframes_renderer: hyperframes
+    encoder         : Lavf58.76.100
+  Stream #0:0: Video: wrapped_avframe, yuv420p(tv, bt709, progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 0.10 fps, 0.10 tbn (default)
+    Metadata:
+      encoder         : Lavc58.134.100 wrapped_avframe
+frame=    1 fps=0.0 q=-0.0 size=N/A time=00:00:10.00 bitrate=N/A speed=22.2x    frame=    2 fps=0.0 q=-0.0 size=N/A time=00:00:20.00 bitrate=N/A speed=  21x    frame=    3 fps=2.1 q=-0.0 size=N/A time=00:00:30.00 bitrate=N/A speed=20.7x    frame=    4 fps=2.0 q=-0.0 size=N/A time=00:00:40.00 bitrate=N/A speed=20.5x    frame=    5 fps=2.0 q=-0.0 size=N/A time=00:00:50.00 bitrate=N/A speed=20.4x    frame=    6 fps=2.0 q=-0.0 size=N/A time=00:01:00.00 bitrate=N/A speed=20.3x    frame=    7 fps=2.2 q=-0.0 Lsize=N/A time=00:01:10.00 bitrate=N/A speed=22.1x    
+video:4kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+[Parsed_ssim_2 @ 0x55d6b288a600] SSIM Y:1.000000 (inf) U:1.000000 (inf) V:1.000000 (inf) All:1.000000 (inf)

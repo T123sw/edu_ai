@@ -1,0 +1,77 @@
+{
+  "base": "http://127.0.0.1:18081",
+  "lessons": [
+    {
+      "index": 1,
+      "duration": 38.233333,
+      "width": 1920,
+      "height": 1080,
+      "audio": {
+        "time": 2.032,
+        "paused": false,
+        "muted": false,
+        "state": "running",
+        "rms": 0.1126088236364888
+      },
+      "seek": 26.736,
+      "readingSeconds": 27.941021
+    },
+    {
+      "index": 2,
+      "duration": 71.666667,
+      "width": 1920,
+      "height": 1080,
+      "audio": {
+        "time": 2.238181,
+        "paused": false,
+        "muted": false,
+        "state": "running",
+        "rms": 0.1688839234330292
+      },
+      "seek": 55.895999,
+      "readingSeconds": 57.10102
+    }
+  ],
+  "errors": [],
+  "videoResponses": [
+    {
+      "status": 206,
+      "range": "bytes=0-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=2523136-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=2326528-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=0-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=3276800-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=65536-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=2916352-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=0-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=3276800-"
+    }
+  ],
+  "nativeHtmlRequests": 0,
+  "refreshedPosition": 57.10102,
+  "passed": true
+}

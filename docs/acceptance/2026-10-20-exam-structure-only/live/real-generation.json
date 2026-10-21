@@ -1,0 +1,17 @@
+{
+  "model_boundary": "live",
+  "pdf_parser": "pypdf-validation-only",
+  "production_writes": false,
+  "cases": [
+    {
+      "mode": "mimic",
+      "saved": true,
+      "seconds": 11.9,
+      "events": 15,
+      "result_ref": {
+        "resource_type": "exam_generation",
+        "generation_id": "examgen_a369a3a24d148599e9e72a5d19fe2cf8"
+      }
+    }
+  ]
+}

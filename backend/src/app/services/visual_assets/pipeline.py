@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import time
 from collections import Counter
 from collections.abc import Callable
 from dataclasses import asdict, is_dataclass
@@ -106,13 +107,18 @@ class VisualAssetPipeline:
         course_id: str,
         owner: str | None,
         selected_document_ids: list[str],
+        time_budget_seconds: float | None = None,
     ) -> VisualPipelineResult:
         selected: list[SelectedVisual] = []
         rejected: Counter[str] = Counter()
         candidate_count = 0
         seen_hashes: set[str] = set()
+        deadline = time.monotonic() + time_budget_seconds if time_budget_seconds is not None else None
 
         for slot in brief.slots:
+            if deadline is not None and time.monotonic() >= deadline:
+                rejected['time_budget'] += 1
+                break
             candidates: list[dict[str, Any]] = []
             slot_hashes = set(seen_hashes)
             if self.knowledge_search and selected_document_ids:
@@ -134,8 +140,16 @@ class VisualAssetPipeline:
                     candidates.append({**_dict(raw), "source_type": "web"})
 
             candidate_count += len(candidates)
+            # Optional enrichment tries the best candidate first; it does not
+            # need to download every search result once a usable image exists.
+            if deadline is not None:
+                candidates.sort(key=lambda candidate: self.rank(slot, candidate), reverse=True)
             qualified: list[tuple[float, dict[str, Any]]] = []
             for candidate in candidates:
+                remaining = deadline - time.monotonic() if deadline is not None else None
+                if remaining is not None and remaining <= 0:
+                    rejected['time_budget'] += 1
+                    break
                 url = str(candidate.get("url") or "").strip()
                 if not url:
                     rejected["missing_url"] += 1
@@ -152,6 +166,7 @@ class VisualAssetPipeline:
                         candidate,
                         course_id=course_id,
                         owner=owner,
+                        **({'timeout_s': min(4.0, max(0.1, remaining / 4))} if remaining is not None else {}),
                     )
                 )
                 local_url = str(
@@ -177,6 +192,8 @@ class VisualAssetPipeline:
                     "content_hash": content_hash,
                 }
                 qualified.append((self.rank(slot, merged), merged))
+                if deadline is not None:
+                    break
 
             if not qualified:
                 rejected["no_qualified_candidate"] += 1
@@ -248,6 +265,7 @@ class VisualAssetPipeline:
             candidate,
             owner=kwargs.get("owner"),
             course_id=kwargs.get("course_id"),
+            timeout_s=kwargs.get("timeout_s"),
         )
         if isinstance(result, LocalizedAsset):
             return {

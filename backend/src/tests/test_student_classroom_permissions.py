@@ -41,7 +41,7 @@ def test_student_viewer_can_generate_a_private_personal_classroom(
     response = student.post(
         "/api/courses/course-1/classrooms/generate",
         json={
-            "requirement": "解释函数",
+            "requirement": "为整门课程解释函数",
             "source_mode": "none",
             "selected_doc_ids": [],
         },

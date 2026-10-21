@@ -1,0 +1,44 @@
+[
+  {
+    "task_id": "studio_6728ec96de59e4465e2bada574d3",
+    "before": {
+      "status": "leased",
+      "job_status": "running",
+      "progress": 5,
+      "deadline_at": 1792032498.91138
+    },
+    "at": "2026-10-15T03:12:51.163558+00:00",
+    "cancel_requested": true,
+    "failed": true,
+    "after": {
+      "status": "failed",
+      "job_status": "failed",
+      "progress": 100,
+      "error_code": "GENERATION_DEADLINE_EXCEEDED",
+      "cancel_requested": true,
+      "command_preserved": true,
+      "result_ref": null
+    }
+  },
+  {
+    "task_id": "studio_8599b4553af00ccb94ce7310e5e3",
+    "before": {
+      "status": "leased",
+      "job_status": "running",
+      "progress": 5,
+      "deadline_at": 1792032511.3335807
+    },
+    "at": "2026-10-15T03:12:51.278270+00:00",
+    "cancel_requested": true,
+    "failed": true,
+    "after": {
+      "status": "failed",
+      "job_status": "failed",
+      "progress": 100,
+      "error_code": "GENERATION_DEADLINE_EXCEEDED",
+      "cancel_requested": true,
+      "command_preserved": true,
+      "result_ref": null
+    }
+  }
+]

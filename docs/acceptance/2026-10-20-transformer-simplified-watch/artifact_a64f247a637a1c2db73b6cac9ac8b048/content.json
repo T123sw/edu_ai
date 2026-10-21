@@ -1,0 +1,420 @@
+{
+  "title": "解码器、掩码与端到端数据流",
+  "content": "# 解码器、掩码与端到端数据流\n\n上一节点你已经看过编码器：N 个相同层堆叠，每层两个子层（多头自注意力、逐位置前馈网络），每个子层后接 Add&Norm，编码器并行跑一次，输出一份高阶上下文表示（memory）。这一节把镜头移到右边的解码器，再顺着箭头把整条数据流走一遍。\n\n<a id=\"decoder-three-sublayers\"></a>\n## 一、解码器每层的三个子层\n\n解码器同样由 N 个相同的层堆叠（论文中 N=6），但每层有三个子层，而不是两个：\n\n| 顺序 | 子层 | Q 来自 | K、V 来自 | 作用 |\n| --- | --- | --- | --- | --- |\n| 1 | 掩码多头自注意力 | 解码器输入（已生成前缀） | 同左（同源） | 建模目标序列内部关系，且只能看已生成位置 |\n| 2 | 编码器-解码器交叉注意力 | 第 1 子层的输出 | 编码器输出 memory | 让解码器每个位置都能关注输入序列的所有位置 |\n| 3 | 逐位置前馈网络 | — | — | 与编码器相同，逐位置做两层变换，综合信息 |\n\n每个子层后同样有残差连接与层归一化（Add&Norm），计算方式与编码器一致。\n\n**与编码器对照，解码器只多了一个子层**：交叉注意力。它的特殊之处全在 Q/K/V 的来源上：\n\n- **Q（查询）来自解码器**：具体是第 1 子层（掩码自注意力）的输出，代表\"我现在要生成的目标位置需要什么信息\"。\n- **K、V（键、值）来自编码器输出**：代表\"源句子里有哪些可被检索的信息\"。\n\n可以这样理解：解码器拿自己已经预测出的内容当查询，去编码器提取的特征里查找相关信息并融合到当前表示中，从而完成预测。这也解释了为什么交叉注意力是机器翻译这类任务的关键——它负责在输入序列和输出序列之间做对齐。\n\n一个便于记忆的总结：**K 和 V 的来源总是相同的；Q 在编码器自注意力和解码器第一子层中与 K/V 同源，只有在交叉注意力中与 K/V 不同源。**\n\n<a id=\"mask-and-autoregressive\"></a>\n## 二、掩码的两个作用与自回归属性\n\n掩码（mask）是一张只有 0 和 1 的矩阵，表示某个位置被遮住还是不被遮住。在 Transformer 里它有两个主要作用：\n\n1. **屏蔽无效的 padding 区域。** 训练要组 batch，同一批里句子长度不一，需要补到最大长度。填充位置没有语义，必须用掩码屏蔽掉，否则注意力会去\"关注\"这些空白。编码器和解码器都会用到这一种掩码。\n2. **屏蔽来自\"未来\"的信息。** 注意力计算会综合所有时间步，如果解码时能看到后面的词，就等于提前看到了答案。解码器的掩码自注意力必须把当前位置之后的所有位置遮住。\n\n**为什么解码器必须保持自回归属性？** 自回归指\"第 t 步的输出只依赖第 1 到 t−1 步已生成的内容\"。推理时模型确实是一个词一个词往外吐的，未来词根本还不存在；如果训练时允许模型看到未来词，它就会利用这些\"作弊\"信息来辅助当前词的生成，训练与推理的行为不一致，模型学到的就不是真正的生成能力。因此解码器必须保证每个位置只能看到它自己及之前的词。\n\n**训练时怎么既并行又不作弊？** 把目标序列**右移**后作为解码器输入（在最前面插入起始符），再配合掩码，就能一次性对所有位置并行预测，同时模拟推理时的自回归效果。例如目标序列为 `I / am / a / student`：\n\n- 解码器输入：`<s> / I / am / a`\n- 期望输出：`I / am / a / student`\n\n掩码让第 1 个位置只能看 `<s>`，第 2 个位置只能看 `<s> I`，依此类推。这样一次前向传播就完成了原本需要四步的预测。\n\n补充一点：推理时输入全是已知的，理论上不存在\"偷看未来\"的可能，但为了与训练时的计算保持一致，掩码结构仍然保留。\n\n<a id=\"worked-example-qkv\"></a>\n## 三、完整例子：我吃了一个苹果 → I ate an apple\n\n按课堂互动的做法，我们逐步判断每一步的 Q、K、V 来自哪里、掩码挡住了什么。\n\n**第 0 步：编码器处理源句。** 源句\"我 / 吃了 / 一个 / 苹果\"经 Embedding 加位置编码后送入编码器，并行一次前向传播，得到 memory（4 个位置的上下文向量）。这一步没有掩码挡未来信息，只有 padding 掩码（本例无填充，可忽略）。\n\n**第 1 步：解码器输入 `<s>`。**\n- 掩码自注意力：Q、K、V 全部来自 `<s>` 的表示，同源。掩码挡住 `<s>` 之后的所有位置（此时后面是空的）。\n- 交叉注意力：Q 来自上一步的输出（代表\"我要生成第一个词\"），K、V 来自编码器的 4 个 memory 向量。模型据此把注意力更多放在\"我\"上。\n- 线性层 + softmax 输出 `I`。\n\n**第 2 步：解码器输入 `<s> I`。**\n- 掩码自注意力：Q、K、V 同源，来自 `<s>` 和 `I` 两个位置；掩码让 `I` 只能看 `<s>` 和 `I`，看不到后面。\n- 交叉注意力：Q 来自解码器当前表示，K、V 仍是编码器 memory。这次注意力可能落在\"吃了\"上。\n- 输出 `ate`。\n\n**第 3 步：解码器输入 `<s> I ate`。** 同上，输出 `an`；**第 4 步**输入 `<s> I ate an`，输出 `apple`；**第 5 步**输入 `<s> I ate an apple`，输出结束符 `<eos>`，停止。\n\n**三种注意力的 Q/K/V 来源对照：**\n\n| 注意力 | 位置 | Q | K、V |\n| --- | --- | --- | --- |\n| 自注意力 | 编码器 | 源序列 | 源序列（同源） |\n| 掩码自注意力 | 解码器第 1 子层 | 目标序列已生成部分 | 同左（同源） |\n| 交叉注意力 | 解码器第 2 子层 | 解码器第 1 子层输出 | 编码器输出 memory |\n\n**掩码在这一例中挡住了什么？** 训练时若一次性输入 `<s> I ate an apple`，掩码让 `I` 看不到 `ate/an/apple`，让 `ate` 看不到 `an/apple`，以此类推；同时若 batch 中另一句更短，padding 位置也被遮住。\n\n<a id=\"end-to-end-flow\"></a>\n## 四、端到端数据流\n\n把上面的片段串起来，完整流程如下（以机器翻译为例）：\n\n1. **Embedding + 位置编码**：输入序列转成嵌入矩阵，加上位置编码（自注意力本身不含顺序信息，必须靠位置编码补上），构成送入模型的表示。\n2. **编码器**：N 层堆叠，并行处理，只做一次前向传播，输出隐状态 memory。\n3. **解码器（起始符右移输入）**：以起始符 `<s>`（训练时是右移后的目标序列）和编码器输出为起点，依次经过掩码自注意力 → 交叉注意力 → 前馈网络，每层都有 Add&Norm。\n4. **线性层 + softmax**：解码器顶层输出经线性层得到 logits，再经 softmax 得到词表上的概率分布，按某种策略选出下一个词。\n5. **自回归逐词生成**：把新生成的词接到输入后面，重复第 3–4 步，直到输出结束符 `<eos>` 或达到指定长度。\n\n一句话版本：**Embedding+位置编码 → 编码器 → 解码器（起始符右移输入）→ 线性层+softmax → 自回归逐词生成直至结束符。**\n\n注意编码器与解码器的节奏差异：编码器并行、只跑一次；解码器循环、逐步生成。\n\n<a id=\"variants-and-tradeoffs\"></a>\n## 五、三种架构变体与 Transformer 的优缺点\n\nTransformer 的架构并非一成不变，常见三种形态：\n\n- **仅编码器（Encoder Only）**：只保留编码器，并行处理所有 token，适合需要理解整段输入的任务（如文本分类、阅读理解）。\n- **仅解码器（Decoder Only）**：只保留解码器，以自回归方式推理，逐步生成，适合开放式文本生成。\n- **编码器-解码器**：原始形态，编码器提取源序列特征，解码器用这些特征作为交叉注意力的 K/V 来生成目标序列，适合翻译、摘要等\"输入到输出\"的任务。\n\n**优势：**\n\n- 任意两个位置之间的距离为 1，便于建模长距离依赖，缓解了 RNN 的长程信息弱化问题。\n- 计算可高度并行，契合 GPU 硬件，训练速度快。\n- 不依赖 RNN/CNN，可推广到非 NLP 领域。\n\n**局限：**\n\n- 抛弃 RNN/CNN 后丧失了部分捕捉局部特征的能力，与 RNN、CNN 结合可能效果更好。\n- 位置信息只能靠位置编码补充，被视为结构上的权宜之计，并未改变固有缺陷。\n\n<a id=\"self-check\"></a>\n## 六、自检清单\n\n- 能否不看笔记说出解码器三个子层的顺序，以及交叉注意力中 Q、K、V 各来自哪里？\n- 能否说明掩码的两个作用，并解释为什么解码器必须保持自回归？\n- 能否独立复述从输入句子到输出词的完整数据流，包括起始符右移与结束符停止？\n- 能否说出三种架构变体的差别，并各举一条 Transformer 的优势与局限？\n\n> 说明：本节依据公开中文教材、技术博客与论文解读整理（如 kangshitao 的 Transformer 笔记、微软 AI-System 教材第 2.9 节、rossiXYZ 的 Transformer 系列），未直接引用原始论文全文；不涉及代码实现与训练实践，位置编码只做概念性说明。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 7.3
+      },
+      "sections": [
+        {
+          "section_id": "decoder-three-sublayers",
+          "content_sha256": "573bccf7006c021a6f814d1d791bbc36264417898dde140758b48c3a25a0bb22"
+        },
+        {
+          "section_id": "mask-and-autoregressive",
+          "content_sha256": "7866c22db5bb2d511816cc9a001c28fbc5f3fe3085a6f78953c7ac1e299e1450"
+        },
+        {
+          "section_id": "worked-example-qkv",
+          "content_sha256": "220b81974a89f7a60066120682bdb0599128302e69c71293a41b27cd8910f571"
+        },
+        {
+          "section_id": "end-to-end-flow",
+          "content_sha256": "74b7ea5ef6e17abd72f1cc4da16899153bfdc535a15036104c47ba65d7bd2f45"
+        },
+        {
+          "section_id": "variants-and-tradeoffs",
+          "content_sha256": "9e918248be4ec9874810f141d9d28add70fcf370ee076dc38c9bcbf14752bf99"
+        },
+        {
+          "section_id": "self-check",
+          "content_sha256": "6490b6450695767fa54f83598da24caea6e7be50a2d220ac02e802dee7315f30"
+        }
+      ],
+      "spec_digest": "208935bd561ad8335d4b182220f5bd7eac1752b461b37af7cbbdce729c767c0b",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "decoder-three-sublayers"
+          },
+          "objective_id": "n5-decoder-and-flow:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "worked-example-qkv"
+          },
+          "objective_id": "n5-decoder-and-flow:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "mask-and-autoregressive"
+          },
+          "objective_id": "n5-decoder-and-flow:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "worked-example-qkv"
+          },
+          "objective_id": "n5-decoder-and-flow:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "end-to-end-flow"
+          },
+          "objective_id": "n5-decoder-and-flow:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "variants-and-tradeoffs"
+          },
+          "objective_id": "n5-decoder-and-flow:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n5-decoder-and-flow:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "decoder-three-sublayers"
+          },
+          "explanation": "本节讲授解码器每层的三个子层（掩码自注意力、交叉注意力、逐位置前馈网络）及 Add&Norm，并明确交叉注意力中 Q 来自解码器、K/V 来自编码器输出，落实编码器-解码器核心机制。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "mask-and-autoregressive"
+          },
+          "explanation": "本节解释掩码的两个作用（屏蔽 padding、屏蔽未来信息）以及解码器保持自回归属性的原因，并说明训练时右移目标序列配合掩码并行预测，落实自注意力/掩码机制。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "end-to-end-flow"
+          },
+          "explanation": "本节按顺序复述完整数据流：Embedding+位置编码 → 编码器 → 解码器（起始符右移输入）→ 线性层+softmax → 自回归逐词生成直至结束符，覆盖位置编码与编码器-解码器整体结构。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "variants-and-tradeoffs"
+          },
+          "explanation": "本节说明仅编码器、仅解码器、编码器-解码器三种架构变体，并总结 Transformer 的优势与局限，完成整课要求的原理与结构覆盖。",
+          "requirement_id": "req-transformer-learning"
+        }
+      ],
+      "teaching_context_digest": "cc371a841ee4833585a940b39641f9a24583d6736fdcd5771d6b517e9414cbd7"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文按节点分工覆盖三项要求：第一节（decoder-three-sublayers）给出解码器三子层表格并明确交叉注意力 Q 来自解码器第1子层输出、K/V 来自编码器 memory；第二节（mask-and-autoregressive）说明掩码屏蔽 padding 与未来信息两个作用及自回归必要性；第四节（end-to-end-flow）按序复述 Embedding+位置编码→编码器→解码器（起始符右移）→线性层+softmax→自回归至结束符；第五节给出三种架构变体与优缺点。未越界讲授其他节点内容。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "技术表述与依据一致：N=6、三子层顺序、Add&Norm、K/V 同源而 Q 在交叉注意力中异源、右移输入 `<s>/I/am/a` 对应输出 `I/am/a/student`、训练并行+掩码模拟自回归、推理保留掩码以保持训练/推理一致，均无事实错误；优缺点（位置距离为1、并行性、丧失局部特征、位置编码为权宜之计）与 ev_81397b48 原文相符。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第三节以“我吃了一个苹果 → I ate an apple”逐步推演第0–5步，每步标明 Q/K/V 来源与掩码遮挡范围，并给出三种注意力 Q/K/V 对照表；训练时一次性输入 `<s> I ate an apple` 的掩码遮挡说明与右移示例自洽，边界（结束符停止、padding 掩码）均有交代。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：先承接上一节点编码器→解码器三子层（对照编码器标出多出的交叉注意力）→掩码与自回归→完整例子→端到端数据流→架构变体与优缺点→自检清单，与 learning_activities 的“对照讲解→例子互动→小结测验”顺序一致，非仅声称；入门深度、中文表述、无面试模板。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "文末说明依据公开中文教材与技术博客（kangshitao 笔记、微软 AI-System 2.9 节、rossiXYZ 系列），未声称引用原始论文全文，与 limitations 中“未直接引用原始论文全文”一致；正文主张均可在提供的 evidence 原文中找到对应，未虚构外部核查。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三项节点目标均有解释+练习/自检落点：o1 由第一节与第三节覆盖，o2 由第二节与第三节覆盖，o3 由第四节、第五节与第六节自检覆盖；自检清单四项与 self_check 对应，无关键遗漏。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文按节点分工覆盖三项要求：第一节（decoder-three-sublayers）给出解码器三子层表格并明确交叉注意力 Q 来自解码器第1子层输出、K/V 来自编码器 memory；第二节（mask-and-autoregressive）说明掩码屏蔽 padding 与未来信息两个作用及自回归必要性；第四节（end-to-end-flow）按序复述 Embedding+位置编码→编码器→解码器（起始符右移）→线性层+softmax→自回归至结束符；第五节给出三种架构变体与优缺点。未越界讲授其他节点内容。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "技术表述与依据一致：N=6、三子层顺序、Add&Norm、K/V 同源而 Q 在交叉注意力中异源、右移输入 `<s>/I/am/a` 对应输出 `I/am/a/student`、训练并行+掩码模拟自回归、推理保留掩码以保持训练/推理一致，均无事实错误；优缺点（位置距离为1、并行性、丧失局部特征、位置编码为权宜之计）与 ev_81397b48 原文相符。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第三节以“我吃了一个苹果 → I ate an apple”逐步推演第0–5步，每步标明 Q/K/V 来源与掩码遮挡范围，并给出三种注意力 Q/K/V 对照表；训练时一次性输入 `<s> I ate an apple` 的掩码遮挡说明与右移示例自洽，边界（结束符停止、padding 掩码）均有交代。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：先承接上一节点编码器→解码器三子层（对照编码器标出多出的交叉注意力）→掩码与自回归→完整例子→端到端数据流→架构变体与优缺点→自检清单，与 learning_activities 的“对照讲解→例子互动→小结测验”顺序一致，非仅声称；入门深度、中文表述、无面试模板。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "文末说明依据公开中文教材与技术博客（kangshitao 笔记、微软 AI-System 2.9 节、rossiXYZ 系列），未声称引用原始论文全文，与 limitations 中“未直接引用原始论文全文”一致；正文主张均可在提供的 evidence 原文中找到对应，未虚构外部核查。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三项节点目标均有解释+练习/自检落点：o1 由第一节与第三节覆盖，o2 由第二节与第三节覆盖，o3 由第四节、第五节与第六节自检覆盖；自检清单四项与 self_check 对应，无关键遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第三节第1步称“掩码挡住 `<s>` 之后的所有位置（此时后面是空的）”，可略作简化以免读者误以为存在被遮挡的实际位置。",
+              "第五节“仅编码器适合文本分类、阅读理解”等任务举例未在 evidence 中直接出现，属合理常识补充，可考虑标注为延伸说明。",
+              "第四节第4步“按某种策略选出下一个词”可顺带点明贪心/束搜索等常见策略名称，便于入门读者建立联系。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "decoder-three-sublayers 节以表格列出掩码自注意力、交叉注意力、前馈网络三子层及 Add&Norm，并明确 Q 来自解码器第1子层输出、K/V 来自编码器 memory，真实支持该要求。",
+                "locator": {
+                  "section_id": "decoder-three-sublayers"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "mask-and-autoregressive 节逐条说明屏蔽 padding 与屏蔽未来信息两个作用，并解释自回归必要性及右移+掩码并行训练，真实支持该要求。",
+                "locator": {
+                  "section_id": "mask-and-autoregressive"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "end-to-end-flow 节按 1–5 步顺序复述 Embedding+位置编码→编码器→解码器（起始符右移）→线性层+softmax→自回归至结束符，并给出一句话版本，真实支持该要求。",
+                "locator": {
+                  "section_id": "end-to-end-flow"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "variants-and-tradeoffs 节分别说明仅编码器、仅解码器、编码器-解码器三种变体及各自适用任务，并列出三条优势与两条局限，真实支持该要求。",
+                "locator": {
+                  "section_id": "variants-and-tradeoffs"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "decoder-three-sublayers 节以表格与对照说明三子层及交叉注意力 Q/K/V 来源，作为 o1 的解释落点充分。",
+                "locator": {
+                  "section_id": "decoder-three-sublayers"
+                },
+                "binding_id": "n5-decoder-and-flow:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "worked-example-qkv 节在“我吃了一个苹果”例子中逐步判断每步 Q/K/V 来源，作为 o1 的练习落点有效。",
+                "locator": {
+                  "section_id": "worked-example-qkv"
+                },
+                "binding_id": "n5-decoder-and-flow:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "mask-and-autoregressive 节解释掩码两作用与自回归原因，并说明训练并行与推理保留掩码，作为 o2 解释落点充分。",
+                "locator": {
+                  "section_id": "mask-and-autoregressive"
+                },
+                "binding_id": "n5-decoder-and-flow:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "worked-example-qkv 节末段说明训练时掩码让 `I` 看不到 `ate/an/apple` 等及 padding 遮挡，作为 o2 练习落点有效。",
+                "locator": {
+                  "section_id": "worked-example-qkv"
+                },
+                "binding_id": "n5-decoder-and-flow:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "end-to-end-flow 节按序给出五步数据流及一句话版本，作为 o3 解释落点充分。",
+                "locator": {
+                  "section_id": "end-to-end-flow"
+                },
+                "binding_id": "n5-decoder-and-flow:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "variants-and-tradeoffs 节给出三种架构变体与 Transformer 优缺点，作为 o3 解释落点有效。",
+                "locator": {
+                  "section_id": "variants-and-tradeoffs"
+                },
+                "binding_id": "n5-decoder-and-flow:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 节四项自检分别对应三子层与 Q/K/V、掩码与自回归、完整数据流、变体与优缺点，作为 o3 检查落点有效。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n5-decoder-and-flow:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "7fec6f74a4a9b92aeaf31f3ae8ece96bc2ea43bf30f8c7415b5e512168bf2013",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第三节第1步称“掩码挡住 `<s>` 之后的所有位置（此时后面是空的）”，可略作简化以免读者误以为存在被遮挡的实际位置。",
+        "第五节“仅编码器适合文本分类、阅读理解”等任务举例未在 evidence 中直接出现，属合理常识补充，可考虑标注为延伸说明。",
+        "第四节第4步“按某种策略选出下一个词”可顺带点明贪心/束搜索等常见策略名称，便于入门读者建立联系。"
+      ],
+      "content_sha256": "7fec6f74a4a9b92aeaf31f3ae8ece96bc2ea43bf30f8c7415b5e512168bf2013",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "decoder-three-sublayers 节以表格列出掩码自注意力、交叉注意力、前馈网络三子层及 Add&Norm，并明确 Q 来自解码器第1子层输出、K/V 来自编码器 memory，真实支持该要求。",
+          "locator": {
+            "section_id": "decoder-three-sublayers"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "mask-and-autoregressive 节逐条说明屏蔽 padding 与屏蔽未来信息两个作用，并解释自回归必要性及右移+掩码并行训练，真实支持该要求。",
+          "locator": {
+            "section_id": "mask-and-autoregressive"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "end-to-end-flow 节按 1–5 步顺序复述 Embedding+位置编码→编码器→解码器（起始符右移）→线性层+softmax→自回归至结束符，并给出一句话版本，真实支持该要求。",
+          "locator": {
+            "section_id": "end-to-end-flow"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "variants-and-tradeoffs 节分别说明仅编码器、仅解码器、编码器-解码器三种变体及各自适用任务，并列出三条优势与两条局限，真实支持该要求。",
+          "locator": {
+            "section_id": "variants-and-tradeoffs"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "decoder-three-sublayers 节以表格与对照说明三子层及交叉注意力 Q/K/V 来源，作为 o1 的解释落点充分。",
+          "locator": {
+            "section_id": "decoder-three-sublayers"
+          },
+          "binding_id": "n5-decoder-and-flow:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "worked-example-qkv 节在“我吃了一个苹果”例子中逐步判断每步 Q/K/V 来源，作为 o1 的练习落点有效。",
+          "locator": {
+            "section_id": "worked-example-qkv"
+          },
+          "binding_id": "n5-decoder-and-flow:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "mask-and-autoregressive 节解释掩码两作用与自回归原因，并说明训练并行与推理保留掩码，作为 o2 解释落点充分。",
+          "locator": {
+            "section_id": "mask-and-autoregressive"
+          },
+          "binding_id": "n5-decoder-and-flow:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "worked-example-qkv 节末段说明训练时掩码让 `I` 看不到 `ate/an/apple` 等及 padding 遮挡，作为 o2 练习落点有效。",
+          "locator": {
+            "section_id": "worked-example-qkv"
+          },
+          "binding_id": "n5-decoder-and-flow:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "end-to-end-flow 节按序给出五步数据流及一句话版本，作为 o3 解释落点充分。",
+          "locator": {
+            "section_id": "end-to-end-flow"
+          },
+          "binding_id": "n5-decoder-and-flow:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "variants-and-tradeoffs 节给出三种架构变体与 Transformer 优缺点，作为 o3 解释落点有效。",
+          "locator": {
+            "section_id": "variants-and-tradeoffs"
+          },
+          "binding_id": "n5-decoder-and-flow:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 节四项自检分别对应三子层与 Q/K/V、掩码与自回归、完整数据流、变体与优缺点，作为 o3 检查落点有效。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n5-decoder-and-flow:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "8779975f56c8f7597f0440cc6a9a64f294493cabcaada9190f15d0224d2cb47f"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "questions": 32,
+  "errors": [],
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "model_calls": 0,
+  "boundary": "Read-only existing historical 32-question paper on production; not the newly generated paper"
+}

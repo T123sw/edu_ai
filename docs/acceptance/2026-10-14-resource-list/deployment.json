@@ -1,0 +1,14 @@
+{
+  "source_snapshot": "/tmp/edu-resource-list/source/frontend",
+  "published_at": "20261014T011320Z",
+  "uncommitted_source_changes": true,
+  "task": "my-resources-list",
+  "backend_changed": false,
+  "previous_index_sha256": "e90ed7daeeac7efe758d2a4764b490636498e3dbd608451655146d395f853250",
+  "backup": "/tmp/edu-resource-list/dist-backup-20261014T011320Z",
+  "http_verified": true,
+  "assets": [
+    "/assets/index-BcG62MjC.js",
+    "/assets/index-8vDhdg1F.css"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "model": "qwen-audio-3.1-tts-flash",
+  "voice": "longanhuan_v3.1",
+  "protocol": "qwen-audio-tts",
+  "speed": 1.0,
+  "pitch": 1.0,
+  "success": true,
+  "audio_bytes": 190171,
+  "seconds": 1.53,
+  "format": "mp3"
+}

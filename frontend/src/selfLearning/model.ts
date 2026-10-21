@@ -34,6 +34,8 @@ export type Chapter = {
   id: string;
   title: string;
   resources: LearningResource[];
+  generationState?: 'queued' | 'generating' | 'ready' | 'failed' | 'stopped';
+  pendingResourceTypes?: string[];
 };
 export type Evidence = {
   completed: boolean;
@@ -55,6 +57,9 @@ export type Message = {
   answerResult?: { citations: ({ citation_id: string; title?: string } & import('../liveLearning/citationNavigation').Citation)[] };
 };
 export type Classroom = {
+  preparationDelivery?: { state: 'complete' | 'partial'; preparationId: string; availableResources: number;
+    status?: string | null;
+    pending: { title: string; resourceTypes: string[] }[] };
   manifestRef?: { manifest_id: string; version: number };
   routeVersion?: number;
   id: string;
@@ -114,7 +119,7 @@ export function resourceEvidence(room: Classroom, resource: LearningResource): E
   const ref = resource.remote;
   const state = room.learningProjection?.resources.find(s => s.resource_ref.course_id === ref.courseId && s.resource_ref.material_type === ref.materialType && s.resource_ref.material_id === ref.materialId && s.resource_ref.version === ref.version);
   return { note: legacy.note, completed: state?.completed || false, locator: state?.locator || undefined,
-    position: state?.locator?.kind === 'document' ? state.locator.scroll_top : 0 };
+    position: state?.locator?.kind === 'document' ? state.locator.scroll_top : state?.locator?.kind === 'hyperframes' ? state.locator.seconds : 0 };
 }
 export const emptyEvidence = (): Evidence => ({
   completed: false,

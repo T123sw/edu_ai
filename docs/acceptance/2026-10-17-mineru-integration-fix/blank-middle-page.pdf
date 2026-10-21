@@ -1,0 +1,107 @@
+%PDF-1.3
+%‚„œ”
+1 0 obj
+<<
+/Producer (pypdf)
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Count 3
+/Kids [ 4 0 R 7 0 R 8 0 R ]
+>>
+endobj
+3 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+4 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 5 0 R
+>>
+>>
+/MediaBox [ 0.0 0.0 595 842 ]
+/Contents 6 0 R
+/Parent 2 0 R
+>>
+endobj
+5 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+6 0 obj
+<<
+/Length 1973
+>>
+stream
+BT /F1 10 Tf 30 800 Td 24 TL (Sorting exam. Section I: ten single-choice questions.) Tj T* (1. Which statement about quicksort partition is true?) Tj T* (A. All items become sorted. B. Items are grouped relative to a pivot.) Tj T* (C. Every split is equal. D. The pivot must be the smallest item.) Tj T* (2. Why is standard merge sort stable?) Tj T* (A. It never compares keys. B. It uses a heap.) Tj T* (C. Ties can be taken from the left half first. D. It uses random pivots.) Tj T* (3. What does removing the maximum from a max-heap require?) Tj T* (A. Remove any leaf. B. Reverse the whole heap.) Tj T* (C. Sort all leaves. D. Replace the root by the last item and sift down.) Tj T* (4. What does one complete left-to-right bubble-sort pass ensure?) Tj T* (A. The smallest is last. B. Everything is sorted.) Tj T* (C. The largest unsorted item reaches the right end. D. No swaps occur.) Tj T* (5. Which input usually favors insertion sort?) Tj T* (A. Nearly sorted input. B. Only reversed input.) Tj T* (C. Only random input. D. Only all-distinct keys.) Tj T* (6. What does selection sort do at each position?) Tj T* (A. Pick a random pivot. B. Merge two halves.) Tj T* (C. Build a frequency array. D. Select the minimum remaining item.) Tj T* (7. What makes counting sort useful?) Tj T* (A. Arbitrary real keys. B. A small bounded integer key range.) Tj T* (C. No access to keys. D. Only linked lists.) Tj T* (8. What does LSD radix sort need from each digit-sorting pass?) Tj T* (A. Instability. B. Randomness. C. Stability. D. Recursion.) Tj T* (9. What does stability mean in sorting records by key?) Tj T* (A. Equal-key records keep their relative order. B. Values never move.) Tj T* (C. Keys cannot repeat. D. The algorithm uses constant memory.) Tj T* (10. What does an in-place sorting algorithm primarily minimize?) Tj T* (A. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates.) Tj T* (Section II: five fill-in-the-blank questions.) Tj ET
+endstream
+endobj
+7 0 obj
+<<
+/Type /Page
+/Resources <<
+>>
+/MediaBox [ 0.0 0.0 595 842 ]
+/Parent 2 0 R
+>>
+endobj
+8 0 obj
+<<
+/Type /Page
+/Resources <<
+/Font <<
+/F1 9 0 R
+>>
+>>
+/MediaBox [ 0.0 0.0 595 842 ]
+/Contents 10 0 R
+/Parent 2 0 R
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+10 0 obj
+<<
+/Length 431
+>>
+stream
+BT /F1 10 Tf 30 800 Td 24 TL (11. The worst-case running time of standard merge sort is ____.) Tj T* (12. The worst case of quicksort with repeatedly unbalanced partitions is ____.) Tj T* (13. Bottom-up heap construction on n items takes ____ time.) Tj T* (14. Sorting n keys from a range of k integers with counting sort takes ____ time.) Tj T* (15. Any comparison sort requires at least ____ comparisons in the worst case.) Tj ET
+endstream
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000015 00000 n 
+0000000054 00000 n 
+0000000125 00000 n 
+0000000174 00000 n 
+0000000306 00000 n 
+0000000376 00000 n 
+0000002401 00000 n 
+0000002495 00000 n 
+0000002628 00000 n 
+0000002698 00000 n 
+trailer
+<<
+/Size 11
+/Root 3 0 R
+/Info 1 0 R
+>>
+startxref
+3181
+%%EOF

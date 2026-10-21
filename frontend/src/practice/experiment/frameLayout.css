@@ -1,0 +1,40 @@
+/* Scoped to recognized experiment layouts; diagram colors and geometry stay source-owned. */
+body.edu-frame-layout{margin:0!important;padding:20px!important;background:#fff!important;color:#293c35;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif!important;font-size:14px;min-height:0!important}
+.edu-frame-root{display:flex!important;flex-direction:column!important;gap:16px!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;min-height:0!important}
+.edu-frame-root>*{min-width:0;max-width:100%;box-sizing:border-box;margin-block:0!important}
+.edu-frame-heading{display:none!important}
+.edu-frame-visual{order:-10;background:#fafbf9!important;padding:16px!important;border:1px solid #e5e9e3!important;border-radius:12px!important;box-shadow:none!important}
+.edu-frame-visual canvas{max-width:100%}
+.edu-frame-section{box-shadow:none!important;border-radius:0!important;border-color:#e6eae4!important;background:transparent!important;padding:12px 0!important}
+.edu-frame-metrics{grid-template-columns:repeat(auto-fit,minmax(100px,1fr))!important;gap:12px!important;border-block:1px solid #e6eae4!important}
+.edu-frame-metrics>div{padding:0 10px!important;background:transparent!important;border-radius:0!important;box-shadow:none!important}
+.edu-frame-metrics>div+div{border-left:1px solid #e6eae4}
+.edu-frame-controls{border-top:1px solid #e6eae4!important}
+.edu-frame-root button,.edu-frame-root input,.edu-frame-root select{font-family:inherit!important;font-size:14px!important;line-height:1.5!important;min-height:38px;border-radius:7px!important;box-shadow:none!important}
+.edu-frame-root button{border:1px solid #d9e1d8!important;padding:8px 13px!important;cursor:pointer}
+.edu-frame-root button:not(:disabled):hover{filter:brightness(.97)}
+.edu-frame-root button:disabled{opacity:.4;cursor:default}
+.edu-frame-controls button{background:#f4f7f2!important;color:#315342!important}
+.edu-frame-controls button[class*="bg-indigo-"],.edu-frame-controls button[class*="bg-blue-"],.edu-frame-controls button[class*="bg-emerald-"]{background:#315e4a!important;border-color:#315e4a!important;color:#fff!important}
+.edu-frame-controls button[class*="bg-rose-"],.edu-frame-controls button[class*="bg-sky-"]{background:#f4f7f2!important;color:#315342!important}
+.edu-frame-root input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),.edu-frame-root select{min-width:0!important;max-width:100%;border:1px solid #ccd8ce!important;padding:8px 10px!important;background:#fff!important;color:#293c35!important}
+.edu-frame-root :is(button,input,select):focus-visible{outline:2px solid #5a8b6c;outline-offset:3px}
+.edu-frame-reference{order:20;border-top:1px solid #e6eae4;padding-top:14px;font-size:13px;color:#64746c}
+.edu-frame-reference summary{cursor:pointer;font-weight:500;line-height:1.8}
+.edu-frame-reference>div,.edu-frame-reference>section,.edu-frame-reference>footer{margin-top:12px!important;background:transparent!important;box-shadow:none!important;border:0!important;padding:8px 0!important;font-family:inherit!important;overflow-x:auto}
+.edu-frame-root footer{font-size:12px;color:#78847c;order:21}
+@media(max-width:480px){body.edu-frame-layout{padding:14px!important}.edu-frame-root{gap:12px!important}.edu-frame-visual{padding:10px!important}.edu-frame-root button{min-height:42px}.edu-frame-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}.edu-frame-root .edu-frame-controls{gap:8px!important}}
+.edu-frame-section:not(.edu-frame-metrics){border:0!important}
+.edu-frame-controls{border-top:1px solid #e6eae4!important}
+.edu-frame-visual>div.grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.edu-frame-visual>div.grid>div{background:transparent!important;border:0!important;padding:6px 10px!important}
+.edu-frame-visual div[id][class*="min-h-"]:empty{display:none}
+@media(max-width:480px){.edu-frame-visual>div.grid{font-size:12px!important;gap:2px!important}.edu-frame-visual>div.grid>div{padding:6px 4px!important}.edu-frame-visual>div.grid .text-sm{font-size:11px!important}}
+
+.edu-frame-reference-content>summary{display:none!important}
+.edu-frame-reference summary:focus-visible{outline:2px solid #5a8b6c;outline-offset:3px}
+
+/* Keep the live graphic and host teaching together before growing data panels. */
+.edu-frame-visual{max-height:var(--edu-visual-height,340px)!important;overflow:auto!important;overscroll-behavior:contain}
+.edu-frame-teaching-slot{order:-9;flex:none;height:240px;pointer-events:none}
+.edu-frame-controls{order:-8}

@@ -1,0 +1,17 @@
+{
+  "frontendPublished": true,
+  "indexSha256": "3bff87fce54436a0e0903c7d3bcdd0342400334148369dd9e622753741107956",
+  "previousIndexSha256": "64605d7b82663f61eca466b00a2ae2dc2215a51036a437a129d9ffdd30417f72",
+  "backup": "/tmp/edu-pbl-project-dist-backup-20261014-024616",
+  "apiBase": "/backend",
+  "backendRestarted": false,
+  "backendBlocker": "sudo: a password is required",
+  "backendCommand": "sudo systemctl restart edu-ai-backend",
+  "newMigrationRequired": false,
+  "nginxIndexMatches": true,
+  "publishedFrontendBrowserChecks": {
+    "passed": 5,
+    "target": "Nginx port 80",
+    "api": "mocked fixtures; production backend remains awaiting restart"
+  }
+}

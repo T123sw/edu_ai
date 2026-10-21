@@ -1,0 +1,170 @@
+{
+  "nodes": [
+    {
+      "title": "为什么需要 Transformer：循环网络的瓶颈与注意力思路",
+      "minutes": 10,
+      "node_key": "n1-why-transformer",
+      "objectives": [
+        "说明循环模型隐藏状态 ht 依赖 ht−1 导致的顺序性，以及它为何限制训练样本内部并行",
+        "指出注意力机制此前多与循环网络结合使用，并说明 Transformer 完全依赖注意力建立全局依赖",
+        "用一句话概括 Transformer 的定位：2017 年提出、不含循环与卷积的序列转换架构"
+      ],
+      "self_check": "能不看资料说出循环模型顺序性的根源（ht 依赖 ht−1），并解释为什么这使训练样本内部无法并行；能说明 Transformer 用注意力替代循环后带来的并行度提升。",
+      "source_ids": [
+        "ev_1005fe4de2a2ef3a07311f7a",
+        "ev_4110aa07d7df1bce5ee76c30"
+      ],
+      "finding_ids": [
+        "f-rnn-limitation",
+        "f-transformer-overview"
+      ],
+      "requirement_ids": [
+        "req-goal-transformer"
+      ],
+      "prerequisite_keys": [],
+      "learning_activities": [
+        "阅读论文摘要与引言要点，列出循环模型的三条限制（顺序计算、难以并行、长序列批处理受限）",
+        "对比“RNN 逐步传递隐藏状态”与“注意力一次性看全序列”两种信息传递方式，画出两条信息路径示意",
+        "课堂讨论：如果句子有 100 个词，RNN 需要多少步顺序计算？注意力层需要多少步？"
+      ]
+    },
+    {
+      "title": "整体结构：编码器-解码器与端到端数据流",
+      "minutes": 12,
+      "node_key": "n2-overall-architecture",
+      "objectives": [
+        "描述编码器把输入符号序列 (x1..xn) 映射为连续表示 z、解码器基于 z 自回归逐符号生成输出的整体流程",
+        "按顺序说明数据流：分词与词表索引 → 词嵌入 → 加位置编码 → 编码器栈 → 解码器栈 → 线性层与 softmax 输出下一个词元概率",
+        "说明嵌入层与 softmax 前线性变换共享权重、嵌入权重乘以 √dmodel 的设计"
+      ],
+      "self_check": "能独立画出编码器-解码器数据流图并标注每一步的输入输出；能解释解码器为何是自回归的（每步把已生成符号作为额外输入）；能说出嵌入层与输出线性层共享权重这一细节。",
+      "source_ids": [
+        "ev_4110aa07d7df1bce5ee76c30",
+        "ev_fc172931ca406181cedc63b5",
+        "ev_2e69479d1666b9a55e05aee3"
+      ],
+      "finding_ids": [
+        "f-transformer-overview",
+        "f-embeddings-softmax",
+        "f-cn-teaching-flow"
+      ],
+      "requirement_ids": [
+        "req-goal-transformer"
+      ],
+      "prerequisite_keys": [
+        "n1-why-transformer"
+      ],
+      "learning_activities": [
+        "以“Transformer is powerful.”译为“Transformer很强大。”为例，逐步标注每个阶段的数据形态（词元 ID → 向量 → 上下文表示 → 概率分布）",
+        "在空白架构图上填写编码器栈、解码器栈、嵌入层、位置编码、线性+softmax 的位置",
+        "课堂活动：请一名学习者口述数据流，其他同学指出遗漏或顺序错误"
+      ]
+    },
+    {
+      "title": "自注意力：Q/K/V 与缩放点积计算",
+      "minutes": 14,
+      "node_key": "n3-self-attention",
+      "objectives": [
+        "解释注意力函数是把查询与一组键值对映射为输出，输出为值的加权和，权重由查询与键的相容性函数给出",
+        "按步骤手算缩放点积注意力：Q 与所有 K 点积 → 除以 √dk → softmax 归一化 → 对 V 加权求和，并写出矩阵形式 softmax(QK^T/√dk)V",
+        "说明除以 √dk 的原因：dk 较大时点积幅值增大，会把 softmax 推入梯度极小的区域",
+        "说明自注意力中 Q、K、V 均来自同一序列，用于刻画序列内部各位置的关系"
+      ],
+      "self_check": "能写出缩放点积注意力公式并解释每个符号；能手算一个 3×3 的注意力权重矩阵并验证每行和为 1；能说明缩放因子的作用而不是死记公式。",
+      "source_ids": [
+        "ev_4110aa07d7df1bce5ee76c30",
+        "ev_fc172931ca406181cedc63b5",
+        "ev_2e69479d1666b9a55e05aee3"
+      ],
+      "finding_ids": [
+        "f-scaled-dot-product",
+        "f-cn-teaching-flow"
+      ],
+      "requirement_ids": [
+        "req-goal-transformer"
+      ],
+      "prerequisite_keys": [
+        "n2-overall-architecture"
+      ],
+      "learning_activities": [
+        "用 3 个词元、dk=2 的玩具数值，手算注意力分数矩阵、softmax 权重与加权求和结果",
+        "对照公式 Attention(Q,K,V)=softmax(QK^T/√dk)V，逐项标注 Q、K、V、dk 的维度",
+        "课堂练习：把 dk 从 2 改为 64，讨论不缩放时 softmax 输出会怎样变化"
+      ]
+    },
+    {
+      "title": "多头注意力与编码器/解码器各子层职责",
+      "minutes": 14,
+      "node_key": "n4-multihead-and-sublayers",
+      "objectives": [
+        "说明多头注意力把 Q/K/V 线性投影 h 次、并行计算后拼接再投影，使模型能在不同位置联合关注不同表示子空间",
+        "区分三种注意力用法：编码器自注意力、解码器掩码自注意力（阻止信息向左流动）、编码器-解码器注意力（Q 来自解码器、K/V 来自编码器）",
+        "说明逐位置前馈网络 FFN(x)=max(0,xW1+b1)W2+b2 对每个位置独立同等地作用，以及残差连接加层归一化 LayerNorm(x+Sublayer(x)) 的作用",
+        "列出编码器每层 2 个子层、解码器每层 3 个子层的差异"
+      ],
+      "self_check": "能说明多头注意力相比单头的优势（不同表示子空间、单头平均会抑制这一点）；能正确指出三种注意力各自的 Q/K/V 来源；能解释解码器掩码为何必要；能写出 Add&Norm 的表达式并说明它解决什么问题。",
+      "source_ids": [
+        "ev_fc172931ca406181cedc63b5",
+        "ev_4110aa07d7df1bce5ee76c30"
+      ],
+      "finding_ids": [
+        "f-multi-head",
+        "f-three-attention-uses",
+        "f-ffn",
+        "f-encoder-decoder-layers"
+      ],
+      "requirement_ids": [
+        "req-goal-transformer"
+      ],
+      "prerequisite_keys": [
+        "n3-self-attention"
+      ],
+      "learning_activities": [
+        "在架构图上用三种颜色标出编码器自注意力、掩码自注意力、编码器-解码器注意力，并写出各自的 Q/K/V 来源",
+        "课堂演示：给定一个 4 词序列，画出解码器掩码矩阵，标出被置为 −∞ 的位置并解释原因",
+        "分组任务：一组讲多头注意力的“投影-并行-拼接-再投影”流程，另一组讲 FFN 与 Add&Norm 的作用，互相提问"
+      ]
+    },
+    {
+      "title": "位置编码的必要性与 Transformer 相对循环网络的优势",
+      "minutes": 10,
+      "node_key": "n5-positional-encoding-and-advantages",
+      "objectives": [
+        "解释为何不含循环与卷积的模型必须注入位置信息，以及位置编码如何与词嵌入相加",
+        "写出正弦位置编码公式 PE(pos,2i)=sin(pos/10000^(2i/dmodel))、PE(pos,2i+1)=cos(pos/10000^(2i/dmodel))，并说明选择它的理由（相对位置可线性表示、可能外推到更长序列）",
+        "从每层计算复杂度、可并行顺序操作数、长程依赖路径长度三个角度比较自注意力与循环层",
+        "说明自注意力每层复杂度 O(n²·d)、循环层 O(n·d²)，以及 n 小于 d 时自注意力更快的条件"
+      ],
+      "self_check": "能解释位置编码为何是“相加”而非“拼接”到同维嵌入上；能写出正弦位置编码公式并说明其相对位置性质；能说出自注意力在并行度与长程依赖路径上的优势，同时指出其 O(n²) 复杂度在长序列上的代价。",
+      "source_ids": [
+        "ev_fc172931ca406181cedc63b5",
+        "ev_98def3301ec4c8f6c765106e",
+        "ev_1005fe4de2a2ef3a07311f7a"
+      ],
+      "finding_ids": [
+        "f-positional-encoding",
+        "f-why-self-attention",
+        "f-rnn-limitation"
+      ],
+      "requirement_ids": [
+        "req-goal-transformer"
+      ],
+      "prerequisite_keys": [
+        "n4-multihead-and-sublayers"
+      ],
+      "learning_activities": [
+        "用“狗咬人”与“人咬狗”说明无位置信息时模型无法区分词序，并写出两句各自的词嵌入相加位置编码后的差异",
+        "填写对比表：自注意力 vs 循环层在每层复杂度、顺序操作数、最大路径长度三项上的取值",
+        "课堂小结：每人用三句话总结 Transformer 的核心机制，教师点评并补充"
+      ]
+    }
+  ],
+  "title": "Transformer 架构入门：原理与结构 60 分钟",
+  "summary": "面向零基础学习者的 60 分钟入门课程，以《Attention Is All You Need》原始论文为主依据、中文讲解材料为辅助，按“为什么需要 → 整体结构 → 注意力计算 → 子层职责 → 位置编码与优势”的顺序组织 5 个节点。学习者将能画出并说明 Transformer 的数据流，手算一次缩放点积注意力，区分编码器与解码器各子层职责，并解释位置编码的必要性与 Transformer 相对循环网络的优势。课程聚焦原理理解，不要求编写可运行实现。",
+  "limitations": [
+    "用户未上传资料，全部知识依据来自公开论文《Attention Is All You Need》与两篇中文技术讲解文章",
+    "课程为入门级原理理解，不包含从零实现可运行 Transformer 代码、训练与调参内容",
+    "节点中引用的 N=6、dmodel=512、h=8、dff=2048 为 2017 年原始 base 模型设定，不代表所有后续变体",
+    "用户未说明已有基础与具体用途，路径按通用架构原理组织，若需面向 NLP 应用或模型微调需另行补充"
+  ]
+}

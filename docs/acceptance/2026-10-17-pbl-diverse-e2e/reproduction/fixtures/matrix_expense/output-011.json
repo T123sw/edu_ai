@@ -1,0 +1,528 @@
+{
+  "unit": {
+    "stepId": "validate-input",
+    "title": "校验备注与金额",
+    "objective": "为添加操作加上备注与金额校验，非法输入被拒绝并给出提示。",
+    "instructionsMarkdown": "上一步已经能把备注、金额和分类添加成一条记录。这一步要让添加操作变得“挑剔”一些：只有合法的输入才能变成记录，不合法的输入会被拦下来，并告诉用户哪里不对。\n\n需要拦截的情况：\n\n- 备注去掉首尾空格后是空的（比如只输入了空格）。\n- 金额是 0。\n- 金额是负数。\n- 金额的小数位超过两位（比如 1.234）。\n- 金额不是数字（比如 abc）。\n\n被拦截时，列表里不能新增任何记录，页面上要出现一段看得见的错误提示文字，让用户知道这次没有添加成功。合法输入（比如备注“午餐”、金额“12.50”）仍然能正常添加，并像上一步一样出现在列表里。\n\n错误提示只要在页面上可见即可，具体措辞由你决定；建议针对不同原因给出不同提示，方便用户理解。\n\n### 代码约定\n\n为了让系统能识别页面部件，请沿用上一步已有的标记，不要改名：\n\n- 备注输入框：`data-testid=\"note-input\"`\n- 金额输入框：`data-testid=\"amount-input\"`\n- 分类选择：`data-testid=\"category-select\"`\n- 添加按钮：`data-testid=\"add-button\"`\n- 每条记录：`data-testid=\"expense-item\"`\n- 列表容器：`data-testid=\"expense-list\"`\n\n另外，请给错误提示元素加上 `data-testid=\"error-message\"`，它只在出现错误时显示。这些标记只是供系统识别，不会改变页面外观。",
+    "explanationMarkdown": "校验的核心是把“用户输入的原始字符串”和“可以保存的数据”分开处理。\n\n备注方面，先用 `trim()` 去掉首尾空格，再判断结果是否为空字符串。注意不要用 `if (!note)` 直接判断原始值，因为 `\"   \"` 在 JavaScript 里是真值，但去掉空格后其实是空的。\n\n金额方面，输入框拿到的是字符串。可以先用正则表达式检查格式，例如 `^\\d+(\\.\\d{1,2})?$` 能匹配“12”“12.5”“12.50”这类最多两位小数的非负数字，同时排除“abc”“1.234”“-5”。格式通过后再用 `Number()` 转成数字，并判断是否大于 0，这样就能同时挡住 0 和负数。\n\n校验失败时，用一个状态保存错误信息并渲染出来；校验通过时清空错误信息，再执行添加。把校验逻辑放在点击添加的处理函数里，先校验、后添加，顺序不要颠倒。",
+    "hints": [
+      "备注用 `note.trim()` 判断是否为空，而不是直接判断 `note`。",
+      "金额可以先用正则 `^\\d+(\\.\\d{1,2})?$` 检查格式，再转成数字判断是否大于 0。",
+      "用一个 `error` 状态保存提示文字，出错时设置它，成功时清空它。",
+      "错误提示元素加上 `data-testid=\"error-message\"`，并且只在有错误时渲染。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx"
+    ],
+    "checkIds": [
+      "reject-blank-note",
+      "reject-zero-amount",
+      "reject-negative-amount",
+      "reject-three-decimals",
+      "reject-non-numeric-amount"
+    ]
+  },
+  "behaviorCases": [
+    {
+      "requirementId": "validate-note",
+      "setup": "列表为空，备注输入框只有空格“   ”，金额“10”，分类餐饮",
+      "action": "点击添加",
+      "expected": "列表仍为空（0 条记录），页面出现可见错误提示",
+      "checkId": "reject-blank-note"
+    },
+    {
+      "requirementId": "add-expense",
+      "setup": "列表为空，备注“午餐”，金额“12.50”，分类餐饮",
+      "action": "点击添加",
+      "expected": "列表新增一条记录，错误提示不显示",
+      "checkId": "reject-blank-note"
+    },
+    {
+      "requirementId": "validate-amount",
+      "setup": "列表为空，备注“测试”，金额“0”，分类餐饮",
+      "action": "点击添加",
+      "expected": "列表仍为空，页面出现可见错误提示",
+      "checkId": "reject-zero-amount"
+    },
+    {
+      "requirementId": "validate-amount",
+      "setup": "列表为空，备注“测试”，金额“-5”，分类交通",
+      "action": "点击添加",
+      "expected": "列表仍为空，页面出现可见错误提示",
+      "checkId": "reject-negative-amount"
+    },
+    {
+      "requirementId": "validate-amount",
+      "setup": "列表为空，备注“测试”，金额“1.234”，分类餐饮",
+      "action": "点击添加",
+      "expected": "列表仍为空，页面出现可见错误提示",
+      "checkId": "reject-three-decimals"
+    },
+    {
+      "requirementId": "validate-amount",
+      "setup": "列表为空，备注“测试”，金额“abc”，分类餐饮",
+      "action": "点击添加",
+      "expected": "列表仍为空，页面出现可见错误提示",
+      "checkId": "reject-non-numeric-amount"
+    }
+  ],
+  "checks": [
+    {
+      "id": "reject-blank-note",
+      "label": "备注只有空格时点击添加，列表不新增记录并显示可见错误提示；随后合法输入仍能正常添加",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "note-input"
+          },
+          "value": "   ",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "amount-input"
+          },
+          "value": "10",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "expense-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "error-message"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "note-input"
+          },
+          "value": "午餐",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "amount-input"
+          },
+          "value": "12.50",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "expense-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "expense-item"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "午餐12.50餐饮",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "reject-zero-amount",
+      "label": "金额填“0”时点击添加，列表不新增记录并显示可见错误提示",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "note-input"
+          },
+          "value": "测试",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "amount-input"
+          },
+          "value": "0",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "expense-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "error-message"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "reject-negative-amount",
+      "label": "金额填“-5”时点击添加，列表不新增记录并显示可见错误提示",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "note-input"
+          },
+          "value": "测试",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "amount-input"
+          },
+          "value": "-5",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "expense-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "error-message"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "reject-three-decimals",
+      "label": "金额填“1.234”时点击添加，列表不新增记录并显示可见错误提示",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "note-input"
+          },
+          "value": "测试",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "amount-input"
+          },
+          "value": "1.234",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "expense-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "error-message"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "reject-non-numeric-amount",
+      "label": "金额填“abc”时点击添加，列表不新增记录并显示可见错误提示",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "note-input"
+          },
+          "value": "测试",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "amount-input"
+          },
+          "value": "abc",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "expense-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "error-message"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "faultyFiles": {},
+  "faultyCheckId": null
+}

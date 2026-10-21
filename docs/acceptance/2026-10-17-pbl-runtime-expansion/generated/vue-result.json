@@ -1,0 +1,13 @@
+{
+  "name": "vue",
+  "id": "pbl_9d5bf2a4de7156f8b7244f39d41649ff",
+  "success": true,
+  "runtime": {
+    "template": "vue",
+    "entry": "/src/main.js",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  },
+  "seconds": 740.13,
+  "modelCalls": 7
+}

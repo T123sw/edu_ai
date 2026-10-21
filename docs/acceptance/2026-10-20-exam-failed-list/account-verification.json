@@ -1,0 +1,17 @@
+{
+  "verifiedAt": "2026-10-20T12:29:39.824868+00:00",
+  "items": [
+    {
+      "title": "保持原卷题型、题数和考点，生成一套新的模拟试卷。",
+      "status": "running",
+      "id": "examgen_7714cd4c48394839443f6359c07cfb03"
+    },
+    {
+      "title": "python基础联系",
+      "status": "succeeded",
+      "id": "examgen_5834d86e86a323cd3003254860364c24"
+    }
+  ],
+  "readOnly": true,
+  "note": "A new user generation started during implementation; left running."
+}

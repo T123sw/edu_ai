@@ -1,0 +1,90 @@
+{
+  "scope": "three real native frame workers on the same packets as the previous concurrency trial; retained original audio and other scenes; not a fresh whole-course generation",
+  "elapsed_seconds": 144.24,
+  "workers": [
+    {
+      "worker_id": "86136a9783c744cebd79919913d57f03",
+      "status": "succeeded",
+      "submitted_at": 1792387366.3792539,
+      "prompt_sha256": "591d4a1110c59cf7ffbab11547aaa15dee1dbb1030d00307c5d57dd8adc6f07f",
+      "started_at": 1792387366.3799312,
+      "finished_at": 1792387487.6157434,
+      "result_file": "/home/zxqs_ep/data/main-review/hyperframes-stability-20261019/workspace/.host/workers/86136a9783c744cebd79919913d57f03.json"
+    },
+    {
+      "worker_id": "96961e92c5484ce9987eeb169e99bc1c",
+      "status": "succeeded",
+      "submitted_at": 1792387366.3808146,
+      "prompt_sha256": "443ad47318a37cb786ac0138dd154fbb10164b684f0c5479ae3c0e676e2aa519",
+      "started_at": 1792387366.3820133,
+      "finished_at": 1792387510.613037,
+      "result_file": "/home/zxqs_ep/data/main-review/hyperframes-stability-20261019/workspace/.host/workers/96961e92c5484ce9987eeb169e99bc1c.json"
+    },
+    {
+      "worker_id": "d55c9f6396824d099aa85137b23f6921",
+      "status": "succeeded",
+      "submitted_at": 1792387366.3837652,
+      "prompt_sha256": "62f72e9d1bcb57b5a70a1b7c88a4d1625dc0174477d093dbdb2650f7161f6499",
+      "started_at": 1792387366.3854253,
+      "finished_at": 1792387500.1641216,
+      "result_file": "/home/zxqs_ep/data/main-review/hyperframes-stability-20261019/workspace/.host/workers/d55c9f6396824d099aa85137b23f6921.json"
+    }
+  ],
+  "tools": {
+    "prepare_project": 1,
+    "poll_command": 1,
+    "run_workers": 1,
+    "read_file": 15,
+    "run_command": 7,
+    "write_file": 3,
+    "finish_work": 3,
+    "edit_file": 3
+  },
+  "project": "/home/zxqs_ep/data/main-review/hyperframes-stability-20261019/workspace/videos/intercept-validation",
+  "check": {
+    "policy": "playback-first-v1",
+    "digest": "18a307a415a811ff9197e9cb978bbe562b3815db38f4d9017942347a5d8b3d31",
+    "cached": false,
+    "passed": true,
+    "blocking": [],
+    "advisory_count": 0,
+    "report_file": "/home/zxqs_ep/data/main-review/hyperframes-stability-20261019/workspace/videos/intercept-validation/.hyperframes/host-check-native.json",
+    "next": "Proceed to render. Do not rerun lint/check, add per-scene previews, or polish advisory layout/contrast findings."
+  },
+  "cached_check": {
+    "policy": "playback-first-v1",
+    "digest": "18a307a415a811ff9197e9cb978bbe562b3815db38f4d9017942347a5d8b3d31",
+    "cached": true,
+    "passed": true,
+    "blocking": [],
+    "advisory_count": 0,
+    "report_file": "/home/zxqs_ep/data/main-review/hyperframes-stability-20261019/workspace/videos/intercept-validation/.hyperframes/host-check-native.json",
+    "next": "Proceed to render. Do not rerun lint/check, add per-scene previews, or polish advisory layout/contrast findings."
+  },
+  "comparison": {
+    "previous_same_three_packets_wall_seconds": 680.15,
+    "current_wall_seconds": 144.24,
+    "reduction_percent": 78.8,
+    "scope": "one before/after sample, scene generation only; model variance and full pipeline time not controlled"
+  },
+  "font": {
+    "file": "hyperframes-runtime/assets/fonts/NotoSansSC-Variable.ttf",
+    "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+    "weights": [
+      100,
+      900
+    ],
+    "sample_chinese_glyphs_verified": true,
+    "license": "OFL-1.1"
+  },
+  "render": {
+    "elapsed_seconds": 170.63,
+    "video": "/home/zxqs_ep/data/main-review/hyperframes-stability-20261019/workspace/videos/intercept-validation/renders/stability-validation.mp4",
+    "duration_seconds": 43.633333,
+    "streams": [
+      "video",
+      "audio"
+    ],
+    "decoded": true
+  }
+}

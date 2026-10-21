@@ -126,3 +126,37 @@ def test_flashcard_generation_uses_title_when_documents_are_disabled():
     assert result["trace"]["selected_doc_count"] == 0
     assert "Agent evidence" in str(llm.messages[0])
     assert storage.saved["material_data"]["generation_state"]["research_context_used"] is True
+
+
+def test_supplemental_requirements_are_used_as_instructions_not_category():
+    llm, storage = _Llm(), _Storage()
+    service = KnowledgeBaseDirectFlashcardServiceV2(content_provider=_NoSourceProvider(), llm=llm, course_storage_manager=storage)
+    service.generate(SimpleNamespace(owner='teacher-a', course_id='course-1', selected_doc_ids=[],
+        flashcard_config={'title': '变量', 'count': 3, 'special_requirements': '对比赋值与复制，每张附例子'}),
+        job_id='test-requirements', config_snapshot_id='test-config')
+    prompt = llm.messages[0][1]['content']
+    assert '补充要求：对比赋值与复制，每张附例子' in prompt
+    assert '分类偏好：自动分类' in prompt
+    assert all(card['category'] != '对比赋值与复制，每张附例子' for card in storage.saved['material_data']['content']['cards'])
+
+
+def test_course_sources_are_preserved_only_when_enabled_and_grounded():
+    import json
+    for show_sources in (True, False):
+        class CourseLlm:
+            def invoke(self, messages):
+                assert '当前知识点资料' in str(messages)
+                return SimpleNamespace(content=json.dumps({'cards': [
+                    {'front': str(i), 'back': '答案', 'source_doc_id': source}
+                    for i, source in enumerate(['agent-research', 'invented', ''])
+                ]}))
+        storage = _Storage()
+        service = KnowledgeBaseDirectFlashcardServiceV2(content_provider=_NoSourceProvider(), llm=CourseLlm(), course_storage_manager=storage)
+        result = service.generate(SimpleNamespace(owner='teacher-a', course_id='course-1', selected_doc_ids=[],
+            research_context='变量由名称、类型和值构成。',
+            flashcard_config={'title': '变量', 'count': 3, 'show_sources': show_sources}),
+            job_id='test-source', config_snapshot_id='test-config')
+        cards = result['artifacts'][0]['content']['cards']
+        assert cards[0]['source_title'] == ('当前知识点资料' if show_sources else None)
+        assert cards[0]['source_doc_id'] == ('agent-research' if show_sources else None)
+        assert all(card['source_title'] is None and card['source_doc_id'] is None for card in cards[1:])

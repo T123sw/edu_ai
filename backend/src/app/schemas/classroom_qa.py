@@ -17,11 +17,18 @@ class ClassroomQaCheckpoint(BaseModel):
     page_revision: int = Field(ge=0)
 
 
+class HyperframesQaCheckpoint(BaseModel):
+    kind: Literal['hyperframes']
+    seconds: float = Field(ge=0, allow_inf_nan=False)
+    segment_id: str | None = None
+    content_hash: str | None = None
+
+
 class ClassroomQaTurnRequest(BaseModel):
     resource_version: int | None = Field(default=None, ge=1)
     client_turn_id: UUID
     question: str = Field(min_length=1, max_length=1000)
-    checkpoint: ClassroomQaCheckpoint
+    checkpoint: ClassroomQaCheckpoint | HyperframesQaCheckpoint
 
     @field_validator("question")
     @classmethod

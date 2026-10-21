@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from contextvars import ContextVar, Token
 from typing import Any
 
@@ -36,12 +37,12 @@ ENVIRONMENT_DEFAULTS: dict[str, dict[str, Any]] = {
         "timeout_seconds": Config.EMBEDDING_TIMEOUT_SEC,
     },
     "tts": {
-        "provider_name": "environment",
-        "base_url": "",
-        "api_key": "",
-        "model": "",
-        "voice": "",
-        "timeout_seconds": 60,
+        "provider_name": os.getenv("TTS_PROVIDER_NAME", "local-qwen-tts"),
+        "base_url": Config.TTS_API_BASE,
+        "api_key": os.getenv("TTS_API_KEY", os.getenv("LOCAL_TTS_API_KEY", "")),
+        "model": Config.TTS_MODEL,
+        "voice": Config.TTS_VOICE,
+        "timeout_seconds": Config.TTS_TIMEOUT_SECONDS,
     },
     "web_search": {
         "provider_name": "environment",
@@ -74,6 +75,8 @@ class RuntimeConfigResolver:
     def capture_snapshot(self, owner_user_id: str) -> dict[str, str]:
         snapshot: dict[str, str] = {}
         for provider in PROVIDER_FIELDS:
+            if provider in {"tts", "classroom"}:
+                continue
             user = self.store.get_active_values(
                 scope="user", owner_id=owner_user_id, provider=provider
             )
@@ -96,6 +99,35 @@ class RuntimeConfigResolver:
     ) -> dict[str, Any]:
         if provider not in PROVIDER_FIELDS:
             raise ValueError("invalid provider")
+        if provider == "tts" and Config.TTS_LOCAL_ONLY:
+            return {
+                **ENVIRONMENT_DEFAULTS["tts"],
+                "_source": "environment",
+                "_revision_id": None,
+                "_local_only": True,
+            }
+        if provider == "tts":
+            # Deployment switch owns both modes; saved local/cloud profiles and
+            # old task snapshots must not silently select the other provider.
+            return {
+                "provider_name": "qwen-audio-remote",
+                "_protocol": "qwen-audio-tts",
+                "_source": "environment",
+                "_revision_id": None,
+                "_local_only": False,
+                "base_url": os.getenv("TTS_REMOTE_API_BASE", "https://dashscope.aliyuncs.com/api/v1"),
+                "api_key": os.getenv("TTS_REMOTE_API_KEY", ""),
+                "model": os.getenv("TTS_REMOTE_MODEL", "qwen-audio-3.1-tts-flash"),
+                "voice": os.getenv("TTS_REMOTE_VOICE", "longanhuan_v3.1"),
+                "speed": os.getenv("TTS_REMOTE_SPEED", "1.0"),
+                "timeout_seconds": os.getenv("TTS_REMOTE_TIMEOUT_SECONDS", "120"),
+                "response_format": os.getenv("TTS_REMOTE_RESPONSE_FORMAT", "mp3"),
+                "language": os.getenv("TTS_REMOTE_LANGUAGE", "zh"),
+                "instructions": os.getenv("TTS_REMOTE_INSTRUCTIONS", ""),
+                "volume": os.getenv("TTS_REMOTE_VOLUME", "50"),
+                "pitch": os.getenv("TTS_REMOTE_PITCH", "1.0"),
+                "sample_rate": os.getenv("TTS_REMOTE_SAMPLE_RATE", "24000"),
+            }
         owner = owner_user_id or _runtime_owner.get()
         selected_snapshot = snapshot if snapshot is not None else _runtime_snapshot.get()
         if selected_snapshot and provider in selected_snapshot:

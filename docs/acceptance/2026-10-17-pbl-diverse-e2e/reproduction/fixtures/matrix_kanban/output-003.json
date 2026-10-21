@@ -1,0 +1,366 @@
+{
+  "unit": {
+    "stepId": "add-and-list",
+    "title": "添加任务并分三列展示",
+    "objective": "实现输入框与添加按钮，把去空格后的标题作为新任务加入待办列，并展示待办、进行中、已完成三列。",
+    "instructionsMarkdown": "这一步要做出看板的骨架：一个能添加任务的输入区，以及并排的三列。\n\n**页面组成**\n- 顶部有一个标题输入框和一个“添加”按钮。\n- 下方有三个列区域，分别叫“待办”“进行中”“已完成”。\n\n**添加任务的效果**\n- 在输入框里输入标题，点击“添加”后，新任务出现在“待办”列里。\n- 标题首尾的空格会被去掉：输入 `  写周报  `，待办列里显示的是 `写周报`。\n- 如果去掉空格后什么都不剩（比如只输入空格），点击“添加”不产生任何任务。\n- 添加成功后输入框清空，方便继续输入。\n\n**边界**\n- 这一步只需要“添加”和“三列展示”，前进、后退、删除、数量统计留到后面的步骤。\n- 三列即使为空也要显示出来。\n\n**代码约定**\n- 标题输入框加 `data-testid=\"title-input\"`。\n- “添加”按钮加 `data-testid=\"add-button\"`，按钮文字为“添加”。\n- 三个列区域分别加 `data-testid=\"column-todo\"`、`data-testid=\"column-progress\"`、`data-testid=\"column-done\"`，并各自包含可见的列名文字“待办”“进行中”“已完成”。\n- 每个任务条目加 `data-testid=\"task-item\"`，条目内显示任务标题文字。\n- 这些标记只供系统识别，不会改变页面外观。",
+    "explanationMarkdown": "核心是把“输入框里的文字”变成“列表里的一条数据”。\n\n用 `useState` 保存两样东西：输入框当前的值，以及任务数组。任务数组里每一项至少要有标题和它所在的列。因为后面要移动和删除，每条任务需要一个稳定的唯一标识（比如用递增计数器或 `crypto.randomUUID()`），不要用标题当标识——否则两条同名任务会互相干扰。\n\n添加时先对输入做 `trim()`，结果为空就直接返回，不修改任务数组。非空则把新任务（列设为“待办”）追加到数组末尾，并清空输入框。\n\n三列展示可以用一个固定的列定义数组（待办、进行中、已完成），然后对每一列过滤出属于它的任务来渲染。这样后面加移动功能时，只需改任务的列字段。",
+    "hints": [
+      "用 `useState('')` 保存输入值，用 `useState([])` 保存任务数组。",
+      "添加前先 `const title = input.trim()`，`if (!title) return;`。",
+      "每条任务用 `{ id, title, status }` 结构，`status` 取 `'todo' | 'progress' | 'done'`。",
+      "渲染三列时遍历列定义，用 `tasks.filter(t => t.status === col.key)` 得到该列任务。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "add-task-appears-in-todo",
+      "blank-title-rejected",
+      "three-columns-visible"
+    ]
+  },
+  "behaviorCases": [
+    {
+      "requirementId": "add-task",
+      "setup": "页面初始，输入框为空，待办列没有任务",
+      "action": "在标题输入框填入“  写周报  ”并点击添加按钮",
+      "expected": "待办列出现一条任务，文字为“写周报”（首尾空格被去掉）",
+      "checkId": "add-task-appears-in-todo"
+    },
+    {
+      "requirementId": "add-task",
+      "setup": "页面初始，输入框为空",
+      "action": "在标题输入框填入“   ”（只有空格）并点击添加按钮",
+      "expected": "不产生任何任务，待办列任务数量为 0",
+      "checkId": "blank-title-rejected"
+    },
+    {
+      "requirementId": "add-task",
+      "setup": "页面初始，输入框为空",
+      "action": "在标题输入框填入“写周报”并点击添加按钮",
+      "expected": "待办列出现一条任务，文字为“写周报”",
+      "checkId": "add-task-appears-in-todo"
+    },
+    {
+      "requirementId": "three-columns",
+      "setup": "页面初始，尚未添加任何任务",
+      "action": "观察页面上的三个列区域",
+      "expected": "待办、进行中、已完成三个列区域都可见",
+      "checkId": "three-columns-visible"
+    },
+    {
+      "requirementId": "three-columns",
+      "setup": "页面初始，输入框为空",
+      "action": "添加任务“写周报”后观察三列",
+      "expected": "任务出现在待办列，进行中与已完成列仍可见且为空",
+      "checkId": "three-columns-visible"
+    }
+  ],
+  "checks": [
+    {
+      "id": "add-task-appears-in-todo",
+      "label": "输入带首尾空格的标题并添加后，待办列出现去掉首尾空格的任务；普通标题也能正确添加",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "title-input"
+          },
+          "value": "  写周报  ",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "column-todo"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待办写周报",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "task-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "title-input"
+          },
+          "value": "整理资料",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "task-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "column-todo"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待办写周报整理资料",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "blank-title-rejected",
+      "label": "只输入空格点击添加不产生任务，待办列保持为空",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "title-input"
+          },
+          "value": "   ",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "task-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "column-todo"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待办",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "three-columns-visible",
+      "label": "待办、进行中、已完成三个列区域都可见，且新任务只出现在待办列",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "column-todo"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "column-progress"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "column-done"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "title-input"
+          },
+          "value": "写周报",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "column-todo"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待办写周报",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "column-progress"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "进行中",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "column-done"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已完成",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "faultyFiles": {},
+  "faultyCheckId": null
+}

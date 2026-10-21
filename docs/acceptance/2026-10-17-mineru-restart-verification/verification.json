@@ -1,0 +1,13 @@
+{
+  "production_restart_confirmed": true,
+  "backend_pid": 1235977,
+  "code_hashes_match": true,
+  "live_health_passed": true,
+  "real_parser_cases_passed": 3,
+  "core_source_passed": true,
+  "exam_pipeline_saved": true,
+  "exam_seconds": 23.94,
+  "production_business_writes": false,
+  "browser_upload_e2e_performed": false,
+  "exam_quality_acceptance": false
+}

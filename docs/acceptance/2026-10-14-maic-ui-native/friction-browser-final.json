@@ -1,0 +1,240 @@
+{
+  "ok": true,
+  "issues": [],
+  "checks": [
+    "initial-results",
+    "default-run",
+    "valid-parameter-change-and-run",
+    "reset-button",
+    "responsive-layout",
+    "javascript-errors",
+    "hidpi-canvas",
+    "canvas-label-size",
+    "resize-stability",
+    "pause-button"
+  ],
+  "scope": "browser-smoke-not-scientific-certification",
+  "diagnostics": {
+    "observation_ms": 8000,
+    "controls": [
+      {
+        "name": "mu",
+        "type": "range",
+        "min": "0.05",
+        "max": "0.80",
+        "step": "0.05",
+        "value": "0.2"
+      },
+      {
+        "name": "v0",
+        "type": "range",
+        "min": "1",
+        "max": "12",
+        "step": "0.5",
+        "value": "5"
+      }
+    ],
+    "initial": {
+      "parameters": {
+        "mu": "0.2",
+        "v0": "5"
+      },
+      "results": {
+        "摩擦系数μ": 0.2,
+        "初速度v0": 5,
+        "当前速度v": 0,
+        "已滑行距离s": 0,
+        "减速度a": 1.96,
+        "停车时间t": 2.55,
+        "理论滑行距离": 6.38,
+        "当前步骤": 1
+      }
+    },
+    "trials": [
+      {
+        "action": "run-with-defaults",
+        "before": {
+          "parameters": {
+            "mu": "0.2",
+            "v0": "5"
+          },
+          "results": {
+            "摩擦系数μ": 0.2,
+            "初速度v0": 5,
+            "当前速度v": 0,
+            "已滑行距离s": 0,
+            "减速度a": 1.96,
+            "停车时间t": 2.55,
+            "理论滑行距离": 6.38,
+            "当前步骤": 1
+          }
+        },
+        "after": {
+          "parameters": {
+            "mu": "0.2",
+            "v0": "5"
+          },
+          "results": {
+            "摩擦系数μ": 0.2,
+            "初速度v0": 5,
+            "当前速度v": 0,
+            "已滑行距离s": 6.38,
+            "减速度a": 1.96,
+            "停车时间t": 2.55,
+            "理论滑行距离": 6.38,
+            "当前步骤": 1
+          }
+        },
+        "changed": true
+      },
+      {
+        "action": "change-one-parameter-and-run",
+        "control": "mu",
+        "parameters": {
+          "mu": "0.25",
+          "v0": "5"
+        },
+        "before": {
+          "parameters": {
+            "mu": "0.2",
+            "v0": "5"
+          },
+          "results": {
+            "摩擦系数μ": 0.2,
+            "初速度v0": 5,
+            "当前速度v": 0,
+            "已滑行距离s": 0,
+            "减速度a": 1.96,
+            "停车时间t": 2.55,
+            "理论滑行距离": 6.38,
+            "当前步骤": 1
+          }
+        },
+        "after": {
+          "parameters": {
+            "mu": "0.25",
+            "v0": "5"
+          },
+          "results": {
+            "摩擦系数μ": 0.25,
+            "初速度v0": 5,
+            "当前速度v": 0,
+            "已滑行距离s": 0,
+            "减速度a": 2.45,
+            "停车时间t": 2.04,
+            "理论滑行距离": 5.1,
+            "当前步骤": 1
+          }
+        },
+        "changed": true
+      }
+    ],
+    "presentation": [
+      {
+        "label": "桌面高清屏",
+        "width": 1424,
+        "height": 1216,
+        "overflow": false,
+        "canvases": [
+          {
+            "id": "trackCanvas",
+            "width": 1124,
+            "height": 300,
+            "cssWidth": 562,
+            "cssHeight": 150,
+            "fontSize": 13,
+            "dpr": 2
+          },
+          {
+            "id": "chartCanvas",
+            "width": 1124,
+            "height": 520,
+            "cssWidth": 562,
+            "cssHeight": 260,
+            "fontSize": 13,
+            "dpr": 2
+          }
+        ]
+      },
+      {
+        "label": "手机高清屏",
+        "width": 374,
+        "height": 2720,
+        "overflow": false,
+        "canvases": [
+          {
+            "id": "trackCanvas",
+            "width": 584,
+            "height": 300,
+            "cssWidth": 292,
+            "cssHeight": 150,
+            "fontSize": 13,
+            "dpr": 2
+          },
+          {
+            "id": "chartCanvas",
+            "width": 584,
+            "height": 520,
+            "cssWidth": 292,
+            "cssHeight": 260,
+            "fontSize": 13,
+            "dpr": 2
+          }
+        ]
+      },
+      {
+        "label": "窄桌面高清屏",
+        "width": 1084,
+        "height": 1286,
+        "overflow": false,
+        "canvases": [
+          {
+            "id": "trackCanvas",
+            "width": 928,
+            "height": 300,
+            "cssWidth": 464,
+            "cssHeight": 150,
+            "fontSize": 13,
+            "dpr": 2
+          },
+          {
+            "id": "chartCanvas",
+            "width": 928,
+            "height": 520,
+            "cssWidth": 464,
+            "cssHeight": 260,
+            "fontSize": 13,
+            "dpr": 2
+          }
+        ]
+      },
+      {
+        "label": "恢复桌面宽度",
+        "width": 1424,
+        "height": 1266,
+        "overflow": false,
+        "canvases": [
+          {
+            "id": "trackCanvas",
+            "width": 1124,
+            "height": 300,
+            "cssWidth": 562,
+            "cssHeight": 150,
+            "fontSize": 13,
+            "dpr": 2
+          },
+          {
+            "id": "chartCanvas",
+            "width": 1124,
+            "height": 520,
+            "cssWidth": 562,
+            "cssHeight": 260,
+            "fontSize": 13,
+            "dpr": 2
+          }
+        ]
+      }
+    ],
+    "evidence_id": "24724387-9386-4b1f-85c0-5b748cf28f7a"
+  }
+}

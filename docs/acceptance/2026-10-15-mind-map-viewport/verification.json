@@ -1,0 +1,48 @@
+{
+  "status": "published-and-verified",
+  "published": true,
+  "implementation": "Recursive React DOM nodes with CSS tree layout, measured SVG curves and ResizeObserver-driven fit-to-viewport; scaled stage controls the real scroll extent.",
+  "checks": {
+    "eslint": "passed",
+    "tsc-self-learning": "passed",
+    "vite-build": "passed",
+    "export-unit-tests": 2,
+    "viewport-browser-tests": 3,
+    "legacy-interaction-browser-tests": 1,
+    "releaseBrowserTests": 4,
+    "publishedBrowserTests": 4
+  },
+  "viewportWidths": [
+    1440,
+    920,
+    390
+  ],
+  "covered": [
+    "all expanded node bounds inside viewport",
+    "no node overlap",
+    "curve endpoints attached to nodes",
+    "asymmetric four-level branches",
+    "zoomed right and bottom edges reachable",
+    "fit after manual zoom",
+    "fullscreen entry and exit",
+    "responsive resize",
+    "complete JSON export",
+    "overview reset",
+    "individual branch toggle",
+    "resource switching"
+  ],
+  "scope": "Real application UI with mocked business APIs and synthetic hierarchical content; no model generation or production data writes.",
+  "testHarnessCorrections": [
+    "Exclude /src/api module requests from business API mocks",
+    "Use legacy=1 for the existing teacher-resource route"
+  ],
+  "build": "/tmp/edu-mind-map-release",
+  "buildWarnings": [
+    "Existing large chunk warning"
+  ],
+  "screenshots": [
+    "expanded-desktop.png",
+    "expanded-mobile.png"
+  ],
+  "deploymentRecord": "deployment.json"
+}

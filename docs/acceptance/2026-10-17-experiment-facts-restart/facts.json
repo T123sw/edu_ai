@@ -1,0 +1,1185 @@
+[
+  {
+    "request_id": "6d080909-a23d-4064-9f27-33887cd73429",
+    "question": "刚才这一步为什么交换？请明确说出当时比较的两个数、操作前和操作后的数组。",
+    "facts": {
+      "current": {
+        "phase": "demonstrate",
+        "task_id": null,
+        "task_title": null,
+        "task_scope_note": "当前任务与所问历史操作的任务分别定位",
+        "step_index": 1,
+        "reported_verdict": "",
+        "attempt_id": "2c56ff21-b8bb-4c8e-883d-501cdf6c43ad",
+        "snapshot_id": "2",
+        "values": {
+          "i": 1,
+          "arr": [
+            1,
+            3,
+            4,
+            2
+          ],
+          "done": false,
+          "pass": 0,
+          "comparing": [
+            0,
+            1
+          ],
+          "sortedFrom": 4,
+          "swappedInPass": true
+        },
+        "reference_only": {
+          "page_text": {
+            "lastAction": "比较 a[0]=3 与 a[1]=1，交换"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+        "fields": [],
+        "completion_reason": "not_reported_as_structured_evidence",
+        "state_string_fields_are_page_reported": true
+      },
+      "totals": {
+        "scope": "entire_frozen_run_including_revisits",
+        "through_seq": 2,
+        "raw_events": 2,
+        "semantic_operations": 1,
+        "by_phase": {
+          "demonstrate": {
+            "semantic_operations": 1,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "guided": {
+            "semantic_operations": 0,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "explore": {
+            "semantic_operations": 0,
+            "user_operations": 0,
+            "observation_samples": 0
+          }
+        },
+        "control_events": 0,
+        "observation_samples": 0,
+        "lifecycle_events": 1,
+        "demonstration_steps_executed": 1,
+        "demonstration_step_event_ids": [
+          "21c36f7f-8481-41fc-bf99-69fdf577409b"
+        ],
+        "reconstruction_operations": 0,
+        "user_operations": 0,
+        "guided_decisions": {},
+        "tasks": [
+          {
+            "task_id": "task-1",
+            "title": "动手完成一次完整冒泡排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          },
+          {
+            "task_id": "task-2",
+            "title": "自由探索：修改数组后重新排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          }
+        ],
+        "counting_rules": {
+          "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+          "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+          "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+          "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+          "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+        }
+      }
+    }
+  },
+  {
+    "request_id": "6e688284-9f96-4048-81fe-fe9fb4223b22",
+    "question": "我又点了一步，现在比较的是哪两个数？我觉得也该交换，你认为对吗？请根据这一步的记录回答。",
+    "facts": {
+      "current": {
+        "phase": "demonstrate",
+        "task_id": null,
+        "task_title": null,
+        "task_scope_note": "当前任务与所问历史操作的任务分别定位",
+        "step_index": 2,
+        "reported_verdict": "",
+        "attempt_id": "2c56ff21-b8bb-4c8e-883d-501cdf6c43ad",
+        "snapshot_id": "3",
+        "values": {
+          "i": 2,
+          "arr": [
+            1,
+            3,
+            4,
+            2
+          ],
+          "done": false,
+          "pass": 0,
+          "comparing": [
+            1,
+            2
+          ],
+          "sortedFrom": 4,
+          "swappedInPass": true
+        },
+        "reference_only": {
+          "page_text": {
+            "lastAction": "比较 a[1]=3 与 a[2]=4，不交换"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+        "fields": [],
+        "completion_reason": "not_reported_as_structured_evidence",
+        "state_string_fields_are_page_reported": true
+      },
+      "totals": {
+        "scope": "entire_frozen_run_including_revisits",
+        "through_seq": 3,
+        "raw_events": 3,
+        "semantic_operations": 2,
+        "by_phase": {
+          "demonstrate": {
+            "semantic_operations": 2,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "guided": {
+            "semantic_operations": 0,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "explore": {
+            "semantic_operations": 0,
+            "user_operations": 0,
+            "observation_samples": 0
+          }
+        },
+        "control_events": 0,
+        "observation_samples": 0,
+        "lifecycle_events": 1,
+        "demonstration_steps_executed": 2,
+        "demonstration_step_event_ids": [
+          "21c36f7f-8481-41fc-bf99-69fdf577409b",
+          "e021c82f-c072-4fe4-afeb-b83970582434"
+        ],
+        "reconstruction_operations": 0,
+        "user_operations": 0,
+        "guided_decisions": {},
+        "tasks": [
+          {
+            "task_id": "task-1",
+            "title": "动手完成一次完整冒泡排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          },
+          {
+            "task_id": "task-2",
+            "title": "自由探索：修改数组后重新排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          }
+        ],
+        "counting_rules": {
+          "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+          "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+          "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+          "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+          "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+        }
+      }
+    }
+  },
+  {
+    "request_id": "24ac9ec6-3276-47e4-bb9b-096327609b42",
+    "question": "我刚才点了“不交换”，为什么被判错？比较的是哪两个数，系统期望什么，错误后数组有没有变化？",
+    "facts": {
+      "current": {
+        "phase": "guided",
+        "task_id": "task-1",
+        "task_title": "动手完成一次完整冒泡排序",
+        "task_scope_note": "当前任务与所问历史操作的任务分别定位",
+        "step_index": 0,
+        "reported_verdict": "fail",
+        "attempt_id": "3d37869c-e4b3-453e-b363-e1da719c5d03",
+        "snapshot_id": "14",
+        "values": {
+          "i": 0,
+          "arr": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "4",
+            "2",
+            "3",
+            "1"
+          ],
+          "editable": false,
+          "baseArray": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "comparing": null,
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": false,
+          "currentTaskIndex": 0
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "",
+            "lastAction": "就绪"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+        "fields": [],
+        "completion_reason": "not_reported_as_structured_evidence",
+        "state_string_fields_are_page_reported": true
+      },
+      "totals": {
+        "scope": "entire_frozen_run_including_revisits",
+        "through_seq": 14,
+        "raw_events": 14,
+        "semantic_operations": 7,
+        "by_phase": {
+          "demonstrate": {
+            "semantic_operations": 6,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "guided": {
+            "semantic_operations": 1,
+            "user_operations": 1,
+            "observation_samples": 0
+          },
+          "explore": {
+            "semantic_operations": 0,
+            "user_operations": 0,
+            "observation_samples": 0
+          }
+        },
+        "control_events": 1,
+        "observation_samples": 0,
+        "lifecycle_events": 6,
+        "demonstration_steps_executed": 6,
+        "demonstration_step_event_ids": [
+          "21c36f7f-8481-41fc-bf99-69fdf577409b",
+          "e021c82f-c072-4fe4-afeb-b83970582434",
+          "f97deb25-d57f-4090-9dbb-65e047c4ecaa",
+          "7f739a08-bd7b-45e0-a82e-4d09133dc9bd",
+          "f859ef4e-7f53-4553-aee4-35747d7fae3f",
+          "f565cb08-7b19-4b30-89c1-19de0a399485"
+        ],
+        "reconstruction_operations": 0,
+        "user_operations": 1,
+        "guided_decisions": {
+          "fail": 1
+        },
+        "tasks": [
+          {
+            "task_id": "task-1",
+            "title": "动手完成一次完整冒泡排序",
+            "phase": "guided",
+            "recorded_operations": 1,
+            "decisions": {
+              "fail": 1
+            },
+            "failure_count": 1,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 1,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          },
+          {
+            "task_id": "task-2",
+            "title": "自由探索：修改数组后重新排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          }
+        ],
+        "counting_rules": {
+          "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+          "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+          "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+          "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+          "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+        }
+      }
+    }
+  },
+  {
+    "request_id": "19c27b24-d7ae-42c7-9533-753f8acfde1b",
+    "question": "我现在改成交换了，为什么这次是对的？现在数组是什么，为什么还不算整个排序完成？",
+    "facts": {
+      "current": {
+        "phase": "guided",
+        "task_id": "task-1",
+        "task_title": "动手完成一次完整冒泡排序",
+        "task_scope_note": "当前任务与所问历史操作的任务分别定位",
+        "step_index": 0,
+        "reported_verdict": "pending",
+        "attempt_id": "3d37869c-e4b3-453e-b363-e1da719c5d03",
+        "snapshot_id": "17",
+        "values": {
+          "i": 1,
+          "arr": [
+            2,
+            4,
+            3,
+            1
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "4",
+            "2",
+            "3",
+            "1"
+          ],
+          "editable": false,
+          "baseArray": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "comparing": [
+            0,
+            1
+          ],
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": true,
+          "currentTaskIndex": 0
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "",
+            "lastAction": "比较 a[0]=4 与 a[1]=2，交换"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+        "fields": [],
+        "completion_reason": "not_reported_as_structured_evidence",
+        "state_string_fields_are_page_reported": true
+      },
+      "totals": {
+        "scope": "entire_frozen_run_including_revisits",
+        "through_seq": 17,
+        "raw_events": 17,
+        "semantic_operations": 8,
+        "by_phase": {
+          "demonstrate": {
+            "semantic_operations": 6,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "guided": {
+            "semantic_operations": 2,
+            "user_operations": 2,
+            "observation_samples": 0
+          },
+          "explore": {
+            "semantic_operations": 0,
+            "user_operations": 0,
+            "observation_samples": 0
+          }
+        },
+        "control_events": 2,
+        "observation_samples": 0,
+        "lifecycle_events": 7,
+        "demonstration_steps_executed": 6,
+        "demonstration_step_event_ids": [
+          "21c36f7f-8481-41fc-bf99-69fdf577409b",
+          "e021c82f-c072-4fe4-afeb-b83970582434",
+          "f97deb25-d57f-4090-9dbb-65e047c4ecaa",
+          "7f739a08-bd7b-45e0-a82e-4d09133dc9bd",
+          "f859ef4e-7f53-4553-aee4-35747d7fae3f",
+          "f565cb08-7b19-4b30-89c1-19de0a399485"
+        ],
+        "reconstruction_operations": 0,
+        "user_operations": 2,
+        "guided_decisions": {
+          "fail": 1,
+          "pending": 1
+        },
+        "tasks": [
+          {
+            "task_id": "task-1",
+            "title": "动手完成一次完整冒泡排序",
+            "phase": "guided",
+            "recorded_operations": 2,
+            "decisions": {
+              "fail": 1,
+              "pending": 1
+            },
+            "failure_count": 1,
+            "choices_matching_reported_expectation": 1,
+            "choices_mismatching_reported_expectation": 1,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          },
+          {
+            "task_id": "task-2",
+            "title": "自由探索：修改数组后重新排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          }
+        ],
+        "counting_rules": {
+          "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+          "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+          "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+          "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+          "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+        }
+      }
+    }
+  },
+  {
+    "request_id": "2b21de89-6ae0-4e34-a12b-17377a260fcd",
+    "question": "核对本轮：演示执行了几步？第一份动手任务我实际操作几次、错几次、选择符合预期几次？请区分 pending 和任务通过，以及当前属于哪个阶段、显示哪个任务。",
+    "facts": {
+      "current": {
+        "phase": "guided",
+        "task_id": "task-2",
+        "task_title": "自由探索：修改数组后重新排序",
+        "task_scope_note": "当前任务与所问历史操作的任务分别定位",
+        "step_index": 1,
+        "reported_verdict": "pass",
+        "attempt_id": "de9c2524-d2cc-45f3-9227-52102d2bc8ee",
+        "snapshot_id": "33",
+        "values": {
+          "i": 0,
+          "arr": [
+            3,
+            1,
+            4,
+            2
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "3",
+            "1",
+            "4",
+            "2"
+          ],
+          "editable": true,
+          "baseArray": [
+            3,
+            1,
+            4,
+            2
+          ],
+          "comparing": null,
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": false,
+          "currentTaskIndex": 1
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "",
+            "lastAction": "就绪"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+        "fields": [],
+        "completion_reason": "not_reported_as_structured_evidence",
+        "state_string_fields_are_page_reported": true
+      },
+      "totals": {
+        "scope": "entire_frozen_run_including_revisits",
+        "through_seq": 33,
+        "raw_events": 33,
+        "semantic_operations": 13,
+        "by_phase": {
+          "demonstrate": {
+            "semantic_operations": 6,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "guided": {
+            "semantic_operations": 7,
+            "user_operations": 7,
+            "observation_samples": 0
+          },
+          "explore": {
+            "semantic_operations": 0,
+            "user_operations": 0,
+            "observation_samples": 0
+          }
+        },
+        "control_events": 7,
+        "observation_samples": 0,
+        "lifecycle_events": 13,
+        "demonstration_steps_executed": 6,
+        "demonstration_step_event_ids": [
+          "21c36f7f-8481-41fc-bf99-69fdf577409b",
+          "e021c82f-c072-4fe4-afeb-b83970582434",
+          "f97deb25-d57f-4090-9dbb-65e047c4ecaa",
+          "7f739a08-bd7b-45e0-a82e-4d09133dc9bd",
+          "f859ef4e-7f53-4553-aee4-35747d7fae3f",
+          "f565cb08-7b19-4b30-89c1-19de0a399485"
+        ],
+        "reconstruction_operations": 0,
+        "user_operations": 7,
+        "guided_decisions": {
+          "fail": 1,
+          "pending": 5,
+          "pass": 1
+        },
+        "tasks": [
+          {
+            "task_id": "task-1",
+            "title": "动手完成一次完整冒泡排序",
+            "phase": "guided",
+            "recorded_operations": 7,
+            "decisions": {
+              "fail": 1,
+              "pending": 5,
+              "pass": 1
+            },
+            "failure_count": 1,
+            "choices_matching_reported_expectation": 6,
+            "choices_mismatching_reported_expectation": 1,
+            "pass_count": 1,
+            "passed_at_event_ids": [
+              "5ff7cef5-d860-4778-b242-bee970e10aae"
+            ],
+            "ever_passed_in_this_run": true
+          },
+          {
+            "task_id": "task-2",
+            "title": "自由探索：修改数组后重新排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          }
+        ],
+        "counting_rules": {
+          "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+          "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+          "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+          "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+          "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+        }
+      }
+    }
+  },
+  {
+    "request_id": "495207c6-1eff-4961-8036-58d50810b772",
+    "question": "我问的是这次历史交换。当时比较哪两个数？这次操作之后直到第一份数组排序结束，我又操作了几次？请按记录列出每次实际比较的两个数和是否交换，不要把当前任务当成当时状态。",
+    "facts": {
+      "current": {
+        "phase": "guided",
+        "task_id": "task-2",
+        "task_title": "自由探索：修改数组后重新排序",
+        "task_scope_note": "当前任务与所问历史操作的任务分别定位",
+        "step_index": 1,
+        "reported_verdict": "pass",
+        "attempt_id": "de9c2524-d2cc-45f3-9227-52102d2bc8ee",
+        "snapshot_id": "33",
+        "values": {
+          "i": 0,
+          "arr": [
+            3,
+            1,
+            4,
+            2
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "3",
+            "1",
+            "4",
+            "2"
+          ],
+          "editable": true,
+          "baseArray": [
+            3,
+            1,
+            4,
+            2
+          ],
+          "comparing": null,
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": false,
+          "currentTaskIndex": 1
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "",
+            "lastAction": "就绪"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+        "fields": [],
+        "completion_reason": "not_reported_as_structured_evidence",
+        "state_string_fields_are_page_reported": true
+      },
+      "totals": {
+        "scope": "entire_frozen_run_including_revisits",
+        "through_seq": 33,
+        "raw_events": 33,
+        "semantic_operations": 13,
+        "by_phase": {
+          "demonstrate": {
+            "semantic_operations": 6,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "guided": {
+            "semantic_operations": 7,
+            "user_operations": 7,
+            "observation_samples": 0
+          },
+          "explore": {
+            "semantic_operations": 0,
+            "user_operations": 0,
+            "observation_samples": 0
+          }
+        },
+        "control_events": 7,
+        "observation_samples": 0,
+        "lifecycle_events": 13,
+        "demonstration_steps_executed": 6,
+        "demonstration_step_event_ids": [
+          "21c36f7f-8481-41fc-bf99-69fdf577409b",
+          "e021c82f-c072-4fe4-afeb-b83970582434",
+          "f97deb25-d57f-4090-9dbb-65e047c4ecaa",
+          "7f739a08-bd7b-45e0-a82e-4d09133dc9bd",
+          "f859ef4e-7f53-4553-aee4-35747d7fae3f",
+          "f565cb08-7b19-4b30-89c1-19de0a399485"
+        ],
+        "reconstruction_operations": 0,
+        "user_operations": 7,
+        "guided_decisions": {
+          "fail": 1,
+          "pending": 5,
+          "pass": 1
+        },
+        "tasks": [
+          {
+            "task_id": "task-1",
+            "title": "动手完成一次完整冒泡排序",
+            "phase": "guided",
+            "recorded_operations": 7,
+            "decisions": {
+              "fail": 1,
+              "pending": 5,
+              "pass": 1
+            },
+            "failure_count": 1,
+            "choices_matching_reported_expectation": 6,
+            "choices_mismatching_reported_expectation": 1,
+            "pass_count": 1,
+            "passed_at_event_ids": [
+              "5ff7cef5-d860-4778-b242-bee970e10aae"
+            ],
+            "ever_passed_in_this_run": true
+          },
+          {
+            "task_id": "task-2",
+            "title": "自由探索：修改数组后重新排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          }
+        ],
+        "counting_rules": {
+          "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+          "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+          "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+          "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+          "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+        }
+      }
+    }
+  },
+  {
+    "request_id": "d59f4e35-b185-495a-82ba-c6917a67f0f7",
+    "question": "现在是什么阶段？已排序数组这次为什么结束得快？实际比较次数和结束原因有没有结构化记录？请区分观测事实和算法推断。",
+    "facts": {
+      "current": {
+        "phase": "explore",
+        "task_id": null,
+        "task_title": null,
+        "task_scope_note": "当前处于自由探索，没有当前动手任务；未通过的设计任务不等于当前任务",
+        "step_index": 0,
+        "reported_verdict": "",
+        "attempt_id": "40589950-314e-4d94-ab37-68412c62eb02",
+        "snapshot_id": "44",
+        "values": {
+          "i": 0,
+          "arr": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "done": true,
+          "pass": 1,
+          "inputs": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "running": false,
+          "baseArray": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "comparing": null,
+          "sortedFrom": 3,
+          "swappedInPass": false
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "已应用预设数组，排序状态已重置。",
+            "lastAction": "第 1 轮结束，无交换 → 排序完成"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+        "fields": [],
+        "completion_reason": "not_reported_as_structured_evidence",
+        "state_string_fields_are_page_reported": true
+      },
+      "totals": {
+        "scope": "entire_frozen_run_including_revisits",
+        "through_seq": 44,
+        "raw_events": 44,
+        "semantic_operations": 15,
+        "by_phase": {
+          "demonstrate": {
+            "semantic_operations": 6,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "guided": {
+            "semantic_operations": 7,
+            "user_operations": 7,
+            "observation_samples": 0
+          },
+          "explore": {
+            "semantic_operations": 2,
+            "user_operations": 2,
+            "observation_samples": 4
+          }
+        },
+        "control_events": 9,
+        "observation_samples": 4,
+        "lifecycle_events": 16,
+        "demonstration_steps_executed": 6,
+        "demonstration_step_event_ids": [
+          "21c36f7f-8481-41fc-bf99-69fdf577409b",
+          "e021c82f-c072-4fe4-afeb-b83970582434",
+          "f97deb25-d57f-4090-9dbb-65e047c4ecaa",
+          "7f739a08-bd7b-45e0-a82e-4d09133dc9bd",
+          "f859ef4e-7f53-4553-aee4-35747d7fae3f",
+          "f565cb08-7b19-4b30-89c1-19de0a399485"
+        ],
+        "reconstruction_operations": 0,
+        "user_operations": 9,
+        "guided_decisions": {
+          "fail": 1,
+          "pending": 5,
+          "pass": 1
+        },
+        "tasks": [
+          {
+            "task_id": "task-1",
+            "title": "动手完成一次完整冒泡排序",
+            "phase": "guided",
+            "recorded_operations": 7,
+            "decisions": {
+              "fail": 1,
+              "pending": 5,
+              "pass": 1
+            },
+            "failure_count": 1,
+            "choices_matching_reported_expectation": 6,
+            "choices_mismatching_reported_expectation": 1,
+            "pass_count": 1,
+            "passed_at_event_ids": [
+              "5ff7cef5-d860-4778-b242-bee970e10aae"
+            ],
+            "ever_passed_in_this_run": true
+          },
+          {
+            "task_id": "task-2",
+            "title": "自由探索：修改数组后重新排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          }
+        ],
+        "counting_rules": {
+          "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+          "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+          "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+          "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+          "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+        }
+      }
+    }
+  },
+  {
+    "request_id": "a057cee2-109f-4021-9e36-b2696aa85de1",
+    "question": "逆序数组已经排序完成，但页面说“第3轮结束，无交换”。请用只读工具核对实际状态与记录：这个结束原因可信吗？没有结构化记录的次数不要猜。",
+    "facts": {
+      "current": {
+        "phase": "explore",
+        "task_id": null,
+        "task_title": null,
+        "task_scope_note": "当前处于自由探索，没有当前动手任务；未通过的设计任务不等于当前任务",
+        "step_index": 0,
+        "reported_verdict": "",
+        "attempt_id": "40589950-314e-4d94-ab37-68412c62eb02",
+        "snapshot_id": "55",
+        "values": {
+          "i": 0,
+          "arr": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "done": true,
+          "pass": 3,
+          "inputs": [
+            "4",
+            "3",
+            "2",
+            "1"
+          ],
+          "running": false,
+          "baseArray": [
+            4,
+            3,
+            2,
+            1
+          ],
+          "comparing": null,
+          "sortedFrom": 1,
+          "swappedInPass": false
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "已应用预设数组，排序状态已重置。",
+            "lastAction": "第 3 轮结束，无交换 → 排序完成"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+        "fields": [],
+        "completion_reason": "not_reported_as_structured_evidence",
+        "state_string_fields_are_page_reported": true
+      },
+      "totals": {
+        "scope": "entire_frozen_run_including_revisits",
+        "through_seq": 55,
+        "raw_events": 55,
+        "semantic_operations": 17,
+        "by_phase": {
+          "demonstrate": {
+            "semantic_operations": 6,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "guided": {
+            "semantic_operations": 7,
+            "user_operations": 7,
+            "observation_samples": 0
+          },
+          "explore": {
+            "semantic_operations": 4,
+            "user_operations": 4,
+            "observation_samples": 11
+          }
+        },
+        "control_events": 11,
+        "observation_samples": 11,
+        "lifecycle_events": 16,
+        "demonstration_steps_executed": 6,
+        "demonstration_step_event_ids": [
+          "21c36f7f-8481-41fc-bf99-69fdf577409b",
+          "e021c82f-c072-4fe4-afeb-b83970582434",
+          "f97deb25-d57f-4090-9dbb-65e047c4ecaa",
+          "7f739a08-bd7b-45e0-a82e-4d09133dc9bd",
+          "f859ef4e-7f53-4553-aee4-35747d7fae3f",
+          "f565cb08-7b19-4b30-89c1-19de0a399485"
+        ],
+        "reconstruction_operations": 0,
+        "user_operations": 11,
+        "guided_decisions": {
+          "fail": 1,
+          "pending": 5,
+          "pass": 1
+        },
+        "tasks": [
+          {
+            "task_id": "task-1",
+            "title": "动手完成一次完整冒泡排序",
+            "phase": "guided",
+            "recorded_operations": 7,
+            "decisions": {
+              "fail": 1,
+              "pending": 5,
+              "pass": 1
+            },
+            "failure_count": 1,
+            "choices_matching_reported_expectation": 6,
+            "choices_mismatching_reported_expectation": 1,
+            "pass_count": 1,
+            "passed_at_event_ids": [
+              "5ff7cef5-d860-4778-b242-bee970e10aae"
+            ],
+            "ever_passed_in_this_run": true
+          },
+          {
+            "task_id": "task-2",
+            "title": "自由探索：修改数组后重新排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          }
+        ],
+        "counting_rules": {
+          "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+          "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+          "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+          "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+          "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+        }
+      }
+    }
+  },
+  {
+    "request_id": "da5c40c2-38eb-403d-971c-a35588fbc5c6",
+    "question": "现在再汇总本轮：演示几步，动手任务1操作/失败/符合预期各几次，任务2通过了吗，自由探索的按钮操作能直接当作比较次数吗？",
+    "facts": {
+      "current": {
+        "phase": "explore",
+        "task_id": null,
+        "task_title": null,
+        "task_scope_note": "当前处于自由探索，没有当前动手任务；未通过的设计任务不等于当前任务",
+        "step_index": 0,
+        "reported_verdict": "",
+        "attempt_id": "40589950-314e-4d94-ab37-68412c62eb02",
+        "snapshot_id": "55",
+        "values": {
+          "i": 0,
+          "arr": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "done": true,
+          "pass": 3,
+          "inputs": [
+            "4",
+            "3",
+            "2",
+            "1"
+          ],
+          "running": false,
+          "baseArray": [
+            4,
+            3,
+            2,
+            1
+          ],
+          "comparing": null,
+          "sortedFrom": 1,
+          "swappedInPass": false
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "已应用预设数组，排序状态已重置。",
+            "lastAction": "第 3 轮结束，无交换 → 排序完成"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+        "fields": [],
+        "completion_reason": "not_reported_as_structured_evidence",
+        "state_string_fields_are_page_reported": true
+      },
+      "totals": {
+        "scope": "entire_frozen_run_including_revisits",
+        "through_seq": 55,
+        "raw_events": 55,
+        "semantic_operations": 17,
+        "by_phase": {
+          "demonstrate": {
+            "semantic_operations": 6,
+            "user_operations": 0,
+            "observation_samples": 0
+          },
+          "guided": {
+            "semantic_operations": 7,
+            "user_operations": 7,
+            "observation_samples": 0
+          },
+          "explore": {
+            "semantic_operations": 4,
+            "user_operations": 4,
+            "observation_samples": 11
+          }
+        },
+        "control_events": 11,
+        "observation_samples": 11,
+        "lifecycle_events": 16,
+        "demonstration_steps_executed": 6,
+        "demonstration_step_event_ids": [
+          "21c36f7f-8481-41fc-bf99-69fdf577409b",
+          "e021c82f-c072-4fe4-afeb-b83970582434",
+          "f97deb25-d57f-4090-9dbb-65e047c4ecaa",
+          "7f739a08-bd7b-45e0-a82e-4d09133dc9bd",
+          "f859ef4e-7f53-4553-aee4-35747d7fae3f",
+          "f565cb08-7b19-4b30-89c1-19de0a399485"
+        ],
+        "reconstruction_operations": 0,
+        "user_operations": 11,
+        "guided_decisions": {
+          "fail": 1,
+          "pending": 5,
+          "pass": 1
+        },
+        "tasks": [
+          {
+            "task_id": "task-1",
+            "title": "动手完成一次完整冒泡排序",
+            "phase": "guided",
+            "recorded_operations": 7,
+            "decisions": {
+              "fail": 1,
+              "pending": 5,
+              "pass": 1
+            },
+            "failure_count": 1,
+            "choices_matching_reported_expectation": 6,
+            "choices_mismatching_reported_expectation": 1,
+            "pass_count": 1,
+            "passed_at_event_ids": [
+              "5ff7cef5-d860-4778-b242-bee970e10aae"
+            ],
+            "ever_passed_in_this_run": true
+          },
+          {
+            "task_id": "task-2",
+            "title": "自由探索：修改数组后重新排序",
+            "phase": "guided",
+            "recorded_operations": 0,
+            "decisions": {},
+            "failure_count": 0,
+            "choices_matching_reported_expectation": 0,
+            "choices_mismatching_reported_expectation": 0,
+            "pass_count": 0,
+            "passed_at_event_ids": [],
+            "ever_passed_in_this_run": false
+          }
+        ],
+        "counting_rules": {
+          "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+          "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+          "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+          "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+          "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+        }
+      }
+    }
+  }
+]

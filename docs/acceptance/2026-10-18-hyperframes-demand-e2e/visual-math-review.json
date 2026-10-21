@@ -1,0 +1,61 @@
+{
+  "status": "content_not_accepted",
+  "source_sha256": "1a41094b9b551ea83a8a66893578261d71a39246e6bd0786aef08f3d3f8cb874",
+  "intro_lines": [
+    {
+      "label": "y=2x",
+      "coordinates": [
+        100.0,
+        480.0,
+        900.0,
+        -120.0
+      ],
+      "axis_origin": [
+        500,
+        400
+      ],
+      "pixels_per_unit": 100,
+      "actual_intercept": 2.2,
+      "actual_slope": 0.75
+    },
+    {
+      "label": "y=2x+2",
+      "coordinates": [
+        100.0,
+        680.0,
+        900.0,
+        80.0
+      ],
+      "axis_origin": [
+        500,
+        400
+      ],
+      "pixels_per_unit": 100,
+      "actual_intercept": 0.2,
+      "actual_slope": 0.75
+    },
+    {
+      "label": "y=2x-2",
+      "coordinates": [
+        100.0,
+        880.0,
+        900.0,
+        280.0
+      ],
+      "axis_origin": [
+        500,
+        400
+      ],
+      "pixels_per_unit": 100,
+      "actual_intercept": -1.8,
+      "actual_slope": 0.75
+    }
+  ],
+  "finding": "The three labels state slope 2 and intercepts 0, +2, -2; the actual lines have slope 0.75 and intercepts +2.2, +0.2, -1.8. The +2 line is below the 0 line. Translation-scene sample points also do not lie on the plotted line.",
+  "delivered_zip_verified": true,
+  "rendered_video_frames_confirmed": [
+    "frames/segment-1.png",
+    "frames/segment-4.png",
+    "frames/segment-6.png"
+  ]
+}

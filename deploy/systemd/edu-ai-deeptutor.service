@@ -1,0 +1,17 @@
+# User unit: install under ~/.config/systemd/user/.
+[Unit]
+Description=Edu-AI DeepTutor exam generation service
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/zxqs_ep/Edu_AI/services/deeptutor
+EnvironmentFile=/home/zxqs_ep/Edu_AI/services/deeptutor/.runtime/service.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/zxqs_ep/Edu_AI/services/deeptutor/.venv/bin/python -m uvicorn edu_deeptutor.api:create_app --factory --host 127.0.0.1 --port 8026
+Restart=on-failure
+RestartSec=5
+UMask=0077
+
+[Install]
+WantedBy=default.target

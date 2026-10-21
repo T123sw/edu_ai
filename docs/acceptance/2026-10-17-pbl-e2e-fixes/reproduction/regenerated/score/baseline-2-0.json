@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "caseId": "shell-teams-visible",
+      "status": "passed",
+      "message": "✓ 1. 检查 \"红队\" 的可见状态\n   实际：true\n✓ 2. 检查 \"蓝队\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "shell-scores-zero",
+      "status": "passed",
+      "message": "✓ 1. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "shell-status-draw",
+      "status": "passed",
+      "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "shell-buttons-visible",
+      "status": "passed",
+      "message": "✓ 1. 检查 \"red-add\" 的可见状态\n   实际：true\n✓ 2. 检查 \"red-add\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"red-minus\" 的可见状态\n   实际：true\n✓ 4. 检查 \"red-minus\" 的可操作状态\n   实际：true\n✓ 5. 检查 \"blue-add\" 的可见状态\n   实际：true\n✓ 6. 检查 \"blue-add\" 的可操作状态\n   实际：true\n✓ 7. 检查 \"blue-minus\" 的可见状态\n   实际：true\n✓ 8. 检查 \"blue-minus\" 的可操作状态\n   实际：true\n✓ 9. 检查 \"reset\" 的可见状态\n   实际：true\n✓ 10. 检查 \"reset\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "red-add-increments",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 4. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "blue-add-increments",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"blue-add\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "red-minus-decrements",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"red-minus\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 5. 点击 \"blue-add\"\n✓ 6. 点击 \"blue-add\"\n✓ 7. 点击 \"blue-minus\"\n✓ 8. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "minus-at-zero-stays-zero",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"blue-minus\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 3. 点击 \"red-minus\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 5. 点击 \"red-add\"\n✓ 6. 点击 \"red-minus\"\n✓ 7. 点击 \"red-minus\"\n✓ 8. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "red-add-keeps-blue",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"red-add\"\n✓ 4. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 5. 检查 \"red-score\" 的显示文字\n   实际：\"3\"\n✓ 6. 点击 \"blue-add\"\n✓ 7. 点击 \"blue-add\"\n✓ 8. 检查 \"red-score\" 的显示文字\n   实际：\"3\"\n✓ 9. 检查 \"blue-score\" 的显示文字\n   实际：\"2\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "reset-clears-both",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"blue-add\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 5. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 6. 点击 \"reset\"\n✓ 7. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 8. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 9. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 10. 点击 \"blue-add\"\n✓ 11. 点击 \"blue-add\"\n✓ 12. 点击 \"blue-add\"\n✓ 13. 检查 \"blue-score\" 的显示文字\n   实际：\"3\"\n✓ 14. 点击 \"reset\"\n✓ 15. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 16. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 17. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "status-red-leads",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"red-add\"\n✓ 5. 点击 \"blue-add\"\n✓ 6. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 7. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 9. 点击 \"blue-add\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "status-blue-leads",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"blue-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"blue-add\"\n✓ 5. 点击 \"red-add\"\n✓ 6. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 7. 检查 \"blue-score\" 的显示文字\n   实际：\"2\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 9. 点击 \"red-add\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "status-back-to-draw",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 点击 \"blue-add\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 6. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 7. 点击 \"red-add\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 9. 点击 \"red-minus\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 11. 点击 \"red-minus\"\n✓ 12. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 13. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 14. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n本项操作与预期全部通过。"
+    }
+  ],
+  "durationMs": 4982.323064
+}

@@ -1,0 +1,42 @@
+{
+  "depth": "introductory",
+  "topic": "快速排序",
+  "audience": "希望学习快速排序的初学者（具体背景未知）",
+  "language": "中文",
+  "exclusions": [],
+  "node_count": null,
+  "assumptions": [
+    "用户未指定课程总时长，默认采用 60 分钟",
+    "用户未指定输出语言，按提问语言推断为中文",
+    "用户未说明已有基础，按入门深度组织内容"
+  ],
+  "requirements": [
+    {
+      "text": "课程内容围绕快速排序展开",
+      "source_ref": null,
+      "source_quote": "我想学习快速排序",
+      "requirement_id": "req-1",
+      "source_document_id": null
+    }
+  ],
+  "learning_goal": "学习快速排序算法，理解其原理与实现方式。",
+  "material_gaps": [],
+  "source_policy": {
+    "mode": "open"
+  },
+  "total_minutes": 60,
+  "prior_knowledge": "未知",
+  "desired_outcomes": [
+    "能说明快速排序的分治思想与基本流程",
+    "能描述分区（partition）过程与基准元素的作用",
+    "能分析快速排序的时间复杂度与最坏情况",
+    "能读懂并写出快速排序的实现"
+  ],
+  "node_count_quote": null,
+  "source_policy_quote": null,
+  "required_resource_types": [
+    "report",
+    "quiz",
+    "classroom"
+  ]
+}

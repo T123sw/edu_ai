@@ -1,0 +1,41 @@
+{
+  "status": "verified_not_deployed",
+  "backend": {
+    "passed": 241,
+    "skipped": 6
+  },
+  "generation_contract": {
+    "passed": 74
+  },
+  "legacy_runners_and_adapter": {
+    "passed": 21
+  },
+  "runtime_matrix": {
+    "first_run_passed": 12,
+    "first_run_infrastructure_failure": 1,
+    "targeted_retry_passed": 1,
+    "enabled_templates": 8
+  },
+  "real_generated_projects": [
+    "react-ts",
+    "vanilla",
+    "vue",
+    "node-read"
+  ],
+  "page_workflows_passed": 4,
+  "steps": 8,
+  "standalone_preview_passed": 4,
+  "vanilla_regenerated_ui_workflow_passed": true,
+  "button_wiring_mutation_rejected": true,
+  "node_edit_restarts_service": true,
+  "typecheck": "passed (PBL scope)",
+  "frontend_build": "passed",
+  "production_frontend_published": false,
+  "production_backend_restarted_by_this_task": false,
+  "limitations": [
+    "Vue TypeScript not enabled: repeated upstream startup timeouts",
+    "Node HTTP request body not supported: upstream sandpack#1190",
+    "static: HTML/CSS; use vanilla for JS",
+    "No Python/FastAPI, database, OS tools or external service"
+  ]
+}

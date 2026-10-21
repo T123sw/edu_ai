@@ -1,0 +1,267 @@
+............F.F..F......FFssF.sss.FFF.F.F.....FFF....................... [ 45%]
+....F................s.s.s.s.sss.s.sss.......s.s......Fs................ [ 91%]
+..............                                                           [100%]
+=================================== FAILURES ===================================
+_ test_invalid_writer_envelope_gets_bounded_correction_before_any_review[1-quiz] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:175: in test_invalid_writer_envelope_gets_bounded_correction_before_any_review
+    generate()
+backend/src/tests/course_preparation/test_generated_content_constraints.py:169: in generate
+    return reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload(kind),job_id='j',config_snapshot_id='c')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+_ test_invalid_writer_envelope_gets_bounded_correction_before_any_review[3-quiz] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:172: in test_invalid_writer_envelope_gets_bounded_correction_before_any_review
+    with pytest.raises(GenerationFailure,match='PREPARATION_CONTENT_CONTRACT'):generate()
+                                                                               ^^^^^^^^^^
+backend/src/tests/course_preparation/test_generated_content_constraints.py:169: in generate
+    return reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload(kind),job_id='j',config_snapshot_id='c')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+________ test_quiz_objective_mapping_is_specific_and_options_are_bound _________
+backend/src/tests/course_preparation/test_generated_content_constraints.py:206: in test_quiz_objective_mapping_is_specific_and_options_are_bound
+    artifact=reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload('quiz'),job_id='j',config_snapshot_id='c')['artifacts'][0]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+_____ test_removing_preparation_metadata_cannot_downgrade_a_receipt[quiz] ______
+backend/src/tests/course_preparation/test_generated_content_constraints.py:255: in test_removing_preparation_metadata_cannot_downgrade_a_receipt
+    artifact=reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload(kind),job_id='j',config_snapshot_id='c')['artifacts'][0]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+_____________ test_mapping_only_quiz_repair_preserves_native_body ______________
+backend/src/tests/course_preparation/test_generated_content_constraints.py:282: in test_mapping_only_quiz_repair_preserves_native_body
+    artifact=reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload('quiz'),job_id='j',config_snapshot_id='c')['artifacts'][0]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+________ test_prepared_quiz_requires_complete_persisted_option_evidence ________
+backend/src/tests/course_preparation/test_generated_content_constraints.py:326: in test_prepared_quiz_requires_complete_persisted_option_evidence
+    artifact=reviewed_resource.ReviewedResourceGenerator(CountingGateway('quiz')).generate(payload('quiz'),job_id='j',config_snapshot_id='c')['artifacts'][0]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+____ test_A_payload_D_content_F_alignment_use_the_same_real_contract[quiz] _____
+backend/src/tests/course_preparation/test_generated_content_constraints.py:427: in test_A_payload_D_content_F_alignment_use_the_same_real_contract
+    content=reviewed_resource.ReviewedResourceGenerator(gateway).generate(value,job_id='j',config_snapshot_id='c')['artifacts'][0]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+____ test_only_timed_preparation_repair_can_remove_redundant_question[None] ____
+backend/src/tests/course_preparation/test_generated_content_constraints.py:462: in test_only_timed_preparation_repair_can_remove_redundant_question
+    with pytest.raises(GenerationFailure, match='quiz_repair_changed_question_identity'): generate()
+                                                                                          ^^^^^^^^^^
+backend/src/tests/course_preparation/test_generated_content_constraints.py:459: in <lambda>
+    generate = lambda: reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+____ test_only_timed_preparation_repair_can_remove_redundant_question[2.0] _____
+backend/src/tests/course_preparation/test_generated_content_constraints.py:464: in test_only_timed_preparation_repair_can_remove_redundant_question
+    artifact = generate()['artifacts'][0]
+               ^^^^^^^^^^
+backend/src/tests/course_preparation/test_generated_content_constraints.py:459: in <lambda>
+    generate = lambda: reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+_ test_learning_duration_target_does_not_repeat_writing[resource_target_minutes-quiz] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:489: in test_learning_duration_target_does_not_repeat_writing
+    reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c'))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+_ test_learning_duration_target_does_not_repeat_writing[resource_repair_target_minutes-quiz] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:489: in test_learning_duration_target_does_not_repeat_writing
+    reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c'))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+__ test_prepared_quiz_corrects_string_content_within_existing_writer_attempts __
+backend/src/tests/course_preparation/test_generated_content_constraints.py:529: in test_prepared_quiz_corrects_string_content_within_existing_writer_attempts
+    artifact = reviewed_resource.ReviewedResourceGenerator(gateway).generate(
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:66: in generate_quiz
+    writer = phase_gateway(generator.gateway, payload, 'resource_write')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/preparation_content.py:34: in phase_gateway
+    return scoped_gateway(gateway, phase=phase,
+backend/src/app/course_preparation/harness_generation.py:215: in scoped_gateway
+    raise ResearchError('PREPARATION_HARNESS_REQUIRED', '备课阶段需要原生 Harness 网关')
+E   app.course_preparation.research_agent.ResearchError: PREPARATION_HARNESS_REQUIRED: 备课阶段需要原生 Harness 网关
+_ test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries[False] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:571: in test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries
+    assert gateway.writer_calls == 2 and gateway.review_calls == 1
+E   assert (0 == 2)
+E    +  where 0 = <test_generated_content_constraints.test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries.<locals>.Gateway object at 0x7f77c4950500>.writer_calls
+_ test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries[True] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:566: in test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries
+    with pytest.raises(GenerationFailure, match='RESOURCE_REPAIR_FORMAT_INVALID'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE GenerationFailure
+______ test_two_protocol_corrections_do_not_use_up_content_repair_budget _______
+backend/src/app/course_preparation/harness_provider.py:273: in do_POST
+    toolset.validate_arguments(name, json.loads(call['function']['arguments']))
+backend/src/app/course_preparation/harness_generation.py:77: in validate_arguments
+    raise ContentSchemaError('; '.join(details)[:1000])
+E   app.course_preparation.harness_provider.ContentSchemaError: $ (additionalProperties): Additional properties are not allowed ('applied_requirements', 'objective_bindings', 'question_time_estimates' were unexpected)
+
+The above exception was the direct cause of the following exception:
+backend/src/tests/course_preparation/test_preparation_write_schema.py:180: in test_two_protocol_corrections_do_not_use_up_content_repair_budget
+    artifact = ReviewedResourceGenerator(model).generate(request, job_id='j', config_snapshot_id='c')['artifacts'][0]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:82: in generate_quiz
+    raw = writer.chat(messages, temperature=.2, max_tokens=12000).strip()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/course_preparation/harness_generation.py:202: in chat
+    result = adapter._run(context, tools, timeout=timeout, toolset=toolset,
+backend/src/app/course_preparation/harness_adapter.py:159: in _run
+    raise transport['error']
+backend/src/app/course_preparation/harness_adapter.py:145: in _run
+    raise transport['error']
+backend/src/app/course_preparation/harness_provider.py:131: in do_POST
+    raise state['error']
+backend/src/app/course_preparation/harness_provider.py:131: in do_POST
+    raise state['error']
+backend/src/app/course_preparation/harness_provider.py:131: in do_POST
+    raise state['error']
+backend/src/app/course_preparation/harness_provider.py:131: in do_POST
+    raise state['error']
+backend/src/app/course_preparation/harness_provider.py:131: in do_POST
+    raise state['error']
+backend/src/app/course_preparation/harness_provider.py:276: in do_POST
+    raise CompletionFormatError('MODEL_PROTOCOL_ERROR: incomplete response after two corrections') from exc
+E   app.course_preparation.harness_provider.CompletionFormatError: MODEL_PROTOCOL_ERROR: incomplete response after two corrections
+_ test_policy_recovery_reuses_private_candidate_and_original_budget_across_parent_retry[sqlite] _
+backend/src/tests/course_preparation/test_classroom_no_extra_review.py:119: in test_policy_recovery_reuses_private_candidate_and_original_budget_across_parent_retry
+    assert adapter.task_store.get_durable(resumed['job_id']).command == {'artifact_id': child['artifact_id']}
+E   AssertionError: assert {'artifact_id...: 'classroom'} == {'artifact_id...e8d78febcf5e'}
+E     
+E     Omitting 1 identical items, use -vv to show
+E     Left contains 1 more item:
+E     {'resource_type': 'classroom'}
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_invalid_writer_envelope_gets_bounded_correction_before_any_review[1-quiz]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_invalid_writer_envelope_gets_bounded_correction_before_any_review[3-quiz]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_quiz_objective_mapping_is_specific_and_options_are_bound
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_removing_preparation_metadata_cannot_downgrade_a_receipt[quiz]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_mapping_only_quiz_repair_preserves_native_body
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_prepared_quiz_requires_complete_persisted_option_evidence
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_A_payload_D_content_F_alignment_use_the_same_real_contract[quiz]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_only_timed_preparation_repair_can_remove_redundant_question[None]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_only_timed_preparation_repair_can_remove_redundant_question[2.0]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_learning_duration_target_does_not_repeat_writing[resource_target_minutes-quiz]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_learning_duration_target_does_not_repeat_writing[resource_repair_target_minutes-quiz]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_prepared_quiz_corrects_string_content_within_existing_writer_attempts
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries[False]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries[True]
+FAILED backend/src/tests/course_preparation/test_preparation_write_schema.py::test_two_protocol_corrections_do_not_use_up_content_repair_budget
+FAILED backend/src/tests/course_preparation/test_classroom_no_extra_review.py::test_policy_recovery_reuses_private_candidate_and_original_budget_across_parent_retry[sqlite]
+16 failed, 123 passed, 19 skipped in 54.26s

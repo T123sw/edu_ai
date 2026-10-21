@@ -53,7 +53,7 @@ export function applyProjection(room: Classroom, projection?: Projection): Class
     const state = ref && projection.resources.find(s => refKey(s.resource_ref) === refKey(ref));
     const locator = state?.locator;
     progress[resource.id] = { note: progress[resource.id]?.note || '', completed: state?.completed || false,
-      position: locator?.kind === 'document' ? locator.scroll_top : 0, locator: locator || undefined };
+      position: locator?.kind === 'document' ? locator.scroll_top : locator?.kind === 'hyperframes' ? locator.seconds : 0, locator: locator || undefined };
   }
   return { ...room, progress, learningProjection: projection,
     understanding: Object.fromEntries(Object.entries(projection.self_assessments).filter(([, v]) => v !== 'unset').map(([k, v]) => [k, v === 'needs_review' ? 'review' : 'understood'])) };
@@ -129,7 +129,7 @@ export function useLearningProgress(input: Classroom) {
       : type === 'self_assessment_set' ? latest.current?.self_assessment_revisions[topic] || 0 : null;
     // Explicit actions wait for their own receipt; no second mutation with the same base revision.
     if (expected !== null && queue.current.some(p => p.topic === topic && p.event.type === type && (ref ? p.event.resource_ref && refKey(p.event.resource_ref) === refKey(ref) : true))) return;
-    const event: FactEvent = { schema_version: 1, event_id: uid(), type, manifest_ref: latest.current?.manifest_ref || null, resource_ref: ref || null,
+    const event: FactEvent = { schema_version: 1, event_id: uid(), type, manifest_ref: input.manifestRef || latest.current?.manifest_ref || null, resource_ref: ref || null,
       expected_revision: expected, occurred_at: new Date().toISOString(), payload };
     const next = coalesceReading(queue.current, { topic, event }, inFlight.current);
     const retained = new Set(next.map(p => p.event.event_id));

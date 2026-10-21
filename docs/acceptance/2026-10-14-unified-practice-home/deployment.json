@@ -1,0 +1,26 @@
+{
+  "previous_index_sha256": "f1fd140f6f6ecb3ed6a41b121a6faed081b3930475141e9549cc9a99fab20af3",
+  "published_at": "20261014T012845Z",
+  "backup": "/tmp/edu-unified-practice-backup-20261014T012845Z",
+  "index_sha256": "d979024ef265ebeec1059f7379e3b17d6a8d8b7464c2c36483afa3668aa428bc",
+  "frontendPublished": true,
+  "backendChanged": false,
+  "storage": "Existing account-owned backend records; PBL exercise/workspace/run persistence retained; unified cards load API lists",
+  "oldAssetsRetained": true,
+  "buildSeconds": 23.23,
+  "lint": "passed",
+  "typecheck": "tsc -p tsconfig.self-learning.json passed",
+  "browserPreview": {
+    "home": 3,
+    "simulation": 2,
+    "pblCreateCheckSaveReload": 1
+  },
+  "realStoredProject": "real-storage.json",
+  "legacyUrl": "/practice/code now renders the same home with PBL initially selected",
+  "httpVerified": true,
+  "browserPublished": {
+    "passed": 3,
+    "api": "mock authentication/list/create for UI regression; actual storage separately verified against isolated PostgreSQL",
+    "log": "published-browser.log"
+  }
+}

@@ -17,7 +17,8 @@ def read_content(material: dict, artifact_type: str):
         if value is None and artifact_type == "lesson_plan":
             value = material.get("plan") or (material.get("content") if isinstance(material.get("content"), dict) else None)
     elif artifact_type == "classroom":
-        value = {"stage": material.get("stage"), "scenes": material.get("scenes")}
+        from app.self_learning.hyperframes_context import native_content
+        value = native_content(material) or {"stage": material.get("stage"), "scenes": material.get("scenes")}
     else:
         value = material.get("content")
         if value is None and artifact_type == "quiz":
@@ -117,6 +118,10 @@ def validate(kind: str, content):
             if any(i.get("categoryId") not in categories for i in items):
                 raise ValueError("游戏分类引用无效")
     elif kind == "classroom":
+        if isinstance(content, dict) and content.get('format') == 'hyperframes/v1':
+            from app.integrations.hyperframes.contracts import validate_content
+            validate_content(content)
+            return
         from app.services.classroom_validation import validate_stage
         stage = content.get("stage")
         scenes = _items(content, "scenes")
@@ -205,6 +210,12 @@ def content_updates(material: dict, kind: str, content) -> dict:
     if kind == "flashcard":
         updates["flashcards"] = content["cards"]
     if kind == "classroom":
+        if content.get('format') == 'hyperframes/v1':
+            # Native revisions must publish a new synchronized audio/project version.
+            from app.integrations.hyperframes.contracts import validate_content
+            validate_content(content)
+            from app.chat.harness.classroom_policy import classroom_structure_receipt
+            return {**updates, **deepcopy(content), 'generation_state':{'resource_review':classroom_structure_receipt(content)}}
         content = deepcopy(content)
         old_actions = {(scene.get("id"), action.get("id")): action for scene in material.get("scenes", []) for action in scene.get("actions", [])}
         invalidated = False
@@ -223,6 +234,9 @@ def content_updates(material: dict, kind: str, content) -> dict:
 
 
 def editable_paths(value, path=()):
+    if not path and isinstance(value, dict) and value.get('format') == 'hyperframes/v1':
+        return [['title']] + [['timeline','segments',i,key] for i,s in enumerate(value['timeline']['segments'])
+            for key in ('title','narration','visual_description')]
     if isinstance(value, str):
         return [list(path)]
     if isinstance(value, dict):

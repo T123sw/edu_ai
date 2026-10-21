@@ -1,0 +1,59 @@
+[
+  {
+    "generation_id": "examgen_56c66e7dff76c20d8c736270ed87fc57",
+    "job_id": "examgen_56c66e7dff76c20d8c736270ed87fc57",
+    "parsed": [
+      {
+        "parser": "mineru-local",
+        "characters": 4483,
+        "layout_blocks": 71,
+        "images": 16
+      }
+    ],
+    "blueprint_count": 32,
+    "summary": {},
+    "event_counts": {
+      "session": 1,
+      "stage_start": 2,
+      "thinking": 30564,
+      "stage_end": 1,
+      "progress": 172,
+      "content": 29,
+      "done": 1
+    },
+    "usage": null,
+    "failed_questions": []
+  },
+  {
+    "generation_id": "examgen_e5e47a9ab726c9fac99cc0284fd98fee",
+    "job_id": "job_c3170d6453bd4f58",
+    "parsed": [
+      {
+        "parser": "mineru-local",
+        "characters": 4483,
+        "layout_blocks": 71,
+        "images": 16
+      }
+    ],
+    "blueprint_count": 32,
+    "summary": {
+      "failed": 0,
+      "success": true,
+      "completed": 32,
+      "requested": 32,
+      "template_count": 32
+    },
+    "event_counts": {
+      "session": 1,
+      "stage_start": 2,
+      "thinking": 1,
+      "stage_end": 2,
+      "progress": 1,
+      "content": 32,
+      "result": 1,
+      "done": 1
+    },
+    "usage": null,
+    "failed_questions": []
+  }
+]

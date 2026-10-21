@@ -1,0 +1,582 @@
+[
+  {
+    "node": "n1-why-transformer",
+    "at": 1792474437.0108316,
+    "command": "a195aba0db4e4650bb732e7bffeb94d3",
+    "passed": true,
+    "blocking": [],
+    "warnings": null,
+    "log": "artifact_5738c863f8ed92df828e79604c6ddd25/commands/a195aba0db4e4650bb732e7bffeb94d3.log"
+  },
+  {
+    "node": "n1-why-transformer",
+    "final_verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 286.3
+    }
+  },
+  {
+    "node": "n2-overall-architecture",
+    "at": 1792474608.3131883,
+    "command": "457015b09ac5489488acb715a1470138",
+    "passed": true,
+    "blocking": [],
+    "warnings": null,
+    "log": "artifact_b90915a9d51a2faa28953d6b203c0562/commands/457015b09ac5489488acb715a1470138.log"
+  },
+  {
+    "node": "n2-overall-architecture",
+    "final_verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 296.0
+    }
+  },
+  {
+    "node": "n3-self-attention",
+    "at": 1792474559.8885849,
+    "command": "1cd3f78347474f1199783aafe9d8463e",
+    "passed": true,
+    "blocking": [],
+    "warnings": null,
+    "log": "artifact_5f4b2b9274cc91de16960330223cb76d/commands/1cd3f78347474f1199783aafe9d8463e.log"
+  },
+  {
+    "node": "n3-self-attention",
+    "final_verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 305.2
+    }
+  },
+  {
+    "node": "n4-position-ffn",
+    "at": 1792474820.1764424,
+    "command": "1dbbb226c4fb459988f0c14780354631",
+    "passed": true,
+    "blocking": [],
+    "warnings": null,
+    "log": "artifact_f389a890295c6fa609e053a92da5f28b/commands/1dbbb226c4fb459988f0c14780354631.log"
+  },
+  {
+    "node": "n4-position-ffn",
+    "final_verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 295.566667
+    }
+  },
+  {
+    "node": "n5-tradeoff",
+    "at": 1792474482.7728515,
+    "command": "c207d7fb1b744f7790e6ef900c4ea44d",
+    "passed": false,
+    "blocking": [
+      {
+        "section": "runtime",
+        "findings": [
+          {
+            "code": "console_error",
+            "severity": "error",
+            "message": "[HyperFrames] composition script error: 04-complexity TypeError: Cannot read properties of null (reading 'querySelector')",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0,
+            "url": "",
+            "line": 2310
+          },
+          {
+            "code": "console_error",
+            "severity": "error",
+            "message": "[HyperFrames] composition script error: 05-sequential-path TypeError: Cannot read properties of null (reading 'querySelector')",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0,
+            "url": "",
+            "line": 2895
+          },
+          {
+            "code": "console_error",
+            "severity": "error",
+            "message": "[HyperFrames] composition script error: 06-n-condition TypeError: Cannot read properties of null (reading 'querySelector')",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0,
+            "url": "",
+            "line": 3461
+          },
+          {
+            "code": "console_warning",
+            "severity": "warning",
+            "message": "GSAP target null not found. https://gsap.com",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0,
+            "url": "http://127.0.0.1:34293/",
+            "line": 69
+          },
+          {
+            "code": "console_warning",
+            "severity": "warning",
+            "message": "GSAP target  not found. https://gsap.com",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0,
+            "url": "http://127.0.0.1:34293/",
+            "line": 69
+          },
+          {
+            "code": "console_warning",
+            "severity": "warning",
+            "message": "GSAP target null not found. https://gsap.com",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0,
+            "url": "http://127.0.0.1:34293/",
+            "line": 69
+          },
+          {
+            "code": "console_warning",
+            "severity": "warning",
+            "message": "GSAP target  not found. https://gsap.com",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0,
+            "url": "http://127.0.0.1:34293/",
+            "line": 69
+          },
+          {
+            "code": "console_warning",
+            "severity": "warning",
+            "message": "GSAP target null not found. https://gsap.com",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0,
+            "url": "http://127.0.0.1:34293/",
+            "line": 69
+          },
+          {
+            "code": "console_warning",
+            "severity": "warning",
+            "message": "GSAP target  not found. https://gsap.com",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0,
+            "url": "http://127.0.0.1:34293/",
+            "line": 69
+          },
+          {
+            "code": "clip_media_fit",
+            "severity": "warning",
+            "message": "Audio \"el-01-opening-voice\" is 28.37s but its slot (data-duration) is 28.90s — the slot is shortened to the media length when rendered. Set data-duration to ~28.37s if that isn't intended.",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0
+          },
+          {
+            "code": "clip_media_fit",
+            "severity": "warning",
+            "message": "Audio \"el-02-recurrence-voice\" is 28.94s but its slot (data-duration) is 29.50s — the slot is shortened to the media length when rendered. Set data-duration to ~28.94s if that isn't intended.",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0
+          },
+          {
+            "code": "clip_media_fit",
+            "severity": "warning",
+            "message": "Audio \"el-03-three-lenses-voice\" is 26.93s but its slot (data-duration) is 27.50s — the slot is shortened to the media length when rendered. Set data-duration to ~26.93s if that isn't intended.",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0
+          },
+          {
+            "code": "clip_media_fit",
+            "severity": "warning",
+            "message": "Audio \"el-04-complexity-voice\" is 31.66s but its slot (data-duration) is 32.20s — the slot is shortened to the media length when rendered. Set data-duration to ~31.66s if that isn't intended.",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0
+          },
+          {
+            "code": "clip_media_fit",
+            "severity": "warning",
+            "message": "Audio \"el-05-sequential-path-voice\" is 38.30s but its slot (data-duration) is 38.90s — the slot is shortened to the media length when rendered. Set data-duration to ~38.30s if that isn't intended.",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0
+          },
+          {
+            "code": "clip_media_fit",
+            "severity": "warning",
+            "message": "Audio \"el-06-n-condition-voice\" is 36.22s but its slot (data-duration) is 36.80s — the slot is shortened to the media length when rendered. Set data-duration to ~36.22s if that isn't intended.",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0
+          },
+          {
+            "code": "clip_media_fit",
+            "severity": "warning",
+            "message": "Audio \"el-07-cost-voice\" is 30.14s but its slot (data-duration) is 30.70s — the slot is shortened to the media length when rendered. Set data-duration to ~30.14s if that isn't intended.",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0
+          },
+          {
+            "code": "clip_media_fit",
+            "severity": "warning",
+            "message": "Audio \"el-08-parallel-boundary-voice\" is 32.30s but its slot (data-duration) is 32.90s — the slot is shortened to the media length when rendered. Set data-duration to ~32.30s if that isn't intended.",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0
+          },
+          {
+            "code": "clip_media_fit",
+            "severity": "warning",
+            "message": "Audio \"el-09-conclusion-voice\" is 31.42s but its slot (data-duration) is 32.20s — the slot is shortened to the media length when rendered. Set data-duration to ~31.42s if that isn't intended.",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 0
+          },
+          {
+            "code": "console_warning",
+            "severity": "warning",
+            "message": "GSAP target  not found. https://gsap.com",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 279.893,
+            "url": "http://127.0.0.1:34293/",
+            "line": 69
+          },
+          {
+            "code": "console_warning",
+            "severity": "warning",
+            "message": "GSAP target  not found. https://gsap.com",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 281.511,
+            "url": "http://127.0.0.1:34293/",
+            "line": 69
+          },
+          {
+            "code": "console_warning",
+            "severity": "warning",
+            "message": "GSAP target  not found. https://gsap.com",
+            "selector": "[data-composition-id]",
+            "dataAttributes": {
+              "data-composition-id": "main",
+              "data-start": "0",
+              "data-duration": "289.6",
+              "data-width": "1920",
+              "data-height": "1080"
+            },
+            "sourceFile": "index.html",
+            "bbox": {
+              "x": 0,
+              "y": 0,
+              "width": 1920,
+              "height": 1080
+            },
+            "time": 281.511,
+            "url": "http://127.0.0.1:34293/",
+            "line": 69
+          }
+        ]
+      }
+    ],
+    "warnings": null,
+    "log": "artifact_57380f90897ff79c7dc7dd394a430802/commands/c207d7fb1b744f7790e6ef900c4ea44d.log"
+  },
+  {
+    "node": "n5-tradeoff",
+    "at": 1792474523.3596966,
+    "command": "0eaf90853b35409688e48b911bc5d7fd",
+    "passed": true,
+    "blocking": [],
+    "warnings": null,
+    "log": "artifact_57380f90897ff79c7dc7dd394a430802/commands/0eaf90853b35409688e48b911bc5d7fd.log"
+  },
+  {
+    "node": "n5-tradeoff",
+    "final_verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 289.6
+    }
+  }
+]

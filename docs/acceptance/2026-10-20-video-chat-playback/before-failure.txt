@@ -1,0 +1,215 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: video-chat.spec.ts >> native video can resume after focus, answers and repeated questions without reload
+- Location: tests/live-learning/video-chat.spec.ts:69:5
+
+# Error details
+
+```
+Error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0.689927
+Received:   0.439927
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - link "返回首页" [ref=e5] [cursor=pointer]:
+      - /url: "#/"
+      - generic [ref=e6]: Edu AI
+    - navigation "主导航" [ref=e11]:
+      - link "AI 课堂" [ref=e12] [cursor=pointer]:
+        - /url: "#/"
+      - link "互动实验" [ref=e13] [cursor=pointer]:
+        - /url: "#/practice"
+      - link "考试模拟" [ref=e14] [cursor=pointer]:
+        - /url: "#/exam"
+      - link "我的资源" [ref=e15] [cursor=pointer]:
+        - /url: "#/my-resources"
+    - generic [ref=e16]:
+      - button "后台任务" [ref=e17] [cursor=pointer]
+      - button "页面配色" [ref=e23] [cursor=pointer]
+      - link "个人中心" [ref=e30] [cursor=pointer]:
+        - /url: "?account=1#profile"
+        - text: f
+  - main [ref=e31]:
+    - complementary [ref=e32]:
+      - generic [ref=e33]:
+        - link "返回首页" [ref=e34] [cursor=pointer]:
+          - /url: "#/"
+        - heading "视频提问回归" [level=2] [ref=e37]
+      - generic [ref=e39]:
+        - button "01 第一节" [expanded] [ref=e40] [cursor=pointer]:
+          - generic [ref=e41]: "01"
+          - text: 第一节
+        - button "播放回归视频" [ref=e44] [cursor=pointer]:
+          - generic [ref=e48]: 视频讲解
+    - generic [ref=e50]:
+      - button "继续课堂" [ref=e51] [cursor=pointer]
+      - iframe [active] [ref=e53]:
+        - main [ref=f1e3]:
+          - region "HyperFrames 课堂" [ref=f1e4]:
+            - generic [ref=f1e5]:
+              - heading "播放回归视频" [level=2] [ref=f1e6]
+              - group [ref=f1e7]:
+                - generic "导出课堂资源" [ref=f1e8] [cursor=pointer]: 导出
+            - generic "课堂视频播放器" [active] [ref=f1e12]
+    - complementary "课程对话" [ref=e54]:
+      - generic [ref=e55]:
+        - heading "学习 Agent" [level=2] [ref=e56]
+        - generic [ref=e60]: 全程陪伴
+      - log "当前课程对话记录" [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]: 学习 Agent
+          - paragraph [ref=e66]: 我会一直在这里，陪你学完这堂课。
+          - paragraph [ref=e67]: 现在我们聊「第一节」。你可以随时提问；回来时，这里的对话会接着保留。
+      - generic [ref=e68]:
+        - generic [ref=e69]:
+          - button "举个例子" [ref=e70] [cursor=pointer]
+          - button "接下来学什么？" [ref=e71] [cursor=pointer]
+        - generic [ref=e72]:
+          - textbox "向学习 Agent 提问" [ref=e73]:
+            - /placeholder: 随时提问，一起梳理这个知识点…
+            - text: 解释这段视频
+          - button "发送问题" [ref=e74] [cursor=pointer]
+        - generic [ref=e77]: 对话自动保存到账号 · Enter 发送 / Shift + Enter 换行
+  - complementary "学习工具栏" [ref=e78]:
+    - button "打开深度研究" [ref=e79] [cursor=pointer]:
+      - generic: 深度研究
+    - button "打开生成工具" [ref=e83] [cursor=pointer]:
+      - generic: 生成工具
+```
+
+# Test source
+
+```ts
+  1   | import { test, expect, type Page, type Locator } from 'playwright/test';
+  2   | import { execFileSync } from 'node:child_process';
+  3   | import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+  4   | import { tmpdir } from 'node:os';
+  5   | import { join } from 'node:path';
+  6   | 
+  7   | let videoFile: Buffer;
+  8   | test.beforeAll(() => {
+  9   |   const dir = mkdtempSync(join(tmpdir(), 'edu-video-chat-'));
+  10  |   try {
+  11  |     const file = join(dir, 'video.mp4');
+  12  |     execFileSync('ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'color=c=navy:s=640x360:d=30',
+  13  |       '-f', 'lavfi', '-i', 'sine=frequency=440:duration=30', '-c:v', 'libx264', '-c:a', 'aac', '-movflags', '+faststart', '-shortest', file]);
+  14  |     videoFile = readFileSync(file);
+  15  |   } finally { rmSync(dir, { recursive: true, force: true }); }
+  16  | });
+  17  | 
+  18  | async function openClassroom(page: Page) {
+  19  |   page.on('pageerror', e => console.error(e.message));
+  20  |   const digest = 'a'.repeat(64);
+  21  |   const content = { format: 'hyperframes/v1', title: '播放回归视频', project: { id: 'fixture', digest, entry: 'index.html' },
+  22  |     timeline: { duration: 30, segments: [{ id: 'intro', title: '第一段', start: 0, end: 30, narration: '测试讲解', visual_description: '蓝色画面' }] } };
+  23  |   const resource = { id: 'video', title: content.title, topic: '播放回归', kind: 'video', ready: true, minutes: 1, createdAt: 1,
+  24  |     remote: { courseId: 'video-chat', materialId: 'video', materialType: 'classroom', version: 1, visibility: 'course' } };
+  25  |   const room = { id: 'video-chat', title: '视频提问回归', goal: '', tone: '', selectedId: 'video', progress: {}, messages: [] as object[], updatedAt: 1,
+  26  |     live: true, chapters: [{ id: 'one', title: '第一节', resources: [resource] }] };
+  27  |   await page.addInitScript(() => localStorage.setItem('edu-ai-auth', JSON.stringify({ token: 'fixture', user: { username: 'fixture', role: 'student' } })));
+  28  |   await page.route('**/api/**', async route => {
+  29  |     const path = new URL(route.request().url()).pathname;
+  30  |     if (!path.startsWith('/api/')) return route.continue();
+  31  |     const json = (value: unknown) => route.fulfill({ json: value });
+  32  |     if (path === '/api/auth/verify') return json({ valid: true, user: { username: 'fixture', role: 'student' } });
+  33  |     if (path.endsWith('/lesson.mp4')) return route.fulfill({ contentType: 'video/mp4', body: videoFile });
+  34  |     if (path.endsWith('/playback')) return json({ project_digest: digest, project_url: '/api/hyperframes/projects/fixture/index.html',
+  35  |       expires_at: Date.now() / 1000 + 3600, duration: 30, exports: { video: '/api/hyperframes/projects/fixture/exports/lesson.mp4',
+  36  |         subtitles: '/api/hyperframes/projects/fixture/exports/lesson.srt', project: '/api/hyperframes/projects/fixture/exports/project.zip' } });
+  37  |     if (path.includes('/materials/classroom/')) return json({ material_id: 'video', material_type: 'classroom', version: 1, content });
+  38  |     if (path.endsWith('/turns')) {
+  39  |       const question = route.request().postDataJSON().question;
+  40  |       await new Promise(resolve => setTimeout(resolve, 350));
+  41  |       room.messages.push({ id: String(room.messages.length), role: 'assistant', text: `已回答：${question}`, chapterId: 'one', resourceId: 'video' });
+  42  |       return json(room);
+  43  |     }
+  44  |     if (path === '/api/self-learning/state') return json({ version: 1, rooms: [room], resources: [], jobs: [], serverJobs: [], shared: [] });
+  45  |     if (path === '/api/self-learning/courses/video-chat') return json(room);
+  46  |     if (path.endsWith('/progress')) return json(room);
+  47  |     if (path.endsWith('/qa/session')) return json({ session_id: 'fixture', turns: [] });
+  48  |     return json({ items: [], tasks: [], resources: [], jobs: [], role: 'viewer' });
+  49  |   });
+  50  |   await page.goto('/#/classroom/video-chat');
+  51  |   await expect(page.locator('.sl-classroom')).toBeVisible();
+  52  |   const video = page.frameLocator('iframe.sl-live-material').locator('video');
+  53  |   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.readyState)).toBeGreaterThanOrEqual(2);
+  54  |   return video;
+  55  | }
+  56  | 
+  57  | async function play(video: Locator) {
+  58  |   // Use the real native control's keyboard action, not a mocked play method.
+  59  |   await video.focus();
+  60  |   await video.press('Space');
+  61  |   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(false);
+  62  |   const start = await video.evaluate((v: HTMLVideoElement) => v.currentTime);
+> 63  |   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThan(start + 0.25);
+      |                                                                                   ^ Error: expect(received).toBeGreaterThan(expected)
+  64  | }
+  65  | async function paused(video: Locator) {
+  66  |   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
+  67  | }
+  68  | 
+  69  | test('native video can resume after focus, answers and repeated questions without reload', async ({ page }) => {
+  70  |   const errors: string[] = [];
+  71  |   page.on('pageerror', e => errors.push(e.message));
+  72  |   const video = await openClassroom(page);
+  73  |   await video.evaluate(v => { v.dataset.originalPlayer = 'yes'; });
+  74  |   await play(video);
+  75  |   const input = page.getByRole('textbox', { name: '向学习 Agent 提问' });
+  76  |   await input.fill('解释这段视频');
+  77  |   await paused(video);
+  78  |   await play(video); // Previously blocked: the player's host remained inert.
+  79  |   await input.focus();
+  80  |   await paused(video);
+  81  |   await page.getByRole('button', { name: '发送问题' }).click();
+  82  |   await expect(page.getByRole('log')).toContainText('已回答：解释这段视频');
+  83  |   await paused(video); // Answer completion must not start audio unexpectedly.
+  84  |   await play(video);
+  85  |   await page.getByRole('button', { name: '举个例子', exact: true }).click();
+  86  |   await expect(page.getByRole('log')).toContainText('已回答：举个例子');
+  87  |   await paused(video);
+  88  |   await page.getByRole('button', { name: '继续课堂' }).click();
+  89  |   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(false);
+  90  |   await video.evaluate((v: HTMLVideoElement) => { v.pause(); v.currentTime = 12; v.playbackRate = 1.5; });
+  91  |   await play(video);
+  92  |   expect(await video.getAttribute('data-original-player')).toBe('yes');
+  93  |   expect(await video.evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThan(12);
+  94  |   expect(await video.evaluate((v: HTMLVideoElement) => v.playbackRate)).toBe(1.5);
+  95  |   expect(errors).toEqual([]);
+  96  | });
+  97  | 
+  98  | test('mobile question and directory panels pause hidden video and leave playback usable on return', async ({ page }) => {
+  99  |   await page.setViewportSize({ width: 390, height: 844 });
+  100 |   const video = await openClassroom(page);
+  101 |   await play(video);
+  102 |   await page.getByRole('button', { name: 'Agent', exact: true }).click();
+  103 |   await paused(video);
+  104 |   await page.getByRole('textbox', { name: '向学习 Agent 提问' }).fill('手机提问');
+  105 |   await page.getByRole('button', { name: '发送问题' }).click();
+  106 |   await expect(page.getByRole('log')).toContainText('已回答：手机提问');
+  107 |   await page.getByRole('button', { name: '学习', exact: true }).click();
+  108 |   await paused(video);
+  109 |   await play(video);
+  110 |   await page.getByRole('button', { name: '目录', exact: true }).click();
+  111 |   await paused(video);
+  112 |   await page.getByRole('button', { name: '学习', exact: true }).click();
+  113 |   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(false);
+  114 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  115 | });
+  116 | 
+```

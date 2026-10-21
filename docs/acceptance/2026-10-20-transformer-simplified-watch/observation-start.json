@@ -1,0 +1,11 @@
+{
+  "preparation_id": "prep_117d20be16ac4d7d86675afce8e7324b",
+  "started_observing_at": "2026-10-20T08:23:01.444654+00:00",
+  "task_created_at": "2026-10-20T08:20:44.828375+00:00",
+  "read_only": true,
+  "services": {
+    "edu-ai-backend": "MainPID=2943045\nActiveState=active\nActiveEnterTimestamp=Tue 2026-10-20 08:20:23 UTC",
+    "edu-ai-durable-workers": "MainPID=2916307\nActiveState=active\nActiveEnterTimestamp=Tue 2026-10-20 07:56:56 UTC"
+  },
+  "observed_source_changes": "quiz structure-only, native SSE heartbeat, interleaved capture; runtime behavior to be confirmed from actual receipts/logs"
+}

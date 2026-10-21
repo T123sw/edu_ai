@@ -1,4 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { FlashcardRound } from "../../components/flashcards/FlashcardRound";
+import { studyCards } from "../../components/flashcards/round";
+import { PodcastPreview, ScenarioPreview } from "../../studio/LearningResourcePreview";
 import { BlogArtifactPreview } from "../../components/generation/previews/BlogArtifactPreview";
 import { MindMapCanvas, type MindMapNode } from "../../components/mindmap/MindMapCanvas";
 import { courseMaterialToMarkdown } from "../api/courses";
@@ -43,17 +46,7 @@ function FlashcardPreview({ material }: { material: CourseMaterial }) {
     : Array.isArray(content.cards)
       ? content.cards.map(record)
       : [];
-  const [flipped, setFlipped] = useState<Record<number, boolean>>({});
-  return (
-    <div className="resource-flashcard-grid">
-      {cards.length ? cards.map((rawCard, index) => {
-        const card = record(rawCard);
-        const front = text(card.front) || text(card.question) || "未命名卡片";
-        const back = text(card.back) || text(card.answer) || "暂无答案";
-        return <button key={index} type="button" aria-pressed={Boolean(flipped[index])} onClick={() => setFlipped((value) => ({ ...value, [index]: !value[index] }))}><small>{flipped[index] ? "背面" : "正面"}</small><strong>{flipped[index] ? back : front}</strong><span>点击翻面</span></button>;
-      }) : <p className="resource-preview-empty">当前闪卡暂无可展示内容。</p>}
-    </div>
-  );
+  return <FlashcardRound cards={studyCards(cards)} />;
 }
 
 function MindMapPreview({ material }: { material: CourseMaterial }) {
@@ -76,11 +69,13 @@ export function CourseMaterialArtifactPreview({ material, onReference, readingAn
   const previewKind = getCourseMaterialPreviewKind(material);
   const markdown = useMemo(() => courseMaterialToMarkdown(material), [material]);
   const exportButton = <><button type="button" onClick={() => downloadMaterialFile(material, markdown)} className="rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">导出</button>{onReference && <button type="button" onClick={onReference} className="ml-2 rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">引用</button>}</>;
+  if (previewKind === "podcast") return <PodcastPreview key={`${material.material_id}:${material.version}`} material={material} />;
+  if (previewKind === "scenario") return <ScenarioPreview key={`${material.material_id}:${material.version}`} material={material} />;
   if (previewKind === "blog") return <><div className="mb-3 flex justify-end">{exportButton}</div><BlogArtifactPreview material={material} markdown={markdown} /></>;
-  if (previewKind === "quiz") return <><div className="mb-3 flex justify-end">{exportButton}</div><QuizPreview key={material.material_id} material={material} /></>;
-  if (previewKind === "flashcard") return <><div className="mb-3 flex justify-end">{exportButton}</div><FlashcardPreview key={material.material_id} material={material} /></>;
-  if (previewKind === "mind-map") return <><div className="mb-3 flex justify-end">{exportButton}</div><MindMapPreview key={material.material_id} material={material} /></>;
+  if (previewKind === "quiz") return <><div className="mb-3 flex justify-end">{exportButton}</div><QuizPreview key={`${material.material_id}:${material.version}`} material={material} /></>;
+  if (previewKind === "flashcard") return <>{onReference && <div className="mb-3 flex justify-end"><button type="button" onClick={onReference} className="rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">引用</button></div>}<FlashcardPreview key={`${material.material_id}:${material.version}`} material={material} /></>;
+  if (previewKind === "mind-map") return <>{onReference && <div className="mb-3 flex justify-end"><button type="button" onClick={onReference} className="rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">引用</button></div>}<MindMapPreview key={`${material.material_id}:${material.version}`} material={material} /></>;
   if (previewKind === "game") return <><div className="mb-3 flex justify-end">{exportButton}</div><GamePreview material={material} /></>;
-  if (previewKind === "rich-text") return <><div className="mb-3 flex justify-end">{exportButton}</div><div className="edu-rich-preview"><MarkdownPreview content={markdown} readingAnchors={readingAnchors} /></div></>;
+  if (previewKind === "rich-text") return <div className="edu-rich-preview resource-text-preview"><div className="resource-text-actions">{exportButton}</div><MarkdownPreview content={markdown} readingAnchors={readingAnchors} /></div>;
   return <div className="resource-preview-empty"><strong>暂无专用预览</strong><p>此资源暂时无法在线预览，请选择其他资源。</p></div>;
 }

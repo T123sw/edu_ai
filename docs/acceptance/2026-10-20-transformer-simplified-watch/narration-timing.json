@@ -1,0 +1,50 @@
+[
+  {
+    "node": "n1-motivation",
+    "command_id": "a8a4caa86aed4b5fb1215bdf477c4220",
+    "started_at": 1792484706.885,
+    "finished_observed_at": 1792484727.1,
+    "seconds_including_polling": 20.215,
+    "exit_code": 0
+  },
+  {
+    "node": "n2-self-attention",
+    "command_id": "3a3d31458f7e440f8c4e4c7dcf91e4cf",
+    "started_at": 1792484761.592,
+    "finished_observed_at": 1792484785.216,
+    "seconds_including_polling": 23.624,
+    "exit_code": 0
+  },
+  {
+    "node": "n3-positional-encoding",
+    "command_id": "8bf0a7ab48734dc4b151979faf5acc53",
+    "started_at": 1792484797.173,
+    "finished_observed_at": 1792484820.691,
+    "seconds_including_polling": 23.518,
+    "exit_code": 0
+  },
+  {
+    "node": "n4-encoder",
+    "command_id": "631253856a04451888b5ada1a702167c",
+    "started_at": 1792484773.13,
+    "finished_observed_at": 1792484795.062,
+    "seconds_including_polling": 21.932,
+    "exit_code": 0
+  },
+  {
+    "node": "n4-encoder",
+    "command_id": "fad504eaf4c845a1992e4b6f1570caf4",
+    "started_at": 1792484825.082,
+    "finished_observed_at": 1792484843.802,
+    "seconds_including_polling": 18.72,
+    "exit_code": 0
+  },
+  {
+    "node": "n5-decoder-and-flow",
+    "command_id": "d7caacb84cb64b30a70deafa386af05f",
+    "started_at": 1792484844.821,
+    "finished_observed_at": 1792484909.254,
+    "seconds_including_polling": 64.433,
+    "exit_code": 0
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "question_26": {
+    "n": 2024,
+    "target": 1900,
+    "target_in_right_subtree": true,
+    "preceding_leaves_in_right_subtree": 375,
+    "ranges": [
+      [
+        1013,
+        1023
+      ],
+      [
+        1536,
+        1899
+      ]
+    ],
+    "candidate_answer": 143,
+    "candidate_child_answer": 130,
+    "reviewer_claim": 887,
+    "conclusion": "Both candidate and reviewer leaf counts are wrong. Do not accept reviewer rationale as ground truth."
+  }
+}

@@ -1,0 +1,293 @@
+{
+  "id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+  "title": "一次函数 y=2x+b：截距 b 如何让直线上下平移（3 分钟微课）",
+  "goal": "我是一名初中生，会读平面直角坐标图，但不理解一次函数 y=2x+b 中 b 的作用。请为我制作一节中文微课，只安排一个知识点：截距如何让直线上下平移。学习总时长约 3 分钟，其中动画讲解约 60—90 秒，配中文语音。请在同一坐标系中动态展示 b=0、b=2、b=-2，解释与 y 轴交点怎样变化、为什么斜率始终是 2。最后保留一份简短讲义和两道检查理解的练习。不要扩展到神经网络或其他章节。生成后保存课程，方便我反复观看。",
+  "tone": "lilac",
+  "chapters": [
+    {
+      "id": "node_intercept_shift",
+      "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+      "objectives": [
+        {
+          "objective_id": "node_intercept_shift:o1",
+          "text": "能说出 y=2x+b 中当 x=0 时 y=b，因此直线与 y 轴交点坐标为 (0,b)；并写出 b=0、b=2、b=-2 时交点分别是 (0,0)、(0,2)、(0,-2)"
+        },
+        {
+          "objective_id": "node_intercept_shift:o2",
+          "text": "能解释 b 增大时直线整体向上平移、b 减小时整体向下平移，平移的格数等于 b 的变化量（如从 b=0 到 b=2 上移 2 格，从 b=0 到 b=-2 下移 2 格）"
+        },
+        {
+          "objective_id": "node_intercept_shift:o3",
+          "text": "能说明 b 变化只改变常数项、不改变斜率，所以三条直线互相平行、斜率始终为 2"
+        },
+        {
+          "objective_id": "node_intercept_shift:o4",
+          "text": "能完成两道检查练习：由 b 写出 y 轴交点坐标；判断 b 变化后直线位置如何变化、斜率是否改变"
+        }
+      ],
+      "checks": [
+        {
+          "check_id": "node_intercept_shift:check:10fd5838f18edfa2520af5c1",
+          "objective_ids": [
+            "node_intercept_shift:o4"
+          ],
+          "mode": "self_check",
+          "resource_id": "resource_d882fe11f0c1252a4f8b5ff23e972fe4",
+          "resource_version": 1,
+          "locator": {
+            "section_id": "sec_check",
+            "question_id": null,
+            "page": null
+          }
+        },
+        {
+          "check_id": "node_intercept_shift:check:14a0b43a2ea2bfc48a4af82e",
+          "objective_ids": [
+            "node_intercept_shift:o1",
+            "node_intercept_shift:o4"
+          ],
+          "mode": "practice",
+          "resource_id": "resource_a6cc47691be8d2af7e445bf63bdbf248",
+          "resource_version": 1,
+          "locator": {
+            "section_id": null,
+            "question_id": "q1_yintercept",
+            "page": null
+          }
+        },
+        {
+          "check_id": "node_intercept_shift:check:95425b63c8b969d326bb2296",
+          "objective_ids": [
+            "node_intercept_shift:o2",
+            "node_intercept_shift:o4"
+          ],
+          "mode": "practice",
+          "resource_id": "resource_a6cc47691be8d2af7e445bf63bdbf248",
+          "resource_version": 1,
+          "locator": {
+            "section_id": null,
+            "question_id": "q2_shift_and_slope",
+            "page": null
+          }
+        },
+        {
+          "check_id": "node_intercept_shift:check:00ff5e1a99c121906d2455b7",
+          "objective_ids": [
+            "node_intercept_shift:o3"
+          ],
+          "mode": "practice",
+          "resource_id": "resource_a6cc47691be8d2af7e445bf63bdbf248",
+          "resource_version": 1,
+          "locator": {
+            "section_id": null,
+            "question_id": "q3_parallel_check",
+            "page": null
+          }
+        }
+      ],
+      "resources": [
+        {
+          "id": "resource_d882fe11f0c1252a4f8b5ff23e972fe4",
+          "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+          "topic": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+          "kind": "report",
+          "ready": true,
+          "minutes": 5.6,
+          "minutesBasis": "estimated",
+          "createdAt": 1792301759358,
+          "courseId": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+          "chapterId": "node_intercept_shift",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "report",
+            "materialId": "resource_d882fe11f0c1252a4f8b5ff23e972fe4",
+            "courseId": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+            "version": 1,
+            "visibility": "private"
+          }
+        },
+        {
+          "id": "resource_a6cc47691be8d2af7e445bf63bdbf248",
+          "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+          "topic": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+          "kind": "quiz",
+          "ready": true,
+          "minutes": 3.93,
+          "minutesBasis": "estimated",
+          "createdAt": 1792301759358,
+          "courseId": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+          "chapterId": "node_intercept_shift",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "quiz",
+            "materialId": "resource_a6cc47691be8d2af7e445bf63bdbf248",
+            "courseId": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+            "version": 1,
+            "visibility": "private"
+          }
+        },
+        {
+          "id": "resource_03cb6c3cc66cced990124c06a24c636b",
+          "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+          "topic": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+          "kind": "video",
+          "ready": true,
+          "minutes": 3.7424000000000004,
+          "minutesBasis": "measured",
+          "createdAt": 1792303980642,
+          "courseId": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+          "chapterId": "node_intercept_shift",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "classroom",
+            "materialId": "resource_03cb6c3cc66cced990124c06a24c636b",
+            "courseId": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+            "version": 1,
+            "visibility": "private"
+          }
+        }
+      ]
+    }
+  ],
+  "selectedId": "resource_d882fe11f0c1252a4f8b5ff23e972fe4",
+  "progress": {
+    "resource_d882fe11f0c1252a4f8b5ff23e972fe4": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_a6cc47691be8d2af7e445bf63bdbf248": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_03cb6c3cc66cced990124c06a24c636b": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    }
+  },
+  "understanding": {},
+  "messages": [],
+  "sessionPersistence": true,
+  "sessionOwner": "hf_e2e_20261017160234",
+  "updatedAt": 1792301759358,
+  "sourceId": null,
+  "publisher": "hf_e2e_20261017160234",
+  "live": true,
+  "practice": {},
+  "canPublish": true,
+  "resources": [],
+  "manifestRef": {
+    "manifest_id": "manifest_48386e242bab6af388c156777496cdb8",
+    "version": 4
+  },
+  "routeVersion": 1,
+  "preparationDelivery": {
+    "state": "complete",
+    "preparationId": "prep_f490a8326a334d33a472aa13e1f6c1c9",
+    "availableResources": 3,
+    "pending": []
+  },
+  "preparationEnabled": true,
+  "agentRuntime": true,
+  "enrichmentEnabled": true,
+  "progressPersistence": true,
+  "progressOwner": "hf_e2e_20261017160234",
+  "learningProjection": {
+    "check_evidence": [],
+    "facts_revision": 1,
+    "resources": [
+      {
+        "resource_ref": {
+          "version": 1,
+          "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+          "material_id": "resource_d882fe11f0c1252a4f8b5ff23e972fe4",
+          "material_type": "report"
+        },
+        "opened": true,
+        "locator": null,
+        "completed": false,
+        "reached_end": false
+      }
+    ],
+    "resource_revisions": [
+      {
+        "resource_ref": {
+          "version": 1,
+          "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+          "material_id": "resource_d882fe11f0c1252a4f8b5ff23e972fe4",
+          "material_type": "report"
+        },
+        "revision": 0
+      }
+    ],
+    "self_assessments": {},
+    "self_assessment_revisions": {},
+    "manifest_ref": {
+      "manifest_id": "manifest_48386e242bab6af388c156777496cdb8",
+      "version": 4
+    },
+    "topics": [
+      {
+        "topic_id": "node_intercept_shift",
+        "progress": "in_progress",
+        "judgment": "unverified",
+        "self_assessment": "unset",
+        "completed_core": 0,
+        "total_core": 3,
+        "facts_revision": 1,
+        "evidence_refs": [],
+        "objective_judgments": [
+          {
+            "objective_id": "node_intercept_shift:o1",
+            "judgment": "unverified",
+            "evidence_refs": [],
+            "rule": null
+          },
+          {
+            "objective_id": "node_intercept_shift:o2",
+            "judgment": "unverified",
+            "evidence_refs": [],
+            "rule": null
+          },
+          {
+            "objective_id": "node_intercept_shift:o3",
+            "judgment": "unverified",
+            "evidence_refs": [],
+            "rule": null
+          },
+          {
+            "objective_id": "node_intercept_shift:o4",
+            "judgment": "unverified",
+            "evidence_refs": [],
+            "rule": null
+          }
+        ]
+      }
+    ],
+    "next_actions": {
+      "node_intercept_shift": [
+        {
+          "kind": "continue",
+          "topic_id": "node_intercept_shift",
+          "resource_ref": {
+            "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+            "material_type": "report",
+            "material_id": "resource_d882fe11f0c1252a4f8b5ff23e972fe4",
+            "version": 1
+          },
+          "source_ids": [],
+          "reason": "继续阅读未标记学完的资料",
+          "facts_revision": 1
+        }
+      ]
+    }
+  }
+}

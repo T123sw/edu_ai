@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "cases": [
+    "empty and spaces disable submit",
+    "submission trims surrounding whitespace",
+    "reset clears input and result",
+    "submit works again after reset"
+  ],
+  "widths": [
+    {
+      "hostWidth": 1440,
+      "width": 401,
+      "scrollWidth": 401
+    },
+    {
+      "hostWidth": 390,
+      "width": 349,
+      "scrollWidth": 349
+    },
+    {
+      "hostWidth": 320,
+      "width": 279,
+      "scrollWidth": 279
+    }
+  ],
+  "environment": "production page and actual Sandpack preview, independent assertions"
+}

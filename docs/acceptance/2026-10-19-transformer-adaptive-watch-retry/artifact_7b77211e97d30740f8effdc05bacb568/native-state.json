@@ -1,0 +1,78 @@
+{
+  "runtime": {
+    "pid": 2747087,
+    "history": [
+      {
+        "pid": 2747087,
+        "build_id": "25b83b0444ee7b5f1504",
+        "loaded_at": 1792428643.7058446,
+        "configuration": {
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8"
+        },
+        "stage_limits_scope": "shared-host"
+      }
+    ],
+    "build_id": "25b83b0444ee7b5f1504",
+    "loaded_at": 1792428643.7058446,
+    "configuration": {
+      "TTS_REMOTE_CONCURRENCY": "8",
+      "HYPERFRAMES_RENDER_WORKERS": "4",
+      "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+      "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+      "TTS_REMOTE_REQUESTS_PER_SECOND": "4",
+      "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+      "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+      "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8"
+    },
+    "stage_limits_scope": "shared-host"
+  },
+  "workspace_key": "9cb884c0a1bc91ee12aa1fa11a5e42d8d02e7567aa27ecf5aae13dfa244a5a74",
+  "teaching_brief": {
+    "calls": 1,
+    "seconds": 13.484050750732422,
+    "decisions": {
+      "reason": "用户原话只有「我想学习一下transformer」，未提出任何视频时长、画幅或配音要求；显式配置为空，有效个人偏好为空，因此时长采用 defaults 的 5 分钟目标（duration_source=default，非用户指定），画幅沿用默认 16:9，旁白按默认开启。节点 12 分钟学习预算包含阅读与练习，不作为成片时长。缺失信息假设：学习者背景未知，按零基础入门处理；语言按提问语言推断为中文；未指定用途，按通用原理理解组织。视频只覆盖教师演示部分（多头动机、计算流程、维度演算、三种用法区分），维度计算练习与画图练习留给习题，详细阅读与推导留给报告，视频内不设题目。约 5 分钟常规教学解释按原生路由走 general-video，flow: automation、storyboard: no。",
+      "narration": true,
+      "target_minutes": 5,
+      "duration_source": "default"
+    },
+    "started_at": 1792428838.919369,
+    "brief_sha256": "30aff9aa33cd19f34482f22a740141202e87cfa0da45b94e38144fb5124df9b8",
+    "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"多头注意力把表示空间切成多个子空间并行做注意力，再拼接投影，让模型同时关注不同位置的不同关系\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知，按零基础入门处理）\"\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n这是一门 Transformer 入门课程中的第 3 个节点视频，主题是「多头注意力：多子空间并行与三种使用方式」。学习者是想系统学习 Transformer 的初学者，已有基础未知，按入门深度组织；本节点之前，学习者已经学过自注意力：Q、K、V 三个线性投影各自的角色、缩放点积注意力的计算顺序（QK^T → 除以 √d_k → softmax → 加权求和 V），以及为什么除以 √d_k、softmax 在 key 维（每一行）上归一化。\n\n用户原话是「我想学习一下transformer」，没有提出任何视频时长、画幅、配音或风格要求。语气按清晰、循序渐进的课堂讲解处理，先讲动机，再讲流程，最后讲用法区分。\n\n本视频必须讲清三件事（对应本节点三个教学目标）：\n\n1. **为什么需要多头**：单头注意力只学习一种相似度模式；多头把表示空间切成 h 份，每份在独立子空间做注意力，再拼接/投影，能同时捕获句法局部模式、语义依赖、指代与共指等不同关系。要点出「单头时的平均操作会抑制这种能力」这一动机表述。\n2. **多头注意力怎么算**：Q、K、V 分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维 → 各头并行执行（缩放点积）注意力函数 → 得到 h 个 d_v 维输出 → 拼接 → 再做一次线性投影 W_O 得到最终输出。要讲清投影矩阵 W_i^Q、W_i^K、W_i^V、W^O 的形状关系，并现场演算 d_head = d_model / h：原始论文 h=8、d_model=512 时每头 64 维，并解释因为每头维度降低，总计算成本与全维单头注意力相近。\n3. **三种使用方式**：编码器自注意力（Q、K、V 都来自编码器前一层输出，每个位置可关注前一层所有位置）；编码器-解码器注意力（Q 来自解码器前一层，K、V 来自编码器输出，使解码器每个位置都能关注输入序列所有位置）；解码器自注意力（每个位置可关注解码器中包括自身在内的所有位置，但通过把 softmax 输入中非法连接置为 -∞ 的掩码阻止信息向左流动，保持自回归属性）。\n\n演示深度：入门级原理讲解，公式只到「投影 → 缩放点积注意力 → 拼接 → 输出投影」这一层，不推导梯度，不展开实现细节；可以用张量视角一句话带过「实现上三组投影矩阵按头切分、reshape 成三维张量以利用 GPU 并行」，但不作为重点。\n\n## Assets\n\n- 无用户提供的素材文件。所有图示需自行绘制（投影分头示意、拼接与 W_O 投影流程、三种注意力用法的 Q/K/V 来源对照、掩码示意）。\n\n## Customizations\n\n- 课程统一视觉契约：画布 1920x1080，字体 Noto Sans SC，背景 #0f172a，前景 #f8fafc，强调色 #38bdf8；正文最小 32px，图示标签最小 28px，标题最小 48px。密集图示分步呈现，不要靠缩小字号塞进一屏。\n- 需要一处现场数值演算：d_model=512、h=8 → d_head=64，并说明总计算成本与全维单头相近。\n- 三种使用方式建议用同一套骨架图对照呈现，突出 Q、K、V 的来源差异与解码器掩码的作用。\n\n## Notes\n\n- 视频必须覆盖（教师演示部分）：多头动机与「多子空间并行、模式更丰富」的结论；h 个投影 → 并行注意力 → 拼接 → W_O 的完整流程；d_head = d_model / h 的算法与 h=8、64 维的原始论文取值；三种注意力用法的 Q/K/V 来源与解码器掩码置 -∞ 的作用。\n- 留给习题（不在视频中出题、不设题号与答案）：d_model=512、h=8 的维度计算练习；在骨架图上标出三处注意力并写出 Q/K/V 来源的画图练习。视频只做讲解与演示，不自带测验或题目。\n- 留给报告（不在视频中展开）：更详细的阅读材料、公式推导与延伸阅读。\n- 先修衔接：默认学习者已掌握缩放点积注意力，视频开头可用一两句话快速回顾 Q/K/V 与 softmax 归一化，不重新完整讲授自注意力。\n- 来源与依据：以原始论文《Attention Is All You Need》的中文逐段解读、中文技术博客与 CS336 学习笔记为主，未直接引用 arXiv 英文原文；公式与常数（如 h=8、d_k=d_v=d_model/h=64）以原始论文表述为准。\n- 排除项：不深入现代变体（RoPE、GQA/MQA、FlashAttention 等）；不包含从零实现可运行 Transformer 的训练，代码仅作示意；不涉及本课程其他节点（位置编码、前馈网络、残差与层归一化、整体结构等）的完整讲解，仅在必要时一句带过。\n- 语言为中文，术语首次出现时给出中英对照（如多头注意力 Multi-Head Attention、编码器-解码器注意力 Encoder-Decoder Attention）。\n- 配音：需要中文旁白讲解（未由用户显式指定，按默认开启）。\n- 时长：用户未指定视频时长，按约 5 分钟（300s）安排充分解释与示例；本节点 12 分钟学习预算包含阅读与练习，不等同于视频时长。\n",
+    "schema_version": 1,
+    "effective_preferences": {
+      "defaults": {
+        "aspect": "16:9",
+        "narration": true,
+        "duration_mode": "target",
+        "target_minutes": 5.0
+      },
+      "explicit": {}
+    }
+  },
+  "runtime_history": [
+    {
+      "pid": 2747087,
+      "build_id": "25b83b0444ee7b5f1504",
+      "loaded_at": 1792428643.7058446,
+      "configuration": {
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "HYPERFRAMES_RENDER_WORKERS": "4",
+        "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4",
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8"
+      },
+      "stage_limits_scope": "shared-host"
+    }
+  ]
+}

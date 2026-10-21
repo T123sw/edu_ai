@@ -1,0 +1,37 @@
+{
+  "frontend": "published, production centered-modal and type filters smoke passed",
+  "backend": "previous course-studio API loaded at 20:15:26 UTC; this turn research GET and collection PUT absent from live OpenAPI; sudo restart requires password",
+  "tests": {
+    "backend": 43,
+    "typecheck": "pass",
+    "eslint": "pass",
+    "build": "pass",
+    "browser_widths": [
+      1440,
+      1024,
+      390,
+      320
+    ],
+    "themes": [
+      "default",
+      "ocean",
+      "sunset",
+      "dark"
+    ],
+    "production_smoke": "Production modal and type filters PASS"
+  },
+  "behavior": [
+    "Centered modal for tools, research and previews; Escape, focus trap and scroll containment retained",
+    "My Resources indexes by material type instead of course selector; course names remain on cards",
+    "Research persists a single private course-bound logical record; sources become readable before synthesized conclusions",
+    "No extra crawl archive, automatic knowledge-base import or downloaded image copy for course research",
+    "Collection toggles an idempotent flag on the same record; uncollecting preserves course research history",
+    "Resumes research from current knowledge point job history; sources remain readable on synthesis failure/cancel"
+  ],
+  "limits": [
+    "Research reading polls every two seconds; no token-by-token streaming",
+    "Research and model API responses mocked for UI and backend tests; no real model generation this turn",
+    "New research reading/collection backend source still needs service restart"
+  ],
+  "deployment_preservation": "Rebuilt and matched actual live baseline before publishing; preserved another window's removal of homepage 2000-character cap. Stale prior preparation-build metadata was not used as final baseline proof."
+}

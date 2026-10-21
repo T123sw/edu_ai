@@ -23,6 +23,7 @@ export type JobResultRef = {
 };
 
 export type JobRecord = {
+  preparation?: import('../liveLearning/preparationProgress').PreparationTask;
   schema_version: number;
   version: number;
   edu_job_id: string;

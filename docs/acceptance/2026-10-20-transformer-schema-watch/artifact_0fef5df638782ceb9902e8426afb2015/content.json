@@ -1,0 +1,1254 @@
+{
+  "title": "多头注意力与编码器/解码器各子层职责",
+  "content": {
+    "title": "多头注意力与编码器/解码器各子层职责 · 自测",
+    "questions": [
+      {
+        "id": "q1",
+        "stem": "关于多头注意力的计算流程，下列描述正确的是：",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "把 Q、K、V 用 h 组不同的可学习线性投影分别映射到 dk、dk、dv 维，并行做注意力后把各头输出拼接，再用 W^O 投影回 dmodel 维",
+          "把 Q、K、V 复制 h 份后直接做 h 次完全相同的注意力，再把结果取平均",
+          "各头共享同一组投影矩阵，只在最后拼接时使用不同的权重",
+          "多头注意力的总计算成本约为全维单头注意力的 h 倍，因为要重复计算 h 次全维注意力"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)，MultiHead = Concat(head_1,…,head_h)W^O，投影矩阵 W_i^Q∈R^{dmodel×dk}、W_i^K∈R^{dmodel×dk}、W_i^V∈R^{dmodel×dv}、W^O∈R^{h·dv×dmodel}。B 错误：各头使用不同的可学习投影，并非复制后做相同计算再平均；论文明确指出单头平均会抑制“同时关注不同表示子空间”的能力。C 错误：每个头有各自独立的 W_i^Q、W_i^K、W_i^V，共享投影就退化为同一个注意力。D 错误：每个头的维度降为 dk=dv=dmodel/h（原论文 h=8、dmodel=512 时 dk=dv=64），因此总计算成本与全维单头注意力相近，不是 h 倍。"
+      },
+      {
+        "id": "q2",
+        "stem": "关于 Transformer 中三种多头注意力用法的 Q/K/V 来源，下列说法正确的有：",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "编码器自注意力中，Q、K、V 都来自上一层编码器的输出",
+          "解码器掩码自注意力中，Q、K、V 都来自解码器自身（当前位置及之前的位置）",
+          "编码器-解码器注意力中，Q 来自上一层解码器，K 和 V 来自编码器输出",
+          "编码器-解码器注意力中，Q 来自编码器输出，K 和 V 来自解码器"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：编码器自注意力层中键、值、查询都来自同一处，即上一层编码器的输出，每个位置可关注上一层所有位置。B 正确：解码器自注意力中 Q、K、V 都来自解码器，但通过掩码只允许关注到当前位置及之前。C 正确：编码器-解码器注意力中查询来自上一层解码器，键和值来自编码器输出，使解码器每个位置都能关注输入序列全部位置。D 错误：把 Q 与 K/V 的来源对调了；若 Q 来自编码器，解码器就无法用自身状态去查询输入信息，与论文描述不符。"
+      },
+      {
+        "id": "q3",
+        "stem": "对一个长度为 4 的序列做解码器掩码自注意力（位置编号 1~4，允许关注自身及之前位置）。在 softmax 之前把非法连接置为 −∞，则被置为 −∞ 的位置共有多少个？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "6 个",
+          "4 个",
+          "10 个",
+          "0 个，掩码只作用于编码器"
+        ],
+        "difficulty": "medium",
+        "explanation": "4×4 的注意力分数矩阵共 16 个位置，允许的是下三角（含对角线）：第 1 行 1 个、第 2 行 2 个、第 3 行 3 个、第 4 行 4 个，共 10 个合法位置；非法位置为 16−10=6 个，即严格上三角的 6 个位置。A 正确。B 的 4 只数了对角线以外的某一列或某一行的部分位置，不是全部非法连接。C 的 10 是合法位置数，把允许与禁止弄反了。D 错误：掩码正是用在解码器自注意力中，用于阻止信息向左流动、保持自回归性质。"
+      },
+      {
+        "id": "q4",
+        "stem": "判断：逐位置前馈网络 FFN(x)=max(0, xW1+b1)W2+b2 对序列中每个位置分别且相同地施加同一组变换，因此不同位置之间在这一子层内不交换信息。",
+        "type": "true_false",
+        "answer": "正确",
+        "difficulty": "easy",
+        "explanation": "正确。论文说明该前馈网络对每个位置分别且相同地作用，同一层内所有位置共享 W1、W2、b1、b2，因此每个位置的输出只由该位置自身的向量决定，位置间信息交换发生在注意力子层而不是 FFN 中。需要注意两点限定：一是“相同”指同一层内跨位置共享，不同层使用不同参数；二是位置间不交互不等于 FFN 无用，它提供逐位置的非线性变换，可视为两个核大小为 1 的卷积。"
+      },
+      {
+        "id": "q5",
+        "stem": "关于每个子层后的 Add & Norm，下列描述正确的是：",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "输出为 LayerNorm(x + Sublayer(x))，残差连接提供直通路径，层归一化对每个位置的向量做归一化以稳定数值尺度",
+          "输出为 LayerNorm(x) + Sublayer(x)，即先归一化输入再与子层输出相加",
+          "层归一化是在整个序列的所有位置上一起统计均值和方差",
+          "残差连接的作用是替代注意力子层，使模型可以跳过注意力计算"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：论文给出的形式是每个子层的输出为 LayerNorm(x + Sublayer(x))，其中 x 是该子层的输入；残差连接让梯度有直通路径、便于深层堆叠，层归一化则对每个位置的向量做归一化以稳定尺度。B 错误：归一化作用在相加之后，而不是先归一化 x 再相加。C 错误：层归一化按单个样本的单个位置向量统计，跨所有位置一起统计的是批归一化一类的做法，与论文描述不符。D 错误：残差连接是围绕子层的旁路，子层本身仍要计算，不能被跳过或替代。"
+      },
+      {
+        "id": "q6",
+        "stem": "按原论文设定，编码器每层与解码器每层包含的子层数量及差异是：",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "编码器每层 2 个子层（多头自注意力、逐位置前馈网络）；解码器每层 3 个子层，多出对编码器输出做多头注意力的编码器-解码器注意力子层",
+          "编码器每层 3 个子层；解码器每层 2 个子层",
+          "两者都是每层 2 个子层，解码器只是把自注意力换成掩码自注意力",
+          "编码器每层 2 个子层；解码器每层 3 个子层，多出的是一个额外的前馈网络"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：编码器每层含多头自注意力与逐位置前馈网络两个子层；解码器在同样两个子层之外插入第三个子层，对编码器堆栈的输出做多头注意力。B 错误：数量正好说反了。C 错误：解码器确实把自注意力改为带掩码的形式，但这不改变子层数量，它还有第三个子层。D 错误：解码器多出的是编码器-解码器注意力子层，不是额外的 FFN；每个子层后都接 Add & Norm。"
+      },
+      {
+        "id": "q7",
+        "stem": "写出多头注意力的公式（含 MultiHead 与单个 head 的表达式），并说明它相比单头注意力的优势，以及为什么原论文中多头注意力的总计算成本与全维单头注意力相近。",
+        "type": "short_answer",
+        "answer": "MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，其中 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V)；投影矩阵 W_i^Q∈R^{dmodel×dk}、W_i^K∈R^{dmodel×dk}、W_i^V∈R^{dmodel×dv}、W^O∈R^{h·dv×dmodel}。优势：多头让模型能在不同位置联合关注来自不同表示子空间的信息，而单头注意力对这些不同子空间做平均会抑制这种能力。成本：每个头的维度降为 dk=dv=dmodel/h（原论文 h=8、dmodel=512 时 dk=dv=64），各头并行计算，因此总计算成本与全维单头注意力相近。",
+        "difficulty": "hard",
+        "explanation": "评分要点：①写出 MultiHead=Concat(head_1..head_h)W^O；②写出 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V) 并说明各投影维度；③指出不同表示子空间、单头平均会抑制这一点；④指出每头维度为 dmodel/h 使总成本与全维单头相近。常见错误：把拼接后的 W^O 写成求和或平均；认为各头共享投影矩阵；认为多头成本是单头的 h 倍（忽略了每头维度缩小）。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 10.24
+      },
+      "spec_digest": "b003d5a0797e61299acc90912503a8d3a82bae0aed566569076037b011abbfae",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q7"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q2"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q3"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q4"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q5"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q6"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o4"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q1"
+          },
+          "explanation": "通过多头注意力的投影-并行-拼接-再投影流程题，落实“讲授 Transformer 核心概念与架构原理”中多头注意力子层的机制理解。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "question_id": "q2"
+          },
+          "explanation": "通过三种注意力用法的 Q/K/V 来源辨析题，落实架构原理中注意力子层在不同位置的使用方式。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "question_id": "q3"
+          },
+          "explanation": "通过解码器掩码矩阵题，落实掩码自注意力阻止信息向左流动、保持自回归性质的机制。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "question_id": "q4"
+          },
+          "explanation": "通过 FFN 逐位置独立同等地作用的判断题，落实前馈子层的职责。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "question_id": "q5"
+          },
+          "explanation": "通过 Add&Norm 表达式与作用题，落实残差连接加层归一化的机制。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "question_id": "q6"
+          },
+          "explanation": "通过编码器 2 子层与解码器 3 子层的差异题，落实整体架构中子层组成。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "question_id": "q7"
+          },
+          "explanation": "通过简答题要求写出多头注意力公式并说明优势，综合检查架构原理掌握。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需回忆多头注意力的四步流程（投影、并行注意力、拼接、再投影），并逐一排除把拼接后投影说成求和、把各头共享投影、把总成本说成 h 倍等干扰项，需比较各选项与公式 MultiHead=Concat(head1..headh)W^O 的对应关系。",
+          "question_id": "q1",
+          "thinking_seconds": 45
+        },
+        {
+          "reason": "需分别确定三种注意力中 Q、K、V 的来源，再逐项核对每个选项是否把来源弄反（如把编码器-解码器注意力的 Q 说成来自编码器），共需判断四个选项。",
+          "question_id": "q2",
+          "thinking_seconds": 50
+        },
+        {
+          "reason": "需构造 4 词序列的下三角掩码矩阵，数出被置为 −∞ 的位置数量（6 个），并判断各选项对掩码位置与原因的表述是否正确。",
+          "question_id": "q3",
+          "thinking_seconds": 40
+        },
+        {
+          "reason": "判断题需区分“不同位置共享同一组 FFN 参数”与“不同层参数不同”，并判断“逐位置独立”是否意味着位置间不交互，需回忆 FFN 定义。",
+          "question_id": "q4",
+          "thinking_seconds": 30
+        },
+        {
+          "reason": "需写出 LayerNorm(x+Sublayer(x)) 并判断残差连接与层归一化各自作用，排除把层归一化说成跨位置归一化或把残差说成替代注意力的干扰项。",
+          "question_id": "q5",
+          "thinking_seconds": 35
+        },
+        {
+          "reason": "需回忆编码器每层 2 个子层、解码器每层 3 个子层，并识别解码器多出的编码器-解码器注意力子层，逐项核对选项。",
+          "question_id": "q6",
+          "thinking_seconds": 30
+        },
+        {
+          "reason": "简答题需写出 MultiHead 与 head_i 公式、说明投影维度 dk=dv=dmodel/h，并解释不同表示子空间与单头平均抑制两点优势，需组织完整表述。",
+          "question_id": "q7",
+          "thinking_seconds": 90
+        }
+      ],
+      "teaching_context_digest": "5653cfb8b1081430dd9a47cbd758c8b1a416128303da253f86d1e3fe8866424d"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "7 题分别覆盖多头注意力流程（q1/q7）、三种注意力 Q/K/V 来源（q2）、解码器掩码（q3）、FFN 逐位置作用（q4）、Add&Norm（q5）、编码器 2 子层/解码器 3 子层（q6），与节点目标 o1–o4 及 req-goal-transformer 的架构原理讲授一致，未越界到其他节点内容。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题独立求解：q1 选 A（投影-并行-拼接-W^O，成本与全维单头相近）；q2 选 A,B,C；q3 严格上三角 16−10=6；q4 判断为正确；q5 选 A（LayerNorm(x+Sublayer(x))）；q6 选 A；q7 公式与维度均与论文一致，未发现事实或数值错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "习题的 examples 维度按逐题求解核验：q3 用 4 词序列构造 4×4 掩码矩阵并给出 6 个非法位置的具体计数，q1/q7 给出 h=8、dmodel=512、dk=dv=64 的具体数值对照，干扰项均对应可解释的真实误区（复制后平均、共享投影、成本 h 倍、来源对调、合法/非法数弄反）。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序为多头注意力→三种用法→掩码→FFN→Add&Norm→子层数量→综合简答，与节点活动顺序一致；难度 easy/medium/hard 分布合理，题干自足、未泄露答案，判断题与简答题正确省略 options。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "全部断言（MultiHead 公式、h=8/dk=dv=64、三种注意力用法、−∞ 掩码、FFN 公式、LayerNorm(x+Sublayer(x))、N=6 与子层数）均可由提供的《Attention Is All You Need》原文片段支撑，未引入无依据的外部结论。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "四个节点目标均有 check 与 practice 题对应（o1:q1/q7，o2:q2/q3，o3:q4/q5，o4:q6），题型含单选、多选、判断、简答，答案与解析齐全，无缺项。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "7 题分别覆盖多头注意力流程（q1/q7）、三种注意力 Q/K/V 来源（q2）、解码器掩码（q3）、FFN 逐位置作用（q4）、Add&Norm（q5）、编码器 2 子层/解码器 3 子层（q6），与节点目标 o1–o4 及 req-goal-transformer 的架构原理讲授一致，未越界到其他节点内容。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解：q1 选 A（投影-并行-拼接-W^O，成本与全维单头相近）；q2 选 A,B,C；q3 严格上三角 16−10=6；q4 判断为正确；q5 选 A（LayerNorm(x+Sublayer(x))）；q6 选 A；q7 公式与维度均与论文一致，未发现事实或数值错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题的 examples 维度按逐题求解核验：q3 用 4 词序列构造 4×4 掩码矩阵并给出 6 个非法位置的具体计数，q1/q7 给出 h=8、dmodel=512、dk=dv=64 的具体数值对照，干扰项均对应可解释的真实误区（复制后平均、共享投影、成本 h 倍、来源对调、合法/非法数弄反）。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为多头注意力→三种用法→掩码→FFN→Add&Norm→子层数量→综合简答，与节点活动顺序一致；难度 easy/medium/hard 分布合理，题干自足、未泄露答案，判断题与简答题正确省略 options。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "全部断言（MultiHead 公式、h=8/dk=dv=64、三种注意力用法、−∞ 掩码、FFN 公式、LayerNorm(x+Sublayer(x))、N=6 与子层数）均可由提供的《Attention Is All You Need》原文片段支撑，未引入无依据的外部结论。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个节点目标均有 check 与 practice 题对应（o1:q1/q7，o2:q2/q3，o3:q4/q5，o4:q6），题型含单选、多选、判断、简答，答案与解析齐全，无缺项。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q1、q5、q6 的正确答案均为 A，q3 亦为 A，建议调整选项顺序以避免正确答案位置规律。",
+              "q3 解析中“B 的 4 只数了对角线以外的某一列或某一行的部分位置”表述略含糊，可改为更明确的错误算式（如只数第 1 行上三角 3 个加 1 个对角线）。",
+              "q2 为多选题但题干未提示“多选”，可考虑在题干中标注“（多选）”。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [
+                  {
+                    "reasoning": "准确描述投影-并行-拼接-再投影流程，与 MultiHead=Concat(head_1..head_h)W^O 一致，正确。",
+                    "option_text": "把 Q、K、V 用 h 组不同的可学习线性投影分别映射到 dk、dk、dv 维，并行做注意力后把各头输出拼接，再用 W^O 投影回 dmodel 维",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)，MultiHead = Concat(head_1,…,head_h)W^O，投影矩阵 W_i^Q∈R^{dmodel×dk}、W_i^K∈R^{dmodel×dk}、W_i^V∈R^{dmodel×dv}、W^O∈R^{h·dv×dmodel}。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段给出 head_i 与 MultiHead 公式及四个投影矩阵维度，与论文一致，对 A 的判定准确。"
+                  },
+                  {
+                    "reasoning": "各头使用不同的可学习投影而非复制后做相同计算再平均，错误。",
+                    "option_text": "把 Q、K、V 复制 h 份后直接做 h 次完全相同的注意力，再把结果取平均",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：各头使用不同的可学习投影，并非复制后做相同计算再平均；论文明确指出单头平均会抑制“同时关注不同表示子空间”的能力。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 1 段指出各头投影不同、非复制平均；第 2 段引用论文“单头平均会抑制同时关注不同表示子空间”，两处批评均成立。"
+                  },
+                  {
+                    "reasoning": "各头有独立投影矩阵，共享投影会退化为同一注意力，错误。",
+                    "option_text": "各头共享同一组投影矩阵，只在最后拼接时使用不同的权重",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：每个头有各自独立的 W_i^Q、W_i^K、W_i^V，共享投影就退化为同一个注意力。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3 段说明每头有独立 W_i^Q/W_i^K/W_i^V，共享即退化，理由成立。"
+                  },
+                  {
+                    "reasoning": "每头维度为 dmodel/h，总成本与全维单头相近，不是 h 倍，错误。",
+                    "option_text": "多头注意力的总计算成本约为全维单头注意力的 h 倍，因为要重复计算 h 次全维注意力",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：每个头的维度降为 dk=dv=dmodel/h（原论文 h=8、dmodel=512 时 dk=dv=64），因此总计算成本与全维单头注意力相近，不是 h 倍。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 4 段给出 dk=dv=dmodel/h、h=8、dmodel=512 时 dk=dv=64，并据此说明成本相近，计算与结论均正确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "64",
+                    "excerpt": "D 错误：每个头的维度降为 dk=dv=dmodel/h（原论文 h=8、dmodel=512 时 dk=dv=64），因此总计算成本与全维单头注意力相近，不是 h 倍。",
+                    "expression": "512/8",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "多头注意力：对 Q、K、V 分别用 h 组独立可学习投影 W_i^Q∈R^{dmodel×dk}、W_i^K∈R^{dmodel×dk}、W_i^V∈R^{dmodel×dv} 投影，各头并行做缩放点积注意力得 dv 维输出，拼接后乘 W^O∈R^{h·dv×dmodel}。因每头维度降为 dmodel/h，总计算成本与全维单头相近。故 A 正确，B（复制后相同计算再平均）、C（共享投影）、D（成本 h 倍）均错。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "编码器自注意力中 Q/K/V 同源，均为上一层编码器输出，正确。",
+                    "option_text": "编码器自注意力中，Q、K、V 都来自上一层编码器的输出",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：编码器自注意力层中键、值、查询都来自同一处，即上一层编码器的输出，每个位置可关注上一层所有位置。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0 段与论文“all of the keys, values and queries come from the same place”一致，判定准确。"
+                  },
+                  {
+                    "reasoning": "解码器自注意力 Q/K/V 均来自解码器，掩码限制只关注当前位置及之前，正确。",
+                    "option_text": "解码器掩码自注意力中，Q、K、V 都来自解码器自身（当前位置及之前的位置）",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：解码器自注意力中 Q、K、V 都来自解码器，但通过掩码只允许关注到当前位置及之前。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 1 段说明来源与掩码限制，与论文“up to and including that position”一致。"
+                  },
+                  {
+                    "reasoning": "编码器-解码器注意力 Q 来自上一层解码器、K/V 来自编码器输出，正确。",
+                    "option_text": "编码器-解码器注意力中，Q 来自上一层解码器，K 和 V 来自编码器输出",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：编码器-解码器注意力中查询来自上一层解码器，键和值来自编码器输出，使解码器每个位置都能关注输入序列全部位置。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 2 段与论文“queries come from the previous decoder layer, and the memory keys and values come from the output of the encoder”一致。"
+                  },
+                  {
+                    "reasoning": "把 Q 与 K/V 来源对调，与论文描述相反，错误。",
+                    "option_text": "编码器-解码器注意力中，Q 来自编码器输出，K 和 V 来自解码器",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：把 Q 与 K/V 的来源对调了；若 Q 来自编码器，解码器就无法用自身状态去查询输入信息，与论文描述不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3 段指出来源对调，第 4 段补充若 Q 来自编码器则解码器无法用自身状态查询输入，两处批评均成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "编码器自注意力：Q/K/V 均来自上一层编码器输出（A 对）；解码器掩码自注意力：Q/K/V 均来自解码器自身，仅可关注当前位置及之前（B 对）；编码器-解码器注意力：Q 来自上一层解码器，K/V 来自编码器输出（C 对，D 把来源对调故错）。答案 A,B,C。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "严格上三角共 6 个位置，正确。",
+                    "option_text": "6 个",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "4×4 的注意力分数矩阵共 16 个位置，允许的是下三角（含对角线）：第 1 行 1 个、第 2 行 2 个、第 3 行 3 个、第 4 行 4 个，共 10 个合法位置；非法位置为 16−10=6 个，即严格上三角的 6 个位置。A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0 段给出 16 个位置与 10 个合法位置，第 1 段给出 16−10=6，第 2 段判定 A 正确，计算与结论均成立。"
+                  },
+                  {
+                    "reasoning": "4 不是非法位置总数，错误。",
+                    "option_text": "4 个",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 的 4 只数了对角线以外的某一列或某一行的部分位置，不是全部非法连接。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3 段指出 4 只是部分位置而非全部非法连接，批评成立（表述略含糊但方向正确）。"
+                  },
+                  {
+                    "reasoning": "10 是合法位置数，不是被置 −∞ 的数量，错误。",
+                    "option_text": "10 个",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 的 10 是合法位置数，把允许与禁止弄反了。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 4 段指出 10 是合法位置数、把允许与禁止弄反，理由成立。"
+                  },
+                  {
+                    "reasoning": "掩码正用于解码器自注意力，0 个的说法错误。",
+                    "option_text": "0 个，掩码只作用于编码器",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：掩码正是用在解码器自注意力中，用于阻止信息向左流动、保持自回归性质。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 5 段说明掩码用于解码器自注意力以阻止信息向左流动，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "10",
+                    "excerpt": "4×4 的注意力分数矩阵共 16 个位置，允许的是下三角（含对角线）：第 1 行 1 个、第 2 行 2 个、第 3 行 3 个、第 4 行 4 个，共 10 个合法位置；",
+                    "expression": "1+2+3+4",
+                    "end_segment": 0,
+                    "source_field": "explanation",
+                    "start_segment": 0,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "6",
+                    "excerpt": "非法位置为 16−10=6 个，即严格上三角的 6 个位置。",
+                    "expression": "16-10",
+                    "end_segment": 1,
+                    "source_field": "explanation",
+                    "start_segment": 1,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "4×4 分数矩阵共 16 个位置；允许下三角含对角线，合法数 1+2+3+4=10；非法（严格上三角）为 16−10=6。答案 A。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "FFN 对每个位置分别且相同地施加两次线性变换夹 ReLU，同一层内各位置共享 W1、W2、b1、b2，输出只依赖该位置向量，位置间信息交换发生在注意力子层。故判断为“正确”。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [
+                  {
+                    "reasoning": "表达式与作用描述均与论文一致，正确。",
+                    "option_text": "输出为 LayerNorm(x + Sublayer(x))，残差连接提供直通路径，层归一化对每个位置的向量做归一化以稳定数值尺度",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文给出的形式是每个子层的输出为 LayerNorm(x + Sublayer(x))，其中 x 是该子层的输入；残差连接让梯度有直通路径、便于深层堆叠，层归一化则对每个位置的向量做归一化以稳定尺度。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0 段给出 LayerNorm(x+Sublayer(x))，第 1 段说明残差直通与逐位置归一化，均成立。"
+                  },
+                  {
+                    "reasoning": "归一化应在相加之后，先归一化 x 再相加错误。",
+                    "option_text": "输出为 LayerNorm(x) + Sublayer(x)，即先归一化输入再与子层输出相加",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：归一化作用在相加之后，而不是先归一化 x 再相加。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 2 段指出归一化作用于相加之后，批评准确。"
+                  },
+                  {
+                    "reasoning": "层归一化按单个位置向量统计，不是跨所有位置，错误。",
+                    "option_text": "层归一化是在整个序列的所有位置上一起统计均值和方差",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：层归一化按单个样本的单个位置向量统计，跨所有位置一起统计的是批归一化一类的做法，与论文描述不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3 段说明层归一化按单个样本单个位置向量统计，跨位置统计属批归一化一类，理由成立。"
+                  },
+                  {
+                    "reasoning": "残差是旁路，子层仍需计算，不能替代注意力，错误。",
+                    "option_text": "残差连接的作用是替代注意力子层，使模型可以跳过注意力计算",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：残差连接是围绕子层的旁路，子层本身仍要计算，不能被跳过或替代。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 4 段指出残差为旁路、子层仍要计算，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文形式为每个子层输出 LayerNorm(x+Sublayer(x))：残差提供直通路径，层归一化对每个位置的向量归一化以稳定尺度。B 把归一化放在相加前，C 把层归一化说成跨位置统计，D 说残差替代子层，均错。答案 A。"
+              },
+              {
+                "question_id": "q6",
+                "option_checks": [
+                  {
+                    "reasoning": "子层数量与差异描述正确。",
+                    "option_text": "编码器每层 2 个子层（多头自注意力、逐位置前馈网络）；解码器每层 3 个子层，多出对编码器输出做多头注意力的编码器-解码器注意力子层",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：编码器每层含多头自注意力与逐位置前馈网络两个子层；解码器在同样两个子层之外插入第三个子层，对编码器堆栈的输出做多头注意力。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0、1 段分别说明编码器两子层与解码器插入的第三子层，与论文一致。"
+                  },
+                  {
+                    "reasoning": "数量说反，错误。",
+                    "option_text": "编码器每层 3 个子层；解码器每层 2 个子层",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：数量正好说反了。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 2 段指出数量说反，批评成立。"
+                  },
+                  {
+                    "reasoning": "解码器除掩码自注意力外还有第三子层，错误。",
+                    "option_text": "两者都是每层 2 个子层，解码器只是把自注意力换成掩码自注意力",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：解码器确实把自注意力改为带掩码的形式，但这不改变子层数量，它还有第三个子层。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3 段指出掩码不改变子层数量、仍有第三子层，理由成立。"
+                  },
+                  {
+                    "reasoning": "多出的是编码器-解码器注意力而非额外 FFN，错误。",
+                    "option_text": "编码器每层 2 个子层；解码器每层 3 个子层，多出的是一个额外的前馈网络",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：解码器多出的是编码器-解码器注意力子层，不是额外的 FFN；每个子层后都接 Add & Norm。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 4 段指出多出的是编码器-解码器注意力子层，第 5 段补充每个子层后接 Add & Norm，均成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "编码器每层 2 个子层（多头自注意力、逐位置 FFN）；解码器每层 3 个子层，多出对编码器输出做多头注意力的编码器-解码器注意力子层。答案 A。"
+              },
+              {
+                "question_id": "q7",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "64",
+                    "excerpt": "成本：每个头的维度降为 dk=dv=dmodel/h（原论文 h=8、dmodel=512 时 dk=dv=64），各头并行计算，因此总计算成本与全维单头注意力相近。",
+                    "expression": "512/8",
+                    "end_segment": 3,
+                    "source_field": "answer",
+                    "start_segment": 3,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，head_i=Attention(QW_i^Q,KW_i^K,VW_i^V)，W_i^Q,W_i^K∈R^{dmodel×dk}，W_i^V∈R^{dmodel×dv}，W^O∈R^{h·dv×dmodel}。优势：在不同位置联合关注不同表示子空间，单头平均会抑制。成本：每头维度 dmodel/h（h=8、dmodel=512 时 64），总成本与全维单头相近。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 直接考查多头注意力投影-并行-拼接-再投影流程，真实支持 req-goal-transformer 中架构原理的机制理解。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 逐项辨析三种注意力用法的 Q/K/V 来源，落实注意力子层在不同位置的使用方式。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 以 4 词序列掩码矩阵计数考查 −∞ 掩码，落实阻止信息向左流动、保持自回归性质。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 判断题考查 FFN 逐位置独立同等地作用，与目标 o3 前半一致。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 考查 LayerNorm(x+Sublayer(x)) 表达式及残差与层归一化作用，落实 o3 后半。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 考查编码器 2 子层与解码器 3 子层差异，落实 o4。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 简答要求写出 MultiHead 与 head 公式并说明优势与成本，综合检查架构原理掌握。",
+                "locator": {
+                  "question_id": "q7"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1 的 check，覆盖投影 h 次、并行、拼接再投影的完整流程。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 作为 o1 的 practice，要求完整写出公式并解释不同表示子空间优势。",
+                "locator": {
+                  "question_id": "q7"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o2 的 check，覆盖三种注意力用法的 Q/K/V 来源区分。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的 practice，通过掩码计数练习解码器掩码自注意力机制。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o3 的 check，考查 FFN 逐位置独立同等作用。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o3 的 practice，考查 Add&Norm 表达式与作用。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 作为 o4 的 check，考查编码器/解码器子层数量差异。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "1e5ca9f0cb174d82512ce7eaabc2e3ddbbca37db578c6233ca54d55d0f042d96"
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "suggestions": [
+        "q1、q5、q6 的正确答案均为 A，q3 亦为 A，建议调整选项顺序以避免正确答案位置规律。",
+        "q3 解析中“B 的 4 只数了对角线以外的某一列或某一行的部分位置”表述略含糊，可改为更明确的错误算式（如只数第 1 行上三角 3 个加 1 个对角线）。",
+        "q2 为多选题但题干未提示“多选”，可考虑在题干中标注“（多选）”。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "1e5ca9f0cb174d82512ce7eaabc2e3ddbbca37db578c6233ca54d55d0f042d96",
+      "question_checks": [
+        {
+          "question_id": "q1",
+          "option_checks": [
+            {
+              "reasoning": "准确描述投影-并行-拼接-再投影流程，与 MultiHead=Concat(head_1..head_h)W^O 一致，正确。",
+              "option_text": "把 Q、K、V 用 h 组不同的可学习线性投影分别映射到 dk、dk、dv 维，并行做注意力后把各头输出拼接，再用 W^O 投影回 dmodel 维",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：head_i = Attention(QW_i^Q, KW_i^K, VW_i^V)，MultiHead = Concat(head_1,…,head_h)W^O，投影矩阵 W_i^Q∈R^{dmodel×dk}、W_i^K∈R^{dmodel×dk}、W_i^V∈R^{dmodel×dv}、W^O∈R^{h·dv×dmodel}。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 0 段给出 head_i 与 MultiHead 公式及四个投影矩阵维度，与论文一致，对 A 的判定准确。"
+            },
+            {
+              "reasoning": "各头使用不同的可学习投影而非复制后做相同计算再平均，错误。",
+              "option_text": "把 Q、K、V 复制 h 份后直接做 h 次完全相同的注意力，再把结果取平均",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：各头使用不同的可学习投影，并非复制后做相同计算再平均；论文明确指出单头平均会抑制“同时关注不同表示子空间”的能力。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 1 段指出各头投影不同、非复制平均；第 2 段引用论文“单头平均会抑制同时关注不同表示子空间”，两处批评均成立。"
+            },
+            {
+              "reasoning": "各头有独立投影矩阵，共享投影会退化为同一注意力，错误。",
+              "option_text": "各头共享同一组投影矩阵，只在最后拼接时使用不同的权重",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：每个头有各自独立的 W_i^Q、W_i^K、W_i^V，共享投影就退化为同一个注意力。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 3 段说明每头有独立 W_i^Q/W_i^K/W_i^V，共享即退化，理由成立。"
+            },
+            {
+              "reasoning": "每头维度为 dmodel/h，总成本与全维单头相近，不是 h 倍，错误。",
+              "option_text": "多头注意力的总计算成本约为全维单头注意力的 h 倍，因为要重复计算 h 次全维注意力",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：每个头的维度降为 dk=dv=dmodel/h（原论文 h=8、dmodel=512 时 dk=dv=64），因此总计算成本与全维单头注意力相近，不是 h 倍。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 4 段给出 dk=dv=dmodel/h、h=8、dmodel=512 时 dk=dv=64，并据此说明成本相近，计算与结论均正确。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "calculation_checks": [
+            {
+              "claimed": "64",
+              "excerpt": "D 错误：每个头的维度降为 dk=dv=dmodel/h（原论文 h=8、dmodel=512 时 dk=dv=64），因此总计算成本与全维单头注意力相近，不是 h 倍。",
+              "expression": "512/8",
+              "end_segment": 4,
+              "source_field": "explanation",
+              "start_segment": 4,
+              "decimal_places": 0
+            }
+          ],
+          "independent_solution": "多头注意力：对 Q、K、V 分别用 h 组独立可学习投影 W_i^Q∈R^{dmodel×dk}、W_i^K∈R^{dmodel×dk}、W_i^V∈R^{dmodel×dv} 投影，各头并行做缩放点积注意力得 dv 维输出，拼接后乘 W^O∈R^{h·dv×dmodel}。因每头维度降为 dmodel/h，总计算成本与全维单头相近。故 A 正确，B（复制后相同计算再平均）、C（共享投影）、D（成本 h 倍）均错。"
+        },
+        {
+          "question_id": "q2",
+          "option_checks": [
+            {
+              "reasoning": "编码器自注意力中 Q/K/V 同源，均为上一层编码器输出，正确。",
+              "option_text": "编码器自注意力中，Q、K、V 都来自上一层编码器的输出",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：编码器自注意力层中键、值、查询都来自同一处，即上一层编码器的输出，每个位置可关注上一层所有位置。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 0 段与论文“all of the keys, values and queries come from the same place”一致，判定准确。"
+            },
+            {
+              "reasoning": "解码器自注意力 Q/K/V 均来自解码器，掩码限制只关注当前位置及之前，正确。",
+              "option_text": "解码器掩码自注意力中，Q、K、V 都来自解码器自身（当前位置及之前的位置）",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：解码器自注意力中 Q、K、V 都来自解码器，但通过掩码只允许关注到当前位置及之前。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 1 段说明来源与掩码限制，与论文“up to and including that position”一致。"
+            },
+            {
+              "reasoning": "编码器-解码器注意力 Q 来自上一层解码器、K/V 来自编码器输出，正确。",
+              "option_text": "编码器-解码器注意力中，Q 来自上一层解码器，K 和 V 来自编码器输出",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 正确：编码器-解码器注意力中查询来自上一层解码器，键和值来自编码器输出，使解码器每个位置都能关注输入序列全部位置。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 2 段与论文“queries come from the previous decoder layer, and the memory keys and values come from the output of the encoder”一致。"
+            },
+            {
+              "reasoning": "把 Q 与 K/V 来源对调，与论文描述相反，错误。",
+              "option_text": "编码器-解码器注意力中，Q 来自编码器输出，K 和 V 来自解码器",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：把 Q 与 K/V 的来源对调了；若 Q 来自编码器，解码器就无法用自身状态去查询输入信息，与论文描述不符。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 3 段指出来源对调，第 4 段补充若 Q 来自编码器则解码器无法用自身状态查询输入，两处批评均成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "编码器自注意力：Q/K/V 均来自上一层编码器输出（A 对）；解码器掩码自注意力：Q/K/V 均来自解码器自身，仅可关注当前位置及之前（B 对）；编码器-解码器注意力：Q 来自上一层解码器，K/V 来自编码器输出（C 对，D 把来源对调故错）。答案 A,B,C。"
+        },
+        {
+          "question_id": "q3",
+          "option_checks": [
+            {
+              "reasoning": "严格上三角共 6 个位置，正确。",
+              "option_text": "6 个",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "4×4 的注意力分数矩阵共 16 个位置，允许的是下三角（含对角线）：第 1 行 1 个、第 2 行 2 个、第 3 行 3 个、第 4 行 4 个，共 10 个合法位置；非法位置为 16−10=6 个，即严格上三角的 6 个位置。A 正确。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 0 段给出 16 个位置与 10 个合法位置，第 1 段给出 16−10=6，第 2 段判定 A 正确，计算与结论均成立。"
+            },
+            {
+              "reasoning": "4 不是非法位置总数，错误。",
+              "option_text": "4 个",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 的 4 只数了对角线以外的某一列或某一行的部分位置，不是全部非法连接。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 3 段指出 4 只是部分位置而非全部非法连接，批评成立（表述略含糊但方向正确）。"
+            },
+            {
+              "reasoning": "10 是合法位置数，不是被置 −∞ 的数量，错误。",
+              "option_text": "10 个",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 的 10 是合法位置数，把允许与禁止弄反了。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 4 段指出 10 是合法位置数、把允许与禁止弄反，理由成立。"
+            },
+            {
+              "reasoning": "掩码正用于解码器自注意力，0 个的说法错误。",
+              "option_text": "0 个，掩码只作用于编码器",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：掩码正是用在解码器自注意力中，用于阻止信息向左流动、保持自回归性质。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 5 段说明掩码用于解码器自注意力以阻止信息向左流动，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "calculation_checks": [
+            {
+              "claimed": "10",
+              "excerpt": "4×4 的注意力分数矩阵共 16 个位置，允许的是下三角（含对角线）：第 1 行 1 个、第 2 行 2 个、第 3 行 3 个、第 4 行 4 个，共 10 个合法位置；",
+              "expression": "1+2+3+4",
+              "end_segment": 0,
+              "source_field": "explanation",
+              "start_segment": 0,
+              "decimal_places": 0
+            },
+            {
+              "claimed": "6",
+              "excerpt": "非法位置为 16−10=6 个，即严格上三角的 6 个位置。",
+              "expression": "16-10",
+              "end_segment": 1,
+              "source_field": "explanation",
+              "start_segment": 1,
+              "decimal_places": 0
+            }
+          ],
+          "independent_solution": "4×4 分数矩阵共 16 个位置；允许下三角含对角线，合法数 1+2+3+4=10；非法（严格上三角）为 16−10=6。答案 A。"
+        },
+        {
+          "question_id": "q4",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "FFN 对每个位置分别且相同地施加两次线性变换夹 ReLU，同一层内各位置共享 W1、W2、b1、b2，输出只依赖该位置向量，位置间信息交换发生在注意力子层。故判断为“正确”。"
+        },
+        {
+          "question_id": "q5",
+          "option_checks": [
+            {
+              "reasoning": "表达式与作用描述均与论文一致，正确。",
+              "option_text": "输出为 LayerNorm(x + Sublayer(x))，残差连接提供直通路径，层归一化对每个位置的向量做归一化以稳定数值尺度",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：论文给出的形式是每个子层的输出为 LayerNorm(x + Sublayer(x))，其中 x 是该子层的输入；残差连接让梯度有直通路径、便于深层堆叠，层归一化则对每个位置的向量做归一化以稳定尺度。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 0 段给出 LayerNorm(x+Sublayer(x))，第 1 段说明残差直通与逐位置归一化，均成立。"
+            },
+            {
+              "reasoning": "归一化应在相加之后，先归一化 x 再相加错误。",
+              "option_text": "输出为 LayerNorm(x) + Sublayer(x)，即先归一化输入再与子层输出相加",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：归一化作用在相加之后，而不是先归一化 x 再相加。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 2 段指出归一化作用于相加之后，批评准确。"
+            },
+            {
+              "reasoning": "层归一化按单个位置向量统计，不是跨所有位置，错误。",
+              "option_text": "层归一化是在整个序列的所有位置上一起统计均值和方差",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：层归一化按单个样本的单个位置向量统计，跨所有位置一起统计的是批归一化一类的做法，与论文描述不符。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 3 段说明层归一化按单个样本单个位置向量统计，跨位置统计属批归一化一类，理由成立。"
+            },
+            {
+              "reasoning": "残差是旁路，子层仍需计算，不能替代注意力，错误。",
+              "option_text": "残差连接的作用是替代注意力子层，使模型可以跳过注意力计算",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：残差连接是围绕子层的旁路，子层本身仍要计算，不能被跳过或替代。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 4 段指出残差为旁路、子层仍要计算，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "论文形式为每个子层输出 LayerNorm(x+Sublayer(x))：残差提供直通路径，层归一化对每个位置的向量归一化以稳定尺度。B 把归一化放在相加前，C 把层归一化说成跨位置统计，D 说残差替代子层，均错。答案 A。"
+        },
+        {
+          "question_id": "q6",
+          "option_checks": [
+            {
+              "reasoning": "子层数量与差异描述正确。",
+              "option_text": "编码器每层 2 个子层（多头自注意力、逐位置前馈网络）；解码器每层 3 个子层，多出对编码器输出做多头注意力的编码器-解码器注意力子层",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：编码器每层含多头自注意力与逐位置前馈网络两个子层；解码器在同样两个子层之外插入第三个子层，对编码器堆栈的输出做多头注意力。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 0、1 段分别说明编码器两子层与解码器插入的第三子层，与论文一致。"
+            },
+            {
+              "reasoning": "数量说反，错误。",
+              "option_text": "编码器每层 3 个子层；解码器每层 2 个子层",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：数量正好说反了。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 2 段指出数量说反，批评成立。"
+            },
+            {
+              "reasoning": "解码器除掩码自注意力外还有第三子层，错误。",
+              "option_text": "两者都是每层 2 个子层，解码器只是把自注意力换成掩码自注意力",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：解码器确实把自注意力改为带掩码的形式，但这不改变子层数量，它还有第三个子层。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 3 段指出掩码不改变子层数量、仍有第三子层，理由成立。"
+            },
+            {
+              "reasoning": "多出的是编码器-解码器注意力而非额外 FFN，错误。",
+              "option_text": "编码器每层 2 个子层；解码器每层 3 个子层，多出的是一个额外的前馈网络",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：解码器多出的是编码器-解码器注意力子层，不是额外的 FFN；每个子层后都接 Add & Norm。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 4 段指出多出的是编码器-解码器注意力子层，第 5 段补充每个子层后接 Add & Norm，均成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "编码器每层 2 个子层（多头自注意力、逐位置 FFN）；解码器每层 3 个子层，多出对编码器输出做多头注意力的编码器-解码器注意力子层。答案 A。"
+        },
+        {
+          "question_id": "q7",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "calculation_checks": [
+            {
+              "claimed": "64",
+              "excerpt": "成本：每个头的维度降为 dk=dv=dmodel/h（原论文 h=8、dmodel=512 时 dk=dv=64），各头并行计算，因此总计算成本与全维单头注意力相近。",
+              "expression": "512/8",
+              "end_segment": 3,
+              "source_field": "answer",
+              "start_segment": 3,
+              "decimal_places": 0
+            }
+          ],
+          "independent_solution": "MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，head_i=Attention(QW_i^Q,KW_i^K,VW_i^V)，W_i^Q,W_i^K∈R^{dmodel×dk}，W_i^V∈R^{dmodel×dv}，W^O∈R^{h·dv×dmodel}。优势：在不同位置联合关注不同表示子空间，单头平均会抑制。成本：每头维度 dmodel/h（h=8、dmodel=512 时 64），总成本与全维单头相近。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q1 直接考查多头注意力投影-并行-拼接-再投影流程，真实支持 req-goal-transformer 中架构原理的机制理解。",
+          "locator": {
+            "question_id": "q1"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 逐项辨析三种注意力用法的 Q/K/V 来源，落实注意力子层在不同位置的使用方式。",
+          "locator": {
+            "question_id": "q2"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 以 4 词序列掩码矩阵计数考查 −∞ 掩码，落实阻止信息向左流动、保持自回归性质。",
+          "locator": {
+            "question_id": "q3"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 判断题考查 FFN 逐位置独立同等地作用，与目标 o3 前半一致。",
+          "locator": {
+            "question_id": "q4"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 考查 LayerNorm(x+Sublayer(x)) 表达式及残差与层归一化作用，落实 o3 后半。",
+          "locator": {
+            "question_id": "q5"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 考查编码器 2 子层与解码器 3 子层差异，落实 o4。",
+          "locator": {
+            "question_id": "q6"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 简答要求写出 MultiHead 与 head 公式并说明优势与成本，综合检查架构原理掌握。",
+          "locator": {
+            "question_id": "q7"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 作为 o1 的 check，覆盖投影 h 次、并行、拼接再投影的完整流程。",
+          "locator": {
+            "question_id": "q1"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 作为 o1 的 practice，要求完整写出公式并解释不同表示子空间优势。",
+          "locator": {
+            "question_id": "q7"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 作为 o2 的 check，覆盖三种注意力用法的 Q/K/V 来源区分。",
+          "locator": {
+            "question_id": "q2"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 作为 o2 的 practice，通过掩码计数练习解码器掩码自注意力机制。",
+          "locator": {
+            "question_id": "q3"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 作为 o3 的 check，考查 FFN 逐位置独立同等作用。",
+          "locator": {
+            "question_id": "q4"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 作为 o3 的 practice，考查 Add&Norm 表达式与作用。",
+          "locator": {
+            "question_id": "q5"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 作为 o4 的 check，考查编码器/解码器子层数量差异。",
+          "locator": {
+            "question_id": "q6"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o4",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "cd39c64ca2e68fa477c03b6e9846a5234b43630f9e4e239d1c20aafb70219b6f",
+      "numeric_verification": {
+        "version": 1,
+        "coverage": "source_bound_claims_and_literal_softmax",
+        "questions": [
+          {
+            "checks": [
+              {
+                "status": "pass",
+                "claimed": "64",
+                "excerpt": "D 错误：每个头的维度降为 dk=dv=dmodel/h（原论文 h=8、dmodel=512 时 dk=dv=64），因此总计算成本与全维单头注意力相近，不是 h 倍。",
+                "computed": 64.0,
+                "expression": "512/8",
+                "end_segment": 4,
+                "source_field": "explanation",
+                "start_segment": 4,
+                "decimal_places": 0
+              }
+            ],
+            "question_index": 0
+          },
+          {
+            "checks": [],
+            "question_index": 1
+          },
+          {
+            "checks": [
+              {
+                "status": "pass",
+                "claimed": "10",
+                "excerpt": "4×4 的注意力分数矩阵共 16 个位置，允许的是下三角（含对角线）：第 1 行 1 个、第 2 行 2 个、第 3 行 3 个、第 4 行 4 个，共 10 个合法位置；",
+                "computed": 10.0,
+                "expression": "1+2+3+4",
+                "end_segment": 0,
+                "source_field": "explanation",
+                "start_segment": 0,
+                "decimal_places": 0
+              },
+              {
+                "status": "pass",
+                "claimed": "6",
+                "excerpt": "非法位置为 16−10=6 个，即严格上三角的 6 个位置。",
+                "computed": 6.0,
+                "expression": "16-10",
+                "end_segment": 1,
+                "source_field": "explanation",
+                "start_segment": 1,
+                "decimal_places": 0
+              }
+            ],
+            "question_index": 2
+          },
+          {
+            "checks": [],
+            "question_index": 3
+          },
+          {
+            "checks": [],
+            "question_index": 4
+          },
+          {
+            "checks": [],
+            "question_index": 5
+          },
+          {
+            "checks": [
+              {
+                "status": "pass",
+                "claimed": "64",
+                "excerpt": "成本：每个头的维度降为 dk=dv=dmodel/h（原论文 h=8、dmodel=512 时 dk=dv=64），各头并行计算，因此总计算成本与全维单头注意力相近。",
+                "computed": 64.0,
+                "expression": "512/8",
+                "end_segment": 3,
+                "source_field": "answer",
+                "start_segment": 3,
+                "decimal_places": 0
+              }
+            ],
+            "question_index": 6
+          }
+        ]
+      },
+      "option_binding_version": 1
+    }
+  }
+}

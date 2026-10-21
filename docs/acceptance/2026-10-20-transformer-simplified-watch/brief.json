@@ -1,0 +1,44 @@
+{
+  "depth": "introductory",
+  "topic": "Transformer 模型",
+  "audience": "希望系统学习 Transformer 的初学者（具体背景未知）",
+  "language": "中文",
+  "exclusions": [],
+  "node_count": null,
+  "assumptions": [
+    "用户未说明学习时长，默认整门课程 60 分钟",
+    "用户未说明已有基础，按入门深度组织内容",
+    "用户未指定材料语言，按提问语言使用中文",
+    "用户未说明具体用途（如科研、工程实现或面试），按通用原理理解组织内容"
+  ],
+  "requirements": [
+    {
+      "text": "讲授 Transformer 的基本原理与结构，覆盖自注意力、多头注意力、位置编码、编码器-解码器等核心机制",
+      "source_ref": null,
+      "source_quote": "我想学习transformer",
+      "requirement_id": "req-transformer-learning",
+      "source_document_id": null
+    }
+  ],
+  "learning_goal": "系统学习 Transformer 的基本原理与结构，理解其核心机制与工作方式。",
+  "material_gaps": [
+    "用户未提供任何附件资料，Transformer 的原理、结构细节与示例需由研究阶段检索补充"
+  ],
+  "source_policy": {
+    "mode": "open"
+  },
+  "total_minutes": 60,
+  "prior_knowledge": "未知",
+  "desired_outcomes": [
+    "能说明 Transformer 的整体结构与数据流",
+    "能解释自注意力、多头注意力等核心机制的作用",
+    "能描述编码器-解码器结构及位置编码的意义"
+  ],
+  "node_count_quote": null,
+  "source_policy_quote": null,
+  "required_resource_types": [
+    "report",
+    "quiz",
+    "classroom"
+  ]
+}

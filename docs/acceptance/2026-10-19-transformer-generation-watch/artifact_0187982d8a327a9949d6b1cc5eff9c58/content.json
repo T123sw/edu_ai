@@ -1,0 +1,164 @@
+{
+  "title": "多头注意力：多个子空间并行关注",
+  "content": {
+    "title": "多头注意力：多个子空间并行关注",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_0187982d8a327a9949d6b1cc5eff9c58",
+      "entry": "index.html",
+      "digest": "3bd6a3f32583f23b68ce4eaf734e0acf16f1554650d3bce5e9d42901ac1f3f38"
+    },
+    "timeline": {
+      "duration": 72.166667,
+      "segments": [
+        {
+          "id": "01-eight-heads",
+          "end": 8.376,
+          "start": 0.0,
+          "title": "八个头，一份算力",
+          "events": [],
+          "narration": "多头注意力有八个头，可总计算量， 却和全维度的单头几乎一样。 多出来的头，难道不要钱吗？",
+          "audio_path": "assets/audio/b90b597b7bebb8c74050ea0abc91858dfc83845aa8c4b1c51b7f11975c8e902c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "full-bleed hero type on the cream grid; \"8 个头\" hard-swaps in place to \"≈ 1 份算力\", then the question line builds beneath it"
+        },
+        {
+          "id": "02-averaging",
+          "end": 17.784,
+          "start": 8.376,
+          "title": "单头为什么会\"压平\"",
+          "events": [],
+          "narration": "一个注意力头，只能给出一种关注方式； 它把不同位置的答案平均在一起， 就压平了同时关注多个子空间的能力。",
+          "audio_path": "assets/audio/9c9c1c30ad2f90100523cbe3ea57e70f45fa4be03b1f8e2121627f3af6c87c48.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "split-screen of two mirrored cards — one averaged single-head column versus eight differently patterned subspace columns"
+        },
+        {
+          "id": "03-formula",
+          "end": 31.272,
+          "start": 17.784,
+          "title": "公式逐项组装",
+          "events": [],
+          "narration": "多头注意力这样做：把 Q、K、V 用不同的可学习投影，各投影 h 次； 每一份单独算注意力，得到一个头； 再把这些头拼接起来，乘上输出投影。",
+          "audio_path": "assets/audio/f6bc1d34d12241c78a6ecd7f876efd2501c68dd2d9a840b7dccbb8a6b91a4b7f.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "the paper's two-line formula assembling term by term on the cream grid, with a 40% annotation rail"
+        },
+        {
+          "id": "04-pipeline",
+          "end": 41.495999999999995,
+          "start": 31.272,
+          "title": "数据怎么流动",
+          "events": [],
+          "narration": "于是信息在多条路上并行： 不同的表示子空间，不同的位置； 八个头各看各的， 最后拼回一条维度相同的向量。",
+          "audio_path": "assets/audio/a9e09951a0e0dbb6714e0996f97f8513d7bf346b3f1f243f742ed52eff1d11d8.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "one horizontal pipeline on a full-width strip: Q/K/V → three projection stacks → eight heads → concat bar → W^O → one output vector"
+        },
+        {
+          "id": "05-eight-by-64",
+          "end": 52.67999999999999,
+          "start": 41.495999999999995,
+          "title": "8 × 64 = 512，算力为什么没变",
+          "events": [],
+          "narration": "原论文取八个头， 每个头的键和值都是 64 维， 正好是模型维度 512 除以 8； 维度切小了，总计算量就和全维单头相近。",
+          "audio_path": "assets/audio/2ceaa213ebe7b7abfd85c3a8af7e3d154d4257910e18e7b584b37374adb18433.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "a data frame where the 512 dimension numeral splits into eight 64-cell pixel-stack blocks, set against one full-width single-head bar"
+        },
+        {
+          "id": "06-ablation",
+          "end": 62.087999999999994,
+          "start": 52.67999999999999,
+          "title": "消融实验说了什么",
+          "events": [],
+          "narration": "消融实验也印证了这点： 单头比最佳设置低 0.9 BLEU； 头太多、或者把键的维度切得太小， 质量同样会掉。",
+          "audio_path": "assets/audio/7efc71acfe58dcee5f66b1996f98864697abdb704b3fec33a89d540234e91f97.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "an index-ledger frame with three rows of paper evidence, each with a mono delta"
+        },
+        {
+          "id": "07-takeaway",
+          "end": 72.14399999999999,
+          "start": 62.087999999999994,
+          "title": "一句话记住",
+          "events": [],
+          "narration": "所以多头不是把注意力做大， 而是把它分开看，再合起来。 并行关注多个子空间，然后拼接， 这就是它全部的秘密。",
+          "audio_path": "assets/audio/7da7fe32d22d2d08a0374914fbc0e14bf16dc2819d920a90bf80f5b2bff69c5b.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "a calm closing statement on an otherwise empty grid — \"分开看\" then \"再合起来\", with the formula as a small mono footnote"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 72.166667
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 1.2027777833333333
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "9504e8bf426bfb7aea50910433382e0ac454c134731dd5ae0727d73aaed519b6",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 72.166667
+      },
+      "content_digest": "830dce2291ba0afe505787e49dda127f0e3cbe30d76812c07d273dc5968ff748",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 1.2027777833333333
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "c3f145d5f4757a84c4e7f7446d2d39576bc44d4cd2bcd6e94a362b94001b9e57"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "0ee5d61103c92292896df9d536dc4ba25c6b629ace590b527fd6f91e4e4a23ea",
+      "preparation_sha256": "c96d9a9aed597f61ec13a34d0737d6c55ca9628d0c7616550d91f9ceddb82ebf"
+    }
+  }
+}

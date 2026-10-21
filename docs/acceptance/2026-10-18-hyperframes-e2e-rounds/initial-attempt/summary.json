@@ -1,0 +1,210 @@
+[
+  {
+    "scenario": "01-continuous-audio",
+    "status": "failed",
+    "checks": [
+      {
+        "name": "production-player-ready"
+      },
+      {
+        "name": "first-segment-audible",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.05585812691750312
+          }
+        ],
+        "seconds": 0.38426345578231286
+      },
+      {
+        "name": "second-segment-audible-after-natural-transition",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.13829131935153663
+          }
+        ],
+        "seconds": 13.895374566893425
+      },
+      {
+        "name": "entire-lesson-played-to-end",
+        "time": 32.112,
+        "paused": true,
+        "ended": true
+      },
+      {
+        "name": "audio-before-question",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.12591669722181628
+          }
+        ],
+        "seconds": 6.43216916090237
+      },
+      {
+        "name": "question-freezes-exact-current-context",
+        "seconds": 6.493121541854749,
+        "segment": "seg-01"
+      },
+      {
+        "name": "real-model-answer-succeeded",
+        "elapsedSeconds": 9.021
+      },
+      {
+        "name": "current-answer-citation-jump-and-reload"
+      },
+      {
+        "name": "audio-after-answer-resume",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.08137401203630573
+          }
+        ],
+        "seconds": 7.132885269841272
+      },
+      {
+        "name": "resume-after-question"
+      }
+    ],
+    "failure": "AssertionError [ERR_ASSERTION]: [\"Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\",\"Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\",\"Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\"]\n\n3 !== 0\n\n    at file:///home/zxqs_ep/Edu_AI/frontend/scripts/check-hyperframes-online-rounds.mjs:94:10",
+    "started": "2026-10-18T04:54:43.579Z",
+    "finished": "2026-10-18T04:55:36.970Z"
+  },
+  {
+    "scenario": "02-controls-downloads",
+    "status": "failed",
+    "checks": [
+      {
+        "name": "production-player-ready"
+      },
+      {
+        "name": "double-speed-advances-clock",
+        "delta": 2.646082
+      },
+      {
+        "name": "pause-freezes-clock"
+      },
+      {
+        "name": "mute-and-volume-restoration"
+      },
+      {
+        "name": "chapter-and-transcript-seek"
+      },
+      {
+        "name": "three-real-browser-downloads",
+        "downloads": [
+          {
+            "name": "下载 MP4",
+            "filename": "lesson.mp4",
+            "bytes": 2577386,
+            "sha256": "d0aa730b70288c31fd3dc2fbb47d9b38515cc0aa824bb7f6a230588616f1a1a6"
+          },
+          {
+            "name": "下载 SRT",
+            "filename": "lesson.srt",
+            "bytes": 467,
+            "sha256": "4971f54f72909e43a2a8570c8367c9b09b8c758e389f29cf17f8cca8891604bf"
+          },
+          {
+            "name": "下载 HTML 项目 ZIP",
+            "filename": "project.zip",
+            "bytes": 708729,
+            "sha256": "a328a816b6593fc1453d378dca6b42d77db576e605395dab99ebe4a71f059b92"
+          }
+        ]
+      },
+      {
+        "name": "audio-before-question",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.03383071729313544
+          }
+        ],
+        "seconds": 24.384012886621317
+      },
+      {
+        "name": "question-freezes-exact-current-context",
+        "seconds": 24.4362577845805,
+        "segment": "seg-02"
+      },
+      {
+        "name": "real-model-answer-succeeded",
+        "elapsedSeconds": 10.487
+      }
+    ],
+    "failure": "AssertionError [ERR_ASSERTION]: current answer must cite its own location\n    at file:///home/zxqs_ep/Edu_AI/frontend/scripts/check-hyperframes-online-rounds.mjs:80:134",
+    "started": "2026-10-18T04:55:37.037Z",
+    "finished": "2026-10-18T04:55:58.151Z"
+  },
+  {
+    "scenario": "03-mobile-refresh",
+    "status": "failed",
+    "checks": [
+      {
+        "name": "production-player-ready"
+      },
+      {
+        "name": "mobile-chromium-audible",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.00016834211986267736
+          }
+        ],
+        "seconds": 9.891540324263037
+      },
+      {
+        "name": "refresh-restores-time-without-autoplay",
+        "saved": 9.911857784580498,
+        "restored": 9.9
+      },
+      {
+        "name": "mobile-directory-and-learning-panels"
+      },
+      {
+        "name": "audio-before-question",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.19692095724639552
+          }
+        ],
+        "seconds": 18.38373143310658
+      },
+      {
+        "name": "question-freezes-exact-current-context",
+        "seconds": 18.511441183673472,
+        "segment": "seg-02"
+      },
+      {
+        "name": "real-model-answer-succeeded",
+        "elapsedSeconds": 15.407
+      },
+      {
+        "name": "current-answer-citation-jump-and-reload"
+      },
+      {
+        "name": "audio-after-answer-resume",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.05070335644872241
+          }
+        ],
+        "seconds": 19.15065130385488
+      },
+      {
+        "name": "resume-after-question"
+      },
+      {
+        "name": "question-history-survives-refresh"
+      }
+    ],
+    "failure": "AssertionError [ERR_ASSERTION]: [\"Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\",\"Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\",\"Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\"]\n\n3 !== 0\n\n    at file:///home/zxqs_ep/Edu_AI/frontend/scripts/check-hyperframes-online-rounds.mjs:94:10",
+    "started": "2026-10-18T04:55:58.219Z",
+    "finished": "2026-10-18T04:56:41.285Z"
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "base": "http://127.0.0.1",
+  "mode": "simulated delivery metadata with real saved videos",
+  "retries": [
+    {
+      "node_id": "node-3"
+    }
+  ],
+  "errors": [],
+  "before": {
+    "time": 4.022054,
+    "rate": 1.5
+  },
+  "after": {
+    "time": 9.016385,
+    "rate": 1.5,
+    "paused": false,
+    "sameElement": true
+  },
+  "retryKeptPlayer": true,
+  "secondDuration": 71.666667,
+  "polls": 4,
+  "passed": true
+}

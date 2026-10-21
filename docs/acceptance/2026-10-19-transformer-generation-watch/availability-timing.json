@@ -1,0 +1,77 @@
+[
+  {
+    "available": 0,
+    "at": "2026-10-19T11:54:31.229001+00:00",
+    "seconds_since_start": 120.46
+  },
+  {
+    "available": 1,
+    "at": "2026-10-19T11:55:11.384272+00:00",
+    "seconds_since_start": 160.61
+  },
+  {
+    "available": 2,
+    "at": "2026-10-19T11:55:39.805437+00:00",
+    "seconds_since_start": 189.03
+  },
+  {
+    "available": 3,
+    "at": "2026-10-19T11:55:50.514840+00:00",
+    "seconds_since_start": 199.74
+  },
+  {
+    "available": 4,
+    "at": "2026-10-19T11:56:30.758082+00:00",
+    "seconds_since_start": 239.99
+  },
+  {
+    "available": 5,
+    "at": "2026-10-19T11:56:41.774695+00:00",
+    "seconds_since_start": 251.0
+  },
+  {
+    "available": 6,
+    "at": "2026-10-19T11:57:03.456139+00:00",
+    "seconds_since_start": 272.68
+  },
+  {
+    "available": 8,
+    "at": "2026-10-19T11:57:48.281755+00:00",
+    "seconds_since_start": 317.51
+  },
+  {
+    "available": 9,
+    "at": "2026-10-19T11:58:13.651828+00:00",
+    "seconds_since_start": 342.88
+  },
+  {
+    "available": 10,
+    "at": "2026-10-19T11:58:28.654004+00:00",
+    "seconds_since_start": 357.88
+  },
+  {
+    "available": 11,
+    "at": "2026-10-19T12:11:31.938655+00:00",
+    "seconds_since_start": 1141.17
+  },
+  {
+    "available": 12,
+    "at": "2026-10-19T12:15:18.335932+00:00",
+    "seconds_since_start": 1367.56
+  },
+  {
+    "available": 13,
+    "at": "2026-10-19T12:15:24.839972+00:00",
+    "seconds_since_start": 1374.07
+  },
+  {
+    "available": 14,
+    "at": "2026-10-19T12:16:08.346938+00:00",
+    "seconds_since_start": 1417.58
+  },
+  {
+    "available": 15,
+    "at": "2026-10-19T12:34:02.744438+00:00",
+    "seconds_since_start": 2491.97
+  }
+]

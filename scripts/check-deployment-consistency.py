@@ -24,7 +24,7 @@ REQUIRED_CONTENT = {
     ROOT / ".env.example": [
         "VITE_API_BASE_URL=/backend",
         "STORAGE_ROOT=/data/edu_ai/storage",
-        "OPENMAIC_DATA_ROOT=/data/edu_ai/openmaic",
+        "COURSE_STORAGE_ROOT=/data/edu_ai/course_data",
     ],
     ROOT / "deploy" / "nginx" / "edu-ai.conf": [
         "root /home/zxqs_ep/Edu_AI/frontend/dist;",
@@ -33,10 +33,6 @@ REQUIRED_CONTENT = {
     ROOT / "deploy" / "systemd" / "edu-ai-backend.service": [
         "WorkingDirectory=/home/zxqs_ep/Edu_AI/backend/src",
         "--port 8001",
-    ],
-    ROOT / "deploy" / "systemd" / "edu-ai-openmaic.service": [
-        "WorkingDirectory=/home/zxqs_ep/Edu_AI/openmaic-sidecar",
-        "--port 3000",
     ],
 }
 
@@ -54,8 +50,6 @@ FORBIDDEN_ACTIVE_TEXT = [
     "nodejs=20",
     "python3.10",
     "python3.11",
-    "npm ci",
-    "npm install",
     "docker compose",
     "localhost:8000",
     "127.0.0.1:8000",

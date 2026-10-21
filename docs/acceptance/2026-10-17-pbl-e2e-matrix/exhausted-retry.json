@@ -1,0 +1,13 @@
+{
+  "originalJob": "pbl_47181002134d22ab660729f21da842ee",
+  "retryJob": "job_7ef99985aa384e02",
+  "httpStatus": 202,
+  "finalStatus": "failed",
+  "errorCode": "PBL_VALIDATION_FAILED",
+  "errorMessage": "项目步骤经过修复仍未通过运行检查，请重试",
+  "modelCallsBefore": 11,
+  "modelCallsAfter": 11,
+  "newModelCalls": 0,
+  "artifactPublished": false,
+  "seconds": 29.73
+}

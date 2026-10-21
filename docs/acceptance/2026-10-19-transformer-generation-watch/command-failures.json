@@ -1,0 +1,96 @@
+[
+  {
+    "node": "n1-why-transformer",
+    "event": {
+      "at": 1792410909.6464095,
+      "tool": "run_command",
+      "ok": true,
+      "elapsed": 0.21573011670261621,
+      "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/6e9f333c67a49f8523a83d21b028861cc9126b37bcc125a6d44e25d6ec4867c5 && cp .host/BRIEF.md videos/why-transformer/BRIEF.md && ls -la videos/why-transformer && cat videos/why-transformer/hyperframes.json && cat videos/why-transformer/package.json && wc -c videos/why-transformer/index.html",
+      "exit_code": 1,
+      "command_id": "dfcd27fa571f4f2caf79f51d96084ce0"
+    },
+    "log_excerpt": "cp: cannot create regular file 'videos/why-transformer/BRIEF.md': No such file or directory\n"
+  },
+  {
+    "node": "n1-why-transformer",
+    "event": {
+      "at": 1792411139.5605235,
+      "tool": "run_command",
+      "ok": true,
+      "elapsed": 0.20911741396412253,
+      "worker_id": "102114ce15264bc3b8364d852453b8f5",
+      "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/6e9f333c67a49f8523a83d21b028861cc9126b37bcc125a6d44e25d6ec4867c5/videos/why-transformer && ls -la && ls compositions 2>/dev/null && ls compositions/frames 2>/dev/null && ls assets/fonts 2>/dev/null",
+      "exit_code": 2,
+      "command_id": "9715bf51e11b4636b109400bb9ed69c4"
+    },
+    "log_excerpt": "total 108\ndrwxr-x--- 4 1009 1008  4096 Oct 19 11:58 .\ndrwxr-x--- 3 1009 1008  4096 Oct 19 11:55 ..\ndrwxr-x--- 3 1009 1008  4096 Oct 19 11:58 .hyperframes\n-rw-rw-r-- 1 1009 1008  8626 Oct 19 11:55 AGENTS.md\n-rw-r----- 1 1009 1008  5526 Oct 19 11:55 BRIEF.md\n-rw-rw-r-- 1 1009 1008  8626 Oct 19 11:55 CLAUDE.md\n-rw-r----- 1 1009 1008  4725 Oct 19 11:56 SCRIPT.md\n-rw-r----- 1 1009 1008 16188 Oct 19 11:58 STORYBOARD.md\ndrwxr-x--- 4 1009 1008  4096 Oct 19 11:56 assets\n-rw-r----- 1 1009 1008  1672 Oct 19 11:57 audio_meta.json\n-rw-r----- 1 1009 1008  4461 Oct 19 11:56 audio_request.json\n-rw-r----- 1 1009 1008  5410 Oct 19 11:56 frame.md\n-rw-r----- 1 1009 1008   355 Oct 19 11:55 hyperframes.json\n-rw-rw-r-- 1 1009 1008  1339 Oct 19 11:55 index.html\n-rw-r----- 1 1009 1008   101 Oct 19 11:55 meta.json\n-rw-r----- 1 1009 1008   304 Oct 19 11:55 package.json\n"
+  },
+  {
+    "node": "n1-why-transformer",
+    "event": {
+      "at": 1792411142.6562028,
+      "tool": "run_command",
+      "ok": true,
+      "elapsed": 0.23018254525959492,
+      "worker_id": "2297c6803e044bf69a059e10c72f0b35",
+      "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/6e9f333c67a49f8523a83d21b028861cc9126b37bcc125a6d44e25d6ec4867c5/videos/why-transformer && ls -la && echo \"---frames---\" && ls -la compositions/frames 2>/dev/null && echo \"---fonts---\" && ls assets/fonts 2>/dev/null && echo \"---index---\" && head -40 index.html 2>/dev/null",
+      "exit_code": 2,
+      "command_id": "8b1036535b524571b89fb359252752ee"
+    },
+    "log_excerpt": "total 112\ndrwxr-x--- 4 1009 1008  4096 Oct 19 11:58 .\ndrwxr-x--- 3 1009 1008  4096 Oct 19 11:55 ..\ndrwxr-x--- 3 1009 1008  4096 Oct 19 11:58 .hyperframes\n-rw-rw-r-- 1 1009 1008  8626 Oct 19 11:55 AGENTS.md\n-rw-r----- 1 1009 1008  5526 Oct 19 11:55 BRIEF.md\n-rw-rw-r-- 1 1009 1008  8626 Oct 19 11:55 CLAUDE.md\n-rw-r----- 1 1009 1008  4725 Oct 19 11:56 SCRIPT.md\n-rw-r----- 1 1009 1008 16188 Oct 19 11:58 STORYBOARD.md\ndrwxr-x--- 4 1009 1008  4096 Oct 19 11:56 assets\n-rw-r----- 1 1009 1008  1672 Oct 19 11:57 audio_meta.json\n-rw-r----- 1 1009 1008  4461 Oct 19 11:56 audio_request.json\n-rw-r----- 1 1009 1008  5410 Oct 19 11:56 frame.md\n-rw-r----- 1 1009 1008   355 Oct 19 11:55 hyperframes.json\n-rw-rw-r-- 1 1009 1008  6862 Oct 19 11:59 index.html\n-rw-r----- 1 1009 1008   101 Oct 19 11:55 meta.json\n-rw-r----- 1 1009 1008   304 Oct 19 11:55 package.json\n---frames---\n"
+  },
+  {
+    "node": "n2-self-attention",
+    "event": {
+      "at": 1792411205.7771752,
+      "tool": "run_command",
+      "ok": true,
+      "elapsed": 0.22394116688519716,
+      "worker_id": "5b5ee6ed30204ab1a48a44c27b5eca0b",
+      "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/946d9a0c2e0eae78cfa28cdc696dbaf5785c03a8b2e61f37ef481e3ca7a17d01/videos/self-attention-qkv && ls -la && echo '--- frames ---' && ls -la compositions/frames 2>/dev/null && echo '--- assets ---' && ls assets assets/fonts 2>/dev/null | head -40",
+      "exit_code": 2,
+      "command_id": "06161b2be62c4d62879b346480f18986"
+    },
+    "log_excerpt": "total 124\ndrwxr-x--- 4 1009 1008  4096 Oct 19 11:59 .\ndrwxr-x--- 3 1009 1008  4096 Oct 19 11:55 ..\ndrwxr-x--- 3 1009 1008  4096 Oct 19 11:59 .hyperframes\n-rw-rw-r-- 1 1009 1008  8626 Oct 19 11:55 AGENTS.md\n-rw-r----- 1 1009 1008  4311 Oct 19 11:55 BRIEF.md\n-rw-rw-r-- 1 1009 1008  8626 Oct 19 11:55 CLAUDE.md\n-rw-r----- 1 1009 1008  4970 Oct 19 11:57 SCRIPT.md\n-rw-r----- 1 1009 1008 22345 Oct 19 11:59 STORYBOARD.md\ndrwxr-x--- 4 1009 1008  4096 Oct 19 11:57 assets\n-rw-r----- 1 1009 1008  1954 Oct 19 11:58 audio_meta.json\n-rw-r----- 1 1009 1008  4442 Oct 19 11:57 audio_request.json\n-rw-r----- 1 1009 1008  8764 Oct 19 11:56 frame.md\n-rw-r----- 1 1009 1008   355 Oct 19 11:55 hyperframes.json\n-rw-rw-r-- 1 1009 1008  7194 Oct 19 11:59 index.html\n-rw-r----- 1 1009 1008   107 Oct 19 11:55 meta.json\n-rw-r----- 1 1009 1008   307 Oct 19 11:55 package.json\n--- frames ---\n"
+  },
+  {
+    "node": "n2-self-attention",
+    "event": {
+      "at": 1792411206.7935379,
+      "tool": "run_command",
+      "ok": true,
+      "elapsed": 0.2426671045832336,
+      "worker_id": "ca9d412844fa4d66baa82b4b91aad456",
+      "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/946d9a0c2e0eae78cfa28cdc696dbaf5785c03a8b2e61f37ef481e3ca7a17d01/videos/self-attention-qkv && ls -la && echo \"---frames---\" && ls -la compositions/frames 2>/dev/null && echo \"---assets---\" && ls -R assets 2>/dev/null | head -50",
+      "exit_code": 2,
+      "command_id": "abb3486e691d47b1aa11f907580cf153"
+    },
+    "log_excerpt": "total 124\ndrwxr-x--- 4 1009 1008  4096 Oct 19 11:59 .\ndrwxr-x--- 3 1009 1008  4096 Oct 19 11:55 ..\ndrwxr-x--- 3 1009 1008  4096 Oct 19 11:59 .hyperframes\n-rw-rw-r-- 1 1009 1008  8626 Oct 19 11:55 AGENTS.md\n-rw-r----- 1 1009 1008  4311 Oct 19 11:55 BRIEF.md\n-rw-rw-r-- 1 1009 1008  8626 Oct 19 11:55 CLAUDE.md\n-rw-r----- 1 1009 1008  4970 Oct 19 11:57 SCRIPT.md\n-rw-r----- 1 1009 1008 22345 Oct 19 11:59 STORYBOARD.md\ndrwxr-x--- 4 1009 1008  4096 Oct 19 11:57 assets\n-rw-r----- 1 1009 1008  1954 Oct 19 11:58 audio_meta.json\n-rw-r----- 1 1009 1008  4442 Oct 19 11:57 audio_request.json\n-rw-r----- 1 1009 1008  8764 Oct 19 11:56 frame.md\n-rw-r----- 1 1009 1008   355 Oct 19 11:55 hyperframes.json\n-rw-rw-r-- 1 1009 1008  7194 Oct 19 11:59 index.html\n-rw-r----- 1 1009 1008   107 Oct 19 11:55 meta.json\n-rw-r----- 1 1009 1008   307 Oct 19 11:55 package.json\n---frames---\n"
+  },
+  {
+    "node": "n3-multihead",
+    "event": {
+      "at": 1792410963.53544,
+      "tool": "run_command",
+      "ok": true,
+      "elapsed": 0.2072581248357892,
+      "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/07758713e18078d79d68f6c1f901a72594b849920eb664eed07d5c12c3f4efcd && ls -la && echo \"--- videos ---\" && ls -la videos 2>/dev/null && echo \"--- original ---\" && ls -la original 2>/dev/null",
+      "exit_code": 2,
+      "command_id": "873cf834ca1a49ca88737b30aeff215f"
+    },
+    "log_excerpt": "total 32\ndrwx------ 3 1009 1008  4096 Oct 19 11:55 .\ndrwx------ 3 1009 1008    60 Oct 19 11:56 ..\ndrwxr-x--- 6 1009 1008  4096 Oct 19 11:56 .host\n-rw-r----- 1 1009 1008 21621 Oct 19 11:55 REQUEST.json\n--- videos ---\n"
+  },
+  {
+    "node": "n4-position-ffn-norm",
+    "event": {
+      "at": 1792411197.5475616,
+      "tool": "poll_command",
+      "ok": true,
+      "elapsed": 5.510499147232622,
+      "exit_code": 1,
+      "command_id": "ee3c996bc258484fb43f57f40f79b359"
+    },
+    "log_excerpt": "file:///home/zxqs_ep/Edu_AI/backend/src/app/integrations/hyperframes/host_audio_engine.mjs:12\n  let body='';res.on('data',c=>body+=c);res.on('end',()=>res.statusCode===200?resolve(JSON.parse(body)):reject(Error(body)));\n                                                                                                               ^\n\nError: {\"error\": \"\\u8fdc\\u7a0b\\u914d\\u97f3\\u8bf7\\u6c42\\u5931\\u8d25\\uff08HTTP 429\\uff09\"}\n    at IncomingMessage.<anonymous> (file:///home/zxqs_ep/Edu_AI/backend/src/app/integrations/hyperframes/host_audio_engine.mjs:12:112)\n    at IncomingMessage.emit (node:events:531:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)\n\nNode.js v22.23.2\n✗ audio generate: media audio engine exited 1\naudio.mjs exited 1\n"
+  }
+]

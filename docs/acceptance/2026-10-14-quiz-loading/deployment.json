@@ -1,0 +1,45 @@
+{
+  "publishedAt": "20261014T070848Z",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-quiz-loading-20261014",
+  "backup": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-quiz-loading-20261014T070848Z",
+  "baselineReproduced": true,
+  "baselineSource": "/tmp/edu-quiz-loading-source/frontend; current PBL sidebar release reproduced, then quiz loading changes only",
+  "previousIndexSha256": "19c09ad7700360d91aa3f4416e420f11446dad4ed3dedc9e397c1033e49fe5a3",
+  "releaseIndexSha256": "c8786c991d438f2f511b47632dee86c631fec245879fdc4f3aa73e6ff1a06e71",
+  "nginxIndexMatches": true,
+  "changes": [
+    "Show one consistent loader from authentication through question and attempt loading",
+    "Render the complete question tree only when the version-bound snapshot is ready",
+    "Wait for saved legacy answers before exposing editable inputs",
+    "Keep retry errors separate from incomplete question previews"
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "quizChecks": {
+      "browserTestsPassed": 8,
+      "coverage": [
+        "same loading surface while material and saved answers are delayed",
+        "no read-only question preview or editable incomplete form",
+        "all versioned cards appear only with saved state ready, no per-question GET fan-out",
+        "failure and retry on narrow screens",
+        "saved legacy answer restored before first editable form",
+        "quiz types, code, math, simplified controls and explicit tutoring references"
+      ],
+      "limits": "Business API responses mocked with controlled delays; no backend speedup or single HTTP request claimed."
+    }
+  },
+  "verificationLimits": "Fixture questions and mocked business APIs against built assets. No production answers or settings changed by verification. Short-answer grading mechanism inspected in backend source; no new model calls.",
+  "productionBrowserChecks": {
+    "passed": 3,
+    "cases": [
+      "delayed checks show complete questions once",
+      "failure and retry on mobile",
+      "material and saved legacy answers use same loader until ready"
+    ],
+    "businessApi": "mocked with controlled delays"
+  }
+}

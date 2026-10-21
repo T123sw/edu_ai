@@ -21,11 +21,13 @@ test("quiz requires at least one supported question type", () => {
 });
 
 test("flashcard title remains plain text and all settings serialize", () => {
-  const config = { ...flashcardDefinition.defaultConfig(), title: "https://example.com/不是外链", count: 18, category: "核心概念", showSource: false };
+  const config = { ...flashcardDefinition.defaultConfig(), title: "https://example.com/不是外链", count: 18, specialRequirements: "  多练易混淆概念  ", showSource: false };
   const payload = flashcardDefinition.serialize({ courseId: "course-1", source, config });
   const cards = payload.flashcard_config as Record<string, unknown>;
   assert.equal(cards.title, config.title);
   assert.equal(cards.count, 18);
+  assert.equal(cards.special_requirements, "多练易混淆概念");
+  assert.equal("category" in cards, false);
   assert.equal(cards.show_sources, false);
 });
 

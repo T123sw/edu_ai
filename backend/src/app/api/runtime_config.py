@@ -165,6 +165,8 @@ def _verify_tts_provider(
 
 
 def _verify_provider(provider: str, values: dict[str, Any]) -> None:
+    if provider == 'classroom':
+        raise ProviderVerificationError('retired_provider', '视频已使用 HyperFrames；请使用平台模型和语音配置，无需独立课堂服务地址')
     base_url = str(values.get("base_url") or "").rstrip("/")
     api_key = str(values.get("api_key") or "")
     if not base_url.startswith(("http://", "https://")):
@@ -174,11 +176,7 @@ def _verify_provider(provider: str, values: dict[str, Any]) -> None:
     timeout = max(1.0, min(120.0, float(values.get("timeout_seconds") or 15)))
     headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
     try:
-        if provider == "classroom":
-            response = httpx.get(
-                f"{base_url}/api/health", headers=headers, timeout=timeout
-            )
-        elif provider == "web_search":
+        if provider == "web_search":
             response = httpx.post(
                 f"{base_url}/v1/web-search",
                 headers={**headers, "Content-Type": "application/json"},
@@ -186,9 +184,14 @@ def _verify_provider(provider: str, values: dict[str, Any]) -> None:
                 timeout=timeout,
             )
         elif provider == "pdf_parser":
-            # MinerU and similar parsers do not expose a side-effect-free model
-            # endpoint. A reachable, authenticated API root is the safest probe.
-            response = httpx.get(base_url, headers=headers, timeout=timeout)
+            from app.integrations.pdf.configuration import resolve_pdf_config, create_pdf_parser
+            config = resolve_pdf_config({**values, '_source': 'system'})
+            if config['provider_id'] == 'mineru-local':
+                parser = create_pdf_parser(config)
+                response = httpx.get(f'{parser.base_url}/v1/health', headers=headers,
+                                     timeout=timeout, trust_env=False)
+            else:
+                response = httpx.get(base_url, headers=headers, timeout=timeout)
         elif provider == "tts":
             _verify_tts_provider(base_url, api_key, values, timeout)
             return
@@ -223,6 +226,8 @@ async def list_runtime_configs(current_user: dict = Depends(get_current_user)):
     username = str(current_user.get("username") or "")
     providers = []
     for provider, fields in PROVIDER_FIELDS.items():
+        if provider == 'classroom':
+            continue
         user_record = runtime_config_store.list_provider(
             scope="user", owner_id=username, provider=provider
         )

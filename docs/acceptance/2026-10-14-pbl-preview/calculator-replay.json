@@ -1,0 +1,495 @@
+{
+  "results": [
+    {
+      "width": 1440,
+      "panes": [
+        {
+          "cls": "pbl-lesson",
+          "rect": {
+            "x": 264,
+            "y": -639,
+            "width": 1152,
+            "height": 708.28125,
+            "top": -639,
+            "right": 1416,
+            "bottom": 69.28125,
+            "left": 264
+          },
+          "display": "block",
+          "overflow": "visible"
+        },
+        {
+          "cls": "pbl-sandpack pbl-view-result",
+          "rect": {
+            "x": 264,
+            "y": 124.28125,
+            "width": 1152,
+            "height": 535,
+            "top": 124.28125,
+            "right": 1416,
+            "bottom": 659.28125,
+            "left": 264
+          },
+          "display": "block",
+          "overflow": "visible"
+        },
+        {
+          "cls": "pbl-view-switch",
+          "rect": {
+            "x": 1204,
+            "y": 136.28125,
+            "width": 212,
+            "height": 31,
+            "top": 136.28125,
+            "right": 1416,
+            "bottom": 167.28125,
+            "left": 1204
+          },
+          "display": "flex",
+          "overflow": "visible"
+        },
+        {
+          "cls": "sp-c-ikJbEZ sp-layout",
+          "rect": {
+            "x": 264,
+            "y": 179.28125,
+            "width": 1152,
+            "height": 480,
+            "top": 179.28125,
+            "right": 1416,
+            "bottom": 659.28125,
+            "left": 264
+          },
+          "display": "flex",
+          "overflow": "hidden"
+        },
+        {
+          "cls": "sp-c-euXojQ sp-editor sp-stack",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "display": "none",
+          "overflow": "hidden"
+        },
+        {
+          "cls": "sp-c-euXojQ sp-preview sp-stack",
+          "rect": {
+            "x": 265,
+            "y": 180.28125,
+            "width": 1150,
+            "height": 478,
+            "top": 180.28125,
+            "right": 1415,
+            "bottom": 658.28125,
+            "left": 265
+          },
+          "display": "flex",
+          "overflow": "hidden"
+        }
+      ],
+      "scrollWidth": 1440
+    },
+    {
+      "width": 1024,
+      "panes": [
+        {
+          "cls": "pbl-lesson",
+          "rect": {
+            "x": 211,
+            "y": -659,
+            "width": 797,
+            "height": 728.078125,
+            "top": -659,
+            "right": 1008,
+            "bottom": 69.078125,
+            "left": 211
+          },
+          "display": "block",
+          "overflow": "visible"
+        },
+        {
+          "cls": "pbl-sandpack pbl-view-result",
+          "rect": {
+            "x": 211,
+            "y": 124.078125,
+            "width": 797,
+            "height": 535,
+            "top": 124.078125,
+            "right": 1008,
+            "bottom": 659.078125,
+            "left": 211
+          },
+          "display": "block",
+          "overflow": "visible"
+        },
+        {
+          "cls": "pbl-view-switch",
+          "rect": {
+            "x": 796,
+            "y": 136.078125,
+            "width": 212,
+            "height": 31,
+            "top": 136.078125,
+            "right": 1008,
+            "bottom": 167.078125,
+            "left": 796
+          },
+          "display": "flex",
+          "overflow": "visible"
+        },
+        {
+          "cls": "sp-c-ikJbEZ sp-layout",
+          "rect": {
+            "x": 211,
+            "y": 179.078125,
+            "width": 797,
+            "height": 480,
+            "top": 179.078125,
+            "right": 1008,
+            "bottom": 659.078125,
+            "left": 211
+          },
+          "display": "flex",
+          "overflow": "hidden"
+        },
+        {
+          "cls": "sp-c-euXojQ sp-editor sp-stack",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "display": "none",
+          "overflow": "hidden"
+        },
+        {
+          "cls": "sp-c-euXojQ sp-preview sp-stack",
+          "rect": {
+            "x": 212,
+            "y": 180.078125,
+            "width": 795,
+            "height": 478,
+            "top": 180.078125,
+            "right": 1007,
+            "bottom": 658.078125,
+            "left": 212
+          },
+          "display": "flex",
+          "overflow": "hidden"
+        }
+      ],
+      "scrollWidth": 1024
+    },
+    {
+      "width": 768,
+      "panes": [
+        {
+          "cls": "pbl-lesson",
+          "rect": {
+            "x": 211,
+            "y": -835,
+            "width": 541,
+            "height": 903.875,
+            "top": -835,
+            "right": 752,
+            "bottom": 68.875,
+            "left": 211
+          },
+          "display": "block",
+          "overflow": "visible"
+        },
+        {
+          "cls": "pbl-sandpack pbl-view-result",
+          "rect": {
+            "x": 211,
+            "y": 123.875,
+            "width": 541,
+            "height": 535,
+            "top": 123.875,
+            "right": 752,
+            "bottom": 658.875,
+            "left": 211
+          },
+          "display": "block",
+          "overflow": "visible"
+        },
+        {
+          "cls": "pbl-view-switch",
+          "rect": {
+            "x": 620,
+            "y": 135.875,
+            "width": 132,
+            "height": 31,
+            "top": 135.875,
+            "right": 752,
+            "bottom": 166.875,
+            "left": 620
+          },
+          "display": "flex",
+          "overflow": "visible"
+        },
+        {
+          "cls": "sp-c-ikJbEZ sp-layout",
+          "rect": {
+            "x": 211,
+            "y": 178.875,
+            "width": 541,
+            "height": 480,
+            "top": 178.875,
+            "right": 752,
+            "bottom": 658.875,
+            "left": 211
+          },
+          "display": "flex",
+          "overflow": "hidden"
+        },
+        {
+          "cls": "sp-c-euXojQ sp-editor sp-stack",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "display": "none",
+          "overflow": "hidden"
+        },
+        {
+          "cls": "sp-c-euXojQ sp-preview sp-stack",
+          "rect": {
+            "x": 212,
+            "y": 179.875,
+            "width": 539,
+            "height": 478,
+            "top": 179.875,
+            "right": 751,
+            "bottom": 657.875,
+            "left": 212
+          },
+          "display": "flex",
+          "overflow": "hidden"
+        }
+      ],
+      "scrollWidth": 768
+    },
+    {
+      "width": 720,
+      "panes": [
+        {
+          "cls": "pbl-lesson",
+          "rect": {
+            "x": 211,
+            "y": -853,
+            "width": 493,
+            "height": 921.875,
+            "top": -853,
+            "right": 704,
+            "bottom": 68.875,
+            "left": 211
+          },
+          "display": "block",
+          "overflow": "visible"
+        },
+        {
+          "cls": "pbl-sandpack pbl-view-result",
+          "rect": {
+            "x": 211,
+            "y": 123.875,
+            "width": 493,
+            "height": 535,
+            "top": 123.875,
+            "right": 704,
+            "bottom": 658.875,
+            "left": 211
+          },
+          "display": "block",
+          "overflow": "visible"
+        },
+        {
+          "cls": "pbl-view-switch",
+          "rect": {
+            "x": 572,
+            "y": 135.875,
+            "width": 132,
+            "height": 31,
+            "top": 135.875,
+            "right": 704,
+            "bottom": 166.875,
+            "left": 572
+          },
+          "display": "flex",
+          "overflow": "visible"
+        },
+        {
+          "cls": "sp-c-ikJbEZ sp-layout",
+          "rect": {
+            "x": 211,
+            "y": 178.875,
+            "width": 493,
+            "height": 480,
+            "top": 178.875,
+            "right": 704,
+            "bottom": 658.875,
+            "left": 211
+          },
+          "display": "flex",
+          "overflow": "hidden"
+        },
+        {
+          "cls": "sp-c-euXojQ sp-editor sp-stack",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "display": "none",
+          "overflow": "hidden"
+        },
+        {
+          "cls": "sp-c-euXojQ sp-preview sp-stack",
+          "rect": {
+            "x": 212,
+            "y": 179.875,
+            "width": 491,
+            "height": 478,
+            "top": 179.875,
+            "right": 703,
+            "bottom": 657.875,
+            "left": 212
+          },
+          "display": "flex",
+          "overflow": "hidden"
+        }
+      ],
+      "scrollWidth": 720
+    },
+    {
+      "width": 390,
+      "panes": [
+        {
+          "cls": "pbl-lesson",
+          "rect": {
+            "x": 12,
+            "y": -1087,
+            "width": 366,
+            "height": 1194.671875,
+            "top": -1087,
+            "right": 378,
+            "bottom": 107.671875,
+            "left": 12
+          },
+          "display": "block",
+          "overflow": "visible"
+        },
+        {
+          "cls": "pbl-sandpack pbl-view-result",
+          "rect": {
+            "x": 12,
+            "y": 168.671875,
+            "width": 366,
+            "height": 536,
+            "top": 168.671875,
+            "right": 378,
+            "bottom": 704.671875,
+            "left": 12
+          },
+          "display": "block",
+          "overflow": "visible"
+        },
+        {
+          "cls": "pbl-view-switch",
+          "rect": {
+            "x": 12,
+            "y": 221.671875,
+            "width": 132,
+            "height": 31,
+            "top": 221.671875,
+            "right": 144,
+            "bottom": 252.671875,
+            "left": 12
+          },
+          "display": "flex",
+          "overflow": "visible"
+        },
+        {
+          "cls": "sp-c-ikJbEZ sp-layout",
+          "rect": {
+            "x": 12,
+            "y": 264.671875,
+            "width": 366,
+            "height": 440,
+            "top": 264.671875,
+            "right": 378,
+            "bottom": 704.671875,
+            "left": 12
+          },
+          "display": "flex",
+          "overflow": "hidden"
+        },
+        {
+          "cls": "sp-c-euXojQ sp-editor sp-stack",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          },
+          "display": "none",
+          "overflow": "hidden"
+        },
+        {
+          "cls": "sp-c-euXojQ sp-preview sp-stack",
+          "rect": {
+            "x": 13,
+            "y": 265.671875,
+            "width": 364,
+            "height": 438,
+            "top": 265.671875,
+            "right": 377,
+            "bottom": 703.671875,
+            "left": 13
+          },
+          "display": "flex",
+          "overflow": "hidden"
+        }
+      ],
+      "scrollWidth": 390
+    }
+  ],
+  "errors": [],
+  "frames": [
+    {
+      "url": "http://127.0.0.1:5221/#/practice/code/pbl_b33fe35781ba590d346b053f240b447b",
+      "body": "Edu AI\nAI 课堂\n互动实验\n考试模拟\n我的资源\n后台任务\np\n项目目录\n步骤说明\n编辑代码\n查看页面预览\n步骤 1 / 4\n搭建计算器界面骨架\n完成后检查本步\n\n在 App.jsx 中渲染计算器显示区与全部按钮（0-9、.、+、-、×、÷、=、C），并让显示区初始显示 0。\n\n本步目标\n\n把"
+    },
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "body": "我的项目\n\n从第一步开始实现。"
+    }
+  ]
+}

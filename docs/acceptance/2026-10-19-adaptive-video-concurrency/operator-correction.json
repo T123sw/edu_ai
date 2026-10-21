@@ -1,0 +1,23 @@
+{
+  "method": "authorized_targeted_numeric_data_repair",
+  "actor": "teacher",
+  "course_id": "learn-65488c25779346448e1dcbe0b809d73e",
+  "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+  "base_resource_version": 2,
+  "resource_version": 3,
+  "base_manifest_version": 22,
+  "manifest_version": 23,
+  "base_content_digest": "dff5bec175cefe7bb1efaed5d51d7d361011be9ba3044565d81b590e918832c0",
+  "content_digest": "c2df1c455eaa964cc54f07089318734f8bf8e9fb7db2c24480b53d882308e839",
+  "source_preparation_id": "prep_5e8b684bdbfe43f589be3d453662a718",
+  "review_digest": "80350eba9467b20bdfab238bce344affbe004255ea3e9ab6611ead9bd0c8485f",
+  "changed_fields": [
+    "q6.answer",
+    "q6.explanation",
+    "q7.answer",
+    "q7.explanation"
+  ],
+  "restored_original_objective_bindings": true,
+  "numeric_checks": 31,
+  "at": "2026-10-19T15:40:56.276132+00:00"
+}

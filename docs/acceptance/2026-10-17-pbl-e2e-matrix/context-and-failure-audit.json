@@ -1,0 +1,320 @@
+[
+  {
+    "case": "shop_a",
+    "modelCalls": 15,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "repair_step",
+      "repair_checks",
+      "repair_step",
+      "repair_checks",
+      "build_step",
+      "build_checks"
+    ],
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "stepId": "add-and-guard",
+        "previousChecks": 0,
+        "reportPassed": null,
+        "skipped": true,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "build_checks",
+        "stepId": "quantity",
+        "previousChecks": 3,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "build_checks",
+        "stepId": "toggle-delete",
+        "previousChecks": 6,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "build_checks",
+        "stepId": "filter",
+        "previousChecks": 8,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "stepId": "filter",
+        "previousChecks": 8,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "stepId": "filter",
+        "previousChecks": 8,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "build_checks",
+        "stepId": "stats",
+        "previousChecks": 10,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      }
+    ]
+  },
+  {
+    "case": "shop_b",
+    "modelCalls": 11,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "repair_step",
+      "repair_step"
+    ],
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "stepId": "add-and-guard",
+        "previousChecks": 0,
+        "reportPassed": null,
+        "skipped": true,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "build_checks",
+        "stepId": "quantity",
+        "previousChecks": 4,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "build_checks",
+        "stepId": "toggle-and-delete",
+        "previousChecks": 7,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "build_checks",
+        "stepId": "filter-and-stats",
+        "previousChecks": 10,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      }
+    ],
+    "failure": {
+      "issues": [
+        "本步代码未通过前序验收，尚未设计本步验收；对照 previousFiles、priorCandidate.referenceFiles 和 previousCheckReport 修复本步代码，保留前序检查及本步目标：[{\"caseId\": \"toggle-to-purchased\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"item-input\\\" 输入 \\\"酸奶\\\"\\n✓ 2. 点击 \\\"添加\\\"\\n✓ 3. 检查 \\\"item-status\\\" 的显示文字\\n   实际：\\\"待购买\\\"\\n× 4. 点击 \\\"切换状态\\\"\\n操作未完成：目标控件缺失、重复、不可见或无法操作。\"}, {\"caseId\": \"toggle-back-pending\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"item-input\\\" 输入 \\\"鸡蛋\\\"\\n✓ 2. 点击 \\\"添加\\\"\\n× 3. 点击 \\\"切换状态\\\"\\n操作未完成：目标控件缺失、重复、不可见或无法操作。\"}]"
+      ],
+      "repairs": {
+        "filter-and-stats": 3
+      },
+      "previousCheckReport": {
+        "stepId": "filter-and-stats",
+        "referenceHash": "99fefe6c6f22fe257d6708fb31d93d625882077fc6f3ee88cb431ae333e9824f",
+        "previousHash": "4008d59c5b395d784b21619dd4c380378839d424df3cf12bdb90d434fd8c8331",
+        "checkIds": [
+          "add-item-appears",
+          "add-clears-input",
+          "blank-shows-hint",
+          "blank-no-item",
+          "increase-quantity",
+          "decrease-quantity",
+          "decrease-floor-one",
+          "toggle-to-purchased",
+          "toggle-back-pending",
+          "delete-removes-item"
+        ],
+        "passed": false,
+        "results": [
+          {
+            "caseId": "add-item-appears",
+            "status": "passed",
+            "message": "✓ 1. 在 \"item-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-row\" 的数量\n   实际：1\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "add-clears-input",
+            "status": "passed",
+            "message": "✓ 1. 在 \"item-input\" 输入 \"面包\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-shows-hint",
+            "status": "passed",
+            "message": "✓ 1. 点击 \"添加\"\n✓ 2. 检查 \"hint\" 的可见状态\n   实际：true\n✓ 3. 检查 \"hint\" 的显示文字\n   实际：\"请输入商品名称\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-no-item",
+            "status": "passed",
+            "message": "✓ 1. 在 \"item-input\" 输入 \"   \"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-row\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "increase-quantity",
+            "status": "passed",
+            "message": "✓ 1. 在 \"item-input\" 输入 \"苹果\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n✓ 4. 点击 \"增加\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：2\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "decrease-quantity",
+            "status": "passed",
+            "message": "✓ 1. 在 \"item-input\" 输入 \"香蕉\"\n✓ 2. 点击 \"添加\"\n✓ 3. 点击 \"增加\"\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：2\"\n✓ 5. 点击 \"减少\"\n✓ 6. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "decrease-floor-one",
+            "status": "passed",
+            "message": "✓ 1. 在 \"item-input\" 输入 \"橙子\"\n✓ 2. 点击 \"添加\"\n✓ 3. 点击 \"减少\"\n✓ 4. 点击 \"减少\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "toggle-to-purchased",
+            "status": "failed",
+            "message": "✓ 1. 在 \"item-input\" 输入 \"酸奶\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-status\" 的显示文字\n   实际：\"待购买\"\n× 4. 点击 \"切换状态\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+          },
+          {
+            "caseId": "toggle-back-pending",
+            "status": "failed",
+            "message": "✓ 1. 在 \"item-input\" 输入 \"鸡蛋\"\n✓ 2. 点击 \"添加\"\n× 3. 点击 \"切换状态\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+          },
+          {
+            "caseId": "delete-removes-item",
+            "status": "passed",
+            "message": "✓ 1. 在 \"item-input\" 输入 \"可乐\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-row\" 的数量\n   实际：1\n✓ 4. 点击 \"删除\"\n✓ 5. 检查 \"item-row\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          }
+        ],
+        "durationMs": 5678.4621799999995
+      }
+    }
+  },
+  {
+    "case": "form",
+    "modelCalls": 3,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks"
+    ],
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "stepId": "signup-form",
+        "previousChecks": 0,
+        "reportPassed": null,
+        "skipped": true,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      }
+    ]
+  },
+  {
+    "case": "layout",
+    "modelCalls": 3,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks"
+    ],
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "stepId": "build-page",
+        "previousChecks": 0,
+        "reportPassed": null,
+        "skipped": true,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      }
+    ]
+  },
+  {
+    "case": "score",
+    "modelCalls": 7,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks"
+    ],
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "stepId": "shell",
+        "previousChecks": 0,
+        "reportPassed": null,
+        "skipped": true,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "build_checks",
+        "stepId": "score-buttons",
+        "previousChecks": 4,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      },
+      {
+        "phase": "build_checks",
+        "stepId": "reset-and-status",
+        "previousChecks": 9,
+        "reportPassed": true,
+        "skipped": false,
+        "hasBothSnapshots": true,
+        "hashBound": true,
+        "allPriorChecksInReport": true
+      }
+    ]
+  }
+]

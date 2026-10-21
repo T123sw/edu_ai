@@ -1,0 +1,23 @@
+{
+  "status": "frontend-published-backend-restart-required",
+  "publishedAt": "20261019T061904Z",
+  "release": "/tmp/edu-preparation-cancel-release",
+  "source": "/tmp/edu-preparation-cancel-source",
+  "backupIndex": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-preparation-cancel-20261019T061904Z/index.html",
+  "previousIndexSha256": "bd3da81e0362839f05730503402bad90e3888fb82e5209ebc96e024dee11f17d",
+  "releaseIndexSha256": "762d3a797fac5801c0617dd7bd743ac0166a1c8870d8388ae8d2eaf6fdcbc36c",
+  "backendRestarted": false,
+  "backendRestartReason": "Interactive authentication required",
+  "verification": {
+    "backendPassed": 40,
+    "postgresqlCasesSkipped": 24,
+    "browserPassed": 2,
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed"
+  },
+  "liveUserTaskCanceled": false,
+  "nginxIndexVerified": true,
+  "workerStatus": "MainPID=2475382\nExecMainStartTimestamp=Mon 2026-10-19 05:58:13 UTC\nSubState=stop-sigterm",
+  "workerRestart": "Graceful restart requested; existing generation may finish or respond to its own cancellation before restart"
+}

@@ -1,0 +1,54 @@
+{
+  "preparation_id": "prep_f490a8326a334d33a472aa13e1f6c1c9",
+  "attempt_no": 2,
+  "status": "failed",
+  "created_at": "2026-10-18T05:29:03.319996+00:00",
+  "stage": "review",
+  "revision": 106,
+  "error_code": "RESOURCE_LEASE_EXPIRED",
+  "failure": {
+    "title": "部分内容待补齐，已有资料可以学习",
+    "reason": "本次有 1 份学习内容未完成：课程准备遇到问题。",
+    "next_step": "可以先进入课程学习已完成的资料，也可以点击“补齐未完成内容”继续处理；已完成资料会保留。",
+    "stage": "汇总与检查学习内容",
+    "saved_resources": 2,
+    "planned_resources": 3,
+    "resource_issues": [
+      {
+        "resource_title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+        "resource_type": "AI 课堂",
+        "step": "制作学习资料",
+        "reason": "任务在“汇总与检查学习内容”时中断，目前没有足够信息确认更具体的原因。"
+      }
+    ]
+  },
+  "result_ref": {
+    "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+    "manifest_id": "manifest_48386e242bab6af388c156777496cdb8",
+    "course_ready": false,
+    "course_available": true,
+    "manifest_version": 1,
+    "planned_resources": 3,
+    "available_resources": 2
+  },
+  "budget": {
+    "limits": {
+      "calls": null,
+      "tokens": null,
+      "seconds": null,
+      "retry_only": true,
+      "cost_micro_usd": null
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 25,
+      "tokens": 498103,
+      "cost_micro_usd": 4981030
+    },
+    "deadline": null
+  }
+}

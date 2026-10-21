@@ -139,3 +139,30 @@ def test_direct_quiz_service_generates_from_topic_without_documents():
     assert result["artifacts"][0]["artifact_type"] == "quiz"
     assert result["trace"]["selected_doc_count"] == 0
     assert "Agent principles" in str(llm.messages[0])
+
+
+def test_course_context_is_included_in_quiz_model_messages():
+    llm = StubLlm(['{"questions":[{"question":"变量是什么？","question_type":"选择题","choices":["名字绑定","固定数字"],"correct_answer":"A","analysis":"课程中变量是名字到对象的绑定。"}]}'])
+    service = KnowledgeBaseDirectQuizServiceV2(content_provider=NoSourceContentProvider(), llm=llm, course_storage_manager=None)
+    service.generate(SimpleNamespace(selected_doc_ids=[], course_id='course-context-test', owner='alice', quiz_config={'topic':'变量','question_count':1}, research_context='Python 课程原文：名字到对象的绑定。'))
+    assert '名字到对象的绑定' in str(llm.messages[0])
+
+
+def test_audience_and_output_switches_reach_saved_quiz():
+    class Storage:
+        def save_generated_material(self, **kwargs):
+            self.saved = kwargs
+            return True
+    for answers in (True, False):
+        for explanations in (True, False):
+            llm = StubLlm(['{"questions":[{"question":"变量是什么？","type":"short","correct_answer":"命名存储。"}]}'])
+            storage = Storage()
+            service = KnowledgeBaseDirectQuizServiceV2(content_provider=NoSourceContentProvider(), llm=llm, course_storage_manager=storage)
+            result = service.generate(SimpleNamespace(owner='u1', course_id='course-1', selected_doc_ids=[],
+                quiz_config={'topic': '变量', 'audience': '没有编程基础的成年人', 'question_count': 1,
+                    'question_types': ['short'], 'include_answers': answers, 'include_explanations': explanations}))
+            assert '适用对象：没有编程基础的成年人' in str(llm.messages)
+            question = result['artifacts'][0]['content']['questions'][0]
+            assert bool(question['answer']) is answers
+            assert bool(question['explanation']) is explanations
+            assert storage.saved['material_data']['content']['questions'][0] == question

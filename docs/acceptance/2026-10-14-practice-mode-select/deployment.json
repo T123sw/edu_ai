@@ -1,0 +1,24 @@
+{
+  "previous_index_sha256": "616995ac7c16bde1f09b154357e7b3b3a2fec7e291d43cf867327a008122b575",
+  "published_at": "20261014T002607Z",
+  "backup": "/tmp/edu-pbl-dropdown-backup-20261014T002607Z",
+  "build": "/tmp/edu-pbl-dropdown-release",
+  "apiBase": "/backend",
+  "index_sha256": "6dd50403cd85e9bc99e1a612acf8fa78e9e3199dae6eed91e102671c8459c6f6",
+  "frontendPublished": true,
+  "backendPblStatus": "404; administrator restart required; sudo -n requires password",
+  "productionMigrationExecuted": false,
+  "oldAssetsRetained": true,
+  "httpVerified": true,
+  "browserChecks": [
+    {
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "width": 390,
+      "passed": true
+    }
+  ],
+  "browserScope": "Actual Nginx assets; authentication/list APIs mocked; no real generation"
+}

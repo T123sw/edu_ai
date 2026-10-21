@@ -77,7 +77,7 @@ class ChatModelGateway:
             return {"enable_thinking": False}
         return {}
 
-    def chat(self, messages: List[Dict[str, str]], temperature: float = 0.2, max_tokens: int = 1200) -> str:
+    def chat(self, messages: List[Dict[str, str]], temperature: float = 0.2, max_tokens: int = 1200, *, response_format: Optional[Dict[str, str]] = None) -> str:
         errors: List[str] = []
         for candidate in self.candidates:
             url = f"{candidate['api_base']}/chat/completions"
@@ -88,6 +88,8 @@ class ChatModelGateway:
                 "max_tokens": max_tokens,
                 **self._thinking_params(candidate["model_name"]),
             }
+            if response_format is not None:
+                payload["response_format"] = response_format
             t0 = time.perf_counter()
             try:
                 resp = requests.post(

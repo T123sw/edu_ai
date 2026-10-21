@@ -1,0 +1,17 @@
+{
+  "status": "frontend-published-backend-restart-pending",
+  "publishedAt": "20261019T055432Z",
+  "source": "/tmp/edu-progressive-course-source",
+  "release": "/tmp/edu-progressive-course-release",
+  "backupIndex": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-progressive-course-20261019T055432Z/index.html",
+  "previousIndexSha256": "405e456d9476a4b36295f40f3cc8c9962362560238af3682e76c0153ebbafdc3",
+  "releaseIndexSha256": "bd3da81e0362839f05730503402bad90e3888fb82e5209ebc96e024dee11f17d",
+  "backendRestarted": false,
+  "backendRestartReason": "systemctl restart denied: Interactive authentication required",
+  "workerRestart": "graceful drain requested; active personal_studio task is preserved",
+  "verification": "simulated delivery metadata; real saved HyperFrames videos; no new AI generation",
+  "onlineBrowserPassed": true,
+  "nginxIndexVerified": true,
+  "workerStatus": "MainPID=2463238\nExecMainStartTimestamp=Mon 2026-10-19 05:34:29 UTC\nSubState=stop-sigterm",
+  "mainBackendStatus": "MainPID=2460324\nExecMainStartTimestamp=Mon 2026-10-19 05:30:55 UTC"
+}

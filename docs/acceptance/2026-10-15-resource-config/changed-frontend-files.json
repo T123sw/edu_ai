@@ -1,0 +1,11 @@
+[
+  "src/components/generation/definitions/flashcard.ts",
+  "src/components/generation/definitions/practiceResources.test.ts",
+  "src/components/generation/definitions/textResources.test.ts",
+  "src/components/generation/forms/FlashcardForm.tsx",
+  "src/components/generation/forms/MindMapForm.tsx",
+  "src/components/flashcards/round.ts",
+  "src/components/flashcards/FlashcardRound.tsx",
+  "src/components/teacher/FlashcardArtifactPreview.tsx",
+  "tests/live-learning/resource-config.spec.ts"
+]

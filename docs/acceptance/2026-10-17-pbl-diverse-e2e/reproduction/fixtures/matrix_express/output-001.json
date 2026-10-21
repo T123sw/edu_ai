@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 1,
+  "title": "商品库存 API 后端（Node.js + Express + JSON 文件持久化）",
+  "goal": "交付一个可实际启动的 Node.js Express 后端服务：GET /products 返回商品列表，POST /products 新增商品，POST /products/:id/stock 调整库存；库存不得为负，未知商品返回 404，非法数量返回 400；数据以 JSON 文件持久化，重启后仍可读取。验收通过真实启动服务并发送 HTTP 请求完成，不改为 React 页面或模拟接口。",
+  "runtimeKind": "js_function",
+  "editableFiles": [
+    "/server.js",
+    "/store.js",
+    "/data/products.json",
+    "/package.json"
+  ],
+  "requirements": [
+    {
+      "id": "list-products",
+      "description": "GET /products 返回 200 与 JSON 数组，包含当前所有商品（含 id、name、stock 等字段）；初始为空数组时返回 []。"
+    },
+    {
+      "id": "create-product",
+      "description": "POST /products 接收 JSON 商品（name 与初始 stock），成功返回 201 与新建商品（含生成的 id）；缺少 name 或 stock 非法（负数、非整数、非数字）返回 400 且不写入数据。"
+    },
+    {
+      "id": "adjust-stock",
+      "description": "POST /products/:id/stock 接收数量变化量 delta，成功返回 200 与更新后的商品；库存结果不得为负（会变负时返回 400 且库存不变）；未知商品 id 返回 404。"
+    },
+    {
+      "id": "json-persistence",
+      "description": "商品数据写入本地 JSON 文件；服务重启后 GET /products 仍能读到之前创建与调整后的数据。"
+    },
+    {
+      "id": "http-errors",
+      "description": "错误响应使用合适的 HTTP 状态码（400/404）并返回 JSON 错误信息，不因非法请求崩溃服务。"
+    }
+  ],
+  "steps": [
+    {
+      "id": "bootstrap-server",
+      "title": "启动 Express 服务并实现商品列表",
+      "objective": "搭建可启动的 Express 服务，用 JSON 文件作为存储，实现 GET /products 返回商品数组。",
+      "dependsOn": [],
+      "entryCondition": "已安装 Node.js，拥有空的工程目录。",
+      "deliverable": "运行 node server.js 后服务监听端口；GET /products 返回 200 与 JSON 数组（初始为 []），数据来自 data/products.json。",
+      "requirementIds": [
+        "list-products",
+        "json-persistence"
+      ],
+      "focusFiles": [
+        "/server.js",
+        "/store.js",
+        "/data/products.json",
+        "/package.json"
+      ],
+      "newCheckIds": [
+        "list-empty-array",
+        "list-reads-file"
+      ]
+    },
+    {
+      "id": "create-product",
+      "title": "新增商品并校验输入",
+      "objective": "实现 POST /products，生成 id 并写入 JSON 文件，非法输入返回 400。",
+      "dependsOn": [
+        "bootstrap-server"
+      ],
+      "entryCondition": "服务可启动且 GET /products 可用。",
+      "deliverable": "POST /products 合法请求返回 201 与含 id 的新商品，随后 GET /products 能看到它；缺少 name 或 stock 为负数/非整数返回 400 且列表不变。",
+      "requirementIds": [
+        "list-products",
+        "create-product",
+        "json-persistence",
+        "http-errors"
+      ],
+      "focusFiles": [
+        "/server.js",
+        "/store.js",
+        "/data/products.json"
+      ],
+      "newCheckIds": [
+        "create-returns-201",
+        "create-appears-in-list",
+        "create-invalid-400"
+      ]
+    },
+    {
+      "id": "adjust-stock",
+      "title": "调整库存并处理边界",
+      "objective": "实现 POST /products/:id/stock，支持增减库存，禁止负库存，未知商品 404。",
+      "dependsOn": [
+        "create-product"
+      ],
+      "entryCondition": "已能创建商品并通过 GET /products 读取。",
+      "deliverable": "对已有商品调整库存返回 200 与更新后商品；会使库存变负的请求返回 400 且库存不变；未知 id 返回 404。",
+      "requirementIds": [
+        "list-products",
+        "create-product",
+        "adjust-stock",
+        "http-errors"
+      ],
+      "focusFiles": [
+        "/server.js",
+        "/store.js",
+        "/data/products.json"
+      ],
+      "newCheckIds": [
+        "stock-increase",
+        "stock-decrease",
+        "stock-negative-400",
+        "stock-unknown-404"
+      ]
+    },
+    {
+      "id": "persistence-restart",
+      "title": "重启后数据仍在",
+      "objective": "确认数据写入 JSON 文件，服务重启后仍能读取之前的商品与库存。",
+      "dependsOn": [
+        "adjust-stock"
+      ],
+      "entryCondition": "已能创建商品并调整库存。",
+      "deliverable": "创建商品并调整库存后重启服务，GET /products 返回相同商品与库存值。",
+      "requirementIds": [
+        "json-persistence",
+        "list-products",
+        "adjust-stock"
+      ],
+      "focusFiles": [
+        "/store.js",
+        "/data/products.json"
+      ],
+      "newCheckIds": [
+        "persist-after-restart"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "list-empty-array",
+      "stepId": "bootstrap-server",
+      "kind": "function_case",
+      "requirementIds": [
+        "list-products"
+      ],
+      "setup": "清空 data/products.json 为 []，启动服务。",
+      "actions": [
+        "GET /products"
+      ],
+      "expected": [
+        "状态码 200",
+        "响应体为 JSON 数组且长度为 0"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "list-reads-file",
+      "stepId": "bootstrap-server",
+      "kind": "function_case",
+      "requirementIds": [
+        "list-products",
+        "json-persistence"
+      ],
+      "setup": "data/products.json 预置一条商品记录，启动服务。",
+      "actions": [
+        "GET /products"
+      ],
+      "expected": [
+        "状态码 200",
+        "数组包含该预置商品，name 与 stock 与文件一致"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "create-returns-201",
+      "stepId": "create-product",
+      "kind": "function_case",
+      "requirementIds": [
+        "create-product"
+      ],
+      "setup": "清空数据并启动服务。",
+      "actions": [
+        "POST /products 发送 {name:'苹果',stock:10}"
+      ],
+      "expected": [
+        "状态码 201",
+        "响应体含非空 id、name 为 苹果、stock 为 10"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "create-appears-in-list",
+      "stepId": "create-product",
+      "kind": "function_case",
+      "requirementIds": [
+        "create-product",
+        "list-products",
+        "json-persistence"
+      ],
+      "setup": "清空数据并启动服务。",
+      "actions": [
+        "POST /products 发送 {name:'香蕉',stock:5}",
+        "GET /products"
+      ],
+      "expected": [
+        "GET 返回 200",
+        "列表包含 name 为 香蕉、stock 为 5 的商品"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "create-invalid-400",
+      "stepId": "create-product",
+      "kind": "function_case",
+      "requirementIds": [
+        "create-product",
+        "http-errors"
+      ],
+      "setup": "清空数据并启动服务。",
+      "actions": [
+        "POST /products 发送 {stock:3}（缺 name）",
+        "POST /products 发送 {name:'梨',stock:-1}",
+        "GET /products"
+      ],
+      "expected": [
+        "两次 POST 均返回 400",
+        "GET 列表仍为空数组"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "stock-increase",
+      "stepId": "adjust-stock",
+      "kind": "function_case",
+      "requirementIds": [
+        "adjust-stock"
+      ],
+      "setup": "创建商品 {name:'橙子',stock:10}，记录其 id。",
+      "actions": [
+        "POST /products/{id}/stock 发送 {delta:5}",
+        "GET /products"
+      ],
+      "expected": [
+        "调整返回 200，stock 为 15",
+        "GET 列表中该商品 stock 为 15"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "stock-decrease",
+      "stepId": "adjust-stock",
+      "kind": "function_case",
+      "requirementIds": [
+        "adjust-stock"
+      ],
+      "setup": "创建商品 {name:'葡萄',stock:10}，记录其 id。",
+      "actions": [
+        "POST /products/{id}/stock 发送 {delta:-4}",
+        "GET /products"
+      ],
+      "expected": [
+        "调整返回 200，stock 为 6",
+        "GET 列表中该商品 stock 为 6"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "stock-negative-400",
+      "stepId": "adjust-stock",
+      "kind": "function_case",
+      "requirementIds": [
+        "adjust-stock",
+        "http-errors"
+      ],
+      "setup": "创建商品 {name:'西瓜',stock:3}，记录其 id。",
+      "actions": [
+        "POST /products/{id}/stock 发送 {delta:-10}",
+        "GET /products"
+      ],
+      "expected": [
+        "调整返回 400",
+        "GET 列表中该商品 stock 仍为 3"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "stock-unknown-404",
+      "stepId": "adjust-stock",
+      "kind": "function_case",
+      "requirementIds": [
+        "adjust-stock",
+        "http-errors"
+      ],
+      "setup": "启动服务，使用不存在的 id 'no-such-id'。",
+      "actions": [
+        "POST /products/no-such-id/stock 发送 {delta:1}"
+      ],
+      "expected": [
+        "返回 404",
+        "响应为 JSON 错误信息"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "persist-after-restart",
+      "stepId": "persistence-restart",
+      "kind": "function_case",
+      "requirementIds": [
+        "json-persistence",
+        "list-products",
+        "adjust-stock"
+      ],
+      "setup": "清空数据并启动服务。",
+      "actions": [
+        "POST /products 发送 {name:'芒果',stock:8}",
+        "POST /products/{id}/stock 发送 {delta:2}",
+        "停止服务并重新启动",
+        "GET /products"
+      ],
+      "expected": [
+        "重启后 GET 返回 200",
+        "列表包含 name 为 芒果、stock 为 10 的商品"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    }
+  ]
+}

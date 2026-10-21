@@ -1,0 +1,39 @@
+{
+  "root_causes": [
+    "后端 material_checks 对每道题调用 get，get 与 teaching.view 各自通过 owned 重读整课与资料，10 题共 21 次 room 和 21 次 material",
+    "嵌入资料入口静态导入课件播放器和通用资源预览，习题也加载这些依赖",
+    "习题复用辅导检查卡，提交/跳过/提问/解析/自动辅导全部展开，按钮继承旧蓝灰描边样式"
+  ],
+  "changes": [
+    "在本次请求中授权并校验精确资料版本一次，批量读取题目快照、作答和辅导状态；单题 get 也复用已验证的来源",
+    "课件及通用资源预览改为 lazy，仅需要时加载",
+    "题目操作区明确主按钮提交答案、次操作暂时跳过；提示与解析及后续辅导折叠，主题样式覆盖完整按钮区"
+  ],
+  "performance": {
+    "scope": "与运行服务同配置、同一生产 PostgreSQL 资料，独立 Python 进程走修改前/后的服务方法；连接强制只读，零模型调用；不等同浏览器全链路耗时",
+    "questions": 10,
+    "before_seconds": 6.152,
+    "after_seconds": 0.423,
+    "before_room_reads": 21,
+    "after_room_reads": 1,
+    "before_material_reads": 21,
+    "after_material_reads": 1
+  },
+  "verification": {
+    "backend_sqlite_passed": 30,
+    "postgresql_cases_skipped": 21,
+    "frontend_browser_passed": 5,
+    "actual_question_response_replay": 23,
+    "typescript": "passed",
+    "eslint": "passed",
+    "build": "passed; existing large chunk advisory",
+    "production_frontend": "passed; mocked API replay against deployed build"
+  },
+  "deployment": {
+    "frontend": "published; preserved concurrent PBL practice dropdown release",
+    "backend": "source tested, service not restarted; sudo requires password",
+    "backend_pid": 3469882,
+    "requires": "sudo systemctl restart edu-ai-backend"
+  },
+  "safety": "无永久授权缓存，不跨请求共享课程快照；保留精确版本/来源摘要验证，跨用户校验、作答版本绑定和原状态。未提交用户正式答案。"
+}

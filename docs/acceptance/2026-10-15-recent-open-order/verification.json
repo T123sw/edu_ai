@@ -1,0 +1,33 @@
+{
+  "scope": [
+    "首页课堂",
+    "互动实验",
+    "PBL 编程项目",
+    "本课资源",
+    "我的资源",
+    "旧资源中心"
+  ],
+  "ordering": "最近点击打开优先，未打开过的条目保留原有回退顺序；资源中心手动置顶优先。",
+  "recording": "卡片、资源预览和进入课堂/项目/实验路由时记录，后台轮询不更新打开时间。",
+  "persistence": "按账号和模块保存于当前浏览器 localStorage；同源标签页通过 storage 事件同步；不承诺跨设备同步。",
+  "failureHandling": "浏览器存储不可用时保留本次会话内排序，不阻断打开。",
+  "typecheckPassed": true,
+  "eslintPassed": true,
+  "unitTestsPassed": 3,
+  "buildPassed": true,
+  "previewBrowserPassed": 4,
+  "browserCoverage": [
+    "首页点击、刷新、搜索与后台更新时间扰动",
+    "实验/PBL 独立顺序及兼容入口",
+    "资源点击、刷新、账号切换及标签页同步",
+    "本课资源与我的资源共享记录",
+    "旧资源中心与我的资源共享记录"
+  ],
+  "businessApisMocked": true,
+  "productionUserDataChanged": false,
+  "examStatus": "考试模拟目前没有实际项目列表。",
+  "preservedOrder": "课程知识点、教学步骤和后台任务队列不属于项目列表，保留既有顺序。",
+  "homeRegressionPassed": 3,
+  "prepublishBrowserPassedTotal": 7,
+  "onlineBrowserPassed": 7
+}

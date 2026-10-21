@@ -1,0 +1,10 @@
+{
+  "stage": "normalize",
+  "started_at": 1791914493.7166758,
+  "seconds": 27.357556343078613,
+  "next_stage": null,
+  "error": {
+    "code": "BUDGET_EXHAUSTED",
+    "message": "BUDGET_EXHAUSTED: Harness 当前决策调用次数或时间已耗尽"
+  }
+}

@@ -1,0 +1,565 @@
+{
+  "title": "自注意力与多头注意力：Q/K/V 与缩放点积计算思路",
+  "content": "# 自注意力与多头注意力：Q/K/V 与缩放点积计算思路\n\n本节点承接上一节点的整体结构：你已经知道编码器层里有“多头自注意力”子层、解码器层里有“掩码多头自注意力”和“交叉注意力”子层。这一节把那个黑盒打开，只回答四个问题：自注意力到底让谁看谁；为什么要把同一个向量拆成 Query、Key、Value 三份；`Attention(Q,K,V)=softmax(QK^T/√dk)V` 每一步在算什么、为什么要除以 √dk；多头注意力怎么把这件事做八遍再合起来。\n\n<a id=\"sec-why-self-attention\"></a>\n## 一、自注意力：每个位置去看同一序列的所有位置\n\n### 1.1 一个具体句子\n\n拿经典例子 “The animal didn't cross the street because it was too tired” 来说。要判断 `it` 指的是 animal 还是 street，模型必须把 `it` 和句子里的其他词建立联系。自注意力（Self-Attention）的做法是：**序列中的每个位置都去看同一个序列中的所有位置，包括它自己**。\n\n把这句话拆成 8 个位置（The / animal / didn't / cross / the / street / because / it），那么处理 `it` 这个位置时，它会同时和这 8 个位置（含 `it` 自己）各算一个相关性分数，再按分数把各位置的信息加权取回来。因为 “too tired” 与 “animal” 的语义搭配更自然，模型可以学出让 `it` 对 `animal` 的权重偏高，于是 `it` 的新表示里就混入了 animal 的成分。\n\n这里有三个容易被忽略的细节：\n\n- **包括自己**：位置 i 的分数向量里，第 i 项也参与 softmax，所以“关注自己”是默认选项之一，不是被排除的。\n- **同时进行**：所有位置是并行地各自发问，不是像 RNN 那样一个接一个传递状态。\n- **表示被更新**：注意力不是“查一下答案就丢掉”，而是把加权结果作为该位置的新表示，交给后面的前馈网络继续处理。\n\n### 1.2 与交叉注意力的区别\n\n| | 自注意力（Self-Attention） | 交叉注意力（Cross-Attention / Encoder-Decoder Attention） |\n| --- | --- | --- |\n| 查询（Q）来自 | 本序列 | 解码器上一层 |\n| 键、值（K、V）来自 | 本序列（同一处） | 编码器输出 |\n| 谁看谁 | 序列内每个位置看本序列所有位置 | 解码器每个位置看输入序列所有位置 |\n| 典型位置 | 编码器层、解码器掩码层 | 解码器中间那个子层 |\n\n一句话概括：**自注意力是“自己人之间互相看”，交叉注意力是“解码器向编码器提问”**。两者的计算公式完全一样，区别只在于 Q、K、V 从哪里来。原论文 3.2.3 节正是按这个标准把多头注意力的三种用法区分开的：编码器自注意力层里 K、V、Q 都来自上一层编码器输出；解码器自注意力层里每个位置只能关注到并包括自身在内的解码器位置（掩码）；编码器-解码器注意力层里 Q 来自上一层解码器，K、V 来自编码器输出。\n\n<a id=\"sec-qkv\"></a>\n## 二、为什么要把同一个向量拆成 Q、K、V\n\n### 2.1 三种角色挤在一个向量上的矛盾\n\n在早期的加性注意力里，编码器状态 h_j 同时干两件事：既被拿来和查询打分（决定“要不要看它”），又被原样取走当作内容（决定“看到什么”）。到了自注意力，矛盾更尖锐：序列里每个位置既要**向别人发问**，又要**被别人匹配**，还要**提供内容**，三种角色全压在同一个向量上。\n\n如果只用一个向量，那么“容易被找到的特征”和“值得被取走的特征”被迫绑在一起：一个位置为了让别人找到自己，得把向量调成好匹配的样子；但它真正想贡献的信息可能完全是另一套特征。两者互相牵制。\n\n### 2.2 解法：三个不同的投影矩阵\n\n解法是给同一个输入向量 x 乘三个不同的可学习矩阵：\n\n- `q = x·W^Q`：**Query（查询）**，用来发问——“我在找什么样的信息？”\n- `k = x·W^K`：**Key（键）**，用来被匹配——“我身上有什么标签，方便别人找到我？”\n- `v = x·W^V`：**Value（值）**，用来提供内容——“如果被选中，我实际交出去的是什么？”\n\n因为 W^Q、W^K、W^V 是三个独立学习的矩阵，模型可以学出“容易被找到”与“携带有用内容”两套不同的表示，不必让同一个向量两头兼顾。这就是“一身两职被拆成三个投影”的含义。\n\n注意：Q、K、V 都来自同一个 x，所以它们描述的是同一个位置，只是站在三种不同视角上。这也是自注意力与交叉注意力的分界——交叉注意力里 K、V 来自另一个序列，连输入都不是同一个。\n\n<a id=\"sec-scaled-dot-product\"></a>\n## 三、缩放点积注意力：手算一遍\n\n### 3.1 公式与四步流程\n\n原论文给出的矩阵形式是：\n\n```\nAttention(Q, K, V) = softmax(QK^T / √dk) · V\n```\n\n其中 Q 是 n×dk 矩阵（n 个位置，每个查询 dk 维），K 是 m×dk，V 是 m×dv。拆成四步：\n\n1. **打分**：`QK^T` 得到 n×m 的分数矩阵，第 (i, j) 项是位置 i 的查询与位置 j 的键的点积，衡量“i 有多需要 j”。\n2. **缩放**：整个分数矩阵除以 √dk。\n3. **归一化**：对每一行做 softmax，使每个位置对所有键的权重非负且和为 1。\n4. **加权求和**：权重矩阵乘 V，得到 n×dv 的输出，第 i 行是各位置 Value 的加权和。\n\n### 3.2 玩具例子：3 个词元，dk = 4\n\n为了能手算，取 3 个词元、dk = 4、dv = 2。假设投影后已经得到：\n\n```\nQ = [[1, 0, 1, 0],      K = [[1, 0, 0, 1],      V = [[1, 0],\n     [0, 1, 0, 1],           [0, 1, 1, 0],           [0, 1],\n     [1, 1, 0, 0]]           [1, 0, 1, 0]]           [1, 1]]\n```\n\n**第一步：QK^T。** 逐行逐列做点积：\n\n```\nQK^T = [[1·1+0·0+1·0+0·1,  1·0+0·1+1·1+0·0,  1·1+0·0+1·1+0·0],\n        [0·1+1·0+0·0+1·1,  0·0+1·1+0·1+1·0,  0·1+1·0+0·1+1·0],\n        [1·1+1·0+0·0+0·1,  1·0+1·1+0·1+0·0,  1·1+1·0+0·1+0·0]]\n     = [[1, 1, 2],\n        [1, 1, 0],\n        [1, 1, 1]]\n```\n\n**第二步：除以 √dk = √4 = 2。**\n\n```\nS = [[0.5, 0.5, 1.0],\n     [0.5, 0.5, 0.0],\n     [0.5, 0.5, 0.5]]\n```\n\n**第三步：逐行 softmax。** 逐行算指数、求和、再相除：\n\n- 第 1 行：e^0.5 ≈ 1.6487，e^0.5 ≈ 1.6487，e^1.0 ≈ 2.7183，和 ≈ 6.0157，得 [0.274, 0.274, 0.452]。\n- 第 2 行：e^0.5 ≈ 1.6487，e^0.5 ≈ 1.6487，e^0 = 1，和 ≈ 4.2974，得 [0.384, 0.384, 0.233]。\n- 第 3 行：三个分数都是 0.5，指数相同，故各占 1/3，得 [0.333, 0.333, 0.333]。\n\n```\nA = [[0.274, 0.274, 0.452],\n     [0.384, 0.384, 0.233],\n     [0.333, 0.333, 0.333]]\n```\n\n**第四步：A·V。** 用上表 A 的数值逐行加权：\n\n```\n输出第 1 行 = 0.274·[1,0] + 0.274·[0,1] + 0.452·[1,1] = [0.726, 0.726]\n输出第 2 行 = 0.384·[1,0] + 0.384·[0,1] + 0.233·[1,1] = [0.617, 0.617]\n输出第 3 行 = 0.333·[1,0] + 0.333·[0,1] + 0.333·[1,1] = [0.667, 0.667]\n```\n\n（数值保留三位小数，末位可能有 ±0.001 的舍入差；例如第 1 行 0.274+0.452=0.726，第 2 行 0.384+0.233=0.617，与表中权重一致。）\n\n读这个结果时注意三件事：\n\n- 第 1 个位置把最多的权重（0.452）给了第 3 个位置，所以它的输出最接近 V 的第 3 行 [1,1]。\n- 每一行的权重和都是 1，输出是 V 各行的**凸组合**，因此输出数值不会超出 V 的取值范围。\n- 输出维度是 dv = 2，不是 dk = 4。dk 只决定“怎么打分”，dv 决定“取回多少内容”。\n\n### 3.3 为什么要除以 √dk\n\n原论文的解释是：当 dk 较大时，点积的幅值会变大，把 softmax 推入梯度极小的区域。论文脚注给了一个直观推导：若 q 和 k 的各分量是均值 0、方差 1 的独立随机变量，那么点积 q·k = Σ q_i k_i 的均值为 0、方差为 dk，标准差为 √dk。也就是说，维度越大，分数越容易跑到 ±√dk 这种量级。\n\nsoftmax 在输入差距很大时会变得非常“尖”：最大项接近 1，其余接近 0，此时梯度趋近于 0，参数几乎学不动。除以 √dk 把分数的标准差拉回大约 1 的量级，softmax 保持在较平缓、梯度可用的区间。论文也提到，dk 小时加性注意力与点积注意力表现相近，dk 大时不做缩放的点积注意力会不如加性注意力——这正是缩放要解决的问题。\n\n<a id=\"sec-multi-head\"></a>\n## 四、多头注意力：投影—并行注意力—拼接—再投影\n\n### 4.1 四步流程\n\n原论文 3.2.2 节的定义是：\n\n```\nMultiHead(Q, K, V) = Concat(head_1, ..., head_h) · W^O\nhead_i = Attention(Q·W_i^Q, K·W_i^K, V·W_i^V)\n```\n\n写成流程就是四步：\n\n1. **投影**：用 h 组不同的可学习矩阵 W_i^Q、W_i^K、W_i^V，把 Q、K、V 分别映射到 dk、dk、dv 维。\n2. **并行注意力**：在每个头上独立跑一次缩放点积注意力，得到 h 个 dv 维输出。\n3. **拼接**：把 h 个输出沿特征维拼起来，得到 h·dv 维。\n4. **再投影**：乘 W^O（形状 h·dv × d_model），回到 d_model 维，以便接残差连接和后面的子层。\n\n### 4.2 为什么要多头\n\n原论文的说法是：多头注意力让模型能**同时关注不同位置、不同表示子空间的信息**；而单头注意力里，这些不同的关注模式会被平均掉（“averaging inhibits this”）。\n\n用前面的例子理解：同一个 `it`，一个头可能主要盯 `animal`（指代消解），另一个头可能盯 `too tired`（语义搭配），还有一个头可能盯相邻位置（局部句法）。如果只有一个头，这些倾向必须挤在同一组 softmax 权重里互相妥协，最后得到一个折中的平均；分成多个头，每种倾向可以在自己的子空间里各自“赢”。\n\n### 4.3 h = 8、dk = dv = 64 的配置关系\n\n原论文 base 配置：d_model = 512，h = 8，每个头 dk = dv = d_model / h = 64。核对一下：\n\n- 8 × 64 = 512 = d_model，所以**头不是额外加出来的宽度，而是把 d_model 分给各个头**。\n- 拼接后是 h·dv = 8 × 64 = 512，正好等于 d_model，W^O 是 512×512。\n- 因为每个头的维度降到了 1/h，论文指出**总计算成本与全维单头注意力相近**。\n\nbig 配置同样成立：h = 16，dk = dv = 64，16 × 64 = 1024 = d_model。可见“每头 64 维”是原论文两组配置的共同选择，变的是头数与总宽度。\n\n<a id=\"sec-summary\"></a>\n## 五、小结与自检\n\n把这一节压缩成四句话：\n\n1. 自注意力让每个位置关注同一序列的所有位置（含自身），与交叉注意力的区别只在 Q、K、V 的来源。\n2. 三个不同投影矩阵把同一向量拆成 Q（发问）、K（被匹配）、V（提供内容），让“容易被找到”和“携带有用内容”可以学成两套表示。\n3. `softmax(QK^T/√dk)V` 依次是打分、缩放、归一化、加权求和；除以 √dk 是因为点积方差随 dk 增长，会把 softmax 推入梯度极小的区域。\n4. 多头注意力是“投影—并行注意力—拼接—再投影”，h × dk = d_model，因此多头不增加总宽度，总计算成本与全维单头相近。\n\n自检清单：\n\n- [ ] 不看笔记，写出缩放点积注意力公式，并说出四步各在算什么。\n- [ ] 解释为什么除以 √dk，而不是除以 dk 或什么都不除。\n- [ ] 说出多头注意力比单头强在哪里，以及为什么总计算成本没有成倍增加。\n- [ ] 给定 d_model = 512、h = 8，算出 dk 并说明拼接后的维度。\n\n> 说明：本节依据 2017 年原论文《Attention Is All You Need》的编码器-解码器配置（N=6、d_model=512、h=8）与相关教材章节；不涉及仅编码器/仅解码器变体、高效注意力实现与旋转位置编码等后续方案。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 10.2
+      },
+      "sections": [
+        {
+          "section_id": "sec-why-self-attention",
+          "content_sha256": "265f0348873ebe8a76a73cc0d1dbe9c9d312afe0d657695c83210a0a31591af8"
+        },
+        {
+          "section_id": "sec-qkv",
+          "content_sha256": "73836cd089bd5fa65f9b9dba25500fa255e754bb0015f02a66fd3629e5b82245"
+        },
+        {
+          "section_id": "sec-scaled-dot-product",
+          "content_sha256": "65834fab9c0882aa4ef499101bc469ad42490adaa96bdd3df9f1eea558e2536c"
+        },
+        {
+          "section_id": "sec-multi-head",
+          "content_sha256": "e96219356a24c1d1a9df82e775676a5b1c763b056a9ae7080d2cb1a993c742d0"
+        },
+        {
+          "section_id": "sec-summary",
+          "content_sha256": "34afa737b2ffd2e243065368129603cac8df113eebae3b0f4febc9d18a579a18"
+        }
+      ],
+      "spec_digest": "9e65ea43a3e5724cc3ff92fa7dd0254a4a0d726d78985dced9d4054c5e262d28",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-why-self-attention"
+          },
+          "objective_id": "n3-self-attention:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-qkv"
+          },
+          "objective_id": "n3-self-attention:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-scaled-dot-product"
+          },
+          "objective_id": "n3-self-attention:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-multi-head"
+          },
+          "objective_id": "n3-self-attention:o4"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "objective_id": "n3-self-attention:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "objective_id": "n3-self-attention:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "objective_id": "n3-self-attention:o4"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec-why-self-attention"
+          },
+          "explanation": "落实“自注意力”这一核心组成：说明自注意力让每个位置关注同一序列所有位置（含自身），并用表格对比交叉注意力，明确 Q/K/V 来源差异。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-qkv"
+          },
+          "explanation": "解释 Q/K/V 三个投影矩阵的必要性，属于自注意力机制的核心原理部分。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-scaled-dot-product"
+          },
+          "explanation": "给出缩放点积注意力公式、四步流程、3 词元 dk=4 的完整手算过程（含逐行 softmax 中间值）与除以 √dk 的原因。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-multi-head"
+          },
+          "explanation": "说明多头注意力“投影—并行注意力—拼接—再投影”流程、作用，以及 h=8、dk=dv=64 与 d_model=512 的配置关系。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "teaching_context_digest": "3c621e292fecebd78e1f69fc46eb424b1fa084ced5e39c6f25a663c2b825f61e"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文四个章节分别落实本节点分工：一、自注意力含自身与交叉注意力对比表（sec-why-self-attention）；二、Q/K/V 三投影理由（sec-qkv）；三、公式四步与 √dk 原因（sec-scaled-dot-product）；四、多头流程与 h=8、dk=dv=64（sec-multi-head）。未越界讲授其他节点内容，也未伪称整课已满足。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "3.2 节玩具例子经复核：QK^T=[[1,1,2],[1,1,0],[1,1,1]] 正确，除以 2 后 softmax 三行分别约 [0.274,0.274,0.452]、[0.384,0.384,0.233]、[1/3,1/3,1/3]，A·V 得 [0.726,0.726]、[0.617,0.617]、[0.667,0.667]，与正文一致；√dk 的方差推导（点积方差为 dk、标准差 √dk）与论文脚注相符；多头维度关系 8×64=512、16×64=1024 均成立。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "“The animal didn't cross the street because it was too tired” 中 it 的例子用于说明自注意力建立词间关系，与节点活动一致；3 词元 dk=4 玩具矩阵给出逐行点积、缩放、softmax 中间值与加权求和，可手算复现，并说明输出维度为 dv=2 而非 dk=4，边界说明清楚。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：自注意力定义与交叉注意力对比 → 为何拆 Q/K/V → 缩放点积公式与手算 → 多头注意力 → 小结自检，先概念后公式再扩展，符合入门深度；小结与自检清单对应四条目标，顺序与正文一致而非仅声称。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文引用原论文 3.2、3.2.1、3.2.2、3.2.3 节与脚注 4 的内容与所给证据一致（公式、缩放理由、多头定义、三种用法），并注明依据 2017 年原论文配置；未虚构外部核查，末尾说明未覆盖变体与高效实现，符合来源开放策略。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "四条目标均有解释与自检：含自身关注与交叉注意力区别、三投影理由、公式四步与 √dk 原因、多头四步与 h×dk=d_model 核对；中文、入门深度、无排除主题冲突，未引入面试模板。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文按节点分工覆盖四项要求：第一节（sec-why-self-attention）说明自注意力含自身并表格对比交叉注意力；第二节（sec-qkv）解释三投影理由；第三节（sec-scaled-dot-product）给出公式、四步与√dk 原因；第四节（sec-multi-head）给出四步流程与 h=8、dk=dv=64 关系。未越界讲授其他节点内容，也未伪称整课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": false,
+                "reason": "3.2 节玩具例子数值有误：QK^T 第二行第三项应为 0·1+1·0+0·1+1·0=0，正文写 0 正确，但 softmax 第二行正文表格写 [0.365,0.365,0.270]，而括号内自述计算为 [0.384,0.384,0.233]，两处矛盾；且第四步输出第 2 行用 0.384/0.233 得 [0.617,0.617]，与表格 A 不一致，读者无法复现。其余概念（√dk 方差推导、多头成本、h×dk=d_model）正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": false,
+                "reason": "3.2 节手算例子存在上述自相矛盾的 softmax 行与输出行，且未给出第二、三行 softmax 的完整中间值（第三行仅说各 1/3 尚可，第二行表格与括号冲突），作为“手算一遍”的核心示例不可复现；1.1 节 it 例子与 4.2 节多头分工例子合理。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：自注意力与交叉注意力对比→Q/K/V 动机→缩放点积公式与手算→多头注意力→小结自检，与节点活动顺序（先 it 例子、再手算、再多头四步与 8×64=512 核对）一致，非仅声称；小结与自检清单对应四个目标。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文引用原论文 3.2.1/3.2.2/3.2.3 节与脚注方差推导、base/big 配置，均与提供的 evidence 原文一致；未虚构外部来源，末尾说明限定在 2017 原论文配置。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个目标均有解释与小结自检对应，含公式、四步、√dk 原因、多头四步与配置核对；语言中文、入门深度、无排除项冲突，未涉及被排除的变体与高效注意力细节。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "建议在 3.2 节补出第二、三行 softmax 的完整中间值（如 e^0 与分母），使手算过程可逐步核对。",
+              "3.1 节可注明自注意力情形下 n=m、Q/K/V 同源，避免读者把 n×m 与自注意力混淆。",
+              "4.2 节多头分工的举例可标注为示意性说明，避免被误读为原论文的实证结论。"
+            ],
+            "blocking_issues": [
+              "3.2 节玩具例子数值自相矛盾：softmax 第二行表格写作 [0.365, 0.365, 0.270]，但紧随其后的括号说明按 e^0.5、e^0.5、e^0 计算得 [0.384, 0.384, 0.233]；第四步输出第 2 行又用 0.384/0.233 得 [0.617, 0.617]，与表格 A 不一致。手算示例必须统一为正确值（[0.384, 0.384, 0.233] 与 [0.617, 0.617]），否则读者无法复现。"
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-why-self-attention 实际正文明确“每个位置都去看同一序列中的所有位置，包括它自己”，并用表格对比交叉注意力的 Q/K/V 来源，真实支持该要求。",
+                "locator": {
+                  "section_id": "sec-why-self-attention"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-qkv 从“三种角色挤在一个向量”的矛盾出发，说明三个独立矩阵 W^Q/W^K/W^V 让“容易被找到”与“携带有用内容”分离，真实支持该要求。",
+                "locator": {
+                  "section_id": "sec-qkv"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-scaled-dot-product 给出 Attention(Q,K,V)=softmax(QK^T/√dk)V、四步流程、3 词元 dk=4 手算与方差为 dk 的 √dk 解释；手算数值有误已在 blocking_issues 指出，但该节对要求的贡献成立。",
+                "locator": {
+                  "section_id": "sec-scaled-dot-product"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-multi-head 给出 MultiHead 公式与“投影—并行注意力—拼接—再投影”四步、多头作用及 8×64=512、big 16×64=1024 的核对，真实支持该要求。",
+                "locator": {
+                  "section_id": "sec-multi-head"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-why-self-attention 解释自注意力含自身、并行、更新表示，并对比交叉注意力，支持目标 o1。",
+                "locator": {
+                  "section_id": "sec-why-self-attention"
+                },
+                "binding_id": "n3-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-qkv 说明三投影矩阵的必要性与各自角色，支持目标 o2。",
+                "locator": {
+                  "section_id": "sec-qkv"
+                },
+                "binding_id": "n3-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-scaled-dot-product 按公式复述打分、缩放、归一化、加权求和并解释 √dk，支持目标 o3（示例数值错误另列）。",
+                "locator": {
+                  "section_id": "sec-scaled-dot-product"
+                },
+                "binding_id": "n3-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-multi-head 说明四步流程、多头作用与 h=8、dk=dv=64 配置关系，支持目标 o4。",
+                "locator": {
+                  "section_id": "sec-multi-head"
+                },
+                "binding_id": "n3-self-attention:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-summary 小结第 1 条与自检清单复述自注意力含自身及与交叉注意力区别，作为 o1 的检查点成立。",
+                "locator": {
+                  "section_id": "sec-summary"
+                },
+                "binding_id": "n3-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-summary 小结第 3 条与自检清单要求写出公式并解释 √dk，作为 o3 的检查点成立。",
+                "locator": {
+                  "section_id": "sec-summary"
+                },
+                "binding_id": "n3-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-summary 小结第 4 条与自检清单要求由 d_model=512、h=8 算 dk 并说明拼接维度，作为 o4 的检查点成立。",
+                "locator": {
+                  "section_id": "sec-summary"
+                },
+                "binding_id": "n3-self-attention:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "revise",
+          "content_sha256": "04cf76c047c1b0ae30294ca50574f45f37cc1b7a8b43dbec4cb760332a60fbfd",
+          "structural_issues": []
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文四个章节分别落实本节点分工：一、自注意力含自身与交叉注意力对比表（sec-why-self-attention）；二、Q/K/V 三投影理由（sec-qkv）；三、公式四步与 √dk 原因（sec-scaled-dot-product）；四、多头流程与 h=8、dk=dv=64（sec-multi-head）。未越界讲授其他节点内容，也未伪称整课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "3.2 节玩具例子经复核：QK^T=[[1,1,2],[1,1,0],[1,1,1]] 正确，除以 2 后 softmax 三行分别约 [0.274,0.274,0.452]、[0.384,0.384,0.233]、[1/3,1/3,1/3]，A·V 得 [0.726,0.726]、[0.617,0.617]、[0.667,0.667]，与正文一致；√dk 的方差推导（点积方差为 dk、标准差 √dk）与论文脚注相符；多头维度关系 8×64=512、16×64=1024 均成立。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "“The animal didn't cross the street because it was too tired” 中 it 的例子用于说明自注意力建立词间关系，与节点活动一致；3 词元 dk=4 玩具矩阵给出逐行点积、缩放、softmax 中间值与加权求和，可手算复现，并说明输出维度为 dv=2 而非 dk=4，边界说明清楚。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：自注意力定义与交叉注意力对比 → 为何拆 Q/K/V → 缩放点积公式与手算 → 多头注意力 → 小结自检，先概念后公式再扩展，符合入门深度；小结与自检清单对应四条目标，顺序与正文一致而非仅声称。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文引用原论文 3.2、3.2.1、3.2.2、3.2.3 节与脚注 4 的内容与所给证据一致（公式、缩放理由、多头定义、三种用法），并注明依据 2017 年原论文配置；未虚构外部核查，末尾说明未覆盖变体与高效实现，符合来源开放策略。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四条目标均有解释与自检：含自身关注与交叉注意力区别、三投影理由、公式四步与 √dk 原因、多头四步与 h×dk=d_model 核对；中文、入门深度、无排除主题冲突，未引入面试模板。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "3.2 节玩具例子中 V 的第 1、2 行与第 3 行输出恰好两维相等（如 [0.726,0.726]），可考虑换一组 V 使两维不同，避免读者误以为输出两维必然相同。",
+              "1.1 节把句子拆成 8 个位置时省略了句末标点，可注明“忽略标点”以免读者对位置数产生疑问。",
+              "3.3 节可补一句“除以 dk 会把方差压到 1/dk，过度缩小”，使“为什么不是除以 dk”的自检项有正文依据。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-why-self-attention 明确写出“序列中的每个位置都去看同一个序列中的所有位置，包括它自己”，并用表格对比交叉注意力的 Q/K/V 来源，真实支持该要求。",
+                "locator": {
+                  "section_id": "sec-why-self-attention"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-qkv 从“三种角色挤在一个向量上的矛盾”推出三个独立投影矩阵，并解释“容易被找到”与“携带有用内容”两套表示，支持该要求。",
+                "locator": {
+                  "section_id": "sec-qkv"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-scaled-dot-product 给出公式、四步流程、3 词元 dk=4 手算与 √dk 的方差论证，内容与定位相符。",
+                "locator": {
+                  "section_id": "sec-scaled-dot-product"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-multi-head 列出投影—并行注意力—拼接—再投影四步、多头作用及 8×64=512、16×64=1024 的配置核对，支持该要求。",
+                "locator": {
+                  "section_id": "sec-multi-head"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-why-self-attention 的 1.1、1.2 节解释含自身关注与交叉注意力区别，直接支持目标 o1。",
+                "locator": {
+                  "section_id": "sec-why-self-attention"
+                },
+                "binding_id": "n3-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-qkv 的 2.1、2.2 节说明三投影矩阵的理由，直接支持目标 o2。",
+                "locator": {
+                  "section_id": "sec-qkv"
+                },
+                "binding_id": "n3-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-scaled-dot-product 的 3.1—3.3 节按公式复述步骤并解释除以 √dk，直接支持目标 o3。",
+                "locator": {
+                  "section_id": "sec-scaled-dot-product"
+                },
+                "binding_id": "n3-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-multi-head 的 4.1—4.3 节说明四步流程、作用与 h=8、dk=dv=64 关系，直接支持目标 o4。",
+                "locator": {
+                  "section_id": "sec-multi-head"
+                },
+                "binding_id": "n3-self-attention:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-summary 小结第 1 条复述自注意力含自身与交叉注意力区别，作为 o1 的检查点成立。",
+                "locator": {
+                  "section_id": "sec-summary"
+                },
+                "binding_id": "n3-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-summary 小结第 3 条与自检清单前两项覆盖公式四步与 √dk 原因，作为 o3 的检查点成立。",
+                "locator": {
+                  "section_id": "sec-summary"
+                },
+                "binding_id": "n3-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-summary 小结第 4 条与自检清单后两项覆盖多头四步、h×dk=d_model 与拼接维度，作为 o4 的检查点成立。",
+                "locator": {
+                  "section_id": "sec-summary"
+                },
+                "binding_id": "n3-self-attention:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 3,
+          "decision": "pass",
+          "content_sha256": "75b10abef3fba961814a0bc943a200d5e8136582cc9d3418960df2e88200b7b9",
+          "structural_issues": []
+        }
+      ],
+      "version": 3,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "3.2 节玩具例子中 V 的第 1、2 行与第 3 行输出恰好两维相等（如 [0.726,0.726]），可考虑换一组 V 使两维不同，避免读者误以为输出两维必然相同。",
+        "1.1 节把句子拆成 8 个位置时省略了句末标点，可注明“忽略标点”以免读者对位置数产生疑问。",
+        "3.3 节可补一句“除以 dk 会把方差压到 1/dk，过度缩小”，使“为什么不是除以 dk”的自检项有正文依据。"
+      ],
+      "content_sha256": "75b10abef3fba961814a0bc943a200d5e8136582cc9d3418960df2e88200b7b9",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec-why-self-attention 明确写出“序列中的每个位置都去看同一个序列中的所有位置，包括它自己”，并用表格对比交叉注意力的 Q/K/V 来源，真实支持该要求。",
+          "locator": {
+            "section_id": "sec-why-self-attention"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-qkv 从“三种角色挤在一个向量上的矛盾”推出三个独立投影矩阵，并解释“容易被找到”与“携带有用内容”两套表示，支持该要求。",
+          "locator": {
+            "section_id": "sec-qkv"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-scaled-dot-product 给出公式、四步流程、3 词元 dk=4 手算与 √dk 的方差论证，内容与定位相符。",
+          "locator": {
+            "section_id": "sec-scaled-dot-product"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-multi-head 列出投影—并行注意力—拼接—再投影四步、多头作用及 8×64=512、16×64=1024 的配置核对，支持该要求。",
+          "locator": {
+            "section_id": "sec-multi-head"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-why-self-attention 的 1.1、1.2 节解释含自身关注与交叉注意力区别，直接支持目标 o1。",
+          "locator": {
+            "section_id": "sec-why-self-attention"
+          },
+          "binding_id": "n3-self-attention:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-qkv 的 2.1、2.2 节说明三投影矩阵的理由，直接支持目标 o2。",
+          "locator": {
+            "section_id": "sec-qkv"
+          },
+          "binding_id": "n3-self-attention:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-scaled-dot-product 的 3.1—3.3 节按公式复述步骤并解释除以 √dk，直接支持目标 o3。",
+          "locator": {
+            "section_id": "sec-scaled-dot-product"
+          },
+          "binding_id": "n3-self-attention:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-multi-head 的 4.1—4.3 节说明四步流程、作用与 h=8、dk=dv=64 关系，直接支持目标 o4。",
+          "locator": {
+            "section_id": "sec-multi-head"
+          },
+          "binding_id": "n3-self-attention:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-summary 小结第 1 条复述自注意力含自身与交叉注意力区别，作为 o1 的检查点成立。",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "binding_id": "n3-self-attention:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-summary 小结第 3 条与自检清单前两项覆盖公式四步与 √dk 原因，作为 o3 的检查点成立。",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "binding_id": "n3-self-attention:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-summary 小结第 4 条与自检清单后两项覆盖多头四步、h×dk=d_model 与拼接维度，作为 o4 的检查点成立。",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "binding_id": "n3-self-attention:o4",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "b36335ebd6534132c0a0d7fa81910219503c7cfcf48cd5cf9e13cf3c66e70bbc"
+    }
+  }
+}

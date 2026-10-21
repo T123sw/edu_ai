@@ -1,0 +1,65 @@
+{
+  "skill": "build-pbl-project",
+  "skillPath": "backend/src/app/pbl/skills/build-pbl-project/SKILL.md",
+  "scope": "Application Skill, phase loader, structured plan and step-unit validation; no production generation wiring",
+  "formatValidation": "quick_validate.py passed",
+  "tests": {
+    "passed": 32,
+    "command": "python scripts/pbl/isolated.py pytest backend/src/tests/pbl/test_project_workflow.py -q",
+    "exitCode": 0
+  },
+  "examples": [
+    {
+      "name": "calculator",
+      "steps": 4,
+      "cumulativeCheckIds": {
+        "build-layout": [
+          "controls"
+        ],
+        "number-input": [
+          "controls",
+          "digits",
+          "clear"
+        ],
+        "four-operations": [
+          "controls",
+          "digits",
+          "clear",
+          "add",
+          "subtract",
+          "multiply",
+          "divide"
+        ],
+        "error-recovery": [
+          "controls",
+          "digits",
+          "clear",
+          "add",
+          "subtract",
+          "multiply",
+          "divide",
+          "divide-zero",
+          "recover"
+        ]
+      },
+      "structurallyValid": true,
+      "executionValidated": false,
+      "publishable": false
+    },
+    {
+      "name": "quicksort",
+      "steps": 1,
+      "cumulativeCheckIds": {
+        "implement-sort": [
+          "array-cases"
+        ]
+      },
+      "structurallyValid": true,
+      "executionValidated": false,
+      "publishable": false
+    }
+  ],
+  "productionChanged": false,
+  "multiStepExecutionEnabled": false,
+  "modelCalls": 0
+}

@@ -1,0 +1,117 @@
+{
+  "source": "docs/acceptance/2026-10-19-tts-concurrency/podcast-script.json",
+  "pid": 2566833,
+  "device": "cuda:0",
+  "samples": [
+    {
+      "group": "A_official",
+      "index": 0,
+      "chars": 237,
+      "duration": 57.04,
+      "pitch_median_hz": 300.0,
+      "rms": 0.07864492386579514
+    },
+    {
+      "group": "A_official",
+      "index": 1,
+      "chars": 207,
+      "duration": 45.6,
+      "pitch_median_hz": 238.79983685111245,
+      "rms": 0.06816532462835312
+    },
+    {
+      "group": "B_official_with_instruction",
+      "index": 0,
+      "chars": 237,
+      "duration": 51.12,
+      "pitch_median_hz": 275.10121296140136,
+      "rms": 0.08420006930828094
+    },
+    {
+      "group": "B_official_with_instruction",
+      "index": 1,
+      "chars": 207,
+      "duration": 45.92,
+      "pitch_median_hz": 223.45161946840534,
+      "rms": 0.0748877003788948
+    },
+    {
+      "group": "C_current_raw",
+      "index": 0,
+      "chars": 237,
+      "duration": 57.04,
+      "pitch_median_hz": 278.2977350823928,
+      "rms": 0.08035607635974884
+    },
+    {
+      "group": "D_current_aligned",
+      "index": 0,
+      "chars": 237,
+      "duration": 57.02608333333333,
+      "pitch_median_hz": 243.67571890687063,
+      "rms": 0.06452349573373795,
+      "processing_seconds": 4.555797249078751,
+      "requested_shift_semitones": -2.5631371386483477
+    },
+    {
+      "group": "C_current_raw",
+      "index": 1,
+      "chars": 207,
+      "duration": 46.96,
+      "pitch_median_hz": 276.6948580757818,
+      "rms": 0.06265342980623245
+    },
+    {
+      "group": "D_current_aligned",
+      "index": 1,
+      "chars": 207,
+      "duration": 46.95404166666667,
+      "pitch_median_hz": 242.2722500400126,
+      "rms": 0.049087412655353546,
+      "processing_seconds": 3.725754281040281,
+      "requested_shift_semitones": -2.463137138648348
+    }
+  ],
+  "runs": [
+    {
+      "group": "A_official",
+      "generation_seconds": 134.14425340667367,
+      "audio_seconds": 102.64
+    },
+    {
+      "group": "B_official_with_instruction",
+      "generation_seconds": 120.65142356976867,
+      "audio_seconds": 97.03999999999999
+    },
+    {
+      "group": "C_current_raw",
+      "generation_seconds": 130.66479121893644,
+      "audio_seconds": 104.0
+    }
+  ],
+  "limitations": [
+    "Two complete chapters, one batch per condition; no perceptual or ASR verdict.",
+    "Waveform decoder memory safeguard shared across all conditions.",
+    "Fixed seed for comparability, not a claim of identical random draws across conditions."
+  ],
+  "load_seconds": 3.077891674824059,
+  "official_defaults": {
+    "do_sample": true,
+    "top_k": 50,
+    "top_p": 1.0,
+    "temperature": 0.9,
+    "repetition_penalty": 1.05,
+    "subtalker_dosample": true,
+    "subtalker_top_k": 50,
+    "subtalker_top_p": 1.0,
+    "subtalker_temperature": 0.9,
+    "max_new_tokens": 8192
+  },
+  "attention": {
+    "model": "sdpa",
+    "talker": "sdpa"
+  },
+  "parameter_devices": [
+    "cuda:0"
+  ]
+}

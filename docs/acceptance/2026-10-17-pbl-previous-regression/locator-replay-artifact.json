@@ -1,0 +1,1408 @@
+{
+  "artifact": {
+    "schemaVersion": 2,
+    "runtimeKind": "react_app",
+    "templateVersion": "react-app-v1",
+    "exerciseId": "pbl_13549c1f14b63eef7d7d8682593590bf",
+    "artifactVersion": 1,
+    "topic": "我想用 React 做一个阅读清单页面。页面包含书名输入框、“添加”按钮、书籍列表，以及“全部 / 未读 / 已读”三个筛选选项。添加书名后，新书出现在列表中，默认为未读，同时清空输入框。空白书名不能添加，页面要给出提示。每本书可以切换已读、未读状态，也可以删除。页面显示书籍总数和已读数量，筛选后只显示符合条件的书籍。",
+    "title": "React 阅读清单",
+    "summary": "用 React 构建一个阅读清单页面：可以添加书名（空白被拒绝并提示）、在全部/未读/已读之间筛选、切换每本书的已读状态、删除书籍，并实时显示书籍总数与已读数量。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "React 阅读清单",
+      "goal": "用 React 构建一个阅读清单页面：可以添加书名（空白被拒绝并提示）、在全部/未读/已读之间筛选、切换每本书的已读状态、删除书籍，并实时显示书籍总数与已读数量。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "add-book",
+          "description": "输入书名并点击“添加”后，新书以未读状态出现在列表中，输入框被清空。"
+        },
+        {
+          "id": "reject-blank",
+          "description": "书名为空白（空或仅空格）时不能添加，页面给出提示。"
+        },
+        {
+          "id": "toggle-read",
+          "description": "每本书可以在已读与未读之间切换状态。"
+        },
+        {
+          "id": "delete-book",
+          "description": "每本书可以被删除，删除后从列表消失。"
+        },
+        {
+          "id": "filter-books",
+          "description": "“全部 / 未读 / 已读”三个筛选选项，筛选后只显示符合条件的书籍。"
+        },
+        {
+          "id": "counts",
+          "description": "页面显示书籍总数和已读数量，并随增删与状态切换实时更新。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "add-and-list",
+          "title": "添加书籍并显示列表",
+          "objective": "实现书名输入框、添加按钮与书籍列表，添加后新书以未读状态出现并清空输入框。",
+          "dependsOn": [],
+          "entryCondition": "从初始工程开始，页面只有占位内容。",
+          "deliverable": "页面包含书名输入框和“添加”按钮；输入书名点击添加后，书名出现在书籍列表中，输入框被清空。",
+          "requirementIds": [
+            "add-book"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "add-book-appears",
+            "add-book-clears-input"
+          ]
+        },
+        {
+          "id": "reject-blank",
+          "title": "拒绝空白书名并提示",
+          "objective": "当书名为空或仅含空格时阻止添加，并显示提示信息。",
+          "dependsOn": [
+            "add-and-list"
+          ],
+          "entryCondition": "上一步已能添加书籍并显示列表。",
+          "deliverable": "输入空白书名点击添加时，列表不新增书籍，页面显示一条提示信息；输入有效书名时提示消失或不再出现。",
+          "requirementIds": [
+            "reject-blank"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "blank-shows-hint",
+            "blank-not-added"
+          ]
+        },
+        {
+          "id": "toggle-and-delete",
+          "title": "切换已读状态与删除书籍",
+          "objective": "为每本书提供切换已读/未读与删除的操作。",
+          "dependsOn": [
+            "reject-blank"
+          ],
+          "entryCondition": "上一步已能添加书籍并拒绝空白书名。",
+          "deliverable": "每本书旁有切换状态与删除按钮；点击切换后该书在已读/未读之间变化，点击删除后该书从列表消失。",
+          "requirementIds": [
+            "toggle-read",
+            "delete-book"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "toggle-marks-read",
+            "delete-removes-book"
+          ]
+        },
+        {
+          "id": "counts",
+          "title": "显示总数与已读数量",
+          "objective": "页面显示书籍总数和已读数量，并随增删与状态切换更新。",
+          "dependsOn": [
+            "toggle-and-delete"
+          ],
+          "entryCondition": "上一步已能切换状态与删除书籍。",
+          "deliverable": "页面显示书籍总数与已读数量；添加、删除、切换状态后两个数字同步更新。",
+          "requirementIds": [
+            "counts"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "counts-initial",
+            "counts-after-toggle"
+          ]
+        },
+        {
+          "id": "filter",
+          "title": "按全部/未读/已读筛选",
+          "objective": "提供三个筛选选项，筛选后列表只显示符合条件的书籍。",
+          "dependsOn": [
+            "counts"
+          ],
+          "entryCondition": "上一步已能显示总数与已读数量。",
+          "deliverable": "页面有“全部 / 未读 / 已读”三个筛选选项；选择后列表只显示对应书籍，切换回“全部”显示所有书籍。",
+          "requirementIds": [
+            "filter-books"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "filter-unread",
+            "filter-read",
+            "filter-all"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "add-book-appears",
+          "stepId": "add-and-list",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "add-book"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在书名输入框填入《三体》",
+            "点击“添加”按钮"
+          ],
+          "expected": [
+            "列表中显示《三体》"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "add-book-clears-input",
+          "stepId": "add-and-list",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "add-book"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在书名输入框填入《三体》",
+            "点击“添加”按钮"
+          ],
+          "expected": [
+            "书名输入框被清空"
+          ],
+          "requiredAssertions": [
+            "value"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "blank-shows-hint",
+          "stepId": "reject-blank",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "reject-blank"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在书名输入框填入三个空格",
+            "点击“添加”按钮"
+          ],
+          "expected": [
+            "页面显示提示信息"
+          ],
+          "requiredAssertions": [
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "blank-not-added",
+          "stepId": "reject-blank",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "reject-blank"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在书名输入框填入三个空格",
+            "点击“添加”按钮"
+          ],
+          "expected": [
+            "列表中没有新增书籍"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "toggle-marks-read",
+          "stepId": "toggle-and-delete",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "toggle-read"
+          ],
+          "setup": "打开页面，添加一本书《三体》。",
+          "actions": [
+            "点击《三体》对应的“切换状态”按钮"
+          ],
+          "expected": [
+            "《三体》显示为已读"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "delete-removes-book",
+          "stepId": "toggle-and-delete",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "delete-book"
+          ],
+          "setup": "打开页面，添加一本书《三体》。",
+          "actions": [
+            "点击《三体》对应的“删除”按钮"
+          ],
+          "expected": [
+            "列表中不再有《三体》"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "counts-initial",
+          "stepId": "counts",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "counts"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加《三体》",
+            "添加《活着》"
+          ],
+          "expected": [
+            "总数显示 2，已读数量显示 0"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "counts-after-toggle",
+          "stepId": "counts",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "counts"
+          ],
+          "setup": "打开页面，添加《三体》与《活着》。",
+          "actions": [
+            "点击《三体》对应的“切换状态”按钮"
+          ],
+          "expected": [
+            "已读数量显示 1"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-unread",
+          "stepId": "filter",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter-books"
+          ],
+          "setup": "打开页面，添加《三体》与《活着》，并把《三体》切换为已读。",
+          "actions": [
+            "点击“未读”筛选选项"
+          ],
+          "expected": [
+            "列表只显示《活着》"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-read",
+          "stepId": "filter",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter-books"
+          ],
+          "setup": "打开页面，添加《三体》与《活着》，并把《三体》切换为已读。",
+          "actions": [
+            "点击“已读”筛选选项"
+          ],
+          "expected": [
+            "列表只显示《三体》"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-all",
+          "stepId": "filter",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter-books"
+          ],
+          "setup": "打开页面，添加《三体》与《活着》，并把《三体》切换为已读，然后点击“已读”筛选。",
+          "actions": [
+            "点击“全部”筛选选项"
+          ],
+          "expected": [
+            "列表同时显示《三体》与《活着》"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "count"
+          ],
+          "viewport": null
+        }
+      ]
+    },
+    "starterFiles": {
+      "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+      "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+    },
+    "tasks": [
+      {
+        "stepId": "add-and-list",
+        "title": "添加书籍并显示列表",
+        "objective": "实现书名输入框、添加按钮与书籍列表，添加后新书以未读状态出现并清空输入框。",
+        "instructionsMarkdown": "本步要做出阅读清单页面的第一个可用功能：输入书名、点击“添加”，书名就出现在下方的书籍列表里，同时输入框被清空。\n\n页面需要包含：\n\n- 一个书名输入框，初始为空，占位提示可以是“输入书名”。\n- 一个写着“添加”的按钮。\n- 一个书籍列表区域，初始没有任何书籍。\n\n操作与结果：\n\n- 在输入框里填入书名（例如《三体》），点击“添加”按钮后，这本书以“未读”状态出现在书籍列表中。\n- 添加成功后，输入框内容被清空，方便继续输入下一本。\n- 可以连续添加多本书，列表按添加顺序展示。\n\n本步暂不处理空白书名、状态切换、删除、计数和筛选，这些会在后续步骤完成。\n\n### 代码约定\n\n为了让系统能识别页面部件，请给以下元素加上 `data-testid`（只是供识别用，不会改变外观）：\n\n- 书名输入框：`data-testid=\"book-input\"`\n- “添加”按钮：`data-testid=\"add-button\"`\n- 书籍列表容器：`data-testid=\"book-list\"`\n- 列表中每一本书的条目：`data-testid=\"book-item\"`\n- 每本书书名所在的文字元素：`data-testid=\"book-title\"`",
+        "explanationMarkdown": "用 React 的 `useState` 保存两样东西：输入框当前文字，以及书籍数组。\n\n- 输入框用受控组件：`value` 绑定状态，`onChange` 更新状态。\n- 点击“添加”时，把当前输入文字作为新书加入数组，每本书用一个对象表示，例如 `{ id, title, read: false }`，`read` 先设为 `false` 表示未读。\n- 添加后把输入框状态重置为空字符串。\n- 用 `map` 把书籍数组渲染成列表项，每项显示书名。\n\n给每本书一个唯一 `id`（例如用递增计数器或 `Date.now()` 加序号），后续切换状态和删除时会用到。",
+        "hints": [
+          "用 `useState('')` 保存输入框文字，用 `useState([])` 保存书籍数组。",
+          "添加时构造新书对象 `{ id, title: input, read: false }`，用展开运算符把新书追加到数组末尾。",
+          "添加完成后调用 `setInput('')` 清空输入框。",
+          "渲染列表时用 `books.map(book => ...)`，并给每个条目加 `key={book.id}`。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "add-book-appears",
+          "add-book-clears-input"
+        ],
+        "id": "add-and-list",
+        "cumulativeCheckIds": [
+          "add-book-appears",
+          "add-book-clears-input"
+        ]
+      },
+      {
+        "stepId": "reject-blank",
+        "title": "拒绝空白书名并提示",
+        "objective": "当书名为空或仅含空格时阻止添加，并显示提示信息。",
+        "instructionsMarkdown": "上一步已经可以输入书名、点击“添加”把书加入列表，并清空输入框。这一步要让页面更可靠：**空白书名不能添加**。\n\n本步要完成的效果：\n\n- 当输入框为空，或者只输入了空格（例如三个空格）时，点击“添加”不会向列表新增任何书籍。\n- 此时页面上会出现一条提示信息，告诉用户书名不能为空。\n- 当用户输入有效书名并成功添加后，这条提示应当消失（或不再出现）。\n- 正常的添加流程保持不变：有效书名会以未读状态出现在列表中，输入框被清空。\n\n判断“空白”时，请把只含空格的输入也视为空白，而不只是完全空的输入。\n\n**代码约定**\n\n- 书名输入框使用 `data-testid=\"book-input\"`。\n- “添加”按钮使用 `data-testid=\"add-button\"`。\n- 书籍列表容器使用 `data-testid=\"book-list\"`，每本书使用 `data-testid=\"book-item\"`，书名文字使用 `data-testid=\"book-title\"`。\n- 空白提示信息使用 `data-testid=\"empty-hint\"`，提示文字内容自定（例如“书名不能为空”），只要在空白提交时可见即可。\n- 这些 `data-testid` 只是供系统识别对应部件，不会改变页面外观。",
+        "explanationMarkdown": "处理空白输入的关键是：在真正添加之前先检查输入内容。\n\n可以用 `input.trim()` 去掉首尾空格，再判断结果是否为空字符串。如果为空，就设置一个“提示”状态（例如 `hint` 或 `error`），并直接返回，不修改书籍列表。\n\n添加成功后，记得把提示状态清空，这样用户下次输入有效书名时提示不会残留。\n\n提示信息可以放在输入行下方，用一个带 `data-testid=\"empty-hint\"` 的元素显示，只在提示状态非空时渲染。",
+        "hints": [
+          "在 `handleAdd` 里先用 `input.trim()` 得到去掉空格后的书名。",
+          "如果 `trim()` 的结果是空字符串，就设置提示状态并 `return`，不要新增书籍。",
+          "添加成功后把提示状态清空，例如 `setHint('')`。",
+          "提示元素只在有提示时渲染，并加上 `data-testid=\"empty-hint\"`。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "blank-shows-hint",
+          "blank-not-added"
+        ],
+        "id": "reject-blank",
+        "cumulativeCheckIds": [
+          "add-book-appears",
+          "add-book-clears-input",
+          "blank-shows-hint",
+          "blank-not-added"
+        ]
+      },
+      {
+        "stepId": "toggle-and-delete",
+        "title": "切换已读状态与删除书籍",
+        "objective": "为每本书提供切换已读/未读与删除的操作。",
+        "instructionsMarkdown": "现在每本书只能显示书名，还不能标记读没读过，也不能删掉。这一步要让每本书都能“切换状态”和“删除”。\n\n**要做出的效果**\n\n- 每本书旁边有两个按钮：一个用来切换已读/未读，一个用来删除这本书。\n- 每本书还要显示它当前的状态文字：未读时显示“未读”，已读时显示“已读”。\n- 点击切换按钮后，这本书在“已读”和“未读”之间来回变化，状态文字随之更新。\n- 点击删除按钮后，这本书从列表中消失，其他书不受影响。\n- 之前的功能保持不变：输入书名点“添加”能加入列表并清空输入框；空白书名不能添加并显示提示。\n\n**起点**\n\n上一步的工程已经能添加书籍、拒绝空白书名。每本书的数据里已经记录了它是否已读（初始都是未读），这一步把它显示出来并加上操作按钮。\n\n**代码约定**\n\n为了让系统能识别页面部件，请使用以下标记（只是给元素加属性，不会改变外观）：\n\n- 每本书的状态文字放在一个元素里，加 `data-testid=\"book-status\"`，文字内容为“已读”或“未读”。\n- 每本书的切换按钮加 `data-testid=\"toggle-button\"`，按钮文字建议写“切换状态”。\n- 每本书的删除按钮加 `data-testid=\"delete-button\"`，按钮文字写“删除”。\n\n已有的 `book-input`、`add-button`、`empty-hint`、`book-list`、`book-item`、`book-title` 保持不变。",
+        "explanationMarkdown": "每本书现在是一个对象，包含 `id`、`title`、`read` 三个字段。切换状态就是把这个对象的 `read` 取反，删除就是从数组里去掉这个对象。\n\nReact 里更新数组要用新数组替换旧数组，不能直接改原数组。切换可以用 `map`：遍历每本书，遇到目标 `id` 就返回一个 `read` 取反的新对象，其他书原样返回。删除可以用 `filter`：保留 `id` 不等于目标的那本书。\n\n两个操作都需要知道“是哪本书”，所以按钮的点击处理函数要接收这本书的 `id`。可以在 `map` 里用箭头函数把 `book.id` 传进去。\n\n注意：切换和删除只改 `books`，不要动输入框和提示，这样之前的行为不会被打乱。",
+        "hints": [
+          "切换状态时，用 `books.map` 生成新数组，对目标书返回 `{ ...book, read: !book.read }`。",
+          "删除时用 `books.filter((b) => b.id !== id)`，得到不含目标书的新数组。",
+          "状态文字可以直接根据 `book.read` 三元判断：`book.read ? '已读' : '未读'`。",
+          "按钮的 `onClick` 写成 `() => handleToggle(book.id)` 这样的形式，把 id 传进去。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "toggle-marks-read",
+          "delete-removes-book"
+        ],
+        "id": "toggle-and-delete",
+        "cumulativeCheckIds": [
+          "add-book-appears",
+          "add-book-clears-input",
+          "blank-shows-hint",
+          "blank-not-added",
+          "toggle-marks-read",
+          "delete-removes-book"
+        ]
+      },
+      {
+        "stepId": "counts",
+        "title": "显示总数与已读数量",
+        "objective": "页面显示书籍总数和已读数量，并随增删与状态切换更新。",
+        "instructionsMarkdown": "现在给阅读清单加一个统计区，让用户一眼看到清单的规模。\n\n**本步要完成的成果**\n\n在页面上显示两个数字：\n\n- **总数**：当前清单里一共有多少本书。\n- **已读数量**：其中已经标记为已读的有多少本。\n\n这两个数字要随操作实时更新：添加一本书后总数加一；把某本书切换为已读后已读数量加一；删除书籍后总数相应减少。\n\n**起点**\n\n上一步已经可以添加书籍、拒绝空白书名、切换每本书的已读/未读状态、删除书籍。本步只新增统计显示，不改变这些已有行为。\n\n**完成效果**\n\n- 清单为空时，总数显示 0，已读数量显示 0。\n- 添加《三体》和《活着》两本书后，总数显示 2，已读数量显示 0。\n- 把《三体》切换为已读后，已读数量显示 1，总数仍为 2。\n\n**代码约定**\n\n为了让系统能识别统计数字，请给两个数字分别加上标记（这些标记不会改变页面外观）：\n\n- 显示总数的元素加 `data-testid=\"total-count\"`，元素文字就是总数本身，例如 `2`。\n- 显示已读数量的元素加 `data-testid=\"read-count\"`，元素文字就是已读数量本身，例如 `1`。\n\n数字元素里只放数字，不要把“总数：”之类的说明文字混进同一个元素，否则文字比对会对不上；说明文字可以放在数字元素外面。\n\n另外，每本书的“切换状态”按钮请加上可访问名称，标明它对应哪本书，例如 `aria-label=\"切换《三体》的已读状态\"`。这样当列表里有多本书时，系统能准确找到某一本书的切换按钮。",
+        "explanationMarkdown": "统计数字不需要单独存一份状态，它可以从书籍列表推导出来：\n\n- 总数就是列表的长度。\n- 已读数量就是列表中 `read` 为 `true` 的书籍个数，可以用 `filter` 过滤后再取长度。\n\n因为每次添加、删除、切换状态都会更新 `books` 状态，React 重新渲染时重新计算这两个值，数字自然就同步了。这种“由已有状态推导”的做法比再维护一个计数变量更不容易出错，也不会出现数字和列表对不上的情况。",
+        "hints": [
+          "总数可以直接用 `books.length`。",
+          "已读数量可以用 `books.filter((book) => book.read).length` 得到。",
+          "把这两个值渲染到带 `data-testid` 的元素里，注意元素内只放数字。",
+          "如果数字不更新，检查是不是把计算结果存进了某个不会随 `books` 变化的状态。",
+          "给切换按钮加 `aria-label` 时，用书名拼出可读的名称，例如 `切换《${book.title}》的已读状态`。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "counts-initial",
+          "counts-after-toggle"
+        ],
+        "id": "counts",
+        "cumulativeCheckIds": [
+          "add-book-appears",
+          "add-book-clears-input",
+          "blank-shows-hint",
+          "blank-not-added",
+          "toggle-marks-read",
+          "delete-removes-book",
+          "counts-initial",
+          "counts-after-toggle"
+        ]
+      },
+      {
+        "stepId": "filter",
+        "title": "按全部/未读/已读筛选",
+        "objective": "提供“全部 / 未读 / 已读”三个筛选选项，筛选后列表只显示符合条件的书籍。",
+        "instructionsMarkdown": "现在阅读清单已经能添加、切换状态、删除并显示统计数字。这一步要让用户能按阅读状态筛选列表。\n\n**要做出的效果**\n\n- 页面上出现三个筛选选项：“全部”“未读”“已读”，默认选中“全部”。\n- 点击“未读”后，列表只显示还没读的书；点击“已读”后，只显示已经读过的书；点击“全部”后，所有书都重新显示。\n- 筛选只影响列表里显示哪些书，不会删除书籍，也不会改变总数和已读数量这两个统计数字。\n- 切换筛选时，每本书的已读/未读状态和删除按钮仍然照常可用。\n\n**起点**\n\n上一步的页面已经能添加书籍、拒绝空白书名、切换状态、删除书籍，并显示总数与已读数量。本步在此基础上增加筛选。\n\n**代码约定**\n\n为了让系统能识别筛选控件，请给三个筛选按钮加上如下标记（这些标记不会改变页面外观）：\n\n- “全部”按钮：`data-testid=\"filter-all\"`\n- “未读”按钮：`data-testid=\"filter-unread\"`\n- “已读”按钮：`data-testid=\"filter-read\"`\n\n书籍列表项继续使用 `data-testid=\"book-item\"`，书名使用 `data-testid=\"book-title\"`，状态文字使用 `data-testid=\"book-status\"`，切换与删除按钮分别使用 `data-testid=\"toggle-button\"` 和 `data-testid=\"delete-button\"`，输入框与添加按钮沿用 `data-testid=\"book-input\"` 和 `data-testid=\"add-button\"`。",
+        "explanationMarkdown": "筛选的本质是“显示哪些书”，而不是“保留哪些书”。最稳妥的做法是：\n\n1. 用一个状态记录当前筛选值，例如 `'all'`、`'unread'`、`'read'`，初始为 `'all'`。\n2. 在渲染列表时，根据筛选值从 `books` 计算出一个“可见列表”，再对它做 `map`。原始 `books` 保持不变，这样统计数字和切换、删除操作都不受影响。\n3. 三个按钮点击时只修改筛选状态。可以用按钮的样式（例如加粗或高亮）表示当前选中项，方便用户辨认。\n\n注意不要把筛选写成对 `books` 的过滤后覆盖，否则被筛掉的书会真的消失，统计也会出错。",
+        "hints": [
+          "用一个 `filter` 状态保存当前筛选，初始值设为 `'all'`。",
+          "渲染前先算出可见列表：`const visible = books.filter(b => filter === 'all' || (filter === 'read' ? b.read : !b.read))`。",
+          "三个按钮分别把 `filter` 设为 `'all'`、`'unread'`、`'read'`，并给当前选中的按钮加一个高亮样式。",
+          "统计数字仍然基于完整的 `books` 计算，不要用可见列表去算。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "filter-unread",
+          "filter-read",
+          "filter-all"
+        ],
+        "id": "filter",
+        "cumulativeCheckIds": [
+          "add-book-appears",
+          "add-book-clears-input",
+          "blank-shows-hint",
+          "blank-not-added",
+          "toggle-marks-read",
+          "delete-removes-book",
+          "counts-initial",
+          "counts-after-toggle",
+          "filter-unread",
+          "filter-read",
+          "filter-all"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "add-book-appears",
+        "label": "输入《三体》并点击“添加”后，列表中显示《三体》",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "三体",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-item"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 1,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-title"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "三体",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "add-book-clears-input",
+        "label": "添加《三体》后，书名输入框被清空",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "三体",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": null,
+            "assertion": "value",
+            "expected": "",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "blank-shows-hint",
+        "label": "输入三个空格并点击“添加”后，页面显示空白书名提示",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "   ",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "empty-hint"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "blank-not-added",
+        "label": "输入三个空格并点击“添加”后，书籍列表没有新增任何书籍",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "   ",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-item"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 0,
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "toggle-marks-read",
+        "label": "添加《三体》后点击它的“切换状态”按钮，该书状态文字变为“已读”",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "三体",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-status"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "未读",
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "toggle-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-status"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "已读",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "delete-removes-book",
+        "label": "添加《三体》后点击它的“删除”按钮，列表中不再有这本书",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "三体",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-item"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 1,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "delete-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-item"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 0,
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "counts-initial",
+        "label": "添加《三体》和《活着》后，总数显示 2，已读数量显示 0",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "三体",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "活着",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "total-count"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "2",
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "read-count"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "0",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "counts-after-toggle",
+        "label": "添加《三体》与《活着》后把《三体》切换为已读，已读数量显示 1，总数仍为 2",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "三体",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "活着",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "read-count"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "0",
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "切换《三体》的已读状态",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "read-count"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "1",
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "total-count"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "2",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "filter-unread",
+        "label": "添加《三体》与《活着》并把《三体》切换为已读后，点击“未读”筛选，列表只显示《活着》",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "三体",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "活着",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "切换《三体》的已读状态",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-item"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 2,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "filter-unread"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-item"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 1,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-title"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "活着",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "filter-read",
+        "label": "添加《三体》与《活着》并把《三体》切换为已读后，点击“已读”筛选，列表只显示《三体》",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "三体",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "活着",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "切换《三体》的已读状态",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "filter-read"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-item"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 1,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-title"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "三体",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "filter-all",
+        "label": "添加《三体》与《活着》并把《三体》切换为已读，点击“已读”筛选后再点击“全部”，列表重新显示两本书",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "三体",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-input"
+            },
+            "value": "活着",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "add-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "切换《三体》的已读状态",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "filter-read"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-item"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 1,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "filter-all"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-item"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 2,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "book-title"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 2,
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      }
+    ],
+    "validationSummary": {
+      "passed": true,
+      "templateVersion": "react-app-v1",
+      "validatedSteps": 5,
+      "qualityWarnings": [
+        {
+          "stepId": "add-and-list",
+          "message": "未提供可执行负例，负例区分度未验证"
+        },
+        {
+          "stepId": "reject-blank",
+          "message": "未提供可执行负例，负例区分度未验证"
+        },
+        {
+          "stepId": "toggle-and-delete",
+          "message": "未提供可执行负例，负例区分度未验证"
+        },
+        {
+          "stepId": "counts",
+          "message": "未提供可执行负例，负例区分度未验证"
+        },
+        {
+          "stepId": "filter",
+          "message": "未提供可执行负例，负例区分度未验证"
+        }
+      ]
+    }
+  }
+}

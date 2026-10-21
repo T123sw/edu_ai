@@ -1,0 +1,12 @@
+{
+  "status": "succeeded",
+  "generationId": "examgen_a605d9dd7ab2ce174085d8ce556e9b32",
+  "jobId": "job_2b08dfb1245e426e",
+  "questionCount": 45,
+  "completeResult": true,
+  "allQuestionsStructureOnly": true,
+  "authenticatedPaperHTTP": 200,
+  "publicQuestionCount": 45,
+  "originalFailureRetained": true,
+  "verifiedAt": "2026-10-20T12:03:16.409508+00:00"
+}

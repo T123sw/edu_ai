@@ -1,0 +1,3713 @@
+{
+  "schemaVersion": 2,
+  "runtimeKind": "react_app",
+  "templateVersion": "react-app-v1",
+  "exerciseId": "pbl_6dceeafafe176e167b8901ec971c6a3d",
+  "artifactVersion": 1,
+  "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+  "title": "React 购物清单：状态管理与列表操作",
+  "summary": "在单个 React 页面中实现购物清单：输入商品名称并添加（初始数量 1、清空输入框、空白名称提示不可添加）；每件商品可增减数量（最低 1）、切换待购买/已购买、删除；可按全部/待购买/已购买筛选；显示基于整个清单的商品种类数与待购买总件数，统计不受筛选影响。",
+  "plan": {
+    "schemaVersion": 1,
+    "title": "React 购物清单：状态管理与列表操作",
+    "goal": "在单个 React 页面中实现购物清单：输入商品名称并添加（初始数量 1、清空输入框、空白名称提示不可添加）；每件商品可增减数量（最低 1）、切换待购买/已购买、删除；可按全部/待购买/已购买筛选；显示基于整个清单的商品种类数与待购买总件数，统计不受筛选影响。",
+    "runtimeKind": "react_app",
+    "editableFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "requirements": [
+      {
+        "id": "add-item",
+        "description": "输入商品名称后点击“添加”把商品加入清单，新商品数量为 1，添加成功后清空输入框。"
+      },
+      {
+        "id": "blank-guard",
+        "description": "商品名称为空白（空或仅空格）时不能添加，页面显示提示文字。"
+      },
+      {
+        "id": "quantity-control",
+        "description": "每件商品有增加和减少数量按钮，数量最低为 1，减少到 1 后不再下降。"
+      },
+      {
+        "id": "toggle-purchased",
+        "description": "每件商品可在“待购买”和“已购买”状态之间切换。"
+      },
+      {
+        "id": "delete-item",
+        "description": "每件商品可以被删除，删除后从清单中消失。"
+      },
+      {
+        "id": "filter-list",
+        "description": "支持按“全部 / 待购买 / 已购买”筛选列表显示，筛选只影响显示，不影响统计。"
+      },
+      {
+        "id": "stats",
+        "description": "显示商品种类数（清单中商品条目总数）和待购买总件数（所有待购买商品数量之和），统计基于整个清单，不受筛选影响。"
+      }
+    ],
+    "steps": [
+      {
+        "id": "add-and-guard",
+        "title": "添加商品与空白校验",
+        "objective": "实现输入框、添加按钮，把商品加入列表并显示，初始数量为 1，添加后清空输入框，空白名称显示提示且不添加。",
+        "dependsOn": [],
+        "entryCondition": "从初始工程开始，App.jsx 中只有一个占位页面。",
+        "deliverable": "页面有商品名称输入框和“添加”按钮；输入名称点击添加后，清单中出现该商品且数量显示为 1，输入框被清空；输入空白或仅空格时点击添加，清单不新增，页面显示提示文字。",
+        "requirementIds": [
+          "add-item",
+          "blank-guard"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "newCheckIds": [
+          "add-item-appears",
+          "add-clears-input",
+          "blank-shows-hint"
+        ]
+      },
+      {
+        "id": "quantity",
+        "title": "增减数量",
+        "objective": "为每件商品提供增加和减少数量按钮，数量最低为 1。",
+        "dependsOn": [
+          "add-and-guard"
+        ],
+        "entryCondition": "上一步已能添加商品并显示数量 1。",
+        "deliverable": "每件商品旁有“增加”和“减少”按钮；点击增加数量加 1，点击减少数量减 1，但数量不会低于 1。",
+        "requirementIds": [
+          "add-item",
+          "blank-guard",
+          "quantity-control"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "newCheckIds": [
+          "increase-quantity",
+          "decrease-quantity",
+          "decrease-floor"
+        ]
+      },
+      {
+        "id": "toggle-and-delete",
+        "title": "切换购买状态与删除",
+        "objective": "为每件商品提供待购买/已购买切换和删除操作。",
+        "dependsOn": [
+          "quantity"
+        ],
+        "entryCondition": "上一步已能增减数量。",
+        "deliverable": "每件商品有切换按钮，点击后在“待购买”和“已购买”之间切换并显示当前状态；每件商品有“删除”按钮，点击后该商品从清单消失，其他商品保留。",
+        "requirementIds": [
+          "add-item",
+          "blank-guard",
+          "quantity-control",
+          "toggle-purchased",
+          "delete-item"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "newCheckIds": [
+          "toggle-to-purchased",
+          "toggle-back",
+          "delete-removes-item"
+        ]
+      },
+      {
+        "id": "filter",
+        "title": "按状态筛选",
+        "objective": "提供“全部 / 待购买 / 已购买”筛选，只影响列表显示。",
+        "dependsOn": [
+          "toggle-and-delete"
+        ],
+        "entryCondition": "上一步已能切换状态和删除商品。",
+        "deliverable": "页面有“全部”“待购买”“已购买”三个筛选按钮；选择“待购买”只显示待购买商品，选择“已购买”只显示已购买商品，选择“全部”显示所有商品。",
+        "requirementIds": [
+          "add-item",
+          "blank-guard",
+          "quantity-control",
+          "toggle-purchased",
+          "delete-item",
+          "filter-list"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "newCheckIds": [
+          "filter-pending",
+          "filter-purchased",
+          "filter-all"
+        ]
+      },
+      {
+        "id": "stats",
+        "title": "统计种类数与待购买总件数",
+        "objective": "显示商品种类数和待购买总件数，统计基于整个清单，不受筛选影响。",
+        "dependsOn": [
+          "filter"
+        ],
+        "entryCondition": "上一步已能筛选列表。",
+        "deliverable": "页面显示商品种类数（清单条目总数）和待购买总件数（待购买商品数量之和）；切换筛选时这两个数字保持不变，增减数量、切换状态、删除后数字随之更新。",
+        "requirementIds": [
+          "add-item",
+          "blank-guard",
+          "quantity-control",
+          "toggle-purchased",
+          "delete-item",
+          "filter-list",
+          "stats"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "newCheckIds": [
+          "stats-initial",
+          "stats-unaffected-by-filter",
+          "stats-updates-on-change"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "add-item-appears",
+        "stepId": "add-and-guard",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "add-item"
+        ],
+        "setup": "全新页面，清单为空。",
+        "actions": [
+          "在商品名称输入框填入“牛奶”",
+          "点击“添加”按钮",
+          "读取清单中商品名称文字"
+        ],
+        "expected": [
+          "清单中出现“牛奶”，数量显示为 1"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "add-clears-input",
+        "stepId": "add-and-guard",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "add-item"
+        ],
+        "setup": "全新页面，清单为空。",
+        "actions": [
+          "在商品名称输入框填入“面包”",
+          "点击“添加”按钮",
+          "读取商品名称输入框的值"
+        ],
+        "expected": [
+          "添加后输入框为空"
+        ],
+        "requiredAssertions": [
+          "value"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "blank-shows-hint",
+        "stepId": "add-and-guard",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "blank-guard"
+        ],
+        "setup": "全新页面，清单为空。",
+        "actions": [
+          "在商品名称输入框填入“   ”（仅空格）",
+          "点击“添加”按钮",
+          "读取提示文字",
+          "读取清单条目数量"
+        ],
+        "expected": [
+          "显示提示文字，清单仍为空"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text",
+          "count"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "increase-quantity",
+        "stepId": "quantity",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "quantity-control"
+        ],
+        "setup": "全新页面，添加商品“牛奶”。",
+        "actions": [
+          "点击“牛奶”所在条目的“增加”按钮",
+          "读取“牛奶”条目的数量文字"
+        ],
+        "expected": [
+          "数量变为 2"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "decrease-quantity",
+        "stepId": "quantity",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "quantity-control"
+        ],
+        "setup": "全新页面，添加商品“牛奶”，点击一次增加使其数量为 2。",
+        "actions": [
+          "点击“牛奶”所在条目的“减少”按钮",
+          "读取“牛奶”条目的数量文字"
+        ],
+        "expected": [
+          "数量回到 1"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "decrease-floor",
+        "stepId": "quantity",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "quantity-control"
+        ],
+        "setup": "全新页面，添加商品“牛奶”，数量为 1。",
+        "actions": [
+          "点击“牛奶”所在条目的“减少”按钮",
+          "读取“牛奶”条目的数量文字"
+        ],
+        "expected": [
+          "数量仍为 1"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "toggle-to-purchased",
+        "stepId": "toggle-and-delete",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "toggle-purchased"
+        ],
+        "setup": "全新页面，添加商品“牛奶”，初始为待购买。",
+        "actions": [
+          "点击“牛奶”所在条目的状态切换按钮",
+          "读取“牛奶”条目的状态文字"
+        ],
+        "expected": [
+          "状态显示为已购买"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "toggle-back",
+        "stepId": "toggle-and-delete",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "toggle-purchased"
+        ],
+        "setup": "全新页面，添加商品“牛奶”，点击一次状态切换使其为已购买。",
+        "actions": [
+          "再次点击“牛奶”所在条目的状态切换按钮",
+          "读取“牛奶”条目的状态文字"
+        ],
+        "expected": [
+          "状态回到待购买"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "delete-removes-item",
+        "stepId": "toggle-and-delete",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "delete-item"
+        ],
+        "setup": "全新页面，依次添加“牛奶”和“面包”。",
+        "actions": [
+          "点击“牛奶”所在条目的“删除”按钮",
+          "读取清单条目数量",
+          "读取剩余商品名称文字"
+        ],
+        "expected": [
+          "清单只剩 1 条，剩余“面包”"
+        ],
+        "requiredAssertions": [
+          "count",
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "filter-pending",
+        "stepId": "filter",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "filter-list"
+        ],
+        "setup": "全新页面，添加“牛奶”和“面包”，把“面包”切换为已购买。",
+        "actions": [
+          "点击“待购买”筛选按钮",
+          "读取清单条目数量",
+          "读取清单中商品名称文字"
+        ],
+        "expected": [
+          "只显示“牛奶”一条"
+        ],
+        "requiredAssertions": [
+          "count",
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "filter-purchased",
+        "stepId": "filter",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "filter-list"
+        ],
+        "setup": "全新页面，添加“牛奶”和“面包”，把“面包”切换为已购买。",
+        "actions": [
+          "点击“已购买”筛选按钮",
+          "读取清单条目数量",
+          "读取清单中商品名称文字"
+        ],
+        "expected": [
+          "只显示“面包”一条"
+        ],
+        "requiredAssertions": [
+          "count",
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "filter-all",
+        "stepId": "filter",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "filter-list"
+        ],
+        "setup": "全新页面，添加“牛奶”和“面包”，把“面包”切换为已购买，先点击“待购买”筛选。",
+        "actions": [
+          "点击“全部”筛选按钮",
+          "读取清单条目数量"
+        ],
+        "expected": [
+          "显示两条商品"
+        ],
+        "requiredAssertions": [
+          "count"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "stats-initial",
+        "stepId": "stats",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "stats"
+        ],
+        "setup": "全新页面，添加“牛奶”（数量 1）和“面包”（数量 1），把“面包”切换为已购买。",
+        "actions": [
+          "读取商品种类数文字",
+          "读取待购买总件数文字"
+        ],
+        "expected": [
+          "种类数为 2，待购买总件数为 1"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "stats-unaffected-by-filter",
+        "stepId": "stats",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "stats",
+          "filter-list"
+        ],
+        "setup": "全新页面，添加“牛奶”（数量 1）和“面包”（数量 1），把“面包”切换为已购买。",
+        "actions": [
+          "点击“已购买”筛选按钮",
+          "读取商品种类数文字",
+          "读取待购买总件数文字"
+        ],
+        "expected": [
+          "筛选后种类数仍为 2，待购买总件数仍为 1"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "stats-updates-on-change",
+        "stepId": "stats",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "stats",
+          "quantity-control"
+        ],
+        "setup": "全新页面，添加“牛奶”和“面包”，把“面包”切换为已购买。",
+        "actions": [
+          "点击“牛奶”所在条目的“增加”按钮",
+          "读取待购买总件数文字",
+          "点击“面包”所在条目的“删除”按钮",
+          "读取商品种类数文字"
+        ],
+        "expected": [
+          "待购买总件数变为 2；删除后面包消失，种类数变为 1"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      }
+    ]
+  },
+  "starterFiles": {
+    "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+    "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+  },
+  "tasks": [
+    {
+      "stepId": "add-and-guard",
+      "title": "添加商品与空白校验",
+      "objective": "实现输入框、添加按钮，把商品加入列表并显示，初始数量为 1，添加后清空输入框，空白名称显示提示且不添加。",
+      "instructionsMarkdown": "这一步要做出购物清单的“添加商品”功能。\n\n页面上要有一个商品名称输入框和一个“添加”按钮。在输入框里输入名称（例如“牛奶”），点击“添加”后，这件商品会出现在下方的清单里，并且显示数量为 1。添加成功后，输入框要自动清空，方便继续输入下一件商品。\n\n如果输入框是空的，或者只输入了空格，点击“添加”时不能把商品加进清单，同时页面上要显示一句提示文字，告诉用户名称不能为空。\n\n清单初始为空。每件商品在清单里显示它的名称和数量。\n\n**代码约定**（仅用于系统识别，不影响页面外观）：\n- 商品名称输入框加 `data-testid=\"item-input\"`。\n- “添加”按钮加 `data-testid=\"add-button\"`，按钮文字为“添加”。\n- 空白提示文字放在一个元素里，加 `data-testid=\"hint\"`；没有提示时该元素可以不显示。\n- 清单中每个商品条目用一个容器包裹，加 `data-testid=\"item-row\"`。\n- 每个条目里显示商品名称的元素加 `data-testid=\"item-name\"`，只放名称文字。\n- 每个条目里显示数量的元素加 `data-testid=\"item-qty\"`，只放数量数字（例如 `1`）。",
+      "explanationMarkdown": "这一步的核心是 React 的受控输入和列表状态。\n\n用 `useState` 保存两样东西：输入框的当前文字（例如 `name`），以及商品清单数组（例如 `items`）。输入框的 `value` 绑定 `name`，`onChange` 里更新它，这样输入框就是“受控”的。\n\n点击“添加”时，先判断名称去掉首尾空格后是否为空。如果为空，就设置一条提示信息，并且直接返回，不修改清单。如果不为空，就用 `setItems` 把新商品追加到数组末尾。新商品需要一个稳定的唯一标识（例如用 `Date.now()` 或递增计数），并带上 `name`、`quantity: 1`，以及后续步骤会用到的状态字段。添加完成后把输入框清空、把提示清掉。\n\n渲染清单时用 `items.map(...)`，每一项返回一个带 `key` 的元素。数量先直接显示为 1。",
+      "hints": [
+        "输入框用 `value={name}` 和 `onChange={e => setName(e.target.value)}` 变成受控组件。",
+        "判断空白用 `name.trim() === ''`，这样只输入空格也会被拦下。",
+        "新商品对象可以写成 `{ id: Date.now(), name: name.trim(), quantity: 1 }`，再 `setItems([...items, newItem])`。",
+        "添加成功后记得 `setName('')` 清空输入框，并清掉提示文字。",
+        "列表渲染时给每个元素加 `key={item.id}`，避免 React 警告。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "checkIds": [
+        "add-item-appears",
+        "add-clears-input",
+        "blank-shows-hint"
+      ],
+      "id": "add-and-guard",
+      "cumulativeCheckIds": [
+        "add-item-appears",
+        "add-clears-input",
+        "blank-shows-hint"
+      ]
+    },
+    {
+      "stepId": "quantity",
+      "title": "增减数量",
+      "objective": "为每件商品提供增加和减少数量按钮，数量最低为 1。",
+      "instructionsMarkdown": "上一步已经能输入商品名称、点击“添加”把商品加入清单，并在空白名称时显示提示。现在给清单里的每件商品加上数量控制。\n\n本步要做出的效果：\n\n- 每件商品旁边显示当前数量，并有两个按钮：“增加”和“减少”。\n- 点击某件商品的“增加”，该商品数量加 1，其他商品不受影响。\n- 点击某件商品的“减少”，该商品数量减 1。\n- 数量最低为 1：当数量已经是 1 时再点“减少”，数量保持 1，不会变成 0 或负数。\n- 之前的功能保持不变：添加商品后数量初始为 1、添加后清空输入框、空白名称显示提示且不新增。\n\n数量显示为纯数字文字（例如 `1`、`2`），不要附带“件”“个”等额外文字，方便直接观察。\n\n### 代码约定\n\n为了让系统能定位到每件商品里的控件，请使用以下标记（这些标记只供识别，不会改变页面外观）：\n\n- 每件商品的整行容器加 `data-testid=\"item-row\"`。\n- 商品名称文字放在 `data-testid=\"item-name\"` 的元素里。\n- 数量数字放在 `data-testid=\"item-qty\"` 的元素里，内容只有数字。\n- 该商品的“增加”按钮加 `data-testid=\"increase-button\"`，按钮文字为“增加”。\n- 该商品的“减少”按钮加 `data-testid=\"decrease-button\"`，按钮文字为“减少”。\n\n输入框、添加按钮和提示沿用上一步的 `item-input`、`add-button`、`hint`。",
+      "explanationMarkdown": "数量是每件商品自己的数据，所以应该存在每个商品对象里，而不是一个全局的“当前数量”。上一步的商品对象已经有 `quantity` 字段，本步只需要在点击按钮时更新对应商品的那一项。\n\n常见做法是用 `setItems` 配合 `map`：遍历清单，找到 id 匹配的那件商品就返回一个带新数量的新对象，其余商品原样返回。这样只改动目标商品，其他商品保持不变。\n\n“最低为 1”是一个边界条件：减少时用 `Math.max(1, item.quantity - 1)`，或者在数量已经是 1 时直接不减少。注意不要用 `item.quantity--` 这类直接修改原对象的写法，React 需要新的对象才能感知变化。\n\n按钮放在每件商品的行里，所以点击时要知道是哪一件——可以在渲染时把该商品的 id 传给处理函数。",
+      "hints": [
+        "先给每件商品渲染出“增加”“减少”两个按钮，并让数量显示在 `item-qty` 里。",
+        "写一个按 id 更新数量的函数，用 `items.map` 找到目标商品并返回新对象。",
+        "增加时数量加 1；减少时用 `Math.max(1, quantity - 1)` 保证不低于 1。",
+        "按钮的 onClick 里传入当前商品的 id，例如 `onClick={() => changeQty(item.id, 1)}`。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "checkIds": [
+        "increase-quantity",
+        "decrease-quantity",
+        "decrease-floor"
+      ],
+      "id": "quantity",
+      "cumulativeCheckIds": [
+        "add-item-appears",
+        "add-clears-input",
+        "blank-shows-hint",
+        "increase-quantity",
+        "decrease-quantity",
+        "decrease-floor"
+      ]
+    },
+    {
+      "stepId": "toggle-and-delete",
+      "title": "切换购买状态与删除",
+      "objective": "为每件商品提供待购买/已购买切换和删除操作。",
+      "instructionsMarkdown": "现在每件商品都能增减数量了。这一步给每件商品加上两个新操作：切换购买状态和删除。\n\n**要做出的效果**\n\n- 每件商品旁显示当前状态文字：待购买或已购买。新添加的商品默认是“待购买”。\n- 每件商品有一个状态切换按钮，按钮上显示当前状态对应的文字：待购买时显示“标记已购买”，已购买时显示“标记待购买”。\n- 点击状态切换按钮后，该商品在“待购买”和“已购买”之间切换，状态文字随之更新；再次点击能切回原来的状态。切换某件商品的状态不影响其他商品。\n- 每件商品有一个“删除”按钮，点击后该商品从清单中消失，其他商品保留。\n\n**起点**\n\n上一步的工程已经能添加商品、显示数量并增减数量。请在现有基础上扩展，不要破坏这些已有功能。\n\n**代码约定**\n\n为了让系统识别页面部件，请使用以下标记（标记本身不会改变外观）：\n\n- 每件商品的状态文字放在一个元素上，加 `data-testid=\"item-status\"`，文字内容为“待购买”或“已购买”。\n- 状态切换按钮加 `data-testid=\"toggle-button\"`。\n- 删除按钮加 `data-testid=\"delete-button\"`。\n- 已有的 `item-row`、`item-name`、`item-qty`、`increase-button`、`decrease-button` 保持不变。",
+      "explanationMarkdown": "## 思路\n\n每件商品现在需要多存一个状态字段，比如 `purchased: false` 表示待购买。添加商品时把它初始化为 `false`。\n\n切换状态时，用 `map` 找到对应 id 的商品，把 `purchased` 取反：\n\n```js\nsetItems((prev) =>\n  prev.map((item) =>\n    item.id === id ? { ...item, purchased: !item.purchased } : item\n  )\n);\n```\n\n删除时用 `filter` 把对应 id 的商品过滤掉：\n\n```js\nsetItems((prev) => prev.filter((item) => item.id !== id));\n```\n\n## 显示状态\n\n根据 `item.purchased` 决定显示的文字和按钮文字，例如：\n\n```jsx\n<span data-testid=\"item-status\">{item.purchased ? '已购买' : '待购买'}</span>\n<button data-testid=\"toggle-button\" onClick={() => toggle(item.id)}>\n  {item.purchased ? '标记待购买' : '标记已购买'}\n</button>\n```\n\n注意状态文字要放在独立的元素里，不要和商品名混在同一个元素中，否则会影响已有检查对商品名的精确匹配。",
+      "hints": [
+        "给商品对象加一个 `purchased` 字段，添加时设为 `false`。",
+        "切换状态用 `map` 加取反，删除用 `filter`。",
+        "状态文字单独放在 `data-testid=\"item-status\"` 的元素里，不要和商品名放在一起。",
+        "按钮文字可以随状态变化，但 `data-testid` 保持不变。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "checkIds": [
+        "toggle-to-purchased",
+        "toggle-back",
+        "delete-removes-item"
+      ],
+      "id": "toggle-and-delete",
+      "cumulativeCheckIds": [
+        "add-item-appears",
+        "add-clears-input",
+        "blank-shows-hint",
+        "increase-quantity",
+        "decrease-quantity",
+        "decrease-floor",
+        "toggle-to-purchased",
+        "toggle-back",
+        "delete-removes-item"
+      ]
+    },
+    {
+      "stepId": "filter",
+      "title": "按状态筛选",
+      "objective": "提供“全部 / 待购买 / 已购买”筛选，只影响列表显示。",
+      "instructionsMarkdown": "现在清单里已经能添加商品、增减数量、切换购买状态和删除商品了。这一步给清单加上筛选功能。\n\n在页面上加一组筛选按钮，共三个：“全部”“待购买”“已购买”。默认选中“全部”，此时清单显示所有商品。\n\n点击“待购买”后，清单只显示状态为待购买的商品；点击“已购买”后，只显示状态为已购买的商品；再点“全部”恢复显示所有商品。筛选只改变列表里显示哪些商品，商品本身的数量、状态都不变，被筛掉的商品只是暂时不显示。筛选后列表里条目的顺序保持原来的添加顺序。\n\n筛选按钮要能看出当前选中的是哪一个（例如选中项有不同样式），但这一点不影响功能。\n\n**代码约定**\n\n- 三个筛选按钮分别加 `data-testid`：`filter-all`（全部）、`filter-pending`（待购买）、`filter-purchased`（已购买）。\n- 商品列表的每个条目继续使用 `data-testid=\"item-row\"`，商品名称用 `item-name`，数量用 `item-qty`，状态文字用 `item-status`，增减按钮用 `increase-button` / `decrease-button`，状态切换用 `toggle-button`，删除用 `delete-button`，这些沿用上一步的标记。\n- 这些标记只供系统识别页面部件，不会改变外观。",
+      "explanationMarkdown": "筛选的核心是“显示哪些”和“数据有哪些”分开。清单数据 `items` 保持完整，另外用一个状态记录当前筛选条件，例如 `const [filter, setFilter] = useState('all')`，取值可以是 `'all'`、`'pending'`、`'purchased'`。\n\n渲染时不要直接遍历 `items`，而是先根据 `filter` 算出一个用于显示的数组：\n\n```jsx\nconst visibleItems = items.filter((item) => {\n  if (filter === 'pending') return !item.purchased;\n  if (filter === 'purchased') return item.purchased;\n  return true;\n});\n```\n\n然后 `visibleItems.map(...)` 渲染列表。这样增删改仍然作用在完整的 `items` 上，筛选只是决定渲染哪一部分，两者互不干扰。\n\n注意：筛选后列表里条目的顺序应保持原来的添加顺序，`filter` 不会打乱顺序。",
+      "hints": [
+        "先加一个 `filter` 状态，默认值表示“全部”。",
+        "三个按钮的 `onClick` 分别把 `filter` 设成对应值。",
+        "渲染前用 `items.filter(...)` 得到要显示的数组，再对它 `map`。",
+        "判断待购买用 `!item.purchased`，已购买用 `item.purchased`。",
+        "被筛掉的商品不要从 `items` 里删除，只是不渲染。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "checkIds": [
+        "filter-pending",
+        "filter-purchased",
+        "filter-all"
+      ],
+      "id": "filter",
+      "cumulativeCheckIds": [
+        "add-item-appears",
+        "add-clears-input",
+        "blank-shows-hint",
+        "increase-quantity",
+        "decrease-quantity",
+        "decrease-floor",
+        "toggle-to-purchased",
+        "toggle-back",
+        "delete-removes-item",
+        "filter-pending",
+        "filter-purchased",
+        "filter-all"
+      ]
+    },
+    {
+      "stepId": "stats",
+      "title": "统计种类数与待购买总件数",
+      "objective": "显示商品种类数和待购买总件数，统计基于整个清单，不受筛选影响。",
+      "instructionsMarkdown": "这一步给购物清单加上两个统计数字，让你随时知道清单的整体情况。\n\n**要做出的成果**\n\n在页面上显示两个统计信息：\n\n- **商品种类数**：清单里一共有多少种商品（条目总数）。\n- **待购买总件数**：所有“待购买”商品的数量之和（已购买的商品不计入）。\n\n**起点**\n\n上一步已经能添加商品、增减数量、切换购买状态、删除商品，并按“全部 / 待购买 / 已购买”筛选列表。\n\n**完成效果与边界**\n\n- 统计基于**整个清单**，不受当前筛选影响：即使筛选只显示部分商品，两个数字仍按全部商品计算。\n- 增减数量、切换购买状态、删除商品后，数字要随之更新。\n- 例如清单里有“牛奶”（待购买，数量 1）和“面包”（已购买，数量 1）时，商品种类数为 2，待购买总件数为 1；此时切到“已购买”筛选，两个数字仍是 2 和 1。\n\n**代码约定**\n\n为了让系统能识别这两个数字，请给它们加上标记（标记不会改变外观）：\n\n- 显示商品种类数的元素加 `data-testid=\"stat-kinds\"`，内容只放数字本身（例如 `2`）。\n- 显示待购买总件数的元素加 `data-testid=\"stat-pending\"`，内容只放数字本身（例如 `1`）。\n\n可以给它们配上“商品种类数”“待购买总件数”之类的文字说明，但数字要单独放在上述带标记的元素里。",
+      "explanationMarkdown": "统计数字应当从**完整的商品数组**计算，而不是从筛选后用于显示的数组计算，这样筛选才不会影响统计。\n\n- 商品种类数就是 `items.length`。\n- 待购买总件数可以用 `items.filter(i => !i.purchased).reduce((sum, i) => sum + i.quantity, 0)` 得到。\n\n因为这两个值都由 `items` 派生，只要 `items` 变化（增删、改数量、切状态），重新渲染时数字就会自动更新，不需要额外的状态。把计算放在渲染函数里或 `useMemo` 里都可以。",
+      "hints": [
+        "统计要用完整的 items 数组，不要用筛选后的 visibleItems。",
+        "种类数直接取 items.length；待购买总件数用 filter + reduce 求和。",
+        "把数字单独放进带 data-testid 的元素，避免和其他文字混在一起导致读取不准。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "checkIds": [
+        "stats-initial",
+        "stats-unaffected-by-filter",
+        "stats-updates-on-change"
+      ],
+      "id": "stats",
+      "cumulativeCheckIds": [
+        "add-item-appears",
+        "add-clears-input",
+        "blank-shows-hint",
+        "increase-quantity",
+        "decrease-quantity",
+        "decrease-floor",
+        "toggle-to-purchased",
+        "toggle-back",
+        "delete-removes-item",
+        "filter-pending",
+        "filter-purchased",
+        "filter-all",
+        "stats-initial",
+        "stats-unaffected-by-filter",
+        "stats-updates-on-change"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "add-item-appears",
+      "label": "输入名称点击“添加”后，清单出现该商品且数量为 1；连续添加两件商品各自独立显示。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "牛奶",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "牛奶",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "面包",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "add-clears-input",
+      "label": "添加商品成功后，商品名称输入框被清空。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": null,
+          "assertion": "value",
+          "expected": "",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "blank-shows-hint",
+      "label": "输入为空或仅空格时点击“添加”，清单不新增并显示提示文字；已有商品时同样不新增。",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "hint"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "   ",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "hint"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "   ",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "hint"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "牛奶",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "increase-quantity",
+      "label": "点击某件商品的“增加”按钮，该商品数量加 1，其他商品数量保持不变；连续点击可继续累加。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "increase-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "increase-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "increase-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "3",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "decrease-quantity",
+      "label": "点击某件商品的“减少”按钮，该商品数量减 1，其他商品数量保持不变。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "increase-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "increase-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "3",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "decrease-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "decrease-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "decrease-floor",
+      "label": "数量为 1 时点击“减少”，数量保持 1，不会降到 0 或负数；连续点击仍保持 1。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "decrease-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "decrease-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "decrease-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "toggle-to-purchased",
+      "label": "点击某件商品的状态切换按钮后，该商品状态文字变为“已购买”，其他商品仍为“待购买”；再切换另一件商品时两件状态各自独立。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "toggle-back",
+      "label": "已购买的商品再次点击状态切换按钮后，状态文字回到“待购买”。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "delete-removes-item",
+      "label": "点击某件商品的“删除”按钮后该商品消失，其他商品保留且名称、数量、状态不变；删除中间条目时前后条目顺序保持。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "鸡蛋",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 3,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "increase-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "delete-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "牛奶",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "鸡蛋",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "filter-pending",
+      "label": "清单有“牛奶”（待购买）和“面包”（已购买）时，点击“待购买”只显示“牛奶”一条；从“已购买”筛选切回“待购买”同样只显示“牛奶”。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-pending"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "牛奶",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-purchased"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "面包",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-pending"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "牛奶",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "filter-purchased",
+      "label": "清单有“牛奶”（待购买）和“面包”（已购买）时，点击“已购买”只显示“面包”一条；从“待购买”筛选切到“已购买”同样只显示“面包”。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-purchased"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "面包",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-pending"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "牛奶",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-purchased"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "面包",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "filter-all",
+      "label": "从“待购买”筛选点击“全部”恢复显示两条商品且顺序为“牛奶”“面包”；从“已购买”筛选点击“全部”同样恢复两条。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-pending"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-all"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "牛奶",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "面包",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-purchased"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-all"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "牛奶",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "面包",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "stats-initial",
+      "label": "清单有“牛奶”（待购买，数量 1）和“面包”（已购买，数量 1）时，商品种类数显示 2，待购买总件数显示 1。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-kinds"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-pending"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "stats-unaffected-by-filter",
+      "label": "清单有“牛奶”（待购买，数量 1）和“面包”（已购买，数量 1）时，切到“已购买”或“待购买”筛选，商品种类数仍为 2、待购买总件数仍为 1，统计不受筛选影响。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-purchased"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-kinds"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-pending"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "filter-pending"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-kinds"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-pending"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "stats-updates-on-change",
+      "label": "增减数量、切换购买状态、删除商品后统计随之更新：牛奶数量加 1 后待购买总件数变为 2；把牛奶切换为已购买后待购买总件数变为 0；删除面包后商品种类数变为 1。",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "add-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-kinds"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-pending"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "increase-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-qty"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-pending"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-kinds"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "toggle-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-pending"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-kinds"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "delete-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-kinds"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-pending"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "validationSummary": {
+    "passed": true,
+    "templateVersion": "react-app-v1",
+    "validatedSteps": 5,
+    "qualityWarnings": [
+      {
+        "stepId": "stats",
+        "message": "未提供可执行负例，负例区分度未验证"
+      }
+    ]
+  }
+}

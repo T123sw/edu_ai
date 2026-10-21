@@ -1,0 +1,156 @@
+{
+  "publishedAt": "20261014T054058Z",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-report-format-20261014",
+  "backup": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-report-format-20261014T054058Z",
+  "baselineReproduced": true,
+  "previousIndexSha256": "518e128a85837307aeb0113c8d5bcead5c63c0121627976b4fe2c750d1ddd649",
+  "releaseIndexSha256": "0c54faa3c7a1892d8b5c80b21517b0f45d3ade3ee7bdba163a6f87b78c904b0b",
+  "nginxIndexMatches": true,
+  "changes": [
+    "Shared Markdown preview loads its own formatting styles",
+    "Table borders, spacing, original alignment and horizontal scrolling restored",
+    "Heading hierarchy, paragraphs, lists, quotes and code formatting restored"
+  ],
+  "checks": {
+    "typecheck": "passed (tsconfig.self-learning.json)",
+    "eslint": "passed (MarkdownPreview.tsx)",
+    "build": "passed",
+    "actualReport": [
+      {
+        "width": 1440,
+        "tables": 3,
+        "rows": 11,
+        "headings": 27,
+        "h1Size": "28px",
+        "h2Size": "22px",
+        "cellBorder": "1px",
+        "cellPadding": "10px 12px",
+        "bodyWidth": 918,
+        "bodyScrollWidth": 918,
+        "listMarker": "decimal",
+        "tableText": [
+          "OI Wiki 的说法\t维基百科「演算法」一节的对应\n划分并保证相对大小关系\t挑选基准值 + 分割\n递归排序两个子序列\t递归排序子序列",
+          "过程\t在这个例子里对应什么\n1. 划分并保证相对大小关系\t每层选出基准值，把元素分到「较小 / 较大」两侧，基准值就位\n2. 递归排序两个子序列\t对 [1, 1, 2] 和 [4, 5, 9] 分别再做快速排序\n3. 不用合并\t最后一步只是把 [1, 1, 2]、[3]、[4, 5, 9] 直接拼起来",
+          "对比项\t快速排序\t归并排序\n第一步怎么分\t按大小关系分成「较小」和「较大」两堆，保证前一段的数都不大于后一段的数\t直接按位置从中间切成前后两半，切的时候不管大小\n是否需要合并\t不需要合并，划分时已经把合并要干的活提前做掉了\t必须额外做一次合并，把两个有序段归并成一个\n核心动作\t分区 + 交换\t分半 + 合并"
+        ],
+        "codeBlocks": 2,
+        "codeText": [
+          "quicksort(数列):\n    如果 数列长度 ≤ 1:\n        直接返回（已经有序）\n    否则:\n        1. 划分：选基准值，把数列分成「较小」和「较大」两部分\n        2. 递归：quicksort(较小部分)；quicksort(较大部分)\n        3. 不合并：两部分拼起来就是有序的",
+          "[1, 1, 2]  +  [3]  +  [4, 5, 9]  =  [1, 1, 2, 3, 4, 5, 9]"
+        ],
+        "pageOverflow": false
+      },
+      {
+        "width": 390,
+        "tables": 3,
+        "rows": 11,
+        "headings": 27,
+        "h1Size": "24px",
+        "h2Size": "20px",
+        "cellBorder": "1px",
+        "cellPadding": "8px 10px",
+        "bodyWidth": 364,
+        "bodyScrollWidth": 364,
+        "listMarker": "decimal",
+        "tableText": [
+          "OI Wiki 的说法\t维基百科「演算法」一节的对应\n划分并保证相对大小关系\t挑选基准值 + 分割\n递归排序两个子序列\t递归排序子序列",
+          "过程\t在这个例子里对应什么\n1. 划分并保证相对大小关系\t每层选出基准值，把元素分到「较小 / 较大」两侧，基准值就位\n2. 递归排序两个子序列\t对 [1, 1, 2] 和 [4, 5, 9] 分别再做快速排序\n3. 不用合并\t最后一步只是把 [1, 1, 2]、[3]、[4, 5, 9] 直接拼起来",
+          "对比项\t快速排序\t归并排序\n第一步怎么分\t按大小关系分成「较小」和「较大」两堆，保证前一段的数都不大于后一段的数\t直接按位置从中间切成前后两半，切的时候不管大小\n是否需要合并\t不需要合并，划分时已经把合并要干的活提前做掉了\t必须额外做一次合并，把两个有序段归并成一个\n核心动作\t分区 + 交换\t分半 + 合并"
+        ],
+        "codeBlocks": 2,
+        "codeText": [
+          "quicksort(数列):\n    如果 数列长度 ≤ 1:\n        直接返回（已经有序）\n    否则:\n        1. 划分：选基准值，把数列分成「较小」和「较大」两部分\n        2. 递归：quicksort(较小部分)；quicksort(较大部分)\n        3. 不合并：两部分拼起来就是有序的",
+          "[1, 1, 2]  +  [3]  +  [4, 5, 9]  =  [1, 1, 2, 3, 4, 5, 9]"
+        ],
+        "pageOverflow": false
+      }
+    ],
+    "wideTable": [
+      {
+        "width": 1440,
+        "columns": 8,
+        "align": [
+          "left",
+          "center",
+          "right"
+        ],
+        "lastCell": "完整末列",
+        "canScroll": false,
+        "scrolled": false,
+        "overflow": false,
+        "boldWeight": "700",
+        "code": "print(42)",
+        "quoteBorder": "3px"
+      },
+      {
+        "width": 390,
+        "columns": 8,
+        "align": [
+          "left",
+          "center",
+          "right"
+        ],
+        "lastCell": "完整末列",
+        "canScroll": true,
+        "scrolled": true,
+        "overflow": false,
+        "boldWeight": "700",
+        "code": "print(42)",
+        "quoteBorder": "3px"
+      }
+    ]
+  },
+  "verificationLimits": "Read-only copy of actual report used with mocked business APIs and real built assets; no production resource data modified.",
+  "productionRenderChecks": [
+    {
+      "width": 1440,
+      "tables": 3,
+      "rows": 11,
+      "headings": 27,
+      "h1Size": "28px",
+      "h2Size": "22px",
+      "cellBorder": "1px",
+      "cellPadding": "10px 12px",
+      "bodyWidth": 918,
+      "bodyScrollWidth": 918,
+      "listMarker": "decimal",
+      "tableText": [
+        "OI Wiki 的说法\t维基百科「演算法」一节的对应\n划分并保证相对大小关系\t挑选基准值 + 分割\n递归排序两个子序列\t递归排序子序列",
+        "过程\t在这个例子里对应什么\n1. 划分并保证相对大小关系\t每层选出基准值，把元素分到「较小 / 较大」两侧，基准值就位\n2. 递归排序两个子序列\t对 [1, 1, 2] 和 [4, 5, 9] 分别再做快速排序\n3. 不用合并\t最后一步只是把 [1, 1, 2]、[3]、[4, 5, 9] 直接拼起来",
+        "对比项\t快速排序\t归并排序\n第一步怎么分\t按大小关系分成「较小」和「较大」两堆，保证前一段的数都不大于后一段的数\t直接按位置从中间切成前后两半，切的时候不管大小\n是否需要合并\t不需要合并，划分时已经把合并要干的活提前做掉了\t必须额外做一次合并，把两个有序段归并成一个\n核心动作\t分区 + 交换\t分半 + 合并"
+      ],
+      "codeBlocks": 2,
+      "codeText": [
+        "quicksort(数列):\n    如果 数列长度 ≤ 1:\n        直接返回（已经有序）\n    否则:\n        1. 划分：选基准值，把数列分成「较小」和「较大」两部分\n        2. 递归：quicksort(较小部分)；quicksort(较大部分)\n        3. 不合并：两部分拼起来就是有序的",
+        "[1, 1, 2]  +  [3]  +  [4, 5, 9]  =  [1, 1, 2, 3, 4, 5, 9]"
+      ],
+      "pageOverflow": false
+    },
+    {
+      "width": 390,
+      "tables": 3,
+      "rows": 11,
+      "headings": 27,
+      "h1Size": "24px",
+      "h2Size": "20px",
+      "cellBorder": "1px",
+      "cellPadding": "8px 10px",
+      "bodyWidth": 364,
+      "bodyScrollWidth": 364,
+      "listMarker": "decimal",
+      "tableText": [
+        "OI Wiki 的说法\t维基百科「演算法」一节的对应\n划分并保证相对大小关系\t挑选基准值 + 分割\n递归排序两个子序列\t递归排序子序列",
+        "过程\t在这个例子里对应什么\n1. 划分并保证相对大小关系\t每层选出基准值，把元素分到「较小 / 较大」两侧，基准值就位\n2. 递归排序两个子序列\t对 [1, 1, 2] 和 [4, 5, 9] 分别再做快速排序\n3. 不用合并\t最后一步只是把 [1, 1, 2]、[3]、[4, 5, 9] 直接拼起来",
+        "对比项\t快速排序\t归并排序\n第一步怎么分\t按大小关系分成「较小」和「较大」两堆，保证前一段的数都不大于后一段的数\t直接按位置从中间切成前后两半，切的时候不管大小\n是否需要合并\t不需要合并，划分时已经把合并要干的活提前做掉了\t必须额外做一次合并，把两个有序段归并成一个\n核心动作\t分区 + 交换\t分半 + 合并"
+      ],
+      "codeBlocks": 2,
+      "codeText": [
+        "quicksort(数列):\n    如果 数列长度 ≤ 1:\n        直接返回（已经有序）\n    否则:\n        1. 划分：选基准值，把数列分成「较小」和「较大」两部分\n        2. 递归：quicksort(较小部分)；quicksort(较大部分)\n        3. 不合并：两部分拼起来就是有序的",
+        "[1, 1, 2]  +  [3]  +  [4, 5, 9]  =  [1, 1, 2, 3, 4, 5, 9]"
+      ],
+      "pageOverflow": false
+    }
+  ]
+}

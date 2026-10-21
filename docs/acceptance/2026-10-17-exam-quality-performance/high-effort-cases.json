@@ -1,0 +1,15 @@
+[
+  {
+    "case": "old_binary",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "候选答案选B（4次），但独立计算表明查找83只需3次比较，正确选项为A。",
+      "解释第3步将mid=11对应元素误写为75；该位置实际为83，已经命中，不应继续比较mid=12的91。",
+      "由于答案和推导均错误，未满足生成有效新题的要求。"
+    ],
+    "seconds": 19.53
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "paper_http": 200,
+  "question_count": 32,
+  "hidden_answer_fields": [],
+  "anonymous_paper_http": 401,
+  "incomplete_paper_http": 409,
+  "history_status": "succeeded",
+  "after_deployment": [
+    {
+      "file": "0009-tree-index-conventions.patch",
+      "sha256": "d9f76e9c0cfacb6b813267f74e6234962a00bd7ae66f0c51a4584da2b1c73dbe"
+    }
+  ]
+}

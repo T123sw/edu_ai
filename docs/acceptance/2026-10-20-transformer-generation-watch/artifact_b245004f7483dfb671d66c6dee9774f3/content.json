@@ -1,0 +1,706 @@
+{
+  "_failure_detail": {
+    "code": "RESOURCE_CONTENT_REJECTED",
+    "phase": "resource_review",
+    "message": "q-pe-handcalc 解析第 4 段（explanation_segments 索引 4）：“常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001”自相矛盾：漏掉因子 2 时指数为 i/d_model=1/4，角频率为 10000^(-1/4)≈0.1，pos=1 得 sin(0.1)≈0.0998；而 1/10000 与 sin(0.0001) 对应的是把指数算成 2i/d_model=1 的另一类错误。应改为与所述错误算式一致的数值，或改写错误描述。; q-pe-handcalc 的解析第 4 段把“漏掉因子 2”的错误结果写成 sin(0.0001)≈0.0001，但漏掉因子 2 时 i=1 的角频率应为 1/10000^0.25≈0.1，pos=1 时得到 sin(0.1)≈0.0998，而非 0.0001；0.0001 对应的是把指数算成 2i/d_model=1 的情形，错误归因不成立。其余题目事实与数值（sin1≈0.8415、cos1≈0.5403、sin0.01≈0.0100、cos0.01≈0.99995、波长 2π 与 200π）均正确。; 第 4 题：数值断言无法复算：pos=1 时：第 0 维 i=0，角频率 1/10000^0=1，PE(1,0)=sin1≈0.8415；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 1 维 PE(1,1)=cos1≈0.5403；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 2 维 i=1，角频率 1/10000^(2/4)=1/100，PE(1,2)=sin0.01≈0.0100；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 3 维 PE(1,3)=cos0.01≈0.99995。；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001。；请提供受支持的算式或明确其验证限制; 第 4 题：d_model=4，i∈{0,1}。i=0：角频率 10000^0=1，波长 2π≈6.2832；i=1：指数 2i/d_model=0.5，角频率 10000^(-0.5)=0.01，波长 200π≈628.32。pos=0：PE=(sin0,cos0,sin0,cos0)=(0,1,0,1)。pos=1：PE=(sin1,cos1,sin0.01,cos0.01)≈(0.8415,0.5403,0.0100,0.99995)。参考答案正确；但解析中“漏掉因子 2 会得到 sin(0.0001)≈0.0001”的归因错误：漏掉因子 2 时角频率为 10000^(-0.25)≈0.1，得 sin(0.1)≈0.0998。",
+    "category": "content",
+    "artifact_id": null,
+    "retry_scope": "content",
+    "budget_metric": null,
+    "content_digest": "cfa8b904c90a4dbd23b12b10aaef68348b5d29a21e44122f544d8f77658e789e"
+  },
+  "_review_candidate": {
+    "content": {
+      "title": "位置编码与逐位置前馈网络：补回顺序信息与逐位置非线性",
+      "questions": [
+        {
+          "id": "q-permutation",
+          "stem": "把一句话的词序打乱后，只做自注意力（不加位置编码、不加掩码），输出会怎样变化？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "输出向量集合不变，只是按同样的打乱顺序重新排列",
+            "输出完全不变，每个位置得到相同的向量",
+            "输出会变成全零，因为顺序信息丢失",
+            "输出会随机变化，因为自注意力依赖词序"
+          ],
+          "difficulty": "medium",
+          "explanation": "自注意力对每个位置计算的是它与所有位置的加权和，权重由内容决定，与位置下标无关。因此把输入序列按置换 π 重排后，第 π(j) 个位置的输出恰好等于原来第 j 个位置的输出，即输出只是跟着重排，集合不变。A 正确。B 错：不同词的内容不同，输出向量一般不同，只是顺序跟着变。C 错：自注意力是 softmax 加权求和，不会因为缺少位置信息而输出全零。D 错：正因为自注意力不依赖位置下标，输出才不是随机变化，而是确定地跟着重排——这恰恰说明必须显式注入位置信息。"
+        },
+        {
+          "id": "q-why-add",
+          "stem": "原论文把位置编码加到输入嵌入上，而不是拼接在后面，最直接的原因是：",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "位置编码与嵌入同为 d_model 维，可以直接逐元素相加",
+            "拼接会让参数量翻倍，训练无法收敛",
+            "相加可以让位置编码在训练中被更新",
+            "拼接后无法再做 softmax"
+          ],
+          "difficulty": "easy",
+          "explanation": "论文明确说明位置编码与嵌入具有相同的维度 d_model，因此两者可以相加。A 正确。B 错：拼接确实会改变维度、增加后续层输入宽度，但“训练无法收敛”不是论文给出的理由，也不是必然结果。C 错：正弦位置编码是固定函数，不参与训练更新；相加并不使它变成可学习参数。D 错：softmax 作用在注意力分数上，与输入是相加还是拼接无关。"
+        },
+        {
+          "id": "q-pe-formula",
+          "stem": "关于原论文的正弦位置编码，下列哪些说法正确？（多选）",
+          "type": "multiple_choice",
+          "answer": "A,B,C",
+          "options": [
+            "偶数维用 sin，奇数维用 cos，第 2i 维的角频率为 1/10000^(2i/d_model)",
+            "各维波长构成从 2π 到 10000·2π 的几何级数",
+            "对固定偏移 k，PE(pos+k) 可以表示为 PE(pos) 的线性函数",
+            "位置编码的数值会随训练不断更新，因此能适应任意长度"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：PE(pos,2i)=sin(pos/10000^(2i/d_model))，PE(pos,2i+1)=cos(pos/10000^(2i/d_model))，即偶数维取 sin、奇数维取 cos，角频率随 i 增大而按 10000^(-2i/d_model) 递减。B 正确：波长 λ_i=2π·10000^(2i/d_model)，i=0 时为 2π，i=d_model/2−1 时为 10000·2π，相邻维比值相同，构成几何级数。C 正确：由和角公式，sin(θ+kω)=sinθ·cos(kω)+cosθ·sin(kω)，cos(θ+kω)=cosθ·cos(kω)−sinθ·sin(kω)，同一对 (2i,2i+1) 维度上是一个只依赖 k 的旋转，故 PE(pos+k) 是 PE(pos) 的线性函数。D 错：正弦位置编码是固定函数，不参与训练更新；“可外推到更长序列”是作者选择它的理由之一，但机制不是靠训练更新。"
+        },
+        {
+          "id": "q-pe-handcalc",
+          "stem": "取 d_model=4，按原论文公式计算 pos=1 的位置编码向量（四个分量），并说明 pos=0 的向量是什么。要求写出各维的角频率或波长。",
+          "type": "short_answer",
+          "answer": "pos=0 时 PE(0)=(sin0, cos0, sin0, cos0)=(0,1,0,1)。pos=1 时：第 0 维 i=0，角频率 1/10000^0=1，PE(1,0)=sin1≈0.8415；第 1 维 PE(1,1)=cos1≈0.5403；第 2 维 i=1，角频率 1/10000^(2/4)=1/100，PE(1,2)=sin0.01≈0.0100；第 3 维 PE(1,3)=cos0.01≈0.99995。即 PE(1)≈(0.8415, 0.5403, 0.0100, 0.99995)。",
+          "difficulty": "medium",
+          "explanation": "关键是先算角频率：第 2i 维的角频率为 1/10000^(2i/d_model)。d_model=4 时只有 i=0 和 i=1 两组：i=0 角频率为 1（波长 2π≈6.28），i=1 角频率为 10000^(-0.5)=1/100（波长 200π≈628）。pos=1 时把 pos 乘以角频率代入 sin/cos 即可。可见低维变化快、高维变化慢，这正是波长几何级数的直观体现。常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001。"
+        },
+        {
+          "id": "q-ffn-shape",
+          "stem": "原论文中 d_model=512、d_ff=2048。对序列中一个位置，FFN(x)=max(0, xW1+b1)W2+b2 的中间层与输出维度分别是：",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "中间层 2048 维，输出 512 维",
+            "中间层 512 维，输出 2048 维",
+            "中间层 2048 维，输出 2048 维",
+            "中间层 512 维，输出 512 维"
+          ],
+          "difficulty": "easy",
+          "explanation": "x 是 512 维行向量，W1 形状为 512×2048，故 xW1+b1 得到 2048 维（即 d_ff），经 ReLU 后仍为 2048 维；W2 形状为 2048×512，乘后回到 512 维，与 d_model 一致，才能接残差连接。A 正确。B 把两个维度对调了。C 忽略了第二层把维度降回 d_model。D 忽略了中间层被放大到 d_ff=2048。"
+        },
+        {
+          "id": "q-ffn-position",
+          "stem": "关于逐位置前馈网络，下列哪些说法正确？（多选）",
+          "type": "multiple_choice",
+          "answer": "A,B,C",
+          "options": [
+            "同一层内，不同位置使用同一组 W1、b1、W2、b2",
+            "不同层使用不同的参数",
+            "它等价于两个核大小为 1 的卷积",
+            "它让不同位置之间直接交换信息，从而替代注意力"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：论文说该网络对每个位置分别且相同地施加，线性变换在不同位置间共享。B 正确：论文明确“层与层之间使用不同参数”。C 正确：论文指出这也可描述为两个核大小为 1 的卷积——核大小为 1 意味着只看单个位置，与“逐位置”一致。D 错：正因为每个位置独立处理、参数共享，FFN 本身不混合不同位置的信息；位置间的信息交换由注意力子层完成，FFN 提供的是逐位置的非线性变换。"
+        },
+        {
+          "id": "q-ffn-role",
+          "stem": "判断：由于 FFN 对每个位置施加相同的变换，它在 Transformer 中是可有可无的，去掉后模型表达能力不受影响。",
+          "type": "true_false",
+          "answer": "错误",
+          "options": [],
+          "difficulty": "medium",
+          "explanation": "“对每个位置施加相同变换”说的是参数共享，不等于没有作用。注意力子层本质上是按注意力权重对 Value 做加权求和，属于（凸组合式的）线性混合；FFN 在混合之后对每个位置单独施加“线性—ReLU—线性”，引入非线性与额外的特征变换能力，是每层中除注意力外唯一的非线性来源之一。去掉它，每层就只剩注意力混合与残差/归一化，表达能力明显受限。因此该说法错误。"
+        }
+      ]
+    },
+    "artifact_id": "artifact_b245004f7483dfb671d66c6dee9774f3",
+    "resource_id": "resource_b245004f7483dfb671d66c6dee9774f3",
+    "spec_digest": "e0781a26209f8de433b19a4994893a04160874ac050c56cda88222c4098c2440",
+    "review_state": {
+      "history": [
+        {
+          "version": 1,
+          "decision": "revise",
+          "structural_issues": [
+            "本轮输出格式或映射校验失败：preparation_content_envelope_missing。按本轮格式重交完整封装及必需教学映射；原生题目 JSON 应放在 content 字段内。"
+          ]
+        },
+        {
+          "version": 2,
+          "decision": "revise",
+          "structural_issues": [
+            "本轮输出格式或映射校验失败：preparation_content_envelope_missing。按本轮格式重交完整封装及必需教学映射；原生题目 JSON 应放在 content 字段内。",
+            "本轮输出格式或映射校验失败：preparation_content_envelope_missing。按本轮格式重交完整封装及必需教学映射；原生题目 JSON 应放在 content 字段内。"
+          ]
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "7 题覆盖本节点分工：q-permutation/q-why-add 落实位置信息注入与同维相加（req-transformer-basics 的位置编码部分），q-pe-formula/q-pe-handcalc 落实正弦公式与波长几何级数，q-ffn-shape/q-ffn-position/q-ffn-role 落实逐位置 FFN 与 512/2048 配置；未越界要求其他节点内容。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": false,
+                "reason": "q-pe-handcalc 的解析第 4 段把“漏掉因子 2”的错误结果写成 sin(0.0001)≈0.0001，但漏掉因子 2 时 i=1 的角频率应为 1/10000^0.25≈0.1，pos=1 时得到 sin(0.1)≈0.0998，而非 0.0001；0.0001 对应的是把指数算成 2i/d_model=1 的情形，错误归因不成立。其余题目事实与数值（sin1≈0.8415、cos1≈0.5403、sin0.01≈0.0100、cos0.01≈0.99995、波长 2π 与 200π）均正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解：q-permutation 答案为 A（置换等变），q-why-add 为 A，q-pe-formula 为 A,B,C，q-pe-handcalc 手算结果与参考答案一致，q-ffn-shape 为 A，q-ffn-position 为 A,B,C，q-ffn-role 为“错误”；各干扰项均对应可解释的真实误区（如维度对调、忽略降维、把固定编码说成可训练）。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为“为何需要位置信息→如何相加→公式与性质→手算→FFN 维度→FFN 逐位置性质→FFN 必要性”，与节点活动（置换实验、pos=0..3 手算、正弦与可学习嵌入对比）及 12 分钟预算匹配，难度标注 easy/medium 合理，题干未泄露答案。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "公式、波长几何级数、相对位置线性关系、可学习嵌入对比、FFN 公式与 d_model=512/d_ff=2048、1×1 卷积等价性均与所给 2017 年原论文证据一致，未出现无依据的外部断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个目标均有 check/practice 题覆盖，含单选、多选、判断、简答四种题型；仅 q-pe-handcalc 解析中的错误算式需修正，不影响覆盖完整性。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q-pe-formula 与 q-ffn-position 均为多选且答案都是 A,B,C，正确答案位置规律重复，建议调整其中一题的选项顺序。",
+              "q-ffn-role 解析称 FFN 是“每层中除注意力外唯一的非线性来源之一”，措辞略含混，可改为“是每层中主要的逐位置非线性来源”。",
+              "q-pe-handcalc 可补充 pos=2、pos=3 的对照值，更贴合节点活动中 pos=0..3 的手算安排。"
+            ],
+            "blocking_issues": [
+              "q-pe-handcalc 解析第 4 段（explanation_segments 索引 4）：“常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001”自相矛盾：漏掉因子 2 时指数为 i/d_model=1/4，角频率为 10000^(-1/4)≈0.1，pos=1 得 sin(0.1)≈0.0998；而 1/10000 与 sin(0.0001) 对应的是把指数算成 2i/d_model=1 的另一类错误。应改为与所述错误算式一致的数值，或改写错误描述。"
+            ],
+            "question_checks": [
+              {
+                "question_id": "q-permutation",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：自注意力对置换等变，输出向量集合不变，只是按同样顺序重排。",
+                    "option_text": "输出向量集合不变，只是按同样的打乱顺序重新排列",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "自注意力对每个位置计算的是它与所有位置的加权和，权重由内容决定，与位置下标无关。因此把输入序列按置换 π 重排后，第 π(j) 个位置的输出恰好等于原来第 j 个位置的输出，即输出只是跟着重排，集合不变。A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0、1 段给出权重由内容决定、第 π(j) 个位置输出等于原第 j 个位置输出的推导，第 2 段判定 A 正确，均成立。"
+                  },
+                  {
+                    "reasoning": "错误：不同词内容不同，输出向量一般不同，不会所有位置得到相同向量。",
+                    "option_text": "输出完全不变，每个位置得到相同的向量",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错：不同词的内容不同，输出向量一般不同，只是顺序跟着变。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3 段指出不同词内容不同、输出一般不同，只是顺序跟着变，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：softmax 权重和为 1，输出是 Value 的凸组合，不会因缺少位置信息变成全零。",
+                    "option_text": "输出会变成全零，因为顺序信息丢失",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：自注意力是 softmax 加权求和，不会因为缺少位置信息而输出全零。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 4 段说明 softmax 加权求和不会输出全零，理由成立。"
+                  },
+                  {
+                    "reasoning": "错误：自注意力不依赖位置下标，输出是确定地跟着重排，而非随机变化。",
+                    "option_text": "输出会随机变化，因为自注意力依赖词序",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：正因为自注意力不依赖位置下标，输出才不是随机变化，而是确定地跟着重排——这恰恰说明必须显式注入位置信息。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 5 段指出输出确定地跟着重排、恰说明需显式注入位置信息，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "自注意力输出 z_j = Σ_i softmax(q_j·k_i/√dk) v_i，权重只依赖内容，不含位置下标。对输入施加置换 π 后，新序列第 π(j) 个位置的 query 就是原第 j 个位置的 query，其与所有 key 的分数集合不变，故输出等于原第 j 个位置的输出，即输出集合不变、仅按同一置换重排。选 A。"
+              },
+              {
+                "question_id": "q-why-add",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：同维 d_model 使逐元素相加成为可能，这是论文给出的直接理由。",
+                    "option_text": "位置编码与嵌入同为 d_model 维，可以直接逐元素相加",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "论文明确说明位置编码与嵌入具有相同的维度 d_model，因此两者可以相加。A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0 段引用论文同维可相加的表述，第 1 段判定 A 正确，成立。"
+                  },
+                  {
+                    "reasoning": "错误：拼接确实会改变维度，但“训练无法收敛”既非论文理由也非必然结果。",
+                    "option_text": "拼接会让参数量翻倍，训练无法收敛",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错：拼接确实会改变维度、增加后续层输入宽度，但“训练无法收敛”不是论文给出的理由，也不是必然结果。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 2 段承认拼接会改变维度，同时指出“训练无法收敛”不是论文理由也不是必然结果，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：正弦位置编码是固定函数，不参与训练更新，相加不会使其变成可学习参数。",
+                    "option_text": "相加可以让位置编码在训练中被更新",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：正弦位置编码是固定函数，不参与训练更新；相加并不使它变成可学习参数。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3、4 段说明正弦编码固定、相加不使其可学习，理由成立。"
+                  },
+                  {
+                    "reasoning": "错误：softmax 作用在注意力分数上，与输入是相加还是拼接无关。",
+                    "option_text": "拼接后无法再做 softmax",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：softmax 作用在注意力分数上，与输入是相加还是拼接无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 5 段指出 softmax 作用于注意力分数，与输入组合方式无关，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文原文：位置编码与嵌入具有相同维度 d_model，因此两者可以相加。拼接会改变维度、增加后续层宽度，但论文未以此为由；正弦编码是固定函数不参与训练；softmax 作用于注意力分数，与输入相加或拼接无关。故选 A。"
+              },
+              {
+                "question_id": "q-pe-formula",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：公式奇偶维分配与角频率递减描述准确。",
+                    "option_text": "偶数维用 sin，奇数维用 cos，第 2i 维的角频率为 1/10000^(2i/d_model)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：PE(pos,2i)=sin(pos/10000^(2i/d_model))，PE(pos,2i+1)=cos(pos/10000^(2i/d_model))，即偶数维取 sin、奇数维取 cos，角频率随 i 增大而按 10000^(-2i/d_model) 递减。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0 段复述公式并说明偶数维 sin、奇数维 cos 及角频率递减，与公式一致。"
+                  },
+                  {
+                    "reasoning": "正确：波长从 2π 到 10000·2π 按固定公比构成几何级数。",
+                    "option_text": "各维波长构成从 2π 到 10000·2π 的几何级数",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：波长 λ_i=2π·10000^(2i/d_model)，i=0 时为 2π，i=d_model/2−1 时为 10000·2π，相邻维比值相同，构成几何级数。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 1 段给出 λ_i=2π·10000^(2i/d_model) 及端点值，推导正确。"
+                  },
+                  {
+                    "reasoning": "正确：和角公式表明固定偏移 k 对应只依赖 k 的旋转，故 PE(pos+k) 是 PE(pos) 的线性函数。",
+                    "option_text": "对固定偏移 k，PE(pos+k) 可以表示为 PE(pos) 的线性函数",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：由和角公式，sin(θ+kω)=sinθ·cos(kω)+cosθ·sin(kω)，cos(θ+kω)=cosθ·cos(kω)−sinθ·sin(kω)，同一对 (2i,2i+1) 维度上是一个只依赖 k 的旋转，故 PE(pos+k) 是 PE(pos) 的线性函数。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 2 段用和角公式展开 sin(θ+kω)、cos(θ+kω)，得出旋转结论，推导成立。"
+                  },
+                  {
+                    "reasoning": "错误：正弦位置编码是固定函数，不随训练更新；可外推是选择理由而非训练机制。",
+                    "option_text": "位置编码的数值会随训练不断更新，因此能适应任意长度",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：正弦位置编码是固定函数，不参与训练更新；“可外推到更长序列”是作者选择它的理由之一，但机制不是靠训练更新。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3、4 段指出编码固定不训练，并区分“可外推”与训练更新，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "A：PE(pos,2i)=sin(pos/10000^(2i/d_model))，PE(pos,2i+1)=cos(...)，偶数维 sin、奇数维 cos，角频率 10000^(-2i/d_model) 随 i 递减，正确。B：波长 λ_i=2π·10000^(2i/d_model)，i=0 为 2π，i=d_model/2−1 为 10000·2π，公比 10000^(2/d_model)，几何级数，正确。C：由和角公式，同一对维度上 PE(pos+k) 是 PE(pos) 的旋转（线性变换），正确。D：正弦编码固定不训练，错误。答案 A,B,C。"
+              },
+              {
+                "question_id": "q-pe-handcalc",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": false,
+                "calculation_checks": [
+                  {
+                    "claimed": "0.8415",
+                    "excerpt": "pos=1 时：第 0 维 i=0，角频率 1/10000^0=1，PE(1,0)=sin1≈0.8415；",
+                    "expression": "sin(1)",
+                    "end_segment": 1,
+                    "source_field": "answer",
+                    "start_segment": 1,
+                    "decimal_places": 4
+                  },
+                  {
+                    "claimed": "0.5403",
+                    "excerpt": "第 1 维 PE(1,1)=cos1≈0.5403；",
+                    "expression": "cos(1)",
+                    "end_segment": 2,
+                    "source_field": "answer",
+                    "start_segment": 2,
+                    "decimal_places": 4
+                  },
+                  {
+                    "claimed": "0.0100",
+                    "excerpt": "第 2 维 i=1，角频率 1/10000^(2/4)=1/100，PE(1,2)=sin0.01≈0.0100；",
+                    "expression": "sin(1/10000^(2*1/4))",
+                    "end_segment": 3,
+                    "source_field": "answer",
+                    "start_segment": 3,
+                    "decimal_places": 4
+                  },
+                  {
+                    "claimed": "0.99995",
+                    "excerpt": "第 3 维 PE(1,3)=cos0.01≈0.99995。",
+                    "expression": "cos(1/10000^(2*1/4))",
+                    "end_segment": 4,
+                    "source_field": "answer",
+                    "start_segment": 4,
+                    "decimal_places": 5
+                  },
+                  {
+                    "claimed": "6.28",
+                    "excerpt": "d_model=4 时只有 i=0 和 i=1 两组：i=0 角频率为 1（波长 2π≈6.28），i=1 角频率为 10000^(-0.5)=1/100（波长 200π≈628）。",
+                    "expression": "2*3.14159265358979",
+                    "end_segment": 1,
+                    "source_field": "explanation",
+                    "start_segment": 1,
+                    "decimal_places": 2
+                  },
+                  {
+                    "claimed": "628",
+                    "excerpt": "d_model=4 时只有 i=0 和 i=1 两组：i=0 角频率为 1（波长 2π≈6.28），i=1 角频率为 10000^(-0.5)=1/100（波长 200π≈628）。",
+                    "expression": "200*3.14159265358979",
+                    "end_segment": 1,
+                    "source_field": "explanation",
+                    "start_segment": 1,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "0.0001",
+                    "excerpt": "常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001。",
+                    "expression": "sin(1/10000)",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 4
+                  }
+                ],
+                "independent_solution": "d_model=4，i∈{0,1}。i=0：角频率 10000^0=1，波长 2π≈6.2832；i=1：指数 2i/d_model=0.5，角频率 10000^(-0.5)=0.01，波长 200π≈628.32。pos=0：PE=(sin0,cos0,sin0,cos0)=(0,1,0,1)。pos=1：PE=(sin1,cos1,sin0.01,cos0.01)≈(0.8415,0.5403,0.0100,0.99995)。参考答案正确；但解析中“漏掉因子 2 会得到 sin(0.0001)≈0.0001”的归因错误：漏掉因子 2 时角频率为 10000^(-0.25)≈0.1，得 sin(0.1)≈0.0998。"
+              },
+              {
+                "question_id": "q-ffn-shape",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：中间层 2048 维、输出 512 维。",
+                    "option_text": "中间层 2048 维，输出 512 维",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "x 是 512 维行向量，W1 形状为 512×2048，故 xW1+b1 得到 2048 维（即 d_ff），经 ReLU 后仍为 2048 维；W2 形状为 2048×512，乘后回到 512 维，与 d_model 一致，才能接残差连接。A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0、1 段按 W1 512×2048、W2 2048×512 推出维度，第 2 段判定 A 正确，成立。"
+                  },
+                  {
+                    "reasoning": "错误：把中间层与输出维度对调了。",
+                    "option_text": "中间层 512 维，输出 2048 维",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 把两个维度对调了。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3 段指出 B 把两个维度对调，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：忽略了第二层把维度降回 d_model=512。",
+                    "option_text": "中间层 2048 维，输出 2048 维",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 忽略了第二层把维度降回 d_model。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 4 段指出 C 忽略第二层降维，批评准确。"
+                  },
+                  {
+                    "reasoning": "错误：忽略了中间层被放大到 d_ff=2048。",
+                    "option_text": "中间层 512 维，输出 512 维",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 忽略了中间层被放大到 d_ff=2048。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 5 段指出 D 忽略中间层放大，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "x 为 512 维行向量，W1 为 512×2048，xW1+b1 得 2048 维（d_ff），ReLU 后仍 2048 维；W2 为 2048×512，输出回到 512 维（d_model），以便残差相加。选 A。"
+              },
+              {
+                "question_id": "q-ffn-position",
+                "option_checks": [
+                  {
+                    "reasoning": "正确：论文称对每个位置分别且相同地施加，参数在位置间共享。",
+                    "option_text": "同一层内，不同位置使用同一组 W1、b1、W2、b2",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文说该网络对每个位置分别且相同地施加，线性变换在不同位置间共享。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0 段引用论文“分别且相同地施加”，结论成立。"
+                  },
+                  {
+                    "reasoning": "正确：论文明确层与层之间使用不同参数。",
+                    "option_text": "不同层使用不同的参数",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：论文明确“层与层之间使用不同参数”。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 1 段引用论文层间参数不同的表述，成立。"
+                  },
+                  {
+                    "reasoning": "正确：核大小 1 的卷积只看单个位置，与逐位置处理一致。",
+                    "option_text": "它等价于两个核大小为 1 的卷积",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：论文指出这也可描述为两个核大小为 1 的卷积——核大小为 1 意味着只看单个位置，与“逐位置”一致。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 2 段解释核大小 1 意味着只看单个位置，与逐位置一致，成立。"
+                  },
+                  {
+                    "reasoning": "错误：FFN 逐位置独立处理，不混合位置信息，不能替代注意力。",
+                    "option_text": "它让不同位置之间直接交换信息，从而替代注意力",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：正因为每个位置独立处理、参数共享，FFN 本身不混合不同位置的信息；位置间的信息交换由注意力子层完成，FFN 提供的是逐位置的非线性变换。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3、4 段指出 FFN 不混合位置信息、位置交换由注意力完成，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "A：同一层内各位置共享同一组 W1、b1、W2、b2，正确。B：不同层参数不同，正确。C：等价于两个核大小 1 的卷积，正确。D：FFN 逐位置独立处理，不混合位置信息，位置交换由注意力完成，错误。答案 A,B,C。"
+              },
+              {
+                "question_id": "q-ffn-role",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "参数共享不等于无作用。注意力子层是按权重对 Value 的加权求和（线性混合），FFN 在混合后对每个位置施加“线性—ReLU—线性”，提供逐位置非线性与额外特征变换；去掉后每层只剩注意力混合与残差/归一化，表达能力受限。故题干说法错误。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q-permutation 通过置换等变判断直接说明自注意力不含位置信息、必须显式注入，真实支持“位置编码”这一核心组成在整体结构中的作用。",
+                "locator": {
+                  "question_id": "q-permutation"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-ffn-position 覆盖同层参数共享、层间参数不同与 1×1 卷积等价性，真实落实“前馈网络”这一核心组成。",
+                "locator": {
+                  "question_id": "q-ffn-position"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-permutation 的独立求解与解析均论证自注意力对置换等变，对应目标 o1 的“必须显式注入位置信息”。",
+                "locator": {
+                  "question_id": "q-permutation"
+                },
+                "binding_id": "n4-position-ffn:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-why-add 以论文“同维 d_model 故可相加”为依据，对应目标 o1 的“位置编码与嵌入同维相加”。",
+                "locator": {
+                  "question_id": "q-why-add"
+                },
+                "binding_id": "n4-position-ffn:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-pe-formula 逐项核验公式奇偶维分配、波长几何级数与相对位置线性关系，对应目标 o2。",
+                "locator": {
+                  "question_id": "q-pe-formula"
+                },
+                "binding_id": "n4-position-ffn:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-pe-handcalc 以 d_model=4 手算 pos=0、pos=1 的四个分量并给出角频率与波长，作为 o2 的练习有效；仅解析中一处错误归因需修正，不影响该题对目标的支撑。",
+                "locator": {
+                  "question_id": "q-pe-handcalc"
+                },
+                "binding_id": "n4-position-ffn:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-ffn-shape 按 W1 512×2048、W2 2048×512 推出中间层 2048、输出 512，作为 o3 的维度练习有效。",
+                "locator": {
+                  "question_id": "q-ffn-shape"
+                },
+                "binding_id": "n4-position-ffn:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-ffn-position 核验“对每个位置分别且相同地施加”与参数共享，对应目标 o3。",
+                "locator": {
+                  "question_id": "q-ffn-position"
+                },
+                "binding_id": "n4-position-ffn:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q-ffn-role 说明参数共享不等于可省略、FFN 提供逐位置非线性，与目标 o3 的逐位置性质一致。",
+                "locator": {
+                  "question_id": "q-ffn-role"
+                },
+                "binding_id": "n4-position-ffn:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 3,
+          "decision": "revise",
+          "content_sha256": "cfa8b904c90a4dbd23b12b10aaef68348b5d29a21e44122f544d8f77658e789e"
+        }
+      ],
+      "version": 4,
+      "feedback": [
+        "q-pe-handcalc 解析第 4 段（explanation_segments 索引 4）：“常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001”自相矛盾：漏掉因子 2 时指数为 i/d_model=1/4，角频率为 10000^(-1/4)≈0.1，pos=1 得 sin(0.1)≈0.0998；而 1/10000 与 sin(0.0001) 对应的是把指数算成 2i/d_model=1 的另一类错误。应改为与所述错误算式一致的数值，或改写错误描述。",
+        "q-pe-handcalc 的解析第 4 段把“漏掉因子 2”的错误结果写成 sin(0.0001)≈0.0001，但漏掉因子 2 时 i=1 的角频率应为 1/10000^0.25≈0.1，pos=1 时得到 sin(0.1)≈0.0998，而非 0.0001；0.0001 对应的是把指数算成 2i/d_model=1 的情形，错误归因不成立。其余题目事实与数值（sin1≈0.8415、cos1≈0.5403、sin0.01≈0.0100、cos0.01≈0.99995、波长 2π 与 200π）均正确。",
+        "第 4 题：数值断言无法复算：pos=1 时：第 0 维 i=0，角频率 1/10000^0=1，PE(1,0)=sin1≈0.8415；；请提供受支持的算式或明确其验证限制",
+        "第 4 题：数值断言无法复算：第 1 维 PE(1,1)=cos1≈0.5403；；请提供受支持的算式或明确其验证限制",
+        "第 4 题：数值断言无法复算：第 2 维 i=1，角频率 1/10000^(2/4)=1/100，PE(1,2)=sin0.01≈0.0100；；请提供受支持的算式或明确其验证限制",
+        "第 4 题：数值断言无法复算：第 3 维 PE(1,3)=cos0.01≈0.99995。；请提供受支持的算式或明确其验证限制",
+        "第 4 题：数值断言无法复算：常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001。；请提供受支持的算式或明确其验证限制",
+        "第 4 题：d_model=4，i∈{0,1}。i=0：角频率 10000^0=1，波长 2π≈6.2832；i=1：指数 2i/d_model=0.5，角频率 10000^(-0.5)=0.01，波长 200π≈628.32。pos=0：PE=(sin0,cos0,sin0,cos0)=(0,1,0,1)。pos=1：PE=(sin1,cos1,sin0.01,cos0.01)≈(0.8415,0.5403,0.0100,0.99995)。参考答案正确；但解析中“漏掉因子 2 会得到 sin(0.0001)≈0.0001”的归因错误：漏掉因子 2 时角频率为 10000^(-0.25)≈0.1，得 sin(0.1)≈0.0998。"
+      ],
+      "preparation": {
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 11.0
+        },
+        "spec_digest": "e0781a26209f8de433b19a4994893a04160874ac050c56cda88222c4098c2440",
+        "schema_version": 1,
+        "objective_bindings": [
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q-permutation"
+            },
+            "objective_id": "n4-position-ffn:o1"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q-why-add"
+            },
+            "objective_id": "n4-position-ffn:o1"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q-pe-formula"
+            },
+            "objective_id": "n4-position-ffn:o2"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q-pe-handcalc"
+            },
+            "objective_id": "n4-position-ffn:o2"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q-ffn-shape"
+            },
+            "objective_id": "n4-position-ffn:o3"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q-ffn-position"
+            },
+            "objective_id": "n4-position-ffn:o3"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q-ffn-role"
+            },
+            "objective_id": "n4-position-ffn:o3"
+          }
+        ],
+        "applied_requirements": [
+          {
+            "locator": {
+              "question_id": "q-permutation"
+            },
+            "explanation": "通过置换等变性的判断与后续位置编码题，落实“位置编码”这一核心组成在整体结构中的作用。",
+            "requirement_id": "req-transformer-basics"
+          },
+          {
+            "locator": {
+              "question_id": "q-ffn-position"
+            },
+            "explanation": "通过逐位置前馈网络的参数共享与 1×1 卷积等价性，落实“前馈网络”这一核心组成。",
+            "requirement_id": "req-transformer-basics"
+          }
+        ],
+        "question_time_estimates": [
+          {
+            "reason": "需要回忆自注意力权重只由内容决定，再构造置换后的输出对应关系，排除“输出不变”“全零”“随机”三种误解。",
+            "question_id": "q-permutation",
+            "thinking_seconds": 45
+          },
+          {
+            "reason": "回忆论文中“同维所以可相加”的表述，并逐一排除参数量、可学习性、softmax 等无关理由。",
+            "question_id": "q-why-add",
+            "thinking_seconds": 25
+          },
+          {
+            "reason": "需核对公式的奇偶维分配、波长几何级数端点，并用和角公式验证相对位置的线性关系，同时识别“训练更新”这一错误说法。",
+            "question_id": "q-pe-formula",
+            "thinking_seconds": 70
+          },
+          {
+            "reason": "先由 2i/d_model 算出两组角频率，再分别代入 sin/cos 求四个分量，并给出 pos=0 的基准值，涉及多步数值计算。",
+            "question_id": "q-pe-handcalc",
+            "thinking_seconds": 120
+          },
+          {
+            "reason": "需按 W1 的 512×2048 与 W2 的 2048×512 推中间层与输出维度，并联系残差连接要求输出回到 d_model。",
+            "question_id": "q-ffn-shape",
+            "thinking_seconds": 40
+          },
+          {
+            "reason": "需区分“位置间共享参数”与“层间不同参数”，并判断 1×1 卷积等价性及 FFN 是否混合位置信息。",
+            "question_id": "q-ffn-position",
+            "thinking_seconds": 50
+          },
+          {
+            "reason": "需判断参数共享是否意味着可省略，并回忆注意力混合与 FFN 非线性在每层中的分工。",
+            "question_id": "q-ffn-role",
+            "thinking_seconds": 40
+          }
+        ],
+        "teaching_context_digest": "ca81d2959b1d1dc81d803733f99fd9071a10d472aab3e6adb124f3135446295d"
+      },
+      "needs_repair": true
+    },
+    "owner_user_id": "teacher",
+    "content_digest": "cfa8b904c90a4dbd23b12b10aaef68348b5d29a21e44122f544d8f77658e789e",
+    "preparation_id": "prep_593ea484dc7c4247bacf13fcaddf8c5d",
+    "schema_version": 1,
+    "recovery_attempt": 0,
+    "resource_version": 1,
+    "parent_attempt_no": 1,
+    "teaching_context_digest": "ca81d2959b1d1dc81d803733f99fd9071a10d472aab3e6adb124f3135446295d"
+  }
+}

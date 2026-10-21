@@ -1,0 +1,223 @@
+[
+  {
+    "scenario": "01-continuous-audio",
+    "status": "passed",
+    "checks": [
+      {
+        "name": "production-player-ready"
+      },
+      {
+        "name": "first-segment-audible",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.043902264202378694
+          }
+        ],
+        "seconds": 0.793374
+      },
+      {
+        "name": "second-segment-audible-after-natural-transition",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.1750383656245603
+          }
+        ],
+        "seconds": 13.885521950113379
+      },
+      {
+        "name": "entire-lesson-played-to-end",
+        "time": 32.112,
+        "paused": true,
+        "ended": true
+      },
+      {
+        "name": "audio-before-question",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.06636346839585539
+          }
+        ],
+        "seconds": 6.463696598925559
+      },
+      {
+        "name": "question-freezes-exact-current-context",
+        "seconds": 6.542063945864335,
+        "segment": "seg-01"
+      },
+      {
+        "name": "real-model-answer-succeeded",
+        "elapsedSeconds": 17.559
+      },
+      {
+        "name": "current-answer-citation-jump-and-reload"
+      },
+      {
+        "name": "audio-after-answer-resume",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.07103072255960309
+          }
+        ],
+        "seconds": 7.187505215610233
+      },
+      {
+        "name": "resume-after-question"
+      }
+    ],
+    "started": "2026-10-18T04:56:59.131Z",
+    "finished": "2026-10-18T04:58:05.618Z"
+  },
+  {
+    "scenario": "02-controls-downloads",
+    "status": "passed",
+    "checks": [
+      {
+        "name": "production-player-ready"
+      },
+      {
+        "name": "double-speed-advances-clock",
+        "delta": 2.6287710000000004
+      },
+      {
+        "name": "pause-freezes-clock"
+      },
+      {
+        "name": "mute-and-volume-restoration"
+      },
+      {
+        "name": "chapter-and-transcript-seek"
+      },
+      {
+        "name": "three-real-browser-downloads",
+        "downloads": [
+          {
+            "name": "下载 MP4",
+            "filename": "lesson.mp4",
+            "bytes": 2577386,
+            "sha256": "d0aa730b70288c31fd3dc2fbb47d9b38515cc0aa824bb7f6a230588616f1a1a6"
+          },
+          {
+            "name": "下载 SRT",
+            "filename": "lesson.srt",
+            "bytes": 467,
+            "sha256": "4971f54f72909e43a2a8570c8367c9b09b8c758e389f29cf17f8cca8891604bf"
+          },
+          {
+            "name": "下载 HTML 项目 ZIP",
+            "filename": "project.zip",
+            "bytes": 708729,
+            "sha256": "a328a816b6593fc1453d378dca6b42d77db576e605395dab99ebe4a71f059b92"
+          }
+        ]
+      },
+      {
+        "name": "audio-before-question",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.14058956865702418
+          }
+        ],
+        "seconds": 24.43397941043084
+      },
+      {
+        "name": "question-freezes-exact-current-context",
+        "seconds": 24.492029297052156,
+        "segment": "seg-02"
+      },
+      {
+        "name": "real-model-answer-succeeded",
+        "elapsedSeconds": 15.412
+      },
+      {
+        "name": "current-answer-citation-jump-and-reload"
+      },
+      {
+        "name": "audio-after-answer-resume",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.07414247950239582
+          }
+        ],
+        "seconds": 25.120494292517005
+      },
+      {
+        "name": "resume-after-question"
+      }
+    ],
+    "started": "2026-10-18T04:58:05.687Z",
+    "finished": "2026-10-18T04:58:41.391Z"
+  },
+  {
+    "scenario": "03-mobile-refresh",
+    "status": "passed",
+    "checks": [
+      {
+        "name": "production-player-ready"
+      },
+      {
+        "name": "mobile-chromium-audible",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.0001390654220373353
+          }
+        ],
+        "seconds": 9.890754727891157
+      },
+      {
+        "name": "refresh-restores-time-without-autoplay",
+        "saved": 9.919779671201814,
+        "restored": 9.9
+      },
+      {
+        "name": "mobile-directory-and-learning-panels"
+      },
+      {
+        "name": "audio-before-question",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.062255132737660306
+          }
+        ],
+        "seconds": 20.117660460317463
+      },
+      {
+        "name": "question-freezes-exact-current-context",
+        "seconds": 20.207637784580502,
+        "segment": "seg-02"
+      },
+      {
+        "name": "real-model-answer-succeeded",
+        "elapsedSeconds": 17.036
+      },
+      {
+        "name": "current-answer-citation-jump-and-reload"
+      },
+      {
+        "name": "audio-after-answer-resume",
+        "audio": [
+          {
+            "state": "running",
+            "rms": 0.06059061576909847
+          }
+        ],
+        "seconds": 20.85706926984127
+      },
+      {
+        "name": "resume-after-question"
+      },
+      {
+        "name": "question-history-survives-refresh"
+      }
+    ],
+    "started": "2026-10-18T04:58:41.463Z",
+    "finished": "2026-10-18T04:59:27.222Z"
+  }
+]

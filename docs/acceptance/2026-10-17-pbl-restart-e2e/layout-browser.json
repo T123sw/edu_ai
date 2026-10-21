@@ -1,0 +1,45 @@
+{
+  "name": "layout",
+  "exerciseId": "pbl_6ee9a1e8083fc25eafecf674ded43018",
+  "steps": [
+    {
+      "id": "build-showcase-page",
+      "passed": true,
+      "cumulative": 6
+    }
+  ],
+  "checks": 6,
+  "errors": [],
+  "requestFailures": [
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "emptyStarterRejected": true,
+  "previewText": "我的作品\n\n记录我的学习成果\n\n天气卡片\n\n用卡片展示一周天气变化。\n\n读书笔记\n\n整理我读过的书和摘抄。\n\n像素画\n\n用格子拼出简单的小图案。",
+  "previewRendered": true,
+  "previewControls": [],
+  "refreshPreservesCodeAndStep": true,
+  "regressionRejected": true,
+  "repairedCodePasses": true,
+  "mobileNoPageOverflow": true,
+  "previewViewports": [
+    {
+      "outerWidth": 390,
+      "width": 349,
+      "scrollWidth": 349
+    },
+    {
+      "outerWidth": 320,
+      "width": 279,
+      "scrollWidth": 279
+    }
+  ],
+  "privateAnswersExcluded": true,
+  "passed": true
+}

@@ -1,0 +1,188 @@
+{
+  "title": "为什么需要 Transformer：循环结构的瓶颈与注意力的登场",
+  "content": {
+    "title": "为什么需要 Transformer：循环结构的瓶颈与注意力的登场",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_f0b49fcee0240a603fcf094c7342e11f",
+      "entry": "index.html",
+      "digest": "b38508a64556ef36a4367f21115e52a0839236aaea0a04b320e7cbbf74387b25"
+    },
+    "timeline": {
+      "duration": 286.6,
+      "segments": [
+        {
+          "id": "sc01",
+          "end": 27.3,
+          "start": 0.0,
+          "title": "Opening",
+          "events": [],
+          "narration": "先想一个问题：你读一句话的时候，是怎么读的？几乎必然是从左到右、一个词一个词地过去。2017 年以前主流的循环神经网络，读句子也是这个方式：第 t 个词，必须等第 t 减一个词算完，才能开始。这个看起来理所当然的顺序，正是 Transformer 想要打破的东西。这一节，我们就把这件事讲清楚。",
+          "audio_path": "assets/audio/a561504ea33501e7d0027fa0b5479354dbe967a3cb61ae32b2c3b0faf018e424.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "开篇提问——我们怎么读句子，循环模型也这样读"
+        },
+        {
+          "id": "sc02",
+          "end": 56.4,
+          "start": 27.3,
+          "title": "顺序的链",
+          "events": [],
+          "narration": "把这句话画成图。循环模型沿着输入序列的符号位置，一步一步往下算隐藏状态：h t 等于前一个隐藏状态 h t 减一，和当前位置的输入 x t 的函数。图上最该注意的是那条链：句子的第一个词对齐第一步，第二个词对齐第二步，顺次排开，位置变成了计算的时间步。这不是工程实现里的细节，而是模型定义本身的一部分。",
+          "audio_path": "assets/audio/81ed56e2710037ee0df523d8b637e6b9aa195ea9b06dab52489db1eb3faa5a39.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "h_t 依赖 h_{t-1}，位置被对齐到计算的时间步"
+        },
+        {
+          "id": "sc03",
+          "end": 91.8,
+          "start": 56.4,
+          "title": "顺序的代价",
+          "events": [],
+          "narration": "顺序带来两个后果。第一，同一个训练样本内部的这些步骤不能同时算：第五步非要等第四步完成，现代 GPU 上大量计算单元只能空转，样本内部没有并行可言。第二，序列越长，中间状态占的内存越多，你能同时塞进一个批次的样本就越少——长序列最先撞上的往往是内存，而不是算力。研究者试过分解技巧、条件计算等改进，效率确有提升，但论文说得很清楚：顺序计算这一根本约束依然存在。",
+          "audio_path": "assets/audio/b21cc2c03e19d31601866c76c6f109318dafc2bb143447130d3f3861c5d51b5c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "样本内不能并行；长序列受限；改进技巧仍在同一约束下"
+        },
+        {
+          "id": "sc04",
+          "end": 123.0,
+          "start": 91.8,
+          "title": "只靠注意力的主张",
+          "events": [],
+          "narration": "Transformer 换了一条路：完全摒弃循环，也不用卷积，只依靠注意力机制，在输入和输出之间直接建立全局依赖。没有了逐步等待，所有位置可以一起算。论文给出的佐证很具体：用八块 P100 显卡训练大约十二个小时，就达到了当时翻译质量的最好水平。要留意，这是 2017 年的实验配置，不代表后来所有实现的数字；但它说明了并行本身能换来什么。",
+          "audio_path": "assets/audio/5511d5d5029a68594dc7e572c028aac6d969cc595f63f5070ee1607772c2c9d9.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "摒弃循环与卷积，所有位置同时连上；8×P100 约 12 小时（2017 配置）"
+        },
+        {
+          "id": "sc05",
+          "end": 151.7,
+          "start": 123.0,
+          "title": "指标一：顺序操作数",
+          "events": [],
+          "narration": "不过，更快不能只靠感觉，需要可以比较的指标。论文用一张表把两种结构并排放。第一行是顺序操作数：一个自注意力层连接所有位置，只需要常数个顺序执行的操作，记作 O(1)；而循环层需要 O(n) 个——序列有多长，就得等多少步。这一行是两者在结构上的分水岭，它决定了计算在硬件上能不能摊开并行。",
+          "audio_path": "assets/audio/11ffd0c16a375fa8268f419746d6d007a50cd05453811863fbff8a79b19824eb.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "自注意力 O(1)，循环层 O(n)"
+        },
+        {
+          "id": "sc06",
+          "end": 182.7,
+          "start": 151.7,
+          "title": "指标二：路径长度",
+          "events": [],
+          "narration": "第二行，是任意两个位置之间的最大路径长度。看这句示意：开头的主语和结尾的动词，需要建立联系。在循环结构里，信息必须一个词一个词地往后传，路径长度是 O(n)，距离越远越难传；在自注意力里，两个位置一步直连，路径长度是 O(1)。路径越短，信号和梯度要走的路就越短，学习长距离依赖也就越容易。这就是全局视野的实际含义。",
+          "audio_path": "assets/audio/74de9069250ceb95ccaadc2c663f09ff88c32b123023f7fcac153b86fc712d99.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "主语与动词：循环要多步传递，自注意力一步直连"
+        },
+        {
+          "id": "sc07",
+          "end": 214.1,
+          "start": 182.7,
+          "title": "三行指标，并排看",
+          "events": [],
+          "narration": "第三行是每一层的计算复杂度：自注意力是 O(n²·d)，循环是 O(n·d²)。这里没有绝对的赢家——当序列长度 n 小于表示维度 d 时，自注意力更快；而句子表示通常正是这种情况，n 往往只有几十，d 却有几百。三行并排看，结论就出来了：Transformer 换来的是更短的路径和更强的并行，而不是在每一项上都更便宜。",
+          "audio_path": "assets/audio/66ca5401d9d275c8cd2287fa8e87c8685c3747945f8bbb4d49cca5fe9a4760de.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "对照表：复杂度、顺序操作数、最大路径长度"
+        },
+        {
+          "id": "sc08",
+          "end": 251.89999999999998,
+          "start": 214.1,
+          "title": "代价与边界",
+          "events": [],
+          "narration": "代价也很明确。自注意力里的平方项意味着：序列越长，计算量和显存涨得越快，处理长文本会很吃力。一种缓解办法是限制邻域：每个位置只看周围大小为 r 的窗口，复杂度降到 O(r·n·d)，路径长度变成 O(n/r)——用一点全局视野，换来工程上的可行。另外还要诚实地说：注意力权重只提供有限的可解释性，深层网络究竟怎么做决策，仍然是个黑盒。",
+          "audio_path": "assets/audio/6c373ee59e72dd617e6516eccdb93fd7da8826a6e07546a92d5672f8f3a910e1.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "O(n²) 的显存与算力；限制邻域 r；可解释性有限"
+        },
+        {
+          "id": "sc09",
+          "end": 286.6,
+          "start": 251.9,
+          "title": "收束",
+          "events": [],
+          "narration": "所以回到最初的问题：为什么需要 Transformer？因为循环模型被顺序绑住了手脚，而注意力让任意两个位置直接对话。你可以用三句话记住它：RNN 慢在必须逐步计算，样本内无法并行；Transformer 快在所有位置可以同时算，任意两位置的路径只有一步；代价是长序列下平方级的计算与显存开销。下一节，我们就打开注意力，看它到底怎么算。",
+          "audio_path": "assets/audio/400fea3cfa6aa92224df53f986e1e8bc8ca57aee3493334085e90f3c4c857c03.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三句话总结，引出下一节"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 286.6
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.776666666666667
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "dc0583699d31bb6306aa7e2139662973471122f5de334aaf71fd769cca693a84",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 286.6
+      },
+      "content_digest": "35430a20abff8f78fb845819d3ad7ca4f7bbb1b333154b3e6d76c19fe5c9a886",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.776666666666667
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "601f0eef9097e31027d5539ba11506d7b224d50ebd59c6d3cab94e3fa7513100"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "6093c4f541514ff9d3e93d621c49a86df7c8efd6416e7ac6f93af48ae6cdc8de",
+      "preparation_sha256": "8d6571fe7beb5ab4a8dd4eb8d2e339fb20eda9fb73af08a006769c9be4a050a5"
+    }
+  }
+}

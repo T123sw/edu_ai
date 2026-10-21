@@ -1,0 +1,78 @@
+{
+  "runtime": {
+    "pid": 2747473,
+    "history": [
+      {
+        "pid": 2747473,
+        "build_id": "25b83b0444ee7b5f1504",
+        "loaded_at": 1792428678.4387536,
+        "configuration": {
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8"
+        },
+        "stage_limits_scope": "shared-host"
+      }
+    ],
+    "build_id": "25b83b0444ee7b5f1504",
+    "loaded_at": 1792428678.4387536,
+    "configuration": {
+      "TTS_REMOTE_CONCURRENCY": "8",
+      "HYPERFRAMES_RENDER_WORKERS": "4",
+      "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+      "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+      "TTS_REMOTE_REQUESTS_PER_SECOND": "4",
+      "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+      "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+      "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8"
+    },
+    "stage_limits_scope": "shared-host"
+  },
+  "workspace_key": "bc1a95b8ca5ce679cb33b6954ffcc74af142bbb8a9e276959c7373d4a9e1ba0b",
+  "teaching_brief": {
+    "calls": 1,
+    "seconds": 17.61710524559021,
+    "decisions": {
+      "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），因此采用 defaults 中的 target_minutes=5.0，属于默认值而非用户指定；节点学习预算 6 分钟包含阅读与练习，不等同于成片时长，故视频按约 5 分钟安排充分解释与示例。配音采用 defaults 的 narration=true，用户未要求无配音。画幅取 defaults 的 16:9，语言按用户提问语言推断为中文。交付类型为约 5 分钟的常规教学解释视频，按原生路由走 general-video；flow=automation、storyboard=no 为本次阶段规定。缺失信息假设：学习者背景未知，按入门深度组织；无上传素材，全部视觉由视频自行生成，不写假素材路径。",
+      "narration": true,
+      "target_minutes": 5,
+      "duration_source": "default"
+    },
+    "started_at": 1792428864.1519306,
+    "brief_sha256": "5614c5586d8ce71e19fb3ab166a845222b3afe39a7a27bdd82e58c9d279d4a93",
+    "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"逐位置前馈网络对每个位置独立且相同地做两层线性变换加 ReLU，它与注意力子层一起构成编码器单层的完整前向流程\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n这是一门面向 Transformer 初学者的系统课程中的第 5 个节点视频，主题是「逐位置前馈网络与一次完整前向流程」。学习者背景未知，按零基础入门深度组织，语言为中文。\n\n本视频要讲清三件事：一是逐位置前馈网络（Position-wise Feed-Forward Network）的公式与含义——FFN(x) = max(0, xW1 + b1)W2 + b2，它对序列中每个位置分别且相同地应用两个线性变换，中间夹一个 ReLU；二是它为什么重要：为模型引入非线性、增强表示能力，以及「不同层使用不同参数」「可视为两个核大小为 1 的卷积」这两个视角，并给出原始论文的维度设置 d_model = 512、d_ff = 2048；三是把「嵌入 + 位置编码 → 多头注意力 → Add&Norm → 前馈网络 → Add&Norm」串成一次完整的编码器单层前向流程，标出每步的张量维度。\n\n语气：清晰、循序渐进的讲解，像一位耐心的老师带着走一遍数据流，不炫技、不堆术语。\n\n## Customizations\n\n- 用箭头图演示编码器单层的数据流，并逐步标出每步张量维度（例如 512 → 2048 → 512），密集图示分步呈现，不缩小字号硬塞。\n- 用「两个核大小为 1 的卷积」的等价视角做一次对照说明，帮助理解「逐位置、参数共享」的含义。\n- 结尾用一段口头式总结复述整层流程，为学习者自己向同伴讲解做示范。\n\n## Notes\n\n必须讲清的内容与演示深度：\n\n1. FFN 公式必须完整写出并逐项解释：xW1 + b1 是第一层线性变换，max(0, ·) 是 ReLU，再乘 W2 加 b2 得到输出；强调「分别且相同地应用于每个位置」——位置之间不交互、共享同一组参数。\n2. 必须说明「不同层使用不同参数」：同一层内所有位置共享参数，但第 1 层与第 2 层的 FFN 参数不同。\n3. 必须说明 FFN 的作用：注意力子层负责在位置之间汇聚信息，前馈网络负责对每个位置自身的向量做非线性变换、增强表示能力；两者分工不同。\n4. 必须给出原始论文的维度：输入输出 d_model = 512，内层 d_ff = 2048。\n5. 必须把完整前向流程串起来：输入嵌入 + 位置编码 → 多头注意力子层 → Add&Norm（LayerNorm(x + Sublayer(x))）→ 前馈网络子层 → Add&Norm，并说明编码器每层含这两个子层、解码器每层含三个子层（掩蔽自注意力、编码器-解码器注意力、前馈网络），每个子层后都接 Add&Norm。\n6. 演示深度为入门级原理讲解：公式与数据流讲透，不展开反向传播推导，不写可运行训练代码。\n\n来源：原始论文《Attention Is All You Need》第 3.3 节的中文逐段解读（火山引擎开发者社区文章）、中文技术博客（kangshitao 的 Transformer 笔记）、CS336 学习笔记。未直接引用 arXiv 英文原文，公式细节以原始论文表述为准。\n\n排除项：不深入现代变体（RoPE、GQA/MQA、FlashAttention 等），仅在必要时一句带过；不包含从零实现可运行 Transformer 的训练内容，代码最多作示意；不规划其他课程节点。\n\n学习安排的分工：本视频承担「阅读/听讲：前馈网络公式、维度设置与 1×1 卷积等价视角」和「流程串联：用箭头图写出编码器单层完整数据流并标出维度」这两项教师演示内容；「口头讲解：向同伴用 2 分钟讲清一个编码器层内部发生了什么」作为视频结尾的示范与引导。节点自测（不看资料写出编码器单层完整数据流、说明前馈网络与注意力子层的分工）留给习题，不在视频中出题。\n\n先修假设：学习者已看过自注意力（QKV 与缩放点积）、多头注意力（多子空间并行与三种使用方式）、位置编码与 Add&Norm 三个节点；视频可简要回顾但不重新完整讲授这些内容。\n\n画幅 16:9，中文配音讲解，目标时长约 5 分钟。视觉遵循课程统一规范：Noto Sans SC，1920×1080，深色背景 #0f172a，前景 #f8fafc，强调色 #38bdf8，正文不小于 32px，图示标签不小于 28px，标题不小于 48px。\n",
+    "schema_version": 1,
+    "effective_preferences": {
+      "defaults": {
+        "aspect": "16:9",
+        "narration": true,
+        "duration_mode": "target",
+        "target_minutes": 5.0
+      },
+      "explicit": {}
+    }
+  },
+  "runtime_history": [
+    {
+      "pid": 2747473,
+      "build_id": "25b83b0444ee7b5f1504",
+      "loaded_at": 1792428678.4387536,
+      "configuration": {
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "HYPERFRAMES_RENDER_WORKERS": "4",
+        "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4",
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8"
+      },
+      "stage_limits_scope": "shared-host"
+    }
+  ]
+}

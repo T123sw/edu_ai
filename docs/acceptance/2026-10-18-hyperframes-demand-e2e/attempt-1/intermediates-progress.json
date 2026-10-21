@@ -1,0 +1,92 @@
+{
+  "brief": {
+    "depth": "introductory",
+    "topic": "一次函数 y=2x+b 中 b（截距）如何让直线上下平移",
+    "audience": "初中生（会读平面直角坐标图，尚未理解一次函数中 b 的作用）",
+    "language": "中文",
+    "exclusions": [
+      "不扩展到神经网络",
+      "不扩展到其他章节"
+    ],
+    "node_count": 1,
+    "assumptions": [],
+    "requirements": [
+      {
+        "text": "讲授唯一知识点：截距 b 如何让直线上下平移",
+        "source_ref": null,
+        "source_quote": "只安排一个知识点：截距如何让直线上下平移",
+        "requirement_id": "req_intercept_shift",
+        "source_document_id": null
+      },
+      {
+        "text": "在同一坐标系中动态展示 b=0、b=2、b=-2 三条直线",
+        "source_ref": null,
+        "source_quote": "请在同一坐标系中动态展示 b=0、b=2、b=-2",
+        "requirement_id": "req_animation_compare",
+        "source_document_id": null
+      },
+      {
+        "text": "解释与 y 轴交点怎样随 b 变化",
+        "source_ref": null,
+        "source_quote": "解释与 y 轴交点怎样变化",
+        "requirement_id": "req_yaxis_intersection",
+        "source_document_id": null
+      },
+      {
+        "text": "解释为什么斜率始终是 2",
+        "source_ref": null,
+        "source_quote": "为什么斜率始终是 2",
+        "requirement_id": "req_slope_constant",
+        "source_document_id": null
+      },
+      {
+        "text": "动画讲解约 60—90 秒，并配中文语音",
+        "source_ref": null,
+        "source_quote": "其中动画讲解约 60—90 秒，配中文语音",
+        "requirement_id": "req_animation_voice",
+        "source_document_id": null
+      },
+      {
+        "text": "最后保留一份简短讲义",
+        "source_ref": null,
+        "source_quote": "最后保留一份简短讲义",
+        "requirement_id": "req_handout",
+        "source_document_id": null
+      },
+      {
+        "text": "提供两道检查理解的练习",
+        "source_ref": null,
+        "source_quote": "两道检查理解的练习",
+        "requirement_id": "req_two_exercises",
+        "source_document_id": null
+      },
+      {
+        "text": "生成后保存课程，方便反复观看",
+        "source_ref": null,
+        "source_quote": "生成后保存课程，方便我反复观看",
+        "requirement_id": "req_save_course",
+        "source_document_id": null
+      }
+    ],
+    "learning_goal": "理解一次函数 y=2x+b 中常数 b 的作用：b 决定直线与 y 轴的交点位置，改变 b 会让直线整体上下平移，而斜率始终保持 2。",
+    "material_gaps": [],
+    "source_policy": {
+      "mode": "open"
+    },
+    "total_minutes": 3,
+    "prior_knowledge": "用户自述会读平面直角坐标图；对一次函数 y=2x+b 中 b 的作用尚不理解。",
+    "desired_outcomes": [
+      "能说出 b=0、b=2、b=-2 时直线与 y 轴的交点坐标分别是 (0,0)、(0,2)、(0,-2)",
+      "能解释改变 b 时直线整体上下平移、斜率始终为 2 的原因",
+      "能通过两道检查练习判断 b 变化对直线位置的影响"
+    ],
+    "node_count_quote": "只安排一个知识点：截距如何让直线上下平移",
+    "source_policy_quote": null,
+    "required_resource_types": [
+      "report",
+      "quiz",
+      "classroom"
+    ]
+  },
+  "input_documents": []
+}

@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 15.622442960739136,
+  "decisions": {
+    "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置与有效个人偏好均为空，因此采用 defaults 的约 5 分钟目标时长（300s），并围绕该时长安排动机演示、向量相加图示与固定/可学习编码的取舍解释；节点学习预算 10 分钟包含阅读与练习，不等同成片时长，故不据此压缩或扩写视频。配音采用 defaults 的 narration=true（中文讲解），用户未要求无配音。画幅沿用 defaults 的 16:9，并遵循课程视觉契约。路由按约 5 分钟常规教学解释走 general-video，flow: automation、storyboard: no。缺失信息假设：学习者基础未知，按入门深度组织；无附件素材，视觉全部自行设计；不覆盖 RoPE/ALiBi 与代码实现。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792484615.2072196,
+  "brief_sha256": "710a51461fdb81714d0030c3bdda97593290d3024695385084c84d3e965075bc",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力只看 Q 与 K 的相关性、天生不知道词序，所以必须把位置信息加进输入——Transformer 用的是固定正弦/余弦位置编码，不参与训练\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织）\"\nangle: concept\n---\n\n## Intent\n\n这是「Transformer 入门」课程中的一个节点视频：**位置编码：并行结构如何知道词序**。学习者刚学完自注意力与多头注意力（QKV 与多子空间），现在要理解一个关键缺口：自注意力只依赖 Q 与 K 的相关性，完全忽略位置信息，因此单独使用时必须加入位置编码修正。\n\n视频要讲清三件事：\n\n1. 自注意力只依赖 Q 与 K 的相关性、忽略位置信息，所以单独使用时必须加入位置编码修正。\n2. 位置编码的作用是为模型提供当前时间步前后出现顺序的信息——Transformer 不像 RNN 有天然的先后顺序，所有时间步同时输入、并行推理。\n3. 位置编码可以是固定的，也可以是可学习的参数；Transformer 论文中使用的是固定（正弦/余弦）位置编码，不参与训练。\n\n语气：清晰、循序渐进的课堂讲解，面向零基础或基础未知的初学者，不预设神经网络背景。中文讲解。\n\n## Assets\n\n- 无用户提供的附件或素材；全部视觉需由视频创作阶段自行设计（示意图、向量相加图示、正弦/余弦波形示意等），不得引用不存在的素材路径。\n\n## Customizations\n\n- 课堂讲解演示（视频必须覆盖）：先演示「打乱词序后自注意力结果相近」的现象，再引入位置编码——这是本节点引入动机的核心演示，必须作为视频内容呈现。\n- 图示说明（视频必须覆盖）：Embedding 向量与位置编码向量逐元素相加，形状保持不变（维度不变，位置信息被融合进时间步特征）。\n- 课堂互动（视频必须覆盖，以讲解方式呈现）：抛出「位置编码是训练出来的参数吗」这一问题，并说明固定编码与可学习编码各自的取舍；视频中给出答案与理由，不要求学习者作答。\n\n## Notes\n\n必须讲清的内容与演示深度：\n\n- 动机链条要完整：RNN 有循环结构带来的天然先后顺序 → Transformer 所有时间步同时输入、并行推理 → 自注意力权重只依赖 Q 与 K 的相关性，忽略位置 → 因此需要在时间步特征中融合位置编码信息。\n- 结合先修节点：学习者已知自注意力为 softmax(QK^T/√d_k)V、Q/K/V 同源、多头注意力在多个子空间并行。视频可复用这些概念，但不要重新完整讲授自注意力与多头注意力。\n- 位置编码加在哪一步：编码器栈第一个 EncoderLayer 的输入是 Input Embedding 与 Positional Encoding 相加的结果（词向量 + 位置向量，逐元素相加，形状不变）。\n- 固定 vs 可学习：位置编码可以有很多选择，可以是固定的，也可以设置为可学习的参数；Transformer 论文中使用固定（正弦/余弦）位置编码，没有梯度、不参与训练，每个位置上的值固定。\n- 可点到公式形式（第 pos 个位置编码向量的第 i 维由正弦/余弦预定义），但入门深度下以直观解释为主，不要求推导。\n\n来源与依据：\n\n- microsoft/AI-System 教材 2.9 注意力机制和 Transformer（位置编码作用、固定编码、编码器/解码器输入结构）。\n- kangshitao 博客《Transformer》（自注意力忽略位置信息、位置编码公式预定义、无梯度不参与训练、EncoderLayer 输入为 Embedding + 位置编码）。\n- 博客园 rossiXYZ《Transformer》解读（第一个 EncoderLayer 输入为 Input Embedding 与 Positional Encoding 相加）。\n- 原始论文《Attention Is All You Need》的固定正弦/余弦方案（经上述二手资料转述，未直接引用论文全文）。\n\n排除项与边界：\n\n- 不展开 RoPE、ALiBi 等后续位置编码变体。\n- 不包含 PyTorch 代码实现与训练实践。\n- 不规划其他节点内容（自注意力、多头注意力、编码器-解码器整体结构、掩码、Add&Norm、FFN 等由其他节点负责）。\n- 不把节点自测题（「为什么去掉位置编码后 Transformer 无法区分语序？」「位置编码加在哪一步、与词向量如何结合？」）作为视频内题目呈现；这些留给习题资源，视频只做讲解与结论性回答。\n- 详细阅读材料留给报告资源，视频不承担长文阅读。\n\n制作约束：\n\n- 画幅 16:9，中文配音讲解（有配音），目标时长约 5 分钟（300s），围绕默认时长安排充分解释与示例，不为凑时长增加无关内容。\n- 视觉规范沿用课程统一契约：字体 Noto Sans SC，画布 1920x1080，正文最小 32px、图示标签最小 28px、标题最小 48px，背景 #0f172a、前景 #f8fafc、强调色 #38bdf8；密集图示分步呈现，不要缩小字号。\n- 不写假素材路径，不虚构用户提供的文件。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

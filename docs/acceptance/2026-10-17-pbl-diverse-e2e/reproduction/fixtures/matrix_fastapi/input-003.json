@@ -1,0 +1,291 @@
+{
+  "phase": "plan",
+  "data": {
+    "topic": "做一个 Python FastAPI 待办事项 REST API 后端，不要前端或浏览器模拟。SQLite存储；POST /todos 创建，GET /todos 列表，PATCH /todos/{id} 修改完成状态，DELETE /todos/{id} 删除；空标题422、不存在的ID404、创建返回201。要求真实启动HTTP服务，并使用HTTP请求验收，服务重启后数据保留。",
+    "issues": [
+      "create-returns-201 与声明的运行类型不匹配"
+    ],
+    "priorPlan": {
+      "schemaVersion": 1,
+      "title": "FastAPI + SQLite 待办事项 REST API",
+      "goal": "用 Python FastAPI 与 SQLite 实现一个真实启动的待办事项 REST API：POST /todos 创建（返回 201，空标题 422）、GET /todos 列表、PATCH /todos/{id} 修改完成状态、DELETE /todos/{id} 删除（不存在 ID 返回 404），并通过真实 HTTP 请求验收，服务重启后数据仍然保留。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "create-todo",
+          "description": "POST /todos 接收 JSON 标题，创建待办并返回 201 与包含 id、title、completed=false 的响应体；标题为空或缺失时返回 422。"
+        },
+        {
+          "id": "list-todos",
+          "description": "GET /todos 返回 200 与当前全部待办的 JSON 数组，按创建顺序包含已创建的条目。"
+        },
+        {
+          "id": "patch-todo",
+          "description": "PATCH /todos/{id} 修改指定待办的完成状态并返回 200 与更新后的条目；ID 不存在时返回 404。"
+        },
+        {
+          "id": "delete-todo",
+          "description": "DELETE /todos/{id} 删除指定待办并返回成功状态；删除后该条目不再出现在列表中；ID 不存在时返回 404。"
+        },
+        {
+          "id": "persistence",
+          "description": "数据存储在 SQLite 文件中，服务进程重启后 GET /todos 仍能返回重启前创建的待办。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "setup-and-create",
+          "title": "搭建服务并实现创建接口",
+          "objective": "启动真实 FastAPI 服务，用 SQLite 建表，实现 POST /todos 创建待办并处理空标题 422。",
+          "dependsOn": [],
+          "entryCondition": "从空的初始工程开始，Python 环境可用，可安装 fastapi、uvicorn。",
+          "deliverable": "一个能真实启动的 FastAPI 服务：POST /todos 用 JSON 标题创建待办，返回 201 和含 id、title、completed=false 的 JSON；标题为空或缺失返回 422；数据写入 SQLite 文件。",
+          "requirementIds": [
+            "create-todo"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "create-returns-201",
+            "create-empty-title-422"
+          ]
+        },
+        {
+          "id": "list-todos",
+          "title": "实现列表接口",
+          "objective": "实现 GET /todos 返回全部待办数组，验证创建后能读到。",
+          "dependsOn": [
+            "setup-and-create"
+          ],
+          "entryCondition": "上一步的创建接口已可用，SQLite 表已存在。",
+          "deliverable": "GET /todos 返回 200 与 JSON 数组，包含此前通过 POST 创建的待办，字段与创建响应一致。",
+          "requirementIds": [
+            "create-todo",
+            "list-todos"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "list-returns-created"
+          ]
+        },
+        {
+          "id": "patch-and-delete",
+          "title": "实现修改完成状态与删除接口",
+          "objective": "实现 PATCH /todos/{id} 修改完成状态、DELETE /todos/{id} 删除，并对不存在 ID 返回 404。",
+          "dependsOn": [
+            "list-todos"
+          ],
+          "entryCondition": "创建与列表接口已可用，能通过 GET 确认条目存在。",
+          "deliverable": "PATCH /todos/{id} 更新 completed 并返回更新后的条目；DELETE /todos/{id} 删除条目；两者对不存在 ID 返回 404；删除后条目不再出现在列表中。",
+          "requirementIds": [
+            "patch-todo",
+            "delete-todo",
+            "list-todos"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "patch-completes-todo",
+            "patch-missing-404",
+            "delete-removes-todo",
+            "delete-missing-404"
+          ]
+        },
+        {
+          "id": "persistence-restart",
+          "title": "验证重启后数据保留",
+          "objective": "确认 SQLite 持久化：重启服务进程后 GET /todos 仍返回重启前创建的待办。",
+          "dependsOn": [
+            "patch-and-delete"
+          ],
+          "entryCondition": "全部 CRUD 接口可用，数据写入 SQLite 文件而非内存。",
+          "deliverable": "停止并重新启动服务后，GET /todos 仍返回重启前创建的待办及其完成状态。",
+          "requirementIds": [
+            "persistence",
+            "list-todos"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "restart-keeps-data"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "create-returns-201",
+          "stepId": "setup-and-create",
+          "kind": "function_case",
+          "requirementIds": [
+            "create-todo"
+          ],
+          "setup": "服务已启动在本地端口，数据库为空。",
+          "actions": [
+            "POST /todos，JSON 体 {\"title\":\"买牛奶\"}",
+            "读取响应状态码与 JSON 体"
+          ],
+          "expected": [
+            "状态码 201",
+            "响应体含整数 id、title 为 买牛奶、completed 为 false"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "create-empty-title-422",
+          "stepId": "setup-and-create",
+          "kind": "function_case",
+          "requirementIds": [
+            "create-todo"
+          ],
+          "setup": "服务已启动。",
+          "actions": [
+            "POST /todos，JSON 体 {\"title\":\"\"}",
+            "读取响应状态码"
+          ],
+          "expected": [
+            "状态码 422"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "list-returns-created",
+          "stepId": "list-todos",
+          "kind": "function_case",
+          "requirementIds": [
+            "create-todo",
+            "list-todos"
+          ],
+          "setup": "服务已启动，数据库为空。",
+          "actions": [
+            "POST /todos 创建 买牛奶",
+            "POST /todos 创建 写代码",
+            "GET /todos",
+            "读取状态码与 JSON 数组"
+          ],
+          "expected": [
+            "GET 状态码 200",
+            "数组含两条，标题依次为 买牛奶、写代码，completed 均为 false"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "patch-completes-todo",
+          "stepId": "patch-and-delete",
+          "kind": "function_case",
+          "requirementIds": [
+            "patch-todo",
+            "list-todos"
+          ],
+          "setup": "服务已启动，数据库为空。",
+          "actions": [
+            "POST /todos 创建 买牛奶，记录 id",
+            "PATCH /todos/{id}，JSON 体 {\"completed\":true}",
+            "GET /todos"
+          ],
+          "expected": [
+            "PATCH 状态码 200，响应体 completed 为 true",
+            "GET 列表中该条目 completed 为 true"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "patch-missing-404",
+          "stepId": "patch-and-delete",
+          "kind": "function_case",
+          "requirementIds": [
+            "patch-todo"
+          ],
+          "setup": "服务已启动，数据库中不存在 id=9999 的条目。",
+          "actions": [
+            "PATCH /todos/9999，JSON 体 {\"completed\":true}",
+            "读取响应状态码"
+          ],
+          "expected": [
+            "状态码 404"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "delete-removes-todo",
+          "stepId": "patch-and-delete",
+          "kind": "function_case",
+          "requirementIds": [
+            "delete-todo",
+            "list-todos"
+          ],
+          "setup": "服务已启动，数据库为空。",
+          "actions": [
+            "POST /todos 创建 买牛奶，记录 id",
+            "DELETE /todos/{id}",
+            "GET /todos"
+          ],
+          "expected": [
+            "DELETE 返回成功状态（200 或 204）",
+            "GET 列表中不再包含该条目"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "delete-missing-404",
+          "stepId": "patch-and-delete",
+          "kind": "function_case",
+          "requirementIds": [
+            "delete-todo"
+          ],
+          "setup": "服务已启动，数据库中不存在 id=9999 的条目。",
+          "actions": [
+            "DELETE /todos/9999",
+            "读取响应状态码"
+          ],
+          "expected": [
+            "状态码 404"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "restart-keeps-data",
+          "stepId": "persistence-restart",
+          "kind": "function_case",
+          "requirementIds": [
+            "persistence",
+            "list-todos"
+          ],
+          "setup": "服务已启动，数据库为空。",
+          "actions": [
+            "POST /todos 创建 买牛奶",
+            "PATCH 该条目 completed=true",
+            "停止服务进程并重新启动",
+            "GET /todos"
+          ],
+          "expected": [
+            "重启后 GET 状态码 200",
+            "列表仍含 买牛奶 且 completed 为 true"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        }
+      ]
+    }
+  },
+  "startedAt": 1792229055.7037244
+}

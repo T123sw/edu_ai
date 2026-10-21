@@ -1,0 +1,22 @@
+[
+  {
+    "name": "form",
+    "passed": true
+  },
+  {
+    "name": "score",
+    "passed": true
+  },
+  {
+    "name": "shop_b",
+    "passed": true
+  },
+  {
+    "name": "layout",
+    "passed": true
+  },
+  {
+    "name": "shop_a",
+    "passed": true
+  }
+]

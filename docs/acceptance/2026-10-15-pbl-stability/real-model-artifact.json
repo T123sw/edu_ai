@@ -1,0 +1,1240 @@
+{
+  "artifact": {
+    "schemaVersion": 2,
+    "runtimeKind": "react_app",
+    "templateVersion": "react-app-v1",
+    "exerciseId": "pbl_5ccdf1852754da41066beb0a4cadec4e",
+    "artifactVersion": 1,
+    "topic": "我想实现一个计算器",
+    "title": "React 计算器",
+    "summary": "在本地 React 页面中实现一个可用的计算器：能通过按钮输入数字与运算符、显示当前输入与计算结果，并支持清除与退格。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "React 计算器",
+      "goal": "在本地 React 页面中实现一个可用的计算器：能通过按钮输入数字与运算符、显示当前输入与计算结果，并支持清除与退格。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "display",
+          "description": "页面有一个显示区，展示当前输入的数字或计算结果，初始显示 0。"
+        },
+        {
+          "id": "digit-input",
+          "description": "点击数字按钮 0-9 能把该数字追加到当前输入中，显示区随之更新。"
+        },
+        {
+          "id": "operator-input",
+          "description": "点击 + - × ÷ 运算符按钮能记录运算符，并允许继续输入第二个操作数。"
+        },
+        {
+          "id": "equals",
+          "description": "点击 = 按钮能按记录的运算符对两个操作数求值，并把结果显示在显示区。"
+        },
+        {
+          "id": "clear",
+          "description": "点击 C 按钮能清除当前输入与运算符，显示区回到 0。"
+        },
+        {
+          "id": "backspace",
+          "description": "点击退格按钮能删除当前输入的最后一位数字。"
+        },
+        {
+          "id": "decimal",
+          "description": "点击小数点按钮能在当前输入中插入小数点，且不会重复插入多个小数点。"
+        },
+        {
+          "id": "divide-by-zero",
+          "description": "当除数为 0 时，显示区给出错误提示而不是崩溃或显示 Infinity。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "step-display",
+          "title": "搭建计算器界面与显示区",
+          "objective": "创建计算器页面骨架：一个显示区与数字、运算符、功能按钮，显示区初始显示 0。",
+          "dependsOn": [],
+          "entryCondition": "从初始工程开始，App.jsx 与 styles.css 为空白模板。",
+          "deliverable": "页面呈现一个计算器：顶部显示区初始显示 0，下方排列数字按钮 0-9、运算符按钮 + - × ÷、= 、C 和退格按钮。",
+          "requirementIds": [
+            "display"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "check-display-initial",
+            "check-buttons-present"
+          ]
+        },
+        {
+          "id": "step-digits",
+          "title": "实现数字输入",
+          "objective": "点击数字按钮把数字追加到显示区，替换初始的 0。",
+          "dependsOn": [
+            "step-display"
+          ],
+          "entryCondition": "上一步的界面骨架已完成，显示区初始显示 0。",
+          "deliverable": "点击数字按钮后，显示区按点击顺序显示输入的数字串，例如依次点击 1、2、3 后显示 123。",
+          "requirementIds": [
+            "digit-input"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "check-digit-append"
+          ]
+        },
+        {
+          "id": "step-clear-backspace",
+          "title": "实现清除与退格",
+          "objective": "点击 C 清除输入回到 0，点击退格删除最后一位数字。",
+          "dependsOn": [
+            "step-digits"
+          ],
+          "entryCondition": "数字输入已可用，显示区能显示输入的数字串。",
+          "deliverable": "输入若干数字后点击 C，显示区回到 0；输入若干数字后点击退格，显示区去掉最后一位数字。",
+          "requirementIds": [
+            "clear",
+            "backspace"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "check-clear",
+            "check-backspace"
+          ]
+        },
+        {
+          "id": "step-decimal",
+          "title": "支持小数点输入",
+          "objective": "点击小数点按钮在当前输入中插入小数点，且不重复插入。",
+          "dependsOn": [
+            "step-clear-backspace"
+          ],
+          "entryCondition": "数字输入、清除与退格均已可用。",
+          "deliverable": "点击小数点后显示区出现小数点，例如输入 1 后点击小数点再输入 5 显示 1.5；连续点击小数点不会出现两个小数点。",
+          "requirementIds": [
+            "decimal"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "check-decimal-once"
+          ]
+        },
+        {
+          "id": "step-operators",
+          "title": "实现运算符与求值",
+          "objective": "记录运算符，输入第二个操作数后点击 = 得到计算结果。",
+          "dependsOn": [
+            "step-decimal"
+          ],
+          "entryCondition": "数字与小数点输入已可用。",
+          "deliverable": "输入第一个数、点击运算符、输入第二个数、点击 = 后，显示区显示计算结果，例如 2 + 3 = 显示 5。",
+          "requirementIds": [
+            "operator-input",
+            "equals"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "check-addition",
+            "check-multiplication"
+          ]
+        },
+        {
+          "id": "step-divide-by-zero",
+          "title": "处理除以零",
+          "objective": "当除数为 0 时显示错误提示。",
+          "dependsOn": [
+            "step-operators"
+          ],
+          "entryCondition": "四则运算与求值已可用。",
+          "deliverable": "输入 5 ÷ 0 = 后，显示区显示错误提示文字（如“错误”），而不是 Infinity 或崩溃。",
+          "requirementIds": [
+            "divide-by-zero"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "check-divide-by-zero"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "check-display-initial",
+          "stepId": "step-display",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "display"
+          ],
+          "setup": "打开计算器页面，不做任何操作。",
+          "actions": [
+            "读取显示区文字"
+          ],
+          "expected": [
+            "显示区初始显示 0"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-buttons-present",
+          "stepId": "step-display",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "display"
+          ],
+          "setup": "打开计算器页面。",
+          "actions": [
+            "检查数字按钮 0-9、运算符按钮 + - × ÷、= 、C 和退格按钮是否可见"
+          ],
+          "expected": [
+            "所有必要按钮可见"
+          ],
+          "requiredAssertions": [
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-digit-append",
+          "stepId": "step-digits",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "digit-input"
+          ],
+          "setup": "打开计算器页面，显示区为 0。",
+          "actions": [
+            "点击数字按钮 1",
+            "点击数字按钮 2",
+            "点击数字按钮 3",
+            "读取显示区文字"
+          ],
+          "expected": [
+            "显示区显示 123"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-clear",
+          "stepId": "step-clear-backspace",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "clear"
+          ],
+          "setup": "打开计算器页面。",
+          "actions": [
+            "点击数字按钮 7",
+            "点击数字按钮 8",
+            "点击 C 按钮",
+            "读取显示区文字"
+          ],
+          "expected": [
+            "显示区回到 0"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-backspace",
+          "stepId": "step-clear-backspace",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "backspace"
+          ],
+          "setup": "打开计算器页面。",
+          "actions": [
+            "点击数字按钮 1",
+            "点击数字按钮 2",
+            "点击数字按钮 3",
+            "点击退格按钮",
+            "读取显示区文字"
+          ],
+          "expected": [
+            "显示区显示 12"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-decimal-once",
+          "stepId": "step-decimal",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "decimal"
+          ],
+          "setup": "打开计算器页面。",
+          "actions": [
+            "点击数字按钮 1",
+            "点击小数点按钮",
+            "点击小数点按钮",
+            "点击数字按钮 5",
+            "读取显示区文字"
+          ],
+          "expected": [
+            "显示区显示 1.5"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-addition",
+          "stepId": "step-operators",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "operator-input",
+            "equals"
+          ],
+          "setup": "打开计算器页面。",
+          "actions": [
+            "点击数字按钮 2",
+            "点击 + 按钮",
+            "点击数字按钮 3",
+            "点击 = 按钮",
+            "读取显示区文字"
+          ],
+          "expected": [
+            "显示区显示 5"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-multiplication",
+          "stepId": "step-operators",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "operator-input",
+            "equals"
+          ],
+          "setup": "打开计算器页面。",
+          "actions": [
+            "点击数字按钮 4",
+            "点击 × 按钮",
+            "点击数字按钮 6",
+            "点击 = 按钮",
+            "读取显示区文字"
+          ],
+          "expected": [
+            "显示区显示 24"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-divide-by-zero",
+          "stepId": "step-divide-by-zero",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "divide-by-zero"
+          ],
+          "setup": "打开计算器页面。",
+          "actions": [
+            "点击数字按钮 5",
+            "点击 ÷ 按钮",
+            "点击数字按钮 0",
+            "点击 = 按钮",
+            "读取显示区文字"
+          ],
+          "expected": [
+            "显示区显示错误提示文字"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        }
+      ]
+    },
+    "starterFiles": {
+      "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+      "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+    },
+    "tasks": [
+      {
+        "stepId": "step-display",
+        "title": "搭建计算器界面与显示区",
+        "objective": "创建计算器页面骨架：一个显示区与数字、运算符、功能按钮，显示区初始显示 0。",
+        "instructionsMarkdown": "本步要做出计算器的整体外观骨架，让页面看起来像一个计算器，但暂时不需要任何点击功能。\n\n完成后页面应包含：\n\n- 顶部一个显示区，初始显示 `0`。\n- 下方排列按钮：数字 `0` 到 `9`、运算符 `+` `-` `×` `÷`、等号 `=`、清除 `C`、退格按钮（显示为 `⌫`）。\n- 所有按钮都可见，布局整齐即可，样式可自由发挥。\n\n本步只要求界面呈现，点击按钮暂时没有反应是正常的。\n\n### 代码约定\n\n为了让系统能识别页面部件，请给关键元素加上 `data-testid` 属性（它只是标记，不会改变外观）：\n\n- 显示区：`data-testid=\"display\"`，其文字内容就是当前显示的数字。\n- 数字按钮：`data-testid=\"digit-0\"` 到 `data-testid=\"digit-9\"`。\n- 运算符按钮：`data-testid=\"op-add\"`、`data-testid=\"op-sub\"`、`data-testid=\"op-mul\"`、`data-testid=\"op-div\"`。\n- 等号按钮：`data-testid=\"equals\"`。\n- 清除按钮：`data-testid=\"clear\"`。\n- 退格按钮：`data-testid=\"backspace\"`。",
+        "explanationMarkdown": "计算器可以拆成两部分：一个负责展示当前数字或结果的显示区，以及一组负责输入和操作的按钮。先把这两部分搭出来，后续步骤再逐步给按钮接上行为。\n\n在 React 中，显示区的内容通常来自组件的状态（state）。本步可以先写死为 `0`，下一步再把它变成随点击变化的状态。\n\n按钮建议用 `<button>` 元素，这样它们天然可点击、可聚焦，也方便后续绑定事件。",
+        "hints": [
+          "可以用一个外层容器包住显示区和按钮区，再用 CSS 的 grid 或 flex 排列按钮。",
+          "显示区可以先用一个 `<div data-testid=\"display\">0</div>` 占位。",
+          "按钮文字用 `×` 和 `÷` 表示乘除，退格按钮文字用 `⌫`。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "check-display-initial",
+          "check-buttons-present"
+        ],
+        "id": "step-display",
+        "cumulativeCheckIds": [
+          "check-display-initial",
+          "check-buttons-present"
+        ]
+      },
+      {
+        "stepId": "step-digits",
+        "title": "实现数字输入",
+        "objective": "点击数字按钮把数字追加到显示区，替换初始的 0。",
+        "instructionsMarkdown": "上一步已经搭好了计算器的界面骨架：顶部有一个显示区，初始显示 0，下方排列着数字按钮 0-9、运算符按钮 + - × ÷、= 、C 和退格按钮。现在让数字按钮真正能用起来。\n\n本步要完成的效果：\n\n- 点击数字按钮时，把该数字追加到当前输入中，显示区随之更新。\n- 第一次点击数字时，要替换掉初始的 0，而不是变成 01、02 这样。\n- 连续点击多个数字按钮，显示区按点击顺序显示完整的数字串。例如依次点击 1、2、3，显示区应显示 123。\n\n本步只需要让数字按钮 0-9 生效，运算符、=、C、退格和小数点可以暂时保持原样，留到后面的步骤再实现。\n\n代码约定：显示区使用 data-testid=\"display\"，数字按钮分别使用 data-testid=\"digit-0\" 到 data-testid=\"digit-9\"。这些标记只是供系统识别对应部件，不会改变页面外观。",
+        "explanationMarkdown": "要让显示区随点击变化，需要把当前输入保存到组件的状态里，而不是写死在 JSX 中。可以用 useState 保存一个字符串表示当前输入，初始值为 \"0\"。\n\n点击某个数字按钮时，根据当前状态决定新值：如果当前还是初始的 \"0\"，就用这个数字替换它；否则把数字追加到已有字符串末尾。把新值写回状态，显示区就会重新渲染。\n\n把数字按钮的点击处理写成接收数字参数的函数，可以避免为每个按钮重复写逻辑。",
+        "hints": [
+          "用 useState 保存当前输入字符串，初始值设为 \"0\"。",
+          "点击数字时判断：当前值等于 \"0\" 就替换，否则拼接。",
+          "给每个数字按钮绑定 onClick，把对应的数字传进去。",
+          "显示区直接渲染这个状态值即可。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "checkIds": [
+          "check-digit-append"
+        ],
+        "id": "step-digits",
+        "cumulativeCheckIds": [
+          "check-display-initial",
+          "check-buttons-present",
+          "check-digit-append"
+        ]
+      },
+      {
+        "stepId": "step-clear-backspace",
+        "title": "实现清除与退格",
+        "objective": "点击 C 清除输入回到 0，点击退格删除最后一位数字。",
+        "instructionsMarkdown": "上一步已经能让数字按钮把数字追加到显示区。这一步给计算器补上两个“改错”按钮：清除（C）和退格（⌫）。\n\n**要完成的效果**\n\n- 输入若干数字后点击 **C**，显示区回到 `0`，相当于把当前输入整个清空。\n- 输入若干数字后点击 **⌫**，显示区去掉最后一位数字。例如依次点击 1、2、3 后点击 ⌫，显示区变成 `12`。\n- 如果退格把数字删到只剩一位，再点一次 ⌫ 应回到 `0`，而不是留下空字符串。\n\n**起点**\n\n界面骨架和数字输入已经可用：显示区初始显示 `0`，点击数字按钮会追加数字。C 和 ⌫ 按钮已经存在于页面上，但还没有绑定行为。\n\n**代码约定**\n\n为了让系统能识别这两个按钮，请保留它们已有的 `data-testid`：清除按钮用 `data-testid=\"clear\"`，退格按钮用 `data-testid=\"backspace\"`。这些标记只是给系统定位按钮用，不会改变页面外观。",
+        "explanationMarkdown": "清除和退格都是对“当前输入字符串”的修改，区别在于清除把它整体重置为 `0`，退格只删掉最后一个字符。\n\n实现时可以直接在已有的显示状态上做字符串操作：清除时把状态设回 `'0'`；退格时先判断当前字符串长度，如果长度小于等于 1，说明删完就没有内容了，应回到 `'0'`，否则用 `slice(0, -1)` 去掉最后一位。\n\n注意退格要处理边界：`'0'` 再退格仍然是 `'0'`，不要产生空字符串，否则后续数字输入和显示都会出问题。",
+        "hints": [
+          "清除按钮的点击处理只需把显示状态设回字符串 '0'。",
+          "退格可以用字符串的 slice(0, -1) 去掉最后一位。",
+          "退格前先判断长度：长度为 1 时直接回到 '0'，避免出现空字符串。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "checkIds": [
+          "check-clear",
+          "check-backspace"
+        ],
+        "id": "step-clear-backspace",
+        "cumulativeCheckIds": [
+          "check-display-initial",
+          "check-buttons-present",
+          "check-digit-append",
+          "check-clear",
+          "check-backspace"
+        ]
+      },
+      {
+        "stepId": "step-decimal",
+        "title": "支持小数点输入",
+        "objective": "点击小数点按钮在当前输入中插入小数点，且不重复插入。",
+        "instructionsMarkdown": "现在让计算器支持小数。\n\n**本步要完成的成果**\n\n在键盘上增加一个**小数点按钮**（显示为 `.`）。点击它时，当前输入的数字串里会出现一个小数点，之后可以继续输入小数位。\n\n**起点**\n\n上一步已经能输入数字、用 C 清除、用退格删除最后一位。显示区初始显示 0。\n\n**操作与结果**\n\n- 先点击数字 `1`，再点击小数点，再点击数字 `5`，显示区应显示 `1.5`。\n- 如果当前输入里已经有小数点，再次点击小数点不应再插入一个，显示区里始终最多只有一个小数点。\n- 如果当前显示区是初始的 `0`，点击小数点后应显示 `0.`，表示正在输入小数。\n\n**边界**\n\n- 小数点只影响当前正在输入的数字，不会影响后续步骤里要做的运算逻辑。\n- 不要因为连续点击小数点而让显示区出现 `1..5` 这类内容。\n\n**代码约定**\n\n为了让系统能识别这个按钮，请给小数点按钮加上 `data-testid=\"decimal\"`。这个标记只是给检查用的，不会改变按钮的外观。",
+        "explanationMarkdown": "小数点的难点在于“只能有一个”。可以在追加字符前先判断当前输入里是否已经包含 `.`：如果已经包含，就忽略这次点击；否则把 `.` 追加到当前输入末尾。\n\n另一个细节是初始状态。显示区初始是 `0`，如果直接追加 `.` 会得到 `0.`，这是符合预期的；但如果用户先点了 `0` 再点小数点，也要避免出现 `00.` 这种多余的前导零。可以沿用上一步“当前是 `0` 时用新字符替换”的思路，把小数点也当作一种特殊字符来处理。\n\n把“是否已包含小数点”的判断放在更新函数内部，用函数式更新读取最新的输入值，可以避免快速点击时读到旧状态。",
+        "hints": [
+          "在追加小数点之前，先检查当前输入字符串里是否已经包含 `.`。",
+          "如果当前显示区是 `0`，点击小数点后应变成 `0.`，而不是 `0.0` 或 `00.`。",
+          "可以用 `prev.includes('.')` 判断是否已经有小数点，有就返回原值。",
+          "把小数点也当作一种“输入字符”，复用上一步追加数字时的替换逻辑。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "checkIds": [
+          "check-decimal-once"
+        ],
+        "id": "step-decimal",
+        "cumulativeCheckIds": [
+          "check-display-initial",
+          "check-buttons-present",
+          "check-digit-append",
+          "check-clear",
+          "check-backspace",
+          "check-decimal-once"
+        ]
+      },
+      {
+        "stepId": "step-operators",
+        "title": "实现运算符与求值",
+        "objective": "记录运算符，输入第二个操作数后点击 = 得到计算结果。",
+        "instructionsMarkdown": "现在让计算器真正会算数。\n\n本步要完成的效果：先输入第一个数，点击一个运算符（+、-、×、÷），再输入第二个数，最后点击 =，显示区就显示计算结果。例如依次点击 2、+、3、= 后，显示区显示 5；依次点击 4、×、6、= 后，显示区显示 24。\n\n起点：上一步已经能输入数字、小数点，也能用 C 清除和退格删除。运算符按钮（+、-、×、÷）和 = 按钮已经摆在页面上，但点击它们目前没有任何反应。\n\n需要做到：\n- 点击运算符按钮时，记住当前输入的数字和这个运算符，并让接下来的数字输入开始一个新的操作数（而不是接在第一个数后面）。\n- 输入第二个操作数后点击 =，按记住的运算符对两个数求值，并把结果显示在显示区。\n- 求值后如果继续输入数字，应当开始一次新的输入。\n\n边界：本步只要求一次运算（两个操作数、一个运算符）能正确求值，不要求连续运算或优先级处理。除以零的情况留到下一步处理。\n\n代码约定：显示区使用 data-testid=\"display\"；数字按钮使用 data-testid=\"digit-0\" 到 \"digit-9\"；小数点按钮使用 data-testid=\"decimal\"；运算符按钮分别使用 data-testid=\"op-add\"（+）、\"op-sub\"（-）、\"op-mul\"（×）、\"op-div\"（÷）；等号按钮使用 data-testid=\"equals\"。这些标记只是供系统识别对应部件，不会改变页面外观。",
+        "explanationMarkdown": "计算器需要同时记住几件事：当前显示的数字、上一个操作数、待执行的运算符，以及“现在是在输入第一个数还是第二个数”。可以用多个 useState 分别保存，例如 display、firstOperand、operator、waitingForSecond。\n\n点击运算符时，把当前 display 存为 firstOperand，记录 operator，并设置一个标志表示下一个数字应作为新的操作数开始。点击数字时，如果处于“等待第二个操作数”的状态，就用这个数字替换 display，而不是追加。\n\n点击 = 时，把 firstOperand 和当前 display 转成数字，按 operator 计算，把结果写回 display，并清空 operator 与等待标志。注意 × 和 ÷ 在代码里对应 * 和 /。",
+        "hints": [
+          "用 useState 保存 firstOperand、operator 和一个表示是否等待第二个操作数的布尔值。",
+          "点击运算符时把当前 display 存入 firstOperand，并设置等待标志；点击数字时若等待标志为真，则用新数字替换 display 并清除标志。",
+          "点击 = 时用 Number(firstOperand) 和 Number(display) 计算，把结果用 String 写回 display。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "checkIds": [
+          "check-addition",
+          "check-multiplication"
+        ],
+        "id": "step-operators",
+        "cumulativeCheckIds": [
+          "check-display-initial",
+          "check-buttons-present",
+          "check-digit-append",
+          "check-clear",
+          "check-backspace",
+          "check-decimal-once",
+          "check-addition",
+          "check-multiplication"
+        ]
+      },
+      {
+        "stepId": "step-divide-by-zero",
+        "title": "处理除以零",
+        "objective": "当除数为 0 时显示错误提示。",
+        "instructionsMarkdown": "现在计算器已经能做四则运算了，但还有一个边界情况要处理：除以零。\n\n**本步要完成的成果**\n\n当用户输入 `5 ÷ 0 =` 时，显示区不应该显示 `Infinity`、`NaN` 或让页面崩溃，而应该给出一句人能看懂的提示，比如“错误”。\n\n**起点**\n\n上一步的四则运算与求值已经可用：输入第一个数、点击运算符、输入第二个数、点击 `=` 就能得到结果。\n\n**要做的操作**\n\n在求值逻辑里判断：如果运算符是除法，并且第二个操作数等于 0，就不要做除法，而是把显示区改成错误提示文字。其他运算（加、减、乘）以及除数不为 0 的除法，仍然照常显示计算结果。\n\n**完成效果**\n\n- 输入 `5 ÷ 0 =` 后，显示区显示错误提示文字（例如“错误”）。\n- 输入 `6 ÷ 2 =` 后，显示区仍然正常显示 `3`。\n- 出现错误提示后，点击 `C` 能清除提示，显示区回到 `0`。\n\n**代码约定**\n\n显示区已经用 `data-testid=\"display\"` 标记，检查会读取它的文字内容。错误提示文字请直接写进显示区，不要额外嵌套会改变文字内容的元素。",
+        "explanationMarkdown": "在 JavaScript 里，`5 / 0` 的结果是 `Infinity`，`0 / 0` 的结果是 `NaN`。它们都是合法的数字值，不会抛异常，所以页面不会崩溃，但显示出来对用户没有意义。\n\n处理办法是在求值前先做一次判断：当运算符是除法且第二个操作数为 0 时，走一条单独的分支，把显示区设成错误提示，并清空已记录的运算符和第一个操作数，让计算器回到可以重新开始的状态。\n\n判断除数是否为 0 时，注意操作数是从显示区文字转换来的，用 `Number(...)` 转换后再比较，避免字符串比较带来的意外。",
+        "hints": [
+          "在 `equals` 里，先算出两个操作数 `a` 和 `b`，再判断 `operator === '/' && b === 0`。",
+          "命中除以零时，用 `setDisplay('错误')` 之类的写法设置提示文字，并把 `firstOperand`、`operator`、`waitingForSecond` 重置。",
+          "错误提示出现后，`C` 按钮的清除逻辑不需要改动，它本来就会把显示区设回 `0`。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "checkIds": [
+          "check-divide-by-zero"
+        ],
+        "id": "step-divide-by-zero",
+        "cumulativeCheckIds": [
+          "check-display-initial",
+          "check-buttons-present",
+          "check-digit-append",
+          "check-clear",
+          "check-backspace",
+          "check-decimal-once",
+          "check-addition",
+          "check-multiplication",
+          "check-divide-by-zero"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "check-display-initial",
+        "label": "页面打开后显示区初始显示 0",
+        "actions": [
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "display"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "0",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "check-buttons-present",
+        "label": "数字 0-9、运算符 + - × ÷、= 、C 和退格按钮都可见",
+        "actions": [
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-0"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-1"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-2"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-3"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-4"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-5"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-6"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-7"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-8"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-9"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "op-add"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "op-sub"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "op-mul"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "op-div"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "equals"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "clear"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "backspace"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "check-digit-append",
+        "label": "依次点击 1、2、3 后显示区显示 123",
+        "actions": [
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-1"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-2"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-3"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "display"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "123",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "check-clear",
+        "label": "依次点击 7、8 后点击 C，显示区回到 0",
+        "actions": [
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-7"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-8"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "clear"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "display"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "0",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "check-backspace",
+        "label": "依次点击 1、2、3 后点击退格，显示区显示 12",
+        "actions": [
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-1"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-2"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-3"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "backspace"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "display"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "12",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "check-decimal-once",
+        "label": "依次点击 1、小数点、小数点、5 后显示区显示 1.5",
+        "actions": [
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-1"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "decimal"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "decimal"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-5"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "display"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "1.5",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "check-addition",
+        "label": "依次点击 2、+、3、= 后显示区显示 5",
+        "actions": [
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-2"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "op-add"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-3"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "equals"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "display"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "5",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "check-multiplication",
+        "label": "依次点击 4、×、6、= 后显示区显示 24",
+        "actions": [
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-4"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "op-mul"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-6"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "equals"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "display"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "24",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "check-divide-by-zero",
+        "label": "依次点击 5、÷、0、= 后显示区显示错误提示文字",
+        "actions": [
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-5"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "op-div"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "digit-0"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "equals"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "display"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "错误",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      }
+    ],
+    "validationSummary": {
+      "passed": true,
+      "templateVersion": "react-app-v1",
+      "validatedSteps": 6,
+      "qualityWarnings": [
+        {
+          "stepId": "step-display",
+          "message": "模型负例也通过检查，负例区分度不足"
+        },
+        {
+          "stepId": "step-clear-backspace",
+          "message": "模型负例也通过检查，负例区分度不足"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "health": {
+    "status": "ok",
+    "version": "1.6.14",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "scope": "internal_bridge",
+    "exam_ready": false
+  },
+  "authenticated_unknown_turn_http": 404,
+  "unauthenticated_http": 401
+}

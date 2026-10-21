@@ -1,0 +1,23 @@
+[Unit]
+Description=Edu-AI complete-utterance batched TTS
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/zxqs_ep/Edu_AI
+EnvironmentFile=/home/zxqs_ep/Edu_AI/.env
+Environment=PYTHONUNBUFFERED=1
+Environment=QWEN_TTS_DEVICE=cuda:1
+Environment=QWEN_TTS_REQUEST_BATCH_SIZE=4
+Environment=QWEN_TTS_BATCH_MAX_CHARS=1600
+Environment=QWEN_TTS_MAX_PENDING=64
+Environment=PATH=/home/zxqs_ep/miniforge3/envs/edu-ai/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env QWEN_TTS_DEVICE=cuda:1 QWEN_TTS_REQUEST_BATCH_SIZE=4 QWEN_TTS_BATCH_MAX_CHARS=1600 QWEN_TTS_MAX_PENDING=64 /home/zxqs_ep/miniforge3/envs/edu-ai/bin/python -m uvicorn services.local_tts.qwen_server:app --host 127.0.0.1 --port 8191
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=3700
+KillMode=mixed
+UMask=0027
+
+[Install]
+WantedBy=default.target

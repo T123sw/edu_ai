@@ -1,0 +1,31 @@
+{
+  "preparation_id": "prep_f13e2b0434204729a7835fff8298595e",
+  "status": "failed",
+  "result_ref": {
+    "course_id": "learn-f13e2b0434204729a7835fff8298595e",
+    "manifest_id": "manifest_8ba968b8b75e992fe73b4becc6df0201",
+    "course_ready": false,
+    "course_available": true,
+    "manifest_version": 1,
+    "planned_resources": 12,
+    "available_resources": 11
+  },
+  "failure": {
+    "title": "部分内容待补齐，已有资料可以学习",
+    "reason": "本次有 1 份学习内容未完成：部分资料整理未完成。",
+    "next_step": "可以先进入课程学习已完成的资料，也可以点击“补齐未完成内容”继续处理；已完成资料会保留。",
+    "stage": "汇总与检查学习内容",
+    "saved_resources": 11,
+    "planned_resources": 12,
+    "resource_issues": [
+      {
+        "resource_title": "划分过程：基准值选取与一趟划分的跟踪",
+        "resource_type": "习题",
+        "step": "制作学习资料",
+        "reason": "生成的修改未能与原资料正确对应，因此这份资料暂时无法使用。"
+      }
+    ]
+  },
+  "backend_pid": 3469882,
+  "provider_calls": 0
+}

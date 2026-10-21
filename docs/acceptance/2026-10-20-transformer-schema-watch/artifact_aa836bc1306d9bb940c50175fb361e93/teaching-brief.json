@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 14.164729833602905,
+  "decisions": {
+    "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置与个人偏好均为空，故采用 defaults 的 target_minutes=5.0、duration_mode=target，时长来源记为 default，不声称是用户指定。节点学习预算 10 分钟包含阅读与练习，不能当作成片时长，因此视频按约 5 分钟安排充分解释与示例。配音：用户未指定，defaults.narration=true，故启用中文普通话旁白，并在正文写明。画幅取 defaults 的 16:9，与课程视觉契约 1920x1080 一致。交付类型为约 5 分钟的常规教学讲解，按原生路由走 general-video；flow=automation、storyboard=no。缺失信息假设：学习者背景未知，按入门深度组织；无上传素材，视觉全部由排版与示意图构成；不生成讲稿、分镜或场景代码。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792477894.170034,
+  "brief_sha256": "f3ad5b86410997b4a58053aec6f1db777ee8f8b0276e9a6dcb0d3c268f94ecea",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"循环网络的顺序性限制了并行，Transformer 用注意力一次性建立全局依赖\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\naudience: \"希望系统学习 Transformer 架构的学习者（具体背景未知，按入门深度组织）\"\nangle: concept\n---\n\n## Intent\n\n这是课程节点「为什么需要 Transformer：循环网络的瓶颈与注意力思路」的讲解视频，面向希望系统学习 Transformer 架构的学习者，中文讲授，入门深度。用户原话是「我想学习transformer」，本节点只负责回答“为什么要有 Transformer”这一前置问题：先讲清循环模型的瓶颈，再引出注意力思路，为后续讲自注意力计算、编码器/解码器子层与位置编码的节点做铺垫。\n\n语气：清晰、克制、以原理讲解为主，像一位耐心的老师带着学习者一步步推导，而不是罗列术语。视觉上以示意图与信息路径对比为主，避免装饰性花哨效果。\n\n## Assets\n\n（用户未上传任何素材文件；本视频不依赖外部图片、音频或视频素材，全部视觉由排版、示意图与动画构成。）\n\n## Customizations\n\n- 无用户显式指定的定制项。\n- 课程视觉契约（teaching-readable-v1）：画布 1920x1080，字体 Noto Sans SC，背景 #0f172a，前景 #f8fafc，强调色 #38bdf8；正文最小 32px，图示标签最小 28px，标题最小 48px。密集图示要拆成多步呈现，不要缩小字号硬塞。\n\n## Notes\n\n### 必须讲清的内容（视频必须覆盖）\n\n1. 循环模型的计算方式：沿输入/输出序列的符号位置分解计算，把位置对齐到计算时间步，生成隐藏状态序列 ht，其中 ht 是前一隐藏状态 ht−1 与位置 t 输入的函数。\n2. 顺序性的后果：这种固有的顺序性使训练样本内部无法并行；序列越长越关键，因为内存限制又限制了跨样本的批处理。近期工作通过因子分解技巧与条件计算提升了计算效率，但顺序计算这一根本约束依然存在。\n3. 注意力的既有地位：注意力机制已成为序列建模与转换模型的重要组成部分，能在不考虑输入/输出序列中距离的情况下建模依赖；但在绝大多数情况下，注意力是与循环网络结合使用的。\n4. Transformer 的提出：完全摒弃循环，改为完全依赖注意力机制在输入与输出之间建立全局依赖；可显著提高并行度，在 8 块 P100 GPU 上训练 12 小时即达到新的翻译质量水平。\n5. 一句话定位：Transformer 是 2017 年论文《Attention Is All You Need》提出的序列转换架构，完全基于注意力机制，不使用循环和卷积；沿用编码器-解码器结构，编码器把输入符号表示序列 (x1..xn) 映射为连续表示 z，解码器基于 z 自回归地一次生成一个输出符号。\n\n### 演示深度与教师演示要求\n\n- 必须用可视化对比呈现两条信息路径：RNN 逐步传递隐藏状态（h1→h2→…→ht 的链式依赖）与注意力一次性看全序列（每个位置直接与所有位置建立连接）。这是本节点的核心画面，需分步展开而不是一次塞满。\n- 必须演示“100 个词的句子”这一课堂讨论的推理过程：RNN 需要约 100 步顺序计算，注意力层可在一步内并行处理全部位置。视频给出推理与结论即可，不要求学习者当场作答。\n- 讲清“顺序性 → 样本内无法并行 → 长序列更严重 → 内存限制又限制跨样本批处理”这条因果链，不要只给结论。\n- 结尾落到 Transformer 的定位与并行度收益，为下一节点（自注意力计算、多头注意力、前馈网络、残差与归一化、位置编码）留出接口，但本视频不展开这些内容。\n\n### 来源\n\n- 主要依据：Vaswani 等，《Attention Is All You Need》，NIPS 2017，https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf（摘要、引言与第 2 节 Background）。\n- 辅助依据：两篇中文技术讲解文章（由研究阶段提供，用于组织中文表述）。\n- 引用论文原句时保持准确，例如 “This inherently sequential nature precludes parallelization within training examples”。\n\n### 排除项\n\n- 不展开自注意力打分公式、多头注意力的具体计算、位置编码的具体公式、编码器/解码器各子层细节——这些属于后续节点。\n- 不涉及从零实现可运行 Transformer 代码、训练与调参内容。\n- 不把 N=6、dmodel=512、h=8、dff=2048 等超参数当作普遍设定；若提及须说明是 2017 年原始 base 模型设定，不代表所有后续变体。\n- 不引入用户未要求的产品、网站或商业案例。\n\n### 语音与画幅\n\n- 中文普通话配音，全程旁白讲解（用户未指定配音方式，按默认启用）。\n- 画幅 16:9，1920x1080。\n- 时长目标约 5 分钟（300 秒），围绕上述内容做充分解释与示例，不为凑时长添加无关内容，也不压成一分钟概述。\n\n### 与其他交付物的分工\n\n- 本视频只承担教师演示部分；学习者的独立练习（如自行列出循环模型三条限制、自行画信息路径图）由习题承担，视频内不设题目、不设答题环节。\n- 论文摘要与引言的详细阅读留给课程报告，视频只提炼与本节点目标相关的要点。\n- 本节点学习预算 10 分钟包含阅读与练习，不等同于视频时长。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

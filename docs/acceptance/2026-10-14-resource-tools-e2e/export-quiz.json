@@ -1,0 +1,48 @@
+{
+  "title": "验收·习题·Python 变量绑定与列表浅拷贝 quiz",
+  "questions": [
+    {
+      "id": "1",
+      "stem": "执行以下代码后，a 的值是什么？\na = [1, 2]\nb = a\nb.append(3)",
+      "type": "choice",
+      "answer": "B",
+      "options": [
+        "[1, 2]",
+        "[1, 2, 3]",
+        "[3]",
+        "程序报错"
+      ],
+      "explanation": "b = a 使 b 和 a 绑定到同一个列表对象，因此通过 b.append(3) 修改列表时，a 也会看到相同的变化，所以 a 为 [1, 2, 3]。",
+      "knowledge_points": []
+    },
+    {
+      "id": "2",
+      "stem": "阅读代码后填空：\na = [1, 2]\nb = a.copy()\nb.append(3)\n执行后，a = ______，b = ______。",
+      "type": "blank",
+      "answer": "a = [1, 2]；b = [1, 2, 3]",
+      "options": null,
+      "explanation": "b = a.copy() 创建了一个浅拷贝的新列表，b.append(3) 只修改新列表，不会改变原列表 a，因此 a 仍为 [1, 2]，b 为 [1, 2, 3]。",
+      "knowledge_points": []
+    },
+    {
+      "id": "3",
+      "stem": "请简要说明 b = a 与 b = a.copy() 的区别，并指出浅拷贝在嵌套列表场景下可能有什么表现。",
+      "type": "short",
+      "answer": "b = a 让 b 和 a 绑定到同一个列表对象，通过 b 修改列表内容时 a 也会看到变化；b = a.copy() 会创建一个新列表，对新列表外层的修改不会影响原列表。但浅拷贝只复制外层列表，嵌套列表仍被两个列表共享，修改嵌套列表中的元素会相互影响。",
+      "options": null,
+      "explanation": "b = a 表示别名，两个变量引用同一对象；b = a.copy() 表示浅拷贝，外层列表是新的，但嵌套对象仍共享。",
+      "knowledge_points": []
+    },
+    {
+      "id": "4",
+      "stem": "判断：因为整数是不可变对象，所以执行 a = 1; b = a; b = 2 后，a 的值会变成 2。",
+      "type": "judge",
+      "answer": "错误",
+      "options": null,
+      "explanation": "整数是不可变对象。b = 2 是重新赋值，让 b 绑定到新的整数对象 2，并不会修改 a 原来绑定的整数 1，因此 a 仍为 1。",
+      "knowledge_points": []
+    }
+  ],
+  "difficulty": "medium",
+  "question_type": "mixed"
+}

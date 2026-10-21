@@ -1,0 +1,872 @@
+{
+  "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+  "status": "ready",
+  "content": "# 截距 b 让直线上下平移：y=2x+b 的三种情形\n\n> 本课只讲一件事：在 y=2x+b 里，b 怎样让整条直线上下平移。全程约 3 分钟，其中动画讲解 60—90 秒并配中文语音。\n\n<a id=\"sec_example\"></a>\n## 一、先看一个具体例子：同一个坐标系里的三条直线\n\n先准备一张平面直角坐标系，x 轴和 y 轴都按 1 格 = 1 个单位画。\n\n**第一步：画 b=0 的直线 y=2x。**\n\n取两个点：x=0 时 y=2×0=0，得点 (0,0)；x=1 时 y=2×1=2，得点 (1,2)。两点连成直线，它正好穿过原点。它与 y 轴的交点是 **(0,0)**。\n\n**第二步：画 b=2 的直线 y=2x+2。**\n\n同样取两个点：x=0 时 y=2×0+2=2，得点 (0,2)；x=1 时 y=2×1+2=4，得点 (1,4)。连成直线，它与 y 轴的交点是 **(0,2)**。\n\n**第三步：画 b=-2 的直线 y=2x−2。**\n\nx=0 时 y=2×0−2=−2，得点 (0,−2)；x=1 时 y=2×1−2=0，得点 (1,0)。连成直线，它与 y 轴的交点是 **(0,−2)**。\n\n把三条直线留在同一张图上，就得到下面的对照表：\n\n| 解析式 | b 的值 | 与 y 轴交点 | 另一个点 | 相对 y=2x 的位置 |\n| --- | --- | --- | --- | --- |\n| y=2x | 0 | (0,0) | (1,2) | 基准 |\n| y=2x+2 | 2 | (0,2) | (1,4) | 向上平移 2 格 |\n| y=2x−2 | −2 | (0,−2) | (1,0) | 向下平移 2 格 |\n\n**动画讲解（60—90 秒，配中文语音）建议这样走：**\n\n1. （约 20 秒）先只画出 y=2x，用圆点高亮它与 y 轴的交点 (0,0)。语音：“x=0 时 y=b，所以直线与 y 轴的交点就是 (0,b)。”\n2. （约 30 秒）保持倾斜程度不变，把整条直线向上平移 2 格，得到 y=2x+2，交点变成 (0,2)；再回到 y=2x，向下平移 2 格，得到 y=2x−2，交点变成 (0,−2)。用竖直箭头标出“上移 2 格”“下移 2 格”。\n3. （约 25 秒）三条线同时留在画面上，语音提问：“三条线为什么一样陡？”引导观察：x 每增加 1，三条线的 y 都增加 2。\n\n<a id=\"sec_yintercept\"></a>\n## 二、为什么交点一定是 (0,b)\n\ny 轴上的点有一个共同特点：横坐标 x=0。所以想知道直线与 y 轴交在哪里，只要把 x=0 代进解析式。\n\n对 y=2x+b：\n\n$$y = 2\\times 0 + b = b$$\n\n也就是说，**x=0 时 y=b，直线与 y 轴的交点坐标恒为 (0,b)**，b 就是这条直线的 y 轴截距。这个结论对任何 b 都成立，不依赖具体数值。\n\n代回三种情形：\n\n- b=0：交点是 (0,0)，直线过原点；\n- b=2：交点是 (0,2)，在原点上方 2 格；\n- b=−2：交点是 (0,−2)，在原点下方 2 格。\n\n**b 变大，交点往上走；b 变小，交点往下走。** 而且交点移动的格数正好等于 b 的变化量：从 b=0 到 b=2，交点从 (0,0) 到 (0,2)，上移 2 格；从 b=0 到 b=−2，交点从 (0,0) 到 (0,−2)，下移 2 格。\n\n<a id=\"sec_translate\"></a>\n## 三、为什么是“整条直线平移”，而不是“转一下”\n\n只看交点还不够，要说明整条线都动了。比较同一个 x 值下三条线的 y 值：\n\n- x=0：(0,0)、(0,2)、(0,−2)\n- x=1：(1,2)、(1,4)、(1,0)\n- x=2：(2,4)、(2,6)、(2,2)\n\n可以看到，对任意一个 x，y=2x+2 的 y 值总比 y=2x 的 y 值大 2，y=2x−2 的 y 值总比 y=2x 的 y 值小 2。因为\n\n$$(2x+b) - 2x = b$$\n\n这个差值与 x 无关，是一个固定的数。所以 b 改变时，直线上每一个点都朝同一个方向、移动同样的距离——这正是“整体上下平移”。向上平移 n 格，解析式变成 y=kx+b+n；向下平移 n 格，变成 y=kx+b−n。\n\n<a id=\"sec_slope\"></a>\n## 四、为什么斜率始终是 2\n\n斜率描述的是“x 每增加 1，y 增加多少”。在 y=2x+b 里，x 从 0 变到 1 时：\n\n$$y\\text{ 的变化量} = (2\\times 1 + b) - (2\\times 0 + b) = 2$$\n\nb 在减法里被抵消掉了。所以无论 b 是 0、2 还是 −2，x 每增加 1，y 都增加 2，斜率始终是 2。\n\n换个角度看：b 只出现在常数项的位置，它决定直线“从哪里出发”（起点高度），而斜率由 x 前面的系数 2 决定，决定直线“有多陡”。改变 b 不碰系数 2，倾斜程度自然不变。\n\n在平面直角坐标系中，斜率相等的两条直线互相平行。所以 y=2x、y=2x+2、y=2x−2 三条直线**互相平行、永不相交**，它们之间的竖直距离处处都是 2 格。\n\n<a id=\"sec_handout\"></a>\n## 五、一页讲义（可反复回看）\n\n**核心一句话：b 决定直线与 y 轴交在哪里，改变 b 只会让直线整体上下平移，不会改变斜率。**\n\n1. **交点公式**：y=kx+b 中令 x=0，得 y=b，所以与 y 轴交点恒为 (0,b)。本题 k=2，交点就是 (0,b)。\n2. **三种情形**：b=0 → (0,0)；b=2 → (0,2)；b=−2 → (0,−2)。\n3. **平移规律**：b 变大，直线整体上移；b 变小，直线整体下移；平移格数 = |b 的变化量|。从 b=0 到 b=2 上移 2 格，从 b=0 到 b=−2 下移 2 格。\n4. **斜率不变**：x 每增加 1，y 都增加 2，斜率始终是 2；b 只改变常数项，所以三条直线互相平行。\n5. **一句话自测**：y=2x+b 与 y 轴交点是什么？b=0、2、−2 时分别是哪三点？从 b=0 到 b=−2 向哪个方向移几格？三条线斜率各是多少、为什么平行？\n\n<a id=\"sec_check\"></a>\n## 六、两道检查练习\n\n**第 1 题**：写出 y=2x+5 与 y=2x−3 与 y 轴的交点坐标，并说明哪条直线在上方。\n\n参考思路：令 x=0，y=2x+5 得 y=5，交点为 (0,5)；y=2x−3 得 y=−3，交点为 (0,−3)。因为 5 > −3，y=2x+5 与 y 轴的交点更高，且两条线斜率都是 2、互相平行，所以 y=2x+5 整条线都在 y=2x−3 的上方，竖直距离为 8 格。\n\n**第 2 题**：把 y=2x 改为 y=2x−2，直线怎样移动？斜率是多少？y=2x、y=2x+2、y=2x−2 三条线是否平行？\n\n参考思路：b 从 0 变成 −2，b 减小了 2，所以直线整体向下平移 2 格，与 y 轴交点从 (0,0) 变为 (0,−2)。x 前面的系数仍是 2，斜率仍为 2。三条线斜率都是 2，所以互相平行。\n\n<a id=\"sec_scope\"></a>\n## 七、本课范围说明\n\n本课只讨论 b 对直线上下平移的影响，不涉及 b 对 x 轴交点、象限分布等其他性质，也不涉及其他章节内容。内容依据一次函数的基本性质（x=0 时 y=b，与 y 轴交点恒为 (0,b)；向上平移 n 格解析式变为 y=kx+b+n，向下平移 n 格变为 y=kx+b−n；斜率相等的两直线平行）以及八年级教材中“在同一坐标系中把原直线所有点平移”的讲法。动画、中文语音与课程保存由后续制作环节完成，本讲义只提供讲解脚本与要点。\n",
+  "version": 1,
+  "scope_id": "node_intercept_shift",
+  "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+  "created_at": "2026-10-18T06:13:11.625220+00:00",
+  "created_by": "hf_e2e_20261017160234",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-10-18T06:13:11.625220+00:00",
+  "visibility": "private",
+  "material_id": "resource_d882fe11f0c1252a4f8b5ff23e972fe4",
+  "origin_type": "personal",
+  "content_hash": "ce7b3028e0b62f6d6fbc0f5aeb5894c5b4c63957361f7418656f8d342a2b6533",
+  "material_type": "report",
+  "owner_user_id": "hf_e2e_20261017160234",
+  "preparation_id": "prep_f490a8326a334d33a472aa13e1f6c1c9",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 5.6
+      },
+      "sections": [
+        {
+          "section_id": "sec_example",
+          "content_sha256": "e7bac9a40d1aca4148ad7c1f7a865541c47c54de06e773b29574bde7bb9ce4ce"
+        },
+        {
+          "section_id": "sec_yintercept",
+          "content_sha256": "d19ffe1cbcbf043ff62fccbd04ba502b8d1a0bc1388abad621e9b462330e48c1"
+        },
+        {
+          "section_id": "sec_translate",
+          "content_sha256": "d6ecc98d6fbb03e460e7b449f14cfa0aca31d5803348c8017ed0da22fa131892"
+        },
+        {
+          "section_id": "sec_slope",
+          "content_sha256": "52a31a3026a758bb5ea0c4c9f8d20492cb1458b7850288e85b49fb2be85ecc78"
+        },
+        {
+          "section_id": "sec_handout",
+          "content_sha256": "0907e7cbaabd4e9a322d6695b02e184e5471da3292fafa270f1cfd2dbc760534"
+        },
+        {
+          "section_id": "sec_check",
+          "content_sha256": "051ec49088ba71bff231b4cc128b1ff33bd18f4e6761368e0c93ad2c83f58f1f"
+        },
+        {
+          "section_id": "sec_scope",
+          "content_sha256": "0bcbdc9ef333fce7cf80fe8e5e5064f5b52a61039b2d17dc9bfa8ed3ee9b75d8"
+        }
+      ],
+      "spec_digest": "831f9a50ff22d6f86446731ee7d8557269d5b87f236e9ccd1bcab77e3af01fd3",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec_yintercept"
+          },
+          "objective_id": "node_intercept_shift:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec_translate"
+          },
+          "objective_id": "node_intercept_shift:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec_slope"
+          },
+          "objective_id": "node_intercept_shift:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec_check"
+          },
+          "objective_id": "node_intercept_shift:o4"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec_translate"
+          },
+          "explanation": "第三节用同一 x 下 y 值差恒为 b 说明整条直线整体上下平移，并给出上移/下移 n 格的解析式变化。",
+          "requirement_id": "req_intercept_shift"
+        },
+        {
+          "locator": {
+            "section_id": "sec_example"
+          },
+          "explanation": "第一节在同一坐标系中依次画出 b=0、b=2、b=-2 三条直线，给出对照表，并给出三条线同屏的动画分镜。",
+          "requirement_id": "req_animation_compare"
+        },
+        {
+          "locator": {
+            "section_id": "sec_yintercept"
+          },
+          "explanation": "第二节令 x=0 推出交点恒为 (0,b)，并列出 b=0、2、-2 时交点 (0,0)、(0,2)、(0,-2) 及移动格数。",
+          "requirement_id": "req_yaxis_intersection"
+        },
+        {
+          "locator": {
+            "section_id": "sec_slope"
+          },
+          "explanation": "第四节计算 x 增加 1 时 y 的变化量，b 被抵消，说明斜率恒为 2，三条线平行。",
+          "requirement_id": "req_slope_constant"
+        },
+        {
+          "locator": {
+            "section_id": "sec_example"
+          },
+          "explanation": "第一节末尾给出 60—90 秒动画分镜与中文语音台词要点（约 20+30+25 秒）。",
+          "requirement_id": "req_animation_voice"
+        },
+        {
+          "locator": {
+            "section_id": "sec_handout"
+          },
+          "explanation": "第五节整理一页讲义要点：交点公式、三种情形、平移规律、斜率不变与自测问题。",
+          "requirement_id": "req_handout"
+        },
+        {
+          "locator": {
+            "section_id": "sec_check"
+          },
+          "explanation": "第六节给出两道检查练习及参考思路，对应节点活动中的两道题。",
+          "requirement_id": "req_two_exercises"
+        }
+      ],
+      "teaching_context_digest": "8452d26eeebe1ac32df81c9753c8917452689c961ca7599d492b155ce2b457bb"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文逐条落实本节点分工：sec_example 同屏对比 b=0/2/-2 并给出 60—90 秒动画分镜与中文语音台词（约20+30+25秒）；sec_yintercept 推出 (0,b) 并列出 (0,0)(0,2)(0,-2)；sec_translate 说明整体平移；sec_slope 说明斜率恒为 2；sec_handout 为一页讲义；sec_check 为两道练习。req_save_course 属产品功能，正文 sec_scope 已说明由后续环节完成，不要求报告内实现。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "数学推演正确：x=0 得 y=b；(2x+b)-2x=b 与 x 无关，故整体平移；x 从 0 到 1 时 y 增量 (2+b)-b=2，b 抵消；第 1 题 (0,5)、(0,-3) 且竖直距离 8 格，第 2 题下移 2 格、斜率仍为 2，均无误。sec_translate 中 x=2 时三点 (2,4)(2,6)(2,2) 计算正确。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "sec_example 用取两点法分别画出三条直线并给出对照表，sec_translate 用 x=0,1,2 三列数值验证差值恒为 b，sec_check 两题均附参考思路且答案与推演一致，例子具体可验算。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：具体例子与动画分镜→交点公式→整体平移证明→斜率不变→讲义→练习→范围说明，先直观后论证再自测，符合初中生入门深度；sec_scope 明确排除 x 轴交点、象限与其他章节，未越界。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文主张（x=0 时 y=b、交点 (0,b)、上移 n 格 y=kx+b+n、斜率相等则平行）与提供的百科词条原文及 Illustrative Mathematics 八年级教材“同一坐标系平移”表述一致，sec_scope 也如实标注依据，未虚构外部核查。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "四个目标均有对应章节：o1→sec_yintercept、o2→sec_translate、o3→sec_slope、o4→sec_check；讲义含核心句、四条要点与自测问题，练习含题干与参考思路，无关键遗漏。时长估算 5.6 分钟为阅读量参考，不作为门槛。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文逐条落实本节点分工：sec_example 同屏对比 b=0/2/-2 并给出 60—90 秒动画分镜与中文语音台词（约20+30+25秒）；sec_yintercept 推出 (0,b) 并列出 (0,0)(0,2)(0,-2)；sec_translate 说明整体平移；sec_slope 说明斜率恒为 2；sec_handout 为一页讲义；sec_check 为两道练习。req_save_course 属产品功能，正文 sec_scope 已说明由后续环节完成，不要求报告内实现。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "数学推演正确：x=0 得 y=b；(2x+b)-2x=b 与 x 无关，故整体平移；x 从 0 到 1 时 y 增量 (2+b)-b=2，b 抵消；第 1 题 (0,5)、(0,-3) 且竖直距离 8 格，第 2 题下移 2 格、斜率仍为 2，均无误。sec_translate 中 x=2 时三点 (2,4)(2,6)(2,2) 计算正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "sec_example 用取两点法分别画出三条直线并给出对照表，sec_translate 用 x=0,1,2 三列数值验证差值恒为 b，sec_check 两题均附参考思路且答案与推演一致，例子具体可验算。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：具体例子与动画分镜→交点公式→整体平移证明→斜率不变→讲义→练习→范围说明，先直观后论证再自测，符合初中生入门深度；sec_scope 明确排除 x 轴交点、象限与其他章节，未越界。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文主张（x=0 时 y=b、交点 (0,b)、上移 n 格 y=kx+b+n、斜率相等则平行）与提供的百科词条原文及 Illustrative Mathematics 八年级教材“同一坐标系平移”表述一致，sec_scope 也如实标注依据，未虚构外部核查。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个目标均有对应章节：o1→sec_yintercept、o2→sec_translate、o3→sec_slope、o4→sec_check；讲义含核心句、四条要点与自测问题，练习含题干与参考思路，无关键遗漏。时长估算 5.6 分钟为阅读量参考，不作为门槛。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "sec_example 的动画分镜中“向下平移 2 格得到 y=2x−2”与节点活动原文“再向下平移 4 格”表述不同，但正文以 y=2x 为基准下移 2 格在数学上正确，建议在分镜中明确“回到 y=2x 后再下移 2 格”，避免读者误读为从 y=2x+2 下移。",
+              "讲义第 3 条“平移格数 = |b 的变化量|”可补一句“以同一条基准直线为参照”，使表述更严谨。",
+              "两道练习可各加一行“答案自查”提示，方便学生反复观看时自评。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec_translate 用 (2x+b)-2x=b 与 x 无关说明整条直线同向同距移动，并给出上移/下移 n 格的解析式变化，真实支持“截距 b 让直线上下平移”这一唯一知识点。",
+                "locator": {
+                  "section_id": "sec_translate"
+                },
+                "binding_id": "req_intercept_shift",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec_example 在同一坐标系中依次画出 y=2x、y=2x+2、y=2x−2，给出对照表与三条线同屏的动画分镜，落实同坐标系动态对比要求。",
+                "locator": {
+                  "section_id": "sec_example"
+                },
+                "binding_id": "req_animation_compare",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec_yintercept 令 x=0 推出交点恒为 (0,b)，并列出 b=0、2、-2 时交点 (0,0)、(0,2)、(0,-2) 及上移/下移 2 格，直接回应交点如何随 b 变化。",
+                "locator": {
+                  "section_id": "sec_yintercept"
+                },
+                "binding_id": "req_yaxis_intersection",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec_slope 计算 x 从 0 到 1 时 y 增量 (2+b)-b=2，说明 b 被抵消、斜率恒为 2，并据斜率相等推出三线平行，解释到位。",
+                "locator": {
+                  "section_id": "sec_slope"
+                },
+                "binding_id": "req_slope_constant",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec_example 末尾给出约 20+30+25 秒（合计 75 秒，落在 60—90 秒内）的动画分镜，并附中文语音台词要点，满足时长与配音要求。",
+                "locator": {
+                  "section_id": "sec_example"
+                },
+                "binding_id": "req_animation_voice",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec_handout 整理一页讲义：核心一句话、交点公式、三种情形、平移规律、斜率不变与自测问题，内容简短且与正文一致。",
+                "locator": {
+                  "section_id": "sec_handout"
+                },
+                "binding_id": "req_handout",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec_check 给出两道练习（由 b 写交点并比较上下、判断平移方向与斜率是否改变），均附参考思路，答案经独立验算正确。",
+                "locator": {
+                  "section_id": "sec_check"
+                },
+                "binding_id": "req_two_exercises",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec_yintercept 明确写出 x=0 时 y=b、交点恒为 (0,b)，并列出 b=0、2、-2 对应 (0,0)、(0,2)、(0,-2)，完整覆盖目标 o1。",
+                "locator": {
+                  "section_id": "sec_yintercept"
+                },
+                "binding_id": "node_intercept_shift:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec_translate 说明 b 增大上移、减小下移，并以 b=0→2 上移 2 格、b=0→-2 下移 2 格为例，平移格数等于 b 的变化量，覆盖目标 o2。",
+                "locator": {
+                  "section_id": "sec_translate"
+                },
+                "binding_id": "node_intercept_shift:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec_slope 指出 b 只出现在常数项、不改变系数 2，故斜率恒为 2、三线互相平行且竖直距离处处 2 格，覆盖目标 o3。",
+                "locator": {
+                  "section_id": "sec_slope"
+                },
+                "binding_id": "node_intercept_shift:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec_check 两题分别考查由 b 写 y 轴交点并比较位置、判断 b 变化后的平移方向与斜率是否改变，与目标 o4 的两项检查要求一一对应。",
+                "locator": {
+                  "section_id": "sec_check"
+                },
+                "binding_id": "node_intercept_shift:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "20e84c41b3ebd0677de5791270ef5e1e84653ceddd3f2f91ff971d80575964a0",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "sec_example 的动画分镜中“向下平移 2 格得到 y=2x−2”与节点活动原文“再向下平移 4 格”表述不同，但正文以 y=2x 为基准下移 2 格在数学上正确，建议在分镜中明确“回到 y=2x 后再下移 2 格”，避免读者误读为从 y=2x+2 下移。",
+        "讲义第 3 条“平移格数 = |b 的变化量|”可补一句“以同一条基准直线为参照”，使表述更严谨。",
+        "两道练习可各加一行“答案自查”提示，方便学生反复观看时自评。"
+      ],
+      "content_sha256": "20e84c41b3ebd0677de5791270ef5e1e84653ceddd3f2f91ff971d80575964a0",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec_translate 用 (2x+b)-2x=b 与 x 无关说明整条直线同向同距移动，并给出上移/下移 n 格的解析式变化，真实支持“截距 b 让直线上下平移”这一唯一知识点。",
+          "locator": {
+            "section_id": "sec_translate"
+          },
+          "binding_id": "req_intercept_shift",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec_example 在同一坐标系中依次画出 y=2x、y=2x+2、y=2x−2，给出对照表与三条线同屏的动画分镜，落实同坐标系动态对比要求。",
+          "locator": {
+            "section_id": "sec_example"
+          },
+          "binding_id": "req_animation_compare",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec_yintercept 令 x=0 推出交点恒为 (0,b)，并列出 b=0、2、-2 时交点 (0,0)、(0,2)、(0,-2) 及上移/下移 2 格，直接回应交点如何随 b 变化。",
+          "locator": {
+            "section_id": "sec_yintercept"
+          },
+          "binding_id": "req_yaxis_intersection",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec_slope 计算 x 从 0 到 1 时 y 增量 (2+b)-b=2，说明 b 被抵消、斜率恒为 2，并据斜率相等推出三线平行，解释到位。",
+          "locator": {
+            "section_id": "sec_slope"
+          },
+          "binding_id": "req_slope_constant",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec_example 末尾给出约 20+30+25 秒（合计 75 秒，落在 60—90 秒内）的动画分镜，并附中文语音台词要点，满足时长与配音要求。",
+          "locator": {
+            "section_id": "sec_example"
+          },
+          "binding_id": "req_animation_voice",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec_handout 整理一页讲义：核心一句话、交点公式、三种情形、平移规律、斜率不变与自测问题，内容简短且与正文一致。",
+          "locator": {
+            "section_id": "sec_handout"
+          },
+          "binding_id": "req_handout",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec_check 给出两道练习（由 b 写交点并比较上下、判断平移方向与斜率是否改变），均附参考思路，答案经独立验算正确。",
+          "locator": {
+            "section_id": "sec_check"
+          },
+          "binding_id": "req_two_exercises",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec_yintercept 明确写出 x=0 时 y=b、交点恒为 (0,b)，并列出 b=0、2、-2 对应 (0,0)、(0,2)、(0,-2)，完整覆盖目标 o1。",
+          "locator": {
+            "section_id": "sec_yintercept"
+          },
+          "binding_id": "node_intercept_shift:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec_translate 说明 b 增大上移、减小下移，并以 b=0→2 上移 2 格、b=0→-2 下移 2 格为例，平移格数等于 b 的变化量，覆盖目标 o2。",
+          "locator": {
+            "section_id": "sec_translate"
+          },
+          "binding_id": "node_intercept_shift:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec_slope 指出 b 只出现在常数项、不改变系数 2，故斜率恒为 2、三线互相平行且竖直距离处处 2 格，覆盖目标 o3。",
+          "locator": {
+            "section_id": "sec_slope"
+          },
+          "binding_id": "node_intercept_shift:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec_check 两题分别考查由 b 写 y 轴交点并比较位置、判断 b 变化后的平移方向与斜率是否改变，与目标 o4 的两项检查要求一一对应。",
+          "locator": {
+            "section_id": "sec_check"
+          },
+          "binding_id": "node_intercept_shift:o4",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "b3e39d7ee3454904e02c493b5653654a0fa1c3cae6ea3dd4874297fda96d6e2a"
+    }
+  },
+  "preparation_artifact": {
+    "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+    "content": "# 截距 b 让直线上下平移：y=2x+b 的三种情形\n\n> 本课只讲一件事：在 y=2x+b 里，b 怎样让整条直线上下平移。全程约 3 分钟，其中动画讲解 60—90 秒并配中文语音。\n\n<a id=\"sec_example\"></a>\n## 一、先看一个具体例子：同一个坐标系里的三条直线\n\n先准备一张平面直角坐标系，x 轴和 y 轴都按 1 格 = 1 个单位画。\n\n**第一步：画 b=0 的直线 y=2x。**\n\n取两个点：x=0 时 y=2×0=0，得点 (0,0)；x=1 时 y=2×1=2，得点 (1,2)。两点连成直线，它正好穿过原点。它与 y 轴的交点是 **(0,0)**。\n\n**第二步：画 b=2 的直线 y=2x+2。**\n\n同样取两个点：x=0 时 y=2×0+2=2，得点 (0,2)；x=1 时 y=2×1+2=4，得点 (1,4)。连成直线，它与 y 轴的交点是 **(0,2)**。\n\n**第三步：画 b=-2 的直线 y=2x−2。**\n\nx=0 时 y=2×0−2=−2，得点 (0,−2)；x=1 时 y=2×1−2=0，得点 (1,0)。连成直线，它与 y 轴的交点是 **(0,−2)**。\n\n把三条直线留在同一张图上，就得到下面的对照表：\n\n| 解析式 | b 的值 | 与 y 轴交点 | 另一个点 | 相对 y=2x 的位置 |\n| --- | --- | --- | --- | --- |\n| y=2x | 0 | (0,0) | (1,2) | 基准 |\n| y=2x+2 | 2 | (0,2) | (1,4) | 向上平移 2 格 |\n| y=2x−2 | −2 | (0,−2) | (1,0) | 向下平移 2 格 |\n\n**动画讲解（60—90 秒，配中文语音）建议这样走：**\n\n1. （约 20 秒）先只画出 y=2x，用圆点高亮它与 y 轴的交点 (0,0)。语音：“x=0 时 y=b，所以直线与 y 轴的交点就是 (0,b)。”\n2. （约 30 秒）保持倾斜程度不变，把整条直线向上平移 2 格，得到 y=2x+2，交点变成 (0,2)；再回到 y=2x，向下平移 2 格，得到 y=2x−2，交点变成 (0,−2)。用竖直箭头标出“上移 2 格”“下移 2 格”。\n3. （约 25 秒）三条线同时留在画面上，语音提问：“三条线为什么一样陡？”引导观察：x 每增加 1，三条线的 y 都增加 2。\n\n<a id=\"sec_yintercept\"></a>\n## 二、为什么交点一定是 (0,b)\n\ny 轴上的点有一个共同特点：横坐标 x=0。所以想知道直线与 y 轴交在哪里，只要把 x=0 代进解析式。\n\n对 y=2x+b：\n\n$$y = 2\\times 0 + b = b$$\n\n也就是说，**x=0 时 y=b，直线与 y 轴的交点坐标恒为 (0,b)**，b 就是这条直线的 y 轴截距。这个结论对任何 b 都成立，不依赖具体数值。\n\n代回三种情形：\n\n- b=0：交点是 (0,0)，直线过原点；\n- b=2：交点是 (0,2)，在原点上方 2 格；\n- b=−2：交点是 (0,−2)，在原点下方 2 格。\n\n**b 变大，交点往上走；b 变小，交点往下走。** 而且交点移动的格数正好等于 b 的变化量：从 b=0 到 b=2，交点从 (0,0) 到 (0,2)，上移 2 格；从 b=0 到 b=−2，交点从 (0,0) 到 (0,−2)，下移 2 格。\n\n<a id=\"sec_translate\"></a>\n## 三、为什么是“整条直线平移”，而不是“转一下”\n\n只看交点还不够，要说明整条线都动了。比较同一个 x 值下三条线的 y 值：\n\n- x=0：(0,0)、(0,2)、(0,−2)\n- x=1：(1,2)、(1,4)、(1,0)\n- x=2：(2,4)、(2,6)、(2,2)\n\n可以看到，对任意一个 x，y=2x+2 的 y 值总比 y=2x 的 y 值大 2，y=2x−2 的 y 值总比 y=2x 的 y 值小 2。因为\n\n$$(2x+b) - 2x = b$$\n\n这个差值与 x 无关，是一个固定的数。所以 b 改变时，直线上每一个点都朝同一个方向、移动同样的距离——这正是“整体上下平移”。向上平移 n 格，解析式变成 y=kx+b+n；向下平移 n 格，变成 y=kx+b−n。\n\n<a id=\"sec_slope\"></a>\n## 四、为什么斜率始终是 2\n\n斜率描述的是“x 每增加 1，y 增加多少”。在 y=2x+b 里，x 从 0 变到 1 时：\n\n$$y\\text{ 的变化量} = (2\\times 1 + b) - (2\\times 0 + b) = 2$$\n\nb 在减法里被抵消掉了。所以无论 b 是 0、2 还是 −2，x 每增加 1，y 都增加 2，斜率始终是 2。\n\n换个角度看：b 只出现在常数项的位置，它决定直线“从哪里出发”（起点高度），而斜率由 x 前面的系数 2 决定，决定直线“有多陡”。改变 b 不碰系数 2，倾斜程度自然不变。\n\n在平面直角坐标系中，斜率相等的两条直线互相平行。所以 y=2x、y=2x+2、y=2x−2 三条直线**互相平行、永不相交**，它们之间的竖直距离处处都是 2 格。\n\n<a id=\"sec_handout\"></a>\n## 五、一页讲义（可反复回看）\n\n**核心一句话：b 决定直线与 y 轴交在哪里，改变 b 只会让直线整体上下平移，不会改变斜率。**\n\n1. **交点公式**：y=kx+b 中令 x=0，得 y=b，所以与 y 轴交点恒为 (0,b)。本题 k=2，交点就是 (0,b)。\n2. **三种情形**：b=0 → (0,0)；b=2 → (0,2)；b=−2 → (0,−2)。\n3. **平移规律**：b 变大，直线整体上移；b 变小，直线整体下移；平移格数 = |b 的变化量|。从 b=0 到 b=2 上移 2 格，从 b=0 到 b=−2 下移 2 格。\n4. **斜率不变**：x 每增加 1，y 都增加 2，斜率始终是 2；b 只改变常数项，所以三条直线互相平行。\n5. **一句话自测**：y=2x+b 与 y 轴交点是什么？b=0、2、−2 时分别是哪三点？从 b=0 到 b=−2 向哪个方向移几格？三条线斜率各是多少、为什么平行？\n\n<a id=\"sec_check\"></a>\n## 六、两道检查练习\n\n**第 1 题**：写出 y=2x+5 与 y=2x−3 与 y 轴的交点坐标，并说明哪条直线在上方。\n\n参考思路：令 x=0，y=2x+5 得 y=5，交点为 (0,5)；y=2x−3 得 y=−3，交点为 (0,−3)。因为 5 > −3，y=2x+5 与 y 轴的交点更高，且两条线斜率都是 2、互相平行，所以 y=2x+5 整条线都在 y=2x−3 的上方，竖直距离为 8 格。\n\n**第 2 题**：把 y=2x 改为 y=2x−2，直线怎样移动？斜率是多少？y=2x、y=2x+2、y=2x−2 三条线是否平行？\n\n参考思路：b 从 0 变成 −2，b 减小了 2，所以直线整体向下平移 2 格，与 y 轴交点从 (0,0) 变为 (0,−2)。x 前面的系数仍是 2，斜率仍为 2。三条线斜率都是 2，所以互相平行。\n\n<a id=\"sec_scope\"></a>\n## 七、本课范围说明\n\n本课只讨论 b 对直线上下平移的影响，不涉及 b 对 x 轴交点、象限分布等其他性质，也不涉及其他章节内容。内容依据一次函数的基本性质（x=0 时 y=b，与 y 轴交点恒为 (0,b)；向上平移 n 格解析式变为 y=kx+b+n，向下平移 n 格变为 y=kx+b−n；斜率相等的两直线平行）以及八年级教材中“在同一坐标系中把原直线所有点平移”的讲法。动画、中文语音与课程保存由后续制作环节完成，本讲义只提供讲解脚本与要点。\n",
+    "artifact_type": "report",
+    "generation_state": {
+      "preparation": {
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 5.6
+        },
+        "sections": [
+          {
+            "section_id": "sec_example",
+            "content_sha256": "e7bac9a40d1aca4148ad7c1f7a865541c47c54de06e773b29574bde7bb9ce4ce"
+          },
+          {
+            "section_id": "sec_yintercept",
+            "content_sha256": "d19ffe1cbcbf043ff62fccbd04ba502b8d1a0bc1388abad621e9b462330e48c1"
+          },
+          {
+            "section_id": "sec_translate",
+            "content_sha256": "d6ecc98d6fbb03e460e7b449f14cfa0aca31d5803348c8017ed0da22fa131892"
+          },
+          {
+            "section_id": "sec_slope",
+            "content_sha256": "52a31a3026a758bb5ea0c4c9f8d20492cb1458b7850288e85b49fb2be85ecc78"
+          },
+          {
+            "section_id": "sec_handout",
+            "content_sha256": "0907e7cbaabd4e9a322d6695b02e184e5471da3292fafa270f1cfd2dbc760534"
+          },
+          {
+            "section_id": "sec_check",
+            "content_sha256": "051ec49088ba71bff231b4cc128b1ff33bd18f4e6761368e0c93ad2c83f58f1f"
+          },
+          {
+            "section_id": "sec_scope",
+            "content_sha256": "0bcbdc9ef333fce7cf80fe8e5e5064f5b52a61039b2d17dc9bfa8ed3ee9b75d8"
+          }
+        ],
+        "spec_digest": "831f9a50ff22d6f86446731ee7d8557269d5b87f236e9ccd1bcab77e3af01fd3",
+        "schema_version": 1,
+        "objective_bindings": [
+          {
+            "role": "explanation",
+            "locator": {
+              "section_id": "sec_yintercept"
+            },
+            "objective_id": "node_intercept_shift:o1"
+          },
+          {
+            "role": "explanation",
+            "locator": {
+              "section_id": "sec_translate"
+            },
+            "objective_id": "node_intercept_shift:o2"
+          },
+          {
+            "role": "explanation",
+            "locator": {
+              "section_id": "sec_slope"
+            },
+            "objective_id": "node_intercept_shift:o3"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "section_id": "sec_check"
+            },
+            "objective_id": "node_intercept_shift:o4"
+          }
+        ],
+        "applied_requirements": [
+          {
+            "locator": {
+              "section_id": "sec_translate"
+            },
+            "explanation": "第三节用同一 x 下 y 值差恒为 b 说明整条直线整体上下平移，并给出上移/下移 n 格的解析式变化。",
+            "requirement_id": "req_intercept_shift"
+          },
+          {
+            "locator": {
+              "section_id": "sec_example"
+            },
+            "explanation": "第一节在同一坐标系中依次画出 b=0、b=2、b=-2 三条直线，给出对照表，并给出三条线同屏的动画分镜。",
+            "requirement_id": "req_animation_compare"
+          },
+          {
+            "locator": {
+              "section_id": "sec_yintercept"
+            },
+            "explanation": "第二节令 x=0 推出交点恒为 (0,b)，并列出 b=0、2、-2 时交点 (0,0)、(0,2)、(0,-2) 及移动格数。",
+            "requirement_id": "req_yaxis_intersection"
+          },
+          {
+            "locator": {
+              "section_id": "sec_slope"
+            },
+            "explanation": "第四节计算 x 增加 1 时 y 的变化量，b 被抵消，说明斜率恒为 2，三条线平行。",
+            "requirement_id": "req_slope_constant"
+          },
+          {
+            "locator": {
+              "section_id": "sec_example"
+            },
+            "explanation": "第一节末尾给出 60—90 秒动画分镜与中文语音台词要点（约 20+30+25 秒）。",
+            "requirement_id": "req_animation_voice"
+          },
+          {
+            "locator": {
+              "section_id": "sec_handout"
+            },
+            "explanation": "第五节整理一页讲义要点：交点公式、三种情形、平移规律、斜率不变与自测问题。",
+            "requirement_id": "req_handout"
+          },
+          {
+            "locator": {
+              "section_id": "sec_check"
+            },
+            "explanation": "第六节给出两道检查练习及参考思路，对应节点活动中的两道题。",
+            "requirement_id": "req_two_exercises"
+          }
+        ],
+        "teaching_context_digest": "8452d26eeebe1ac32df81c9753c8917452689c961ca7599d492b155ce2b457bb"
+      },
+      "report_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "正文逐条落实本节点分工：sec_example 同屏对比 b=0/2/-2 并给出 60—90 秒动画分镜与中文语音台词（约20+30+25秒）；sec_yintercept 推出 (0,b) 并列出 (0,0)(0,2)(0,-2)；sec_translate 说明整体平移；sec_slope 说明斜率恒为 2；sec_handout 为一页讲义；sec_check 为两道练习。req_save_course 属产品功能，正文 sec_scope 已说明由后续环节完成，不要求报告内实现。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "数学推演正确：x=0 得 y=b；(2x+b)-2x=b 与 x 无关，故整体平移；x 从 0 到 1 时 y 增量 (2+b)-b=2，b 抵消；第 1 题 (0,5)、(0,-3) 且竖直距离 8 格，第 2 题下移 2 格、斜率仍为 2，均无误。sec_translate 中 x=2 时三点 (2,4)(2,6)(2,2) 计算正确。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "sec_example 用取两点法分别画出三条直线并给出对照表，sec_translate 用 x=0,1,2 三列数值验证差值恒为 b，sec_check 两题均附参考思路且答案与推演一致，例子具体可验算。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "实际章节顺序为：具体例子与动画分镜→交点公式→整体平移证明→斜率不变→讲义→练习→范围说明，先直观后论证再自测，符合初中生入门深度；sec_scope 明确排除 x 轴交点、象限与其他章节，未越界。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "正文主张（x=0 时 y=b、交点 (0,b)、上移 n 格 y=kx+b+n、斜率相等则平行）与提供的百科词条原文及 Illustrative Mathematics 八年级教材“同一坐标系平移”表述一致，sec_scope 也如实标注依据，未虚构外部核查。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "四个目标均有对应章节：o1→sec_yintercept、o2→sec_translate、o3→sec_slope、o4→sec_check；讲义含核心句、四条要点与自测问题，练习含题干与参考思路，无关键遗漏。时长估算 5.6 分钟为阅读量参考，不作为门槛。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "正文逐条落实本节点分工：sec_example 同屏对比 b=0/2/-2 并给出 60—90 秒动画分镜与中文语音台词（约20+30+25秒）；sec_yintercept 推出 (0,b) 并列出 (0,0)(0,2)(0,-2)；sec_translate 说明整体平移；sec_slope 说明斜率恒为 2；sec_handout 为一页讲义；sec_check 为两道练习。req_save_course 属产品功能，正文 sec_scope 已说明由后续环节完成，不要求报告内实现。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "数学推演正确：x=0 得 y=b；(2x+b)-2x=b 与 x 无关，故整体平移；x 从 0 到 1 时 y 增量 (2+b)-b=2，b 抵消；第 1 题 (0,5)、(0,-3) 且竖直距离 8 格，第 2 题下移 2 格、斜率仍为 2，均无误。sec_translate 中 x=2 时三点 (2,4)(2,6)(2,2) 计算正确。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_example 用取两点法分别画出三条直线并给出对照表，sec_translate 用 x=0,1,2 三列数值验证差值恒为 b，sec_check 两题均附参考思路且答案与推演一致，例子具体可验算。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "实际章节顺序为：具体例子与动画分镜→交点公式→整体平移证明→斜率不变→讲义→练习→范围说明，先直观后论证再自测，符合初中生入门深度；sec_scope 明确排除 x 轴交点、象限与其他章节，未越界。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "正文主张（x=0 时 y=b、交点 (0,b)、上移 n 格 y=kx+b+n、斜率相等则平行）与提供的百科词条原文及 Illustrative Mathematics 八年级教材“同一坐标系平移”表述一致，sec_scope 也如实标注依据，未虚构外部核查。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "四个目标均有对应章节：o1→sec_yintercept、o2→sec_translate、o3→sec_slope、o4→sec_check；讲义含核心句、四条要点与自测问题，练习含题干与参考思路，无关键遗漏。时长估算 5.6 分钟为阅读量参考，不作为门槛。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "sec_example 的动画分镜中“向下平移 2 格得到 y=2x−2”与节点活动原文“再向下平移 4 格”表述不同，但正文以 y=2x 为基准下移 2 格在数学上正确，建议在分镜中明确“回到 y=2x 后再下移 2 格”，避免读者误读为从 y=2x+2 下移。",
+                "讲义第 3 条“平移格数 = |b 的变化量|”可补一句“以同一条基准直线为参照”，使表述更严谨。",
+                "两道练习可各加一行“答案自查”提示，方便学生反复观看时自评。"
+              ],
+              "blocking_issues": [],
+              "preparation_checks": [
+                {
+                  "passed": true,
+                  "reason": "sec_translate 用 (2x+b)-2x=b 与 x 无关说明整条直线同向同距移动，并给出上移/下移 n 格的解析式变化，真实支持“截距 b 让直线上下平移”这一唯一知识点。",
+                  "locator": {
+                    "section_id": "sec_translate"
+                  },
+                  "binding_id": "req_intercept_shift",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_example 在同一坐标系中依次画出 y=2x、y=2x+2、y=2x−2，给出对照表与三条线同屏的动画分镜，落实同坐标系动态对比要求。",
+                  "locator": {
+                    "section_id": "sec_example"
+                  },
+                  "binding_id": "req_animation_compare",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_yintercept 令 x=0 推出交点恒为 (0,b)，并列出 b=0、2、-2 时交点 (0,0)、(0,2)、(0,-2) 及上移/下移 2 格，直接回应交点如何随 b 变化。",
+                  "locator": {
+                    "section_id": "sec_yintercept"
+                  },
+                  "binding_id": "req_yaxis_intersection",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_slope 计算 x 从 0 到 1 时 y 增量 (2+b)-b=2，说明 b 被抵消、斜率恒为 2，并据斜率相等推出三线平行，解释到位。",
+                  "locator": {
+                    "section_id": "sec_slope"
+                  },
+                  "binding_id": "req_slope_constant",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_example 末尾给出约 20+30+25 秒（合计 75 秒，落在 60—90 秒内）的动画分镜，并附中文语音台词要点，满足时长与配音要求。",
+                  "locator": {
+                    "section_id": "sec_example"
+                  },
+                  "binding_id": "req_animation_voice",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_handout 整理一页讲义：核心一句话、交点公式、三种情形、平移规律、斜率不变与自测问题，内容简短且与正文一致。",
+                  "locator": {
+                    "section_id": "sec_handout"
+                  },
+                  "binding_id": "req_handout",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_check 给出两道练习（由 b 写交点并比较上下、判断平移方向与斜率是否改变），均附参考思路，答案经独立验算正确。",
+                  "locator": {
+                    "section_id": "sec_check"
+                  },
+                  "binding_id": "req_two_exercises",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_yintercept 明确写出 x=0 时 y=b、交点恒为 (0,b)，并列出 b=0、2、-2 对应 (0,0)、(0,2)、(0,-2)，完整覆盖目标 o1。",
+                  "locator": {
+                    "section_id": "sec_yintercept"
+                  },
+                  "binding_id": "node_intercept_shift:o1",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_translate 说明 b 增大上移、减小下移，并以 b=0→2 上移 2 格、b=0→-2 下移 2 格为例，平移格数等于 b 的变化量，覆盖目标 o2。",
+                  "locator": {
+                    "section_id": "sec_translate"
+                  },
+                  "binding_id": "node_intercept_shift:o2",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_slope 指出 b 只出现在常数项、不改变系数 2，故斜率恒为 2、三线互相平行且竖直距离处处 2 格，覆盖目标 o3。",
+                  "locator": {
+                    "section_id": "sec_slope"
+                  },
+                  "binding_id": "node_intercept_shift:o3",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "sec_check 两题分别考查由 b 写 y 轴交点并比较位置、判断 b 变化后的平移方向与斜率是否改变，与目标 o4 的两项检查要求一一对应。",
+                  "locator": {
+                    "section_id": "sec_check"
+                  },
+                  "binding_id": "node_intercept_shift:o4",
+                  "binding_type": "objective_id"
+                }
+              ]
+            },
+            "version": 1,
+            "decision": "pass",
+            "content_sha256": "20e84c41b3ebd0677de5791270ef5e1e84653ceddd3f2f91ff971d80575964a0",
+            "structural_issues": []
+          }
+        ],
+        "version": 1,
+        "decision": "pass",
+        "limitation": "模型审阅，非人工审阅或全面事实核验",
+        "suggestions": [
+          "sec_example 的动画分镜中“向下平移 2 格得到 y=2x−2”与节点活动原文“再向下平移 4 格”表述不同，但正文以 y=2x 为基准下移 2 格在数学上正确，建议在分镜中明确“回到 y=2x 后再下移 2 格”，避免读者误读为从 y=2x+2 下移。",
+          "讲义第 3 条“平移格数 = |b 的变化量|”可补一句“以同一条基准直线为参照”，使表述更严谨。",
+          "两道练习可各加一行“答案自查”提示，方便学生反复观看时自评。"
+        ],
+        "content_sha256": "20e84c41b3ebd0677de5791270ef5e1e84653ceddd3f2f91ff971d80575964a0",
+        "external_review": null,
+        "preparation_checks": [
+          {
+            "passed": true,
+            "reason": "sec_translate 用 (2x+b)-2x=b 与 x 无关说明整条直线同向同距移动，并给出上移/下移 n 格的解析式变化，真实支持“截距 b 让直线上下平移”这一唯一知识点。",
+            "locator": {
+              "section_id": "sec_translate"
+            },
+            "binding_id": "req_intercept_shift",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "sec_example 在同一坐标系中依次画出 y=2x、y=2x+2、y=2x−2，给出对照表与三条线同屏的动画分镜，落实同坐标系动态对比要求。",
+            "locator": {
+              "section_id": "sec_example"
+            },
+            "binding_id": "req_animation_compare",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "sec_yintercept 令 x=0 推出交点恒为 (0,b)，并列出 b=0、2、-2 时交点 (0,0)、(0,2)、(0,-2) 及上移/下移 2 格，直接回应交点如何随 b 变化。",
+            "locator": {
+              "section_id": "sec_yintercept"
+            },
+            "binding_id": "req_yaxis_intersection",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "sec_slope 计算 x 从 0 到 1 时 y 增量 (2+b)-b=2，说明 b 被抵消、斜率恒为 2，并据斜率相等推出三线平行，解释到位。",
+            "locator": {
+              "section_id": "sec_slope"
+            },
+            "binding_id": "req_slope_constant",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "sec_example 末尾给出约 20+30+25 秒（合计 75 秒，落在 60—90 秒内）的动画分镜，并附中文语音台词要点，满足时长与配音要求。",
+            "locator": {
+              "section_id": "sec_example"
+            },
+            "binding_id": "req_animation_voice",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "sec_handout 整理一页讲义：核心一句话、交点公式、三种情形、平移规律、斜率不变与自测问题，内容简短且与正文一致。",
+            "locator": {
+              "section_id": "sec_handout"
+            },
+            "binding_id": "req_handout",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "sec_check 给出两道练习（由 b 写交点并比较上下、判断平移方向与斜率是否改变），均附参考思路，答案经独立验算正确。",
+            "locator": {
+              "section_id": "sec_check"
+            },
+            "binding_id": "req_two_exercises",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "sec_yintercept 明确写出 x=0 时 y=b、交点恒为 (0,b)，并列出 b=0、2、-2 对应 (0,0)、(0,2)、(0,-2)，完整覆盖目标 o1。",
+            "locator": {
+              "section_id": "sec_yintercept"
+            },
+            "binding_id": "node_intercept_shift:o1",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "sec_translate 说明 b 增大上移、减小下移，并以 b=0→2 上移 2 格、b=0→-2 下移 2 格为例，平移格数等于 b 的变化量，覆盖目标 o2。",
+            "locator": {
+              "section_id": "sec_translate"
+            },
+            "binding_id": "node_intercept_shift:o2",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "sec_slope 指出 b 只出现在常数项、不改变系数 2，故斜率恒为 2、三线互相平行且竖直距离处处 2 格，覆盖目标 o3。",
+            "locator": {
+              "section_id": "sec_slope"
+            },
+            "binding_id": "node_intercept_shift:o3",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "sec_check 两题分别考查由 b 写 y 轴交点并比较位置、判断 b 变化后的平移方向与斜率是否改变，与目标 o4 的两项检查要求一一对应。",
+            "locator": {
+              "section_id": "sec_check"
+            },
+            "binding_id": "node_intercept_shift:o4",
+            "binding_type": "objective_id"
+          }
+        ],
+        "preparation_sha256": "b3e39d7ee3454904e02c493b5653654a0fa1c3cae6ea3dd4874297fda96d6e2a"
+      }
+    }
+  },
+  "learning_course_resource": true,
+  "standard_kind": null,
+  "generation_batch_id": null,
+  "current_review_status": "not_required",
+  "approved_version": null,
+  "approved_by": null,
+  "approved_at": null,
+  "source_job_id": null,
+  "is_pinned": false,
+  "pinned_at": null
+}

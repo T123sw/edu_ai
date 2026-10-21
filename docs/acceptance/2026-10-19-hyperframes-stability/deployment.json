@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-19T05:26:46.971727+00:00",
+  "status": "supplemental-workers-deployed-main-api-awaits-admin-restart",
+  "active_durable_tasks_before_restart": 0,
+  "worker_pid": 2455898,
+  "main_backend_pid": 2429668,
+  "main_restart_error": "Interactive authentication required; sudo -n also requires a password",
+  "api_http_status": 200,
+  "tests": {
+    "passed": 72,
+    "warnings": 2,
+    "scope": "HyperFrames regression suite; includes 17 focused tests"
+  },
+  "source_sha256": {
+    "backend/src/app/integrations/hyperframes/workflow_agent.py": "a8682faeadff6da3a0fc010302216a3ba579fa61f7c63882fe83ec7344bf3f01",
+    "backend/src/app/integrations/hyperframes/workflow_instructions.py": "5afc21e8f209582c06e7e8e5b3cd3d6fcddd3ffd35599ee430f358708ab4acdb",
+    "backend/src/app/integrations/hyperframes/project_tools.mjs": "7d2ca78884c06e3074eea7bea188a3c20bc2d59ac37049558c71220de79f621b",
+    "scripts/prepare-hyperframes-runtime.py": "0baf49217a3ca840e3579771fd3385039af58fc00b3c6ffde49c4f0085f9d858",
+    "scripts/install-all.sh": "24eafd2a2c2320c6c75fb97d765d8a56143a191fb8b814bcc08a4f0463ee26f8",
+    "scripts/install-all.ps1": "6cb6a3e3445589de94ef5187b9b311507df80c5802895c1b1631b9057f15353e"
+  },
+  "native_repository_modified_by_this_change": false,
+  "speech_queue_changed": false,
+  "native_evidence": "/home/zxqs_ep/data/main-review/hyperframes-stability-20261019/result.json",
+  "validation_complete": true,
+  "render": {
+    "elapsed_seconds": 170.63,
+    "video": "/home/zxqs_ep/data/main-review/hyperframes-stability-20261019/workspace/videos/intercept-validation/renders/stability-validation.mp4",
+    "duration_seconds": 43.633333,
+    "streams": [
+      "video",
+      "audio"
+    ],
+    "decoded": true
+  }
+}

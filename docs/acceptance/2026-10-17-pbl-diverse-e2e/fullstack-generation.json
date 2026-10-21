@@ -1,0 +1,68 @@
+{
+  "case": "fullstack",
+  "topic": "做一个全栈留言板，React前端配Python FastAPI后端和SQLite数据库。前端通过真实GET/POST /messages请求读取新增留言；刷新页面和后端重启后留言还存在。后端验证空内容并返回422。我要同时编写前后端代码、启动服务并做端到端验收，不接受本地数组或localStorage代替后端。",
+  "exerciseId": "pbl_d88389ced28a15707105b64ef3baa801",
+  "generationPassed": false,
+  "job": {
+    "schema_version": 2,
+    "version": 7,
+    "edu_job_id": "pbl_d88389ced28a15707105b64ef3baa801",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_fullstack",
+    "owner": "matrix_fullstack",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_d88389ced28a15707105b64ef3baa801",
+    "input_summary": {
+      "title": "做一个全栈留言板，React前端配Python FastAPI后端和SQLite数据库。前端通过真实GET/POST /messages请求读取新增留言；刷新页面和后端重启后留言还存在。后端验证空内容并返回422。我要同时编写前后端代码、启动服务并做端到端验收，不接受本地数组或localStorage代替后端。",
+      "topic": "做一个全栈留言板，React前端配Python FastAPI后端和SQLite数据库。前端通过真实GET/POST /messages请求读取新增留言；刷新页面和后端重启后留言还存在。后端验证空内容并返回422。我要同时编写前后端代码、启动服务并做端到端验收，不接受本地数组或localStorage代替后端。",
+      "exercise_id": "pbl_d88389ced28a15707105b64ef3baa801"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目计划经过修复仍未通过检查",
+    "error": "项目计划经过修复仍未通过检查",
+    "error_code": "PBL_PLAN_INVALID",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:20:54.515169+00:00",
+    "started_at": "2026-10-17T09:24:21.419694+00:00",
+    "finished_at": "2026-10-17T09:24:47.759082+00:00",
+    "updated_at": "2026-10-17T09:24:47.759082+00:00"
+  },
+  "events": [
+    {
+      "seconds": 3.99,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 210.94,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 236.65,
+      "state": [
+        "failed",
+        "failed",
+        "任务执行失败"
+      ]
+    }
+  ],
+  "seconds": 236.65,
+  "idempotentCreate": true
+}

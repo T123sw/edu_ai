@@ -1,0 +1,74 @@
+[
+  {
+    "ordinal": 14,
+    "passed": true,
+    "issues": [],
+    "seconds": 6.68
+  },
+  {
+    "ordinal": 12,
+    "passed": false,
+    "issues": [
+      "independent_calculation_failed",
+      "single_choice_not_unique: computed correct options ['A', 'B', 'C']",
+      "independent_solution_unverified: recheck the claimed contradiction against ONLY explicit conditions",
+      "Solver statement (must be checked, not blindly copied): 按完全二叉树层序存放时，数组下标从 0 开始，最小堆要求每个非根结点 i 满足 a[(i-1)//2] ≤ a[i]。\n\nA = [5,12,8,20,15,9,10,25]：逐项检查父结点关系——12≥5、8≥5、20≥12、15≥12、9≥8、10≥8、25≥20，全部成立，A 是最小堆。\nB = [3,10,4,12,11,8,5,20]：3≤10、3≤4、10≤12、10≤11、4≤8、4≤5、12≤20，全部成立，B 也是最小堆。\nC = [7,14,9,18,16,12,10,22]：7≤14、7≤9、14≤18、14≤16、9≤12、9≤10、18≤22，全部成立，C 也是最小堆。\nD = [6,13,10,15,14,9,11,20]：下标 5 的父结点为下标 2，a[2]=10，而 a[5]=9，10≤9 不成立，D 不是最小堆。\n\n因此 A、B、C 三个选项都满足最小堆条件，而题目是单选题，正确答案不唯一，题目不适定（well_posed=false）。",
+      "Executed calculator evidence: [{\"expression\": \"[5,12,8,20,15,9,10,25]\", \"actual\": [5, 12, 8, 20, 15, 9, 10, 25], \"matches\": null, \"name\": \"A\"}, {\"expression\": \"[3,10,4,12,11,8,5,20]\", \"actual\": [3, 10, 4, 12, 11, 8, 5, 20], \"matches\": null, \"name\": \"B\"}, {\"expression\": \"[7,14,9,18,16,12,10,22]\", \"actual\": [7, 14, 9, 18, 16, 12, 10, 22], \"matches\": null, \"name\": \"C\"}, {\"expression\": \"[6,13,10,15,14,9,11,20]\", \"actual\": [6, 13, 10, 15, 14, 9, 11, 20], \"matches\": null, \"name\": \"D\"}, {\"expression\": \"all(A[(i-1)//2] <= A[i] for i in range(1,len(A)))\", \"actual\": true, \"matches\": null, \"name\": \"A_ok\"}, {\"expression\": \"all(B[(i-1)//2] <= B[i] for i in range(1,len(B)))\", \"actual\": true, \"matches\": null, \"name\": \"B_ok\"}, {\"expression\": \"all(C[(i-1)//2] <= C[i] for i in range(1,len(C)))\", \"actual\": true, \"matches\": null, \"name\": \"C_ok\"}, {\"expression\": \"all(D[(i-1)//2] <= D[i] for i in range(1,len(D)))\", \"actual\": false, \"matches\": null, \"name\": \"D_ok\"}, {\"expression\": \"[D[2], D[5]]\", \"actual\": [10, 9], \"matches\": null, \"name\": \"D_bad_pair\"}, {\"expression\": \"len([x for x in [A_ok,B_ok,C_ok,D_ok] if x])\", \"actual\": 3, \"matches\": null, \"name\": \"correct_count\"}]"
+    ],
+    "seconds": 41.81
+  },
+  {
+    "ordinal": 26,
+    "passed": false,
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "第(2)问答案错误：候选答案为175，正确应为599。TL含1199个结点，叶子数为ceil(1199/2)=600，S=1199为最后一个叶子，其左侧叶子为599个。",
+      "第(2)问解释错误：声称TL第10层结点1023~1199共177个且均为叶子，但1199是599的左孩子，599非叶；且TL第9层结点512~1022并非全部无孩子（如512有孩子1023、1024），叶子计数推导不成立。",
+      "第(3)问叶子结点错误：候选将599列为叶子，但599的左孩子为1199，599不是叶子；正确叶子为600、601、602、1199。",
+      "第(3)问解释自相矛盾：先称叶子为599、600、601、602、1199，随后又称第2层600、601、602无孩子，遗漏599有孩子的事实，导致叶子判断错误。",
+      "顶层correct_answer与子题correct_answer不一致：顶层(2)写175，(3)写叶子含599，均与正确结果不符。",
+      "Executed independent calculations (recheck their relevance to the exact question): [{\"expression\": \"1200-1\", \"actual\": 1199, \"matches\": null, \"name\": \"left_subtree_count\"}, {\"expression\": \"ceil(1199/2)\", \"actual\": 600, \"matches\": null, \"name\": \"left_leaves\"}, {\"expression\": \"ceil(1199/2)-1\", \"actual\": 599, \"matches\": null, \"name\": \"leaves_before_S\"}, {\"expression\": \"149*2+1\", \"actual\": 299, \"matches\": null, \"name\": \"c1\"}, {\"expression\": \"149*2+2\", \"actual\": 300, \"matches\": null, \"name\": \"c2\"}, {\"expression\": \"299*2+1\", \"actual\": 599, \"matches\": null, \"name\": \"g1\"}, {\"expression\": \"299*2+2\", \"actual\": 600, \"matches\": null, \"name\": \"g2\"}, {\"expression\": \"300*2+1\", \"actual\": 601, \"matches\": null, \"name\": \"g3\"}, {\"expression\": \"300*2+2\", \"actual\": 602, \"matches\": null, \"name\": \"g4\"}, {\"expression\": \"599*2+1\", \"actual\": 1199, \"matches\": null, \"name\": \"gg1\"}, {\"expression\": \"599*2+2\", \"actual\": 1200, \"matches\": null, \"name\": \"gg2\"}, {\"expression\": \"600*2+1\", \"actual\": 1201, \"matches\": null, \"name\": \"gg3\"}, {\"expression\": \"600*2+2\", \"actual\": 1202, \"matches\": null, \"name\": \"gg4\"}, {\"expression\": \"601*2+1\", \"actual\": 1203, \"matches\": null, \"name\": \"gg5\"}, {\"expression\": \"601*2+2\", \"actual\": 1204, \"matches\": null, \"name\": \"gg6\"}, {\"expression\": \"602*2+1\", \"actual\": 1205, \"matches\": null, \"name\": \"gg7\"}, {\"expression\": \"602*2+2\", \"actual\": 1206, \"matches\": null, \"name\": \"gg8\"}, {\"expression\": \"[x for x in [149,299,300,599,600,601,602,1199] if x<1200]\", \"actual\": [149, 299, 300, 599, 600, 601, 602, 1199], \"matches\": null, \"name\": \"valid_nodes\"}, {\"expression\": \"all((2*i+1>=1200 and 2*i+2>=1200) for i in [600,601,602,1199])\", \"actual\": true, \"matches\": null, \"name\": \"leaves_check\"}, {\"expression\": \"all((2*i+1<1200 or 2*i+2<1200) for i in [149,299,300])\", \"actual\": true, \"matches\": null, \"name\": \"internal_check\"}, {\"expression\": \"all((2*i+1 in [149,299,300,599,600,601,602,1199] or 2*i+1>=1200) and (2*i+2 in [149,299,300,599,600,601,602,1199] or 2*i+2>=1200) for i in [149,299,300,599,600,601,602,1199])\", \"actual\": true, \"matches\": null, \"name\": \"complete_shape\"}]",
+      "Independent solution to check against the question: 完全二叉树按层序从 0 编号，编号 i 的结点：父结点为 floor((i-1)/2)，左孩子为 2i+1，右孩子为 2i+2。\n\nq_8b9ac018b987840ee562：根为 0，左子树根为 1，右子树根为 2。编号 1199 的父结点为 floor((1199-1)/2)=599。599 位于根左子树（因为 1 的子树包含 1,3,4,7,8,9,10,...，而 2 的子树包含 2,5,6,...；599 的二进制路径首步为左）。因此 S 在左子树 T_L 上。\n\nq_6f07f9dc0a2e8d47c1be：S 在左子树 T_L 中。T_L 的根编号为 1，共 1200 个结点，左子树结点数 = 1200-1 = 1199（编号 1..1199）。S 是 T_L 中按层序的最后一个结点（相对编号 1198）。在 T_L 内，S 的左侧叶子结点指层序中排在 S 之前的叶子。T_L 有 1199 个结点，完全二叉树中叶子数 = ceil(1199/2)=600。S 本身是叶子（1199 无孩子，因为 2*1199+1=2399≥1200）。S 之前（层序更早）的叶子数 = 600-1 = 599。\n\nq_1547df775d7cc57ea1d9：以 149 为根的子树，层次数为 4（根为第 1 层）。编号 149 的结点在全局第 floor(log2(150))+1 = 8 层（因为 2^7=128≤149<256=2^8，根为第 1 层，故 149 在第 8 层）。子树 Tx 的 4 层对应全局第 8,9,10,11 层。Tx 的结点编号为 149 及其后代中深度不超过 3 的结点：149；2*149+1=299, 2*149+2=300；599,600,601,602；1199,1200,1201,1202,1203,1204,1205,1206。但全局只有 1200 个结点（编号 0..1199），所以有效编号为 149,299,300,599,600,601,602,1199。其中叶子：1199（无孩子）；600 的孩子 1201,1202 越界；601 的孩子 1203,1204 越界；602 的孩子 1205,1206 越界；299 的孩子 599,600 存在，非叶；300 的孩子 601,602 存在，非叶；149 有孩子。故叶子为 600,601,602,1199。Tx 不是完全二叉树：按完全二叉树，4 层子树若第 4 层有结点，则第 3 层必须满；这里第 3 层只有 599,600,601,602（4 个），而第 4 层有 1199，且 1199 是 599 的左孩子，但 600,601,602 均无孩子，层序中 1199 之后缺少 600 的左孩子等，不满足完全二叉树“除最后一层外全满且最后一层靠左连续”的条件。更直接：Tx 的结点数 8，若为 4 层完全二叉树则结点数应为 8..15 且形状为前 7 个满再加第 8 个作为 599 的左孩子——实际上 8 个结点的完全二叉树正是 149,299,300,599,600,601,602,1199，这恰好是完全二叉树！重新核对：8 个结点的完全二叉树层序编号（相对）0..7 对应 149,299,300,599,600,601,602,1199，父关系：1->0,2->0,3->1,4->1,5->2,6->2,7->3，全部满足。因此 Tx 是完全二叉树。"
+    ],
+    "seconds": 67.8
+  },
+  {
+    "ordinal": 29,
+    "passed": true,
+    "issues": [],
+    "seconds": 23.77
+  },
+  {
+    "ordinal": 27,
+    "passed": false,
+    "issues": [
+      "independent_calculation_failed",
+      "calculation_unverified: linear_probe([19,30,42,8,52,25,37,14,63],11,deleted=[37]): expression node not allowed: Call",
+      "calculation_unverified: [tab_del['table'][i] for i in range(11)]: unknown variable: tab_del",
+      "calculation_unverified: tab_del['successful_probes']: unknown variable: tab_del",
+      "calculation_unverified: tab_del['unsuccessful_probes']: unknown variable: tab_del",
+      "calculation_unverified: tab_del['asl_success']: unknown variable: tab_del",
+      "calculation_unverified: tab_del['asl_unsuccess']: unknown variable: tab_del",
+      "calculation_unverified: sum(succ_probes): unknown variable: succ_probes",
+      "calculation_unverified: len(succ_probes): unknown variable: succ_probes",
+      "calculation_unverified: sum(unsucc_probes): unknown variable: unsucc_probes",
+      "calculation_unverified: sum(unsucc_probes)/11: unknown variable: unsucc_probes",
+      "Solver statement (must be checked, not blindly copied): （1）按 H(key)=key mod 11 与线性探测依次插入：19→8；30 的地址 8 被占，探测到 9；42 的地址 9 被占，探测到 10；8 的地址 8 被占，依次探测 9、10、0，落在 0；52 的地址 8 被占，探测 9、10、0、1，落在 1；25→3；37→4；14 的地址 3 被占，探测 4、5，落在 5；63 的地址 8 被占，探测 9、10、0、1、2，落在 2。故 HT[0]～HT[10] = [8, 52, 63, 25, 37, 14, 空, 空, 19, 30, 42]。\n\n（2）删除 37 后 HT[4] 为墓碑。存活关键字共 8 个，成功查找探测次数：8 在 0（1 次）；52 在 1（1 次）；63 在 2（1 次）；25 在 3（1 次）；14 在 5（从 3 起探测 3、4、5，共 3 次）；19 在 8（1 次）；30 在 9（从 8 起探测 8、9，共 2 次）；42 在 10（从 9 起探测 9、10，共 2 次，注意 42 的哈希地址是 9，不是 10）。总探测次数 = 1+1+1+1+3+1+2+2 = 12，ASL成功 = 12/8 = 1.5。\n\n（3）删除后各地址不成功查找探测次数（遇墓碑继续，遇空停止）：地址 0：0,1,2,3,4,5,6（6 为空）共 7 次；地址 1：1,2,3,4,5,6 共 6 次；地址 2：2,3,4,5,6 共 5 次；地址 3：3,4,5,6 共 4 次；地址 4：4,5,6 共 3 次；地址 5：5,6 共 2 次；地址 6：6 共 1 次；地址 7：7 共 1 次；地址 8：8,9,10,0,1,2,3,4,5,6 共 10 次；地址 9：9,10,0,1,2,3,4,5,6 共 9 次；地址 10：10,0,1,2,3,4,5,6 共 8 次。总次数 = 7+6+5+4+3+2+1+1+10+9+8 = 56，ASL不成功 = 56/11 ≈ 5.0909。",
+      "Executed calculator evidence: [{\"expression\": \"linear_probe([19,30,42,8,52,25,37,14,63],11)\", \"actual\": {\"table\": [8, 52, 63, 25, 37, 14, null, null, 19, 30, 42], \"successful_probes\": [1, 2, 2, 4, 5, 1, 1, 3, 6], \"unsuccessful_probes\": [7, 6, 5, 4, 3, 2, 1, 1, 10, 9, 8], \"asl_success\": 2.7777777777777777, \"asl_unsuccess\": 5.090909090909091}, \"matches\": null, \"name\": \"tab\"}, {\"expression\": \"[tab['table'][i] for i in range(11)]\", \"actual\": [8, 52, 63, 25, 37, 14, null, null, 19, 30, 42], \"matches\": null, \"name\": \"ht\"}]"
+    ],
+    "seconds": 68.88
+  },
+  {
+    "ordinal": 32,
+    "passed": true,
+    "issues": [],
+    "seconds": 29.33
+  },
+  {
+    "ordinal": 30,
+    "passed": true,
+    "issues": [],
+    "seconds": 46.95
+  }
+]

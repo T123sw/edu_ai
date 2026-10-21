@@ -320,6 +320,8 @@ def test_run_deepsearch_full_falls_back_when_tavily_returns_all_failed(monkeypat
 
 
 def test_run_deepsearch_full_uses_tavily_advanced_and_preserves_long_content(monkeypatch):
+    # This test checks extraction, not network image downloads.
+    monkeypatch.setattr(deepsearch_service, "localize_image", lambda *args, **kwargs: None)
     long_content = "long article " * 400
     extract_calls = []
 
@@ -433,3 +435,15 @@ def test_run_deepsearch_localizes_preview_images_before_return(monkeypatch, tmp_
             "original_url": "https://cdn.example.com/bocha.png",
         },
     ]
+
+
+def test_course_reading_does_not_create_crawl_archive_or_import_documents(monkeypatch):
+    monkeypatch.setattr(deepsearch_service, '_execute_search', lambda *a: [WebSearchHit(url='https://example.org', title='来源', content='可阅读正文')])
+    def unexpected(*args, **kwargs): raise AssertionError('Reading must not create extra archives or downloaded assets')
+    monkeypatch.setattr(crawl_batch_store, 'save_crawl_batch', unexpected)
+    monkeypatch.setattr(deepsearch_service, '_import_to_knowledge_base', unexpected)
+    monkeypatch.setattr(deepsearch_service, '_localize_crawl_batch_images', unexpected)
+    value = deepsearch_service.run_deepsearch_and_crawl(query='课程问题', owner='alice', depth='basic', save_to_kb=False, persist_batch=False)
+    assert value['ok'] is True
+    assert value['batch_id'] == '' and value['saved_to_kb'] is False
+    assert value['results'][0]['content'] == '可阅读正文'

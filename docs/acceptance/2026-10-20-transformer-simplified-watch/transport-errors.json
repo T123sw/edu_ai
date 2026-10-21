@@ -1,0 +1,4 @@
+{
+  "scope": "Copied native command logs only; model retries without logged exceptions are not excluded",
+  "matches": []
+}

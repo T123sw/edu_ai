@@ -1,0 +1,28 @@
+{
+  "frontend_error_messages": "deployed",
+  "frontend_backup": "/tmp/edu-ai-before-review-errors-20261013T134233Z",
+  "backend_code": "written; production process not restarted",
+  "backend_restart": "systemctl rejected: Interactive authentication required; sudo -n requires a password",
+  "original_task": "failed; no production retry performed",
+  "validation": "Original stored failure replays to correction then repair; three live read-only model probes route to repair. Whole-course live completion is not yet verified.",
+  "tests": {
+    "targeted_final": {
+      "passed": 46,
+      "skipped": 2
+    },
+    "test_fixture_regression": {
+      "passed": 16,
+      "skipped": 16
+    },
+    "full_suite_before_fixture_fix": {
+      "passed": 598,
+      "skipped": 133,
+      "errors": 1
+    },
+    "remaining_error": "The session fixture inherited production flags; fixed fixture and affected tests passed on rerun. A full-suite rerun after that fixture-only change was not performed.",
+    "frontend_typecheck": "passed",
+    "frontend_unit_tests": 3,
+    "live_review_probes": 3
+  },
+  "frontend_served_build_matches": true
+}

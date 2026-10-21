@@ -23,8 +23,13 @@ def _normalize_openai_compatible_base_url(base_url: str) -> str:
 
 
 def _thinking_extra_body(model_name: str) -> dict:
+    # Resource generation needs the final structured content, like ContentGateway.
+    # DeepSeek V4/Flash defaults to thinking unless explicitly disabled.
+    normalized = str(model_name or "").lower()
+    if normalized.startswith("deepseek-v4") or normalized == "deepseek-flash":
+        return {"thinking": {"type": "disabled"}}
     # Qwen3 models enable chain-of-thought thinking by default, causing huge latency.
-    if str(model_name or "").lower().startswith("qwen3"):
+    if normalized.startswith("qwen3"):
         return {"enable_thinking": False}
     return {}
 

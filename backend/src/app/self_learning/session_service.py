@@ -47,41 +47,49 @@ class SessionService:
         if scoped_enabled() and phase(self.learning, owner, course_id) < 1:
             raise HTTPException(503, '当前课程尚未启用持久化学习会话')
         room, chapter = self._chapter(owner, course_id, topic_id)
-        if self.repository.find(owner, course_id, topic_id) is None:
-            digest = hashlib.sha256(topic_id.encode()).hexdigest()[:24]
-            path = self.learning.manager.get_classroom_qa_dir(course_id, 'learning_' + digest, owner) / 'session.json'
-            # Read the original file, never load_or_empty's truncated projection.
+        if self.repository.find_course(owner, course_id) is None:
+            # Import existing file histories before consolidating the course. Files remain unchanged.
+            for node in room['chapters']:
+                self._import_legacy(owner, course_id, node['id'])
+            introduction = f'当前课程是「{room["title"]}」。整门课程共用这段对话，切换知识点后可以接着提问。'
             try:
-                legacy = json.loads(path.read_text()) if path.exists() else {}
-                if not isinstance(legacy, dict) or not isinstance(legacy.get('turns', []), list):
-                    raise ValueError('invalid legacy session')
-                expected = {'course_id': course_id, 'owner_user_id': owner, 'classroom_id': 'learning_' + digest}
-                if any(key in legacy and legacy[key] != value for key, value in expected.items()):
-                    raise ValueError('legacy session scope mismatch')
-            except (ValueError, OSError) as exc:
-                raise HTTPException(409, '旧会话无法读取，原始记录已保留，请先核对') from exc
-            if legacy.get('active_turn'):
-                raise HTTPException(409, '旧会话仍有未结束的提问，请先完成恢复再切换')
-            ready = next((r for r in chapter['resources'] if r.get('ready')), None)
-            introduction = f'当前课程是「{room["title"]}」，这一节围绕「{chapter["title"]}」学习。'
-            introduction += (f'可以先阅读「{ready["title"]}」。' if ready else '资料尚未就绪时，可以先查看课程目录。')
-            introduction += '遇到不清楚的地方随时提问，也可以直接开始阅读。'
-            try:
-                self.repository.ensure_session(owner, course_id, topic_id, introduction, legacy.get('turns', []),
-                                               legacy_session_id=legacy.get('session_id'))
-            except (KeyError, ValueError, SessionConflict) as exc:
-                raise HTTPException(409, '旧会话记录需要核对，原始记录已保留') from exc
+                self.repository.ensure_course_session(owner, course_id, introduction)
+            except SessionConflict as exc:
+                raise HTTPException(409, str(exc)) from exc
         result = self.messages(owner, course_id, topic_id)
         selected = next((r for r in chapter['resources'] if r['id'] == room['selectedId']), chapter['resources'][0])
         result['resume'] = {'resource_id': selected['id'], 'progress': room['progress'].get(selected['id'], {})}
         result['learning_context'] = learning_orientation(room, topic_id)
         return result
 
+    def _import_legacy(self, owner, course_id, topic_id):
+        if self.repository.find(owner, course_id, topic_id) is not None:
+            return
+        digest = hashlib.sha256(topic_id.encode()).hexdigest()[:24]
+        path = self.learning.manager.get_classroom_qa_dir(course_id, 'learning_' + digest, owner) / 'session.json'
+        try:
+            legacy = json.loads(path.read_text()) if path.exists() else {}
+            if not isinstance(legacy, dict) or not isinstance(legacy.get('turns', []), list):
+                raise ValueError('invalid legacy session')
+            expected = {'course_id': course_id, 'owner_user_id': owner, 'classroom_id': 'learning_' + digest}
+            if any(key in legacy and legacy[key] != value for key, value in expected.items()):
+                raise ValueError('legacy session scope mismatch')
+        except (ValueError, OSError) as exc:
+            raise HTTPException(409, '旧会话无法读取，原始记录已保留，请先核对') from exc
+        if legacy.get('active_turn'):
+            raise HTTPException(409, '旧会话仍有未结束的提问，请先完成恢复再切换')
+        if legacy.get('turns'):
+            try:
+                self.repository.ensure_session(owner, course_id, topic_id, '', legacy['turns'],
+                                               legacy_session_id=legacy.get('session_id'))
+            except (KeyError, ValueError, SessionConflict) as exc:
+                raise HTTPException(409, '旧会话记录需要核对，原始记录已保留') from exc
+
     def messages(self, owner, course_id, topic_id, before=None, limit=50):
         self._chapter(owner, course_id, topic_id)
-        current = self.repository.find(owner, course_id, topic_id)
+        current = self.repository.find_course(owner, course_id)
         if current is None:
-            raise HTTPException(404, '知识点会话尚未建立')
+            raise HTTPException(404, '课程会话尚未建立')
         try:
             return self.repository.messages(owner, current['session_id'], before, limit)
         except SessionMissing as exc:

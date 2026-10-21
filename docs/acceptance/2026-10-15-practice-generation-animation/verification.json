@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-15",
+  "status": "published",
+  "change": "模拟实验和 PBL 改为 AI 课堂共用动画弹窗，留在首页后台生成；列表可重新打开，保留取消、重试与完成后进入。旧任务直达链接也使用同款弹窗。",
+  "checks": {
+    "typescript": "passed",
+    "eslint": "passed",
+    "production_build": "passed (dist-practice-generation)",
+    "browser_generation_and_classroom": {
+      "passed": 30,
+      "skipped": 1,
+      "skip_reason": "可选真实实验样例未提供",
+      "api": "mocked"
+    },
+    "pbl_regression": {
+      "initial_passed": 9,
+      "initial_failed": 1,
+      "failed_check": "多尺寸切换时编辑器完整处于视口内的断言超时",
+      "published_baseline_recheck": "passed",
+      "local_same_build_recheck": "passed",
+      "code_changes_for_recheck": false
+    }
+  },
+  "command": "PRACTICE_GENERATION_URL=http://127.0.0.1:5220 pnpm exec playwright test -c playwright.practice-generation.config.ts",
+  "limitations": [
+    "未运行真实模型生成，浏览器验收的业务 API 为模拟响应"
+  ],
+  "deployment": {
+    "record": "deployment.json",
+    "initialReleaseChecks": {
+      "passed": 30,
+      "skipped": 1
+    },
+    "rebasedReleaseChecks": {
+      "passed": 11,
+      "skipped": 1
+    },
+    "publishedChecks": {
+      "passed": 11,
+      "skipped": 1
+    },
+    "preservedConcurrentRelease": "个人中心移除 @ 用户名",
+    "releaseFilesVerified": 551,
+    "backendRestarted": false
+  }
+}

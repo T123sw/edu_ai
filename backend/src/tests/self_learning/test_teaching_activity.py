@@ -213,3 +213,49 @@ def test_long_question_draft_and_current_question_fit_budget(coaching):
     assert data['practice']['draft']['text'] == answer
     assert packet['messages'][-1]['content'] == question
     assert len(json.dumps(packet['messages'], ensure_ascii=False).encode()) <= budget
+
+
+def test_material_checks_authorize_once_and_preserve_attempts_and_coaching(coaching, monkeypatch):
+    svc = coaching.learning
+    svc.manager.save_generated_material('course', 'quiz', 'batch', {
+        'title': '多题练习', 'learning_course_resource': True,
+        'questions': [{'id': str(i), 'type': 'single_choice', 'stem': f'题目 {i}',
+                       'options': ['正确选项', '另一选项'], 'answer': 'A'} for i in range(10)]},
+        owner_user_id='alice', visibility='course', scope_type='knowledge_point', scope_id='a')
+    counts = {'room': 0, 'material': 0}
+    for name in counts:
+        original = getattr(svc, name)
+        def counted(*args, _name=name, _original=original, **kwargs):
+            counts[_name] += 1
+            return _original(*args, **kwargs)
+        monkeypatch.setattr(svc, name, counted)
+    batch = coaching.material_checks('alice', 'course', 'batch', 1)
+    assert len(batch['items']) == 10
+    assert counts == {'room': 1, 'material': 1}
+    check = batch['items'][0]
+    coaching.teaching.configure('alice', check['check_id'], True, 0)
+    attempt = submit(coaching, check, option_ids=['option_1'])
+    counts.update(room=0, material=0)
+    restored = coaching.material_checks('alice', 'course', 'batch', 1)
+    assert counts == {'room': 1, 'material': 1}
+    first = restored['items'][0]
+    assert first['attempts'][0]['attempt_id'] == attempt['attempt_id']
+    assert first['teaching']['enabled'] is True
+    assert first['teaching']['latest_attempt_id'] == attempt['attempt_id']
+    assert all(not item['attempts'] for item in restored['items'][1:])
+    assert 'correct_option_ids' not in first['public_question']
+    with pytest.raises(HTTPException):
+        coaching.material_checks('outsider', 'course', 'batch', 1)
+
+
+def test_single_check_reuses_authorization_for_teaching_view(coaching, monkeypatch):
+    check = offer(coaching)
+    original = coaching.topic
+    calls = []
+    def topic(*args):
+        calls.append(args)
+        return original(*args)
+    monkeypatch.setattr(coaching, 'topic', topic)
+    result = coaching.get('alice', check['check_id'])
+    assert len(calls) == 1
+    assert result['teaching']['check_id'] == check['check_id']

@@ -1,0 +1,260 @@
+{
+  "unit": {
+    "stepId": "quiz-shell",
+    "title": "搭建单题展示与进度",
+    "objective": "渲染第一题题干、三个选项与进度，并支持选择选项。",
+    "instructionsMarkdown": "这一步先做出小测验的“第一屏”：页面上只显示第一道题，以及当前进度。\n\n需要做到：\n\n- 显示进度文字，内容为 `第 1 题 / 共 3 题`。\n- 显示第一题题干，内容包含 `2+3 等于多少`。\n- 显示三个选项按钮，文字分别是 `4`、`5`、`6`。\n- 点击某个选项后，该选项被选中并高亮（例如加边框或背景色），同一时间只有一个选项被选中。\n\n本步还不需要提交按钮和判分，先把题目、选项和选择状态做出来。\n\n### 代码约定\n\n为了让系统能识别页面部件，请给以下元素加上 `data-testid`（只是标记，不影响外观）：\n\n- 进度文字：`data-testid=\"progress\"`\n- 题干文字：`data-testid=\"question\"`\n- 每个选项按钮：`data-testid=\"option\"`，并设置 `role=\"radio\"` 与 `aria-checked`（选中为 `\"true\"`，未选中为 `\"false\"`）。",
+    "explanationMarkdown": "可以把三道题写成一个数组，每道题包含题干、选项和正确答案。本步先用数组里的第一道题渲染页面。\n\n用 `useState` 保存“当前选中的选项”。点击选项时更新这个状态，并根据它决定按钮是否高亮。进度文字可以直接由“当前题号 + 1”拼出来，为后面切换题目打基础。",
+    "hints": [
+      "把题目数据写成数组，每项包含 question、options、answer 三个字段。",
+      "用 useState 保存当前题号（从 0 开始）和当前选中的选项。",
+      "选项按钮的 aria-checked 根据“当前选中值是否等于该选项”来设置。",
+      "高亮样式可以用一个额外的 className，例如 selected。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "first-question-shown",
+      "option-selectable"
+    ]
+  },
+  "behaviorCases": [
+    {
+      "requirementId": "single-question-view",
+      "setup": "打开页面初始状态，未做任何操作。",
+      "action": "读取进度文字、题干文字与三个选项按钮。",
+      "expected": "进度显示“第 1 题 / 共 3 题”，题干包含“2+3 等于多少”，三个选项 4、5、6 均可见。",
+      "checkId": "first-question-shown"
+    },
+    {
+      "requirementId": "single-question-view",
+      "setup": "打开页面初始状态，未选择任何选项。",
+      "action": "点击选项“5”。",
+      "expected": "选项“5”变为选中（aria-checked 为 true），其余选项保持未选中。",
+      "checkId": "option-selectable"
+    },
+    {
+      "requirementId": "single-question-view",
+      "setup": "打开页面初始状态，已点击选项“5”。",
+      "action": "再点击选项“4”。",
+      "expected": "选中状态转移到“4”，“5”恢复未选中，同一时间只有一个选项被选中。",
+      "checkId": "option-selectable"
+    }
+  ],
+  "checks": [
+    {
+      "id": "first-question-shown",
+      "label": "初始页面显示进度“第 1 题 / 共 3 题”、第一题题干“2+3 等于多少”以及三个选项 4、5、6",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "progress"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "第 1 题 / 共 3 题",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "question"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2+3 等于多少？",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "4",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "5",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 2,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "6",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 2,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "option-selectable",
+      "label": "点击选项“5”后该选项被选中，再点击“4”后选中状态转移到“4”且“5”恢复未选中",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "5",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "radio",
+            "name": "5",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "4",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "radio",
+            "name": "4",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "faultyFiles": {},
+  "faultyCheckId": null
+}

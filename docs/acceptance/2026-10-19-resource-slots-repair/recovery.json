@@ -1,0 +1,90 @@
+{
+  "status": "succeeded",
+  "tasks": {
+    "prep_a9c1d026075f47b3aaa7fbc0862a7692": {
+      "status": "succeeded",
+      "stage": "commit",
+      "attempt_no": 2,
+      "error_code": null,
+      "result_ref": {
+        "course_id": "learn-a9c1d026075f47b3aaa7fbc0862a7692",
+        "manifest_id": "manifest_684bbaffc4f78bd4a11d7838e7f8bb84",
+        "course_ready": true,
+        "manifest_version": 27
+      }
+    },
+    "prep_23c0a1f3160d4c45843f9264c6efc8e8": {
+      "status": "succeeded",
+      "stage": "commit",
+      "attempt_no": 2,
+      "error_code": null
+    }
+  },
+  "backend_pid": "2561907",
+  "originalResources": [
+    [
+      "resource_2a5da77782f50c2bec144b7b293a162d",
+      1
+    ],
+    [
+      "resource_3bc4c006508bfa9e628f85ce069b1d9b",
+      1
+    ],
+    [
+      "resource_3e4c88a3315b27a896d166f96756e647",
+      1
+    ],
+    [
+      "resource_4facc6522052f45ae0e8e3ca030db2ee",
+      1
+    ],
+    [
+      "resource_5269346f6ee5af4a9d9fb5ddefe6d163",
+      1
+    ],
+    [
+      "resource_971ee368f5088231477d64a9b63505d8",
+      1
+    ],
+    [
+      "resource_ac117860bdabc8d91a55b21c027f2825",
+      1
+    ],
+    [
+      "resource_c0738a29cae8a8426713f9e44cbc9aa6",
+      1
+    ],
+    [
+      "resource_c56f52f057c460394bad5c3d09b37b11",
+      1
+    ],
+    [
+      "resource_d6b515676049730994719ea627b03563",
+      1
+    ]
+  ],
+  "backfill_status": "succeeded",
+  "backfill_nodes": [
+    {
+      "node_id": "n1-idea-and-rules",
+      "status": "succeeded",
+      "preparation_id": "prep_3966d907a24c455db778c0abadcd0626"
+    },
+    {
+      "node_id": "n2-trace-and-early-exit",
+      "status": "succeeded",
+      "preparation_id": "prep_0bce924f6fd9446bac457a86d03e05b6"
+    },
+    {
+      "node_id": "n3-implementation",
+      "status": "succeeded",
+      "preparation_id": "prep_23c0a1f3160d4c45843f9264c6efc8e8"
+    },
+    {
+      "node_id": "n4-correctness-complexity",
+      "status": "succeeded",
+      "preparation_id": "prep_1f1f41057c80403ab9a3c478d73ff680"
+    }
+  ],
+  "originalResourcesPreserved": true
+}

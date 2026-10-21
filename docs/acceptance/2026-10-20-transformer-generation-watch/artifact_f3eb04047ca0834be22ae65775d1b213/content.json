@@ -1,0 +1,376 @@
+{
+  "title": "取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界",
+  "content": "# 取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界\n\n<a id=\"sec-why-compare\"></a>\n## 一、为什么要做这个比较\n\n前面你已经知道：自注意力让每个位置直接看同一序列的所有位置，计算方式是 softmax(QKᵀ/√d_k)V；编码器-解码器结构把输入映射成表示 z，再自回归地生成输出。现在要回答一个更“工程”的问题：**既然循环网络（RNN/LSTM）也能做序列到序列的映射，为什么还要换成自注意力？换的代价是什么？**\n\n原论文在“Why Self-Attention”一节里给了三个比较维度（依据：Attention Is All You Need, §4）：\n\n1. **每层计算复杂度**：一层要花多少计算量；\n2. **最少顺序操作数**：这一层里有多少步必须一个接一个地做，即能并行到什么程度；\n3. **最大路径长度**：任意两个位置之间，前向/反向信号要穿过多少步。路径越短，长程依赖越容易学。\n\n下面按“先看具体数字，再解释含义”的顺序展开。\n\n<a id=\"sec-table\"></a>\n## 二、三行对比表：先看数字\n\n设序列长度为 n，表示维度为 d（即 d_model），卷积核宽度为 k，受限自注意力的邻域半径为 r。原论文 Table 1 给出的结论是：\n\n| 层类型 | 每层复杂度 | 最少顺序操作数 | 最大路径长度 |\n|---|---|---|---|\n| 自注意力 | O(n²·d) | O(1) | O(1) |\n| 循环层 | O(n·d²) | O(n) | O(n) |\n| 卷积层 | O(k·n·d²) | O(1) | O(log_k n) |\n| 受限自注意力 | O(r·n·d) | O(1) | O(n/r) |\n\n（卷积层若用可分离卷积，复杂度可降到 O(k·n·d + n·d²)；当 k=n 时，它与“一个自注意力层 + 一个逐位置前馈层”的复杂度相当——这正是 Transformer 采用的组合。）\n\n**怎么读这张表**：\n\n- **复杂度**看 n 和 d 谁在指数上更“贵”。自注意力是 n² 乘 d，循环是 n 乘 d²。\n- **顺序操作数**看这一层内部能不能“一次算完”。自注意力 O(1)：所有位置两两打分可以同时算；循环 O(n)：h_t 必须等 h_{t−1}，天然串行。\n- **路径长度**看信息从位置 i 传到位置 j 要经过几层/几步。自注意力一层就直连，循环要沿链走 n 步。\n\n<a id=\"sec-complexity\"></a>\n## 三、复杂度：n<d 时自注意力更快，但 n 一大就吃亏\n\n把两个复杂度放在一起比：\n\n- 自注意力：O(n²·d)\n- 循环：O(n·d²)\n\n两者相除，自注意力/循环 ≈ n/d。所以：\n\n- **当 n < d 时，自注意力更快**。原论文指出，这在当时的机器翻译表示中“最常见”：用 word-piece、byte-pair 这类子词表示时，句子长度 n 通常小于表示维度 d（base 配置 d_model = 512）。\n- **当 n > d 时，循环层反而更省**。\n\n这就是“取舍”的第一层含义：自注意力不是无条件更快，它的优势依赖 n 与 d 的相对大小。\n\n**代价**：自注意力每层复杂度随 n **平方**增长。序列翻倍，注意力打分矩阵从 n×n 变成 2n×2n，计算量约变 4 倍。循环层只是线性增长。所以处理超长序列时，自注意力会先撞上计算和显存的天花板。\n\n<a id=\"sec-path\"></a>\n## 四、路径长度：O(1) 为什么有利于长程依赖\n\n“学习长程依赖”的难点在于：前向信号和反向梯度都要在计算图里从一端走到另一端。**路径越短，信号越不容易在传递中被稀释或搅乱，长程依赖越好学**（原论文引用的这一判断）。\n\n- **自注意力**：任意两个位置在一层内直接相连，最大路径长度 O(1)。第 1 个词和第 n 个词的关系，不需要“沿途传递”。\n- **循环层**：信息必须沿 h_1 → h_2 → … → h_n 逐步传递，最大路径长度 O(n)。距离越远，路径越长。\n- **卷积层**：单个卷积层（k < n）连不通所有位置对。要连通全部位置，连续卷积核需要堆 O(n/k) 层，膨胀卷积需要 O(log_k n) 层，路径长度随之变成 O(log_k n)。\n\n所以自注意力在“长程依赖”这一维度上结构性地占优，而且这个优势与 n 无关（常数路径）。\n\n<a id=\"sec-restricted\"></a>\n## 五、超长序列场景：受限自注意力及其代价\n\n**场景**：假设你要对一篇很长的文档建模，n 远大于 d（比如 n = 数万，d = 512）。此时：\n\n- 复杂度 O(n²·d) 已经不可接受；\n- 但你又不想退回循环网络，因为那会重新引入 O(n) 的顺序操作和 O(n) 的路径长度。\n\n**改进思路（原论文提出的方向）**：把自注意力**限制**在每个输出位置周围大小为 r 的邻域内，只和邻居打分。于是：\n\n- 复杂度从 O(n²·d) 降到 O(r·n·d)；\n- 顺序操作数仍是 O(1)；\n- **代价**：最大路径长度从 O(1) 变成 O(n/r)——不再是一步直连，需要跨若干层才能把信息传遍全序列。\n\n这就是取舍的第二层含义：**用“路径变长”换“计算变省”**。原论文把这一方向列为后续工作，并未在正文模型中采用；本课也不展开各类高效注意力的具体实现。\n\n<a id=\"sec-parallel\"></a>\n## 六、“完全并行”到底在什么范围内成立\n\n这是最容易说错的一句话。准确的说法是：**“完全并行”只对编码器和训练时的解码器成立。**\n\n**训练时为什么能并行**：训练用教师强制（teacher forcing），解码器的输入是真实目标句右移一位的结果。因果掩码保证位置 i 只能看到位置 1 到 i，所以一次前向就能同时算出所有位置的预测，并与真实标签逐位置比对。编码器更是天然并行：所有输入位置同时进入自注意力。\n\n**推理时为什么仍然串行**：生成时没有真实答案。第 i 个词元必须等第 i−1 个词元被选出来，才能作为输入送进去。因此生成 m 个词元仍需 m 次顺序前向。\n\n**一句话总结**：Transformer 消掉的是**训练**的顺序步数，没有消掉**生成**的顺序步数。原论文也明确承认“顺序计算这一根本约束依然存在”。\n\n对照第二节的表：自注意力层的“最少顺序操作数 O(1)”说的是**层内**的计算可以并行；而自回归生成是**层与层之间、步与步之间**的串行，两者不矛盾。\n\n<a id=\"sec-summary\"></a>\n## 七、把取舍收成一句话\n\n- **两项优势**：① 层内顺序操作数 O(1)，训练可并行；② 最大路径长度 O(1)，长程依赖更好学。\n- **一项代价**：每层复杂度 O(n²·d)，随 n 平方增长，长序列需要受限注意力等改进，而改进又会把路径长度拉长到 O(n/r)。\n- **一个边界**：“完全并行”只对编码器和训练时的解码器成立；推理生成仍是逐词元串行。\n\n<a id=\"sec-selfcheck\"></a>\n## 八、自检\n\n合上资料，试着回答：\n\n1. 不看表，说出自注意力、循环层、卷积层在“复杂度 / 顺序操作数 / 最大路径长度”三格里的值。\n2. 自注意力在什么条件下比循环层更快？为什么这个条件在子词表示的翻译任务里常常成立？\n3. 用两句话向同伴解释“Transformer 完全并行”这句话在什么范围内成立。\n4. 如果要把受限自注意力的邻域半径 r 调小以进一步省算力，路径长度会怎么变？\n\n能答出第 1、2、3 题，就达到了本节点的自检标准。\n\n---\n\n**依据说明**：复杂度、顺序操作数、路径长度三行数据与受限自注意力的 O(n/r) 结论来自 Attention Is All You Need（NeurIPS 2017）§4 与 Table 1；训练并行/推理串行的区分来自对教师强制与因果掩码的分析。本课未覆盖仅编码器/仅解码器变体、各类高效注意力的实现细节，也未涉及具体框架的代码。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 6.2
+      },
+      "sections": [
+        {
+          "section_id": "sec-why-compare",
+          "content_sha256": "71cfa8d683a825b5e9f216e0a21d1431463655c0e550715b2629276ff1af99f0"
+        },
+        {
+          "section_id": "sec-table",
+          "content_sha256": "8119a1f7b83a7365533e74a01fd262aaf7e9aebcf8b15793b453e614f79e45fe"
+        },
+        {
+          "section_id": "sec-complexity",
+          "content_sha256": "fb6061411fae20ff0b8ffb3eb69bb40c33c7ced6cef80ec9846201ee119a82b3"
+        },
+        {
+          "section_id": "sec-path",
+          "content_sha256": "048916a7437bbb061712549e808a0b058a720a8c0d0fee86ba9d8b866425311e"
+        },
+        {
+          "section_id": "sec-restricted",
+          "content_sha256": "7cc38c52be26105e035e641988ad0a151731226a4f87aad729bd15df1d4dc030"
+        },
+        {
+          "section_id": "sec-parallel",
+          "content_sha256": "aebc336aa97617027b84fb17797f10234370ad8fe15257411b0373b45a9a893f"
+        },
+        {
+          "section_id": "sec-summary",
+          "content_sha256": "25d0f2dec56f92b67adbc6f72d39a29aa0896ab6d5cf38eb5340a57a6fb605c1"
+        },
+        {
+          "section_id": "sec-selfcheck",
+          "content_sha256": "debde11826a248d9156ca8b4b4e5a451fd5376946c23c4841ef6334abef2a66b"
+        }
+      ],
+      "spec_digest": "8ddb94d4ea6f482f8b5f8a285ee089ca5284149f9654fa1b603ab7ded263d216",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-table"
+          },
+          "objective_id": "n5-tradeoff:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-selfcheck"
+          },
+          "objective_id": "n5-tradeoff:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-complexity"
+          },
+          "objective_id": "n5-tradeoff:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-path"
+          },
+          "objective_id": "n5-tradeoff:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-restricted"
+          },
+          "objective_id": "n5-tradeoff:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-parallel"
+          },
+          "objective_id": "n5-tradeoff:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-selfcheck"
+          },
+          "objective_id": "n5-tradeoff:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec-why-compare"
+          },
+          "explanation": "把自注意力放回编码器-解码器与自回归生成的语境中，说明为何要与循环网络比较，衔接整体结构与自注意力机制。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-table"
+          },
+          "explanation": "以对比表形式给出自注意力/循环/卷积/受限自注意力在三个维度上的取值，落实“核心组成的作用与取舍”这一要求。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "teaching_context_digest": "33cfca6f697970bc4c7087b367240f9e4724838d43c8681478ea128b0b3724ca"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文在 sec-why-compare 把比较放回编码器-解码器与自注意力语境，sec-table 给出三行对比表，sec-complexity/sec-path/sec-restricted/sec-parallel 覆盖 n<d、O(1) 路径、n² 代价与训练并行/推理串行，真实支持本节点分工 req-transformer-basics 的取舍部分；未伪称整课已满足。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "sec-table 的 O(n²·d)/O(n·d²)/O(k·n·d²)、O(1)/O(n)/O(1)、O(1)/O(n)/O(log_k n) 与受限自注意力 O(r·n·d)、O(n/r) 均与 Table 1 一致；sec-complexity 用 n/d 比值推 n<d 更快、翻倍约 4 倍正确；sec-parallel 区分训练并行与生成串行，并指出层内 O(1) 与自回归串行不矛盾，无逻辑错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "sec-restricted 给出 n 数万、d=512 的超长文档场景并推演 r 缩小后路径变 O(n/r) 的代价；sec-selfcheck 第 4 题要求推演 r 调小的后果，例子与边界条件（k<n 单层卷积连不通、n>d 时循环更省）均被明确交代。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：动机→对比表→复杂度→路径长度→受限注意力→并行边界→小结→自检，与“先看数字再解释含义”的声明一致，符合入门深度且无面试模板；自检题与节点自检标准对应。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "依据说明标注 Attention Is All You Need (NeurIPS 2017) §4 与 Table 1，正文引用的复杂度、路径长度、受限注意力 O(n/r) 及“顺序计算约束依然存在”均可在提供的证据原文中找到对应；教师强制/因果掩码的并行分析有 ev_5b5f1a2af449e08cba91e9ad 支撑。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三个目标均有解释与自检落点：三方面对比（sec-table、自检1）、n<d 与 O(1) 路径及 n² 代价（sec-complexity、sec-path、sec-restricted）、训练并行/推理串行（sec-parallel、自检3）；未越界讲授其他节点内容，也未遗漏“完全并行”边界这一关键点。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文在 sec-why-compare 把比较放回编码器-解码器与自注意力语境，sec-table 给出三行对比表，sec-complexity/sec-path/sec-restricted/sec-parallel 覆盖 n<d、O(1) 路径、n² 代价与训练并行/推理串行，真实支持本节点分工 req-transformer-basics 的取舍部分；未伪称整课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "sec-table 的 O(n²·d)/O(n·d²)/O(k·n·d²)、O(1)/O(n)/O(1)、O(1)/O(n)/O(log_k n) 与受限自注意力 O(r·n·d)、O(n/r) 均与 Table 1 一致；sec-complexity 用 n/d 比值推 n<d 更快、翻倍约 4 倍正确；sec-parallel 区分训练并行与生成串行，并指出层内 O(1) 与自回归串行不矛盾，无逻辑错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "sec-restricted 给出 n 数万、d=512 的超长文档场景并推演 r 缩小后路径变 O(n/r) 的代价；sec-selfcheck 第 4 题要求推演 r 调小的后果，例子与边界条件（k<n 单层卷积连不通、n>d 时循环更省）均被明确交代。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：动机→对比表→复杂度→路径长度→受限注意力→并行边界→小结→自检，与“先看数字再解释含义”的声明一致，符合入门深度且无面试模板；自检题与节点自检标准对应。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "依据说明标注 Attention Is All You Need (NeurIPS 2017) §4 与 Table 1，正文引用的复杂度、路径长度、受限注意力 O(n/r) 及“顺序计算约束依然存在”均可在提供的证据原文中找到对应；教师强制/因果掩码的并行分析有 ev_5b5f1a2af449e08cba91e9ad 支撑。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个目标均有解释与自检落点：三方面对比（sec-table、自检1）、n<d 与 O(1) 路径及 n² 代价（sec-complexity、sec-path、sec-restricted）、训练并行/推理串行（sec-parallel、自检3）；未越界讲授其他节点内容，也未遗漏“完全并行”边界这一关键点。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "sec-table 中“卷积层 O(k·n·d²)”与可分离卷积的补充说明可加一句提示：表中默认非可分离卷积，避免读者把两行复杂度混用。",
+              "sec-complexity 的“翻倍约变 4 倍”可补一句“这是打分矩阵规模，实际还受 d 与实现常数影响”，进一步限定结论范围。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-why-compare 确实把自注意力放回编码器-解码器与自回归生成语境，并引出与循环网络比较的三个维度，支持 req-transformer-basics 的衔接贡献。",
+                "locator": {
+                  "section_id": "sec-why-compare"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-table 以表格给出自注意力/循环/卷积/受限自注意力在复杂度、顺序操作数、路径长度上的取值，并附读表说明，真实支持所述贡献。",
+                "locator": {
+                  "section_id": "sec-table"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-table 完整呈现三方面对比数据，直接支撑 n5-tradeoff:o1 的“从三方面比较”目标。",
+                "locator": {
+                  "section_id": "sec-table"
+                },
+                "binding_id": "n5-tradeoff:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-selfcheck 第 1 题要求不看表说出三格取值，是对 o1 的有效检查。",
+                "locator": {
+                  "section_id": "sec-selfcheck"
+                },
+                "binding_id": "n5-tradeoff:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-complexity 用 n/d 比值说明 n<d 时更快、n>d 时循环更省，并指出 n² 增长代价，支撑 o2 的复杂度部分。",
+                "locator": {
+                  "section_id": "sec-complexity"
+                },
+                "binding_id": "n5-tradeoff:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-path 解释 O(1) 路径为何利于长程依赖，并对比循环 O(n) 与卷积 O(log_k n)，支撑 o2 的路径部分。",
+                "locator": {
+                  "section_id": "sec-path"
+                },
+                "binding_id": "n5-tradeoff:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-restricted 以超长文档场景说明受限自注意力把复杂度降到 O(r·n·d)、路径变为 O(n/r)，支撑 o2 的代价与改进说明。",
+                "locator": {
+                  "section_id": "sec-restricted"
+                },
+                "binding_id": "n5-tradeoff:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-parallel 明确“完全并行”只对编码器和训练时解码器成立，推理仍需 m 次顺序前向，支撑 o3。",
+                "locator": {
+                  "section_id": "sec-parallel"
+                },
+                "binding_id": "n5-tradeoff:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-selfcheck 第 3 题要求用两句话解释“完全并行”的适用范围，是对 o3 的有效检查。",
+                "locator": {
+                  "section_id": "sec-selfcheck"
+                },
+                "binding_id": "n5-tradeoff:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "67484a36cd3a2868937d5e53a087e247bb227842a1ef52bd4c65825f65098d12",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "sec-table 中“卷积层 O(k·n·d²)”与可分离卷积的补充说明可加一句提示：表中默认非可分离卷积，避免读者把两行复杂度混用。",
+        "sec-complexity 的“翻倍约变 4 倍”可补一句“这是打分矩阵规模，实际还受 d 与实现常数影响”，进一步限定结论范围。"
+      ],
+      "content_sha256": "67484a36cd3a2868937d5e53a087e247bb227842a1ef52bd4c65825f65098d12",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec-why-compare 确实把自注意力放回编码器-解码器与自回归生成语境，并引出与循环网络比较的三个维度，支持 req-transformer-basics 的衔接贡献。",
+          "locator": {
+            "section_id": "sec-why-compare"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-table 以表格给出自注意力/循环/卷积/受限自注意力在复杂度、顺序操作数、路径长度上的取值，并附读表说明，真实支持所述贡献。",
+          "locator": {
+            "section_id": "sec-table"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-table 完整呈现三方面对比数据，直接支撑 n5-tradeoff:o1 的“从三方面比较”目标。",
+          "locator": {
+            "section_id": "sec-table"
+          },
+          "binding_id": "n5-tradeoff:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-selfcheck 第 1 题要求不看表说出三格取值，是对 o1 的有效检查。",
+          "locator": {
+            "section_id": "sec-selfcheck"
+          },
+          "binding_id": "n5-tradeoff:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-complexity 用 n/d 比值说明 n<d 时更快、n>d 时循环更省，并指出 n² 增长代价，支撑 o2 的复杂度部分。",
+          "locator": {
+            "section_id": "sec-complexity"
+          },
+          "binding_id": "n5-tradeoff:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-path 解释 O(1) 路径为何利于长程依赖，并对比循环 O(n) 与卷积 O(log_k n)，支撑 o2 的路径部分。",
+          "locator": {
+            "section_id": "sec-path"
+          },
+          "binding_id": "n5-tradeoff:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-restricted 以超长文档场景说明受限自注意力把复杂度降到 O(r·n·d)、路径变为 O(n/r)，支撑 o2 的代价与改进说明。",
+          "locator": {
+            "section_id": "sec-restricted"
+          },
+          "binding_id": "n5-tradeoff:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-parallel 明确“完全并行”只对编码器和训练时解码器成立，推理仍需 m 次顺序前向，支撑 o3。",
+          "locator": {
+            "section_id": "sec-parallel"
+          },
+          "binding_id": "n5-tradeoff:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-selfcheck 第 3 题要求用两句话解释“完全并行”的适用范围，是对 o3 的有效检查。",
+          "locator": {
+            "section_id": "sec-selfcheck"
+          },
+          "binding_id": "n5-tradeoff:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "66de99af81f5fef5e0d35b04693baa3680b00e0dac01c983076937c0525c956a"
+    }
+  }
+}

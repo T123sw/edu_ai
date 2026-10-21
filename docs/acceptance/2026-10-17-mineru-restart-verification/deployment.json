@@ -1,0 +1,99 @@
+{
+  "checked_at": "2026-10-17T09:20:16.181092+00:00",
+  "backend": "MainPID=1235977\nExecMainStartTimestamp=Sat 2026-10-17 09:18:40 UTC\nActiveState=active\n",
+  "files": {
+    "backend/src/app/integrations/pdf/__init__.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:29:13.613070+00:00"
+    },
+    "backend/src/app/integrations/pdf/configuration.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:29:13.613070+00:00"
+    },
+    "backend/src/app/integrations/pdf/mineru_local.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:31:15.101194+00:00"
+    },
+    "backend/src/app/integrations/pdf/mineru_local_artifacts.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:26:38.524940+00:00"
+    },
+    "backend/src/app/exam_generation/snapshots.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:25:49.064908+00:00"
+    },
+    "backend/src/app/exam_generation/sources.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:25:49.064908+00:00"
+    },
+    "backend/src/app/course_preparation/adapters/documents.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:26:57.100954+00:00"
+    },
+    "backend/src/app/course_preparation/adapters/document_store.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:26:57.104954+00:00"
+    },
+    "backend/src/app/api/runtime_config.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:26:57.104954+00:00"
+    },
+    "backend/src/modules/rag_v2/rag_main/system.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:29:13.617070+00:00"
+    },
+    "backend/src/tests/test_mineru_local.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:29:58.473114+00:00"
+    },
+    "backend/src/tests/exam_generation/test_generation.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:29:58.473114+00:00"
+    },
+    "backend/src/tests/course_preparation/test_document_adapter.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:30:43.105160+00:00"
+    },
+    "services/deeptutor/scripts/verify_m2_backend.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:31:15.101194+00:00"
+    },
+    "services/deeptutor/scripts/verify_m2_generation.py": {
+      "match": true,
+      "modified_at": "2026-10-17T08:26:57.104954+00:00"
+    }
+  },
+  "initial_health_probe": "ReadTimeout after 10s; backend log showed RAG/BM25 initialization",
+  "backend_health": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "message": "service ready",
+      "knowledge_base_ready": true,
+      "document_count": 11249
+    },
+    "seconds": 0.16
+  },
+  "mineru_health": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "version": "4.0.12",
+      "features": {
+        "webhook": false,
+        "output_formats": [
+          "markdown",
+          "middle_json",
+          "structured_content",
+          "zip"
+        ],
+        "sources": [
+          "file_id",
+          "url",
+          "inline"
+        ]
+      }
+    },
+    "seconds": 0.022
+  }
+}

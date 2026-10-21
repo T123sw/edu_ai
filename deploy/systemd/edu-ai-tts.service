@@ -1,0 +1,21 @@
+[Unit]
+Description=Edu-AI local Qwen3-TTS
+After=network.target
+
+[Service]
+Type=simple
+User=zxqs_ep
+Group=zxqs_ep
+WorkingDirectory=/home/zxqs_ep/Edu_AI
+EnvironmentFile=/home/zxqs_ep/Edu_AI/.env
+Environment=PYTHONUNBUFFERED=1
+Environment=HF_HUB_OFFLINE=1
+Environment=TRANSFORMERS_OFFLINE=1
+Environment=PATH=/home/zxqs_ep/miniforge3/envs/edu-ai/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python -m uvicorn services.local_tts.qwen_server:app --host 127.0.0.1 --port 8188
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target

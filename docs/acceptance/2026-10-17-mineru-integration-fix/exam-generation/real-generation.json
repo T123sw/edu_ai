@@ -1,0 +1,22 @@
+{
+  "model_boundary": "live",
+  "pdf_parser": "mineru-local",
+  "production_writes": false,
+  "cases": [
+    {
+      "mode": "mimic",
+      "saved": false,
+      "error_type": "DurableTaskExecutionError",
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE",
+      "seconds": 26.27,
+      "events": 242
+    },
+    {
+      "mode": "mimic",
+      "attempt": "explicit_retry",
+      "saved": true,
+      "seconds": 10.16,
+      "events": 15
+    }
+  ]
+}

@@ -43,7 +43,7 @@ def test_resource_plan_confirmation_recovery_submission(tmp_path, kind):
         args = {'resource_type': kind, 'subject': '二分查找', 'requirements': '保留用户数量与语言'}
         org = tools.call('organize_resource_content', args)
         assert org['ok'], org
-        outline = tools.call('draft_resource_outline', {**args, 'organization_id': org['data']['organization_id'], 'section_count': 3, 'classroom_options': {'enable_tts': False, 'include_visuals': False, 'duration_minutes': 25}})
+        outline = tools.call('draft_resource_outline', {**args, 'organization_id': org['data']['organization_id'], 'section_count': 3, 'require_confirmation': True, 'classroom_options': {'enable_tts': False, 'include_visuals': False, 'duration_minutes': 25}})
         assert outline['ok'], outline
         assert not tools.call('submit_resource', ref(outline['data']))['ok']
         result = HarnessRuntime._result(req, '不能出现的另一份大纲', tools)
@@ -97,6 +97,20 @@ def test_query_checks_version_owner_course_and_cancel_authority(tmp_path):
         assert not tools.call('query_resource_job', {'task_id': 'external'})['ok']
 
 
+def test_classroom_job_reports_structural_validation_without_claiming_model_review(tmp_path):
+    from app.chat.harness.reviewed_resource import review_classroom
+    from tests.course_preparation.test_openmaic_native_integration import native_scene
+    content, receipt = review_classroom(native_scene('interactive', {'html': '<button>观察</button>'}), {})
+    material = {**content, 'generation_state': {'resource_review': receipt}}
+    job = SimpleNamespace(kind='generate_classroom', owner_user_id='alice', course_id='course1',
+        status='succeeded', progress=100, result_ref={'course_id': 'course1', 'classroom_id': 'c1'}, input_summary={})
+    with HarnessStore(tmp_path).session(request()) as session:
+        tools = toolset(request(), session, get_job=lambda _: job, read_artifact=lambda *_: material)
+        result = tools.call('query_resource_job', {'task_id': 'external'})
+        assert result['data']['verification'] == {'decision': 'pass',
+            'checks': 'version_bound_structural_validation', 'semantic_review': 'skipped'}
+
+
 def test_independent_review_repairs_real_content_and_binds_final_version():
     import json
     class Gateway:
@@ -136,36 +150,14 @@ def test_non_report_outline_can_revisit_units_and_use_one_group(tmp_path):
         assert result['data']['chapters'][0]['unit_indices'] == [0, 1, 2, 0]
 
 
-@pytest.mark.anyio
-async def test_classroom_review_precedes_publication_and_no_tts_is_respected(tmp_path, monkeypatch):
-    from tests.test_classroom_service import FakeClient
-    from app.services.classroom_service import _make_on_sidecar_succeeded
-    from core.course_storage import CourseStorageManager
-    from app.chat.harness.reviewed_resource import digest
-    monkeypatch.setenv('MATERIAL_PERSISTENCE_MODE', 'json')
-    monkeypatch.setenv('APP_STATE_PERSISTENCE_MODE', 'json')
-    manager = CourseStorageManager(str(tmp_path))
-    manager.create_course_structure('course1')
-    client = FakeClient()
-    calls = []
-    def review(content, config):
-        calls.append('review')
-        return content, {'decision': 'pass', 'method': 'model_review', 'resource_type': 'classroom',
-            'content_sha256': digest('classroom', content), 'checks': [{'criterion': c, 'passed': True} for c in CRITERIA],
-            'scene_checks': [{'scene_index': i, 'screen_reasoning': '测试投屏内容正确', 'screen_passed': True,
-                'speech_checks': [{'action_index': j, 'reasoning': '测试讲解内容正确', 'passed': True}
-                    for j, a in enumerate(s.get('actions', [])) if a.get('type') == 'speech']}
-                for i, s in enumerate(content['scenes'])]}
-    monkeypatch.setattr('app.chat.harness.reviewed_resource.review_classroom', review)
-    callback = _make_on_sidecar_succeeded(active_client=client, course_storage_manager=manager,
-        course_id='course1', owner='alice', scope_type='course', scope_id=None, material_id='classroom-stable',
-        material_metadata={'review_policy': 'required', 'harness_config': {'classroom_options': {'enable_tts': False}}})
-    result = await callback({'classroomId': 'stage-1'})
-    assert result['material_type'] == 'classroom' and result['material_id'] == 'classroom-stable'
-    saved = manager.get_generated_material('course1', 'classroom', 'classroom-stable', owner_user_id='alice')
-    assert saved['visibility'] == 'private'
-    assert verified_resource(saved, 'classroom')
-    assert calls == ['review'] and client.synthesize_tts_calls == []
+def test_native_classroom_receipt_does_not_claim_semantic_review():
+    from app.chat.harness.reviewed_resource import review_classroom
+    from tests.hyperframes.test_context_serving import lesson
+    content=lesson()
+    reviewed,audit=review_classroom(content,{})
+    assert reviewed==content
+    assert audit['decision']=='skipped'
+    assert verified_resource({'content':reviewed,'generation_state':{'resource_review':audit}},'classroom')
 
 
 @pytest.mark.parametrize('kind', ['quiz', 'flashcard', 'graph', 'game', 'blog'])
@@ -215,7 +207,7 @@ def test_classroom_submission_preserves_command_budget(monkeypatch):
         'harness_chapters': [{}, {}, {}], 'classroom_options': {'enable_tts': False, 'include_visuals': False, 'duration_minutes': 5}})
     assert submit_classroom(command, object()) == 'submitted'
     assert captured['deadline_seconds'] == 1800
-    assert captured['scene_count'] == 3 and captured['duration_minutes'] == 5
+    assert 'scene_count' not in captured and captured['duration_minutes'] == 5
     assert captured['enable_tts'] is False and captured['include_visuals'] is False
 
 
@@ -322,33 +314,27 @@ def test_model_revision_handoff_uses_actual_authorized_version(tmp_path):
         assert not tools.call('select_resource_for_revision', {'task_id': 'j1'})['ok']
 
 
-def test_classroom_requires_explicit_media_choices(tmp_path):
+def test_classroom_unspecified_media_choices_are_not_invented(tmp_path):
     with HarnessStore(tmp_path).session(request()) as session:
-        tools = toolset(request(), session, gateway=OrganizedGateway())
-        args = {'resource_type': 'classroom', 'subject': '二分查找'}
-        org = tools.call('organize_resource_content', args)['data']
-        result = tools.call('draft_resource_outline', {**args, 'organization_id': org['organization_id']})
-        assert not result['ok'] and 'classroom_options_required' in result['error']
-        assert not session.data['outlines']
+        tools=toolset(request(),session,gateway=object())
+        result=tools.call('draft_resource_outline',{'resource_type':'classroom','subject':'二分查找'})
+        assert result['ok'],result
+        assert result['data']['classroom_options']=={}
+        assert result['data']['chapters']==[]
+        assert result['data']['audience']==''
 
 
-def test_teaching_plan_semantic_failure_is_not_presented_or_saved(tmp_path):
-    import json
-    class RejectPlan(OrganizedGateway):
-        def chat(self, messages, **kwargs):
-            data = json.loads(messages[-1]['content'])
-            if 'request' in data and 'chapters' in data.get('content', {}):
-                return json.dumps({'passed': False, 'issues': ['活动与目标不对应'],
-                    'checks': [{'passed': False, 'reason': '评价没有检查约定的学习目标'}] * 4})
-            return super().chat(messages, **kwargs)
+def test_classroom_requirement_handoff_needs_no_story_or_extra_model_review(tmp_path):
     with HarnessStore(tmp_path).session(request()) as session:
-        tools = toolset(request(), session, gateway=RejectPlan())
-        args = {'resource_type': 'classroom', 'subject': '二分查找'}
-        org = tools.call('organize_resource_content', args)['data']
-        result = tools.call('draft_resource_outline', {**args, 'organization_id': org['organization_id'], 'classroom_options': {'enable_tts': False, 'include_visuals': False, 'duration_minutes': 25}})
-        assert not result['ok'] and result['error'] == 'content_quality_failed'
-        assert not session.data['outlines']
-        assert tools.planning_context()['resource_organizations'][0]['organization_id'] == org['organization_id']
+        tools=toolset(request(),session,gateway=object())
+        args={'resource_type':'classroom','subject':'二分查找','requirements':'只要视频，不要题目'}
+        org=tools.call('organize_resource_content',args)['data']
+        result=tools.call('draft_resource_outline',{**args,'organization_id':org['organization_id']})
+        assert result['ok'],result
+        assert org['units']==[]
+        assert result['data']['chapters']==[]
+        assert args['requirements'] in result['data']['markdown']
+        assert result['data']['quality']['semantic_review']=='not_performed'
 
 
 def test_invalid_plan_feedback_reaches_generator_with_exact_bounds(tmp_path):
@@ -436,35 +422,13 @@ def test_incomplete_review_is_retried_without_assuming_pass():
     assert calls[1][-2]['content'] == '{"checks": ['
 
 
-@pytest.mark.anyio
-async def test_classroom_repair_gets_field_handles_and_recovers_invalid_handle():
-    import json
-    from tests.test_classroom_service import FakeClient
+def test_classroom_no_extra_review_preserves_native_timeline():
     from app.chat.harness.reviewed_resource import review_classroom
-    original = await FakeClient().get_classroom('stage-1')
-    original['scenes'][0]['actions'][0]['text'] = '2+3=6'
-    repairs = []
-    path = ['scenes', 0, 'actions', 0, 'text']
-    class Gateway:
-        def chat(self, messages, **kwargs):
-            first = json.loads(messages[1]['content'])
-            if 'text_fields' in first:
-                repairs.append(copy.deepcopy(messages))
-                field_id = next(f['field_id'] for f in first['text_fields'] if f['path'] == path)
-                return json.dumps({'replacements': [{'field_id': -1 if len(repairs) == 1 else field_id,
-                    'text': '2+3=5'}]})
-            passed = first['content']['scenes'][0]['actions'][0]['text'] == '2+3=5'
-            return json.dumps({'checks': [{'criterion': c, 'passed': passed, 'reason': '独立计算二加三应等于五'} for c in CRITERIA],
-                'blocking_issues': [] if passed else ['讲解中加法计算错误'], 'suggestions': [],
-                'scene_checks': [{'scene_index': 0, 'screen_reasoning': '投屏无错误算式', 'screen_passed': True,
-                    'speech_checks': [{'action_index': 0, 'reasoning': '独立计算二加三应等于五', 'passed': passed}]}]})
-    revised, audit = review_classroom(original, {}, Gateway())
-    assert original['scenes'][0]['actions'][0]['text'] == '2+3=6'
-    assert revised['scenes'][0]['actions'][0]['text'] == '2+3=5'
-    assert len(repairs) == 2 and '字段编号不在当前清单中' in repairs[1][-1]['content']
-    assert len(repairs[1]) == 3 and all(message['role'] != 'assistant' for message in repairs[1])
-    assert audit['history'][0]['repair_issues'] == ['字段编号不在当前清单中']
-    assert audit['decision'] == 'pass'
+    from tests.hyperframes.test_context_serving import lesson
+    content=lesson();original=copy.deepcopy(content)
+    reviewed,_=review_classroom(content,{})
+    assert reviewed==original
+    assert reviewed['project']==original['project']
 
 
 def test_classroom_repair_handles_include_teaching_text_without_render_metadata():
@@ -494,38 +458,15 @@ def test_whole_text_replacement_preserves_markup_and_identity_guards():
         bind_text_replacements(source, replacements * 2)
 
 
-@pytest.mark.anyio
-async def test_classroom_repair_filters_noop_replacements_and_rechecks():
-    import json
-    from tests.test_classroom_service import FakeClient
+def test_classroom_no_extra_review_never_calls_reviewer_or_repairer():
     from app.chat.harness.reviewed_resource import review_classroom
-    content = await FakeClient().get_classroom('stage-1')
-    speech = next(action for action in content['scenes'][0]['actions'] if action['type'] == 'speech')
-    calls = {'reviews': 0, 'repairs': 0}
+    from tests.hyperframes.test_context_serving import lesson
+    class Forbidden:
+        def chat(self,*a,**k):raise AssertionError('No additional content reviewer')
+    def repair(*a,**k):raise AssertionError('Host must not rewrite native content')
+    _,audit=review_classroom(lesson(),{},gateway=Forbidden(),repair=repair)
+    assert audit['decision']=='skipped'
 
-    class Gateway:
-        def chat(self, messages, **kwargs):
-            request = json.loads(messages[1]['content'])
-            if 'text_fields' in request:
-                calls['repairs'] += 1
-                field = next(item for item in request['text_fields'] if item['text'] == speech['text'])
-                return json.dumps({'replacements': [{'field_id': field['field_id'], 'text': field['text']}]})
-            calls['reviews'] += 1
-            passed = calls['reviews'] > 1
-            return json.dumps({
-                'checks': [{'criterion': criterion, 'passed': passed, 'reason': '重新独立核验后内容正确'}
-                           for criterion in CRITERIA],
-                'blocking_issues': [] if passed else ['需要重新核验讲解'],
-                'suggestions': [],
-                'scene_checks': [{'scene_index': 0, 'screen_reasoning': '投屏内容正确', 'screen_passed': True,
-                                  'speech_checks': [{'action_index': 0, 'reasoning': '讲解内容正确', 'passed': passed}]}],
-            })
-
-    revised, audit = review_classroom(content, {}, Gateway())
-    assert revised == content
-    assert calls == {'reviews': 2, 'repairs': 3}
-    assert audit['decision'] == 'pass'
-    assert audit['history'][0]['repair_issues'] == ['模型未提供真实字段修改'] * 3
 
 
 def test_missing_speech_review_is_retried_with_explicit_coverage():
@@ -545,41 +486,17 @@ def test_missing_speech_review_is_retried_with_explicit_coverage():
     assert 'speech_coverage_incomplete' in calls[1][-1]['content']
 
 
-def test_teaching_phase_count_and_knowledge_selection_are_reviewed_by_model(tmp_path):
-    import json
-    class FlexiblePlan(OrganizedGateway):
-        approve = False
-        reviews = []
-        def chat(self, messages, **kwargs):
-            prompt = json.loads(messages[-1]['content'])
-            if 'request' in prompt and 'chapters' in prompt.get('content', {}):
-                self.reviews.append(prompt)
-                return json.dumps({'passed': self.approve, 'issues': [] if self.approve else ['必要学习目标缺少评价'],
-                    'checks': [{'passed': self.approve, 'reason': '按真实学习目标核验活动与评价覆盖'}] * 4})
-            raw = super().chat(messages, **kwargs)
-            if 'section_count' in prompt:
-                content = json.loads(raw)
-                content['chapters'] = content['chapters'][:2]
-                for chapter in content['chapters']: chapter['duration_minutes'] = 12.5
-                return json.dumps(content)
-            return raw
+def test_explicit_video_constraints_pass_through_without_authoring_frames(tmp_path):
     with HarnessStore(tmp_path).session(request()) as session:
-        gateway = FlexiblePlan()
-        tools = toolset(request(), session, gateway=gateway)
-        args = {'resource_type': 'classroom', 'subject': '二分查找'}
-        org = tools.call('organize_resource_content', args)['data']
-        args.update(organization_id=org['organization_id'], section_count=5, classroom_options={'enable_tts': False, 'include_visuals': False, 'duration_minutes': 25})
-        exact = tools.call('draft_resource_outline', {**args, 'require_section_count': True})
-        assert exact['error'] == 'outline_model_response_invalid'
-        rejected = tools.call('draft_resource_outline', args)
-        assert rejected['error'] == 'content_quality_failed'
-        assert len(gateway.reviews[0]['organization']['units']) == 3
-        assert 'section_count' not in gateway.reviews[0]['request']
-        gateway.approve = True
-        accepted = tools.call('draft_resource_outline', args)
-        assert accepted['ok'], accepted
-        assert len(accepted['data']['chapters']) == 2
-        assert accepted['data']['quality']['coverage_method'] == 'model_review'
+        tools=toolset(request(),session,gateway=object())
+        result=tools.call('draft_resource_outline',{'resource_type':'classroom','subject':'二分查找',
+            'section_count':5,'require_section_count':True,
+            'classroom_options':{'duration_minutes':0.5,'enable_tts':False}})
+        assert result['ok'],result
+        assert result['data']['chapters']==[]
+        assert '用户指定片段数量：5' in result['data']['markdown']
+        assert '0.5 分钟' in result['data']['markdown']
+        assert '不需要配音' in result['data']['markdown']
 
 
 def test_lesson_fast_plan_uses_one_call_and_defers_review_without_bypassing_confirmation(tmp_path):
@@ -675,3 +592,16 @@ def test_lesson_revision_applies_exact_edits_and_preserves_review_feedback(bad_f
     final = result['artifacts'][0]
     assert final['content'] == initial.replace('2+3=6','2+3=5')
     assert verified_resource(final, 'lesson_plan')
+
+
+def test_video_requirements_can_be_submitted_in_same_authorized_turn(tmp_path):
+    calls=[]
+    req=request(question='直接生成一次函数教学视频，只要视频', request_id='video-direct')
+    with HarnessStore(tmp_path).session(req) as session:
+        tools=toolset(req,session,gateway=object(),submit=lambda command:calls.append(command) or SimpleNamespace(edu_job_id='video-job'))
+        result=tools.call('draft_resource_outline',{'resource_type':'classroom','subject':'一次函数','requirements':req.question})
+        assert result['ok'],result
+        assert tools.call('submit_resource',ref(result['data']))['ok']
+        assert len(calls)==1
+        assert calls[0].config['harness_chapters']==[]
+        assert calls[0].config['classroom_options']=={}

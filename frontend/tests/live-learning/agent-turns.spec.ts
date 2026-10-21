@@ -26,12 +26,12 @@ test('selection and exact resource snapshot are fixed when sending; refresh reco
   await expect(log.getByText('慢回答：解释这段内容', { exact: true })).toHaveCount(1);
   await expect(log.getByText('来源：节点 A 核心文档 · v1', { exact: true })).toBeVisible();
 });
-test('late answer stays in original topic; model failure does not block learning', async ({ page }) => {
+test('late answer stays visible across course topics; model failure does not block learning', async ({ page }) => {
   await login(page);
   await ask(page, '慢回答：只属于节点A');
   await expect(page.getByRole('button', { name: '取消本次答疑' })).toHaveCount(0);
   await page.getByRole('button', { name: '节点 B 核心文档', exact: true }).click();
-  await expect(page.getByRole('log').getByText('已回答：慢回答：只属于节点A', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('log').getByText('已回答：慢回答：只属于节点A', { exact: true })).toBeVisible();
   await ask(page, '模型失败');
   await expect(page.getByRole('button', { name: '重试本次答疑' })).toBeVisible();
   await expect(page.getByRole('button', { name: '继续学习', exact: true })).toBeEnabled();

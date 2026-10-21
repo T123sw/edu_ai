@@ -5,6 +5,7 @@ from typing import Literal
 from pydantic import ConfigDict, Field, model_validator, model_serializer
 
 from .schemas import Contract, Identifier, PreparationRequest
+from app.schemas.video_preferences import VideoPreferences
 
 PREFERENCE_FIELDS = frozenset({'language', 'response_detail', 'learning_style', 'resource_preference'})
 
@@ -36,6 +37,7 @@ class NodeReference(ContextContract):
 
 
 class TeachingContext(ContextContract):
+    video_preferences: VideoPreferences | None = None
     schema_version: Literal[1] = 1
     request_goal: str = Field(min_length=1)
     requirements: list[RequirementContext]
@@ -66,6 +68,8 @@ class TeachingContext(ContextContract):
         value = handler(self)
         if 'resource_repair_target_minutes' not in self.model_fields_set:
             value.pop('resource_repair_target_minutes', None)
+        if 'video_preferences' not in self.model_fields_set:
+            value.pop('video_preferences', None)
         return value
 
     @model_validator(mode='after')
@@ -129,6 +133,17 @@ def build_teaching_context(*, request: PreparationRequest, checkpoint: dict, nod
         if node['objectives'] != [o['text'] for o in target['objectives']]:
             raise TeachingContextError('TARGET_OBJECTIVES_CHANGED')
         objective_ids = [o['objective_id'] for o in target['objectives']]
+        # The local path contains only this node; prerequisites live in the
+        # immutable original course and remain useful teaching context.
+        original_nodes = {n['node_id']: n for n in cp['target_snapshot'].get('manifest', {}).get('nodes', [])}
+        prerequisites = []
+        for key in target.get('prerequisite_node_ids', []):
+            if key not in original_nodes:
+                raise TeachingContextError('PREREQUISITE_REFERENCE_INVALID')
+            original = original_nodes[key]
+            prerequisites.append(NodeReference(node_id=key, title=original['title'],
+                objectives=[o['text'] for o in original['objectives']]))
+
     if 'objective_ids' in node and node['objective_ids'] != objective_ids:
         raise TeachingContextError('OBJECTIVE_ID_ORDER_CHANGED')
     brief = cp['brief']
@@ -148,6 +163,7 @@ def build_teaching_context(*, request: PreparationRequest, checkpoint: dict, nod
         *brief.get('material_gaps', []),
     ]))
     return TeachingContext(
+        **({'video_preferences': request.overrides.video_preferences} if request.overrides.video_preferences is not None else {}),
         request_goal=request.goal, requirements=requirements,
         prior_knowledge=brief.get('prior_knowledge', ''),
         desired_outcomes=brief.get('desired_outcomes', []), exclusions=brief.get('exclusions', []),

@@ -1,0 +1,75 @@
+{
+  "observed_at": 1792303419.5594254,
+  "tag": "多PDF验收 princeton-0010 1792300024454",
+  "generations": [
+    {
+      "generation_id": "examgen_f94cfb9c072bccdff911b2caa1590cc7",
+      "job_id": "examgen_f94cfb9c072bccdff911b2caa1590cc7",
+      "turn": {
+        "id": "turn_1792300107275_923f6d1939",
+        "status": "failed",
+        "failure_code": "",
+        "created_at": 1792300107.6128037,
+        "updated_at": 1792300140.2329006
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 13780,
+          "layout_blocks": 175,
+          "images": 49
+        }
+      ],
+      "blueprint_count": 0,
+      "local_events": 6,
+      "upstream_events": 6,
+      "done_received": true,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 4,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 4
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_9c92c8c59ca2b99e086b165865a15b66",
+      "job_id": "job_99d717da50f54a2c",
+      "turn": {
+        "id": "turn_1792300198157_d7412b121a",
+        "status": "cancelled",
+        "failure_code": "",
+        "created_at": 1792300198.278641,
+        "updated_at": 1792300713.0813358
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 13780,
+          "layout_blocks": 175,
+          "images": 49
+        }
+      ],
+      "blueprint_count": 10,
+      "local_events": 50826,
+      "upstream_events": 53760,
+      "done_received": false,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 53,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 29,
+          "deepseek-v4-flash": 24
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 0,
+    "unchanged_in_latest": 0
+  }
+}

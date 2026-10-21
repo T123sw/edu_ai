@@ -1,0 +1,65 @@
+{
+  "status": "published-verified-with-open-issues",
+  "production_origin": "http://127.0.0.1",
+  "api_base": "/backend",
+  "mocked_business_requests": 0,
+  "real_model": true,
+  "test_practice_id": "practice_792ef220f0ee56f7576d4417540dc83f",
+  "protocol": "edu-experiment/2",
+  "real_questions": 12,
+  "final_status_counts": {
+    "complete": 12,
+    "failed": 0,
+    "pending": 0
+  },
+  "normal_first_delta_ms": [
+    1212,
+    1996
+  ],
+  "normal_complete_ms": [
+    2312,
+    6285
+  ],
+  "reload_recovery_seconds": 125.11846089363098,
+  "retry_complete_ms": 4189,
+  "pending_after_disconnect_seconds": 120,
+  "duplicate_messages": 0,
+  "protocol_browser_regression": 4,
+  "responsive_widths": [
+    1440,
+    900,
+    390,
+    320
+  ],
+  "scoped_types_lint_build_skill": "passed",
+  "whole_repo_typecheck": "existing errors identical to deployed baseline after normalizing source root; no new diagnostics",
+  "source_hashes": {
+    "backend/src/app/api/practice.py": "52b48239c53966461520489da68cfd78a19d044195864cf13729b091e84b6286",
+    "backend/src/app/practice/experiment/repository.py": "d5ce80576319efbc4669fd05261980e5660fc2ce96891b61933d1c3ee972e5b1",
+    "backend/src/app/practice/experiment/teaching.py": "cb72f63bd8fd0976076aecaabc379ea2c4f2a142ec6093514e1257b63835b62f",
+    "backend/src/app/practice/experiment/tutor.py": "abee1ddbac0e9c32d414d89e38d7e33b3cd975dd0d12255332eff7c43c19d769",
+    "backend/src/app/practice/experiment/tutor_transport.py": "858797c2e2b10e7d46c69454ae22e9efc6b02c6ed4dd2eaf7995fd063b9fbbc7",
+    "backend/src/app/practice/skills/teach-experiment/SKILL.md": "1a678d39361b0e76e93bc635b4129d856ffb38709489aca289518b2502489761",
+    "frontend/src/practice/experiment/Experiment.tsx": "56b759b0e57797c2fc9baf3a35f48551f0f14a9bbd969be6d4c62a8fe7937e2f",
+    "frontend/src/practice/experiment/ExperimentTutor.tsx": "37ea002cee0c11c7cb24c77955cdfe8fbee6d1bb4ef4e8764ff191b696898b34",
+    "frontend/src/practice/experiment/experiment.css": "59ea02950a3018ba150b4f1eb7d2daadfb98e669ca5a8d03d7336fe96303cc9a",
+    "frontend/src/stitch/api/client.ts": "9afdd01715632691a63847d4cc5096c5d27feb83e9586b5d5f2b2fc894422120",
+    "backend/src/tests/practice/test_experiment_tutor.py": "980ab8b348dab9ec713159c8a20661e1a158854828af85703299ccacc90c6a4d",
+    "frontend/tests/live-learning/experiment.spec.ts": "62a7d9ff10293303ded51e84f30bd50052aa162b59bfe0d0e940d1f4fe6dec24",
+    "frontend/tests/live-learning/experiment-pages.spec.ts": "bc8c6c7588eaa07168af2d23a378d3fcf537bd1fa02c705affc5162fff52e09c",
+    "frontend/tests/live-learning/experiment-pages-real.spec.ts": "5056ac773f794160cdfd06c7d2b5c660a514d50ebf5a3b4aa44d958e9ac6fc09",
+    "frontend/playwright.experiment-tutor.config.ts": "3516e75382a8c451fb37fdeca5a876ef0cf12bd1eea410c5618096d294e2606e"
+  },
+  "health": {
+    "status": "ok",
+    "message": "service ready",
+    "knowledge_base_ready": true,
+    "document_count": 11249
+  },
+  "open_issues": [
+    "Refresh during generation leaves persisted pending until the 120 second lease expires; then retry completes with original context. AnyIO cancellation-scope reproduction confirms pending persists.",
+    "Teaching answers can repeat incorrect future comparison pairs and miscount operation totals, including after reading evidence; prompt changes improve correction but do not prove prevention.",
+    "Generated exploration page reports no-swap completion for a reverse array although swaps occurred; guided completion feedback is also ambiguous. Generated artifact and generation pipeline unchanged."
+  ],
+  "scope": "One deliberately generated production bubble-sort test experiment and its operations/chat; existing user experiments untouched."
+}

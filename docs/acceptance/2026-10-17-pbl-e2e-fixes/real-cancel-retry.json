@@ -1,0 +1,19 @@
+{
+  "productionDataModified": false,
+  "exerciseId": "pbl_78abae3ef64f7aad2d104a6c477de2c9",
+  "pendingCodeBeforeCancel": true,
+  "cancelResponse": "cancel_requested",
+  "canceledWithoutPublication": true,
+  "retryJobId": "job_3ae98e1ba8404375",
+  "modelPhases": [
+    "plan",
+    "build_step",
+    "build_checks",
+    "build_checks"
+  ],
+  "passed": true,
+  "sameExerciseRetried": true,
+  "savedCodeReused": true,
+  "stepCount": 1,
+  "seconds": 110.95
+}

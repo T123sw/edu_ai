@@ -29,6 +29,12 @@ class PreparationRepository:
         self.engine = engine
         self.authorizer = authorizer
 
+    def _authorize(self, session, owner_user_id, request):
+        authorize = getattr(self.authorizer, 'authorize_in_session', None)
+        if authorize is not None:
+            return authorize(session, owner_user_id, request)
+        return self.authorizer.authorize(owner_user_id, request)
+
     @staticmethod
     def _request_record(session, owner_user_id, request_id):
         return session.scalar(select(CoursePreparationRecord).where(
@@ -114,14 +120,14 @@ class PreparationRepository:
                 existing = self._request_record(session, owner_user_id, request.request_id)
                 if existing is None:
                     raise
-                self.authorizer.authorize(owner_user_id, request)
+                self._authorize(session, owner_user_id, request)
                 return self._replay(session, existing, digest)
 
     def get(self, *, owner_user_id: str, preparation_id: str) -> PreparationSnapshot:
         with Session(self.engine) as session:
             record = self._owned_record(session, owner_user_id, preparation_id)
             snapshot = self._snapshot(session, record)
-            self.authorizer.authorize(owner_user_id, snapshot.request)
+            self._authorize(session, owner_user_id, snapshot.request)
             return snapshot
 
     def events(self, *, owner_user_id: str, preparation_id: str,
@@ -131,7 +137,7 @@ class PreparationRepository:
         with Session(self.engine) as session:
             record = self._owned_record(session, owner_user_id, preparation_id)
             request = PreparationRequest.model_validate(record.request_payload)
-            self.authorizer.authorize(owner_user_id, request)
+            self._authorize(session, owner_user_id, request)
             rows = session.scalars(select(CoursePreparationEventRecord).where(
                 CoursePreparationEventRecord.preparation_id == preparation_id,
                 CoursePreparationEventRecord.sequence > after,

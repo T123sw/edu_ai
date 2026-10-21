@@ -1,0 +1,23 @@
+{
+  "productionDataModified": false,
+  "exerciseId": "pbl_1e65c3c85195cfa91355581fc60ec485",
+  "pendingCodeBeforeCancel": true,
+  "cancelResponse": "cancel_requested",
+  "canceledWithoutPublication": true,
+  "retryJobId": "job_4e5d91d9b9fe4047",
+  "modelPhases": [
+    "plan",
+    "plan",
+    "build_step",
+    "build_checks",
+    "build_checks"
+  ],
+  "passed": true,
+  "seconds": 385.48,
+  "sameExerciseRetried": true,
+  "savedCodeReused": true,
+  "stepCount": 1,
+  "retryModelCalls": 1,
+  "planningCallsBeforeCancel": 2,
+  "harnessCorrection": "原脚本假设取消前 plan 恰好调用1次；本次计划自身修复一次。改为核对取消后的阶段只有 build_checks，当前工程已发布且前后代码完全相同。"
+}

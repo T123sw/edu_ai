@@ -12,7 +12,7 @@ import {
   CLASSROOM_STEP_LABELS,
   generateClassroom,
 } from "../../stitch/api/classroom";
-import { buildClassroomPlayerHash } from "../../openmaic/classroomGenerationFlow";
+import { buildClassroomPlayerHash } from "../../classroom/classroomGenerationFlow";
 import {
   registerCreatedJob,
   useCourseJobs,

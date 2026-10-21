@@ -1,17 +1,30 @@
+import {useRecentOpens} from '../recent/context';
+import {recentKey} from '../recent/store';
 import { useState, type FormEvent, type ReactNode } from "react";
 import { allResources, type Classroom } from "./model";
 import { Brand, Icon } from "./ui";
+import { ModuleIllustration } from "./ModuleIllustration";
+import { moduleIdentity, type LearningModule } from "./moduleIdentity";
 
 type Props = {
-  rooms: Classroom[];
-  shared: Classroom[];
-  canPublish: boolean;
+  rooms?: Classroom[];
   onCreate: (text: string) => void;
-  onOpen: (room: Classroom, shared?: boolean) => void;
-  onPublish: () => void;
+  onOpen?: (room: Classroom) => void;
+  mode?: LearningModule;
+  promptValue?: string;
+  onPromptChange?: (value: string) => void;
+  submitting?: boolean;
+  createLabel?: string;
+  createDisabled?: boolean;
+  promptPlaceholder?: string;
+  feedback?: ReactNode;
+  resourceContent?: ReactNode;
   live?: boolean;
   canCreateFromUploads?: boolean;
   preparationOptions?: ReactNode;
+  toolbar?: ReactNode;
+  libraryTabs?: ReactNode;
+  personalResourceContent?: ReactNode;
 };
 export function Cover({ room }: { room: Pick<Classroom, "tone"> }) {
   const python = room.tone === "mint";
@@ -58,77 +71,79 @@ export function Cover({ room }: { room: Pick<Classroom, "tone"> }) {
     </div>
   );
 }
-function LearningIllustration() {
-  return <svg className="sl-editorial-illustration" viewBox="0 0 360 250" fill="none" aria-hidden="true">
-    <circle cx="221" cy="106" r="74" fill="#E6DFCA" />
-    <circle cx="264" cy="50" r="20" fill="#BD693F" />
-    <ellipse cx="186" cy="130" rx="139" ry="61" transform="rotate(-27 186 130)" stroke="#879789" strokeWidth="1" strokeDasharray="3 6" />
-    <path d="M72 175 179 217 299 161 193 124Z" fill="#D9DBCC" />
-    <path d="m77 155 101 39 117-49v15l-117 50-101-40Z" fill="#F8F5EC" stroke="#214B3D" strokeWidth="1.5" strokeLinejoin="round" />
-    <path d="M179 194V91c-34-25-70-26-105-17v101c40-7 72-2 105 19Z" fill="#FAF8F1" stroke="#214B3D" strokeWidth="1.7" strokeLinejoin="round" />
-    <path d="M179 194V91c32-20 65-28 105-25v101c-39-1-73 9-105 27Z" fill="#E7EAD9" stroke="#214B3D" strokeWidth="1.7" strokeLinejoin="round" />
-    <path d="M92 93c22-3 43 1 63 10m-63 9c22-3 43 1 63 10m-63 9c22-3 43 1 47 3m60-32c20-9 41-14 65-14m-65 34c20-9 41-14 65-14m-65 33c13-6 26-10 40-12" stroke="#809181" strokeWidth="1.4" strokeLinecap="round" />
-    <path d="m251 68 12-1v56l-6-5-6 8Z" fill="#BD693F" />
-    <path d="M50 83v20m-10-10h20M307 195v14m-7-7h14" stroke="#BD693F" strokeWidth="1.5" />
-    <circle cx="82" cy="47" r="4" fill="#214B3D" />
-    <circle cx="311" cy="105" r="3" fill="#BD693F" />
-    <path d="m109 224 54 1m66-7 24-1" stroke="#B3B8A8" strokeLinecap="round" />
-  </svg>;
-}
 
-function ClassroomCard({ room, onOpen }: { room: Classroom; onOpen: () => void }) {
-  return <button className="sl-class-card" onClick={onOpen} title={room.title}>
-    <div className={`sl-course-preview ${room.tone}`} aria-hidden="true">
+export function GeneratedResourceCard({ title, coverTitle = title, tone = "mint", label, detail, meta, onOpen }: { title: string; coverTitle?: string; tone?: Classroom["tone"]; label: string; detail: string; meta: string; onOpen: () => void }) {
+  return <button className="sl-class-card" onClick={onOpen} title={title}>
+    <div className={`sl-course-preview ${tone}`} aria-hidden="true">
       <span className="sl-jacket-spine" />
-      <div className="sl-jacket-label"><span>EDU AI</span><span>学习手记</span></div>
-      <strong className="sl-jacket-title">{room.chapters[0]?.title || room.title}</strong>
+      <div className="sl-jacket-label"><span>EDU AI</span><span>{label}</span></div>
+      <strong className="sl-jacket-title">{coverTitle}</strong>
       <svg className="sl-jacket-art" viewBox="0 0 160 100" fill="none"><ellipse cx="80" cy="51" rx="62" ry="27" transform="rotate(-28 80 51)" /><ellipse cx="80" cy="51" rx="62" ry="27" transform="rotate(28 80 51)" /><circle cx="80" cy="51" r="27" /><circle cx="130" cy="22" r="5" fill="currentColor" stroke="none" /></svg>
-      <div className="sl-jacket-bottom"><span>{String(room.chapters.length).padStart(2, '0')} 个知识点</span><span>LEARN / EXPLORE</span></div>
+      <div className="sl-jacket-bottom"><span>{detail}</span><span>LEARN / EXPLORE</span></div>
     </div>
-    <div className="sl-card-copy"><h3>{room.title}</h3><div className="sl-editorial-card-meta"><span>{allResources(room).length} 份学习资料</span><Icon name="arrow" size={16} /></div></div>
+    <div className="sl-card-copy"><h3>{title}</h3><div className="sl-editorial-card-meta"><span>{meta}</span><Icon name="arrow" size={16} /></div></div>
   </button>;
 }
+function ClassroomCard({ room, onOpen }: { room: Classroom; onOpen: () => void }) {
+  return <GeneratedResourceCard title={room.title} coverTitle={room.chapters[0]?.title || room.title} tone={room.tone} label="学习手记" detail={`${String(room.chapters.length).padStart(2, '0')} 个知识点`} meta={`${allResources(room).length} 份学习资料`} onOpen={onOpen} />;
+}
 export function Home({
-  rooms,
-  shared,
-  canPublish,
+  rooms = [],
   onCreate,
-  onOpen,
-  onPublish,
+  onOpen = () => undefined,
+  mode = "classroom",
+  promptValue,
+  onPromptChange,
+  submitting = false,
+  createLabel,
+  createDisabled = mode === "exam",
+  promptPlaceholder,
+  feedback,
+  resourceContent,
   live,
   canCreateFromUploads = false,
   preparationOptions,
+  toolbar,
+  libraryTabs,
+  personalResourceContent,
 }: Props) {
-  const [prompt, setPrompt] = useState("");
+  const opened=useRecentOpens();
+  const identity = moduleIdentity[mode];
+  const [localPrompt, setLocalPrompt] = useState("");
+  const prompt = promptValue ?? localPrompt;
+  const setPrompt = onPromptChange ?? setLocalPrompt;
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [sharedExpanded, setSharedExpanded] = useState(false);
-  const [origin, setOrigin] = useState("all");
   const matches = (r: Classroom) =>
     `${r.title} ${r.goal}`.toLowerCase().includes(query.trim().toLowerCase());
+  const canSubmit = !submitting && !createDisabled && (!!prompt.trim() || ((mode === "classroom" || mode === "exam") && canCreateFromUploads));
+  function create() {
+    if (canSubmit) onCreate(prompt.trim());
+  }
   function submit(e: FormEvent) {
     e.preventDefault();
-    if (prompt.trim() || canCreateFromUploads) onCreate(prompt.trim());
+    create();
   }
-  const recent = [...rooms]
-    .filter(matches)
-    .filter(r => origin === "all" || (origin === "shared" ? !!r.sourceId : !r.sourceId))
-    .sort((a, b) => b.updatedAt - a.updatedAt);
-  const sharedMatches = shared.filter(matches);
+  const recent = opened.sort(rooms.filter(matches),r=>recentKey('classroom',r.id),(a,b)=>b.updatedAt-a.updatedAt);
   return (
     <main className="sl-home sl-home-editorial">
-      <div className="sl-editorial-masthead"><Brand /><span>一处安静的学习空间</span></div>
+      {toolbar}
+      {!live && <div className="sl-editorial-masthead"><Brand /><span>一处安静的学习空间</span></div>}
       <section className="sl-home-hero">
-        <div className="sl-editorial-intro"><div className="sl-editorial-copy"><span className="sl-editorial-eyebrow"><i />为好奇心，留一页空白</span><h1 aria-label="让好奇，成为你的下一堂课。">让好奇，<br /><em>成为你的下一堂课。</em></h1><p>写下想学的，带上你的问题。<br className="sl-editorial-mobile-break" />从这里开始，把知识慢慢读懂。</p></div><LearningIllustration /></div>
+        <div className="sl-editorial-intro"><div className="sl-editorial-copy"><span className="sl-editorial-eyebrow"><i />{identity.eyebrow}</span><h1 aria-label={identity.first + identity.second}>{identity.first}<br /><em>{identity.second}</em></h1></div><ModuleIllustration mode={mode} /></div>
         <form className={`sl-prompt${preparationOptions ? ' sl-prompt-with-options' : ''}`} onSubmit={submit}>
-          <div className="sl-editorial-composer-heading"><span><Icon name="spark" size={17} />今天，想探索什么？</span><small>目标 · 基础 · 想解决的问题</small></div>
+          <div className="sl-editorial-composer-heading">
+            <span><Icon name="spark" size={17} />今天，想探索什么？</span>
+            <small>{mode === "practice" ? "想探索的现象 · 想验证的问题" : mode === "exam" ? "考试范围 · 题型 · 目标" : "目标 · 基础 · 想解决的问题"}</small>
+          </div>
           <textarea
-            aria-label="学习知识点与目标"
-            placeholder={"- 我想学习 Agent\n- 希望能独立做出一个 AI 助手\n- 会一点 Python，Agent 还是零基础"}
+            aria-label={mode === "practice" ? "实验主题与目标" : mode === "exam" ? "考试范围与目标" : "学习知识点与目标"}
+            placeholder={promptPlaceholder ?? (mode === "practice" ? "例如：改变摩擦系数和初速度，观察小车能滑多远" : mode === "exam" ? "- 我想检验 Python 基础知识\n- 重点考查变量、循环和函数\n- 希望通过模拟考试发现薄弱点" : "- 我想学习 Agent\n- 希望能独立做出一个 AI 助手\n- 会一点 Python，Agent 还是零基础")}
+            disabled={mode === "exam" && submitting}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            maxLength={2000}
+            maxLength={mode === "practice" ? 1800 : undefined}
             onKeyDown={(e) => {
               if (
                 (e.ctrlKey || e.metaKey) &&
@@ -136,33 +151,32 @@ export function Home({
                 !e.nativeEvent.isComposing
               ) {
                 e.preventDefault();
-                if (prompt.trim() || canCreateFromUploads) onCreate(prompt.trim());
+                create();
               }
             }}
           />
-          <div className="sl-editorial-composer-toolbar">{preparationOptions}
+          <div className="sl-editorial-composer-toolbar"><div className="sl-creation-options">{preparationOptions}</div>
           <div className="sl-prompt-bottom">
             <button
               className="sl-primary"
-              disabled={!prompt.trim() && !canCreateFromUploads}
+              disabled={!canSubmit}
               type="submit"
             >
-              开始学习 <Icon name="arrow" size={17} />
+              {submitting ? "正在提交…" : createLabel ?? (mode === "practice" ? "生成互动实验" : mode === "exam" ? "即将上线" : "开始学习")} <Icon name="arrow" size={17} />
             </button>
           </div></div>
+          {feedback}
         </form>
-        <div className="sl-editorial-hero-foot"><span>每一次理解，都从一个好问题开始。</span><span>LEARNING, AT YOUR PACE.</span></div>
       </section>
       <div className="sl-home-library">
+        {libraryTabs}
+        {mode !== "classroom" ? resourceContent : personalResourceContent || <>
         <section aria-label="最近学习">
           <div className="sl-section-heading">
             <h2>
               <Icon name="clock" size={18} />
               最近学习 <span>{rooms.length}</span>
             </h2>
-          <div className="sl-recent-filters" aria-label="课堂来源">
-            {[["all", "全部"], ["own", "自己生成"], ["shared", "共享课堂"]].map(([id, label]) => <button key={id} aria-pressed={origin === id} onClick={() => { setOrigin(id); setExpanded(false); }}>{label}<small>{rooms.filter(r => id === "all" || (id === "shared" ? !!r.sourceId : !r.sourceId)).length}</small></button>)}
-          </div>
             <div className="sl-inline">
               {search && (
                 <input
@@ -198,50 +212,18 @@ export function Home({
           {recent.length ? (
             <div className="sl-card-grid">
               {recent.slice(0, expanded ? undefined : 4).map((r) => (
-                <ClassroomCard key={r.id} room={r} onOpen={() => onOpen(r)} />
+                <ClassroomCard key={r.id} room={r} onOpen={() => {opened.mark(recentKey('classroom',r.id));onOpen(r);}} />
               ))}
             </div>
           ) : (
             <p className="sl-inline-empty">
               {query
                 ? "没有找到相关课堂，换个关键词试试。"
-                : origin === "shared" ? "还没有学习过共享课堂，可以从下方选择一堂开始。" : "你的第一段学习旅程，从上面的输入框开始。"}
+                : "你的第一段学习旅程，从上面的输入框开始。"}
             </p>
           )}
         </section>
-        <section aria-label="发现共享课堂">
-          <div className="sl-section-heading">
-            <h2>
-              <Icon name="book" size={18} />
-              发现共享课堂
-            </h2>
-            <div className="sl-inline">
-              {sharedMatches.length > 4 && (
-                <button className="sl-text-button" aria-expanded={sharedExpanded} onClick={() => setSharedExpanded(!sharedExpanded)}>
-                  {sharedExpanded ? "收起" : "查看全部"}
-                </button>
-              )}
-            {canPublish && (
-              <button className="sl-text-button" onClick={onPublish}>
-                <Icon name="upload" size={16} />
-                {live ? "共享我的课堂" : "上传课堂"}
-              </button>
-            )}
-            </div>
-          </div>
-          <div className="sl-card-grid">
-            {sharedMatches.slice(0, sharedExpanded ? undefined : 4).map((r) => (
-              <ClassroomCard
-                key={r.id}
-                room={r}
-                onOpen={() => onOpen(r, true)}
-              />
-            ))}
-          </div>
-          {!sharedMatches.length && (
-            <p className="sl-inline-empty">暂无匹配的共享课堂。</p>
-          )}
-        </section>
+        </>}
       </div>
       <footer className="sl-home-footer">
         <span className="sl-editorial-footer-mark">Edu AI <i>／</i> 学无止境</span><p>每一次好奇，都值得认真探索。</p>

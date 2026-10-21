@@ -1,0 +1,38 @@
+{
+  "exerciseId": "pbl_31f2c52574f0691cacd3ea723c5adb70",
+  "job": {
+    "schema_version": 2,
+    "version": 16,
+    "edu_job_id": "pbl_31f2c52574f0691cacd3ea723c5adb70",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_wizard",
+    "owner": "matrix_wizard",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_31f2c52574f0691cacd3ea723c5adb70",
+    "input_summary": {
+      "title": "用 React 做一个本地两步报名向导。第1步填写姓名和年龄：姓名去空格后非空，年龄必须是18到60的整数，通过后才能下一步。第2步选择线上或线下并勾选同意条款，点击提交后显示姓名、年龄和参加方式。第2步可返回第1步，已填内容保留；成功后点击重新填写，所有字段和错误恢复空白初始状态。拒绝18.5、17、61和空年龄。只做本地状态，不联网，分步实现。",
+      "topic": "用 React 做一个本地两步报名向导。第1步填写姓名和年龄：姓名去空格后非空，年龄必须是18到60的整数，通过后才能下一步。第2步选择线上或线下并勾选同意条款，点击提交后显示姓名、年龄和参加方式。第2步可返回第1步，已填内容保留；成功后点击重新填写，所有字段和错误恢复空白初始状态。拒绝18.5、17、61和空年龄。只做本地状态，不联网，分步实现。",
+      "exercise_id": "pbl_31f2c52574f0691cacd3ea723c5adb70"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error_code": "PBL_VALIDATION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:20:54.463999+00:00",
+    "started_at": "2026-10-17T09:22:29.247638+00:00",
+    "finished_at": "2026-10-17T09:24:41.863462+00:00",
+    "updated_at": "2026-10-17T09:24:41.863462+00:00"
+  },
+  "artifact": null
+}

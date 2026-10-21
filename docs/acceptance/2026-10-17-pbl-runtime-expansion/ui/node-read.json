@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "runtime": {
+    "template": "node",
+    "entry": "/index.js",
+    "dependencies": {
+      "express": "4.19.2"
+    },
+    "moduleType": "commonjs"
+  },
+  "steps": [
+    {
+      "id": "health-service",
+      "checks": 2,
+      "native": 0
+    },
+    {
+      "id": "square-service",
+      "checks": 7,
+      "native": 0
+    }
+  ],
+  "runs": 6,
+  "files": [
+    "/index.js",
+    "/routes/health.js",
+    "/routes/square.js",
+    "/lib/square.js"
+  ]
+}

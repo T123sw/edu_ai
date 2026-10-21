@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="assets/gsap.min.js" integrity="sha384-sG0Hv1tP1lZCk9KQmrIbY/XNwi+OY84GQqhMscbnsoBFqAz8KNCil1kvfL3Hbbk2" crossorigin="anonymous"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #000;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0f172a;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="305.2"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div
+        id="el-01-title"
+        class="scene"
+        data-composition-id="01-title"
+        data-composition-src="compositions/frames/01-title.html"
+        data-start="0"
+        data-duration="14.3"
+        data-track-index="0"
+      ></div>
+      <audio
+        id="el-01-title-voice"
+        src="assets/audio/4a7368ab10b2ad25727c194a48fb9a415c80f23713f9023cf9cc4b9a4683124f.mp3"
+        data-start="0"
+        data-duration="13.8"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-02-why"
+        class="scene"
+        data-composition-id="02-why"
+        data-composition-src="compositions/frames/02-why.html"
+        data-start="13.8"
+        data-duration="25.4"
+        data-track-index="1"
+      ></div>
+      <audio
+        id="el-02-why-voice"
+        src="assets/audio/83fcefd0a00f19eb215e013a932b9f9e4f18abeaf7445ac7b437c7f348df350f.mp3"
+        data-start="13.8"
+        data-duration="24.9"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-03-vs-cross"
+        class="scene"
+        data-composition-id="03-vs-cross"
+        data-composition-src="compositions/frames/03-vs-cross.html"
+        data-start="38.7"
+        data-duration="22.8"
+        data-track-index="0"
+      ></div>
+      <audio
+        id="el-03-vs-cross-voice"
+        src="assets/audio/66254b2171a897fd226b523a6348740872a5130f5200b4e44a06ce1627aba21f.mp3"
+        data-start="38.7"
+        data-duration="22.3"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-04-qkv"
+        class="scene"
+        data-composition-id="04-qkv"
+        data-composition-src="compositions/frames/04-qkv.html"
+        data-start="61"
+        data-duration="31.4"
+        data-track-index="1"
+      ></div>
+      <audio
+        id="el-04-qkv-voice"
+        src="assets/audio/be88ac70396a7dbcb753a4060f17cdcc4c731cf7d396a668fa050d377905067a.mp3"
+        data-start="61"
+        data-duration="30.9"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-05-formula"
+        class="scene"
+        data-composition-id="05-formula"
+        data-composition-src="compositions/frames/05-formula.html"
+        data-start="91.9"
+        data-duration="30.6"
+        data-track-index="0"
+      ></div>
+      <audio
+        id="el-05-formula-voice"
+        src="assets/audio/fd61eca6911fc6572ecccb805a938a5172eb4183d439157f7ff4328d467b2f06.mp3"
+        data-start="91.9"
+        data-duration="30.1"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-06-scaling"
+        class="scene"
+        data-composition-id="06-scaling"
+        data-composition-src="compositions/frames/06-scaling.html"
+        data-start="122"
+        data-duration="26.8"
+        data-track-index="1"
+      ></div>
+      <audio
+        id="el-06-scaling-voice"
+        src="assets/audio/1b661402060f8344df97d23d72c62888f5fb1a651e2cda30f6df280fc363d8b9.mp3"
+        data-start="122"
+        data-duration="26.8"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-07-setup"
+        class="scene"
+        data-composition-id="07-setup"
+        data-composition-src="compositions/frames/07-setup.html"
+        data-start="148.8"
+        data-duration="12.3"
+        data-track-index="0"
+      ></div>
+      <audio
+        id="el-07-setup-voice"
+        src="assets/audio/b7bbebf927b3c55e918e857aa03cf7d9d4cfd36b9747e88fef27680679d69bc9.mp3"
+        data-start="148.8"
+        data-duration="12.3"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-08-scores"
+        class="scene"
+        data-composition-id="08-scores"
+        data-composition-src="compositions/frames/08-scores.html"
+        data-start="161.10000000000002"
+        data-duration="20.6"
+        data-track-index="1"
+      ></div>
+      <audio
+        id="el-08-scores-voice"
+        src="assets/audio/0cc41101c6bc5b52445d7cda53a1eaba057da15d9cea7e92d733f467d3a14bb9.mp3"
+        data-start="161.10000000000002"
+        data-duration="20.6"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-09-softmax"
+        class="scene"
+        data-composition-id="09-softmax"
+        data-composition-src="compositions/frames/09-softmax.html"
+        data-start="181.70000000000002"
+        data-duration="27"
+        data-track-index="0"
+      ></div>
+      <audio
+        id="el-09-softmax-voice"
+        src="assets/audio/0c630f6055572e0935f75b8c7d6202ecc820d99aa31129ff3a9396df10dad36c.mp3"
+        data-start="181.70000000000002"
+        data-duration="27"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-10-weighted"
+        class="scene"
+        data-composition-id="10-weighted"
+        data-composition-src="compositions/frames/10-weighted.html"
+        data-start="208.70000000000002"
+        data-duration="26.1"
+        data-track-index="1"
+      ></div>
+      <audio
+        id="el-10-weighted-voice"
+        src="assets/audio/bc0ef924d5bceee35cb47998d6e38b18bbfc7362b760411a05c1d5388bb22585.mp3"
+        data-start="208.70000000000002"
+        data-duration="25.6"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-11-multihead"
+        class="scene"
+        data-composition-id="11-multihead"
+        data-composition-src="compositions/frames/11-multihead.html"
+        data-start="234.3"
+        data-duration="29.2"
+        data-track-index="0"
+      ></div>
+      <audio
+        id="el-11-multihead-voice"
+        src="assets/audio/8d711d770031d4c86eb5afca01cd2318c6cf88014cbd5c4417797ff2b8e24398.mp3"
+        data-start="234.3"
+        data-duration="28.7"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-12-config"
+        class="scene"
+        data-composition-id="12-config"
+        data-composition-src="compositions/frames/12-config.html"
+        data-start="263"
+        data-duration="23.1"
+        data-track-index="1"
+      ></div>
+      <audio
+        id="el-12-config-voice"
+        src="assets/audio/aa681f173c3509d8f3a696f3f92bb7540a247dc0b4b25c731f8094bac6a74f7e.mp3"
+        data-start="263"
+        data-duration="22.6"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+      <div
+        id="el-13-recap"
+        class="scene"
+        data-composition-id="13-recap"
+        data-composition-src="compositions/frames/13-recap.html"
+        data-start="285.6"
+        data-duration="19.6"
+        data-track-index="0"
+      ></div>
+      <audio
+        id="el-13-recap-voice"
+        src="assets/audio/5717ab46a4aca5a7282842b91366d932fedd9d6141a08dcb0e056432b93c80bb.mp3"
+        data-start="285.6"
+        data-duration="19.6"
+        data-track-index="10"
+        data-volume="1"
+      ></audio>
+
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+      // ── frame transitions (injected by transitions.mjs) ──
+      (function () { var tl = window.__timelines["main"];
+        tl.to("#el-01-title", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 13.8);
+        tl.fromTo("#el-02-why", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 13.8);
+        tl.addLabel("hf:transition:01-title:02-why:crossfade", 13.8);
+        tl.to("#el-02-why", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 38.7);
+        tl.fromTo("#el-03-vs-cross", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 38.7);
+        tl.addLabel("hf:transition:02-why:03-vs-cross:crossfade", 38.7);
+        tl.to("#el-03-vs-cross", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 61);
+        tl.fromTo("#el-04-qkv", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 61);
+        tl.addLabel("hf:transition:03-vs-cross:04-qkv:crossfade", 61);
+        tl.to("#el-04-qkv", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 91.9);
+        tl.fromTo("#el-05-formula", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 91.9);
+        tl.addLabel("hf:transition:04-qkv:05-formula:crossfade", 91.9);
+        tl.to("#el-05-formula", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 122);
+        tl.fromTo("#el-06-scaling", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 122);
+        tl.addLabel("hf:transition:05-formula:06-scaling:crossfade", 122);
+        tl.to("#el-10-weighted", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 234.3);
+        tl.fromTo("#el-11-multihead", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 234.3);
+        tl.addLabel("hf:transition:10-weighted:11-multihead:crossfade", 234.3);
+        tl.to("#el-11-multihead", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 263);
+        tl.fromTo("#el-12-config", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 263);
+        tl.addLabel("hf:transition:11-multihead:12-config:crossfade", 263);
+        tl.to("#el-12-config", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 285.6);
+        tl.fromTo("#el-13-recap", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 285.6);
+        tl.addLabel("hf:transition:12-config:13-recap:crossfade", 285.6);
+        tl.to({}, { duration: 305.2 }, 0); // full-span anchor — main.duration() == composition total (Studio master duration)
+      })();
+    </script>
+  </body>
+</html>

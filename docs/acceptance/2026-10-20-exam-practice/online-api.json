@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-20T10:57:19.273922+00:00",
+  "authenticatedListStatus": 200,
+  "routes": {
+    "practice": {
+      "authenticatedMissingPaper": 404,
+      "unauthenticated": 401
+    },
+    "practice-runs": {
+      "authenticatedMissingPaper": 404,
+      "unauthenticated": 401
+    },
+    "agent-turns": {
+      "authenticatedMissingPaper": 404,
+      "unauthenticated": 401
+    }
+  },
+  "productionBusinessWrites": false,
+  "note": "Browser behavior uses intercepted fixtures; real authenticated API reads verify route activation and access enforcement. Missing-paper checks do not constitute cross-owner isolation tests."
+}

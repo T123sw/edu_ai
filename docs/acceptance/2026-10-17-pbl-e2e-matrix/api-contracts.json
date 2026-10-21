@@ -1,0 +1,17 @@
+{
+  "anonymousDetailStatus": 401,
+  "crossOwner": {
+    "": 404,
+    "/workspace": 404,
+    "/runs": 404
+  },
+  "crossOwnerCheckStatus": 404,
+  "runIdReplayReturnsSameReport": true,
+  "runIdConflictStatus": 409,
+  "unallowedFileStatus": 422,
+  "concurrentSaveStatuses": [
+    200,
+    409
+  ],
+  "passed": true
+}

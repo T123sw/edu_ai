@@ -1,0 +1,31 @@
+{
+  "service": "MainPID=1160014\nActiveEnterTimestamp=Sat 2026-10-17 08:23:02 UTC\n",
+  "sourceHashes": {
+    "backend/src/app/pbl/generation_policy.py": true,
+    "backend/src/app/pbl/project_service.py": true,
+    "backend/src/app/pbl/project_generator.py": true,
+    "backend/src/app/pbl/project_schemas.py": true,
+    "backend/src/app/pbl/project_workflow.py": true,
+    "backend/src/app/api/pbl.py": true,
+    "backend/src/app/services/job_retry_service.py": true,
+    "backend/src/app/services/durable_task_executor.py": true,
+    "frontend/scripts/check-pbl-project.mjs": true,
+    "frontend/src/pbl/ProjectChecks.tsx": true,
+    "frontend/src/pbl/projectTypes.ts": true,
+    "frontend/src/practice/PracticeGenerationProgress.tsx": true,
+    "backend/src/app/pbl/skills/build-pbl-project-v3/SKILL.md": true,
+    "backend/src/app/pbl/skills/build-pbl-project-v3/references/step-unit.md": true,
+    "backend/src/app/pbl/skills/build-pbl-project-v3/references/planning.md": true,
+    "backend/src/app/pbl/skills/build-pbl-project-v3/references/verification.md": true,
+    "backend/src/app/pbl/skills/build-pbl-project-v3/references/integration.md": true,
+    "backend/src/app/pbl/skills/build-pbl-project-v3/references/acceptance.md": true
+  },
+  "latestSourceMtime": 1792224608.4621239,
+  "assetsVerified": 481,
+  "assetsTotal": 481,
+  "assetMismatches": [],
+  "openapiStatus": 200,
+  "sourceHashesRecheckedAtEnd": true,
+  "recheckedAtEpoch": 1792226239.7196553,
+  "serviceAtEnd": "MainPID=1160014\nActiveEnterTimestamp=Sat 2026-10-17 08:23:02 UTC\n"
+}

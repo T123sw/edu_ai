@@ -1,0 +1,395 @@
+{
+  "title": "为什么需要 Transformer：循环结构的瓶颈与注意力的登场",
+  "content": "# 为什么需要 Transformer：循环结构的瓶颈与注意力的登场\n\n本节点只回答一个问题：在 Transformer 出现之前，序列模型卡在哪里，Transformer 用什么办法绕开了这个卡点，以及绕开之后付出了什么代价。读完后你应当能用「顺序操作数」和「路径长度」两个指标，把循环层和自注意力层放在同一张表里比较。\n\n<a id=\"rnn-sequential-bottleneck\"></a>\n## 一、循环模型慢在哪：h_t 必须等 h_{t-1}\n\n循环神经网络（RNN、LSTM、GRU 都属于这一类）处理一个句子的方式是：把句子按位置切开，一个位置一个位置地算。设第 t 个位置的输入是 x_t，模型维护一个隐藏状态 h_t，它的计算形式是\n\n```\nh_t = f(h_{t-1}, x_t)\n```\n\n关键不在 f 长什么样，而在等号右边出现了 h_{t-1}。这意味着：要算出 h_3，必须先有 h_2；要算出 h_2，必须先有 h_1。原论文的描述是，循环模型沿输入输出序列的符号位置分解计算，把位置对齐到计算时间步，生成一串隐藏状态 h_t，它是前一个隐藏状态 h_{t-1} 与位置 t 输入的函数。\n\n这个「必须等前一步」的性质带来两个直接后果。\n\n**第一，一个训练样本内部无法并行。** 现代 GPU 擅长的是把成千上万个互不依赖的乘加运算同时做掉。但在循环模型里，第 3 步和第 4 步的运算有硬性先后关系，GPU 再宽也只能排队。原论文的说法是：这种固有的顺序性使训练样本内部无法并行化，而序列越长这一点越关键——因为显存有限，能同时塞进一个批次的样本数被压缩，批处理也随之受限。换句话说，序列变长时，你既不能在一个样本内部并行，也不能靠多塞样本来摊薄成本。\n\n**第二，长序列上的信息传递要走很多步。** 位置 1 的信息要影响位置 100，必须经过 99 次状态更新。中文教程把这类问题概括为「长距离依赖衰减」：即使是改进过的 LSTM，处理长文本时早期信息也会逐渐被「遗忘」；同时梯度要沿时间步逐层回传，容易出现梯度消失或爆炸，训练不稳定。这里要注意措辞：衰减是经验上的困难，不是数学上必然丢失，但它确实让「远距离依赖」变难学。\n\n原论文还特别指出，此前一些用因式分解技巧、条件计算来提升计算效率的工作，虽然改善了效率甚至效果，但「顺序计算这一根本约束依然存在」。所以问题不是调参能解决的，而是结构性的。\n\n<a id=\"transformer-core-claim\"></a>\n## 二、Transformer 的核心主张：不要循环，也不要卷积\n\nTransformer 的做法不是把循环改快，而是把它拿掉。原论文的表述是：提出一个新的简单网络架构 Transformer，**完全基于注意力机制，彻底摒弃循环与卷积**；它不依赖循环，而是完全依靠注意力机制在输入与输出之间建立全局依赖。\n\n这句话里有两个要点值得拆开看。\n\n**「摒弃循环」** 意味着不再有 h_t 依赖 h_{t-1} 的链条。所有位置的表示可以同时算出来，一个样本内部的并行度被释放出来。原论文报告，Transformer 允许显著更多的并行化，在 8 块 P100 GPU 上训练约 12 小时即可在翻译质量上达到当时的最好水平。\n\n**「摒弃卷积」** 意味着也不走另一条并行路线。原论文背景部分提到，Extended Neural GPU、ByteNet、ConvS2S 这些模型用卷积作为基本构件，确实能为所有输入输出位置并行计算隐藏表示；但在这些模型里，把两个任意位置的信息关联起来所需的操作数会随位置距离增长——ConvS2S 是线性增长，ByteNet 是对数增长，这让学习远距离位置之间的依赖更困难。Transformer 用注意力直接连接任意两个位置，绕开了「距离越远、连接越绕」的问题。\n\n所以「仅靠注意力建立全局依赖」不是一句口号，它同时解决了并行和远距离连接两件事。至于注意力具体怎么算（Q/K/V、缩放点积、softmax 加权求和），属于后续节点的内容，本节点只需要知道它是「让每个位置直接去看所有位置」的机制。\n\n<a id=\"two-metrics-comparison\"></a>\n## 三、用两个指标把两者放在一张表里\n\n光说「更快」不够精确。原论文用三个维度比较不同层类型：每层计算复杂度、需要顺序执行的操作数、任意两位置之间的最大路径长度。对本节点来说，后两个是重点。\n\n| 层类型 | 每层复杂度 | 顺序操作数 | 任意两位置最大路径长度 |\n| --- | --- | --- | --- |\n| 自注意力层 | O(n²·d) | O(1) | O(1) |\n| 循环层 | O(n·d²) | O(n) | O(n) |\n| 卷积层 | O(k·n·d²) | O(1) | O(log_k n) |\n| 受限自注意力（只看半径 r 的邻域） | O(r·n·d) | O(1) | O(n/r) |\n\n（n 为序列长度，d 为表示维度，k 为卷积核宽度，r 为邻域半径。表中卷积与受限自注意力两行仅作对照，帮助你理解「路径长度」这个指标不是自注意力独有的优势，而是它把路径压到了最短。）\n\n**指标一：顺序操作数。** 自注意力层用常数个顺序执行的操作连接所有位置，而循环层需要 O(n) 个顺序操作。直观理解：循环层里第 n 个位置必须排在第 n-1 个后面，链条长度随 n 增长；自注意力层里所有位置的关系是一次性算出来的，链条长度与 n 无关。这就是「训练样本内部可并行」的量化版本。\n\n**指标二：任意两位置的最大路径长度。** 自注意力是 O(1)，循环是 O(n)。路径指的是信号从一个位置传到另一个位置要经过多少次运算。原论文明确说：输入输出序列中任意位置组合之间的这些路径越短，就越容易学习长距离依赖。这解释了为什么循环模型在长句上吃力——不是它「不想」记住开头，而是开头到结尾的路径太长，梯度要穿过太多步。\n\n**代价也要说清楚。** 自注意力每层复杂度是 O(n²·d)，循环是 O(n·d²)。原论文的结论是：当序列长度 n 小于表示维度 d 时，自注意力层比循环层更快，而这在句子表示中通常是成立的。但反过来，n 很大时 O(n²) 会迅速膨胀。中文教程也指出，自注意力复杂度为 O(n²)，处理长文本时计算量巨大，实际受限于显存和算力；注意力权重虽然提供了一定可解释性，但深层网络的决策过程仍是黑盒。原论文给出的缓解方向是把自注意力限制在每个输出位置周围半径为 r 的邻域内，复杂度降为 O(r·n·d)，代价是路径长度变成 O(n/r)——用一点路径长度换回计算量。\n\n<a id=\"walkthrough-example\"></a>\n## 四、一个具体例子：同一句话，两种走法\n\n抽象指标容易记混，用一个具体场景走一遍。\n\n设输入是 6 个词的句子，记作位置 1 到位置 6，表示维度 d = 512（这是原论文 base 模型的 d_model，此处仅作示例取值）。\n\n**循环层的走法：**\n\n1. 算 h_1 = f(h_0, x_1)，此时 h_2 到 h_6 都还不能开始。\n2. 算 h_2 = f(h_1, x_2)，依赖第 1 步的结果。\n3. ……依次到 h_6。\n4. 顺序操作数 = 6，即 O(n)。\n5. 位置 1 的信息要影响位置 6，路径是 1→2→3→4→5→6，经过 5 次状态更新，即 O(n)。\n\n如果句子变成 600 个词，顺序操作数变成 600，路径长度也变成 600。GPU 的并行宽度在这里帮不上忙，因为每一步都在等上一步。\n\n**自注意力层的走法：**\n\n1. 所有 6 个位置同时算出各自的查询、键、值表示（具体怎么算属于后续节点）。\n2. 所有位置两两之间的相关性分数一次性算出，得到一个 6×6 的分数矩阵。\n3. 每个位置按分数对所有位置做加权求和，得到自己的新表示。\n4. 顺序操作数 = 常数个，即 O(1)。\n5. 位置 1 的信息要影响位置 6，路径是 1→6，一步到位，即 O(1)。\n\n句子变成 600 个词时，顺序操作数仍然是常数，路径长度仍然是 1；但那个分数矩阵从 6×6 变成 600×600，元素数从 36 涨到 360000，这就是 O(n²) 代价的具体样子。\n\n**把两个例子并排看：** 循环层是「链条长、每步便宜」，自注意力层是「链条短、每层贵」。当 n 不大（比如 6 个词、几十个词）时，自注意力的贵还看不出来，而链条短的好处立刻兑现；当 n 涨到几千时，O(n²) 开始压过一切，于是有了受限自注意力这类折中方案。\n\n<a id=\"discussion-and-check\"></a>\n## 五、讨论与自检\n\n**讨论一：为什么「路径更短」有利于学习长程依赖？** 训练时梯度要沿路径回传。路径长度为 L，梯度就要穿过 L 次运算的连乘；循环层里 L 随序列长度增长，连乘次数多，梯度容易消失或爆炸，远距离位置之间的关联信号被稀释。自注意力层里任意两位置的路径长度是常数，梯度不必因为「隔得远」而多穿几层，远距离依赖和近距离依赖在优化难度上更接近。注意这是「更容易学」的论证，不是说循环模型绝对学不会长距离依赖。\n\n**讨论二：代价是什么？** 一是 O(n²) 的计算与显存开销，长序列下成为瓶颈；二是注意力权重只提供有限可解释性，深层决策仍是黑盒；三是「摒弃循环」也意味着模型本身不再自带顺序信息，位置信息必须另外注入（位置编码，属于后续节点）。\n\n**自检（不看材料，用 3 句话向同伴解释）：**\n\n1. RNN 慢在哪？——h_t 依赖 h_{t-1}，样本内部不能并行，顺序操作数 O(n)，任意两位置路径长度也是 O(n)。\n2. Transformer 快在哪？——完全摒弃循环与卷积，仅靠注意力建立全局依赖，顺序操作数 O(1)，路径长度 O(1)。\n3. 代价是什么？——每层复杂度 O(n²·d)，长序列下计算与显存吃紧，可用受限自注意力缓解。\n\n能同时说出「顺序操作数」和「路径长度」两个理由，即通过本节点自检。\n\n<a id=\"sources-and-limits\"></a>\n## 六、依据与边界\n\n本节点的事实性陈述来自两处公开来源：\n\n- 原始论文《Attention Is All You Need》（NIPS 2017），https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf —— 循环模型的顺序性、Transformer 摒弃循环与卷积的主张、8 块 P100 训练约 12 小时、表 1 的复杂度/顺序操作数/路径长度对比、受限自注意力方案。\n- Datawhale Easy-Vibe 中文教程，https://datawhalechina.github.io/easy-vibe/zh-cn/appendix/8-artificial-intelligence/transformer-attention.html —— RNN 三大缺陷（顺序依赖无法并行、长距离依赖衰减、梯度消失/爆炸）的通俗概括，以及自注意力 O(n²) 与可解释性有限的说明。\n\n需要说明的边界：本节点只讲「为什么需要」，不展开注意力内部计算、多头注意力、位置编码、残差与层归一化、前馈网络、编码器-解码器结构，这些由后续节点承担。文中 d = 512、6 个词、600 个词均为便于说明的示例取值，不是实验数据。原论文的复杂度结论以「n 小于 d 时自注意力更快」为条件，不能推广成「自注意力永远更快」。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 8.9
+      },
+      "sections": [
+        {
+          "section_id": "rnn-sequential-bottleneck",
+          "content_sha256": "f9900396645b94c9fa7cf47d4c84b1cb043a7a9592b7eae062e06cec538a4524"
+        },
+        {
+          "section_id": "transformer-core-claim",
+          "content_sha256": "297effe637120471038e9f30cc83b5f0e0d9d8044bec391721dddf1206f4bc49"
+        },
+        {
+          "section_id": "two-metrics-comparison",
+          "content_sha256": "9cd6da742e0c7710f435afbd99dde6f22504f19be69e0b83c73ee3c4b71e54ad"
+        },
+        {
+          "section_id": "walkthrough-example",
+          "content_sha256": "6ccecbab09cfab38ef8c1313fea4762f35c577af8d0f256d9a116a5d9c792bcb"
+        },
+        {
+          "section_id": "discussion-and-check",
+          "content_sha256": "7b9499bfef6d6016955ef2486a87badf8ac96ae72682fa2fca3356ace3fea5df"
+        },
+        {
+          "section_id": "sources-and-limits",
+          "content_sha256": "b5de67fd427faa30be546bfbf504b154bfc06a47877ef1029e4938aca32a0aa7"
+        }
+      ],
+      "spec_digest": "073ef50a0375fe30ce8a72ae3c143a1b45d9dc91f6afb093d6adf6f61780e48f",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "rnn-sequential-bottleneck"
+          },
+          "objective_id": "n1-why-transformer:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "transformer-core-claim"
+          },
+          "objective_id": "n1-why-transformer:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "two-metrics-comparison"
+          },
+          "objective_id": "n1-why-transformer:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "walkthrough-example"
+          },
+          "objective_id": "n1-why-transformer:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "discussion-and-check"
+          },
+          "objective_id": "n1-why-transformer:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "discussion-and-check"
+          },
+          "objective_id": "n1-why-transformer:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "discussion-and-check"
+          },
+          "objective_id": "n1-why-transformer:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "transformer-core-claim"
+          },
+          "explanation": "该节直接讲授 Transformer 的核心主张（完全摒弃循环与卷积、仅靠注意力建立全局依赖），并说明它同时解决并行与远距离连接两个问题，落实“讲授核心概念与结构、理解基本原理”的要求。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "rnn-sequential-bottleneck"
+          },
+          "explanation": "该节解释循环模型 h_t 依赖 h_{t-1} 的顺序性及其对样本内并行与批处理的限制，是理解 Transformer 原理的前置概念。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "two-metrics-comparison"
+          },
+          "explanation": "该节用复杂度、顺序操作数、路径长度三个维度给出自注意力层与循环层的对照表，把核心原理量化，支撑原理理解。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "teaching_context_digest": "601f0eef9097e31027d5539ba11506d7b224d50ebd59c6d3cab94e3fa7513100"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "本节点分工为 req-goal-transformer 的“为什么需要 Transformer”部分：第一节（rnn-sequential-bottleneck）讲 h_t 依赖 h_{t-1} 导致样本内不可并行与批处理受限，第二节（transformer-core-claim）明确“完全基于注意力、彻底摒弃循环与卷积”，第三节给出顺序操作数与路径长度对照表，与三条节点目标一一对应；未越界讲授注意力内部计算、多头、位置编码等后续节点内容（第六节明确声明边界）。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "第三节表格数值与论文表 1 一致（自注意力 O(n²·d)/O(1)/O(1)，循环 O(n·d²)/O(n)/O(n)，卷积 O(k·n·d²)/O(1)/O(log_k n)，受限自注意力 O(r·n·d)/O(1)/O(n/r)）；“n 小于 d 时自注意力更快”保留了论文条件，未推广为“永远更快”；第四节例子中 6 词路径 1→6 为 1 步、600×600=360000 计算正确，且明确 d=512 为示例取值。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第四节用 6 词句子分别走循环层（顺序操作数 6、路径 5 次更新）与自注意力层（常数顺序操作、路径 1 步、6×6 分数矩阵），并外推到 600 词说明 O(n²) 代价（36→360000），边界与合法输入域（n 增大、n 远大于 d）均有交代，与第三节指标口径一致。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：循环瓶颈→Transformer 核心主张→两指标对照表→具体例子→讨论与自检→依据与边界，先问题后方案再量化再实例，符合节点活动顺序（阅读/听讲→对照表格→讨论）；第五节自检三问与 self_check 要求（RNN 慢在哪、Transformer 快在哪、代价）逐条对应，未引入面试模板。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "第六节列出两处真实来源（NIPS 2017 论文 PDF 与 Datawhale Easy-Vibe 教程 URL），并逐项标注各自支撑的陈述（顺序性、摒弃循环卷积、8×P100 约 12 小时、表 1、受限自注意力；RNN 三大缺陷、O(n²) 与可解释性）；正文引用与 evidence 原文一致，未声称核查未提供的外部全文。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三条节点目标均有解释、练习与自检落点（o1 第一节+第五节第 1 问，o2 第二节+第五节第 2 问，o3 第三节/第四节+第五节第 3 问）；代价与边界（O(n²)、可解释性、位置信息需另注入）在第五节讨论二与第六节说明，无重要遗漏。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本节点分工为 req-goal-transformer 的“为什么需要 Transformer”部分：第一节（rnn-sequential-bottleneck）讲 h_t 依赖 h_{t-1} 导致样本内不可并行与批处理受限，第二节（transformer-core-claim）明确“完全基于注意力、彻底摒弃循环与卷积”，第三节给出顺序操作数与路径长度对照表，与三条节点目标一一对应；未越界讲授注意力内部计算、多头、位置编码等后续节点内容（第六节明确声明边界）。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "第三节表格数值与论文表 1 一致（自注意力 O(n²·d)/O(1)/O(1)，循环 O(n·d²)/O(n)/O(n)，卷积 O(k·n·d²)/O(1)/O(log_k n)，受限自注意力 O(r·n·d)/O(1)/O(n/r)）；“n 小于 d 时自注意力更快”保留了论文条件，未推广为“永远更快”；第四节例子中 6 词路径 1→6 为 1 步、600×600=360000 计算正确，且明确 d=512 为示例取值。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第四节用 6 词句子分别走循环层（顺序操作数 6、路径 5 次更新）与自注意力层（常数顺序操作、路径 1 步、6×6 分数矩阵），并外推到 600 词说明 O(n²) 代价（36→360000），边界与合法输入域（n 增大、n 远大于 d）均有交代，与第三节指标口径一致。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：循环瓶颈→Transformer 核心主张→两指标对照表→具体例子→讨论与自检→依据与边界，先问题后方案再量化再实例，符合节点活动顺序（阅读/听讲→对照表格→讨论）；第五节自检三问与 self_check 要求（RNN 慢在哪、Transformer 快在哪、代价）逐条对应，未引入面试模板。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "第六节列出两处真实来源（NIPS 2017 论文 PDF 与 Datawhale Easy-Vibe 教程 URL），并逐项标注各自支撑的陈述（顺序性、摒弃循环卷积、8×P100 约 12 小时、表 1、受限自注意力；RNN 三大缺陷、O(n²) 与可解释性）；正文引用与 evidence 原文一致，未声称核查未提供的外部全文。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三条节点目标均有解释、练习与自检落点（o1 第一节+第五节第 1 问，o2 第二节+第五节第 2 问，o3 第三节/第四节+第五节第 3 问）；代价与边界（O(n²)、可解释性、位置信息需另注入）在第五节讨论二与第六节说明，无重要遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第四节“自注意力层的走法”第 1 步提到“查询、键、值表示”，虽已注明细节属后续节点，仍可加一句“此处只需知道每个位置会生成三种表示”以免读者误以为本节点已讲完 Q/K/V。",
+              "第三节表格中卷积层与受限自注意力两行可加一句“仅作对照，本节点不要求掌握”，与第六节边界声明呼应，减少入门读者的记忆负担。",
+              "第五节讨论一“梯度要穿过 L 次运算的连乘”可补一句“这是直觉性说明，严格分析需考虑残差与归一化”，避免读者把连乘说法当成完整论证。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "transformer-core-claim 节确实讲授核心主张：引用“完全基于注意力机制，彻底摒弃循环与卷积”“完全依靠注意力在输入与输出之间建立全局依赖”，并拆解“摒弃循环”释放样本内并行、“摒弃卷积”绕开距离随位置增长的问题，真实支持“讲授核心概念与基本原理”的要求。",
+                "locator": {
+                  "section_id": "transformer-core-claim"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "rnn-sequential-bottleneck 节给出 h_t = f(h_{t-1}, x_t)，说明第 3 步必须等第 2 步，并指出样本内不可并行、显存限制批处理、长序列信息传递需多步，确为理解 Transformer 原理的前置概念。",
+                "locator": {
+                  "section_id": "rnn-sequential-bottleneck"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "two-metrics-comparison 节以表格给出每层复杂度、顺序操作数、最大路径长度三维度对照，并分别解释两个指标与 O(n²) 代价，量化支撑原理理解，定位与内容相符。",
+                "locator": {
+                  "section_id": "two-metrics-comparison"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "rnn-sequential-bottleneck 节以 explanation 角色覆盖 o1：明确“一个训练样本内部无法并行”与“长序列上的信息传递要走很多步”，并说明梯度沿时间步回传易消失/爆炸。",
+                "locator": {
+                  "section_id": "rnn-sequential-bottleneck"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "transformer-core-claim 节以 explanation 角色覆盖 o2：原文式表述“完全基于注意力机制，彻底摒弃循环与卷积”“仅靠注意力建立全局依赖”直接对应目标主张。",
+                "locator": {
+                  "section_id": "transformer-core-claim"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "two-metrics-comparison 节以 explanation 角色覆盖 o3：分别解释顺序操作数（O(1) vs O(n)）与任意两位置最大路径长度（O(1) vs O(n)），并给出对照表。",
+                "locator": {
+                  "section_id": "two-metrics-comparison"
+                },
+                "binding_id": "n1-why-transformer:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "walkthrough-example 节以 practice 角色覆盖 o3：用 6 词与 600 词两个规模分别走循环层与自注意力层，逐项算出顺序操作数与路径长度，读者可自行套用两个指标。",
+                "locator": {
+                  "section_id": "walkthrough-example"
+                },
+                "binding_id": "n1-why-transformer:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "discussion-and-check 节自检第 1 问要求回答“RNN 慢在哪”，答案含 h_t 依赖 h_{t-1}、顺序操作数 O(n)、路径长度 O(n)，构成对 o1 的检查。",
+                "locator": {
+                  "section_id": "discussion-and-check"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "discussion-and-check 节自检第 2 问要求回答“Transformer 快在哪”，答案含“完全摒弃循环与卷积，仅靠注意力建立全局依赖”，构成对 o2 的检查。",
+                "locator": {
+                  "section_id": "discussion-and-check"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "discussion-and-check 节自检第 3 问要求说出代价，并明确“能同时说出顺序操作数和路径长度两个理由即通过”，与 o3 的两指标对比要求一致。",
+                "locator": {
+                  "section_id": "discussion-and-check"
+                },
+                "binding_id": "n1-why-transformer:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "12c5d607af592e9b332030b6611e948642dec9da0108df62d00ab6d6aa33cf5c",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第四节“自注意力层的走法”第 1 步提到“查询、键、值表示”，虽已注明细节属后续节点，仍可加一句“此处只需知道每个位置会生成三种表示”以免读者误以为本节点已讲完 Q/K/V。",
+        "第三节表格中卷积层与受限自注意力两行可加一句“仅作对照，本节点不要求掌握”，与第六节边界声明呼应，减少入门读者的记忆负担。",
+        "第五节讨论一“梯度要穿过 L 次运算的连乘”可补一句“这是直觉性说明，严格分析需考虑残差与归一化”，避免读者把连乘说法当成完整论证。"
+      ],
+      "content_sha256": "12c5d607af592e9b332030b6611e948642dec9da0108df62d00ab6d6aa33cf5c",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "transformer-core-claim 节确实讲授核心主张：引用“完全基于注意力机制，彻底摒弃循环与卷积”“完全依靠注意力在输入与输出之间建立全局依赖”，并拆解“摒弃循环”释放样本内并行、“摒弃卷积”绕开距离随位置增长的问题，真实支持“讲授核心概念与基本原理”的要求。",
+          "locator": {
+            "section_id": "transformer-core-claim"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "rnn-sequential-bottleneck 节给出 h_t = f(h_{t-1}, x_t)，说明第 3 步必须等第 2 步，并指出样本内不可并行、显存限制批处理、长序列信息传递需多步，确为理解 Transformer 原理的前置概念。",
+          "locator": {
+            "section_id": "rnn-sequential-bottleneck"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "two-metrics-comparison 节以表格给出每层复杂度、顺序操作数、最大路径长度三维度对照，并分别解释两个指标与 O(n²) 代价，量化支撑原理理解，定位与内容相符。",
+          "locator": {
+            "section_id": "two-metrics-comparison"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "rnn-sequential-bottleneck 节以 explanation 角色覆盖 o1：明确“一个训练样本内部无法并行”与“长序列上的信息传递要走很多步”，并说明梯度沿时间步回传易消失/爆炸。",
+          "locator": {
+            "section_id": "rnn-sequential-bottleneck"
+          },
+          "binding_id": "n1-why-transformer:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "transformer-core-claim 节以 explanation 角色覆盖 o2：原文式表述“完全基于注意力机制，彻底摒弃循环与卷积”“仅靠注意力建立全局依赖”直接对应目标主张。",
+          "locator": {
+            "section_id": "transformer-core-claim"
+          },
+          "binding_id": "n1-why-transformer:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "two-metrics-comparison 节以 explanation 角色覆盖 o3：分别解释顺序操作数（O(1) vs O(n)）与任意两位置最大路径长度（O(1) vs O(n)），并给出对照表。",
+          "locator": {
+            "section_id": "two-metrics-comparison"
+          },
+          "binding_id": "n1-why-transformer:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "walkthrough-example 节以 practice 角色覆盖 o3：用 6 词与 600 词两个规模分别走循环层与自注意力层，逐项算出顺序操作数与路径长度，读者可自行套用两个指标。",
+          "locator": {
+            "section_id": "walkthrough-example"
+          },
+          "binding_id": "n1-why-transformer:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "discussion-and-check 节自检第 1 问要求回答“RNN 慢在哪”，答案含 h_t 依赖 h_{t-1}、顺序操作数 O(n)、路径长度 O(n)，构成对 o1 的检查。",
+          "locator": {
+            "section_id": "discussion-and-check"
+          },
+          "binding_id": "n1-why-transformer:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "discussion-and-check 节自检第 2 问要求回答“Transformer 快在哪”，答案含“完全摒弃循环与卷积，仅靠注意力建立全局依赖”，构成对 o2 的检查。",
+          "locator": {
+            "section_id": "discussion-and-check"
+          },
+          "binding_id": "n1-why-transformer:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "discussion-and-check 节自检第 3 问要求说出代价，并明确“能同时说出顺序操作数和路径长度两个理由即通过”，与 o3 的两指标对比要求一致。",
+          "locator": {
+            "section_id": "discussion-and-check"
+          },
+          "binding_id": "n1-why-transformer:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "68bf98173553bbad4e4e8154512427d2ddcc7478857eb1280b1d9167bf20b484"
+    }
+  }
+}

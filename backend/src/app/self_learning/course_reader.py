@@ -80,7 +80,7 @@ class CourseReader:
                 order=r.get('order', 0), objective_ids=r.get('objective_ids', []))
                 for r in sorted(node.get('resources', []), key=lambda r: r.get('order', 0))]
             # A malformed/partial requirement declaration must not imply completion.
-            policy = 'explicit' if resources and all(r.required is not None for r in resources) else 'unknown'
+            policy = 'explicit' if node.get('delivery_state', 'ready') == 'ready' and resources and all(r.required is not None for r in resources) else 'unknown'
             topics.append(TopicView(topic_id=node['node_id'], title=node['title'], resources=resources,
                 completion_policy=policy,
                 prerequisite_node_ids=node.get('prerequisite_node_ids', []),

@@ -1,0 +1,109 @@
+{
+  "observed_at": 1792303419.653925,
+  "tag": "多PDF验收 kentucky-0011 1792301264966",
+  "generations": [
+    {
+      "generation_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "job_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "turn": {
+        "id": "turn_1792301303978_415d9d682f",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792301304.2319124,
+        "updated_at": 1792301465.596672
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4022,
+          "layout_blocks": 42,
+          "images": 1
+        }
+      ],
+      "blueprint_count": 4,
+      "local_events": 17243,
+      "upstream_events": 17241,
+      "done_received": true,
+      "summary": {
+        "failed": 1,
+        "success": false,
+        "completed": 3,
+        "requested": 4,
+        "template_count": 4
+      },
+      "failed_questions": [
+        {
+          "ordinal": 1,
+          "issues": [
+            "q_57b6ca88b258e89d7080:choice_option_keys_mismatch",
+            "q_01e881b61e8e3b18fe01:choice_option_keys_mismatch"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 18,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 8,
+          "deepseek-v4-flash": 10
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_ccdd0a2021d8baa6c0eb139a27712419",
+      "job_id": "job_57c933d1f9ac44f0",
+      "turn": {
+        "id": "turn_1792301589201_a35ca510e3",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792301589.3138914,
+        "updated_at": 1792301692.5862472
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4022,
+          "layout_blocks": 42,
+          "images": 1
+        }
+      ],
+      "blueprint_count": 4,
+      "local_events": 5365,
+      "upstream_events": 5363,
+      "done_received": true,
+      "summary": {
+        "failed": 1,
+        "success": false,
+        "completed": 3,
+        "requested": 4,
+        "template_count": 4
+      },
+      "failed_questions": [
+        {
+          "ordinal": 1,
+          "issues": [
+            "q_57b6ca88b258e89d7080:choice_option_keys_mismatch",
+            "q_01e881b61e8e3b18fe01:choice_option_keys_mismatch"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 6,
+        "models": {
+          "deepseek-v4-flash": 6
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 3,
+    "unchanged_in_latest": 3
+  },
+  "hotfix_preservation": {
+    "compared_generation_id": "examgen_ccdd0a2021d8baa6c0eb139a27712419",
+    "accepted_before": 3,
+    "unchanged_in_latest": 3,
+    "missing_or_changed_ids": []
+  }
+}

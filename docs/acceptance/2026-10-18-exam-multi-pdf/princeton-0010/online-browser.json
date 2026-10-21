@@ -1,0 +1,97 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "多PDF验收 princeton-0010 1792300024454",
+  "startedAt": "2026-10-18T05:07:04.454Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/examgen_f94cfb9c072bccdff911b2caa1590cc7/retry",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-18T05:07:09.958Z",
+      "attempt": 0,
+      "generation_id": "examgen_f94cfb9c072bccdff911b2caa1590cc7",
+      "job_id": "examgen_f94cfb9c072bccdff911b2caa1590cc7",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:08:32.945Z",
+      "attempt": 0,
+      "generation_id": "examgen_f94cfb9c072bccdff911b2caa1590cc7",
+      "job_id": "examgen_f94cfb9c072bccdff911b2caa1590cc7",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:09:04.999Z",
+      "attempt": 0,
+      "generation_id": "examgen_f94cfb9c072bccdff911b2caa1590cc7",
+      "job_id": "examgen_f94cfb9c072bccdff911b2caa1590cc7",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    },
+    {
+      "at": "2026-10-18T05:09:09.852Z",
+      "attempt": 1,
+      "generation_id": "examgen_9c92c8c59ca2b99e086b165865a15b66",
+      "job_id": "job_99d717da50f54a2c",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:10:02.412Z",
+      "attempt": 1,
+      "generation_id": "examgen_9c92c8c59ca2b99e086b165865a15b66",
+      "job_id": "job_99d717da50f54a2c",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:10:33.770Z",
+      "attempt": 1,
+      "generation_id": "examgen_9c92c8c59ca2b99e086b165865a15b66",
+      "job_id": "job_99d717da50f54a2c",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_f94cfb9c072bccdff911b2caa1590cc7",
+    "examgen_9c92c8c59ca2b99e086b165865a15b66"
+  ],
+  "retries": 1,
+  "refresh_recovery": true,
+  "stopped_for_upgrade": true,
+  "completed": false,
+  "termination_reason": "Stopped dedicated test: source extraction duplicate/idle transport regression; preserved for next patch verification."
+}

@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: course conversation restores legacy messages and shares bounded context across topics
+ok 1 - course conversation restores legacy messages and shares bounded context across topics
+  ---
+  duration_ms: 3.861484
+  type: 'test'
+  ...
+# Subtest: global learning memory separates completion, quiz evidence and self assessment; shared learners start independently
+ok 2 - global learning memory separates completion, quiz evidence and self assessment; shared learners start independently
+  ---
+  duration_ms: 3.219573
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 722.694194

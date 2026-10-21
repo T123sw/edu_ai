@@ -1,0 +1,12 @@
+{
+  "job_id": "studio_8bd56d08e64357ca2150d4b2d19d",
+  "status": "failed",
+  "error_code": "GENERATION_DEADLINE_EXCEEDED",
+  "created_at": "2026-10-14T05:00:55.081377+00:00",
+  "finished_at": "2026-10-14T05:10:36.579645+00:00",
+  "studio_complete": true,
+  "resource_listed": true,
+  "title": "快速排序是什么：分治思想与整体流程.md",
+  "report_characters": 6409,
+  "visuals": 79
+}

@@ -1,0 +1,57 @@
+{
+  "overall": "partial_pass_remaining_answer_position_error",
+  "scope": "Existing published 32.112 second v2 lesson; three scenarios run twice using real production browser/API/model; no new generation in this run.",
+  "rows": [
+    {
+      "scenario": "01-continuous-audio",
+      "automated_status": "passed",
+      "checks": 10,
+      "actual_seconds": 6.542063945864335,
+      "answer_stated_seconds": [
+        6.5
+      ],
+      "citations_seconds": [
+        6.542063945864335
+      ],
+      "math_review": "passed",
+      "current_position_narrative_review": "passed",
+      "teaching_skill_version": "6426cc3a24b06e8da8147a43206c7bd080aa183056f1dcf8dd833e28e2899d54",
+      "model_latency_seconds": 17.559
+    },
+    {
+      "scenario": "02-controls-downloads",
+      "automated_status": "passed",
+      "checks": 12,
+      "actual_seconds": 24.492029297052156,
+      "answer_stated_seconds": [
+        17.0
+      ],
+      "citations_seconds": [
+        24.492029297052156
+      ],
+      "math_review": "passed",
+      "current_position_narrative_review": "failed",
+      "teaching_skill_version": "6426cc3a24b06e8da8147a43206c7bd080aa183056f1dcf8dd833e28e2899d54",
+      "model_latency_seconds": 15.412
+    },
+    {
+      "scenario": "03-mobile-refresh",
+      "automated_status": "passed",
+      "checks": 11,
+      "actual_seconds": 20.207637784580502,
+      "answer_stated_seconds": [
+        17.0
+      ],
+      "citations_seconds": [
+        20.207637784580502
+      ],
+      "math_review": "passed",
+      "current_position_narrative_review": "failed",
+      "teaching_skill_version": "6426cc3a24b06e8da8147a43206c7bd080aa183056f1dcf8dd833e28e2899d54",
+      "model_latency_seconds": 17.036
+    }
+  ],
+  "browser_errors": 0,
+  "product_change": "Classroom teaching reference dynamically reloaded; latest answers carry version 6426cc3a24b06e8da8147a43206c7bd080aa183056f1dcf8dd833e28e2899d54. Citations restored in retest; narrative position contamination persists.",
+  "test_script_sha256": "a0f1a31ed563eae6269d0e97e188dd381216856f12f01c285e49c5ccd72f2e7c"
+}

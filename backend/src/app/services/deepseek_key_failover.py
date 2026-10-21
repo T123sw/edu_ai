@@ -19,6 +19,15 @@ _lock = threading.Lock()
 _endpoints = {}
 
 
+def upstream_base_url(base_url: str):
+    """Resolve only this process's registered proxy; never return credentials."""
+    with _lock:
+        for identity, endpoint in _endpoints.items():
+            if endpoint[0].rstrip('/') == base_url.rstrip('/'):
+                return identity[0]
+    return base_url
+
+
 def _start_endpoint(base: str, primary: str, backup: str):
     token = secrets.token_urlsafe(32)
 

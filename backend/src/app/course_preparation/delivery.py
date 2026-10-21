@@ -5,7 +5,7 @@ from app.database.models import (PreparedManifestVersion as Version,PreparedCour
     PreparationDeliveryEvent as Outbox,PreparationArtifact as Artifact,Course,CourseMembership,User)
 from app.chat.memory.lifecycle import lock_epoch,MemoryLifecycle
 from app.persistence.postgres_material_repository import PostgresMaterialRepository
-from .manifest import CourseManifest
+from .manifest import CourseManifest, ManifestResource
 from .quality import check_digest,RULE_VERSION,candidate_manifest
 from .schemas import PreparationRequest
 from .tool_registry import digest
@@ -40,8 +40,14 @@ class DeliveryService:
             if manifest.created_by_preparation_id!=prep.preparation_id: raise ValueError('MANIFEST_TASK_MISMATCH')
             pointer=session.scalar(select(Pointer).where(Pointer.owner_user_id==prep.owner_user_id,Pointer.course_id==manifest.course_id).with_for_update())
             expected=prep.request_payload.get('target',{}).get('base_manifest_version',0) if prep.request_payload.get('target') else 0
+            if not prep.request_payload.get('target'):
+                expected=checkpoint.get('partial_delivery',{}).get('manifest_version',0)
+                if expected:
+                    prior=session.get(Version,(prep.owner_user_id,manifest.course_id,expected))
+                    if prior is None or prior.preparation_id!=prep.preparation_id or prior.payload.get('delivery_state')!='partial':
+                        raise RevisionConflict('MANIFEST_BASE_CHANGED')
             base_snapshot=None
-            if expected:
+            if prep.request_payload.get('target') and expected:
                 from .adapters.targets import TargetStore
                 base_snapshot=TargetStore(self.engine).read_in_session(session,prep.owner_user_id,PreparationRequest.model_validate(prep.request_payload).target)
                 if checkpoint.get('target_snapshot')!=base_snapshot: raise RevisionConflict('TARGET_SNAPSHOT_CHANGED')
@@ -73,7 +79,8 @@ class DeliveryService:
             retained={key:value for key,value in manifest_resources.items() if key not in generated_ids}
             base_resources={r['resource_id']:r for n in base_snapshot['manifest']['nodes'] for r in n['resources']} if base_snapshot else {}
             for key,resource in retained.items():
-                if base_resources.get(key)!=resource.model_dump(mode='json'):
+                base_resource = base_resources.get(key)
+                if base_resource is None or ManifestResource.model_validate(base_resource) != resource:
                     raise ValueError('UNVERIFIED_RETAINED_RESOURCE')
                 from app.database.models import MaterialVersion
                 stored=session.scalar(select(MaterialVersion).where(MaterialVersion.course_id==manifest.course_id,

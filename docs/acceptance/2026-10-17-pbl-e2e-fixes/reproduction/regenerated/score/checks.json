@@ -1,0 +1,1465 @@
+[
+  {
+    "id": "shell-teams-visible",
+    "label": "页面显示“红队”和“蓝队”两个队名",
+    "actions": [
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": "heading",
+          "name": "红队",
+          "testId": null
+        },
+        "value": null,
+        "assertion": "visible",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": "heading",
+          "name": "蓝队",
+          "testId": null
+        },
+        "value": null,
+        "assertion": "visible",
+        "expected": null,
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "shell-scores-zero",
+    "label": "红队与蓝队的初始分数都显示为 0",
+    "actions": [
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "shell-status-draw",
+    "label": "初始状态文字显示“平局”",
+    "actions": [
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "平局",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "shell-buttons-visible",
+    "label": "红队、蓝队的加 1 分与减 1 分按钮以及“重置比赛”按钮都可见且可用",
+    "actions": [
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": "visible",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": "enabled",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-minus"
+        },
+        "value": null,
+        "assertion": "visible",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-minus"
+        },
+        "value": null,
+        "assertion": "enabled",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": "visible",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": "enabled",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-minus"
+        },
+        "value": null,
+        "assertion": "visible",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-minus"
+        },
+        "value": null,
+        "assertion": "enabled",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "reset"
+        },
+        "value": null,
+        "assertion": "visible",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "reset"
+        },
+        "value": null,
+        "assertion": "enabled",
+        "expected": null,
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "red-add-increments",
+    "label": "点击红队“加 1 分”两次后红队分数显示为 2，蓝队分数保持 0",
+    "actions": [
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "2",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "blue-add-increments",
+    "label": "点击蓝队“加 1 分”一次后蓝队分数显示为 1，红队分数保持 0",
+    "actions": [
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "1",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "red-minus-decrements",
+    "label": "红队加两次再减一次后分数为 1；蓝队加两次再减一次后分数为 1",
+    "actions": [
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-minus"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "1",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-minus"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "1",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "minus-at-zero-stays-zero",
+    "label": "分数为 0 时点击“减 1 分”分数保持 0，且从 1 减到 0 后继续减仍为 0",
+    "actions": [
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-minus"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-minus"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-minus"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-minus"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "red-add-keeps-blue",
+    "label": "操作红队不影响蓝队分数，操作蓝队也不影响红队分数",
+    "actions": [
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "3",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "3",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "2",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "reset-clears-both",
+    "label": "红队 2 分、蓝队 1 分时点击“重置比赛”，双方分数都回到 0 且状态回到“平局”；蓝队领先时重置同样清零",
+    "actions": [
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "2",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "1",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "reset"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "平局",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "3",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "reset"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "平局",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "status-red-leads",
+    "label": "红队加 1 分后状态显示“红队领先”且蓝队仍为 0；蓝队追平后状态回到“平局”",
+    "actions": [
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "红队领先",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "2",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "1",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "红队领先",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "平局",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "status-blue-leads",
+    "label": "蓝队加 1 分后状态显示“蓝队领先”且红队仍为 0；红队追平后状态回到“平局”",
+    "actions": [
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "蓝队领先",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "1",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "2",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "蓝队领先",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "平局",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "status-back-to-draw",
+    "label": "红队领先时蓝队追平显示“平局”；平局时红队减 1 分后显示“蓝队领先”",
+    "actions": [
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "红队领先",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "1",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "1",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "平局",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-add"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "红队领先",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-minus"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "平局",
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-minus"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "red-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "0",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "blue-score"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "1",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "status"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "蓝队领先",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  }
+]

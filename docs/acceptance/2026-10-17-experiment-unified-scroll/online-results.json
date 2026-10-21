@@ -1,0 +1,34 @@
+[
+  {
+    "width": 1440,
+    "noNestedScroll": true,
+    "replyAndComposerMoveTogether": true,
+    "replyFocus": true,
+    "draftPreserved": true,
+    "noOverflow": true
+  },
+  {
+    "width": 900,
+    "noNestedScroll": true,
+    "replyAndComposerMoveTogether": true,
+    "replyFocus": true,
+    "draftPreserved": true,
+    "noOverflow": true
+  },
+  {
+    "width": 390,
+    "noNestedScroll": true,
+    "replyAndComposerMoveTogether": true,
+    "replyFocus": true,
+    "draftPreserved": true,
+    "noOverflow": true
+  },
+  {
+    "width": 320,
+    "noNestedScroll": true,
+    "replyAndComposerMoveTogether": true,
+    "replyFocus": true,
+    "draftPreserved": true,
+    "noOverflow": true
+  }
+]

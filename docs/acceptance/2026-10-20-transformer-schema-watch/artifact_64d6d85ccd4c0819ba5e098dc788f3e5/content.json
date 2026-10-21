@@ -1,0 +1,583 @@
+{
+  "_failure_detail": {
+    "code": "MODEL_RESPONSE_INVALID",
+    "phase": "resource_repair",
+    "message": "生成调用未完成：MODEL_RESPONSE_INVALID",
+    "category": "provider",
+    "artifact_id": "artifact_64d6d85ccd4c0819ba5e098dc788f3e5",
+    "retry_scope": "provider",
+    "budget_metric": null,
+    "content_digest": null
+  },
+  "_review_candidate": {
+    "content": {
+      "title": "自注意力：Q/K/V 与缩放点积计算 · 练习",
+      "questions": [
+        {
+          "id": "q1",
+          "stem": "关于注意力函数 Attention(Q, K, V) 的一般定义，下列哪一项描述最准确？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "输出是值向量 V 的加权和，每个值的权重由查询 Q 与对应键 K 的相容性函数计算得到",
+            "输出是查询 Q 与键 K 的点积本身，值向量 V 只用于提供维度信息",
+            "输出是键向量 K 的加权和，权重由值向量 V 之间的相似度决定",
+            "输出是查询 Q 与所有键 K 的算术平均，权重对所有键固定为 1/n"
+          ],
+          "difficulty": "easy",
+          "explanation": "A 正确：论文把注意力函数描述为“把一个查询和一组键值对映射为输出”，输出是值的加权和，权重由查询与对应键的相容性函数给出。B 错误：点积只是相容性函数的一种具体实现，用来产生权重，输出并不是点积本身，V 也不是只提供维度。C 错误：加权求和的对象是值 V 而不是键 K，权重来自 Q 与 K 的相容性，而不是 V 与 V 之间的相似度。D 错误：权重由相容性函数决定并通常经 softmax 归一化，不是固定为 1/n 的算术平均；若权重固定，注意力就无法根据内容选择信息。"
+        },
+        {
+          "id": "q2",
+          "stem": "设 3 个词元，键维度 dk=2。查询矩阵 Q 的三行（每个词元一个查询）为 q1=(1,0)、q2=(0,1)、q3=(1,1)；键矩阵 K 的三行与查询相同，即 k1=(1,0)、k2=(0,1)、k3=(1,1)；值矩阵 V 的三行为 v1=(1,0)、v2=(0,1)、v3=(2,2)。请按“Q 与所有 K 点积 → 除以 √dk → softmax 归一化 → 对 V 加权求和”的步骤，写出缩放后的分数矩阵、注意力权重矩阵（保留 3 位小数），以及三个输出向量。",
+          "type": "short_answer",
+          "answer": "缩放后分数矩阵（每行除以 √2≈1.414214）：第 1 行 (0.707107, 0, 0.707107)；第 2 行 (0, 0.707107, 0.707107)；第 3 行 (0.707107, 0.707107, 1.414214)。权重矩阵：第 1 行 (0.401, 0.198, 0.401)；第 2 行 (0.198, 0.401, 0.401)；第 3 行 (0.248, 0.248, 0.503)。输出：o1=(1.203, 1.000)，o2=(1.000, 1.203)，o3=(1.255, 1.255)。",
+          "difficulty": "hard",
+          "explanation": "第一步点积 QK^T：q1·k1=1、q1·k2=0、q1·k3=1；q2·k1=0、q2·k2=1、q2·k3=1；q3·k1=1、q3·k2=1、q3·k3=2。第二步除以 √dk=√2≈1.414214，得到缩放后的分数矩阵：第 1 行 (0.707107, 0, 0.707107)，第 2 行 (0, 0.707107, 0.707107)，第 3 行 (0.707107, 0.707107, 1.414214)。第三步对每行做 softmax：第 1 行 exp(0.707107)=2.028114、exp(0)=1、exp(0.707107)=2.028114，和为 5.056228，权重为 (2.028114/5.056228, 1/5.056228, 2.028114/5.056228)=(0.401, 0.198, 0.401)。第 2 行与第 1 行对称，权重为 (0.198, 0.401, 0.401)。第 3 行 exp(0.707107)=2.028114、exp(0.707107)=2.028114、exp(1.414214)=4.113251，和为 8.169479，权重为 (2.028114/8.169479, 2.028114/8.169479, 4.113251/8.169479)=(0.248, 0.248, 0.503)。第四步对 V 加权求和：o1=0.401·(1,0)+0.198·(0,1)+0.401·(2,2)=(0.401+0.802, 0.198+0.802)=(1.203, 1.000)；o2 对称得 (1.000, 1.203)；o3=0.248·(1,0)+0.248·(0,1)+0.503·(2,2)=(0.248+1.006, 0.248+1.006)=(1.254, 1.254)，按未舍入权重 0.248255 与 0.503490 计算为 (0.248255+1.006980, 0.248255+1.006980)=(1.255, 1.255)。关键检查：每行权重之和为 1（0.401+0.198+0.401=1.000，0.248+0.248+0.503=0.999≈1），且输出维度等于 dv=2。"
+        },
+        {
+          "id": "q3",
+          "stem": "缩放点积注意力中把点积除以 √dk，主要原因是：",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "dk 较大时点积的幅值会变大，使 softmax 进入梯度极小的区域，缩放可以把分数拉回梯度较正常的范围",
+            "除以 √dk 可以减小模型参数量，从而降低显存占用",
+            "除以 √dk 是为了让注意力权重之和恰好等于 dk",
+            "除以 √dk 是为了防止过拟合，起到正则化作用"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：论文指出 dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域；论文脚注进一步说明，若 q、k 各分量是均值 0、方差 1 的独立随机变量，则点积的方差为 dk，因此用 1/√dk 缩放可把方差拉回 1 量级。B 错误：缩放只是对分数做常数除法，不引入或删除任何参数，参数量不变。C 错误：softmax 的输出按定义每行和为 1，与 dk 无关；缩放改变的是分布的陡峭程度，不是权重总和。D 错误：缩放因子是固定的常数 1/√dk，不是可学习的正则项，也不以抑制过拟合为目的。"
+        },
+        {
+          "id": "q4",
+          "stem": "在自注意力层中，查询 Q、键 K、值 V 都来自同一个序列（例如编码器上一层的输出），其作用是刻画该序列内部各位置之间的关系。",
+          "type": "true_false",
+          "answer": "正确",
+          "difficulty": "easy",
+          "explanation": "论文明确指出，在自注意力层中所有键、值和查询都来自同一处，即编码器上一层的输出；中文材料也把“自”解释为关联单个输入序列中不同位置来计算注意力权重。与之相对，编码器-解码器注意力中查询来自解码器上一层，键和值来自编码器输出，二者来源不同。因此该说法正确。"
+        },
+        {
+          "id": "q5",
+          "stem": "关于缩放点积注意力的矩阵形式 Attention(Q, K, V) = softmax(QK^T/√dk)V，下列说法正确的有：",
+          "type": "multiple_choice",
+          "answer": "A,B,C",
+          "options": [
+            "Q 的形状是 n×dk，K 的形状是 m×dk，因此 QK^T 的形状是 n×m",
+            "softmax 作用在 QK^T/√dk 的每一行上，使每个查询对所有键的权重之和为 1",
+            "最终输出的形状是 n×dv，其中 dv 是值向量的维度",
+            "公式中的 √dk 应理解为对 QK^T 的每个元素开平方根"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：Q 的每一行是一个 dk 维查询，K 的每一行是一个 dk 维键，二者转置相乘后得到 n 个查询对 m 个键的分数矩阵，形状 n×m。B 正确：softmax 沿键的方向（即每一行）归一化，这正是“每个查询的权重和为 1”的来源。C 正确：权重矩阵 n×m 再乘 V（m×dv），得到 n×dv 的输出，每个查询对应一个 dv 维输出向量。D 错误：√dk 是对整个分数矩阵统一除以的标量 √dk，不是对每个元素开平方；若对每个元素开方，分数矩阵的数值关系会被彻底改变，也不再是论文定义的缩放方式。"
+        }
+      ]
+    },
+    "artifact_id": "artifact_64d6d85ccd4c0819ba5e098dc788f3e5",
+    "resource_id": "resource_64d6d85ccd4c0819ba5e098dc788f3e5",
+    "spec_digest": "4b40b7c5fed113a15ec753428c293a20c5202062184f528f28caf086acd2b1cc",
+    "recovery_key": "48dc3bf972480a82ee00b70529dfa145a84008d7e7fac486923002d38731b65c",
+    "review_state": {
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本节点分工为自注意力 Q/K/V 与缩放点积计算；q1 考注意力函数的一般定义（值加权和+相容性函数），q2 手算四步缩放点积注意力，q3 考 √dk 缩放动机，q4 考自注意力 Q/K/V 同源，q5 考矩阵形式各符号维度，均直接支撑 req-goal-transformer 在本节点的贡献。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "独立复算 q2：QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以 √2 后逐行 softmax 得 [[0.4013,0.1979,0.4013],[0.1979,0.4013,0.4013],[0.2483,0.2483,0.5035]]，乘 V 得 o1=(1.204,1.000)、o2=(1.000,1.204)、o3=(1.255,1.255)，与答案一致；q3 关于点积方差为 dk、softmax 梯度极小的表述与论文一致；q5 的维度推导 n×m、n×dv 正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q2 提供了 3 词元、dk=2 的完整数值实例，逐步给出点积、缩放、softmax 与加权求和，并附每行权重和为 1 的校验，与节点活动“手算注意力分数矩阵、softmax 权重与加权求和”对应；其余概念题无需额外实例。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为定义（q1）→ 手算流程（q2）→ 缩放原因（q3）→ 自注意力同源（q4）→ 矩阵形式维度（q5），与四个节点目标顺序一致；难度 easy/hard/medium/easy/medium 分布合理，5 题在 14 分钟节点预算内可完成。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "q1、q3、q4 的解析引用《Attention Is All You Need》3.2 节与脚注 4 的原文表述，q4 另引中文材料对“自”的解释，均与 research_context 中提供的证据一致，未出现无依据断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个节点目标均有对应题目（o1→q1，o2→q2/q5，o3→q3，o4→q4），覆盖单选、多选、判断、简答四种题型，每题含答案与逐步解析，无缺项。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q2 解析第 9 段同时给出 (1.254, 1.254) 与 (1.255, 1.255) 两个数值，建议只保留按未舍入权重计算的最终结果，避免学习者困惑。",
+              "q1、q3 的正确答案均为 A，q5 为 A,B,C，可考虑调整选项顺序以减少答案位置规律。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [
+                  {
+                    "reasoning": "该选项准确复述论文 3.2 节对注意力函数的定义：输出为值的加权和，权重由 Q 与对应 K 的相容性函数给出。",
+                    "option_text": "输出是值向量 V 的加权和，每个值的权重由查询 Q 与对应键 K 的相容性函数计算得到",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文把注意力函数描述为“把一个查询和一组键值对映射为输出”，输出是值的加权和，权重由查询与对应键的相容性函数给出。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段引用论文原意，与选项内容一致，判断准确。"
+                  },
+                  {
+                    "reasoning": "点积只是相容性函数的一种实现，用于产生权重，输出并非点积本身，V 也不是仅提供维度，故错误。",
+                    "option_text": "输出是查询 Q 与键 K 的点积本身，值向量 V 只用于提供维度信息",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：点积只是相容性函数的一种具体实现，用来产生权重，输出并不是点积本身，V 也不是只提供维度。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 1 段指出点积仅用于产生权重、输出不是点积、V 不只提供维度，三点均成立。"
+                  },
+                  {
+                    "reasoning": "加权求和的对象是值 V，权重来自 Q 与 K 的相容性而非 V 与 V 的相似度，故错误。",
+                    "option_text": "输出是键向量 K 的加权和，权重由值向量 V 之间的相似度决定",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：加权求和的对象是值 V 而不是键 K，权重来自 Q 与 K 的相容性，而不是 V 与 V 之间的相似度。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段正确指出加权对象是 V 而非 K，且权重来源是 Q-K 相容性。"
+                  },
+                  {
+                    "reasoning": "权重由相容性函数经 softmax 归一化得到，并非固定 1/n 的算术平均，故错误。",
+                    "option_text": "输出是查询 Q 与所有键 K 的算术平均，权重对所有键固定为 1/n",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：权重由相容性函数决定并通常经 softmax 归一化，不是固定为 1/n 的算术平均；若权重固定，注意力就无法根据内容选择信息。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3–4 段说明权重由相容性函数决定并通常经 softmax 归一化，且指出固定权重会使注意力无法按内容选择信息，均成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "注意力函数定义为把查询与一组键值对映射为输出，输出是值的加权和，权重由查询与对应键的相容性函数给出，故 A 正确；B 把输出误认为点积本身，C 把加权对象误为 K 且权重来源错误，D 误为固定 1/n 平均。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "[[1,0,1],[0,1,1],[1,1,2]]",
+                    "excerpt": "第一步点积 QK^T：q1·k1=1、q1·k2=0、q1·k3=1；q2·k1=0、q2·k2=1、q2·k3=1；q3·k1=1、q3·k2=1、q3·k3=2。",
+                    "expression": "matmul([[1,0],[0,1],[1,1]], transpose([[1,0],[0,1],[1,1]]))",
+                    "end_segment": 2,
+                    "source_field": "explanation",
+                    "start_segment": 0,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "[[0.707107,0,0.707107],[0,0.707107,0.707107],[0.707107,0.707107,1.414214]]",
+                    "excerpt": "第二步除以 √dk=√2≈1.414214，得到缩放后的分数矩阵：第 1 行 (0.707107, 0, 0.707107)，第 2 行 (0, 0.707107, 0.707107)，第 3 行 (0.707107, 0.707107, 1.414214)。",
+                    "expression": "matmul([[1,0],[0,1],[1,1]], transpose([[1,0],[0,1],[1,1]])) / sqrt(2)",
+                    "end_segment": 3,
+                    "source_field": "explanation",
+                    "start_segment": 3,
+                    "decimal_places": 6
+                  },
+                  {
+                    "claimed": "[0.401,0.198,0.401]",
+                    "excerpt": "第三步对每行做 softmax：第 1 行 exp(0.707107)=2.028114、exp(0)=1、exp(0.707107)=2.028114，和为 5.056228，权重为 (2.028114/5.056228, 1/5.056228, 2.028114/5.056228)=(0.401, 0.198, 0.401)。",
+                    "expression": "softmax([0.707107,0,0.707107])",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "[0.198,0.401,0.401]",
+                    "excerpt": "第 2 行与第 1 行对称，权重为 (0.198, 0.401, 0.401)。",
+                    "expression": "softmax([0,0.707107,0.707107])",
+                    "end_segment": 5,
+                    "source_field": "explanation",
+                    "start_segment": 5,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "[0.248,0.248,0.503]",
+                    "excerpt": "第 3 行 exp(0.707107)=2.028114、exp(0.707107)=2.028114、exp(1.414214)=4.113251，和为 8.169479，权重为 (2.028114/8.169479, 2.028114/8.169479, 4.113251/8.169479)=(0.248, 0.248, 0.503)。",
+                    "expression": "softmax([0.707107,0.707107,1.414214])",
+                    "end_segment": 6,
+                    "source_field": "explanation",
+                    "start_segment": 6,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "[1.203,1.000]",
+                    "excerpt": "第四步对 V 加权求和：o1=0.401·(1,0)+0.198·(0,1)+0.401·(2,2)=(0.401+0.802, 0.198+0.802)=(1.203, 1.000)；",
+                    "expression": "weighted_sum([0.401,0.198,0.401],[[1,0],[0,1],[2,2]])",
+                    "end_segment": 7,
+                    "source_field": "explanation",
+                    "start_segment": 7,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "[1.255,1.255]",
+                    "excerpt": "o3=0.248·(1,0)+0.248·(0,1)+0.503·(2,2)=(0.248+1.006, 0.248+1.006)=(1.254, 1.254)，按未舍入权重 0.248255 与 0.503490 计算为 (0.248255+1.006980, 0.248255+1.006980)=(1.255, 1.255)。",
+                    "expression": "weighted_sum([0.248255,0.248255,0.503490],[[1,0],[0,1],[2,2]])",
+                    "end_segment": 9,
+                    "source_field": "explanation",
+                    "start_segment": 9,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "[[1.204,1.000],[1.000,1.204],[1.255,1.255]]",
+                    "excerpt": "输出：o1=(1.203, 1.000)，o2=(1.000, 1.203)，o3=(1.255, 1.255)。",
+                    "expression": "weighted_sum(softmax(matmul([[1,0],[0,1],[1,1]], transpose([[1,0],[0,1],[1,1]])) / sqrt(2)),[[1,0],[0,1],[2,2]])",
+                    "end_segment": 6,
+                    "source_field": "answer",
+                    "start_segment": 6,
+                    "decimal_places": 3
+                  }
+                ],
+                "independent_solution": "QK^T=[[1,0,1],[0,1,1],[1,1,2]]；除以 √2≈1.414214 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；逐行 softmax 得 [[0.4013,0.1979,0.4013],[0.1979,0.4013,0.4013],[0.2483,0.2483,0.5035]]；乘 V=[[1,0],[0,1],[2,2]] 得 o1=(1.204,1.000)、o2=(1.000,1.204)、o3=(1.255,1.255)。与参考答案一致。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "与论文 3.2.1 节及脚注 4 的论述一致：点积方差随 dk 增长，缩放使分数回到梯度正常范围。",
+                    "option_text": "dk 较大时点积的幅值会变大，使 softmax 进入梯度极小的区域，缩放可以把分数拉回梯度较正常的范围",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文指出 dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域；论文脚注进一步说明，若 q、k 各分量是均值 0、方差 1 的独立随机变量，则点积的方差为 dk，因此用 1/√dk 缩放可把方差拉回 1 量级。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0–1 段准确复述论文结论，并补充脚注中方差为 dk 的推导，均成立。"
+                  },
+                  {
+                    "reasoning": "缩放是对分数矩阵做常数除法，不引入或删除参数，参数量与显存占用不因此改变，故错误。",
+                    "option_text": "除以 √dk 可以减小模型参数量，从而降低显存占用",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：缩放只是对分数做常数除法，不引入或删除任何参数，参数量不变。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段指出缩放不引入或删除参数、参数量不变，判断正确。"
+                  },
+                  {
+                    "reasoning": "softmax 输出每行和恒为 1，与 dk 无关，缩放只改变分布陡峭程度，故错误。",
+                    "option_text": "除以 √dk 是为了让注意力权重之和恰好等于 dk",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：softmax 的输出按定义每行和为 1，与 dk 无关；缩放改变的是分布的陡峭程度，不是权重总和。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3–4 段说明 softmax 每行和为 1 与 dk 无关、缩放改变陡峭程度而非总和，均成立。"
+                  },
+                  {
+                    "reasoning": "1/√dk 是固定常数缩放，不是可学习正则项，目的也不是抑制过拟合，故错误。",
+                    "option_text": "除以 √dk 是为了防止过拟合，起到正则化作用",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：缩放因子是固定的常数 1/√dk，不是可学习的正则项，也不以抑制过拟合为目的。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 5 段指出缩放因子为固定常数、非可学习正则项，判断准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文指出 dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域，故用 1/√dk 缩放；缩放不改变参数量、不改变 softmax 每行和为 1 的性质、也不是正则化，故 A 正确，B、C、D 错误。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文 3.2.3 节说明自注意力层中所有键、值、查询都来自同一处（编码器上一层输出），用于刻画序列内部各位置关系，故该说法正确。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [
+                  {
+                    "reasoning": "Q(n×dk) 乘 K^T(dk×m) 得 n×m 分数矩阵，维度推导正确。",
+                    "option_text": "Q 的形状是 n×dk，K 的形状是 m×dk，因此 QK^T 的形状是 n×m",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：Q 的每一行是一个 dk 维查询，K 的每一行是一个 dk 维键，二者转置相乘后得到 n 个查询对 m 个键的分数矩阵，形状 n×m。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段对 Q、K 行向量含义与转置相乘后形状的说明准确。"
+                  },
+                  {
+                    "reasoning": "softmax 沿键方向（每行）归一化，使每个查询对所有键的权重和为 1，表述正确。",
+                    "option_text": "softmax 作用在 QK^T/√dk 的每一行上，使每个查询对所有键的权重之和为 1",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：softmax 沿键的方向（即每一行）归一化，这正是“每个查询的权重和为 1”的来源。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 1 段正确指出 softmax 沿每行归一化是权重和为 1 的来源。"
+                  },
+                  {
+                    "reasoning": "(n×m) 权重矩阵乘 V(m×dv) 得 n×dv 输出，每个查询对应一个 dv 维向量，正确。",
+                    "option_text": "最终输出的形状是 n×dv，其中 dv 是值向量的维度",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：权重矩阵 n×m 再乘 V（m×dv），得到 n×dv 的输出，每个查询对应一个 dv 维输出向量。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 2 段的维度链推导正确。"
+                  },
+                  {
+                    "reasoning": "√dk 是对整个分数矩阵统一除以的标量，不是对每个元素开平方，故错误。",
+                    "option_text": "公式中的 √dk 应理解为对 QK^T 的每个元素开平方根",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：√dk 是对整个分数矩阵统一除以的标量 √dk，不是对每个元素开平方；若对每个元素开方，分数矩阵的数值关系会被彻底改变，也不再是论文定义的缩放方式。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3–4 段正确区分“统一除以标量”与“逐元素开方”，并说明后者会改变数值关系，判断成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Q 为 n×dk、K 为 m×dk，QK^T 为 n×m；softmax 沿每行归一化使每个查询权重和为 1；权重矩阵乘 V(m×dv) 得 n×dv；√dk 是对整个分数矩阵统一除以的标量，不是逐元素开方。故 A、B、C 正确，D 错误。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 直接考查注意力函数的一般定义（值加权和与相容性函数），真实支持“讲授注意力机制原理”的贡献。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 以 3 词元 dk=2 的数值完整走完点积、缩放、softmax、加权求和四步，落实手算活动。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 的选项与解析准确对应 √dk 缩放动机（softmax 梯度极小区域），检验有效。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 判断题考查自注意力中 Q/K/V 同源，并与编码器-解码器注意力对比，定位准确。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 逐项辨析矩阵形式中 QK^T 形状、softmax 方向、输出维度与 √dk 含义，支持该定位。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1（注意力函数定义）的检查题，选项与解析均围绕值加权和与相容性函数。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n3-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o2 的练习，完整覆盖四步手算与矩阵形式，数值经复算正确。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n3-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o2 的检查题，核对矩阵形式 softmax(QK^T/√dk)V 各符号维度与 softmax 方向。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n3-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o3 的检查题，正确考查缩放因子与 softmax 梯度极小区域的关系。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n3-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o4 的检查题，正确考查自注意力 Q/K/V 同源及刻画序列内部关系的作用。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n3-self-attention:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "revise",
+          "content_sha256": "e2f5015c298ab73dfd247ff0a1a7ddd64d2409b8c2592db5f36956e8aef9ca88"
+        }
+      ],
+      "version": 2,
+      "feedback": [
+        "第 2 题：数值断言无法复算：输出：o1=(1.203, 1.000)，o2=(1.000, 1.203)，o3=(1.255, 1.255)。；请提供受支持的算式或明确其验证限制"
+      ],
+      "preparation": {
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 13.46
+        },
+        "spec_digest": "4b40b7c5fed113a15ec753428c293a20c5202062184f528f28caf086acd2b1cc",
+        "schema_version": 1,
+        "objective_bindings": [
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q1"
+            },
+            "objective_id": "n3-self-attention:o1"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q2"
+            },
+            "objective_id": "n3-self-attention:o2"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q5"
+            },
+            "objective_id": "n3-self-attention:o2"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q3"
+            },
+            "objective_id": "n3-self-attention:o3"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q4"
+            },
+            "objective_id": "n3-self-attention:o4"
+          }
+        ],
+        "applied_requirements": [
+          {
+            "locator": {
+              "question_id": "q1"
+            },
+            "explanation": "通过注意力函数定义题落实“讲授 Transformer 核心概念与架构原理”中的注意力机制原理部分。",
+            "requirement_id": "req-goal-transformer"
+          },
+          {
+            "locator": {
+              "question_id": "q2"
+            },
+            "explanation": "通过 3 词元 dk=2 的手算题，让学习者完整走一遍缩放点积注意力的四步计算，理解其工作机制。",
+            "requirement_id": "req-goal-transformer"
+          },
+          {
+            "locator": {
+              "question_id": "q3"
+            },
+            "explanation": "通过缩放因子原因题，检验对 √dk 缩放设计动机（softmax 梯度极小区域）的理解。",
+            "requirement_id": "req-goal-transformer"
+          },
+          {
+            "locator": {
+              "question_id": "q4"
+            },
+            "explanation": "通过自注意力中 Q/K/V 同源的判断题，检验对自注意力与编码器-解码器注意力区别的理解。",
+            "requirement_id": "req-goal-transformer"
+          },
+          {
+            "locator": {
+              "question_id": "q5"
+            },
+            "explanation": "通过矩阵形式维度与 softmax 方向的辨析题，检验对 Attention(Q,K,V)=softmax(QK^T/√dk)V 各符号含义的掌握。",
+            "requirement_id": "req-goal-transformer"
+          }
+        ],
+        "question_time_estimates": [
+          {
+            "reason": "需回忆注意力函数的一般定义，并逐一排除“输出是点积本身”“对 K 加权”“固定 1/n 平均”三种常见误解，属于概念辨析。",
+            "question_id": "q1",
+            "thinking_seconds": 40
+          },
+          {
+            "reason": "需完成 9 次点积、9 次除法、3 行各 3 项指数与归一化，再做 3 次二维加权求和，并核对每行权重和为 1，步骤多且需保持数值精度。",
+            "question_id": "q2",
+            "thinking_seconds": 300
+          },
+          {
+            "reason": "需理解点积方差随 dk 增长导致 softmax 饱和、梯度变小，并排除参数量、权重和、正则化三个干扰说法。",
+            "question_id": "q3",
+            "thinking_seconds": 60
+          },
+          {
+            "reason": "只需判断自注意力中 Q/K/V 同源这一事实，并与编码器-解码器注意力对比，属直接回忆。",
+            "question_id": "q4",
+            "thinking_seconds": 25
+          },
+          {
+            "reason": "需分别推导 QK^T 的形状、softmax 的归一化方向、输出维度，并识别“对每个元素开平方”这一错误理解，属多步维度推理。",
+            "question_id": "q5",
+            "thinking_seconds": 90
+          }
+        ],
+        "teaching_context_digest": "a7acbc3dfb187216221b2175b0ef0dc79445ea55871005c85173f8715be54c11"
+      },
+      "needs_repair": true
+    },
+    "owner_user_id": "teacher",
+    "content_digest": "e2f5015c298ab73dfd247ff0a1a7ddd64d2409b8c2592db5f36956e8aef9ca88",
+    "preparation_id": "prep_4406eb8b05ec47bdb9b1609e35e31ab5",
+    "recovery_scope": "provider",
+    "schema_version": 1,
+    "recovery_attempt": 1,
+    "recovery_receipt": {
+      "job_id": "generate_artifact_64d6d85ccd4c0819ba5e098dc788f3e5_recovery_1",
+      "artifact_id": "artifact_64d6d85ccd4c0819ba5e098dc788f3e5",
+      "retry_scope": "provider",
+      "recovery_attempt": 1
+    },
+    "resource_version": 1,
+    "parent_attempt_no": 1,
+    "teaching_context_digest": "a7acbc3dfb187216221b2175b0ef0dc79445ea55871005c85173f8715be54c11"
+  }
+}

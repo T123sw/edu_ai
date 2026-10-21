@@ -1,0 +1,200 @@
+{
+  "title": "编码器-解码器结构与训练/推理流程",
+  "content": {
+    "title": "编码器-解码器结构与训练/推理流程",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_8b503bac1d065bb5fe03996666fe9635",
+      "entry": "index.html",
+      "digest": "35c04b1c59799c40789e901cfbe6816bc1c54627f5a14a13fa42093894629636"
+    },
+    "timeline": {
+      "duration": 300.933333,
+      "segments": [
+        {
+          "id": "01-hook-architecture",
+          "end": 29.35,
+          "start": 0.0,
+          "title": "编码器理解，解码器生成",
+          "events": [],
+          "narration": "Transformer 的整个结构可以拆成两半：编码器负责理解输入，解码器负责生成输出。输入是一串符号，x1 到 xn，编码器把它变成一串连续的表示 z；解码器拿到 z 之后，一次只吐出一个元素，生成 y1 到 ym，每一步都把前面已经生成的符号再喂回去，这就是自回归。记住这个分工，后面的所有细节都挂在它上面。",
+          "audio_path": "assets/audio/004cb4a1b3f79cd10e4a61eb0f7a4674452f1ad4ff6086e3c390b4510baddee6.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "一整条流水线的两半：左侧编码器把 x1…xn 压成 z，右侧解码器一次一个地吐出 y1…ym"
+        },
+        {
+          "id": "02-encoder-input",
+          "end": 53.66,
+          "start": 29.35,
+          "title": "入口：嵌入 + 位置编码",
+          "events": [],
+          "narration": "先看输入的入口。每个词先变成词嵌入向量，再和位置编码相加——因为自注意力本身不知道先后顺序，位置信息必须显式加进去。两者维度相同，都是 dmodel 等于 512，所以能直接相加。这一串向量进入编码器堆栈，出来就是 z1 到 zn。把入口看清楚，编码器才有意义。",
+          "audio_path": "assets/audio/5a8d675a554ad8c6a6319eb49f43dce15d547d4409aaab79eb7200542c6b3ded.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三个词各自变成 512 维向量，再与位置编码相加，汇入编码器堆栈"
+        },
+        {
+          "id": "03-encoder-layer",
+          "end": 89.72999999999999,
+          "start": 53.66,
+          "title": "编码器层：两个子层",
+          "events": [],
+          "narration": "编码器由 N 等于 6 个相同的层堆起来。每层只有两个子层：先做多头自注意力，让每个位置看一遍整句话；再做逐位置的前馈网络，对每个位置单独做非线性变换。每个子层外面都套了残差连接，再做层归一化，输出是 LayerNorm(x 加 Sublayer(x))，六层叠起来才训练得稳。这里的 Q、K、V 全部来自上一层编码器的输出，这是三处注意力里的第一处。",
+          "audio_path": "assets/audio/12eea4d1f2c01c44e123046302b84c4db3ea431b8313f57c96c0d9fab7d7ee2e.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "六层堆叠、每层两个子层，各自套残差再层归一化；Q/K/V 同源于上一层编码器输出"
+        },
+        {
+          "id": "04-decoder-layer",
+          "end": 119.65,
+          "start": 89.73,
+          "title": "解码器层：三个子层",
+          "events": [],
+          "narration": "解码器同样是 6 层，但每层有三个子层。前两个是掩码多头自注意力和编码器-解码器注意力，第三个是前馈网络，和编码器那边一样。顺序不能乱：先在自己的已生成序列里看，再去编码器的输出里找信息，最后做变换。每个子层同样带残差和层归一化。多出来的那一个子层，就是编码器和解码器在结构上最大的区别。",
+          "audio_path": "assets/audio/a1bb4ae25111c1f2f05d3d0af0e7168f2028cbf85d427c8f9284878e04ab9912.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左侧钉住的 Decoder × 6，右侧按 1/2/3 依次落位三个子层"
+        },
+        {
+          "id": "05-mask-matrix",
+          "end": 149.65,
+          "start": 119.65,
+          "title": "掩码矩阵与右移一位",
+          "events": [],
+          "narration": "为什么解码器的自注意力要加掩码？看这三步解码。位置 i 的预测只能依赖小于 i 的已知输出，所以要做一张 3×3 的掩码矩阵：对角线以上，也就是未来位置，对应的 softmax 输入直接设成负无穷，权重就变成零。配合输出嵌入右移一位——第一步看到起始符，第二步看到起始符和第一个词——位置 i 就再也看不到自己之后的答案。",
+          "audio_path": "assets/audio/899ee59c69a17a4a6c3d0c27c14190382b3b9c18f5f0240bcf5ee57aaf2889da.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "3×3 掩码矩阵，上三角被盖章成 −∞；右侧演示输出嵌入右移一位"
+        },
+        {
+          "id": "06-cross-attention",
+          "end": 180.53,
+          "start": 149.65,
+          "title": "交叉注意力：Q 从解码器来",
+          "events": [],
+          "narration": "第二处是编码器-解码器注意力，也叫交叉注意力。它的 Q 来自上一层解码器的输出，K 和 V 来自编码器的输出 z。于是解码器的每个位置，都能在生成当前词的时候，回头看输入序列的所有位置——翻译里对齐原文，靠的就是这一层。三处注意力到这里就齐了：同源的编码器自注意力、带掩码的解码器自注意力、和这条跨过去的交叉注意力。",
+          "audio_path": "assets/audio/d9c6c80fc3811a27ca552afb9a005994a4b818a53984edd3c5ce7f98c8ff8cb0.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "z1…z4 在左，解码位置在右，Q 从解码器来、K/V 从编码器来，四条线全部连通"
+        },
+        {
+          "id": "07-output-softmax",
+          "end": 202.29,
+          "start": 180.53,
+          "title": "出口：Linear + Softmax",
+          "events": [],
+          "narration": "解码器的输出还要经过一层线性变换，把 dmodel 维映射到词表大小，然后用 Softmax 变成概率分布。概率最高的那个词，就是这一步要生成的输出。推理时，这个被选中的词会变成下一步的输入。整个结构的出口，就是这样一个概率分布。",
+          "audio_path": "assets/audio/b077c4d798a93729213add910561cb6d1f4ae1ff1652329cd4841d6071cac52a.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "512 维向量经 Linear 映到词表，再经 Softmax 变成概率条，最高的一条被选中"
+        },
+        {
+          "id": "08-training",
+          "end": 243.73,
+          "start": 202.29,
+          "title": "训练：整段并行，掩码防泄漏",
+          "events": [],
+          "narration": "训练和推理的差别，是这套结构最容易被误解的地方。训练时，我们把右移一位的目标序列整段并行喂进去，掩码挡住未来，每个位置同时学一个预测。对每个子层的输出，以及嵌入加位置编码的和，都做 dropout，base 模型取 0.1；标签平滑也是 0.1。优化用 Adam，β1 取 0.9，β2 取 0.98，ε 是 1e-9；学习率先线性 warmup 4000 步，再按步数的平方根倒数衰减。这些数字来自 2017 年的 base 配置，并不是所有后续实现都这么设。",
+          "audio_path": "assets/audio/8914659294736fe98fbf9bc8004d0337e66deeede7d9356156da4e5db54fdaca.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "右移的目标序列并行喂入、掩码挡住未来；右侧参数面板与 warmup 学习率曲线依次落位"
+        },
+        {
+          "id": "09-inference",
+          "end": 275.09,
+          "start": 243.73,
+          "title": "推理：一步一步，束搜索",
+          "events": [],
+          "narration": "推理没有答案可以并行，只能一步一步往前。原论文用束搜索，beam size 等于 4，长度惩罚 α 取 0.6，最大输出长度设为输入长度加 50，遇到结束符就尽早停。每一步都把新生成的词接回输入，再走一遍整个解码器。所以推理慢，是因为它是串行的；这也正好解释了训练时能并行、推理时必须一个个来的原因。",
+          "audio_path": "assets/audio/890cae3aa3de176b6037e8a19c013cd498dc64b2e93292d69bb29832bbc99197.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "解码器 + 回环箭头，三级阶梯逐步生成；右下角束搜索参数面板"
+        },
+        {
+          "id": "10-recap-variants",
+          "end": 300.92999999999995,
+          "start": 275.09,
+          "title": "延伸：三类现代变体",
+          "events": [],
+          "narration": "最后看一眼现代变体。只用编码器的，比如 BERT，擅长分类、命名实体识别和问答；只用解码器的，比如 GPT 系列，擅长生成和对话；编码器加解码器都在的，比如 T5 和 BART，擅长翻译和摘要。结构可以拆，但那句分工没变：编码器理解输入，解码器一步步生成输出。",
+          "audio_path": "assets/audio/7123c6088b75d4b71b0817cad27e5bfae6fd68c0d43888d22a6fd81015c381ac.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "仅编码器 / 仅解码器 / 编码器-解码器 三张卡，收束成一句分工"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 300.933333
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.01555555
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "f319982e8f5bb2455856e338d9b88c91aa0ca71924fdbca5365eca3d7caa6fa7",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 300.933333
+      },
+      "content_digest": "56d5f92eb7d903e90c9c6c954d3f7fab801d01c3a8e1301b7cb4e989435b30f7",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.01555555
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "6c908e1b0fa20a5f89cacee0705e35633f9fd87f9c7edc1e91d336813beb2764"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "62f0c714920fbde327bb60cc29e1eb88bd60be7d509b66d6a1c9f068f4ff4755",
+      "preparation_sha256": "b39c21d37c09afb5601e5d2194341dad71a372b42d255305c233fff41a54c02a"
+    }
+  }
+}

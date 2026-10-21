@@ -1,0 +1,52 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/zxqs_ep/data/main-review/generation-simplification-20261020/baseline/video/renders/sample.mp4':
+  Metadata:
+    minor_version   : 512;512
+    major_brand     : isom;isom
+    compatible_brands: isomiso2avc1mp41;isomiso2avc1mp41
+    hyperframes_version: 0.8.168
+    hyperframes_renderer: hyperframes
+    encoder         : Lavf63.1.101
+  Duration: 00:05:28.00, start: 0.000000, bitrate: 557 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1920x1080 [SAR 1:1 DAR 16:9], 365 kb/s, 1 fps, 1 tbr, 16384 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      encoder         : Lavc63.1.101 libx264
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 190 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+Input #1, mov,mp4,m4a,3gp,3g2,mj2, from '/home/zxqs_ep/data/main-review/generation-simplification-20261020/interleaved-production/video/renders/sample.mp4':
+  Metadata:
+    minor_version   : 512;512
+    major_brand     : isom;isom
+    compatible_brands: isomiso2avc1mp41;isomiso2avc1mp41
+    hyperframes_version: 0.8.168
+    hyperframes_renderer: hyperframes
+    encoder         : Lavf63.1.101
+  Duration: 00:05:27.50, start: 0.000000, bitrate: 707 kb/s
+  Stream #1:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1920x1080 [SAR 1:1 DAR 16:9], 509 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      encoder         : Lavc63.1.101 libx264
+  Stream #1:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 190 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+Stream mapping:
+  Stream #0:0 (h264) -> ssim
+  Stream #1:0 (h264) -> select:default
+  ssim:default -> Stream #0:0 (wrapped_avframe)
+Press [q] to stop, [?] for help
+[Parsed_ssim_2 @ 0x7fb41c004a00] not matching timebases found between first input: 1/16384 and second input 1/15360, results may be incorrect!
+Output #0, null, to 'pipe:':
+  Metadata:
+    minor_version   : 512;512
+    major_brand     : isom;isom
+    compatible_brands: isomiso2avc1mp41;isomiso2avc1mp41
+    hyperframes_version: 0.8.168
+    hyperframes_renderer: hyperframes
+    encoder         : Lavf63.1.101
+  Stream #0:0: Video: wrapped_avframe, yuv420p(tv, bt709, progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 1 fps, 1 tbn
+    Metadata:
+      encoder         : Lavc63.1.101 wrapped_avframe
+frame=   17 fps=0.0 q=-0.0 size=N/A time=00:00:16.00 bitrate=N/A speed=  32x elapsed=0:00:00.50    frame=   43 fps= 43 q=-0.0 size=N/A time=00:00:42.00 bitrate=N/A speed=  42x elapsed=0:00:01.00    frame=   72 fps= 48 q=-0.0 size=N/A time=00:01:11.00 bitrate=N/A speed=47.3x elapsed=0:00:01.50    frame=   99 fps= 49 q=-0.0 size=N/A time=00:01:38.00 bitrate=N/A speed=  49x elapsed=0:00:02.00    frame=  132 fps= 53 q=-0.0 size=N/A time=00:02:11.00 bitrate=N/A speed=52.4x elapsed=0:00:02.50    frame=  161 fps= 54 q=-0.0 size=N/A time=00:02:40.00 bitrate=N/A speed=53.3x elapsed=0:00:03.00    frame=  186 fps= 53 q=-0.0 size=N/A time=00:03:05.00 bitrate=N/A speed=52.8x elapsed=0:00:03.50    frame=  215 fps= 54 q=-0.0 size=N/A time=00:03:34.00 bitrate=N/A speed=53.5x elapsed=0:00:04.00    frame=  242 fps= 54 q=-0.0 size=N/A time=00:04:01.00 bitrate=N/A speed=53.5x elapsed=0:00:04.50    frame=  272 fps= 54 q=-0.0 size=N/A time=00:04:31.00 bitrate=N/A speed=54.2x elapsed=0:00:05.00    frame=  300 fps= 55 q=-0.0 size=N/A time=00:04:59.00 bitrate=N/A speed=54.3x elapsed=0:00:05.50    [Parsed_ssim_2 @ 0x7fb41c004a00] SSIM Y:0.998936 (29.732182) U:0.999060 (30.269990) V:0.999287 (31.466886) All:0.999015 (30.067458)
+[out#0/null @ 0x55cd98217b40] video:136KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=  328 fps= 55 q=-0.0 Lsize=N/A time=00:05:27.00 bitrate=N/A speed=54.4x elapsed=0:00:06.01    

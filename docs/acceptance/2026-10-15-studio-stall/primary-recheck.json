@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-15T03:19:51.736895+00:00",
+  "base_url": "https://api.deepseek.com/v1",
+  "model": "deepseek-v4-flash",
+  "results": [
+    {
+      "test": "models",
+      "http_status": 200,
+      "configured_model_listed": false,
+      "model_count": 2,
+      "seconds": 0.32
+    },
+    {
+      "test": "balance",
+      "http_status": 200,
+      "balance": {
+        "is_available": true,
+        "balance_infos": [
+          {
+            "currency": "CNY",
+            "total_balance": "213.48",
+            "granted_balance": "0.00",
+            "topped_up_balance": "213.48"
+          }
+        ]
+      },
+      "seconds": 0.14
+    },
+    {
+      "test": "completion",
+      "error": "ReadTimeout",
+      "seconds": 40.2
+    }
+  ]
+}

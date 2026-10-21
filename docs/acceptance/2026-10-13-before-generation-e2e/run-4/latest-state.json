@@ -1,0 +1,28 @@
+{
+  "preparation_id": "prep_2afafafbdcbb413aa6c4777da255babd",
+  "attempt_no": 2,
+  "status": "canceled",
+  "stage": "produce",
+  "revision": 108,
+  "error_code": null,
+  "result_ref": null,
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 22,
+      "tokens": 318771,
+      "cost_micro_usd": 3187710
+    },
+    "deadline": "2026-10-13T19:07:50.551662+00:00"
+  }
+}

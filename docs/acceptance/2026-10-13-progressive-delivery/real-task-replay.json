@@ -1,0 +1,24 @@
+{
+  "preparation_id": "prep_f13e2b0434204729a7835fff8298595e",
+  "isolated_postgresql": true,
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "published_resources": 11,
+  "readable_resources": 11,
+  "course_count": 1,
+  "idempotent_recovery": true,
+  "retry_preserves_course_link": true,
+  "retry_retains_resource_specs": 11,
+  "retry_changes_resource_specs": 1,
+  "completion_policy": "unknown",
+  "delivery_state": "partial",
+  "result_ref": {
+    "course_id": "learn-f13e2b0434204729a7835fff8298595e",
+    "manifest_id": "manifest_8ba968b8b75e992fe73b4becc6df0201",
+    "course_ready": false,
+    "course_available": true,
+    "manifest_version": 1,
+    "planned_resources": 12,
+    "available_resources": 11
+  }
+}

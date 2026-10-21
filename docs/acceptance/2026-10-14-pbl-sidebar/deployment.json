@@ -1,0 +1,75 @@
+{
+  "publishedAt": "20261014T064742Z",
+  "frontendPublished": true,
+  "checkerPublished": false,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-pbl-sidebar-final",
+  "backup": "/tmp/edu-pbl-sidebar-backup-20261014T064742Z",
+  "previousIndexSha256": "422ed17b7429f648dfe3466f63d1d6d394acd9f4b2697049a365f89ed8c03da4",
+  "releaseIndexSha256": "19c09ad7700360d91aa3f4416e420f11446dad4ed3dedc9e397c1033e49fe5a3",
+  "nginxIndexMatches": true,
+  "sourceManifest": {
+    "src/pbl/WorkbenchChrome.tsx": {
+      "previous": "690d306f2bce3af5dce8ff059b607b278ec8f7785dc30a5bdbed5b642f8c4923",
+      "new": "43807109479264288b8d218282f760100abd9f0b2b73ad2720f070a143baa729"
+    },
+    "src/pbl/AlgorithmWorkspace.tsx": {
+      "previous": "4a41f8713f52ab186e774b71bbc5359eb60e72dec92a0e25d57b5212fb85b676",
+      "new": "277c250ecd53da1f33fd80460f8fcaa874a927211ac534a2c8d3881d586c9e6e"
+    },
+    "src/pbl/ProjectWorkspace.tsx": {
+      "previous": "46cccb0e0093289df03398dccf6c2322151aca04e412b4ef5dc540a8ef324478",
+      "new": "655236a07cd9eeca7eea3053edd13077bea5b6887ba499cc5e054c37c1489ab1"
+    },
+    "src/pbl/projectWorkbench.css": {
+      "previous": "dbfb17984bfeca08923a54369cd5fe5983b614016076add7289ca0a421ba4b59",
+      "new": "ede750a0a81a0da1840f7c9bfbb2260acb0a3ea5e4611417a60b809f15cc6e7e"
+    },
+    "tests/live-learning/pbl-project.spec.ts": {
+      "previous": "00cd1331452ae97251879a8bca0cd086318ea514b26f3e989527013b6a38bea9",
+      "new": "32c6efc43551a99cea17c583cf8c923fc03a4463d9608c6eed45ea94166b94c4"
+    },
+    "tests/live-learning/pbl-tutor.spec.ts": {
+      "previous": "2250a532a7893466fe8b00bd56b729114e2df55d4ab2200c69ea6342e2326388",
+      "new": "7cab111e7710f2007e0ac6eaaa838f1fb09ac19fff11f662681c3f5e4e61c938"
+    },
+    "tests/live-learning/pbl-workbench-evidence.spec.ts": {
+      "previous": "d5e6e9991bccb6c4e79f3e5d59b052aff892efd8ce05ebebcf78206d612ef2a0",
+      "new": "5caa9088d447c6c8c68d25ad4ac08eec77d6c4137c1de5e8b31a82c4dfb5368a"
+    }
+  },
+  "baselineReproduced": true,
+  "sharedComponents": [
+    "WorkbenchHeading",
+    "WorkbenchBody",
+    "WorkbenchFooter",
+    "WorkbenchPanels"
+  ],
+  "preservedPublishedFiles": {
+    "src/liveLearning/quiz.css": "5f935f22725e835e9eb06f1ffa59840b56076631dcef9f11f92a7e150d856b9f",
+    "src/liveLearning/CheckCard.tsx": "198efe968a3ef4eea29a991b2f99dd23b1fddcd682b9e35ef41512ca23f5f5c7",
+    "src/liveLearning/Quiz.tsx": "edce37b23803cfa4e89ab5ab9fc6161c4cafdd8a45dbe553c1a7cf8ad0e9d8a7"
+  },
+  "verificationLimits": "Browser tests mock business/auth/storage APIs and use real Sandpack React previews. Algorithm sidebar geometry was checked with its external runtime deliberately blocked; algorithm execution was not re-tested in this layout-only change. Development-server runs encountered external Sandpack connection timeouts (initial suite: 5 passed, 1 timeout; rerun: 1 passed, 2 timeouts). Both affected cases passed against the final production build. Actual calculator replay is read-only; no production learner code or progress was changed.",
+  "backendChanges": false,
+  "productionBrowserChecks": {
+    "algorithmShellWidths": [
+      1440,
+      1024,
+      768,
+      700,
+      390,
+      320
+    ],
+    "calculatorPreviewWidths": [
+      1440,
+      1024,
+      390,
+      320
+    ],
+    "mobileCurrentStepScroll": true,
+    "businessApi": "mocked",
+    "javascriptErrors": [],
+    "productionDataModified": false
+  }
+}

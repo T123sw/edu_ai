@@ -1,0 +1,53 @@
+{
+  "status": "partial_worker_restarted_backend_requires_sudo",
+  "scope": [
+    "课程学习（视频、文档、习题）",
+    "课堂与资料旧问答入口",
+    "实验新版与兼容入口",
+    "PBL 编程辅导",
+    "独立试卷辅导与作答反馈",
+    "教师/学生通用对话"
+  ],
+  "changes": [
+    "统一内部定位信息与用户回答的表达边界",
+    "默认不回显阶段、播放时间、快照、工具过程和自检信息",
+    "用户询问位置时仍回答；引用、知识推导、必要不确定性继续保留",
+    "消除反复确认题号、机械下一步和例行检查状态声明",
+    "原生课堂标题不再拼接内部播放秒数，避免兜底衔接语泄露定位信息",
+    "新增规则纳入学习与实验提示词版本摘要"
+  ],
+  "verification": [
+    {
+      "suite": "teaching skills, context budget, classroom context, classroom/resource QA, experiment tutor, PBL tutor, exam practice, fast chat, legacy session API, shared policy",
+      "result": "119 passed, 18 skipped, one outdated history-prefix assertion failed; corrected and rerun below"
+    },
+    {
+      "suite": "followup_keeps_topic_and_successful_conversation",
+      "result": "1 passed, 1 skipped after both historical-question assertions were aligned with location-prefixed course history"
+    },
+    {
+      "suite": "test_tutoring_response_policy.py, self_learning/test_teaching_skills.py, self_learning/test_context_budget.py, pbl/test_tutor.py",
+      "result": "34 passed, 11 skipped"
+    },
+    {
+      "suite": "self_learning/test_checks.py, test_tutoring_response_policy.py",
+      "result": "29 passed, 9 skipped"
+    },
+    {
+      "suite": "six synthetic live-model scenarios plus final two PBL rechecks",
+      "result": "ordinary answers omitted stage/time preambles; explicit position query retained 82 seconds; citations, hint-only request, computation and missing-check uncertainty retained"
+    },
+    {
+      "suite": "Python compilation and scoped git diff --check",
+      "result": "passed"
+    }
+  ],
+  "limitations": [
+    "测试套件有重叠，不能直接相加为唯一用例数。",
+    "PostgreSQL 专用用例未配置隔离数据库，按原有规则跳过。",
+    "真实模型使用合成上下文，没有写入用户学习记录；样例不是所有回复均符合要求的保证。",
+    "已有历史回复及已冻结的任务检查点不改写。",
+    "补充 worker 已重启；主后端 sudo 要求密码，仍需管理员执行重启后验证。"
+  ],
+  "deployment_record": "deployment.json"
+}

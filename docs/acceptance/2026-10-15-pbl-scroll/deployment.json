@@ -1,0 +1,95 @@
+{
+  "publishedAt": "20261015T031817Z",
+  "frontendPublished": true,
+  "checkerPublished": false,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-pbl-scroll-final",
+  "backup": "/tmp/edu-pbl-scroll-backup-20261015T031817Z",
+  "previousIndexSha256": "0ba6be21f714bca7f9ab23d1e2710cd13902b436228f376cac41434e7e5d7eb3",
+  "releaseIndexSha256": "b80f217c9100efb82e317173cec6ac8ed01c88591b251eabb5e51881fa8d584b",
+  "nginxIndexMatches": true,
+  "sourceManifest": {
+    "src/pbl/WorkbenchChrome.tsx": {
+      "previous": "33224ad27e84110e28223d6ae23a16901ec79782bcbd1bbc5107fe54a3fc267b",
+      "new": "d6d18e59deba574c6f6f330f2021875c726375a6907f31bfd6279b5e658ea606"
+    },
+    "src/pbl/WorkbenchStage.tsx": {
+      "previous": null,
+      "new": "5dd9f027dc1e00809b46aaf794093aa469d2b4976806f7ba9c34397bb194cb7e"
+    },
+    "src/pbl/workbenchScroll.css": {
+      "previous": null,
+      "new": "efead1a3c61f686298848773c25e21d7b24a3e2717015d0972023e72dba392eb"
+    },
+    "src/pbl/pbl.css": {
+      "previous": "a98e89ed6fc1407b37bf2005319154ec52f76061ed3c63538123cc09dcc6a961",
+      "new": "ad972038bfc639b2758fd42e9d8dcf71b8696e0128bfa91a88090e94e112c54f"
+    },
+    "src/pbl/AlgorithmWorkspace.tsx": {
+      "previous": "9305a964ba3581deeb81e14c5aadce0d770f00538392e3c6fe72c0820e691d5e",
+      "new": "706c5d33009950e6576fe64a8f2286996bc2d698d9de0eb5b547e7b5db003271"
+    },
+    "src/pbl/ProjectWorkspace.tsx": {
+      "previous": "2ed2e10934fcd578fc61ac7dc06a3cb6c8d07990fd28c77af52e1dc688d947bc",
+      "new": "6a825894c7d5355b62cdbf9d46b107b5d094c1ee5320c47e6833cc7f014b7dde"
+    },
+    "tests/live-learning/pbl-scroll.spec.ts": {
+      "previous": null,
+      "new": "58eda8aad9f01357be947149f9cd07be18a839f4738b4ade26a461a8c3f09acb"
+    },
+    "tests/live-learning/pbl-project.spec.ts": {
+      "previous": "c0ab03b881763c9a8198da3091de6b800adbd9b57833b4ebe25f170cb21a55b3",
+      "new": "50353196da92e4603ad36a1ab6c8c0493d2f821a7581c93cec560ee4cbb93f68"
+    },
+    "tests/live-learning/pbl-tutor.spec.ts": {
+      "previous": "f3b5c159c5248f9850e998c28cfa4c4c21ac10be6d03ce90662f458d506aa281",
+      "new": "f575a5a3e268149ee6aad51e4aa1f9af03d0383f1347c4fa6d60e8112c5ce082"
+    },
+    "tests/live-learning/pbl-workbench-evidence.spec.ts": {
+      "previous": "7b1b6fffcd28a9b5b02ebbe0152d6bf8d960f71cfe15827e68a10cfe951f4751",
+      "new": "5e3d6b92d01dd9bf14478349517abd928a527870fe58aff1839f4ae43e34386d"
+    },
+    "tests/live-learning/pbl.spec.ts": {
+      "previous": "61274b9695a197ac61abb9c7702ffbdb779bb03b2260e04b14f67e83f9fa80db",
+      "new": "a30c2d6f6da4a4d2f62d68e00be73c637d8806e84de693c1b24be9899d234f87"
+    },
+    "tests/live-learning/pblWorkbench.ts": {
+      "previous": null,
+      "new": "cdd8cbccfaebb9b6442d90ba95d247e4cf41ba0dfe51ee989c2dabb517a78b6e"
+    },
+    "tests/live-learning/pbl-live.spec.ts": {
+      "previous": "de137e54e2edf145f970c42f7b54e26fdaa4891759ee69a03895107ce62eac8c",
+      "new": "06b7d1c6df525b59808979d5e33a634763e846db296d92fdc1017330a589f12f"
+    },
+    "tests/live-learning/pbl-project-live.spec.ts": {
+      "previous": "b397a7e3abd75193838d6b533b95c6875ee1f7239df7c4d722e1a7743932c8ac",
+      "new": "186f7bb550ce1e713fc51db6303ac7ea4b7e1a8c86b97c82830a3517c1dd9194"
+    }
+  },
+  "baselineReproduced": true,
+  "sharedComponents": [
+    "WorkbenchHeading",
+    "WorkbenchStage",
+    "WorkbenchBody",
+    "WorkbenchFooter",
+    "WorkbenchPanels"
+  ],
+  "verificationLimits": "Business/auth/storage/tutor APIs mocked. Runtime regressions use real React preview and algorithm Worker. Scroll-specific cases block external runtime to isolate layout and gesture behavior. No real model calls or production learner-data writes. Initial layout test had a test-helper timing race on return/enter; helper corrected to wait for scroll commit and use actual geometry; final layout and real-preview round-trip checks passed.",
+  "backendChanges": false,
+  "preservedPublishedFiles": {
+    "src/liveLearning/LiveApp.tsx": "4b3a9375919ce4b5d33aaa1d637c1114699c79ca874f0f7a17435dcb5ca768ef",
+    "src/practice/PracticeHome.tsx": "c4bd1e0bd08cd7915d172d76f73442dc997e850574910a6ea9e65094e3ec248d",
+    "src/practice/practiceHome.css": "eea6952a97d47cb5a3cd46fa22988b999a460cd73d4ea598a549805e82d1235a",
+    "src/practice/teaching/BubbleSortPrototype.tsx": "85e5197cf48a03b3a2a2143fd64369a553dc88da99ae71f54adf9036c0c4f359",
+    "src/practice/teaching/bubblePrototype.css": "0dc0088c9d103db1af3f08ad8949b3182dc9e17cfe30ae686d16a0a8b0bbc407",
+    "src/practice/teaching/domains/bubbleSort.test.ts": "b5c860173d01bab3a767a50f037a6f32e468166a94f490a7459ef3ab5188d0d8",
+    "src/practice/teaching/domains/bubbleSort.ts": "9c185f70168b192cc034a7ab925f13fcc1ed51ce1a40079972b79cc2973ec2a7",
+    "src/practice/teaching/prototypeEntry.tsx": "a3e49d8ccab5e135c6bc8692bd3c52322822fb55b7aa8aada7ad61d1aa83eaa4",
+    "src/practice/teaching/prototypeStorage.ts": "8bd7ef4b86f0e7f90b92a602205d56d116b4c05ca418a42db9431db1d6403111"
+  },
+  "sourceSnapshot": "/tmp/edu-pbl-scroll-source/frontend",
+  "releaseFilesVerified": 748,
+  "selectedSourceMatches": true,
+  "productionScrollCases": 3,
+  "productionScrollStatus": "passed"
+}

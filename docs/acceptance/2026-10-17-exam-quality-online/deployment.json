@@ -1,0 +1,28 @@
+{
+  "backend": "MainPID=1852133\nWorkingDirectory=/home/zxqs_ep/Edu_AI/backend/src\nActiveEnterTimestamp=Sat 2026-10-17 15:56:29 UTC\n",
+  "bridge": "MainPID=1844833\nActiveEnterTimestamp=Sat 2026-10-17 15:46:55 UTC\n",
+  "hashes": {
+    "backend/src/app/exam_generation/repository.py": {
+      "sha256": "b7136d4ffdbbbf0a42d2bbd0d73b73b2d5bd6be4a0111e44bb171e9bb1ef9779",
+      "mtime": 1792248893.153123
+    },
+    "backend/src/app/exam_generation/service.py": {
+      "sha256": "0328096343ee4a5a4b7a2522817e162cdc7841940180f7493d8984a71c17292c",
+      "mtime": 1792250761.9731033
+    },
+    "backend/src/app/api/exam_generations.py": {
+      "sha256": "3ba2bbe1d014855436ece1a6fa133014ca0623bbec4cab8a57d2bb745e2b4016",
+      "mtime": 1792248003.6663
+    }
+  },
+  "authenticated_history_status": 200,
+  "bridge_health": {
+    "status": "ok",
+    "version": "1.6.14",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "scope": "internal_bridge",
+    "exam_ready": false
+  },
+  "frontend_publish_needed": false,
+  "frontend_sha256": "bd981333d9733034297ae24f73b09f72387861d97d4e2a512e9f64a8e6e424d0"
+}

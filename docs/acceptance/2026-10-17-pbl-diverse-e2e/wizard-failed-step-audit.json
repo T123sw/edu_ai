@@ -1,0 +1,66 @@
+{
+  "name": "wizard",
+  "generationFailed": true,
+  "terminalIssues": [
+    "参考实现未通过累计检查（先核对需求、本步检查和代码；本步验收可修复，前序检查保留）: [{\"caseId\": \"check-step2-blocked-without-consent\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"name-input\\\" 输入 \\\"张三\\\"\\n✓ 2. 在 \\\"age-input\\\" 输入 \\\"30\\\"\\n✓ 3. 点击 \\\"next-button\\\"\\n✓ 4. 点击 \\\"线上\\\"\\n✓ 5. 点击 \\\"submit-button\\\"\\n✓ 6. 检查 \\\"result-panel\\\" 的数量\\n   实际：0\\n✓ 7. 点击 \\\"同意条款\\\"\\n✓ 8. 点击 \\\"线上\\\"\\n✓ 9. 点击 \\\"submit-button\\\"\\n× 10. 检查 \\\"result-panel\\\" 的数量\\n预期：0\\n实际：1\"}]"
+  ],
+  "scenarios": [
+    "空年龄及17/61/18.5均拒绝",
+    "未同意条款时不提交",
+    "再次点击已选单选仍保持选中，满足条件后提交成功",
+    "没有选择方式时不提交",
+    "线下分支正确"
+  ],
+  "independentCurrentStepPassed": true,
+  "directCumulativeBrowserReport": {
+    "passed": false,
+    "results": [
+      {
+        "caseId": "check-step1-empty-name",
+        "status": "passed",
+        "message": "✓ 1. 在 \"name-input\" 输入 \"   \"\n✓ 2. 在 \"age-input\" 输入 \"30\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 5. 检查 \"name-error\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "check-step1-age-not-integer",
+        "status": "passed",
+        "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 在 \"age-input\" 输入 \"18.5\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 5. 检查 \"age-error\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "check-step1-age-too-young",
+        "status": "passed",
+        "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 在 \"age-input\" 输入 \"17\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 5. 检查 \"age-error\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "check-step1-age-too-old",
+        "status": "passed",
+        "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 在 \"age-input\" 输入 \"61\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 5. 检查 \"age-error\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "check-step1-empty-age",
+        "status": "passed",
+        "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 点击 \"next-button\"\n✓ 3. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 4. 检查 \"age-error\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "check-step1-valid-next",
+        "status": "passed",
+        "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 在 \"age-input\" 输入 \"30\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 检查 \"step2-placeholder\" 的可见状态\n   实际：true\n✓ 5. 检查 \"线上\" 的可见状态\n   实际：true\n✓ 6. 检查 \"线下\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "check-step2-submit-online",
+        "status": "passed",
+        "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 在 \"age-input\" 输入 \"30\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 点击 \"线上\"\n✓ 5. 点击 \"同意条款\"\n✓ 6. 点击 \"submit-button\"\n✓ 7. 检查 \"result-panel\" 的可见状态\n   实际：true\n✓ 8. 检查 \"result-name\" 的显示文字\n   实际：\"姓名：张三\"\n✓ 9. 检查 \"result-age\" 的显示文字\n   实际：\"年龄：30\"\n✓ 10. 检查 \"result-mode\" 的显示文字\n   实际：\"参加方式：线上\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "check-step2-submit-offline",
+        "status": "passed",
+        "message": "✓ 1. 在 \"name-input\" 输入 \"李四\"\n✓ 2. 在 \"age-input\" 输入 \"45\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 点击 \"线下\"\n✓ 5. 点击 \"同意条款\"\n✓ 6. 点击 \"submit-button\"\n✓ 7. 检查 \"result-panel\" 的可见状态\n   实际：true\n✓ 8. 检查 \"result-name\" 的显示文字\n   实际：\"姓名：李四\"\n✓ 9. 检查 \"result-age\" 的显示文字\n   实际：\"年龄：45\"\n✓ 10. 检查 \"result-mode\" 的显示文字\n   实际：\"参加方式：线下\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "check-step2-blocked-without-consent",
+        "status": "failed",
+        "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 在 \"age-input\" 输入 \"30\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 点击 \"线上\"\n✓ 5. 点击 \"submit-button\"\n✓ 6. 检查 \"result-panel\" 的数量\n   实际：0\n✓ 7. 点击 \"同意条款\"\n✓ 8. 点击 \"线上\"\n✓ 9. 点击 \"submit-button\"\n× 10. 检查 \"result-panel\" 的数量\n预期：0\n实际：1"
+      }
+    ],
+    "durationMs": 4583.693767
+  }
+}

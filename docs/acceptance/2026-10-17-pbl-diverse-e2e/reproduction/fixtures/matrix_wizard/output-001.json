@@ -1,0 +1,342 @@
+{
+  "schemaVersion": 1,
+  "title": "本地两步报名向导",
+  "goal": "用 React 实现一个纯本地两步报名向导：第 1 步填写姓名与年龄（姓名去空格后非空，年龄为 18 到 60 的整数），校验通过后才能进入第 2 步；第 2 步选择线上或线下并勾选同意条款，提交后显示姓名、年龄和参加方式；第 2 步可返回第 1 步且已填内容保留；成功后点击重新填写，所有字段与错误恢复空白初始状态。",
+  "runtimeKind": "react_app",
+  "editableFiles": [
+    "/src/App.jsx",
+    "/src/styles.css"
+  ],
+  "requirements": [
+    {
+      "id": "step1-validation",
+      "description": "第 1 步填写姓名和年龄：姓名去掉首尾空格后必须非空；年龄必须是 18 到 60 之间的整数（拒绝 18.5、17、61 和空年龄）。校验不通过时停留在第 1 步并给出错误提示，通过后才能进入第 2 步。"
+    },
+    {
+      "id": "step2-form",
+      "description": "第 2 步可选择线上或线下参加方式，并勾选同意条款；两项都满足后点击提交，页面显示姓名、年龄和参加方式。"
+    },
+    {
+      "id": "back-preserve",
+      "description": "第 2 步可以返回第 1 步，返回后姓名和年龄的已填内容保留。"
+    },
+    {
+      "id": "reset-blank",
+      "description": "提交成功后点击重新填写，所有字段、选择、勾选和错误提示都恢复到空白初始状态，回到第 1 步。"
+    }
+  ],
+  "steps": [
+    {
+      "id": "step1-basic-info",
+      "title": "第 1 步：填写并校验姓名与年龄",
+      "objective": "实现第 1 步表单，校验姓名非空与年龄为 18 到 60 的整数，通过后进入第 2 步占位页。",
+      "dependsOn": [],
+      "entryCondition": "从初始工程开始，页面只有空白骨架。",
+      "deliverable": "页面显示第 1 步表单：姓名输入框、年龄输入框和“下一步”按钮。点击“下一步”时校验：姓名去空格后为空、年龄为空、年龄不是整数、年龄小于 18 或大于 60 都显示错误提示并停留在第 1 步；全部合法时进入第 2 步占位页。",
+      "requirementIds": [
+        "step1-validation"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "check-step1-empty-name",
+        "check-step1-age-not-integer",
+        "check-step1-age-too-young",
+        "check-step1-age-too-old",
+        "check-step1-empty-age",
+        "check-step1-valid-next"
+      ]
+    },
+    {
+      "id": "step2-submit",
+      "title": "第 2 步：选择参加方式并提交显示结果",
+      "objective": "实现第 2 步的参加方式选择、同意条款勾选与提交后显示结果。",
+      "dependsOn": [
+        "step1-basic-info"
+      ],
+      "entryCondition": "第 1 步已能校验并进入第 2 步占位页。",
+      "deliverable": "第 2 步显示线上/线下单选、同意条款复选框和“提交”按钮。未选择参加方式或未勾选条款时提交不显示结果；两者都满足后点击提交，页面显示姓名、年龄和参加方式。",
+      "requirementIds": [
+        "step2-form"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "check-step2-submit-online",
+        "check-step2-submit-offline",
+        "check-step2-blocked-without-consent"
+      ]
+    },
+    {
+      "id": "step3-back-and-reset",
+      "title": "第 3 步：返回保留内容与重新填写",
+      "objective": "实现第 2 步返回第 1 步保留已填内容，以及成功后重新填写恢复空白初始状态。",
+      "dependsOn": [
+        "step2-submit"
+      ],
+      "entryCondition": "第 2 步已能提交并显示结果。",
+      "deliverable": "第 2 步提供“返回”按钮，点击回到第 1 步且姓名、年龄保留；提交成功后的结果区提供“重新填写”按钮，点击后回到第 1 步，姓名、年龄、参加方式、同意勾选和错误提示全部清空。",
+      "requirementIds": [
+        "back-preserve",
+        "reset-blank"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "check-step3-back-preserves",
+        "check-step3-reset-blank"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "check-step1-empty-name",
+      "stepId": "step1-basic-info",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "step1-validation"
+      ],
+      "setup": "打开页面，处于第 1 步初始状态。",
+      "actions": [
+        "在姓名输入框填入“   ”",
+        "在年龄输入框填入“30”",
+        "点击“下一步”按钮",
+        "断言仍显示第 1 步的姓名输入框",
+        "断言出现姓名错误提示"
+      ],
+      "expected": [
+        "停留在第 1 步",
+        "显示姓名不能为空的错误提示"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "check-step1-age-not-integer",
+      "stepId": "step1-basic-info",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "step1-validation"
+      ],
+      "setup": "打开页面，处于第 1 步初始状态。",
+      "actions": [
+        "在姓名输入框填入“张三”",
+        "在年龄输入框填入“18.5”",
+        "点击“下一步”按钮",
+        "断言仍显示第 1 步的姓名输入框",
+        "断言出现年龄错误提示"
+      ],
+      "expected": [
+        "停留在第 1 步",
+        "显示年龄必须为整数的错误提示"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "check-step1-age-too-young",
+      "stepId": "step1-basic-info",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "step1-validation"
+      ],
+      "setup": "打开页面，处于第 1 步初始状态。",
+      "actions": [
+        "在姓名输入框填入“张三”",
+        "在年龄输入框填入“17”",
+        "点击“下一步”按钮",
+        "断言仍显示第 1 步的姓名输入框",
+        "断言出现年龄范围错误提示"
+      ],
+      "expected": [
+        "停留在第 1 步",
+        "显示年龄需在 18 到 60 之间的错误提示"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "check-step1-age-too-old",
+      "stepId": "step1-basic-info",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "step1-validation"
+      ],
+      "setup": "打开页面，处于第 1 步初始状态。",
+      "actions": [
+        "在姓名输入框填入“张三”",
+        "在年龄输入框填入“61”",
+        "点击“下一步”按钮",
+        "断言仍显示第 1 步的姓名输入框",
+        "断言出现年龄范围错误提示"
+      ],
+      "expected": [
+        "停留在第 1 步",
+        "显示年龄需在 18 到 60 之间的错误提示"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "check-step1-empty-age",
+      "stepId": "step1-basic-info",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "step1-validation"
+      ],
+      "setup": "打开页面，处于第 1 步初始状态。",
+      "actions": [
+        "在姓名输入框填入“张三”",
+        "年龄输入框保持为空",
+        "点击“下一步”按钮",
+        "断言仍显示第 1 步的姓名输入框",
+        "断言出现年龄错误提示"
+      ],
+      "expected": [
+        "停留在第 1 步",
+        "显示年龄不能为空或需在范围内的错误提示"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "check-step1-valid-next",
+      "stepId": "step1-basic-info",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "step1-validation"
+      ],
+      "setup": "打开页面，处于第 1 步初始状态。",
+      "actions": [
+        "在姓名输入框填入“张三”",
+        "在年龄输入框填入“30”",
+        "点击“下一步”按钮",
+        "断言进入第 2 步，显示参加方式选择控件"
+      ],
+      "expected": [
+        "进入第 2 步",
+        "显示线上/线下选择控件"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "check-step2-submit-online",
+      "stepId": "step2-submit",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "step2-form"
+      ],
+      "setup": "打开页面，填写姓名“张三”、年龄“30”，点击“下一步”进入第 2 步。",
+      "actions": [
+        "选择“线上”参加方式",
+        "勾选同意条款",
+        "点击“提交”按钮",
+        "断言结果区显示姓名“张三”",
+        "断言结果区显示年龄“30”",
+        "断言结果区显示参加方式“线上”"
+      ],
+      "expected": [
+        "显示姓名张三",
+        "显示年龄30",
+        "显示参加方式线上"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "check-step2-submit-offline",
+      "stepId": "step2-submit",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "step2-form"
+      ],
+      "setup": "打开页面，填写姓名“李四”、年龄“45”，点击“下一步”进入第 2 步。",
+      "actions": [
+        "选择“线下”参加方式",
+        "勾选同意条款",
+        "点击“提交”按钮",
+        "断言结果区显示姓名“李四”",
+        "断言结果区显示年龄“45”",
+        "断言结果区显示参加方式“线下”"
+      ],
+      "expected": [
+        "显示姓名李四",
+        "显示年龄45",
+        "显示参加方式线下"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "check-step2-blocked-without-consent",
+      "stepId": "step2-submit",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "step2-form"
+      ],
+      "setup": "打开页面，填写姓名“张三”、年龄“30”，点击“下一步”进入第 2 步。",
+      "actions": [
+        "选择“线上”参加方式",
+        "不勾选同意条款",
+        "点击“提交”按钮",
+        "断言结果区未显示姓名“张三”"
+      ],
+      "expected": [
+        "未勾选条款时提交不显示结果"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "check-step3-back-preserves",
+      "stepId": "step3-back-and-reset",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "back-preserve"
+      ],
+      "setup": "打开页面，填写姓名“张三”、年龄“30”，点击“下一步”进入第 2 步。",
+      "actions": [
+        "点击“返回”按钮",
+        "断言回到第 1 步",
+        "断言姓名输入框的值为“张三”",
+        "断言年龄输入框的值为“30”"
+      ],
+      "expected": [
+        "回到第 1 步",
+        "姓名和年龄保留"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    },
+    {
+      "id": "check-step3-reset-blank",
+      "stepId": "step3-back-and-reset",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "reset-blank"
+      ],
+      "setup": "打开页面，填写姓名“张三”、年龄“30”，点击“下一步”进入第 2 步，选择“线上”、勾选同意条款并点击“提交”。",
+      "actions": [
+        "点击“重新填写”按钮",
+        "断言回到第 1 步",
+        "断言姓名输入框的值为空",
+        "断言年龄输入框的值为空",
+        "断言页面不显示姓名错误提示"
+      ],
+      "expected": [
+        "回到第 1 步",
+        "姓名和年龄清空",
+        "错误提示清空"
+      ],
+      "requiredAssertions": [],
+      "viewport": null
+    }
+  ]
+}

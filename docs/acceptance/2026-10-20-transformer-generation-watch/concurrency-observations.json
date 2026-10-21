@@ -1,0 +1,100 @@
+{
+  "observed_resource_running_peak": {
+    "count": 8,
+    "at": "2026-10-20T05:19:48.678537+00:00"
+  },
+  "observed_video_running_peak": {
+    "count": 5,
+    "at": "2026-10-20T05:20:49.073403+00:00"
+  },
+  "scene_group_peak_from_exact_worker_intervals": 16,
+  "scene_worker_groups": 17,
+  "scene_queue_seconds": [
+    {
+      "node": "n1-why-transformer",
+      "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+      "seconds": 1.19
+    },
+    {
+      "node": "n1-why-transformer",
+      "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+      "seconds": 2.024
+    },
+    {
+      "node": "n1-why-transformer",
+      "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+      "seconds": 1.673
+    },
+    {
+      "node": "n2-overall-architecture",
+      "worker_id": "7eb21d6a0e5245e2a4b2282a96da555f",
+      "seconds": 1.983
+    },
+    {
+      "node": "n2-overall-architecture",
+      "worker_id": "86ea9032142e41b8b5e4d0850aa61231",
+      "seconds": 1.749
+    },
+    {
+      "node": "n2-overall-architecture",
+      "worker_id": "1330d6cfb7dd4e56b1aa35c93e868806",
+      "seconds": 2.14
+    },
+    {
+      "node": "n2-overall-architecture",
+      "worker_id": "5ae81ddd93a14601a8d281b3ad78f11e",
+      "seconds": 1.848
+    },
+    {
+      "node": "n3-self-attention",
+      "worker_id": "ccf7da357fb44874bf6ea2350e828fa0",
+      "seconds": 1.266
+    },
+    {
+      "node": "n3-self-attention",
+      "worker_id": "6e618bf38fcc4ca2b00161eea6298a5f",
+      "seconds": 0.557
+    },
+    {
+      "node": "n3-self-attention",
+      "worker_id": "c4b6bd583ca54a4aa54a5f6a7b54b004",
+      "seconds": 1.209
+    },
+    {
+      "node": "n3-self-attention",
+      "worker_id": "7d2f0aecc1f1436f86706d2ec9f5ca2a",
+      "seconds": 1.799
+    },
+    {
+      "node": "n4-position-ffn",
+      "worker_id": "26d2d55d470c4c6caecb2eb125b836c7",
+      "seconds": 2.366
+    },
+    {
+      "node": "n4-position-ffn",
+      "worker_id": "36fcbbb0445d4ab6aca5bbd9b1ce2acc",
+      "seconds": 1.782
+    },
+    {
+      "node": "n4-position-ffn",
+      "worker_id": "aa4f755718774a9999bbc0288c5e93e0",
+      "seconds": 164.229
+    },
+    {
+      "node": "n5-tradeoff",
+      "worker_id": "95adecefbc9748768ef97d8033c3263a",
+      "seconds": 1.008
+    },
+    {
+      "node": "n5-tradeoff",
+      "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+      "seconds": 0.616
+    },
+    {
+      "node": "n5-tradeoff",
+      "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+      "seconds": 1.057
+    }
+  ],
+  "note": "Video and resource status peaks use 30-second samples. Scene peak uses worker started/finished events, render admission separately in summary."
+}

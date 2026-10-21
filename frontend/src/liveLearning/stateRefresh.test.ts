@@ -9,7 +9,7 @@ test('refreshing one course avoids reading the full account and still refreshes 
   const calls: string[] = [];
   const request = (async (path: string) => {
     calls.push(path);
-    if (path === '/api/jobs?limit=100') return { items: [{ edu_job_id: 'j', status: 'running', course_id: null, message: null }] };
+    if (path === '/api/jobs?limit=100') return { items: [{ edu_job_id: 'j', status: 'running', course_id: null, message: null, created_at: '2026-10-15T10:00:00Z' }] };
     return { id: active.id, title: 'updated' };
   }) as typeof apiRequest;
   const result = await refreshLearningState(snapshot, active.id, request);
@@ -19,6 +19,7 @@ test('refreshing one course avoids reading the full account and still refreshes 
   assert.equal(result.resources, snapshot.resources);
   assert.equal(result.serverJobs[0].status, 'running');
   assert.equal(result.serverJobs[0].course_id, undefined);
+  assert.equal(result.serverJobs[0].created_at, '2026-10-15T10:00:00Z');
 });
 
 test('home and an unknown course load the complete state', async () => {

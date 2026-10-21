@@ -1,0 +1,49 @@
+{
+  "publishedAt": "20261014T052845Z",
+  "frontendPublished": true,
+  "backendCleanupLoaded": false,
+  "backendRestartRequired": true,
+  "backup": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-report-no-images-20261014T052845Z",
+  "release": "/tmp/edu-report-no-images-20261014",
+  "previousIndexSha256": "b94e8120383c4c846c54630c7f1c2f0f272611a79dfade2c33ceed0425a4ae78",
+  "releaseIndexSha256": "3fbd7434095f24a64f303cf6c521f5fc166b7b4275cc8e94cd300d55d21e3231",
+  "oldBackendCompatibility": "New frontend always submits include_visuals=false so new reports immediately skip the old optional pipeline. Backend removal additionally ignores legacy true flags after restart.",
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "frontend_unit": 1,
+    "backend": 91,
+    "build": "passed",
+    "browser_configuration": "all six forms checked; report option absent and submission has include_visuals=false; mocked APIs",
+    "shared_pipeline_regression": {
+      "passed": 35,
+      "seconds": 5.82
+    },
+    "publishedBrowser": "six configuration pages and report submission verified on published frontend; mocked APIs"
+  },
+  "realGeneration": {
+    "seconds": 13.73,
+    "characters": 5527,
+    "llm_calls": 1,
+    "old_include_visuals_true_ignored": true,
+    "image_pipeline_present": false,
+    "image_markdown_present": false,
+    "image_placeholder_present": false,
+    "stages": [
+      {
+        "progress": 15,
+        "step": "writing",
+        "seconds": 0.0
+      },
+      {
+        "progress": 90,
+        "step": "saving",
+        "seconds": 13.66
+      }
+    ],
+    "storage": "/tmp/edu-report-no-images-acdbvo59",
+    "production_resource_created": false
+  },
+  "backendPidBeforeReload": 3817372,
+  "restartBlockedBy": "sudo requires administrator password"
+}

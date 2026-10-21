@@ -1,0 +1,30 @@
+{
+  "checks": [
+    {
+      "width": 1440,
+      "passed": true,
+      "checks": [
+        "dropdown defaults and bidirectional routes",
+        "selection alone does not generate",
+        "PBL topic POST and exercise redirect",
+        "no horizontal overflow",
+        "no page errors"
+      ],
+      "backend": "mock API; no model invocation"
+    },
+    {
+      "width": 390,
+      "passed": true,
+      "checks": [
+        "dropdown defaults and bidirectional routes",
+        "selection alone does not generate",
+        "PBL topic POST and exercise redirect",
+        "no horizontal overflow",
+        "no page errors"
+      ],
+      "backend": "mock API; no model invocation"
+    }
+  ],
+  "sourceOnly": true,
+  "productionDeployed": false
+}

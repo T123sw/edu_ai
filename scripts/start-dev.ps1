@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $frontendDir = Join-Path $repoRoot 'frontend'
 $backendDir = Join-Path $repoRoot 'backend/src'
-$openmaicDir = Join-Path $repoRoot 'openmaic-sidecar'
+$hyperframesDir = Join-Path $repoRoot 'hyperframes-runtime'
 $runtimeDir = Join-Path $repoRoot '.runtime'
 $manifestPath = Join-Path $runtimeDir 'dev-processes.json'
 $envPath = Join-Path $repoRoot '.env'
@@ -134,11 +134,10 @@ try {
     Write-Stage "Validating canonical repository layout at $repoRoot"
     Assert-File (Join-Path $frontendDir 'package.json') 'Frontend package.json'
     Assert-File (Join-Path $backendDir 'app/main.py') 'FastAPI entrypoint'
-    Assert-File (Join-Path $openmaicDir 'package.json') 'OpenMAIC package.json'
-    Assert-File (Join-Path $openmaicDir 'app/api/health/route.ts') 'OpenMAIC health route'
+    Assert-File (Join-Path $hyperframesDir 'package.json') 'HyperFrames package.json'
     Assert-File $envPath 'Root .env (copy .env.example to .env first)'
     Assert-Directory (Join-Path $frontendDir 'node_modules') 'Frontend dependencies'
-    Assert-Directory (Join-Path $openmaicDir 'node_modules') 'OpenMAIC dependencies'
+    Assert-Directory (Join-Path $hyperframesDir 'node_modules') 'HyperFrames dependencies'
 
     $pythonPath = Resolve-CommandPath 'python.exe'
     $pythonVersion = (& $pythonPath --version 2>&1 | Out-String).Trim()
@@ -166,7 +165,6 @@ try {
     }
 
     foreach ($service in @(
-        @{ Port = 3000; Name = 'OpenMAIC' },
         @{ Port = 8001; Name = 'FastAPI' },
         @{ Port = 5173; Name = 'Frontend' }
     )) {
@@ -194,7 +192,6 @@ try {
         STORAGE_ROOT = 'storage'
         COURSE_STORAGE_ROOT = 'course_data'
         TEMP_DIR = 'tmp'
-        OPENMAIC_DATA_ROOT = 'openmaic'
     }.GetEnumerator()) {
         $current = [Environment]::GetEnvironmentVariable($mapping.Key, 'Process')
         if (-not $current -or $current.StartsWith('/data/edu_ai/')) {
@@ -219,14 +216,6 @@ try {
     }
 
     $services = @(
-        @{
-            Name = 'openmaic'
-            DisplayName = 'OpenMAIC'
-            WorkingDirectory = $openmaicDir
-            Command = "call `"$corepackPath`" pnpm dev --webpack --hostname 127.0.0.1 --port 3000"
-            Port = 3000
-            Health = 'http://127.0.0.1:3000/api/health'
-        },
         @{
             Name = 'backend'
             DisplayName = 'FastAPI'

@@ -1,0 +1,39 @@
+[
+  {
+    "name": "quiz",
+    "skipped": true,
+    "reason": "generation failed"
+  },
+  {
+    "name": "expense",
+    "skipped": true,
+    "reason": "generation failed"
+  },
+  {
+    "name": "csv",
+    "passed": true,
+    "scenarios": [
+      "混合合法非法行、空行、重复姓名、边界0/100及两位小数平均",
+      "错误保留原始行号",
+      "重新分析完全替换旧有效和无效结果",
+      "无有效记录时空统计",
+      "清空输入与全部结果"
+    ],
+    "seconds": 1.508
+  },
+  {
+    "name": "wizard",
+    "skipped": true,
+    "reason": "generation failed"
+  },
+  {
+    "name": "seats",
+    "skipped": true,
+    "reason": "generation failed"
+  },
+  {
+    "name": "kanban",
+    "skipped": true,
+    "reason": "generation failed"
+  }
+]

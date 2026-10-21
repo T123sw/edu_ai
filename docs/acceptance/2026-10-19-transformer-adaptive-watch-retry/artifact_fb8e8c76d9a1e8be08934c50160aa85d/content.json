@@ -1,0 +1,1735 @@
+{
+  "title": "位置编码、残差连接与层归一化",
+  "content": {
+    "title": "位置编码、残差连接与层归一化：练习与自检",
+    "questions": [
+      {
+        "id": "q1-no-pe-bag-of-words",
+        "stem": "某 Transformer 编码器在输入嵌入之后漏加了位置编码，其余结构（自注意力、前馈网络、Add&Norm）完全不变。把输入序列「猫 追 狗」改成「狗 追 猫」后，模型对这三个位置得到的表示会怎样？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "三个位置的表示会随词序改变，因为自注意力会按顺序逐个处理 token",
+          "三个位置的表示只取决于这三个词各自嵌入的集合，与它们谁在前谁在后无关",
+          "表示会改变，因为前馈网络对每个位置使用了不同的参数",
+          "表示会改变，因为层归一化会按位置编号重新缩放向量"
+        ],
+        "difficulty": "medium",
+        "explanation": "自注意力对每个位置计算的是「该位置向量与所有位置向量的加权和」，权重由向量之间的相似度决定，本身不含位置下标；前馈网络在各位置共享同一组参数；层归一化只对单个位置向量内部做归一化，也不看位置编号。因此把同一组词打乱顺序，每个位置拿到的输入向量集合相同，输出表示也随之相同——这正是「等价于词袋」的含义，所以 B 正确。A 错：Transformer 不含循环，所有 token 是并行处理的，不存在「按顺序逐个处理」。C 错：前馈网络在不同位置共享参数，不同层之间才使用不同参数。D 错：层归一化按单个向量的均值和方差缩放，与位置编号无关。"
+      },
+      {
+        "id": "q2-pe-dimension-and-placement",
+        "stem": "关于原始 Transformer 中位置编码的加入方式，下列哪一项描述正确？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "在编码器和解码器堆栈的底部，把位置编码与输入嵌入逐元素相加，因此两者维度都必须是 d_model",
+          "在编码器和解码器堆栈的底部，把位置编码与输入嵌入拼接，因此位置编码维度是 d_model 的一半",
+          "只在编码器堆栈的底部加入位置编码，解码器不需要位置信息",
+          "在每一层自注意力之后加入位置编码，以便逐层刷新位置信息"
+        ],
+        "difficulty": "easy",
+        "explanation": "原始论文的表述是：在编码器和解码器堆栈的底部向输入嵌入添加位置编码，位置编码的维度与嵌入维度 d_model 相同，以便两者相加。逐元素相加要求形状一致，所以 A 正确。B 错：拼接会使维度变成 2·d_model，与「维度相同以便相加」的原文表述不符。C 错：解码器同样并行处理输出序列，也需要位置信息，原文明确说编码器和解码器堆栈底部都加。D 错：位置编码只在堆栈底部加一次，之后随各层计算传递，并非每层刷新。"
+      },
+      {
+        "id": "q3-sinusoid-form",
+        "stem": "关于原始论文使用的正弦位置编码，下列说法正确的有哪些？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,D",
+        "options": [
+          "偶数维用 sin、奇数维用 cos，第 i 对维度（2i 与 2i+1）共享同一个角频率 1/10000^(2i/d_model)",
+          "不同维度对应不同频率的正弦波，波长从 2π 到 10000·2π 构成几何级数",
+          "位置编码的数值随训练更新，属于可学习参数",
+          "选择这种形式的一个理由是：对任意固定偏移 k，PE(pos+k) 可以表示为 PE(pos) 的线性函数"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：公式为 PE(pos,2i)=sin(pos/10000^(2i/d_model))，PE(pos,2i+1)=cos(pos/10000^(2i/d_model))，即第 i 对维度（2i 与 2i+1）共享同一个角频率 ω_i = 1/10000^(2i/d_model)，频率本身不含 pos，pos 只是被乘进正弦/余弦的自变量。B 正确：i 越大频率越低，波长从 2π 到 10000·2π 成几何级数，这就是「多频率」设计。C 错：正弦版本是固定编码，不参与训练、没有梯度；论文中另试过可学习的位置嵌入，那是另一种方案。D 正确：由 sin(x+y)=sin x cos y+cos x sin y、cos(x+y)=cos x cos y−sin x sin y 可知，偏移 k 只相当于对 (sin, cos) 这一对做一次与 pos 无关的旋转，因此是线性变换，便于模型学习按相对位置关注。"
+      },
+      {
+        "id": "q4-relative-shift-linear",
+        "stem": "设某一维对的频率为 ω，位置 pos 的编码为 (sin(ω·pos), cos(ω·pos))。请写出位置 pos+k 的编码，并说明它为什么可以看成对位置 pos 编码做一次线性变换；再指出这一性质对模型学习「相对位置」有什么好处。",
+        "type": "short_answer",
+        "answer": "PE(pos+k) 的这一维对为 (sin(ω(pos+k)), cos(ω(pos+k)))。用和角公式展开：sin(ω(pos+k)) = sin(ω·pos)·cos(ωk) + cos(ω·pos)·sin(ωk)；cos(ω(pos+k)) = cos(ω·pos)·cos(ωk) − sin(ω·pos)·sin(ωk)。写成矩阵形式即 [sin(ω(pos+k)); cos(ω(pos+k))] = [[cos(ωk), sin(ωk)], [−sin(ωk), cos(ωk)]] · [sin(ω·pos); cos(ω·pos)]。这个 2×2 矩阵只依赖偏移 k，与 pos 无关，所以 PE(pos+k) 是 PE(pos) 的线性函数（每个维度对各自旋转，整体是一个分块对角矩阵）。好处：模型只要学到「按偏移 k 旋转」这一种与绝对位置无关的变换，就能表达「关注相对距离为 k 的位置」，不必为每个绝对位置单独记忆；论文也据此推测该形式可能外推到比训练更长的序列。",
+        "difficulty": "hard",
+        "explanation": "关键两步：一是正确套用和角公式，二是注意到旋转矩阵的元素只含 k 不含 pos。若只写「sin 和 cos 相加」而不展开，说明没有抓住线性性的来源；若把矩阵写成依赖 pos，则结论不成立。"
+      },
+      {
+        "id": "q5-addnorm-expression",
+        "stem": "原始 Transformer 中每个子层（自注意力或前馈网络）的输出写作 LayerNorm(x + Sublayer(x))。这里的 x 和 Sublayer(x) 分别指什么？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "x 是该子层的输入，Sublayer(x) 是该子层（自注意力或前馈网络）对 x 计算出的结果，两者相加后再做层归一化",
+          "x 是位置编码，Sublayer(x) 是词嵌入，两者相加后再做层归一化",
+          "x 是该子层的输出，Sublayer(x) 是下一子层的输入，两者相加后再做层归一化",
+          "x 是残差连接的缩放系数，Sublayer(x) 是子层输出乘以该系数后的结果"
+        ],
+        "difficulty": "easy",
+        "explanation": "Add&Norm 的结构是：子层接收输入 x，算出 Sublayer(x)，把两者逐元素相加（残差连接），再对相加结果做层归一化。所以 A 正确。B 错：位置编码与词嵌入的相加发生在堆栈底部，属于输入准备阶段，不是每个子层的 Add&Norm。C 错：残差连接加的是同一子层的输入与输出，不是相邻两个子层。D 错：残差连接是直接相加，没有引入可学习的缩放系数这一说法。"
+      },
+      {
+        "id": "q6-residual-vs-layernorm",
+        "stem": "关于 Add&Norm 中两个操作各自的作用，下列说法正确的有哪些？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,D",
+        "options": [
+          "残差连接让梯度可以沿恒等路径直接回传，有助于缓解深层网络训练中的梯度消失或爆炸",
+          "层归一化对每个位置向量内部做归一化，使各子层输出的数值尺度更稳定，从而稳定训练",
+          "残差连接的作用是给模型增加位置信息，因此可以替代位置编码",
+          "为了让残差相加成立，模型中所有子层以及嵌入层都输出维度 d_model"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：x + Sublayer(x) 中的恒等项为梯度提供了一条不经过子层参数的直接通路，这是缓解深层网络梯度问题的标准解释。B 正确：层归一化在单个样本的单个位置向量上计算均值与方差并重新缩放，使数值尺度受控，训练更稳定。C 错：残差连接只是把输入加回输出，不携带任何位置下标信息，无法替代位置编码。D 正确：逐元素相加要求形状一致，所以子层与嵌入层都输出 d_model 维（原始论文中为 512）。"
+      },
+      {
+        "id": "q7-true-false-pe-learnable",
+        "stem": "判断：原始 Transformer 采用的正弦位置编码是固定值，不参与训练；论文作者也尝试过可学习的位置嵌入，并报告两者结果几乎相同。",
+        "type": "true_false",
+        "answer": "正确",
+        "difficulty": "easy",
+        "explanation": "正弦/余弦位置编码由公式直接算出，没有可训练参数，也不产生梯度。论文中确实对比了可学习的位置嵌入，报告两种版本结果几乎相同；作者最终选择正弦版本，理由是它可能允许模型外推到比训练时更长的序列长度。"
+      },
+      {
+        "id": "q8-self-check-short",
+        "stem": "请用两三句话回答：位置编码加在 Transformer 的哪一步？为什么它的维度必须与词嵌入相同？在 LayerNorm(x + Sublayer(x)) 中，x 和 Sublayer(x) 各指什么？",
+        "type": "short_answer",
+        "answer": "位置编码加在编码器和解码器堆栈的底部，与输入嵌入逐元素相加：在编码器一侧得到编码器堆栈第一层的输入，在解码器一侧得到解码器堆栈第一层的输入。维度必须与词嵌入相同（都是 d_model），因为两者要做逐元素相加，形状不一致就无法相加。在 LayerNorm(x + Sublayer(x)) 中，x 是该子层的输入（残差连接的恒等项），Sublayer(x) 是该子层（自注意力或前馈网络）对 x 计算出的输出；两者相加后再做层归一化。",
+        "difficulty": "medium",
+        "explanation": "三个要点缺一不可：加在堆栈底部并与嵌入相加；同维是为了逐元素相加；x 是子层输入、Sublayer(x) 是子层输出。若把 x 说成位置编码或把相加说成拼接，说明混淆了输入准备阶段与子层内部的 Add&Norm。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 12.69
+      },
+      "spec_digest": "7888c25026befe47f16af089e8111504d9cc3e7ec2aeb588b82c98cf8fe04985",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1-no-pe-bag-of-words"
+          },
+          "objective_id": "n4-positional-addnorm:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q2-pe-dimension-and-placement"
+          },
+          "objective_id": "n4-positional-addnorm:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q3-sinusoid-form"
+          },
+          "objective_id": "n4-positional-addnorm:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q4-relative-shift-linear"
+          },
+          "objective_id": "n4-positional-addnorm:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q7-true-false-pe-learnable"
+          },
+          "objective_id": "n4-positional-addnorm:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q5-addnorm-expression"
+          },
+          "objective_id": "n4-positional-addnorm:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q6-residual-vs-layernorm"
+          },
+          "objective_id": "n4-positional-addnorm:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q8-self-check-short"
+          },
+          "objective_id": "n4-positional-addnorm:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q8-self-check-short"
+          },
+          "objective_id": "n4-positional-addnorm:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q8-self-check-short"
+          },
+          "objective_id": "n4-positional-addnorm:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q1-no-pe-bag-of-words"
+          },
+          "explanation": "通过「漏加位置编码后打乱词序」的题目，检查位置编码这一核心机制的必要性，落实本节点对位置编码部分的考查。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q2-pe-dimension-and-placement"
+          },
+          "explanation": "考查位置编码的加入位置与维度要求，覆盖位置编码机制的具体形式。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q3-sinusoid-form"
+          },
+          "explanation": "考查正弦/余弦公式、多频率几何级数设计与相对位置线性性质，覆盖位置编码机制。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q4-relative-shift-linear"
+          },
+          "explanation": "要求推导 PE(pos+k) 的线性表示，覆盖位置编码的相对位置性质。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q5-addnorm-expression"
+          },
+          "explanation": "考查 LayerNorm(x + Sublayer(x)) 中各符号含义，覆盖残差连接与层归一化机制。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q6-residual-vs-layernorm"
+          },
+          "explanation": "考查残差连接与层归一化各自作用及维度约束，覆盖残差连接与层归一化机制。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q7-true-false-pe-learnable"
+          },
+          "explanation": "考查正弦位置编码固定、不参与训练及与可学习版本的对比，覆盖位置编码机制。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q8-self-check-short"
+          },
+          "explanation": "以节点自检问题收束，综合检查位置编码加入位置、维度原因与 Add&Norm 表达式含义。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需要回忆自注意力、前馈网络、层归一化三者是否依赖位置下标，再对打乱词序做反例推演，并逐个排除三个干扰项。",
+          "question_id": "q1-no-pe-bag-of-words",
+          "thinking_seconds": 45
+        },
+        {
+          "reason": "回忆位置编码加在堆栈底部、维度为 d_model 以便相加，并区分相加与拼接、编码器与解码器。",
+          "question_id": "q2-pe-dimension-and-placement",
+          "thinking_seconds": 25
+        },
+        {
+          "reason": "需逐项判断公式细节、波长几何级数、是否可训练、线性性质四个独立主张，其中线性性质要联想到和角公式。",
+          "question_id": "q3-sinusoid-form",
+          "thinking_seconds": 60
+        },
+        {
+          "reason": "要写出 pos+k 的编码、套用和角公式展开、整理成只含 k 的 2×2 矩阵，再说明相对位置与外推的好处，属于多步推导。",
+          "question_id": "q4-relative-shift-linear",
+          "thinking_seconds": 120
+        },
+        {
+          "reason": "回忆 Add&Norm 结构，区分子层输入与输出、位置编码相加阶段，并排除缩放系数等干扰。",
+          "question_id": "q5-addnorm-expression",
+          "thinking_seconds": 30
+        },
+        {
+          "reason": "需分别判断残差连接的梯度作用、层归一化的数值稳定作用、能否替代位置编码、维度约束四个主张。",
+          "question_id": "q6-residual-vs-layernorm",
+          "thinking_seconds": 55
+        },
+        {
+          "reason": "回忆正弦编码无参数、论文对比可学习版本且结果相近这一事实即可判断。",
+          "question_id": "q7-true-false-pe-learnable",
+          "thinking_seconds": 20
+        },
+        {
+          "reason": "需组织三个要点：加入位置、同维原因、x 与 Sublayer(x) 的含义，属于综合复述与自检。",
+          "question_id": "q8-self-check-short",
+          "thinking_seconds": 75
+        }
+      ],
+      "teaching_context_digest": "7d36c72f46a783b89f0824d018bea3757008b6a925325c1e7084f38e0200e6a7"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "8 道题分别覆盖位置编码必要性（q1）、加入位置与维度（q2）、正弦公式与多频率（q3）、PE(pos+k) 线性性（q4）、Add&Norm 表达式（q5）、残差与层归一化作用（q6）、固定编码与可学习版本对比（q7）及节点自检（q8），与 req-transformer-basics 中位置编码、残差连接与层归一化部分真实对应，未越界到其他节点。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题独立求解后，q1=B、q2=A、q3=A,B,D、q4 推导矩阵 [[cos ωk, sin ωk],[−sin ωk, cos ωk]] 正确、q5=A、q6=A,B,D、q7=正确、q8 三要点均与原始论文表述一致；q3 选项 A 的「第 i 对维度共享角频率 1/10000^(2i/d_model)」与公式 PE(pos,2i)=sin(pos/10000^(2i/d_model)) 相符，未出现常数 1000 与 10000 混用。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "q1 用「猫 追 狗」与「狗 追 猫」的具体反例说明无位置编码时等价词袋，q4 给出可逐步验算的和角公式展开与 2×2 旋转矩阵，实例与推导均可独立复算，干扰项对应真实误区（并行处理、参数共享、层归一化按位置编号）。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序为「必要性→加入方式→公式→相对位置推导→Add&Norm 表达式→两操作作用→固定编码事实→综合自检」，与节点活动（阅读公式、打乱词序小实验、写 Add&Norm 表达式）顺序一致，难度 easy/medium/hard 分布合理，8 题在 12 分钟节点预算内可完成。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "关键断言（堆栈底部相加、d_model 同维、波长 2π 到 10000·2π 几何级数、PE(pos+k) 线性、可学习版本结果几乎相同、d_model=512）均可在 research_context 引用的原始论文中文解读与 CS336 笔记中找到对应表述，未出现无依据的外部断言。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三个节点目标均有 practice 与 check 题覆盖（o1: q1/q2/q8，o2: q3/q4/q7/q8，o3: q5/q6/q8），题型含单选、多选、判断、简答，每题均有 answer 与逐步解析，无缺答案或缺解析的题目。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "8 道题分别覆盖位置编码必要性（q1）、加入位置与维度（q2）、正弦公式与多频率（q3）、PE(pos+k) 线性性（q4）、Add&Norm 表达式（q5）、残差与层归一化作用（q6）、固定编码与可学习版本对比（q7）、综合自检（q8），真实支持 req-transformer-basics 中位置编码、残差连接与层归一化部分。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": false,
+                "reason": "q3 选项 A 的表述「同一维度对 i 使用同一个频率 pos/10000^(2i/d_model)」把频率写成含 pos 的量，且「同一维度对 i」措辞混乱；q8 参考答案「得到送入第一层（编码器）或第一层（解码器）的输入表示」重复且未区分编码器/解码器首层，属表述缺陷。其余公式、和角公式推导、Add&Norm 解释与论文表述一致。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题逐题求解：q1 答案 B、q2 答案 A、q3 答案 A,B,D、q5 答案 A、q6 答案 A,B,D、q7 判断正确，均与独立求解一致；q4、q8 简答参考答案的推导（旋转矩阵只含 k）成立。干扰项对应真实误区（并行处理、拼接、每层刷新、残差替代位置编码）。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为「必要性→形式→相对位置性质→Add&Norm→作用→事实判断→综合自检」，与节点活动（必要性、公式、Add&Norm 表达式）一致，难度 easy/medium/hard 分布合理，12 分钟节点内 8 题偏多但属内容量参考。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正弦/余弦公式、波长几何级数、PE(pos+k) 线性性、编码器和解码器堆栈底部相加、LayerNorm(x+Sublayer(x))、d_model=512、可学习版本结果几乎相同等断言均可在提供的 volcengine 论文解读与 CS336 笔记证据中找到对应原文。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个节点目标均有对应题目（o1: q1/q2/q8；o2: q3/q4/q7/q8；o3: q5/q6/q8），题型含单选、多选、判断、简答，每题均有解析，无缺答案或空解析。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q1 题干「模型对这三个位置得到的表示会怎样」可明确为「三个位置各自的输出向量」，避免与「位置」一词的歧义。",
+              "8 题在 12 分钟节点内偏多，可考虑将 q8 与 q2/q5 合并或把 q8 作为课后自检，减轻时间压力。",
+              "q4 简答可给出评分要点（写出展开式、矩阵只含 k、相对位置好处三点各占分），便于自检。"
+            ],
+            "blocking_issues": [
+              "q3 选项 A 表述有误：「同一维度对 i 使用同一个频率 pos/10000^(2i/d_model)」把频率写成依赖 pos 的表达式，实际频率是 1/10000^(2i/d_model)（角频率 ω_i = 1/10000^(2i/d_model)），且「同一维度对 i」措辞不清，应为「第 i 对维度（2i 与 2i+1）共享同一频率」。该选项被列为正确答案，解析却写「同一对维度共享同一频率」，与选项文字不一致。",
+              "q8 参考答案首句「得到送入第一层（编码器）或第一层（解码器）的输入表示」重复且未区分，应改为「编码器堆栈第一层的输入」与「解码器堆栈第一层的输入」，否则读者无法判断两处差异。"
+            ],
+            "question_checks": [
+              {
+                "question_id": "q1-no-pe-bag-of-words",
+                "option_checks": [
+                  {
+                    "reasoning": "Transformer 不含循环，所有 token 并行处理，不存在按顺序逐个处理，故 A 错。",
+                    "option_text": "三个位置的表示会随词序改变，因为自注意力会按顺序逐个处理 token",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错：Transformer 不含循环，所有 token 是并行处理的，不存在「按顺序逐个处理」。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4 段指出 Transformer 不含循环、并行处理，正确否定了 A 的「按顺序逐个处理」理由。"
+                  },
+                  {
+                    "reasoning": "无位置编码时输出只取决于词嵌入集合，与顺序无关，B 正确。",
+                    "option_text": "三个位置的表示只取决于这三个词各自嵌入的集合，与它们谁在前谁在后无关",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "自注意力对每个位置计算的是「该位置向量与所有位置向量的加权和」，权重由向量之间的相似度决定，本身不含位置下标；前馈网络在各位置共享同一组参数；层归一化只对单个位置向量内部做归一化，也不看位置编号。因此把同一组词打乱顺序，每个位置拿到的输入向量集合相同，输出表示也随之相同——这正是「等价于词袋」的含义，所以 B 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0-3 段依次说明自注意力不含位置下标、前馈网络共享参数、层归一化不看位置编号，并推出输出相同，论证成立。"
+                  },
+                  {
+                    "reasoning": "前馈网络在各位置共享同一组参数，不同层之间才不同，故 C 错。",
+                    "option_text": "表示会改变，因为前馈网络对每个位置使用了不同的参数",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：前馈网络在不同位置共享参数，不同层之间才使用不同参数。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 5 段正确指出前馈网络跨位置共享参数、跨层才不同，与论文表述一致。"
+                  },
+                  {
+                    "reasoning": "层归一化按单个向量的均值方差缩放，与位置编号无关，故 D 错。",
+                    "option_text": "表示会改变，因为层归一化会按位置编号重新缩放向量",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：层归一化按单个向量的均值和方差缩放，与位置编号无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 6 段正确说明层归一化与位置编号无关。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "无位置编码时，自注意力权重只由向量相似度决定，前馈网络各位置共享参数，层归一化逐向量进行，均不含位置下标。因此「猫 追 狗」与「狗 追 猫」中每个位置拿到的输入向量集合相同，输出表示相同，等价于词袋。答案 B。"
+              },
+              {
+                "question_id": "q2-pe-dimension-and-placement",
+                "option_checks": [
+                  {
+                    "reasoning": "堆栈底部相加、维度同为 d_model，A 正确。",
+                    "option_text": "在编码器和解码器堆栈的底部，把位置编码与输入嵌入逐元素相加，因此两者维度都必须是 d_model",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "原始论文的表述是：在编码器和解码器堆栈的底部向输入嵌入添加位置编码，位置编码的维度与嵌入维度 d_model 相同，以便两者相加。逐元素相加要求形状一致，所以 A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0-1 段引用论文表述并说明逐元素相加要求形状一致，论证成立。"
+                  },
+                  {
+                    "reasoning": "拼接会使维度变为 2·d_model，与「维度相同以便相加」不符，B 错。",
+                    "option_text": "在编码器和解码器堆栈的底部，把位置编码与输入嵌入拼接，因此位置编码维度是 d_model 的一半",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错：拼接会使维度变成 2·d_model，与「维度相同以便相加」的原文表述不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段正确指出拼接导致维度翻倍，与原文相加表述矛盾。"
+                  },
+                  {
+                    "reasoning": "解码器同样需要位置信息，论文明确两处堆栈底部都加，C 错。",
+                    "option_text": "只在编码器堆栈的底部加入位置编码，解码器不需要位置信息",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：解码器同样并行处理输出序列，也需要位置信息，原文明确说编码器和解码器堆栈底部都加。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3 段正确说明解码器也并行处理输出序列、需要位置信息。"
+                  },
+                  {
+                    "reasoning": "位置编码只在堆栈底部加一次，并非每层刷新，D 错。",
+                    "option_text": "在每一层自注意力之后加入位置编码，以便逐层刷新位置信息",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：位置编码只在堆栈底部加一次，之后随各层计算传递，并非每层刷新。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4 段正确指出位置编码只加一次、随各层传递。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文在编码器和解码器堆栈底部把位置编码加到输入嵌入上，维度同为 d_model 以便逐元素相加。答案 A。"
+              },
+              {
+                "question_id": "q3-sinusoid-form",
+                "option_checks": [
+                  {
+                    "reasoning": "偶数维 sin、奇数维 cos、同一对维度共享频率这一实质正确，但选项文字把「频率」写成含 pos 的 pos/10000^(2i/d_model)，且「同一维度对 i」措辞混乱，表述不严谨。",
+                    "option_text": "偶数维用 sin、奇数维用 cos，同一维度对 i 使用同一个频率 pos/10000^(2i/d_model)",
+                    "option_index": 0,
+                    "explanation_valid": false,
+                    "explanation_excerpt": "A 正确：公式为 PE(pos,2i)=sin(pos/10000^(2i/d_model))，PE(pos,2i+1)=cos(pos/10000^(2i/d_model))，同一对维度共享同一频率。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段写「同一对维度共享同一频率」，与选项文字「同一维度对 i 使用同一个频率 pos/10000^(2i/d_model)」不一致：选项把频率写成依赖 pos 的表达式，解析未指出这一表述问题，反而直接判 A 正确，说明解析未逐字核对选项。"
+                  },
+                  {
+                    "reasoning": "不同维度对应不同频率，波长从 2π 到 10000·2π 成几何级数，B 正确。",
+                    "option_text": "不同维度对应不同频率的正弦波，波长从 2π 到 10000·2π 构成几何级数",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：i 越大频率越低，波长从 2π 到 10000·2π 成几何级数，这就是「多频率」设计。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 1 段正确说明 i 越大频率越低、波长成几何级数。"
+                  },
+                  {
+                    "reasoning": "正弦位置编码由公式直接算出，无参数、不参与训练，C 错。",
+                    "option_text": "位置编码的数值随训练更新，属于可学习参数",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：正弦版本是固定编码，不参与训练、没有梯度；论文中另试过可学习的位置嵌入，那是另一种方案。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2-3 段正确区分固定正弦编码与论文另试的可学习位置嵌入。"
+                  },
+                  {
+                    "reasoning": "由和角公式，偏移 k 相当于对 (sin, cos) 做与 pos 无关的旋转，即线性变换，D 正确。",
+                    "option_text": "选择这种形式的一个理由是：对任意固定偏移 k，PE(pos+k) 可以表示为 PE(pos) 的线性函数",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：由 sin(x+y)=sin x cos y+cos x sin y、cos(x+y)=cos x cos y−sin x sin y 可知，偏移 k 只相当于对 (sin, cos) 这一对做一次与 pos 无关的旋转，因此是线性变换，便于模型学习按相对位置关注。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 4 段正确引用和角公式并说明旋转矩阵与 pos 无关。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": false,
+                "calculation_checks": [],
+                "independent_solution": "论文公式 PE(pos,2i)=sin(pos/10000^(2i/d_model))、PE(pos,2i+1)=cos(pos/10000^(2i/d_model))；波长从 2π 到 10000·2π 成几何级数；正弦编码固定无参数；由和角公式 PE(pos+k) 是 PE(pos) 的线性函数。故 A、B、D 正确，C 错。"
+              },
+              {
+                "question_id": "q4-relative-shift-linear",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "sin(ω(pos+k))=sin(ωpos)cos(ωk)+cos(ωpos)sin(ωk)，cos(ω(pos+k))=cos(ωpos)cos(ωk)−sin(ωpos)sin(ωk)，即 [sin;cos] 乘以 [[cos ωk, sin ωk],[−sin ωk, cos ωk]]，矩阵只含 k，故为线性变换；模型只需学按偏移 k 的旋转即可表达相对位置关注，并可能外推更长序列。"
+              },
+              {
+                "question_id": "q5-addnorm-expression",
+                "option_checks": [
+                  {
+                    "reasoning": "x 为子层输入、Sublayer(x) 为子层输出，相加后归一化，A 正确。",
+                    "option_text": "x 是该子层的输入，Sublayer(x) 是该子层（自注意力或前馈网络）对 x 计算出的结果，两者相加后再做层归一化",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "Add&Norm 的结构是：子层接收输入 x，算出 Sublayer(x)，把两者逐元素相加（残差连接），再对相加结果做层归一化。所以 A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0-1 段准确描述 Add&Norm 结构并判定 A 正确。"
+                  },
+                  {
+                    "reasoning": "位置编码与词嵌入相加发生在堆栈底部，不是子层 Add&Norm，B 错。",
+                    "option_text": "x 是位置编码，Sublayer(x) 是词嵌入，两者相加后再做层归一化",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错：位置编码与词嵌入的相加发生在堆栈底部，属于输入准备阶段，不是每个子层的 Add&Norm。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段正确区分输入准备阶段与子层内部 Add&Norm。"
+                  },
+                  {
+                    "reasoning": "残差连接加的是同一子层的输入与输出，不是相邻子层，C 错。",
+                    "option_text": "x 是该子层的输出，Sublayer(x) 是下一子层的输入，两者相加后再做层归一化",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：残差连接加的是同一子层的输入与输出，不是相邻两个子层。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3 段正确指出残差连接连接同一子层的输入与输出。"
+                  },
+                  {
+                    "reasoning": "残差连接是直接相加，无缩放系数，D 错。",
+                    "option_text": "x 是残差连接的缩放系数，Sublayer(x) 是子层输出乘以该系数后的结果",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：残差连接是直接相加，没有引入可学习的缩放系数这一说法。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4 段正确否定可学习缩放系数的说法。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Add&Norm 为 LayerNorm(x + Sublayer(x))，x 是子层输入，Sublayer(x) 是子层（自注意力或前馈网络）对 x 的输出，相加后层归一化。答案 A。"
+              },
+              {
+                "question_id": "q6-residual-vs-layernorm",
+                "option_checks": [
+                  {
+                    "reasoning": "恒等项为梯度提供直接通路，缓解深层梯度问题，A 正确。",
+                    "option_text": "残差连接让梯度可以沿恒等路径直接回传，有助于缓解深层网络训练中的梯度消失或爆炸",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：x + Sublayer(x) 中的恒等项为梯度提供了一条不经过子层参数的直接通路，这是缓解深层网络梯度问题的标准解释。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段给出标准解释，与论文一致。"
+                  },
+                  {
+                    "reasoning": "层归一化在单个位置向量上计算均值方差并缩放，稳定训练，B 正确。",
+                    "option_text": "层归一化对每个位置向量内部做归一化，使各子层输出的数值尺度更稳定，从而稳定训练",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：层归一化在单个样本的单个位置向量上计算均值与方差并重新缩放，使数值尺度受控，训练更稳定。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 1 段正确描述层归一化的作用范围与效果。"
+                  },
+                  {
+                    "reasoning": "残差连接不携带位置下标信息，无法替代位置编码，C 错。",
+                    "option_text": "残差连接的作用是给模型增加位置信息，因此可以替代位置编码",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：残差连接只是把输入加回输出，不携带任何位置下标信息，无法替代位置编码。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段正确指出残差连接不含位置信息。"
+                  },
+                  {
+                    "reasoning": "逐元素相加要求形状一致，子层与嵌入层均输出 d_model（512），D 正确。",
+                    "option_text": "为了让残差相加成立，模型中所有子层以及嵌入层都输出维度 d_model",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：逐元素相加要求形状一致，所以子层与嵌入层都输出 d_model 维（原始论文中为 512）。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 3 段正确说明维度约束与 512 的取值。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "残差连接提供恒等梯度通路，缓解梯度消失/爆炸；层归一化在单个位置向量内归一化，稳定数值尺度；残差不携带位置信息，不能替代位置编码；为逐元素相加，子层与嵌入层均输出 d_model 维。故 A、B、D 正确，C 错。"
+              },
+              {
+                "question_id": "q7-true-false-pe-learnable",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "正弦位置编码由公式算出，无参数、无梯度；论文对比了可学习位置嵌入，报告两者结果几乎相同，并因可能外推更长序列而选择正弦版本。判断为正确。"
+              },
+              {
+                "question_id": "q8-self-check-short",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "位置编码加在编码器与解码器堆栈底部，与输入嵌入逐元素相加，得到各自第一层的输入；维度同为 d_model 才能逐元素相加；LayerNorm(x + Sublayer(x)) 中 x 是子层输入（恒等项），Sublayer(x) 是子层对 x 的输出，相加后归一化。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 通过漏加位置编码后打乱词序的推理，真实考查位置编码必要性，支持 req-transformer-basics 中位置编码部分。",
+                "locator": {
+                  "question_id": "q1-no-pe-bag-of-words"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 考查加入位置（编码器与解码器堆栈底部）与维度 d_model，覆盖位置编码具体形式。",
+                "locator": {
+                  "question_id": "q2-pe-dimension-and-placement"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 考查正弦/余弦公式、波长几何级数与相对位置线性性质，覆盖位置编码机制（选项 A 表述问题已在 blocking_issues 记录）。",
+                "locator": {
+                  "question_id": "q3-sinusoid-form"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 要求推导 PE(pos+k) 的旋转矩阵表示，真实覆盖相对位置线性性质。",
+                "locator": {
+                  "question_id": "q4-relative-shift-linear"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 考查 LayerNorm(x + Sublayer(x)) 中各符号含义，覆盖残差连接与层归一化。",
+                "locator": {
+                  "question_id": "q5-addnorm-expression"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 考查残差与层归一化各自作用及维度约束，覆盖 Add&Norm 机制。",
+                "locator": {
+                  "question_id": "q6-residual-vs-layernorm"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 考查正弦编码固定无参数及与可学习版本对比，覆盖位置编码机制。",
+                "locator": {
+                  "question_id": "q7-true-false-pe-learnable"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 综合检查加入位置、同维原因与 Add&Norm 含义，与节点自检问题对应（参考答案首句表述问题已记录）。",
+                "locator": {
+                  "question_id": "q8-self-check-short"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1（为何必须注入位置信息）的检测题，通过词袋等价性推理直接检验该目标。",
+                "locator": {
+                  "question_id": "q1-no-pe-bag-of-words"
+                },
+                "binding_id": "n4-positional-addnorm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o1 的练习题，检验位置编码加入位置与维度要求，支持该目标。",
+                "locator": {
+                  "question_id": "q2-pe-dimension-and-placement"
+                },
+                "binding_id": "n4-positional-addnorm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的练习题，检验正弦形式、多频率与线性性质。",
+                "locator": {
+                  "question_id": "q3-sinusoid-form"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o2 的练习题，要求推导 PE(pos+k) 线性表示，直接对应目标。",
+                "locator": {
+                  "question_id": "q4-relative-shift-linear"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 作为 o2 的检测题，检验固定编码与可学习版本对比，属位置编码形式与作用范畴。",
+                "locator": {
+                  "question_id": "q7-true-false-pe-learnable"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o3 的练习题，检验 Add&Norm 表达式含义。",
+                "locator": {
+                  "question_id": "q5-addnorm-expression"
+                },
+                "binding_id": "n4-positional-addnorm:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 作为 o3 的练习题，检验残差连接与层归一化各自作用。",
+                "locator": {
+                  "question_id": "q6-residual-vs-layernorm"
+                },
+                "binding_id": "n4-positional-addnorm:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 作为 o1 的检测题，要求说明位置编码加在哪一步，支持该目标。",
+                "locator": {
+                  "question_id": "q8-self-check-short"
+                },
+                "binding_id": "n4-positional-addnorm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 作为 o2 的检测题，要求说明维度必须与词嵌入相同的原因，支持该目标。",
+                "locator": {
+                  "question_id": "q8-self-check-short"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 作为 o3 的检测题，要求说明 x 与 Sublayer(x) 含义，支持该目标。",
+                "locator": {
+                  "question_id": "q8-self-check-short"
+                },
+                "binding_id": "n4-positional-addnorm:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "revise",
+          "content_sha256": "c3dd5c4a31e2cc0106a01ebb404491784bd548706815753a06627a565fd571ce"
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "8 道题分别覆盖位置编码必要性（q1）、加入位置与维度（q2）、正弦公式与多频率（q3）、PE(pos+k) 线性性（q4）、Add&Norm 表达式（q5）、残差与层归一化作用（q6）、固定编码与可学习版本对比（q7）及节点自检（q8），与 req-transformer-basics 中位置编码、残差连接与层归一化部分真实对应，未越界到其他节点。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解后，q1=B、q2=A、q3=A,B,D、q4 推导矩阵 [[cos ωk, sin ωk],[−sin ωk, cos ωk]] 正确、q5=A、q6=A,B,D、q7=正确、q8 三要点均与原始论文表述一致；q3 选项 A 的「第 i 对维度共享角频率 1/10000^(2i/d_model)」与公式 PE(pos,2i)=sin(pos/10000^(2i/d_model)) 相符，未出现常数 1000 与 10000 混用。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q1 用「猫 追 狗」与「狗 追 猫」的具体反例说明无位置编码时等价词袋，q4 给出可逐步验算的和角公式展开与 2×2 旋转矩阵，实例与推导均可独立复算，干扰项对应真实误区（并行处理、参数共享、层归一化按位置编号）。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为「必要性→加入方式→公式→相对位置推导→Add&Norm 表达式→两操作作用→固定编码事实→综合自检」，与节点活动（阅读公式、打乱词序小实验、写 Add&Norm 表达式）顺序一致，难度 easy/medium/hard 分布合理，8 题在 12 分钟节点预算内可完成。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "关键断言（堆栈底部相加、d_model 同维、波长 2π 到 10000·2π 几何级数、PE(pos+k) 线性、可学习版本结果几乎相同、d_model=512）均可在 research_context 引用的原始论文中文解读与 CS336 笔记中找到对应表述，未出现无依据的外部断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个节点目标均有 practice 与 check 题覆盖（o1: q1/q2/q8，o2: q3/q4/q7/q8，o3: q5/q6/q8），题型含单选、多选、判断、简答，每题均有 answer 与逐步解析，无缺答案或缺解析的题目。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q3 选项 A 表述较长且含公式，可考虑拆分为「偶数维 sin、奇数维 cos」与「同一维度对共享角频率」两个更短的干扰/正确项，降低阅读负担。",
+              "q1 与 q2 的正确答案分别位于 B、A，q5 为 A，整体位置分布尚可，但可再打散一次以避免连续两题正确答案相邻。",
+              "q8 简答题包含三个子问题，参考答案较长，可在解析中给出更明确的评分要点（如「三点各 1 分」）便于自检。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1-no-pe-bag-of-words",
+                "option_checks": [
+                  {
+                    "reasoning": "Transformer 不含循环，所有 token 并行处理，不存在「按顺序逐个处理」，该选项前提错误。",
+                    "option_text": "三个位置的表示会随词序改变，因为自注意力会按顺序逐个处理 token",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错：Transformer 不含循环，所有 token 是并行处理的，不存在「按顺序逐个处理」。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 A 错在「按顺序逐个处理」，与 Transformer 并行处理的架构事实一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "无位置编码时输出只依赖词嵌入集合，与顺序无关，这正是「等价于词袋」的含义，为正确项。",
+                    "option_text": "三个位置的表示只取决于这三个词各自嵌入的集合，与它们谁在前谁在后无关",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "自注意力对每个位置计算的是「该位置向量与所有位置向量的加权和」，权重由向量之间的相似度决定，本身不含位置下标；前馈网络在各位置共享同一组参数；层归一化只对单个位置向量内部做归一化，也不看位置编号。因此把同一组词打乱顺序，每个位置拿到的输入向量集合相同，输出表示也随之相同——这正是「等价于词袋」的含义，所以 B 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析先说明自注意力、前馈网络、层归一化均不含位置下标，再推出打乱顺序输出相同，推理链完整且结论正确。"
+                  },
+                  {
+                    "reasoning": "前馈网络在不同位置共享同一组参数，不同层之间才不同，故该选项错误。",
+                    "option_text": "表示会改变，因为前馈网络对每个位置使用了不同的参数",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：前馈网络在不同位置共享参数，不同层之间才使用不同参数。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析准确区分「位置间共享参数」与「层间不同参数」，与原始论文表述一致。"
+                  },
+                  {
+                    "reasoning": "层归一化对单个位置向量内部按均值和方差缩放，与位置编号无关，该选项错误。",
+                    "option_text": "表示会改变，因为层归一化会按位置编号重新缩放向量",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：层归一化按单个向量的均值和方差缩放，与位置编号无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出层归一化按向量内部统计量缩放、不看位置编号，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "无位置编码时，自注意力权重只由向量相似度决定，前馈网络各位置共享参数，层归一化逐位置独立，因此打乱词序后每个位置收到的输入向量集合相同，输出表示相同，等价于词袋模型。故正确选项为 B。"
+              },
+              {
+                "question_id": "q2-pe-dimension-and-placement",
+                "option_checks": [
+                  {
+                    "reasoning": "堆栈底部相加且同维 d_model，与原文一致，为正确项。",
+                    "option_text": "在编码器和解码器堆栈的底部，把位置编码与输入嵌入逐元素相加，因此两者维度都必须是 d_model",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "原始论文的表述是：在编码器和解码器堆栈的底部向输入嵌入添加位置编码，位置编码的维度与嵌入维度 d_model 相同，以便两者相加。逐元素相加要求形状一致，所以 A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用原文表述并说明逐元素相加要求形状一致，结论正确。"
+                  },
+                  {
+                    "reasoning": "原文是相加而非拼接，拼接会使维度变为 2·d_model，该选项错误。",
+                    "option_text": "在编码器和解码器堆栈的底部，把位置编码与输入嵌入拼接，因此位置编码维度是 d_model 的一半",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错：拼接会使维度变成 2·d_model，与「维度相同以便相加」的原文表述不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出拼接导致维度翻倍、与「维度相同以便相加」不符，批评成立。"
+                  },
+                  {
+                    "reasoning": "解码器同样并行处理输出序列，也需要位置信息，原文明确编码器和解码器堆栈底部都加，该选项错误。",
+                    "option_text": "只在编码器堆栈的底部加入位置编码，解码器不需要位置信息",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：解码器同样并行处理输出序列，也需要位置信息，原文明确说编码器和解码器堆栈底部都加。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析依据原文「编码器和解码器堆栈底部都加」否定 C，依据充分。"
+                  },
+                  {
+                    "reasoning": "位置编码只在堆栈底部加一次，之后随各层计算传递，并非每层刷新，该选项错误。",
+                    "option_text": "在每一层自注意力之后加入位置编码，以便逐层刷新位置信息",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：位置编码只在堆栈底部加一次，之后随各层计算传递，并非每层刷新。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明位置编码只加一次并随层传递，与架构一致。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "原始论文在编码器和解码器堆栈底部把位置编码加到输入嵌入上，位置编码维度与嵌入维度 d_model 相同以便逐元素相加，故正确选项为 A。"
+              },
+              {
+                "question_id": "q3-sinusoid-form",
+                "option_checks": [
+                  {
+                    "reasoning": "偶数维 sin、奇数维 cos，且 2i 与 2i+1 共享角频率 1/10000^(2i/d_model)，与公式一致，为正确项。",
+                    "option_text": "偶数维用 sin、奇数维用 cos，第 i 对维度（2i 与 2i+1）共享同一个角频率 1/10000^(2i/d_model)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：公式为 PE(pos,2i)=sin(pos/10000^(2i/d_model))，PE(pos,2i+1)=cos(pos/10000^(2i/d_model))，即第 i 对维度（2i 与 2i+1）共享同一个角频率 ω_i = 1/10000^(2i/d_model)，频率本身不含 pos，pos 只是被乘进正弦/余弦的自变量。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析写出完整公式并说明频率不含 pos、pos 只进入自变量，与原始论文公式逐项对应。"
+                  },
+                  {
+                    "reasoning": "i 越大频率越低，波长从 2π 到 10000·2π 成几何级数，为正确项。",
+                    "option_text": "不同维度对应不同频率的正弦波，波长从 2π 到 10000·2π 构成几何级数",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：i 越大频率越低，波长从 2π 到 10000·2π 成几何级数，这就是「多频率」设计。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析对波长几何级数与多频率设计的说明与原文一致。"
+                  },
+                  {
+                    "reasoning": "正弦位置编码由公式直接算出，无参数、无梯度，不随训练更新，该选项错误。",
+                    "option_text": "位置编码的数值随训练更新，属于可学习参数",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：正弦版本是固定编码，不参与训练、没有梯度；论文中另试过可学习的位置嵌入，那是另一种方案。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析区分固定正弦编码与论文另试的可学习位置嵌入，批评准确。"
+                  },
+                  {
+                    "reasoning": "由和角公式，偏移 k 相当于对 (sin, cos) 对做与 pos 无关的旋转，即线性变换，为正确项。",
+                    "option_text": "选择这种形式的一个理由是：对任意固定偏移 k，PE(pos+k) 可以表示为 PE(pos) 的线性函数",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：由 sin(x+y)=sin x cos y+cos x sin y、cos(x+y)=cos x cos y−sin x sin y 可知，偏移 k 只相当于对 (sin, cos) 这一对做一次与 pos 无关的旋转，因此是线性变换，便于模型学习按相对位置关注。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用 sin(x+y)、cos(x+y) 和角公式推出旋转矩阵与 pos 无关，推导正确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "公式为 PE(pos,2i)=sin(pos/10000^(2i/d_model))、PE(pos,2i+1)=cos(pos/10000^(2i/d_model))，同一 i 的维度对共享角频率；波长从 2π 到 10000·2π 成几何级数；正弦编码固定无参数；由和角公式可知 PE(pos+k) 是 PE(pos) 的线性函数。故 A、B、D 正确，C 错误。"
+              },
+              {
+                "question_id": "q4-relative-shift-linear",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "PE(pos+k) 该维对为 (sin(ω(pos+k)), cos(ω(pos+k)))。由和角公式展开得 [sin(ω(pos+k)); cos(ω(pos+k))] = [[cos ωk, sin ωk],[−sin ωk, cos ωk]]·[sin(ω·pos); cos(ω·pos)]，矩阵只含 k 不含 pos，故为线性变换；模型只需学「按偏移 k 旋转」即可表达相对距离关注，并可能外推到更长序列。"
+              },
+              {
+                "question_id": "q5-addnorm-expression",
+                "option_checks": [
+                  {
+                    "reasoning": "x 为子层输入、Sublayer(x) 为子层输出，相加后层归一化，与原文 LayerNorm(x + Sublayer(x)) 一致，为正确项。",
+                    "option_text": "x 是该子层的输入，Sublayer(x) 是该子层（自注意力或前馈网络）对 x 计算出的结果，两者相加后再做层归一化",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "Add&Norm 的结构是：子层接收输入 x，算出 Sublayer(x)，把两者逐元素相加（残差连接），再对相加结果做层归一化。所以 A 正确。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析准确描述 Add&Norm 结构并判定 A 正确。"
+                  },
+                  {
+                    "reasoning": "位置编码与词嵌入相加发生在堆栈底部，不是每个子层的 Add&Norm，该选项错误。",
+                    "option_text": "x 是位置编码，Sublayer(x) 是词嵌入，两者相加后再做层归一化",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错：位置编码与词嵌入的相加发生在堆栈底部，属于输入准备阶段，不是每个子层的 Add&Norm。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析区分输入准备阶段与子层内部 Add&Norm，批评成立。"
+                  },
+                  {
+                    "reasoning": "残差连接加的是同一子层的输入与输出，不是相邻两个子层，该选项错误。",
+                    "option_text": "x 是该子层的输出，Sublayer(x) 是下一子层的输入，两者相加后再做层归一化",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：残差连接加的是同一子层的输入与输出，不是相邻两个子层。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出残差连接连接同一子层输入输出，与原文一致。"
+                  },
+                  {
+                    "reasoning": "残差连接是直接相加，没有可学习缩放系数，该选项错误。",
+                    "option_text": "x 是残差连接的缩放系数，Sublayer(x) 是子层输出乘以该系数后的结果",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：残差连接是直接相加，没有引入可学习的缩放系数这一说法。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析否定「可学习缩放系数」这一说法，与原始论文表述相符。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Add&Norm 中 x 是子层输入，Sublayer(x) 是子层（自注意力或前馈网络）对 x 的输出，两者逐元素相加后做层归一化，故正确选项为 A。"
+              },
+              {
+                "question_id": "q6-residual-vs-layernorm",
+                "option_checks": [
+                  {
+                    "reasoning": "恒等项为梯度提供不经过子层参数的通路，是缓解梯度问题的标准解释，为正确项。",
+                    "option_text": "残差连接让梯度可以沿恒等路径直接回传，有助于缓解深层网络训练中的梯度消失或爆炸",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：x + Sublayer(x) 中的恒等项为梯度提供了一条不经过子层参数的直接通路，这是缓解深层网络梯度问题的标准解释。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析对残差连接梯度作用的说明与原文「有助于缓解梯度消失或爆炸」一致。"
+                  },
+                  {
+                    "reasoning": "层归一化在单个位置向量内计算均值方差并重新缩放，使数值尺度受控，为正确项。",
+                    "option_text": "层归一化对每个位置向量内部做归一化，使各子层输出的数值尺度更稳定，从而稳定训练",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：层归一化在单个样本的单个位置向量上计算均值与方差并重新缩放，使数值尺度受控，训练更稳定。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析对层归一化作用范围的描述准确，未与批归一化混淆。"
+                  },
+                  {
+                    "reasoning": "残差连接只是把输入加回输出，不携带位置下标信息，无法替代位置编码，该选项错误。",
+                    "option_text": "残差连接的作用是给模型增加位置信息，因此可以替代位置编码",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：残差连接只是把输入加回输出，不携带任何位置下标信息，无法替代位置编码。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出残差连接不含位置信息，批评成立。"
+                  },
+                  {
+                    "reasoning": "逐元素相加要求形状一致，故子层与嵌入层都输出 d_model 维（原文 512），为正确项。",
+                    "option_text": "为了让残差相加成立，模型中所有子层以及嵌入层都输出维度 d_model",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：逐元素相加要求形状一致，所以子层与嵌入层都输出 d_model 维（原始论文中为 512）。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析给出维度约束理由并标注原文 512，与论文一致。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "残差连接提供恒等梯度通路，缓解深层网络梯度消失/爆炸；层归一化在单个位置向量内计算均值方差并缩放，稳定数值尺度；残差连接不携带位置信息，不能替代位置编码；逐元素相加要求子层与嵌入层都输出 d_model 维。故 A、B、D 正确，C 错误。"
+              },
+              {
+                "question_id": "q7-true-false-pe-learnable",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "正弦/余弦位置编码由公式直接计算，无参数、无梯度；论文确实对比了可学习位置嵌入并报告结果几乎相同，最终选择正弦版本以可能外推到更长序列。故判断为「正确」。"
+              },
+              {
+                "question_id": "q8-self-check-short",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "位置编码加在编码器和解码器堆栈底部，与输入嵌入逐元素相加；维度必须同为 d_model 才能相加；LayerNorm(x + Sublayer(x)) 中 x 是子层输入（恒等项），Sublayer(x) 是子层对 x 的输出，相加后做层归一化。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 通过漏加位置编码后打乱词序的反例，真实考查位置编码必要性，支持 req-transformer-basics 中位置编码部分。",
+                "locator": {
+                  "question_id": "q1-no-pe-bag-of-words"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 考查加入位置（堆栈底部）与维度要求（d_model 同维相加），真实覆盖位置编码形式。",
+                "locator": {
+                  "question_id": "q2-pe-dimension-and-placement"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 逐项考查正弦/余弦公式、波长几何级数与相对位置线性性质，与所述贡献一致。",
+                "locator": {
+                  "question_id": "q3-sinusoid-form"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 要求推导 PE(pos+k) 的 2×2 旋转矩阵表示，确实覆盖相对位置线性性质。",
+                "locator": {
+                  "question_id": "q4-relative-shift-linear"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 考查 LayerNorm(x + Sublayer(x)) 中 x 与 Sublayer(x) 的含义，覆盖残差与层归一化机制。",
+                "locator": {
+                  "question_id": "q5-addnorm-expression"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 分别考查残差连接梯度作用、层归一化稳定作用及维度约束，覆盖两机制各自作用。",
+                "locator": {
+                  "question_id": "q6-residual-vs-layernorm"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 考查正弦编码固定无参数及与可学习版本对比，覆盖位置编码机制。",
+                "locator": {
+                  "question_id": "q7-true-false-pe-learnable"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 综合复述加入位置、同维原因与 Add&Norm 含义，与节点自检问题一致。",
+                "locator": {
+                  "question_id": "q8-self-check-short"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1（位置信息必要性）的 check 题，反例直接检验「否则等价于词袋」这一目标。",
+                "locator": {
+                  "question_id": "q1-no-pe-bag-of-words"
+                },
+                "binding_id": "n4-positional-addnorm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o1 的 practice 题，练习位置编码注入位置与维度，属于该目标范围。",
+                "locator": {
+                  "question_id": "q2-pe-dimension-and-placement"
+                },
+                "binding_id": "n4-positional-addnorm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的 practice 题，练习正弦/余弦形式与多频率设计。",
+                "locator": {
+                  "question_id": "q3-sinusoid-form"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o2 的 practice 题，练习 PE(pos+k) 线性性推导，与目标表述一致。",
+                "locator": {
+                  "question_id": "q4-relative-shift-linear"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 作为 o2 的 check 题，检验固定编码与可学习版本的事实，属位置编码目标范围。",
+                "locator": {
+                  "question_id": "q7-true-false-pe-learnable"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o3 的 practice 题，练习 Add&Norm 表达式各符号含义。",
+                "locator": {
+                  "question_id": "q5-addnorm-expression"
+                },
+                "binding_id": "n4-positional-addnorm:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 作为 o3 的 practice 题，练习残差连接与层归一化各自作用。",
+                "locator": {
+                  "question_id": "q6-residual-vs-layernorm"
+                },
+                "binding_id": "n4-positional-addnorm:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 作为 o1 的 check 题，其第一问检验位置编码加入步骤，支持该目标。",
+                "locator": {
+                  "question_id": "q8-self-check-short"
+                },
+                "binding_id": "n4-positional-addnorm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 作为 o2 的 check 题，其第二问检验同维相加原因，支持该目标。",
+                "locator": {
+                  "question_id": "q8-self-check-short"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 作为 o3 的 check 题，其第三问检验 x 与 Sublayer(x) 含义，支持该目标。",
+                "locator": {
+                  "question_id": "q8-self-check-short"
+                },
+                "binding_id": "n4-positional-addnorm:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 2,
+          "decision": "pass",
+          "content_sha256": "aa8139b143d7ffd101c82dd446329b97a9ba4792d69878f4432fcd2d5c29d6fa"
+        }
+      ],
+      "version": 2,
+      "decision": "pass",
+      "suggestions": [
+        "q3 选项 A 表述较长且含公式，可考虑拆分为「偶数维 sin、奇数维 cos」与「同一维度对共享角频率」两个更短的干扰/正确项，降低阅读负担。",
+        "q1 与 q2 的正确答案分别位于 B、A，q5 为 A，整体位置分布尚可，但可再打散一次以避免连续两题正确答案相邻。",
+        "q8 简答题包含三个子问题，参考答案较长，可在解析中给出更明确的评分要点（如「三点各 1 分」）便于自检。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "aa8139b143d7ffd101c82dd446329b97a9ba4792d69878f4432fcd2d5c29d6fa",
+      "question_checks": [
+        {
+          "question_id": "q1-no-pe-bag-of-words",
+          "option_checks": [
+            {
+              "reasoning": "Transformer 不含循环，所有 token 并行处理，不存在「按顺序逐个处理」，该选项前提错误。",
+              "option_text": "三个位置的表示会随词序改变，因为自注意力会按顺序逐个处理 token",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 错：Transformer 不含循环，所有 token 是并行处理的，不存在「按顺序逐个处理」。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 A 错在「按顺序逐个处理」，与 Transformer 并行处理的架构事实一致，批评成立。"
+            },
+            {
+              "reasoning": "无位置编码时输出只依赖词嵌入集合，与顺序无关，这正是「等价于词袋」的含义，为正确项。",
+              "option_text": "三个位置的表示只取决于这三个词各自嵌入的集合，与它们谁在前谁在后无关",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "自注意力对每个位置计算的是「该位置向量与所有位置向量的加权和」，权重由向量之间的相似度决定，本身不含位置下标；前馈网络在各位置共享同一组参数；层归一化只对单个位置向量内部做归一化，也不看位置编号。因此把同一组词打乱顺序，每个位置拿到的输入向量集合相同，输出表示也随之相同——这正是「等价于词袋」的含义，所以 B 正确。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析先说明自注意力、前馈网络、层归一化均不含位置下标，再推出打乱顺序输出相同，推理链完整且结论正确。"
+            },
+            {
+              "reasoning": "前馈网络在不同位置共享同一组参数，不同层之间才不同，故该选项错误。",
+              "option_text": "表示会改变，因为前馈网络对每个位置使用了不同的参数",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错：前馈网络在不同位置共享参数，不同层之间才使用不同参数。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析准确区分「位置间共享参数」与「层间不同参数」，与原始论文表述一致。"
+            },
+            {
+              "reasoning": "层归一化对单个位置向量内部按均值和方差缩放，与位置编号无关，该选项错误。",
+              "option_text": "表示会改变，因为层归一化会按位置编号重新缩放向量",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错：层归一化按单个向量的均值和方差缩放，与位置编号无关。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出层归一化按向量内部统计量缩放、不看位置编号，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "无位置编码时，自注意力权重只由向量相似度决定，前馈网络各位置共享参数，层归一化逐位置独立，因此打乱词序后每个位置收到的输入向量集合相同，输出表示相同，等价于词袋模型。故正确选项为 B。"
+        },
+        {
+          "question_id": "q2-pe-dimension-and-placement",
+          "option_checks": [
+            {
+              "reasoning": "堆栈底部相加且同维 d_model，与原文一致，为正确项。",
+              "option_text": "在编码器和解码器堆栈的底部，把位置编码与输入嵌入逐元素相加，因此两者维度都必须是 d_model",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "原始论文的表述是：在编码器和解码器堆栈的底部向输入嵌入添加位置编码，位置编码的维度与嵌入维度 d_model 相同，以便两者相加。逐元素相加要求形状一致，所以 A 正确。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析引用原文表述并说明逐元素相加要求形状一致，结论正确。"
+            },
+            {
+              "reasoning": "原文是相加而非拼接，拼接会使维度变为 2·d_model，该选项错误。",
+              "option_text": "在编码器和解码器堆栈的底部，把位置编码与输入嵌入拼接，因此位置编码维度是 d_model 的一半",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错：拼接会使维度变成 2·d_model，与「维度相同以便相加」的原文表述不符。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出拼接导致维度翻倍、与「维度相同以便相加」不符，批评成立。"
+            },
+            {
+              "reasoning": "解码器同样并行处理输出序列，也需要位置信息，原文明确编码器和解码器堆栈底部都加，该选项错误。",
+              "option_text": "只在编码器堆栈的底部加入位置编码，解码器不需要位置信息",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错：解码器同样并行处理输出序列，也需要位置信息，原文明确说编码器和解码器堆栈底部都加。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析依据原文「编码器和解码器堆栈底部都加」否定 C，依据充分。"
+            },
+            {
+              "reasoning": "位置编码只在堆栈底部加一次，之后随各层计算传递，并非每层刷新，该选项错误。",
+              "option_text": "在每一层自注意力之后加入位置编码，以便逐层刷新位置信息",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错：位置编码只在堆栈底部加一次，之后随各层计算传递，并非每层刷新。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析说明位置编码只加一次并随层传递，与架构一致。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "原始论文在编码器和解码器堆栈底部把位置编码加到输入嵌入上，位置编码维度与嵌入维度 d_model 相同以便逐元素相加，故正确选项为 A。"
+        },
+        {
+          "question_id": "q3-sinusoid-form",
+          "option_checks": [
+            {
+              "reasoning": "偶数维 sin、奇数维 cos，且 2i 与 2i+1 共享角频率 1/10000^(2i/d_model)，与公式一致，为正确项。",
+              "option_text": "偶数维用 sin、奇数维用 cos，第 i 对维度（2i 与 2i+1）共享同一个角频率 1/10000^(2i/d_model)",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：公式为 PE(pos,2i)=sin(pos/10000^(2i/d_model))，PE(pos,2i+1)=cos(pos/10000^(2i/d_model))，即第 i 对维度（2i 与 2i+1）共享同一个角频率 ω_i = 1/10000^(2i/d_model)，频率本身不含 pos，pos 只是被乘进正弦/余弦的自变量。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析写出完整公式并说明频率不含 pos、pos 只进入自变量，与原始论文公式逐项对应。"
+            },
+            {
+              "reasoning": "i 越大频率越低，波长从 2π 到 10000·2π 成几何级数，为正确项。",
+              "option_text": "不同维度对应不同频率的正弦波，波长从 2π 到 10000·2π 构成几何级数",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：i 越大频率越低，波长从 2π 到 10000·2π 成几何级数，这就是「多频率」设计。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析对波长几何级数与多频率设计的说明与原文一致。"
+            },
+            {
+              "reasoning": "正弦位置编码由公式直接算出，无参数、无梯度，不随训练更新，该选项错误。",
+              "option_text": "位置编码的数值随训练更新，属于可学习参数",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错：正弦版本是固定编码，不参与训练、没有梯度；论文中另试过可学习的位置嵌入，那是另一种方案。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析区分固定正弦编码与论文另试的可学习位置嵌入，批评准确。"
+            },
+            {
+              "reasoning": "由和角公式，偏移 k 相当于对 (sin, cos) 对做与 pos 无关的旋转，即线性变换，为正确项。",
+              "option_text": "选择这种形式的一个理由是：对任意固定偏移 k，PE(pos+k) 可以表示为 PE(pos) 的线性函数",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 正确：由 sin(x+y)=sin x cos y+cos x sin y、cos(x+y)=cos x cos y−sin x sin y 可知，偏移 k 只相当于对 (sin, cos) 这一对做一次与 pos 无关的旋转，因此是线性变换，便于模型学习按相对位置关注。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析引用 sin(x+y)、cos(x+y) 和角公式推出旋转矩阵与 pos 无关，推导正确。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "公式为 PE(pos,2i)=sin(pos/10000^(2i/d_model))、PE(pos,2i+1)=cos(pos/10000^(2i/d_model))，同一 i 的维度对共享角频率；波长从 2π 到 10000·2π 成几何级数；正弦编码固定无参数；由和角公式可知 PE(pos+k) 是 PE(pos) 的线性函数。故 A、B、D 正确，C 错误。"
+        },
+        {
+          "question_id": "q4-relative-shift-linear",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "PE(pos+k) 该维对为 (sin(ω(pos+k)), cos(ω(pos+k)))。由和角公式展开得 [sin(ω(pos+k)); cos(ω(pos+k))] = [[cos ωk, sin ωk],[−sin ωk, cos ωk]]·[sin(ω·pos); cos(ω·pos)]，矩阵只含 k 不含 pos，故为线性变换；模型只需学「按偏移 k 旋转」即可表达相对距离关注，并可能外推到更长序列。"
+        },
+        {
+          "question_id": "q5-addnorm-expression",
+          "option_checks": [
+            {
+              "reasoning": "x 为子层输入、Sublayer(x) 为子层输出，相加后层归一化，与原文 LayerNorm(x + Sublayer(x)) 一致，为正确项。",
+              "option_text": "x 是该子层的输入，Sublayer(x) 是该子层（自注意力或前馈网络）对 x 计算出的结果，两者相加后再做层归一化",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "Add&Norm 的结构是：子层接收输入 x，算出 Sublayer(x)，把两者逐元素相加（残差连接），再对相加结果做层归一化。所以 A 正确。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析准确描述 Add&Norm 结构并判定 A 正确。"
+            },
+            {
+              "reasoning": "位置编码与词嵌入相加发生在堆栈底部，不是每个子层的 Add&Norm，该选项错误。",
+              "option_text": "x 是位置编码，Sublayer(x) 是词嵌入，两者相加后再做层归一化",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错：位置编码与词嵌入的相加发生在堆栈底部，属于输入准备阶段，不是每个子层的 Add&Norm。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析区分输入准备阶段与子层内部 Add&Norm，批评成立。"
+            },
+            {
+              "reasoning": "残差连接加的是同一子层的输入与输出，不是相邻两个子层，该选项错误。",
+              "option_text": "x 是该子层的输出，Sublayer(x) 是下一子层的输入，两者相加后再做层归一化",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错：残差连接加的是同一子层的输入与输出，不是相邻两个子层。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出残差连接连接同一子层输入输出，与原文一致。"
+            },
+            {
+              "reasoning": "残差连接是直接相加，没有可学习缩放系数，该选项错误。",
+              "option_text": "x 是残差连接的缩放系数，Sublayer(x) 是子层输出乘以该系数后的结果",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错：残差连接是直接相加，没有引入可学习的缩放系数这一说法。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析否定「可学习缩放系数」这一说法，与原始论文表述相符。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "Add&Norm 中 x 是子层输入，Sublayer(x) 是子层（自注意力或前馈网络）对 x 的输出，两者逐元素相加后做层归一化，故正确选项为 A。"
+        },
+        {
+          "question_id": "q6-residual-vs-layernorm",
+          "option_checks": [
+            {
+              "reasoning": "恒等项为梯度提供不经过子层参数的通路，是缓解梯度问题的标准解释，为正确项。",
+              "option_text": "残差连接让梯度可以沿恒等路径直接回传，有助于缓解深层网络训练中的梯度消失或爆炸",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：x + Sublayer(x) 中的恒等项为梯度提供了一条不经过子层参数的直接通路，这是缓解深层网络梯度问题的标准解释。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析对残差连接梯度作用的说明与原文「有助于缓解梯度消失或爆炸」一致。"
+            },
+            {
+              "reasoning": "层归一化在单个位置向量内计算均值方差并重新缩放，使数值尺度受控，为正确项。",
+              "option_text": "层归一化对每个位置向量内部做归一化，使各子层输出的数值尺度更稳定，从而稳定训练",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：层归一化在单个样本的单个位置向量上计算均值与方差并重新缩放，使数值尺度受控，训练更稳定。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析对层归一化作用范围的描述准确，未与批归一化混淆。"
+            },
+            {
+              "reasoning": "残差连接只是把输入加回输出，不携带位置下标信息，无法替代位置编码，该选项错误。",
+              "option_text": "残差连接的作用是给模型增加位置信息，因此可以替代位置编码",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错：残差连接只是把输入加回输出，不携带任何位置下标信息，无法替代位置编码。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出残差连接不含位置信息，批评成立。"
+            },
+            {
+              "reasoning": "逐元素相加要求形状一致，故子层与嵌入层都输出 d_model 维（原文 512），为正确项。",
+              "option_text": "为了让残差相加成立，模型中所有子层以及嵌入层都输出维度 d_model",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 正确：逐元素相加要求形状一致，所以子层与嵌入层都输出 d_model 维（原始论文中为 512）。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析给出维度约束理由并标注原文 512，与论文一致。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "残差连接提供恒等梯度通路，缓解深层网络梯度消失/爆炸；层归一化在单个位置向量内计算均值方差并缩放，稳定数值尺度；残差连接不携带位置信息，不能替代位置编码；逐元素相加要求子层与嵌入层都输出 d_model 维。故 A、B、D 正确，C 错误。"
+        },
+        {
+          "question_id": "q7-true-false-pe-learnable",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "正弦/余弦位置编码由公式直接计算，无参数、无梯度；论文确实对比了可学习位置嵌入并报告结果几乎相同，最终选择正弦版本以可能外推到更长序列。故判断为「正确」。"
+        },
+        {
+          "question_id": "q8-self-check-short",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "位置编码加在编码器和解码器堆栈底部，与输入嵌入逐元素相加；维度必须同为 d_model 才能相加；LayerNorm(x + Sublayer(x)) 中 x 是子层输入（恒等项），Sublayer(x) 是子层对 x 的输出，相加后做层归一化。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q1 通过漏加位置编码后打乱词序的反例，真实考查位置编码必要性，支持 req-transformer-basics 中位置编码部分。",
+          "locator": {
+            "question_id": "q1-no-pe-bag-of-words"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 考查加入位置（堆栈底部）与维度要求（d_model 同维相加），真实覆盖位置编码形式。",
+          "locator": {
+            "question_id": "q2-pe-dimension-and-placement"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 逐项考查正弦/余弦公式、波长几何级数与相对位置线性性质，与所述贡献一致。",
+          "locator": {
+            "question_id": "q3-sinusoid-form"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 要求推导 PE(pos+k) 的 2×2 旋转矩阵表示，确实覆盖相对位置线性性质。",
+          "locator": {
+            "question_id": "q4-relative-shift-linear"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 考查 LayerNorm(x + Sublayer(x)) 中 x 与 Sublayer(x) 的含义，覆盖残差与层归一化机制。",
+          "locator": {
+            "question_id": "q5-addnorm-expression"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 分别考查残差连接梯度作用、层归一化稳定作用及维度约束，覆盖两机制各自作用。",
+          "locator": {
+            "question_id": "q6-residual-vs-layernorm"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 考查正弦编码固定无参数及与可学习版本对比，覆盖位置编码机制。",
+          "locator": {
+            "question_id": "q7-true-false-pe-learnable"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 综合复述加入位置、同维原因与 Add&Norm 含义，与节点自检问题一致。",
+          "locator": {
+            "question_id": "q8-self-check-short"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 作为 o1（位置信息必要性）的 check 题，反例直接检验「否则等价于词袋」这一目标。",
+          "locator": {
+            "question_id": "q1-no-pe-bag-of-words"
+          },
+          "binding_id": "n4-positional-addnorm:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 作为 o1 的 practice 题，练习位置编码注入位置与维度，属于该目标范围。",
+          "locator": {
+            "question_id": "q2-pe-dimension-and-placement"
+          },
+          "binding_id": "n4-positional-addnorm:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 作为 o2 的 practice 题，练习正弦/余弦形式与多频率设计。",
+          "locator": {
+            "question_id": "q3-sinusoid-form"
+          },
+          "binding_id": "n4-positional-addnorm:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 作为 o2 的 practice 题，练习 PE(pos+k) 线性性推导，与目标表述一致。",
+          "locator": {
+            "question_id": "q4-relative-shift-linear"
+          },
+          "binding_id": "n4-positional-addnorm:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 作为 o2 的 check 题，检验固定编码与可学习版本的事实，属位置编码目标范围。",
+          "locator": {
+            "question_id": "q7-true-false-pe-learnable"
+          },
+          "binding_id": "n4-positional-addnorm:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 作为 o3 的 practice 题，练习 Add&Norm 表达式各符号含义。",
+          "locator": {
+            "question_id": "q5-addnorm-expression"
+          },
+          "binding_id": "n4-positional-addnorm:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 作为 o3 的 practice 题，练习残差连接与层归一化各自作用。",
+          "locator": {
+            "question_id": "q6-residual-vs-layernorm"
+          },
+          "binding_id": "n4-positional-addnorm:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 作为 o1 的 check 题，其第一问检验位置编码加入步骤，支持该目标。",
+          "locator": {
+            "question_id": "q8-self-check-short"
+          },
+          "binding_id": "n4-positional-addnorm:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 作为 o2 的 check 题，其第二问检验同维相加原因，支持该目标。",
+          "locator": {
+            "question_id": "q8-self-check-short"
+          },
+          "binding_id": "n4-positional-addnorm:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 作为 o3 的 check 题，其第三问检验 x 与 Sublayer(x) 含义，支持该目标。",
+          "locator": {
+            "question_id": "q8-self-check-short"
+          },
+          "binding_id": "n4-positional-addnorm:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "7fe7cd2dfaab384b6573ffa29a264d85e8dc8d40a8b24bf04709d1696510813c",
+      "numeric_verification": {
+        "version": 1,
+        "coverage": "source_bound_claims_and_literal_softmax",
+        "questions": [
+          {
+            "checks": [],
+            "question_index": 0
+          },
+          {
+            "checks": [],
+            "question_index": 1
+          },
+          {
+            "checks": [],
+            "question_index": 2
+          },
+          {
+            "checks": [],
+            "question_index": 3
+          },
+          {
+            "checks": [],
+            "question_index": 4
+          },
+          {
+            "checks": [],
+            "question_index": 5
+          },
+          {
+            "checks": [],
+            "question_index": 6
+          },
+          {
+            "checks": [],
+            "question_index": 7
+          }
+        ]
+      },
+      "option_binding_version": 1
+    }
+  }
+}

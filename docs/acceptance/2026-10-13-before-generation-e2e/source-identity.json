@@ -1,0 +1,14 @@
+{
+  "git_head": "9f49c13873bcbae3c1c83158425226df959cce24",
+  "dirty_tree": true,
+  "file_sha256": {
+    "backend/src/app/course_preparation/research_context_view.py": "c81300abf0b5a54371d370f06c27f30db0b096bb65975f9582a338cfdf3fd5c2",
+    "backend/src/app/course_preparation/harness_adapter.py": "32d5395d657ecc8e5169e6e45b6fcd08d9f37094eb6e0e277c836b3e08a7313d",
+    "backend/src/app/course_preparation/harness_provider.py": "88e6efe1a7615f339c1731edecdf5d2168abfd2f4d6d0c4dd175cf00049562a7",
+    "backend/src/app/course_preparation/harness_research.py": "befb40f9017866cd9ec8276896f0c556092ae35d2a050503fa38e50265313c19",
+    "backend/src/app/course_preparation/production_stages.py": "3cfefdbd3713120802da751302e963930fe68c2554db2e0dd29df8bda3783700",
+    "backend/src/scripts/preparation_before_generation_server.py": "0b1a611b1b8b71173881f53c2b15e27735cbffc8c1ba9487a397280bc6456c3b",
+    "backend/src/app/course_preparation/skills/build-learning-path/SKILL.md": "eb935529c360dde6091c64e71fc0712cca69d18cfb64492ee690f23daa2ce3b2",
+    "frontend/dist/index.html": "51f4df541a0d73bb6dd017bba74f2d61b96ca9e0a39396b86733317e59cab333"
+  }
+}

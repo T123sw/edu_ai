@@ -1,0 +1,224 @@
+{
+  "title": "整体结构：编码器-解码器与端到端数据流",
+  "content": {
+    "title": "整体结构：编码器-解码器与端到端数据流",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_4b5bec1c9489d2abac62f21a4cb7dac5",
+      "entry": "index.html",
+      "digest": "649b29c16473b187369ff1a14c074f54c57a074766b60a5cc462d0aa6f556505"
+    },
+    "timeline": {
+      "duration": 327.5,
+      "segments": [
+        {
+          "id": "01-skeleton",
+          "end": 18.3,
+          "start": 0.0,
+          "title": "骨架总览",
+          "events": [],
+          "narration": "这一节我们讲 Transformer 的整体骨架，以及数据从输入端一路走到输出端的过程。它沿用编码器-解码器结构：编码器把输入序列压缩成一组连续表示，解码器再基于这组表示，一个符号一个符号地生成输出。",
+          "audio_path": "assets/audio/46308a9522c7e5dc0674c83f3f5442c986a8e5bdc6380d72ce1fe770b381d060.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "标题落位后，编码器—z—解码器三段骨架在画面中依次点亮"
+        },
+        {
+          "id": "02-encoder",
+          "end": 41.400000000000006,
+          "start": 18.3,
+          "title": "编码器把输入压成 z",
+          "events": [],
+          "narration": "先看编码器。它的工作，是把输入符号表示序列 x1 到 xn，映射成同样长度的连续表示序列 z，也就是 z1 到 zn。注意这里是逐位置的映射：输入有几个位置，输出就有几个位置；变化的是每个位置上的内容，从离散的符号，变成了稠密的向量。",
+          "audio_path": "assets/audio/8552ea654a3f76f2bcf4b233f1f041003f011cffedb26d625dd411f518cf7ac3.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "离散词元组成的输入行被编码器逐位置映射成同样长度的连续向量行"
+        },
+        {
+          "id": "03-decoder",
+          "end": 65.5,
+          "start": 41.400000000000006,
+          "title": "解码器逐符号生成",
+          "events": [],
+          "narration": "再看解码器。给定 z，解码器生成输出符号序列 y1 到 ym，一次只生成一个元素。这里 m 和 n 不必相等，所以输入和输出可以有不同长度，这正是机器翻译这类序列转换任务需要的能力。解码器并不一次性给出整句话，它每走一步只做一个决定：下一个符号是什么。",
+          "audio_path": "assets/audio/2cb7cf12d82967cbe1d8bde0f378eced4e52f3ab3f0b8282d202b3e2a871bf13.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "解码器从 z 出发，在输出轨上每次只填一个槽位，输入与输出长度可以不同"
+        },
+        {
+          "id": "04-autoregressive",
+          "end": 98.8,
+          "start": 65.5,
+          "title": "自回归的确切含义",
+          "events": [],
+          "narration": "这个逐符号生成的过程叫自回归。意思是，模型把自己的输出再当成输入：生成下一个符号时，此前已经生成的符号会作为额外的输入一起喂回去。举例来说，要翻译 Transformer is powerful，当解码器已经生成 Transformer 很，它就根据这几个已生成的词元和 z，预测出下一个字：强。然后把强接回去，继续预测下一个。每一步都只看得到已经生成的输出，看不到未来。",
+          "audio_path": "assets/audio/0bd9b1da18df5601edd5d052e4b73f6206b0b6a4c33268dd76b07bd2b3171fa5.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "已生成序列被接回输入，逐字预测出「强」，再继续下一步"
+        },
+        {
+          "id": "05-dataflow",
+          "end": 121.19999999999999,
+          "start": 98.8,
+          "title": "数据流的六个阶段",
+          "events": [],
+          "narration": "把整条链路连起来，数据依次经过六个阶段：先分词并查词表索引，再做词嵌入，加上位置编码，进入编码器栈，然后进入解码器栈，最后由线性层加 softmax 输出下一个词元的概率。接下来我们按这个顺序，把每一步的输入和输出形态看一遍。",
+          "audio_path": "assets/audio/56a04ee943babd504bb1584047010a22ffd7d49761cb6e08d163ef18ba1b09e0.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "一条横向管线依次点亮六个阶段，右侧阶段轨标出当前位置"
+        },
+        {
+          "id": "06-tokenize",
+          "end": 144.89999999999998,
+          "start": 121.19999999999999,
+          "title": "第一步：分词与词表索引",
+          "events": [],
+          "narration": "第一步是分词。原始文本先被切成词元，Transformer is powerful 这句话被切成 Transformer、is、powerful 和句号四个词元。然后每个词元去词表里查一个整数索引，模型只看得到这些编号。到这一步为止，输入还只是一串离散的符号编号，没有任何语义。",
+          "audio_path": "assets/audio/5a3ee8636d6cccbfc77ce10efe6996e377453f7ab1a067a7bc6b0f895d9dc44d.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "一句话被切成四枚词元，然后各自去词表里查出一个整数索引"
+        },
+        {
+          "id": "07-embed-position",
+          "end": 181.89999999999998,
+          "start": 144.89999999999998,
+          "title": "词嵌入与位置编码",
+          "events": [],
+          "narration": "第二步是词嵌入。可学习的嵌入层把每个词元编号映射成一个 dmodel 维的向量，原始 base 模型里 dmodel 是 512，编号之间的语义关系开始体现在向量的数值上。但还有一个问题：Transformer 并行处理整个序列，模型本身并不感知词序。位置编码就是补上这一点的，它给出与嵌入维度相同的向量，逐元素加到词嵌入上，输入嵌入等于词嵌入加位置编码。加上它，狗咬人和人咬狗才不再是一堆相同的词。",
+          "audio_path": "assets/audio/a784def7d96505226c1fdc4103be1ab0ea9e12c2347ec6c9e76c047984a960e5.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "编号被换成向量，再逐元素加上位置编码；「狗咬人」与「人咬狗」因此可以区分"
+        },
+        {
+          "id": "08-encoder-stack",
+          "end": 218.99999999999997,
+          "start": 181.89999999999998,
+          "title": "第三步：编码器栈的内部",
+          "events": [],
+          "narration": "第三步，进入编码器栈。编码器由 N 等于 6 个相同的层堆叠而成。每一层有两个子层：先做多头自注意力，再做逐位置的全连接前馈网络。每个子层外围都有残差连接，后面接层归一化，所以子层的输出是 LayerNorm，输入加上子层输出。为了让残差可以直接相加，所有子层和嵌入层的输出维度都统一为 dmodel 等于 512。这里要说明，六个层、512 维是 2017 年原始 base 模型的设定，后来的变体并不都是这样。",
+          "audio_path": "assets/audio/74ad088e29025b812d89375d8a36c1b182843b7e14ed4884ff3e2d937cb39050.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "六层堆叠展开其中一层：多头自注意力、前馈网络、残差与层归一化"
+        },
+        {
+          "id": "09-decoder-stack",
+          "end": 251.29999999999995,
+          "start": 218.99999999999997,
+          "title": "第四步：解码器栈与掩码",
+          "events": [],
+          "narration": "解码器也是 6 个相同层的堆叠。每层比编码器多一个子层：在自注意力和前馈网络之间，插入一个对编码器栈输出做多头注意力的子层，它就是解码器读取 z 的入口。此外，解码器的自注意力被改成了带掩码的版本，禁止某个位置关注它后面的位置。再配合输出嵌入整体偏移一位，位置 i 的预测就只能依赖小于 i 的已知输出，这就是自回归在结构上的保证。",
+          "audio_path": "assets/audio/5777f986ffcf5da9a2ea1c19f9bf0627b7e4ca9ed064fdcadb90001cdf907605.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "解码器层多出一个读取编码器输出的子层，自注意力被掩码限制为只看左侧"
+        },
+        {
+          "id": "10-linear-softmax",
+          "end": 274.9,
+          "start": 251.29999999999995,
+          "title": "第五步：线性层与 softmax",
+          "events": [],
+          "narration": "最后一步，解码器的输出向量经过一个可学习的线性变换，投影到词表大小，得到每个词元的分值；再经过 softmax，变成加起来等于一的概率分布。概率最高的那个词元，就是这一步预测的下一个词。在刚才的例子里，强这个字会拿到最高的概率，被选出来，接到已生成序列的末尾。",
+          "audio_path": "assets/audio/7231a627291ab2441957cf3fd5da0ab81265cd74f79f691dd8abf95ff91d5dc0.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "解码器输出向量经线性层投到词表大小，softmax 后「强」拿到最高概率"
+        },
+        {
+          "id": "11-weight-sharing",
+          "end": 296.09999999999997,
+          "start": 274.9,
+          "title": "附注：共享权重与 √dmodel",
+          "events": [],
+          "narration": "这里还有一个常被忽略的设计：输入嵌入层、输出嵌入层，以及 softmax 之前的那个线性变换，三者共享同一个权重矩阵。此外，嵌入层的权重还要乘以 dmodel 的平方根。共享权重既减少了参数量，也让输入和输出两侧对词元的表示保持一致。",
+          "audio_path": "assets/audio/f4b44c3f12791bc7e3ad0187b8c58eb2ce1a26a2841901834f25a18b275e8178.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "输入嵌入、输出嵌入与 softmax 前的线性层共用同一权重矩阵，嵌入侧再乘 √dmodel"
+        },
+        {
+          "id": "12-recap",
+          "end": 327.49999999999994,
+          "start": 296.09999999999997,
+          "title": "收束：Q / K / V 接口与闭环",
+          "events": [],
+          "narration": "最后把接口点一下。解码器生成下一个词时，用已生成的序列产生查询 Q，用编码器输出提供键 K 和值 V，算出注意力权重后对 V 加权求和，得到上下文向量，源语言的词和目标语言的词就在这一步对齐。至于 Q、K、V 具体怎么算，留给后面的节点。到这里，整条数据流就闭环了：编码器压缩输入，解码器自回归地逐符号输出。",
+          "audio_path": "assets/audio/82aa087692560d889ea482716b17b1addb78c047a22c8495b6562b788706a9ad.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "解码器的 Q 与编码器的 K、V 对齐到「强」，最后收束成一条完整数据流"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 327.5
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.458333333333333
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "379562a59d066e29f4ce0c47b94d769a477dda27d69b97de9c4939f70acd4d8d",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 327.5
+      },
+      "content_digest": "239d8a025beae5c0106041b83c7be2b7a0db9c54412348cf896367dbb682667e",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.458333333333333
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "ac6f96f5089b8e010520beed08eeab4b525ec0a67b6cfe54bac8cf6b7b95d5d1"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "ff8b32762efab03431e235c659ccfddfe1fd07b3a16c83c7af28804e55a6c0fb",
+      "preparation_sha256": "7511051b4f918f8122d02991c8676546d696456d23bdbdf3c2c697d094ca27b1"
+    }
+  }
+}

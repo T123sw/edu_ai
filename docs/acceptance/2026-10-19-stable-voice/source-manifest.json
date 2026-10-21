@@ -1,0 +1,10 @@
+{
+  "services/local_tts/qwen_server.py": "92745d7e9a31f6767c95088b7cb574b488374303d2482622fe4bec06f4e7d65c",
+  "services/local_tts/voice_profile.py": "59e3d5fdd60aed0950a5b7fc2aac61eda897f76a70d21ef7ee499bee6fae4e65",
+  "backend/src/app/services/classroom_narration.py": "b596bd0b9af4ee04c6f94ac1ea1844cd00390f3915c01a7b696c4f806dc5d8ae",
+  "backend/src/tests/test_stable_voice.py": "72c83b320e96de1553e0588c7b93283774fd8f6613cf786432ff9404899fcd5f",
+  "backend/src/tests/test_tts_request_batching.py": "b84526d79a132d88a5199e9d208f159c08750c6e8b08da73d09e89ebb037b282",
+  "backend/src/tests/test_narration_whole_utterance.py": "e7d6f5f948d888a8cc04ed2b9af90aeb3100895bfcd8c5da87a38969bb5aa56e",
+  "services/local_tts/pitch.py": "80622a6044ef54bfca1da89a13ea096e39da6c78dd27c6b34b66b79c89893c59",
+  "backend/src/tests/test_voice_pitch.py": "37a8226c9c4a62986552b7c591d440216366fa616009549f51763b783a856ee5"
+}

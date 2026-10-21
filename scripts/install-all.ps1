@@ -25,15 +25,21 @@ Write-Host "==> Create or update the edu-ai Conda environment" -ForegroundColor 
 & conda env update --name edu-ai --file $EnvironmentFile --prune
 if ($LASTEXITCODE -ne 0) { throw "Conda environment update failed." }
 
-Write-Host "==> Install OpenMAIC dependencies" -ForegroundColor Cyan
-Invoke-InEduAiEnvironment pnpm --dir (Join-Path $RepoRoot "openmaic-sidecar") install --frozen-lockfile
+Write-Host "==> Install native HyperFrames dependencies" -ForegroundColor Cyan
+& git -C $RepoRoot submodule update --init --depth 1 -- vendor/hyperframes
+if ($LASTEXITCODE -ne 0) { throw "HyperFrames source checkout failed." }
+Invoke-InEduAiEnvironment npm --prefix (Join-Path $RepoRoot "hyperframes-runtime") ci
+Invoke-InEduAiEnvironment python (Join-Path $RepoRoot "scripts/prepare-hyperframes-runtime.py")
 
 Write-Host "==> Install frontend dependencies" -ForegroundColor Cyan
 Invoke-InEduAiEnvironment pnpm --dir (Join-Path $RepoRoot "frontend") install --frozen-lockfile
 
+Write-Host "==> Install pinned MAIC-UI native repository" -ForegroundColor Cyan
+Invoke-InEduAiEnvironment python (Join-Path $RepoRoot "scripts/install-maic-ui.py")
+
 if (-not $SkipBrowsers) {
     Write-Host "==> Install Playwright Chromium binaries" -ForegroundColor Cyan
-    Invoke-InEduAiEnvironment pnpm --dir (Join-Path $RepoRoot "openmaic-sidecar") exec playwright install chromium
+    Invoke-InEduAiEnvironment npm --prefix (Join-Path $RepoRoot "hyperframes-runtime") exec -- hyperframes browser ensure
     Invoke-InEduAiEnvironment pnpm --dir (Join-Path $RepoRoot "frontend") exec playwright install chromium
 }
 

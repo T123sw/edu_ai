@@ -1,0 +1,16 @@
+{
+  "patches": [
+    {
+      "file": "0008-bounded-exam-calculations.patch",
+      "sha256": "7421e0a7c1c2f690d5ac0371d5823e194dace0ce06a60314552e9335fb8c3057"
+    }
+  ],
+  "source_sha256": {
+    "pipeline.py": "5918ff58f03281b4ae6ab48a074078b3a5b5dd8bbd9bcc5c8aadd9a4f9a68dcb",
+    "calculation_check.py": "2341a10b9de9ef081b302f0dd3ea4afc157b3dd55b520d2522ef33a57a96452a",
+    "algorithm_checks.py": "acfc4439d6c79d5efe8157dac99bb19c8e5820155d1062e9edde575e57c3b2ea",
+    "answer_evidence.py": "411245a7b84012b3a0833f20a8ec28c14b3866e3173026e8b5dc14b9771def91",
+    "tree_explanation.py": "636e4997fedd5564c9e8c68adb8efc66fb9800f30a26b3711c79fa41c71b6e07",
+    "exam_retry.py": "9d69d07e1cc78ce8424ff2130f8aa78a19c91d660f8c00230b9880fe587b3d7d"
+  }
+}

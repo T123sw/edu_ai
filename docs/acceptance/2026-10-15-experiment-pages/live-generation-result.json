@@ -1,0 +1,11 @@
+{
+  "id": "job_3aeff94f1c8d45a8",
+  "protocol": "edu-experiment/2",
+  "seconds": 82.84,
+  "modelCalls": 5,
+  "demoSteps": 6,
+  "tasks": 3,
+  "mockedRequests": 0,
+  "generatedFromProductionUi": true,
+  "retryFromProductionUi": true
+}

@@ -90,6 +90,33 @@ def test_tools_reject_unmounted_calls_and_defer_second_decision():
     assert tools.result == ('record_input_document', {'summary': 'one'})
 
 
+def test_accepted_decision_at_call_limit_closes_without_another_model_request():
+    import httpx
+    from app.course_preparation.harness_provider import harness_provider
+    calls = []
+    def complete(request):
+        calls.append(request)
+        return httpx.Response(200, json={'choices': [{'index': 0, 'finish_reason': 'stop',
+            'message': {'role': 'assistant', 'content': 'fixture'}}]})
+    model = adapter(client_factory=lambda **kw: httpx.Client(transport=httpx.MockTransport(complete), **kw))
+    model.gateway._build_headers = lambda key: {}
+    model.gateway._thinking_params = lambda name: {}
+    toolset = IntakeTools([TOOL])
+    with harness_provider(model, timeout=5, toolset=toolset, max_calls=1) as (url, token, state):
+        def post():
+            req = Request(url + '/chat/completions', data=json.dumps({'messages': []}).encode(),
+                headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'})
+            with urlopen(req) as response:
+                return json.load(response)
+        post()
+        assert toolset.call('record_input_document', {'summary': 'ready'})['ok']
+        result = post()
+        assert result['model'] == 'workflow-terminal'
+        assert result['usage']['total_tokens'] == 0
+        assert state['error'] is None and state['calls'] == 1
+    assert len(calls) == 1
+
+
 @pytest.mark.parametrize('phase,tool_name', [('input_document','record_input_document'), ('intent','save_preparation_brief'),
     ('research','search_sources'), ('research','fetch_source'), ('research','record_evidence_finding'),
     ('research','finalize_research_summary'), ('plan','save_course_plan'),
@@ -107,7 +134,7 @@ def test_real_sdk_round_trip_is_metered_and_only_exposes_intake_tool(phase, tool
         names = [tool['function']['name'] for tool in body.get('tools', [])]
         business_names = [name for name in names if name != 'skill']
         assert len(business_names) == 1 and business_names[0].endswith(tool_name), names
-        assert 'skill' in names
+        assert 'skill' not in names  # The slash command already loaded this Skill.
         from app.course_preparation.workflow_skills import load_workflow_skill, skill_is_loaded
         skill = load_workflow_skill(phase)
         assert skill_is_loaded(body['messages'], skill)
@@ -135,7 +162,7 @@ def test_real_sdk_round_trip_is_metered_and_only_exposes_intake_tool(phase, tool
     model.gateway._thinking_params = lambda name: {}
     tool = {**TOOL, 'function': {**TOOL['function'], 'name': tool_name}}
     assert model.decide({**CONTEXT, 'phase': phase}, [tool], timeout=30) == (tool_name, {'summary': '工具调用'})
-    assert len(calls) == len(ledger) == 2
+    assert len(calls) == len(ledger) == 1
     assert all(row['usage']['total_tokens'] == 60 for row in ledger)
     assert all(row['response_data']['runtime'] == 'deepseek-harness' for row in ledger)
     assert all(row['response_data']['skill']['loaded'] for row in ledger)
@@ -211,7 +238,7 @@ def test_real_sdk_batch_accepts_one_action_and_explicitly_defers_rest():
     result = model.decide({**CONTEXT,'phase':'research'},[TOOL],timeout=30)
     assert result[0] == 'record_input_document'
     assert result[1]['summary'] in ('0','1')
-    assert len(requests) == 2
+    assert len(requests) == 1
 
 
 @pytest.mark.parametrize('case', ['unmounted', 'duplicate_id', 'invalid_json'])

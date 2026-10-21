@@ -1,0 +1,14 @@
+{
+  "health": {
+    "status": "ok",
+    "version": "1.6.14",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "scope": "internal_bridge",
+    "exam_ready": false
+  },
+  "unauthenticated_status": 401,
+  "owner_scoped_missing_turn_status": 404,
+  "cold_owner_read_seconds": 2.928,
+  "real_model_calls": 0,
+  "service_stopped": true
+}

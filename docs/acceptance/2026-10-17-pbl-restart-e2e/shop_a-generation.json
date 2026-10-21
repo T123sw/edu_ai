@@ -1,0 +1,193 @@
+{
+  "case": "shop_a",
+  "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+  "exerciseId": "pbl_6dceeafafe176e167b8901ec971c6a3d",
+  "generationPassed": true,
+  "job": {
+    "schema_version": 2,
+    "version": 20,
+    "edu_job_id": "pbl_6dceeafafe176e167b8901ec971c6a3d",
+    "kind": "generate_pbl",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "编程项目已就绪，可以开始实现",
+    "owner_user_id": "matrix_shop_a",
+    "owner": "matrix_shop_a",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_6dceeafafe176e167b8901ec971c6a3d",
+    "input_summary": {
+      "title": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+      "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+      "exercise_id": "pbl_6dceeafafe176e167b8901ec971c6a3d"
+    },
+    "result_ref": {
+      "exercise_id": "pbl_6dceeafafe176e167b8901ec971c6a3d",
+      "resource_type": "pbl_exercise"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-10-17T08:28:31.966913+00:00",
+    "started_at": "2026-10-17T08:31:37.159508+00:00",
+    "finished_at": "2026-10-17T08:35:01.857795+00:00",
+    "updated_at": "2026-10-17T08:35:01.857795+00:00"
+  },
+  "events": [
+    {
+      "seconds": 2.34,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 186.8,
+      "state": [
+        "running",
+        "running",
+        "任务已由后台工作器接管"
+      ]
+    },
+    {
+      "seconds": 188.86,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 197.13,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：添加商品与空白校验"
+      ]
+    },
+    {
+      "seconds": 203.45,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：添加商品与空白校验"
+      ]
+    },
+    {
+      "seconds": 222.05,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：增减数量"
+      ]
+    },
+    {
+      "seconds": 228.25,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：增减数量"
+      ]
+    },
+    {
+      "seconds": 230.3,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：增减数量"
+      ]
+    },
+    {
+      "seconds": 253.28,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：切换购买状态与删除"
+      ]
+    },
+    {
+      "seconds": 261.54,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：切换购买状态与删除"
+      ]
+    },
+    {
+      "seconds": 265.75,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：切换购买状态与删除"
+      ]
+    },
+    {
+      "seconds": 293.19,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：按状态筛选"
+      ]
+    },
+    {
+      "seconds": 301.58,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：按状态筛选"
+      ]
+    },
+    {
+      "seconds": 307.88,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：按状态筛选"
+      ]
+    },
+    {
+      "seconds": 336.79,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：统计种类数与待购买总件数"
+      ]
+    },
+    {
+      "seconds": 343.03,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：统计种类数与待购买总件数"
+      ]
+    },
+    {
+      "seconds": 357.48,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：统计种类数与待购买总件数"
+      ]
+    },
+    {
+      "seconds": 392.74,
+      "state": [
+        "succeeded",
+        "completed",
+        "编程项目已就绪，可以开始实现"
+      ]
+    }
+  ],
+  "seconds": 392.79,
+  "idempotentCreate": true,
+  "stepCount": 5,
+  "checkCount": 15
+}

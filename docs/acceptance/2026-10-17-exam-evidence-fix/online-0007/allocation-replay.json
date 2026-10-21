@@ -1,0 +1,17 @@
+{
+  "model_calls": 0,
+  "turns": [
+    {
+      "turn_id": "turn_1792259781722_974e215921",
+      "payloads": 3,
+      "expressions": 15
+    },
+    {
+      "turn_id": "turn_1792260395496_8cc5d8d255",
+      "payloads": 1,
+      "expressions": 25
+    }
+  ],
+  "mismatches": [],
+  "passed": true
+}

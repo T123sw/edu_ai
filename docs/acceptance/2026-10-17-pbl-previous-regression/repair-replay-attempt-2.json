@@ -1,0 +1,82 @@
+{
+  "productionDataModified": false,
+  "seededOriginalFailure": true,
+  "normalization": "Removed exactly one trailing } from saved last candidate, solely to exercise the subsequent prior-regression failure.",
+  "passed": false,
+  "errorType": "DurableTaskExecutionError",
+  "error": "项目步骤经过修复仍未通过运行检查，请重试",
+  "modelCalls": [
+    "repair_step",
+    "repair_step"
+  ],
+  "phaseEvents": [
+    {
+      "phase": "plan",
+      "step": null
+    },
+    {
+      "phase": "build_step",
+      "step": "add-and-list"
+    },
+    {
+      "phase": "build_checks",
+      "step": "add-and-list"
+    },
+    {
+      "phase": "build_step",
+      "step": "empty-guard"
+    },
+    {
+      "phase": "build_checks",
+      "step": "empty-guard"
+    },
+    {
+      "phase": "build_step",
+      "step": "toggle-and-delete"
+    },
+    {
+      "phase": "repair_step",
+      "step": "toggle-and-delete"
+    },
+    {
+      "phase": "repair_step",
+      "step": "toggle-and-delete"
+    }
+  ],
+  "seconds": 39.58,
+  "lastPreviousReport": {
+    "stepId": "toggle-and-delete",
+    "referenceHash": "ae7c354c07f1cc9856e39bd34384f709a52ca9b6176fe2a6fa110ec13ecd13aa",
+    "previousHash": "aea2aec642a944037865380d21e6a414321d0250b02a7c00f2416c5c9fb20afa",
+    "checkIds": [
+      "add-book-appears",
+      "add-book-clears-input",
+      "empty-shows-hint",
+      "empty-no-add"
+    ],
+    "passed": false,
+    "results": [
+      {
+        "caseId": "add-book-appears",
+        "status": "failed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"活着\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 检查 \"book-item\" 的可见状态\n   实际：true\n× 5. 检查 \"book-item\" 的显示文字\n预期：\"活着未读\"\n实际：\"活着未读标记已读删除\""
+      },
+      {
+        "caseId": "add-book-clears-input",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"活着\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "empty-shows-hint",
+        "status": "passed",
+        "message": "✓ 1. 点击 \"add-button\"\n✓ 2. 检查 \"empty-hint\" 的可见状态\n   实际：true\n✓ 3. 检查 \"empty-hint\" 的显示文字\n   实际：\"请输入书名\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "empty-no-add",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：0\n✓ 4. 检查 \"empty-hint\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+      }
+    ],
+    "durationMs": 2674.771348
+  }
+}

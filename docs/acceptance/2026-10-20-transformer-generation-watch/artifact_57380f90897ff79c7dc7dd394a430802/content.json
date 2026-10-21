@@ -1,0 +1,188 @@
+{
+  "title": "取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界",
+  "content": {
+    "title": "取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_57380f90897ff79c7dc7dd394a430802",
+      "entry": "index.html",
+      "digest": "771bfe848853aea5f2d67c4afb76ab7514ad6bd7d2443c2b52f07ee8ad2f9489"
+    },
+    "timeline": {
+      "duration": 289.6,
+      "segments": [
+        {
+          "id": "01-opening",
+          "end": 28.9,
+          "start": 0.0,
+          "title": "开场：一个取舍问题",
+          "events": [],
+          "narration": "前面我们看清了 Transformer 的整体结构，也拆开了缩放点积注意力。这一节只回答一个问题：既然循环网络已经能做序列到序列的任务，为什么还要换成自注意力？那句常听到的“完全并行”，又在什么范围内成立？判断不靠直觉，靠三个可量化的角度：每层计算复杂度、最少顺序操作数、以及任意两个位置之间的最大路径长度。",
+          "audio_path": "assets/audio/6aac4159a3cc7bf3aa40d23b72c159a3492ea02233b082ffdb60d1f8bb718664.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "大标题抛出问题，右侧三枚衡量角度胶囊依次落位"
+        },
+        {
+          "id": "02-recurrence",
+          "end": 58.4,
+          "start": 28.9,
+          "title": "循环的固有串行性",
+          "events": [],
+          "narration": "先看被替换的一方。循环模型沿符号位置分解计算：每一步的隐藏状态，都由前一个隐藏状态和当前位置的输入共同决定。对齐到计算时间上，位置 t 必须等位置 t 减一算完，这就形成一条长度等于序列长度的依赖链。代价不只是慢：一个训练样本内部无法并行，只能在样本之间批处理，序列越长，可并行的批量越受显存限制。",
+          "audio_path": "assets/audio/aa45efd2ac23f23f73987ff07bba0e5b3ad629d1421ba1343909bab3788d1908.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "五节点隐藏状态链逐节点点亮，下方阶梯标出顺序步数"
+        },
+        {
+          "id": "03-three-lenses",
+          "end": 85.9,
+          "start": 58.4,
+          "title": "三个衡量角度",
+          "events": [],
+          "narration": "那怎么公平地比较不同的层类型？原论文给了三个角度。第一，每层的计算复杂度，一层要花多少计算量。第二，可以并行化的计算量，用最少顺序操作数衡量，也就是把所有位置并行算完需要几个串行步骤。第三，长程依赖的最大路径长度，信号从一个位置走到另一个位置要穿过多少层；路径越短，长程依赖越容易学。",
+          "audio_path": "assets/audio/9bbd8d147f1347059ba1e22b99a4ce3b0290e9a3856902c870666b5cd4403cec.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三张角度卡片自下而上组装，底部指向同一张空表格"
+        },
+        {
+          "id": "04-complexity",
+          "end": 118.10000000000001,
+          "start": 85.9,
+          "title": "第一列：每层计算复杂度",
+          "events": [],
+          "narration": "先填第一列，每层计算复杂度。自注意力是 n 平方乘 d 的量级：n 个位置两两打分，得到一个 n 乘 n 的注意力矩阵，每个元素是一次长度为 d 的点积。循环层是 n 乘 d 平方：n 个时间步，每步把 d 维输入乘上 d 乘 d 的权重矩阵。卷积层是 k 乘 n 乘 d 平方：核宽 k，深度可分离卷积能压小后面的项，但单个卷积核宽小于序列长度时，连不上所有位置对。",
+          "audio_path": "assets/audio/380534aa36892ab83a8c7e4d7c9b4b71c82348197240e22720f8112da9fd84a7.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三行对比表出现，第一列被点亮并逐行填入复杂度"
+        },
+        {
+          "id": "05-sequential-path",
+          "end": 157.0,
+          "start": 118.10000000000001,
+          "title": "第二、三列：顺序操作数与路径长度",
+          "events": [],
+          "narration": "第二列，最少顺序操作数。自注意力是常数级：所有位置同时打分、同时加权求和，一层只要常数个串行步骤。循环是 n 级：第 t 步必须等第 t 减一步，顺序步数等于序列长度。卷积也是常数级，每个输出只依赖固定窗口内的输入。第三列，最大路径长度。自注意力是常数：任意两个位置一步直达。循环是 n：信息要沿链一步步传。卷积是对数级：以 k 为底、n 的对数，需要 n 除以 k 层连续卷积，或者用膨胀卷积压到对数层。",
+          "audio_path": "assets/audio/c7d2bb214a10116562c908ae5cd3cb278fc0d4b7c547fb6e13b4c2eb5fa0357b.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "同一张表继续填第二列与第三列，逐项对比"
+        },
+        {
+          "id": "06-n-condition",
+          "end": 193.8,
+          "start": 157.0,
+          "title": "条件：n < d",
+          "events": [],
+          "narration": "这里有个必须说清的条件。比较 n 平方乘 d 和 n 乘 d 平方，同时约掉 n 和 d，剩下就是 n 与 d 比大小：当序列长度 n 小于表示维度 d 时，自注意力每层反而更省。这在句子上通常成立。原论文用 word piece 和 byte pair 表示，句子长度只有几十，而模型维度是五百一十二。比如 n 取四十、d 取五百一十二，n 平方乘 d 约八十二万，n 乘 d 平方约一千万，差一个数量级。",
+          "audio_path": "assets/audio/be1492fee746acb8f47d2c17107fa77fa87e9d6a28591b9454f4adad17278946.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "两个复杂度公式约简成 n 与 d 比较，再用具体数字与横条对比"
+        },
+        {
+          "id": "07-cost",
+          "end": 224.5,
+          "start": 193.8,
+          "title": "代价与受限自注意力",
+          "events": [],
+          "narration": "代价也要摆在同一张表上。自注意力的复杂度对 n 是平方的：序列翻倍，每层计算量和注意力矩阵的内存都变成四倍，长序列下这就是瓶颈。原论文给出一条缓解路径：每个位置只看邻域 r 以内的位置，就是受限自注意力。复杂度从 n 平方乘 d 降到 r 乘 n 乘 d，代价是最大路径长度从常数升到 n 除以 r。账没有消失，只是换了位置。",
+          "audio_path": "assets/audio/72a53eb2d39c60a7b6dd37ba21b290280c436f031d252f234299f0f44b3dded8.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "平方增长曲线上升，再用邻域窗口说明受限自注意力的交换"
+        },
+        {
+          "id": "08-parallel-boundary",
+          "end": 257.4,
+          "start": 224.5,
+          "title": "完全并行的边界",
+          "events": [],
+          "narration": "现在说那句最容易误解的“完全并行”。它只对编码器，以及训练时的解码器成立。训练用教师强制：解码器输入是真实目标句右移一位的结果，因果掩码保证位置 i 只能看到位置一到 i，于是所有位置的预测能在一次前向里同时算出。推理时没有真实答案，第 i 个词元必须等第 i 减一个选出来，才能作为输入。生成 m 个词元，仍然需要 m 次顺序前向。",
+          "audio_path": "assets/audio/180e7848cd8589c904b0953278005b0ac792a6e0301953b9976bd1f568ed4c5c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左右分屏：训练一次前向并行 vs 生成 m 个词元 m 次前向"
+        },
+        {
+          "id": "09-conclusion",
+          "end": 289.59999999999997,
+          "start": 257.4,
+          "title": "结论与工程佐证",
+          "events": [],
+          "narration": "把这些放在一起，判断就清楚了。自注意力用常数个顺序操作，换来常数级的路径长度，代价是每层随 n 平方增长的复杂度；“完全并行”只覆盖编码器和训练时的解码器，不覆盖自回归生成。工程上的回报是真实的：原论文的模型在八块 P100 上训练十二小时，就达到了新的翻译质量最优。所以下次有人问 Transformer 为什么快，先问他一句：你说的是训练，还是生成？",
+          "audio_path": "assets/audio/9bb4f231b834a21adb5b45d47f6ef0469721474dab28927a15c7170fdf6842b8.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三行小结逐行落位，工程数据与最后判断句收束"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 289.6
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.826666666666667
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "7f7666069426803c4a76327ef9068d01e3e94e5b5b08914854ef66642c4e3bc3",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 289.6
+      },
+      "content_digest": "1dd97567694656d0793298aa00798901be4ad3444cc5de86475f41e952a61d3d",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.826666666666667
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "33cfca6f697970bc4c7087b367240f9e4724838d43c8681478ea128b0b3724ca"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "d061447c8e05fd70ea4f9a3e9a4c2c7d019984532d2c2be33225742f59d4f28e",
+      "preparation_sha256": "12c8a1e53051a9ba717b5379a63b76fde4dec1c4bc465add3569f47081f2833e"
+    }
+  }
+}

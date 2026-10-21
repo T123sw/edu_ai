@@ -1,0 +1,156 @@
+{
+  "case": "wizard",
+  "topic": "用 React 做一个本地两步报名向导。第1步填写姓名和年龄：姓名去空格后非空，年龄必须是18到60的整数，通过后才能下一步。第2步选择线上或线下并勾选同意条款，点击提交后显示姓名、年龄和参加方式。第2步可返回第1步，已填内容保留；成功后点击重新填写，所有字段和错误恢复空白初始状态。拒绝18.5、17、61和空年龄。只做本地状态，不联网，分步实现。",
+  "exerciseId": "pbl_31f2c52574f0691cacd3ea723c5adb70",
+  "generationPassed": false,
+  "job": {
+    "schema_version": 2,
+    "version": 16,
+    "edu_job_id": "pbl_31f2c52574f0691cacd3ea723c5adb70",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_wizard",
+    "owner": "matrix_wizard",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_31f2c52574f0691cacd3ea723c5adb70",
+    "input_summary": {
+      "title": "用 React 做一个本地两步报名向导。第1步填写姓名和年龄：姓名去空格后非空，年龄必须是18到60的整数，通过后才能下一步。第2步选择线上或线下并勾选同意条款，点击提交后显示姓名、年龄和参加方式。第2步可返回第1步，已填内容保留；成功后点击重新填写，所有字段和错误恢复空白初始状态。拒绝18.5、17、61和空年龄。只做本地状态，不联网，分步实现。",
+      "topic": "用 React 做一个本地两步报名向导。第1步填写姓名和年龄：姓名去空格后非空，年龄必须是18到60的整数，通过后才能下一步。第2步选择线上或线下并勾选同意条款，点击提交后显示姓名、年龄和参加方式。第2步可返回第1步，已填内容保留；成功后点击重新填写，所有字段和错误恢复空白初始状态。拒绝18.5、17、61和空年龄。只做本地状态，不联网，分步实现。",
+      "exercise_id": "pbl_31f2c52574f0691cacd3ea723c5adb70"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error_code": "PBL_VALIDATION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:20:54.463999+00:00",
+    "started_at": "2026-10-17T09:22:29.247638+00:00",
+    "finished_at": "2026-10-17T09:24:41.863462+00:00",
+    "updated_at": "2026-10-17T09:24:41.863462+00:00"
+  },
+  "events": [
+    {
+      "seconds": 3.93,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 97.7,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 106.59,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：第 1 步：填写并校验姓名与年龄"
+      ]
+    },
+    {
+      "seconds": 115.45,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：第 1 步：填写并校验姓名与年龄"
+      ]
+    },
+    {
+      "seconds": 133.1,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：第 2 步：选择参加方式并提交显示结果"
+      ]
+    },
+    {
+      "seconds": 141.9,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：第 2 步：选择参加方式并提交显示结果"
+      ]
+    },
+    {
+      "seconds": 146.72,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：第 2 步：选择参加方式并提交显示结果"
+      ]
+    },
+    {
+      "seconds": 166.67,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：第 2 步：选择参加方式并提交显示结果"
+      ]
+    },
+    {
+      "seconds": 173.34,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：第 2 步：选择参加方式并提交显示结果"
+      ]
+    },
+    {
+      "seconds": 177.85,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：第 2 步：选择参加方式并提交显示结果"
+      ]
+    },
+    {
+      "seconds": 200.15,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：第 2 步：选择参加方式并提交显示结果"
+      ]
+    },
+    {
+      "seconds": 206.65,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：第 2 步：选择参加方式并提交显示结果"
+      ]
+    },
+    {
+      "seconds": 211.05,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：第 2 步：选择参加方式并提交显示结果"
+      ]
+    },
+    {
+      "seconds": 230.41,
+      "state": [
+        "failed",
+        "failed",
+        "任务执行失败"
+      ]
+    }
+  ],
+  "seconds": 230.42,
+  "idempotentCreate": true
+}

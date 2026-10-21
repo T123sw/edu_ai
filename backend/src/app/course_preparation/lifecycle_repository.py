@@ -8,7 +8,7 @@ from app.database.models import (CoursePreparationRecord as Prep, CoursePreparat
 from .repository import PreparationRepository, aware
 from .contracts import PreparationEvent
 from .runtime_models import PreparationExecution as Run, PreparationBudget as Budget, PreparationAction as Action
-from .runtime_contracts import BudgetCost, BudgetLimits, ExecutionContext
+from .runtime_contracts import BudgetCost, BudgetLimits, ExecutionContext, budget_deadline
 from .schemas import PreparationRequest, request_digest
 from .tool_registry import digest
 
@@ -23,7 +23,9 @@ class NoProgress(RuntimeError): pass
 TRANSITIONS = {
     'normalize': {'ingest', 'research_scope'}, 'ingest': {'research_scope'},
     'research_scope': {'plan'}, 'plan': {'research_scope', 'research_nodes'},
-    'research_nodes': {'produce', 'research_scope'}, 'produce': {'review'}, 'review': {'repair', 'commit'},
+    'research_nodes': {'produce', 'research_scope'}, 'produce': {'review'},
+    # Policy recovery can resume delivery of an existing classroom candidate.
+    'review': {'repair', 'commit', 'produce'},
     'repair': {'research_nodes', 'produce', 'review'}, 'commit': set(),
 }
 REQUIRED = {'ingest': 'brief', 'research_scope': 'brief', 'plan': 'research_summary',
@@ -32,13 +34,17 @@ ACTIVE = ('accepted', 'running', 'checking')
 
 
 class LifecycleRepository(PreparationRepository):
-    def __init__(self, engine, *, authorizer, clock=None):
+    def __init__(self, engine, *, authorizer, clock=None, retry_only=False, cancel_tasks=None):
         super().__init__(engine, authorizer=authorizer)
         self.clock = clock or (lambda: datetime.now(timezone.utc))
+        self.retry_only = retry_only
+        self.cancel_tasks = cancel_tasks
 
     def initialize(self, session, record, options=None):
         options = options or {}
         limits = BudgetLimits.model_validate(options.get('limits', {}))
+        if self.retry_only:
+            limits = limits.model_copy(update={'retry_only': True})
         now = self.clock()
         session.add(Budget(preparation_id=record.preparation_id, deadline=now + timedelta(seconds=limits.seconds),
             limits=limits.model_dump(), reserved=BudgetCost().model_dump(), consumed=BudgetCost().model_dump()))
@@ -48,7 +54,7 @@ class LifecycleRepository(PreparationRepository):
 
     def submit(self, owner, request, *, limits=None, config_snapshot=None):
         value = self.accept(owner_user_id=owner, request=request, runtime_options={
-            'limits': (limits or BudgetLimits()).model_dump(), 'config_snapshot': config_snapshot or {}})
+            'limits': (limits or BudgetLimits(retry_only=self.retry_only)).model_dump(), 'config_snapshot': config_snapshot or {}})
         return self.get_public(owner, value.preparation_id)
 
     def _owner(self, session, owner, preparation_id):
@@ -83,10 +89,12 @@ class LifecycleRepository(PreparationRepository):
         if prep.owner_user_id != context.owner_user_id or run.input_digest != prep.request_sha256:
             raise StaleLease('CHECKPOINT_INPUT_CHANGED')
         budget = session.get(Budget, prep.preparation_id)
-        if not allow_expired_deadline and aware(budget.deadline) <= self.clock():
+        if self.retry_only and not budget.limits.get('retry_only'):
+            budget.limits = {**budget.limits, 'retry_only': True}
+        if not allow_expired_deadline and budget_deadline(budget) and budget_deadline(budget) <= self.clock():
             raise BudgetExceeded('DEADLINE_EXCEEDED')
         if authorize:
-            self.authorizer.authorize(prep.owner_user_id, PreparationRequest.model_validate(prep.request_payload))
+            self._authorize(session, prep.owner_user_id, PreparationRequest.model_validate(prep.request_payload))
         return prep, attempt, run, budget
 
     def get_public(self, owner, preparation_id):
@@ -95,11 +103,17 @@ class LifecycleRepository(PreparationRepository):
             attempt = session.get(Attempt, (preparation_id, prep.current_attempt_no))
             run = session.get(Run, (preparation_id, prep.current_attempt_no))
             budget = session.get(Budget, preparation_id)
+            limits = {**budget.limits, 'retry_only': self.retry_only or budget.limits.get('retry_only', False)}
+            from .failure_explanation import failure_explanation
             return {'preparation_id': preparation_id, 'attempt_no': attempt.attempt_no, 'status': attempt.status,
+                    'created_at': aware(prep.created_at).isoformat(),
                     'stage': attempt.stage, 'revision': prep.revision, 'error_code': run.error_code,
-                    'result_ref': run.result_ref if attempt.status == 'succeeded' else None,
-                    'budget': {'limits': budget.limits, 'reserved': budget.reserved, 'consumed': budget.consumed,
-                               'deadline': aware(budget.deadline).isoformat()}}
+                    'failure': failure_explanation(session, prep, attempt, run),
+                    'result_ref': run.result_ref,
+                    'budget': {'limits': ({**limits, 'calls': None, 'tokens': None,
+                                           'cost_micro_usd': None, 'seconds': None} if limits['retry_only'] else limits),
+                               'reserved': budget.reserved, 'consumed': budget.consumed,
+                               'deadline': None if limits['retry_only'] else budget_deadline(budget).isoformat()}}
 
     def events(self, *, owner_user_id, preparation_id, after=0, limit=100):
         if type(after) is not int or after < 0 or type(limit) is not int or not 1 <= limit <= 500:
@@ -127,14 +141,16 @@ class LifecycleRepository(PreparationRepository):
                 return None
             prep, attempt, run = record
             budget = session.get(Budget, prep.preparation_id)
+            if self.retry_only and not budget.limits.get('retry_only'):
+                budget.limits = {**budget.limits, 'retry_only': True}
             error = None
             try:
-                self.authorizer.authorize(prep.owner_user_id, PreparationRequest.model_validate(prep.request_payload))
+                self._authorize(session, prep.owner_user_id, PreparationRequest.model_validate(prep.request_payload))
             except (PermissionError, LookupError):
                 error = 'SOURCE_OR_OWNER_UNAVAILABLE'
             except RevisionConflict:
                 error = 'MANIFEST_BASE_CHANGED'
-            if aware(budget.deadline) <= now:
+            if budget_deadline(budget) and budget_deadline(budget) <= now:
                 error = 'DEADLINE_EXCEEDED'
             if run.input_digest != prep.request_sha256:
                 error = 'CHECKPOINT_INPUT_CHANGED'
@@ -152,7 +168,8 @@ class LifecycleRepository(PreparationRepository):
             return ExecutionContext(preparation_id=prep.preparation_id, attempt_no=attempt.attempt_no,
                 owner_user_id=prep.owner_user_id, lease_token=run.lease_token, revision=prep.revision,
                 stage=attempt.stage, operation=prep.operation, source_policy=prep.request_payload['source_policy']['mode'],
-                checkpoint=run.checkpoint, capabilities=tuple(capabilities), deadline=aware(budget.deadline).isoformat())
+                checkpoint=run.checkpoint, capabilities=tuple(capabilities),
+                deadline=budget_deadline(budget).isoformat() if budget_deadline(budget) else None)
 
     def checkpoint(self, context, value, *, count_no_progress=True):
         with Session(self.engine) as session, session.begin():
@@ -178,7 +195,7 @@ class LifecycleRepository(PreparationRepository):
             # only derived context; completed old child outputs remain drafts.
             state.update(phase='intent', brief=None, summary=None, path=None, review=None, errors=0, last_error=None)
             discarded = {key:previous[key] for key in ('plan','artifacts','quality','memory_refs') if key in previous}
-            run.checkpoint = {key:previous[key] for key in ('config_snapshot','ingested_documents','input_documents') if key in previous}
+            run.checkpoint = {key:previous[key] for key in ('config_snapshot','ingested_documents','input_documents','partial_delivery') if key in previous}
             run.checkpoint.update(research_state=state, invalidated_drafts=[*previous.get('invalidated_drafts', []), discarded],
                                   context_rebuild_epoch=watermark.epoch)
             attempt.stage = 'normalize'
@@ -198,6 +215,43 @@ class LifecycleRepository(PreparationRepository):
             _, _, run, _ = self._locked(session, context)
             run.lease_token, run.lease_until, run.worker_id = None, None, None
             run.wake_at = self.clock() + timedelta(seconds=max(0, min(delay_seconds, 300)))
+
+    def defer_provider_retry(self, context, code):
+        """Retry analysis reads from durable state, without replaying generation writes.
+
+        Review and production own their recovery protocols. In particular, an
+        ambiguous generation submission must reconcile its receipt before retry.
+        """
+        if context.stage not in ('normalize', 'research_scope', 'plan', 'research_nodes'):
+            return None
+        if code not in ('PROVIDER_TIMEOUT', 'PROVIDER_UNAVAILABLE', 'HARNESS_UNAVAILABLE'):
+            return None
+        with Session(self.engine) as session, session.begin():
+            prep, attempt, run, budget = self._locked(session, context)
+            if attempt.stage != context.stage:
+                return None
+            # Handlers may have checkpointed evidence and spent calls after the
+            # original claim. Never overwrite them with context.checkpoint.
+            checkpoint = dict(run.checkpoint)
+            retries = dict(checkpoint.get('stage_provider_retries', {}))
+            previous = retries.get(context.stage, {})
+            count = previous.get('count', 0) if previous.get('attempt_no') == context.attempt_no else 0
+            if count >= 2:
+                return None
+            delay = 5 * (count + 1)
+            now = self.clock()
+            if budget_deadline(budget) and now + timedelta(seconds=delay) >= budget_deadline(budget):
+                raise BudgetExceeded('DEADLINE_EXCEEDED')
+            retry = {'attempt_no': context.attempt_no, 'count': count + 1, 'code': code}
+            retries[context.stage] = retry
+            run.checkpoint = {**checkpoint, 'stage_provider_retries': retries}
+            run.wake_at = now + timedelta(seconds=delay)
+            run.lease_token, run.lease_until, run.worker_id = None, None, None
+            self._event(session, prep, attempt, 'stage_changed', {
+                'stage': context.stage, 'reason': 'PROVIDER_RETRY',
+                'retry': retry, 'retry_at': run.wake_at.isoformat(),
+            })
+            return delay
 
     def transition(self, context, stage, *, reason=None):
         with Session(self.engine) as session, session.begin():
@@ -227,10 +281,12 @@ class LifecycleRepository(PreparationRepository):
             run.lease_token, run.lease_until = None, None
             self._event(session, prep, attempt, 'failed', {'code': code})
 
-    def cancel(self, owner, preparation_id, *, expected_revision=None):
+    def cancel(self, owner, preparation_id, *, expected_revision=None, expected_attempt_no=None):
         with Session(self.engine) as session, session.begin():
             prep = session.scalar(select(Prep).where(Prep.preparation_id == preparation_id).with_for_update())
             self._owner(session, owner, preparation_id)
+            if expected_attempt_no is not None and prep.current_attempt_no != expected_attempt_no:
+                raise RevisionConflict('ATTEMPT_CHANGED')
             if expected_revision is not None and prep.revision != expected_revision:
                 raise RevisionConflict('REVISION_CONFLICT')
             attempt = session.get(Attempt, (preparation_id, prep.current_attempt_no))
@@ -239,28 +295,50 @@ class LifecycleRepository(PreparationRepository):
                 self._event(session, prep, attempt, 'cancel_requested')
                 attempt.status, run.lease_token, run.lease_until = 'canceled', None, None
                 self._event(session, prep, attempt, 'canceled')
+            if attempt.status == 'canceled' and self.cancel_tasks:
+                # Parent fence and durable cancellation become visible together.
+                self.cancel_tasks(session, owner, preparation_id, self.clock().timestamp())
         return self.get_public(owner, preparation_id)
 
-    def retry(self, owner, preparation_id):
+    def retry(self, owner, preparation_id, *, node_id=None):
         with Session(self.engine) as session, session.begin():
             prep = session.scalar(select(Prep).where(Prep.preparation_id == preparation_id).with_for_update())
             self._owner(session, owner, preparation_id)
-            self.authorizer.authorize(owner, PreparationRequest.model_validate(prep.request_payload))
+            self._authorize(session, owner, PreparationRequest.model_validate(prep.request_payload))
             old = session.get(Attempt, (preparation_id, prep.current_attempt_no))
             budget = session.get(Budget, preparation_id)
+            if self.retry_only and not budget.limits.get('retry_only'):
+                budget.limits = {**budget.limits, 'retry_only': True}
             if old.status not in ('failed', 'canceled'):
                 raise ValueError('ONLY_TERMINAL_FAILURE_CAN_RETRY')
-            if aware(budget.deadline) <= self.clock():
-                raise BudgetExceeded('DEADLINE_EXCEEDED')
+            # Explicit retries adopt the current service policy without erasing
+            # usage, in-flight settlements or completed resource checkpoints.
+            if self.retry_only:
+                budget.limits = {**budget.limits, 'retry_only': True}
+            # An explicit user retry starts a new bounded execution window.
+            # Automatic recovery/reclaims never renew it; all spent/reserved
+            # calls, tokens and money remain shared across attempts.
+            for metric in ('calls', 'tokens', 'cost_micro_usd'):
+                if not budget.limits.get('retry_only') and budget.consumed[metric] >= budget.limits[metric]:
+                    raise BudgetExceeded('BUDGET_EXHAUSTED:' + metric)
             previous = session.get(Run, (preparation_id, old.attempt_no))
+            from .manual_retry import prepare_retry_checkpoint
+            checkpoint, stage, resources = prepare_retry_checkpoint(session, prep, old, previous.checkpoint, node_id=node_id)
+            now = self.clock()
+            previous_deadline = aware(budget.deadline).isoformat()
+            budget.deadline = now + timedelta(seconds=BudgetLimits.model_validate(budget.limits).seconds)
             prep.current_attempt_no += 1
             new = Attempt(preparation_id=preparation_id, attempt_no=prep.current_attempt_no,
-                          status='accepted', stage=old.stage, created_at=self.clock())
+                          status='accepted', stage=stage, created_at=now)
             session.add(new)
             session.flush()
-            session.add(Run(preparation_id=preparation_id, attempt_no=new.attempt_no, wake_at=self.clock(),
-                            input_digest=prep.request_sha256, checkpoint=previous.checkpoint, no_progress=0))
-            self._event(session, prep, new, 'accepted', {'retry_of': old.attempt_no})
+            session.add(Run(preparation_id=preparation_id, attempt_no=new.attempt_no, wake_at=now,
+                            input_digest=prep.request_sha256, checkpoint=checkpoint, no_progress=0,
+                            result_ref=previous.result_ref))
+            self._event(session, prep, new, 'accepted', {'retry_of': old.attempt_no,
+                'retry_policy': 'retry_only_v1' if budget.limits.get('retry_only') else 'manual_execution_window_v1',
+                'previous_deadline': previous_deadline,
+                'deadline': budget_deadline(budget).isoformat() if budget_deadline(budget) else None, **resources})
         return self.get_public(owner, preparation_id)
 
     def begin_action(self, context, key, kind, payload, cost):
@@ -290,10 +368,10 @@ class LifecycleRepository(PreparationRepository):
         # in another metric. Waiting can only help if this request could fit
         # after other in-flight actions settle their conservative reservations.
         for metric, amount in cost.model_dump().items():
-            if consumed[metric] + amount > limits[metric]:
+            if not limits.get('retry_only') and consumed[metric] + amount > limits[metric]:
                 raise BudgetExceeded('BUDGET_EXHAUSTED:' + metric)
         for metric, amount in cost.model_dump().items():
-            if consumed[metric] + reserved[metric] + amount > limits[metric]:
+            if not limits.get('retry_only') and consumed[metric] + reserved[metric] + amount > limits[metric]:
                 raise BudgetReservationPending('BUDGET_RESERVED:' + metric)
             reserved[metric] += amount
         budget.reserved = reserved
@@ -324,6 +402,8 @@ class LifecycleRepository(PreparationRepository):
                 # expiry or a new attempt. No content/state transition occurs.
                 attempt = session.get(Attempt, (prep.preparation_id, context.attempt_no))
                 budget = session.get(Budget, prep.preparation_id)
+                if self.retry_only and not budget.limits.get('retry_only'):
+                    budget.limits = {**budget.limits, 'retry_only': True}
                 if attempt is None:
                     raise StaleLease('MODEL_SETTLEMENT_ATTEMPT_MISSING')
             else:

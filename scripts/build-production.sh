@@ -19,8 +19,8 @@ set -a
 source "$ENV_FILE"
 set +a
 
-echo "==> Build OpenMAIC sidecar"
-pnpm --dir "$REPO_ROOT/openmaic-sidecar" build
+echo "==> Check native HyperFrames runtime"
+python "$REPO_ROOT/scripts/check-hyperframes.py"
 
 echo "==> Build production frontend"
 pnpm --dir "$REPO_ROOT/frontend" build

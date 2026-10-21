@@ -1,0 +1,73 @@
+{
+  "at": "2026-10-20T07:29:50.638404+00:00",
+  "action_counts": {
+    "completed": 896
+  },
+  "protocol_recoveries": [
+    {
+      "at": "2026-10-20 06:31:50.973486+00:00",
+      "phase": "resource_write",
+      "attempt": 1,
+      "action_id": "paction_ee78c76e9cab413b95d9879ea6ccca29"
+    },
+    {
+      "at": "2026-10-20 06:48:15.554676+00:00",
+      "phase": null,
+      "attempt": 1,
+      "action_id": "paction_1b1ca49208a94828829aa0f27ecd8b3f"
+    },
+    {
+      "at": "2026-10-20 07:26:13.575916+00:00",
+      "phase": "resource_repair",
+      "attempt": 1,
+      "action_id": "paction_c85bfff032ef4a748311cf8801a9c20a"
+    },
+    {
+      "at": "2026-10-20 07:26:17.737275+00:00",
+      "phase": "resource_repair",
+      "attempt": 1,
+      "action_id": "paction_94b71a657a93401c82271b60495ac522"
+    },
+    {
+      "at": "2026-10-20 07:26:20.416180+00:00",
+      "phase": "resource_repair",
+      "attempt": 2,
+      "action_id": "paction_0bb5e8c715bb46c39449953edf4740fb"
+    },
+    {
+      "at": "2026-10-20 07:27:29.017072+00:00",
+      "phase": "resource_repair",
+      "attempt": 1,
+      "action_id": "paction_896abc3e94ac4fb98a9d426c6a5e81e6"
+    },
+    {
+      "at": "2026-10-20 07:27:34.573682+00:00",
+      "phase": "resource_repair",
+      "attempt": 2,
+      "action_id": "paction_c4c3e9bda4bc48169fb32eb43aa1109e"
+    },
+    {
+      "at": "2026-10-20 07:28:03.877173+00:00",
+      "phase": "resource_repair",
+      "attempt": 1,
+      "action_id": "paction_83258ceea19843968df122d8e2d14f61"
+    },
+    {
+      "at": "2026-10-20 07:28:10.219263+00:00",
+      "phase": "resource_repair",
+      "attempt": 2,
+      "action_id": "paction_a3ff9051b1804820bcf146599a367d80"
+    }
+  ],
+  "write_contract_issues": [
+    {
+      "at": "2026-10-20 06:31:37.191404+00:00",
+      "node": "n1-why-transformer",
+      "phase": "resource_write",
+      "protocol_attempt": 0,
+      "error": "submission references or edits invalid: preparation_locator_not_found_or_empty",
+      "action_id": "paction_ed4eb5fdbf514f68bdde5b8b02536ed3"
+    }
+  ],
+  "failed_actions": []
+}

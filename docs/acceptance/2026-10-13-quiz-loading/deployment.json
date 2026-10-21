@@ -1,0 +1,14 @@
+{
+  "source_snapshot": "/tmp/edu-quiz-fix/source/frontend",
+  "published_at": "20261013T210339Z",
+  "uncommitted_source_changes": true,
+  "task": "classroom-quiz-loading-fix",
+  "backend_status": "not modified; frontend-only quiz loading and content rendering fix",
+  "previous_index_sha256": "a0cb53027c13fe7baf61898eef2fff8247c7c894a31e33fe9f5009411e02bff7",
+  "backup": "/tmp/edu-quiz-fix/dist-backup-20261013T210339Z",
+  "http_verified": true,
+  "assets": [
+    "/assets/index-CAjltBGZ.js",
+    "/assets/index-8vDhdg1F.css"
+  ]
+}

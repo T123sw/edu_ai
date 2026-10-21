@@ -1,0 +1,307 @@
+{
+  "title": "自注意力：Q/K/V 与缩放点积计算",
+  "minutes": 14,
+  "node_id": "n3-self-attention",
+  "audience": "希望系统学习 Transformer 架构的学习者（具体背景未知）",
+  "evidence": [
+    {
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+      "claim": "缩放点积注意力把查询与一组键值对映射为输出：用查询与所有键做点积、除以 √dk、经 softmax 得到权重，再对值加权求和，矩阵形式为 Attention(Q,K,V)=softmax(QK^T/√dk)V。缩放的原因是 dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域。",
+      "quote": "3.2 Attention An attention function can be described as mapping a query and a set of key-value pairs to an output, where the query, keys, values, and output are all vectors. ",
+      "source_id": "ev_4110aa07d7df1bce5ee76c30",
+      "finding_id": "f-scaled-dot-product",
+      "source_hash": "a4f8f9ff6e6f27ef054674e255404bf80917b36c69e009227f490fbbe5a5d816",
+      "source_excerpt": "nd is a simple, position-2 Figure 1: The Transformer - model architecture.\nwise fully connected feed-forward network. We employ a residual connection [10] around each of the two sub-layers, followed by layer normalization [1]. That is, the output of each sub-layer is LayerNorm(x + Sublayer(x)), where Sublayer(x) is the function implemented by the sub-layer itself. To facilitate these residual connections, all sub-layers in the model, as well as the embedding layers, produce outputs of dimension dmodel = 512.\nDecoder: The decoder is also composed of a stack of N = 6 identical layers. In addition to the two sub-layers in each encoder layer, the decoder inserts a third sub-layer, which performs multi-head attention over the output of the encoder stack. Similar to the encoder, we employ residual connections around each of the sub-layers, followed by layer normalization. We also modify the self-attention sub-layer in the decoder stack to prevent positions from attending to subsequent positions. This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i.\n3.2 Attention An attention function can be described as mapping a query and a set of key-value pairs to an output, where the query, keys, values, and output are all vectors. The output is computed as a weighted sum of the values, where the weight assigned to each value is computed by a compatibility function of the query with the corresponding key.\n3.2.1 Scaled Dot-Product Attention We call our particular attention \"Scaled Dot-Product Attention\" (Figure 2). The input consists of queries and keys of dimension dk, and values of dimension dv. We compute the dot products of the 3 Scaled Dot-Product Attention Multi-Head Attention Figure 2: (left) Scaled Dot-Product Attention. (right) Multi-Head Attention consists of several attention layers running in parallel.\nquery with all keys, divide each by √dk, and apply a softmax function to obtain the weights on the values.\nIn practice, we compute the attention function on a set of queries simultaneously, packed together into a matrix Q. The keys and values are also packed together into matrices K and V . We compute the matrix of outputs as: Attention(Q, K, V ) = softmax(QKT √dk )V (1) The two most commonly used attention functions are additive attention [2], and dot-product (multi-plicative) attention. Dot-product attention is identical to our algorithm, except for the scaling factor of 1 √dk . Additive attention computes the compatibility function using a feed-forward network with a single hidden layer. While the two are similar in theoretical complexity, dot-product attention is much faster and more space-efﬁcient in practice, since it can be implemented using highly optimized matrix multiplication cod"
+    },
+    {
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+      "claim": "缩放点积注意力把查询与一组键值对映射为输出：用查询与所有键做点积、除以 √dk、经 softmax 得到权重，再对值加权求和，矩阵形式为 Attention(Q,K,V)=softmax(QK^T/√dk)V。缩放的原因是 dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域。",
+      "quote": "The output is computed as a weighted sum of the values, where the weight assigned to each value is computed by a compatibility function of the query with the corresponding key.\n",
+      "source_id": "ev_4110aa07d7df1bce5ee76c30",
+      "finding_id": "f-scaled-dot-product",
+      "source_hash": "a4f8f9ff6e6f27ef054674e255404bf80917b36c69e009227f490fbbe5a5d816",
+      "source_excerpt": "two sub-layers, followed by layer normalization [1]. That is, the output of each sub-layer is LayerNorm(x + Sublayer(x)), where Sublayer(x) is the function implemented by the sub-layer itself. To facilitate these residual connections, all sub-layers in the model, as well as the embedding layers, produce outputs of dimension dmodel = 512.\nDecoder: The decoder is also composed of a stack of N = 6 identical layers. In addition to the two sub-layers in each encoder layer, the decoder inserts a third sub-layer, which performs multi-head attention over the output of the encoder stack. Similar to the encoder, we employ residual connections around each of the sub-layers, followed by layer normalization. We also modify the self-attention sub-layer in the decoder stack to prevent positions from attending to subsequent positions. This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i.\n3.2 Attention An attention function can be described as mapping a query and a set of key-value pairs to an output, where the query, keys, values, and output are all vectors. The output is computed as a weighted sum of the values, where the weight assigned to each value is computed by a compatibility function of the query with the corresponding key.\n3.2.1 Scaled Dot-Product Attention We call our particular attention \"Scaled Dot-Product Attention\" (Figure 2). The input consists of queries and keys of dimension dk, and values of dimension dv. We compute the dot products of the 3 Scaled Dot-Product Attention Multi-Head Attention Figure 2: (left) Scaled Dot-Product Attention. (right) Multi-Head Attention consists of several attention layers running in parallel.\nquery with all keys, divide each by √dk, and apply a softmax function to obtain the weights on the values.\nIn practice, we compute the attention function on a set of queries simultaneously, packed together into a matrix Q. The keys and values are also packed together into matrices K and V . We compute the matrix of outputs as: Attention(Q, K, V ) = softmax(QKT √dk )V (1) The two most commonly used attention functions are additive attention [2], and dot-product (multi-plicative) attention. Dot-product attention is identical to our algorithm, except for the scaling factor of 1 √dk . Additive attention computes the compatibility function using a feed-forward network with a single hidden layer. While the two are similar in theoretical complexity, dot-product attention is much faster and more space-efﬁcient in practice, since it can be implemented using highly optimized matrix multiplication cod"
+    },
+    {
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+      "claim": "缩放点积注意力把查询与一组键值对映射为输出：用查询与所有键做点积、除以 √dk、经 softmax 得到权重，再对值加权求和，矩阵形式为 Attention(Q,K,V)=softmax(QK^T/√dk)V。缩放的原因是 dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域。",
+      "quote": "query with all keys, divide each by √dk, and apply a softmax function to obtain the weights on the values.\nIn practice, we compute the attention function on a set of queries simultaneously, packed together into a matrix Q. ",
+      "source_id": "ev_4110aa07d7df1bce5ee76c30",
+      "finding_id": "f-scaled-dot-product",
+      "source_hash": "a4f8f9ff6e6f27ef054674e255404bf80917b36c69e009227f490fbbe5a5d816",
+      "source_excerpt": " to the encoder, we employ residual connections around each of the sub-layers, followed by layer normalization. We also modify the self-attention sub-layer in the decoder stack to prevent positions from attending to subsequent positions. This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i.\n3.2 Attention An attention function can be described as mapping a query and a set of key-value pairs to an output, where the query, keys, values, and output are all vectors. The output is computed as a weighted sum of the values, where the weight assigned to each value is computed by a compatibility function of the query with the corresponding key.\n3.2.1 Scaled Dot-Product Attention We call our particular attention \"Scaled Dot-Product Attention\" (Figure 2). The input consists of queries and keys of dimension dk, and values of dimension dv. We compute the dot products of the 3 Scaled Dot-Product Attention Multi-Head Attention Figure 2: (left) Scaled Dot-Product Attention. (right) Multi-Head Attention consists of several attention layers running in parallel.\nquery with all keys, divide each by √dk, and apply a softmax function to obtain the weights on the values.\nIn practice, we compute the attention function on a set of queries simultaneously, packed together into a matrix Q. The keys and values are also packed together into matrices K and V . We compute the matrix of outputs as: Attention(Q, K, V ) = softmax(QKT √dk )V (1) The two most commonly used attention functions are additive attention [2], and dot-product (multi-plicative) attention. Dot-product attention is identical to our algorithm, except for the scaling factor of 1 √dk . Additive attention computes the compatibility function using a feed-forward network with a single hidden layer. While the two are similar in theoretical complexity, dot-product attention is much faster and more space-efﬁcient in practice, since it can be implemented using highly optimized matrix multiplication cod"
+    },
+    {
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+      "claim": "缩放点积注意力把查询与一组键值对映射为输出：用查询与所有键做点积、除以 √dk、经 softmax 得到权重，再对值加权求和，矩阵形式为 Attention(Q,K,V)=softmax(QK^T/√dk)V。缩放的原因是 dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域。",
+      "quote": "We compute the matrix of outputs as: Attention(Q, K, V ) = softmax(QKT √dk )V (1) The two most commonly used attention functions are additive attention [2], and dot-product (multi-plicative) attention. ",
+      "source_id": "ev_4110aa07d7df1bce5ee76c30",
+      "finding_id": "f-scaled-dot-product",
+      "source_hash": "a4f8f9ff6e6f27ef054674e255404bf80917b36c69e009227f490fbbe5a5d816",
+      "source_excerpt": "dings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i.\n3.2 Attention An attention function can be described as mapping a query and a set of key-value pairs to an output, where the query, keys, values, and output are all vectors. The output is computed as a weighted sum of the values, where the weight assigned to each value is computed by a compatibility function of the query with the corresponding key.\n3.2.1 Scaled Dot-Product Attention We call our particular attention \"Scaled Dot-Product Attention\" (Figure 2). The input consists of queries and keys of dimension dk, and values of dimension dv. We compute the dot products of the 3 Scaled Dot-Product Attention Multi-Head Attention Figure 2: (left) Scaled Dot-Product Attention. (right) Multi-Head Attention consists of several attention layers running in parallel.\nquery with all keys, divide each by √dk, and apply a softmax function to obtain the weights on the values.\nIn practice, we compute the attention function on a set of queries simultaneously, packed together into a matrix Q. The keys and values are also packed together into matrices K and V . We compute the matrix of outputs as: Attention(Q, K, V ) = softmax(QKT √dk )V (1) The two most commonly used attention functions are additive attention [2], and dot-product (multi-plicative) attention. Dot-product attention is identical to our algorithm, except for the scaling factor of 1 √dk . Additive attention computes the compatibility function using a feed-forward network with a single hidden layer. While the two are similar in theoretical complexity, dot-product attention is much faster and more space-efﬁcient in practice, since it can be implemented using highly optimized matrix multiplication cod"
+    },
+    {
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+      "claim": "缩放点积注意力把查询与一组键值对映射为输出：用查询与所有键做点积、除以 √dk、经 softmax 得到权重，再对值加权求和，矩阵形式为 Attention(Q,K,V)=softmax(QK^T/√dk)V。缩放的原因是 dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域。",
+      "quote": "We suspect that for large values of dk, the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients 4. To counteract this effect, we scale the dot products by 1 √dk .\n",
+      "source_id": "ev_fc172931ca406181cedc63b5",
+      "finding_id": "f-scaled-dot-product",
+      "source_hash": "bca00e3f25e8789766ed291777f3967769ec10453031fdaef5ab17b2bfcbb2cb",
+      "source_excerpt": "e.\nWhile for small values of dk the two mechanisms perform similarly, additive attention outperforms dot product attention without scaling for larger values of dk [3]. We suspect that for large values of dk, the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients 4. To counteract this effect, we scale the dot products by 1 √dk .\n3.2.2 Multi-Head Attention Instead of performing a single attention function with dmodel-dimensional keys, values and queries, we found it beneﬁcial to linearly project the queries, keys and values h times with different, learned linear projections to dk, dk and dv dimensions, respectively. On each of these projected versions of queries, keys and values we then perform the attention function in parallel, yielding dv-dimensional output values. These are concatenated and once again projected, resulting in the ﬁnal values, as depicted in Figure 2.\nMulti-head attention allows the model to jointly attend to information from different representation subspaces at different positions. With a single attention head, averaging inhibits this.\n4To illustrate why the dot products get large, assume that the components of q and k are independent random variables with mean 0 and variance 1. Then their dot product, q · k = Pdk i=1 qiki, has mean 0 and variance dk.\n4 MultiHead(Q, K, V ) = Concat(head1, ..., headh)W O where headi = Attention(QW Q i , KW K i , V W V i ) Where the projections are parameter matrices W Q i ∈Rdmodel×dk, W K i ∈Rdmodel×dk, W V i ∈Rdmodel×dv and W O ∈Rhdv×dmodel.\nIn this work we employ h = 8 parallel attention layers, or heads. For each of these we use dk = dv = dmodel/h = 64. Due to the reduced dimension of each head, the total computational cost is similar to that of single-head attention with full dimensionality.\n3.2.3 Applications of Attention in our Model The Transformer uses multi-head attention in three different ways: • In \"encoder-decoder attention\" layers, the queries come from the previous decoder layer, and the memory keys and values come from the output of the encoder. This allows every position in the decoder to attend over all positions in the input sequence. This mimics the typical encoder-decoder attention mechanisms in sequence-to-sequence models such as [31, 2, 8].\n• The encoder contains self-attention layers. In a self-attention layer all of the keys, values and queries come from the same place, in this case, the output of the previous layer in the encoder. Each position in the encoder can attend to all positions in the previous layer of the encoder.\n• Similarly, self-attention layers in the decoder allow each position in the decoder to attend to all positions in the decoder up to and including that position. We need to prevent lef"
+    },
+    {
+      "url": "https://cloud.tencent.com/developer/article/2608139",
+      "claim": "中文教学材料以“Transformer is powerful.”译为“Transformer很强大。”为例串起数据流：分词得到词元与词表索引、词嵌入把离散词元映射为连续向量、位置编码解决并行带来的词序感知问题（如区分“狗咬人”和“人咬狗”）、注意力机制刻画词与词的关联；解码器生成下一个词时用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V，计算注意力权重后对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐。",
+      "quote": "\n为了更好地理解，本文会结合一个案例，**看看Transformer如何把\"Transformer is powerful.\"翻译成\"Transformer很强大。\"**。机器是如何像人类一样理解原文，并翻译成功，**期间会遇到哪些挑战？**\n\n1. **机器只懂数字0和1，机器如何理解文字？请看分词章节。**\n2. **机器如拿到了数字坐标，但文字顺序会让句子含义天差地别，如“狗咬人”和“人咬狗”，机器如何理解文字顺序？请看位置编码章节。**\n3. ",
+      "source_id": "ev_2e69479d1666b9a55e05aee3",
+      "finding_id": "f-cn-teaching-flow",
+      "source_hash": "df39ab052a1c4c177733606203c68d606ac0412b3bf0736c2730f7de0868c403",
+      "source_excerpt": "nt.com/?from=20063&from_column=20063)\n\n[首页](https://cloud.tencent.com/developer)\n\n文章/答案/技术大牛\n\n腾讯云开发者\n\n[社区首页](https://cloud.tencent.com/developer) >[专栏](https://cloud.tencent.com/developer/column) >万字长文讲透LLM核心：Transformer架构原理解析\n\n# 万字长文讲透LLM核心：Transformer架构原理解析\n\n![作者头像](https://developer.qcloudimg.com/http-save/10011/5219d8aaa3af9ce46e90ac5f2b200821.jpg)\n\n腾讯云开发者\n\n发布于 2025-12-24 16:59:00\n\n发布于 2025-12-24 16:59:00\n\n8.7K0\n\n文章被收录于专栏：[【腾讯云开发者】](https://cloud.tencent.com/developer/column/5286)【腾讯云开发者】\n\n本系列的文章由浅入深介绍LLM的基础知识，从大模型的使用，到原理解析，再到LLM系统实战。 这篇深入浅出的文章旨在解析大型语言模型（LLM）的智能来源，核心聚焦于其基础架构——Transformer的原理与构造。文章详细阐述了模型如何通过分词、词嵌入和位置编码将离散文本转化为可计算的连续向量，并强调了注意力机制在捕捉序列中复杂依赖关系中的关键作用。此外，它深入剖析了由自注意力层和前馈网络组成的解码器结构，并介绍了当前旗舰模型中采用的 MoE 混合架构等前沿设计，以提高效率和性能。最终总结，理解这些核心机制至关重要，因为一切应用的演变都围绕着模型能力是根本这一基础展开。\n\n最近AI的发展实在是太快了，上图就是让Nano Banana Pro结合《Attention Is All You Need》给的架构图，让孙悟空给孙悟饭讲解Transformer的原，架构图完美还原，接下来还可以用来生成动漫视频，十分有趣。近期B站上AI二创视频、AI让西游记角色唱歌的视频很火，笔者也尝试做了简单复现，用银角大王唱个歌《奉命张狂》，由衷感叹AI的强大。\n\n不由得想问，LLM为什么这么强？Transformer的原理是什么？为什么能做到如此强大的效果？Transformer的架构是什么样的？于是，读了几本书《从零构建大模型》、《图解大模型：生成式AI原理与实战》、《Transformer自然语言处理实战:使用Hugging FaceTransformers库构建NLP应用》，做了适当的拓展阅读合和笔记，于是就有了本文，本文将尝试从原理、架构这两个方面，对Transformer进行深入浅出的介绍。\n\n为了更好地理解，本文会结合一个案例，**看看Transformer如何把\"Transformer is powerful.\"翻译成\"Transformer很强大。\"**。机器是如何像人类一样理解原文，并翻译成功，**期间会遇到哪些挑战？**\n\n1. **机器只懂数字0和1，机器如何理解文字？请看分词章节。**\n2. **机器如拿到了数字坐标，但文字顺序会让句子含义天差地别，如“狗咬人”和“人咬狗”，机器如何理解文字顺序？请看位置编码章节。**\n3. **机器知道了语序，但词与词之间的关联关系，如“powerful”是修饰前面“Transformer”的？机器如何理解词与词之间的关系？请看注意力机制章节。**\n\n## **01**\n\n人是从受精卵开始不断发育，出生后拥有了一个符合人类大脑架构的“神经网络”，在日后成长过程中，大脑发育结构不断调整，不断根据获取的环境信息不断内化知识，逐渐成熟，通常在35岁后颅骨完全闭合，架构上再难发生大的变化，但依然可以通过不断学习、接受新信息，让大脑变得更聪明、更灵活。\n\n> 每过完一天都要比早晨醒来时更聪明一点。 -- 查理·芒格\n\n所以，**LLM初始架构是什么样的？对应人类大脑，LLM在“出生时”是什么架构？如何通过训练演变得有知识、技能，做到“涌现智能”？**\n\n当前主流LLM通常是采用Transformer架构，本文围绕Transformer架构，进行深入解析，包括Transformer的原理、Transformer的改进、Transformer的混合架构，最后也会简要谈到2025年LLM架构前沿的探索情况，以及也许比LLM更接近AGI的世界模型。\n\n## **02**\n\n**LLM 架构解析**\n\n2017年发表的著名论文《Attention Is All You Need》提出的Transformer架构，是现代深度学习模型的基石，也是大模型架构的基石。其核心架构就是开头孙悟空给孙悟饭讲解的架构图，其核心思想就是注意力机制。\n\n语言模型的发展经历了从 BERT、GPT 到今天的多模态大模型的快速演进。传统 Transformer 在处理长文本、关键信息检索以及对抗幻觉等任务时，常常因过度关注无关上下文而陷入困境，导致模型表现受限。为解决这些问题，研究人员提出了多种改进方案，如 DIFF Transformer、Energy-Based Transformer 等新型架构。\n\nTransformer、MoE 灵活搭配成为主流，也逐渐有加入等新兴架构做混合架构的尝试，据不完全统计，超过一半新发布模型采用混合架构。这种架构创新也许可以打破 \"提升性能必增成本\" 的困境，为 LLM 的高效部署提供了新的可能性。\n\nTransformer架构的核心是Encoder-Decoder结构，编码器负责将输入序列转换为上下文表示，解码器则基于编码器的输出和已生成的输出序列生成下一个输出。\n\n当前主流的LLM架构是只有解码器的模型（Decoder-only Transformer），包含自主力(Self-Attention)和多头注意力(Multi-Head Attention)的注意力层、前馈神经网络(FFN)，注意力层+FFN等模块组成其中一层，多层堆叠，构成一个Decoder-only Transformer模型，层数通常根据任务复杂度而定，层数越多，模型越深，模型效果越好。但是，模型太深，计算量太大，导致训练困难，所以需要一个取舍，层数通常是经验和实战的选择。\n\n在确认LLM架构后，我们就可以开始构建模型了，构建模型时，需要做三件事以把大象装进冰箱：数据、模型、训练。数据的处理包括：文本数据采集、文本数据预处理、文本数据嵌入。模型包括：模型架构、模型参数。训练包括：模型训练、模型评估、模型优化。\n\n数据文本采集此前的文章已经讲过，但为了更好理解 Transformer，还要从另一个视角讲一下文本数据预处理和文本数据嵌入，有助于理解Transformer。文本数据预处理包括：分词、词嵌入。\n\n2.1 Token数据流示例\n\n举例把\"Transformer is powerful.\"翻译成\"Transformer很强大。\"时，翻译到\"Transformer很\"时，解码器已经生成了序列，此时解码器需要根据已生成序列和上下文向量，预测下一个中文词，即\"强\"，已知的Tokens \"Transformer很\"输入时，数据流是如则经过每一层的。\n\n生成Q向量：此时，解码器已经生成了“Transformer 很”。这个已生成的部分序列经过解码器内部的掩码自注意力层处理后，会生成一个代表当前状态（即准备生成下一个词）的查询向量 Q\\_decoder。\n\n提供K、V向量：编码器已经为英文句子“Transformer is powerful.”生成了一个完整的输出矩阵。这个矩阵中的每一行都是一个K-V对，分别代表了“Transformer”、“is”、“powerful”和“.”的键和值信息。\n\n计算注意力权重：模型会计算 Q\\_decoder 与所有英文词的K向量的点积，得到一个注意力分数向量。经过Softmax归一化后，这个分数向量就变成了权重向量。我们期望在这个权重向量中，对应“powerful”的权重会非常高。\n\n加权求和：最后，模型用这个权重向量对所有英文词的V向量进行加权求和，得到一个上下文向量。这个向量主要包含了来自“powerful”的信息，并被传递给解码器的下一层，用于最终预测出下一个中文词“强”。\n\n通过这个过程，模型成功地将源语言中的“powerful”与目标语言中的“强”对齐了起来，实现了精准的翻译。\n\n这个过程把一层Transformer过了一遍。**自此，Transformer的主流程已经讲清楚，接下来，我们再来看看Transformer的细节，如果对Transformer的每个“零件”感兴趣，可以接着看本章内容。**\n\n2.2 分词（token）\n\n举个例子，比如“Transformer is powerful.”，分词后得到“Transformer”、“is”、“powerful”、“.”，其中“.”是句子结束符，表示句子结束，不参与预测。\n\n还想补充的是，我个人的一种理解方式，可以认为分词就是为了得到一本字典的"
+    },
+    {
+      "url": "https://cloud.tencent.com/developer/article/2608139",
+      "claim": "中文教学材料以“Transformer is powerful.”译为“Transformer很强大。”为例串起数据流：分词得到词元与词表索引、词嵌入把离散词元映射为连续向量、位置编码解决并行带来的词序感知问题（如区分“狗咬人”和“人咬狗”）、注意力机制刻画词与词的关联；解码器生成下一个词时用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V，计算注意力权重后对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐。",
+      "quote": "**机器知道了语序，但词与词之间的关联关系，如“powerful”是修饰前面“Transformer”的？机器如何理解词与词之间的关系？请看注意力机制章节。**\n\n## **01**\n\n人是从受精卵开始不断发育，出生后拥有了一个符合人类大脑架构的“神经网络”，在日后成长过程中，大脑发育结构不断调整，不断根据获取的环境信息不断内化知识，逐渐成熟，通常在35岁后颅骨完全闭合，架构上再难发生大的变化，但依然可以通过不断学习、接受新信息，让大脑变得更聪明、更灵活。\n",
+      "source_id": "ev_2e69479d1666b9a55e05aee3",
+      "finding_id": "f-cn-teaching-flow",
+      "source_hash": "df39ab052a1c4c177733606203c68d606ac0412b3bf0736c2730f7de0868c403",
+      "source_excerpt": "# 万字长文讲透LLM核心：Transformer架构原理解析\n\n![作者头像](https://developer.qcloudimg.com/http-save/10011/5219d8aaa3af9ce46e90ac5f2b200821.jpg)\n\n腾讯云开发者\n\n发布于 2025-12-24 16:59:00\n\n发布于 2025-12-24 16:59:00\n\n8.7K0\n\n文章被收录于专栏：[【腾讯云开发者】](https://cloud.tencent.com/developer/column/5286)【腾讯云开发者】\n\n本系列的文章由浅入深介绍LLM的基础知识，从大模型的使用，到原理解析，再到LLM系统实战。 这篇深入浅出的文章旨在解析大型语言模型（LLM）的智能来源，核心聚焦于其基础架构——Transformer的原理与构造。文章详细阐述了模型如何通过分词、词嵌入和位置编码将离散文本转化为可计算的连续向量，并强调了注意力机制在捕捉序列中复杂依赖关系中的关键作用。此外，它深入剖析了由自注意力层和前馈网络组成的解码器结构，并介绍了当前旗舰模型中采用的 MoE 混合架构等前沿设计，以提高效率和性能。最终总结，理解这些核心机制至关重要，因为一切应用的演变都围绕着模型能力是根本这一基础展开。\n\n最近AI的发展实在是太快了，上图就是让Nano Banana Pro结合《Attention Is All You Need》给的架构图，让孙悟空给孙悟饭讲解Transformer的原，架构图完美还原，接下来还可以用来生成动漫视频，十分有趣。近期B站上AI二创视频、AI让西游记角色唱歌的视频很火，笔者也尝试做了简单复现，用银角大王唱个歌《奉命张狂》，由衷感叹AI的强大。\n\n不由得想问，LLM为什么这么强？Transformer的原理是什么？为什么能做到如此强大的效果？Transformer的架构是什么样的？于是，读了几本书《从零构建大模型》、《图解大模型：生成式AI原理与实战》、《Transformer自然语言处理实战:使用Hugging FaceTransformers库构建NLP应用》，做了适当的拓展阅读合和笔记，于是就有了本文，本文将尝试从原理、架构这两个方面，对Transformer进行深入浅出的介绍。\n\n为了更好地理解，本文会结合一个案例，**看看Transformer如何把\"Transformer is powerful.\"翻译成\"Transformer很强大。\"**。机器是如何像人类一样理解原文，并翻译成功，**期间会遇到哪些挑战？**\n\n1. **机器只懂数字0和1，机器如何理解文字？请看分词章节。**\n2. **机器如拿到了数字坐标，但文字顺序会让句子含义天差地别，如“狗咬人”和“人咬狗”，机器如何理解文字顺序？请看位置编码章节。**\n3. **机器知道了语序，但词与词之间的关联关系，如“powerful”是修饰前面“Transformer”的？机器如何理解词与词之间的关系？请看注意力机制章节。**\n\n## **01**\n\n人是从受精卵开始不断发育，出生后拥有了一个符合人类大脑架构的“神经网络”，在日后成长过程中，大脑发育结构不断调整，不断根据获取的环境信息不断内化知识，逐渐成熟，通常在35岁后颅骨完全闭合，架构上再难发生大的变化，但依然可以通过不断学习、接受新信息，让大脑变得更聪明、更灵活。\n\n> 每过完一天都要比早晨醒来时更聪明一点。 -- 查理·芒格\n\n所以，**LLM初始架构是什么样的？对应人类大脑，LLM在“出生时”是什么架构？如何通过训练演变得有知识、技能，做到“涌现智能”？**\n\n当前主流LLM通常是采用Transformer架构，本文围绕Transformer架构，进行深入解析，包括Transformer的原理、Transformer的改进、Transformer的混合架构，最后也会简要谈到2025年LLM架构前沿的探索情况，以及也许比LLM更接近AGI的世界模型。\n\n## **02**\n\n**LLM 架构解析**\n\n2017年发表的著名论文《Attention Is All You Need》提出的Transformer架构，是现代深度学习模型的基石，也是大模型架构的基石。其核心架构就是开头孙悟空给孙悟饭讲解的架构图，其核心思想就是注意力机制。\n\n语言模型的发展经历了从 BERT、GPT 到今天的多模态大模型的快速演进。传统 Transformer 在处理长文本、关键信息检索以及对抗幻觉等任务时，常常因过度关注无关上下文而陷入困境，导致模型表现受限。为解决这些问题，研究人员提出了多种改进方案，如 DIFF Transformer、Energy-Based Transformer 等新型架构。\n\nTransformer、MoE 灵活搭配成为主流，也逐渐有加入等新兴架构做混合架构的尝试，据不完全统计，超过一半新发布模型采用混合架构。这种架构创新也许可以打破 \"提升性能必增成本\" 的困境，为 LLM 的高效部署提供了新的可能性。\n\nTransformer架构的核心是Encoder-Decoder结构，编码器负责将输入序列转换为上下文表示，解码器则基于编码器的输出和已生成的输出序列生成下一个输出。\n\n当前主流的LLM架构是只有解码器的模型（Decoder-only Transformer），包含自主力(Self-Attention)和多头注意力(Multi-Head Attention)的注意力层、前馈神经网络(FFN)，注意力层+FFN等模块组成其中一层，多层堆叠，构成一个Decoder-only Transformer模型，层数通常根据任务复杂度而定，层数越多，模型越深，模型效果越好。但是，模型太深，计算量太大，导致训练困难，所以需要一个取舍，层数通常是经验和实战的选择。\n\n在确认LLM架构后，我们就可以开始构建模型了，构建模型时，需要做三件事以把大象装进冰箱：数据、模型、训练。数据的处理包括：文本数据采集、文本数据预处理、文本数据嵌入。模型包括：模型架构、模型参数。训练包括：模型训练、模型评估、模型优化。\n\n数据文本采集此前的文章已经讲过，但为了更好理解 Transformer，还要从另一个视角讲一下文本数据预处理和文本数据嵌入，有助于理解Transformer。文本数据预处理包括：分词、词嵌入。\n\n2.1 Token数据流示例\n\n举例把\"Transformer is powerful.\"翻译成\"Transformer很强大。\"时，翻译到\"Transformer很\"时，解码器已经生成了序列，此时解码器需要根据已生成序列和上下文向量，预测下一个中文词，即\"强\"，已知的Tokens \"Transformer很\"输入时，数据流是如则经过每一层的。\n\n生成Q向量：此时，解码器已经生成了“Transformer 很”。这个已生成的部分序列经过解码器内部的掩码自注意力层处理后，会生成一个代表当前状态（即准备生成下一个词）的查询向量 Q\\_decoder。\n\n提供K、V向量：编码器已经为英文句子“Transformer is powerful.”生成了一个完整的输出矩阵。这个矩阵中的每一行都是一个K-V对，分别代表了“Transformer”、“is”、“powerful”和“.”的键和值信息。\n\n计算注意力权重：模型会计算 Q\\_decoder 与所有英文词的K向量的点积，得到一个注意力分数向量。经过Softmax归一化后，这个分数向量就变成了权重向量。我们期望在这个权重向量中，对应“powerful”的权重会非常高。\n\n加权求和：最后，模型用这个权重向量对所有英文词的V向量进行加权求和，得到一个上下文向量。这个向量主要包含了来自“powerful”的信息，并被传递给解码器的下一层，用于最终预测出下一个中文词“强”。\n\n通过这个过程，模型成功地将源语言中的“powerful”与目标语言中的“强”对齐了起来，实现了精准的翻译。\n\n这个过程把一层Transformer过了一遍。**自此，Transformer的主流程已经讲清楚，接下来，我们再来看看Transformer的细节，如果对Transformer的每个“零件”感兴趣，可以接着看本章内容。**\n\n2.2 分词（token）\n\n举个例子，比如“Transformer is powerful.”，分词后得到“Transformer”、“is”、“powerful”、“.”，其中“.”是句子结束符，表示句子结束，不参与预测。\n\n还想补充的是，我个人的一种理解方式，可以认为分词就是为了得到一本字典的索引（目录），在transformer预测下一个词时，根据当前用户的输入以及已有的预测输出，去匹配字典中的词，找到最匹配的词，然后输出。\n\n这是一种很直观的理解方式，省略了很多细节，比如词嵌入的实现方式，词嵌入的维度，词嵌入的优化方式等，但是这种理解方式，可以让我们对分词有一个直观的认识。 当然，如果只是完全随机在字典里去找下一个词，我们的模型就会表现得很诡异，LLM说出来的话也完全没有意义。所以我们通过设计模型架构，通过嵌入、词位置、神经网络权重调整、注意"
+    },
+    {
+      "url": "https://cloud.tencent.com/developer/article/2608139",
+      "claim": "中文教学材料以“Transformer is powerful.”译为“Transformer很强大。”为例串起数据流：分词得到词元与词表索引、词嵌入把离散词元映射为连续向量、位置编码解决并行带来的词序感知问题（如区分“狗咬人”和“人咬狗”）、注意力机制刻画词与词的关联；解码器生成下一个词时用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V，计算注意力权重后对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐。",
+      "quote": "举例把\"Transformer is powerful.\"翻译成\"Transformer很强大。\"时，翻译到\"Transformer很\"时，解码器已经生成了序列，此时解码器需要根据已生成序列和上下文向量，预测下一个中文词，即\"强\"，已知的Tokens \"Transformer很\"输入时，数据流是如则经过每一层的。\n",
+      "source_id": "ev_2e69479d1666b9a55e05aee3",
+      "finding_id": "f-cn-teaching-flow",
+      "source_hash": "df39ab052a1c4c177733606203c68d606ac0412b3bf0736c2730f7de0868c403",
+      "source_excerpt": "对应人类大脑，LLM在“出生时”是什么架构？如何通过训练演变得有知识、技能，做到“涌现智能”？**\n\n当前主流LLM通常是采用Transformer架构，本文围绕Transformer架构，进行深入解析，包括Transformer的原理、Transformer的改进、Transformer的混合架构，最后也会简要谈到2025年LLM架构前沿的探索情况，以及也许比LLM更接近AGI的世界模型。\n\n## **02**\n\n**LLM 架构解析**\n\n2017年发表的著名论文《Attention Is All You Need》提出的Transformer架构，是现代深度学习模型的基石，也是大模型架构的基石。其核心架构就是开头孙悟空给孙悟饭讲解的架构图，其核心思想就是注意力机制。\n\n语言模型的发展经历了从 BERT、GPT 到今天的多模态大模型的快速演进。传统 Transformer 在处理长文本、关键信息检索以及对抗幻觉等任务时，常常因过度关注无关上下文而陷入困境，导致模型表现受限。为解决这些问题，研究人员提出了多种改进方案，如 DIFF Transformer、Energy-Based Transformer 等新型架构。\n\nTransformer、MoE 灵活搭配成为主流，也逐渐有加入等新兴架构做混合架构的尝试，据不完全统计，超过一半新发布模型采用混合架构。这种架构创新也许可以打破 \"提升性能必增成本\" 的困境，为 LLM 的高效部署提供了新的可能性。\n\nTransformer架构的核心是Encoder-Decoder结构，编码器负责将输入序列转换为上下文表示，解码器则基于编码器的输出和已生成的输出序列生成下一个输出。\n\n当前主流的LLM架构是只有解码器的模型（Decoder-only Transformer），包含自主力(Self-Attention)和多头注意力(Multi-Head Attention)的注意力层、前馈神经网络(FFN)，注意力层+FFN等模块组成其中一层，多层堆叠，构成一个Decoder-only Transformer模型，层数通常根据任务复杂度而定，层数越多，模型越深，模型效果越好。但是，模型太深，计算量太大，导致训练困难，所以需要一个取舍，层数通常是经验和实战的选择。\n\n在确认LLM架构后，我们就可以开始构建模型了，构建模型时，需要做三件事以把大象装进冰箱：数据、模型、训练。数据的处理包括：文本数据采集、文本数据预处理、文本数据嵌入。模型包括：模型架构、模型参数。训练包括：模型训练、模型评估、模型优化。\n\n数据文本采集此前的文章已经讲过，但为了更好理解 Transformer，还要从另一个视角讲一下文本数据预处理和文本数据嵌入，有助于理解Transformer。文本数据预处理包括：分词、词嵌入。\n\n2.1 Token数据流示例\n\n举例把\"Transformer is powerful.\"翻译成\"Transformer很强大。\"时，翻译到\"Transformer很\"时，解码器已经生成了序列，此时解码器需要根据已生成序列和上下文向量，预测下一个中文词，即\"强\"，已知的Tokens \"Transformer很\"输入时，数据流是如则经过每一层的。\n\n生成Q向量：此时，解码器已经生成了“Transformer 很”。这个已生成的部分序列经过解码器内部的掩码自注意力层处理后，会生成一个代表当前状态（即准备生成下一个词）的查询向量 Q\\_decoder。\n\n提供K、V向量：编码器已经为英文句子“Transformer is powerful.”生成了一个完整的输出矩阵。这个矩阵中的每一行都是一个K-V对，分别代表了“Transformer”、“is”、“powerful”和“.”的键和值信息。\n\n计算注意力权重：模型会计算 Q\\_decoder 与所有英文词的K向量的点积，得到一个注意力分数向量。经过Softmax归一化后，这个分数向量就变成了权重向量。我们期望在这个权重向量中，对应“powerful”的权重会非常高。\n\n加权求和：最后，模型用这个权重向量对所有英文词的V向量进行加权求和，得到一个上下文向量。这个向量主要包含了来自“powerful”的信息，并被传递给解码器的下一层，用于最终预测出下一个中文词“强”。\n\n通过这个过程，模型成功地将源语言中的“powerful”与目标语言中的“强”对齐了起来，实现了精准的翻译。\n\n这个过程把一层Transformer过了一遍。**自此，Transformer的主流程已经讲清楚，接下来，我们再来看看Transformer的细节，如果对Transformer的每个“零件”感兴趣，可以接着看本章内容。**\n\n2.2 分词（token）\n\n举个例子，比如“Transformer is powerful.”，分词后得到“Transformer”、“is”、“powerful”、“.”，其中“.”是句子结束符，表示句子结束，不参与预测。\n\n还想补充的是，我个人的一种理解方式，可以认为分词就是为了得到一本字典的索引（目录），在transformer预测下一个词时，根据当前用户的输入以及已有的预测输出，去匹配字典中的词，找到最匹配的词，然后输出。\n\n这是一种很直观的理解方式，省略了很多细节，比如词嵌入的实现方式，词嵌入的维度，词嵌入的优化方式等，但是这种理解方式，可以让我们对分词有一个直观的认识。 当然，如果只是完全随机在字典里去找下一个词，我们的模型就会表现得很诡异，LLM说出来的话也完全没有意义。所以我们通过设计模型架构，通过嵌入、词位置、神经网络权重调整、注意力机制等手段，在训练中让随机变得逐渐有规律可循。 就好比斑马，在出生前，通过DNA表达在娘胎里构建了基础的大脑结构，刚出生几十分钟后就可以跟随母亲在草原上奔跑，**而不是让肌肉随机抽搐。**\n\n在分词之后，下一步是为所有可能出现的词元构建一个词汇表（Vocabulary）。词汇表是一个从词元到唯一整数ID的映射。例如，我们可以为英文和中文分别构建词汇表：\n\n**英文词汇表示例：**\n\n| 词元 (Token) | 索引 (Index) |\n| --- | --- |\n| (填充符) | 0 |\n| (未知词) | 1 |\n| (起始符) | 2 |\n| (结束符) | 3 |\n| Transformer | 4 |\n| is | 5 |\n| powerful | 6 |\n| . | 7 |\n\n**中文词汇表示例：**\n\n| 词元 (Token) | 索引 (Index) |\n| --- | --- |\n| (填充符) | 0 |\n| (未知词) | 1 |\n| (起始符) | 2 |\n| (结束符) | 3 |\n| Transformer | 4 |\n| 很 | 5 |\n| 强 | 6 |\n| 大 | 7 |\n| 。 | 8 |\n\n2.3 嵌入（embedding）\n\n把我们的示例词嵌入向量 (维度=4)：\n\n| 词元 (Token) | 索引 (Index) | 示例向量 (Vector) |\n| --- | --- | --- |\n| Transformer | 4 | [0."
+    },
+    {
+      "url": "https://cloud.tencent.com/developer/article/2608139",
+      "claim": "中文教学材料以“Transformer is powerful.”译为“Transformer很强大。”为例串起数据流：分词得到词元与词表索引、词嵌入把离散词元映射为连续向量、位置编码解决并行带来的词序感知问题（如区分“狗咬人”和“人咬狗”）、注意力机制刻画词与词的关联；解码器生成下一个词时用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V，计算注意力权重后对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐。",
+      "quote": "\n生成Q向量：此时，解码器已经生成了“Transformer 很”。这个已生成的部分序列经过解码器内部的掩码自注意力层处理后，会生成一个代表当前状态（即准备生成下一个词）的查询向量 Q\\_decoder。\n\n提供K、V向量：编码器已经为英文句子“Transformer is powerful.”生成了一个完整的输出矩阵。这个矩阵中的每一行都是一个K-V对，分别代表了“Transformer”、“is”、“powerful”和“.”的键和值信息。\n",
+      "source_id": "ev_2e69479d1666b9a55e05aee3",
+      "finding_id": "f-cn-teaching-flow",
+      "source_hash": "df39ab052a1c4c177733606203c68d606ac0412b3bf0736c2730f7de0868c403",
+      "source_excerpt": "到2025年LLM架构前沿的探索情况，以及也许比LLM更接近AGI的世界模型。\n\n## **02**\n\n**LLM 架构解析**\n\n2017年发表的著名论文《Attention Is All You Need》提出的Transformer架构，是现代深度学习模型的基石，也是大模型架构的基石。其核心架构就是开头孙悟空给孙悟饭讲解的架构图，其核心思想就是注意力机制。\n\n语言模型的发展经历了从 BERT、GPT 到今天的多模态大模型的快速演进。传统 Transformer 在处理长文本、关键信息检索以及对抗幻觉等任务时，常常因过度关注无关上下文而陷入困境，导致模型表现受限。为解决这些问题，研究人员提出了多种改进方案，如 DIFF Transformer、Energy-Based Transformer 等新型架构。\n\nTransformer、MoE 灵活搭配成为主流，也逐渐有加入等新兴架构做混合架构的尝试，据不完全统计，超过一半新发布模型采用混合架构。这种架构创新也许可以打破 \"提升性能必增成本\" 的困境，为 LLM 的高效部署提供了新的可能性。\n\nTransformer架构的核心是Encoder-Decoder结构，编码器负责将输入序列转换为上下文表示，解码器则基于编码器的输出和已生成的输出序列生成下一个输出。\n\n当前主流的LLM架构是只有解码器的模型（Decoder-only Transformer），包含自主力(Self-Attention)和多头注意力(Multi-Head Attention)的注意力层、前馈神经网络(FFN)，注意力层+FFN等模块组成其中一层，多层堆叠，构成一个Decoder-only Transformer模型，层数通常根据任务复杂度而定，层数越多，模型越深，模型效果越好。但是，模型太深，计算量太大，导致训练困难，所以需要一个取舍，层数通常是经验和实战的选择。\n\n在确认LLM架构后，我们就可以开始构建模型了，构建模型时，需要做三件事以把大象装进冰箱：数据、模型、训练。数据的处理包括：文本数据采集、文本数据预处理、文本数据嵌入。模型包括：模型架构、模型参数。训练包括：模型训练、模型评估、模型优化。\n\n数据文本采集此前的文章已经讲过，但为了更好理解 Transformer，还要从另一个视角讲一下文本数据预处理和文本数据嵌入，有助于理解Transformer。文本数据预处理包括：分词、词嵌入。\n\n2.1 Token数据流示例\n\n举例把\"Transformer is powerful.\"翻译成\"Transformer很强大。\"时，翻译到\"Transformer很\"时，解码器已经生成了序列，此时解码器需要根据已生成序列和上下文向量，预测下一个中文词，即\"强\"，已知的Tokens \"Transformer很\"输入时，数据流是如则经过每一层的。\n\n生成Q向量：此时，解码器已经生成了“Transformer 很”。这个已生成的部分序列经过解码器内部的掩码自注意力层处理后，会生成一个代表当前状态（即准备生成下一个词）的查询向量 Q\\_decoder。\n\n提供K、V向量：编码器已经为英文句子“Transformer is powerful.”生成了一个完整的输出矩阵。这个矩阵中的每一行都是一个K-V对，分别代表了“Transformer”、“is”、“powerful”和“.”的键和值信息。\n\n计算注意力权重：模型会计算 Q\\_decoder 与所有英文词的K向量的点积，得到一个注意力分数向量。经过Softmax归一化后，这个分数向量就变成了权重向量。我们期望在这个权重向量中，对应“powerful”的权重会非常高。\n\n加权求和：最后，模型用这个权重向量对所有英文词的V向量进行加权求和，得到一个上下文向量。这个向量主要包含了来自“powerful”的信息，并被传递给解码器的下一层，用于最终预测出下一个中文词“强”。\n\n通过这个过程，模型成功地将源语言中的“powerful”与目标语言中的“强”对齐了起来，实现了精准的翻译。\n\n这个过程把一层Transformer过了一遍。**自此，Transformer的主流程已经讲清楚，接下来，我们再来看看Transformer的细节，如果对Transformer的每个“零件”感兴趣，可以接着看本章内容。**\n\n2.2 分词（token）\n\n举个例子，比如“Transformer is powerful.”，分词后得到“Transformer”、“is”、“powerful”、“.”，其中“.”是句子结束符，表示句子结束，不参与预测。\n\n还想补充的是，我个人的一种理解方式，可以认为分词就是为了得到一本字典的索引（目录），在transformer预测下一个词时，根据当前用户的输入以及已有的预测输出，去匹配字典中的词，找到最匹配的词，然后输出。\n\n这是一种很直观的理解方式，省略了很多细节，比如词嵌入的实现方式，词嵌入的维度，词嵌入的优化方式等，但是这种理解方式，可以让我们对分词有一个直观的认识。 当然，如果只是完全随机在字典里去找下一个词，我们的模型就会表现得很诡异，LLM说出来的话也完全没有意义。所以我们通过设计模型架构，通过嵌入、词位置、神经网络权重调整、注意力机制等手段，在训练中让随机变得逐渐有规律可循。 就好比斑马，在出生前，通过DNA表达在娘胎里构建了基础的大脑结构，刚出生几十分钟后就可以跟随母亲在草原上奔跑，**而不是让肌肉随机抽搐。**\n\n在分词之后，下一步是为所有可能出现的词元构建一个词汇表（Vocabulary）。词汇表是一个从词元到唯一整数ID的映射。例如，我们可以为英文和中文分别构建词汇表：\n\n**英文词汇表示例：**\n\n| 词元 (Token) | 索引 (Index) |\n| --- | --- |\n| (填充符) | 0 |\n| (未知词) | 1 |\n| (起始符) | 2 |\n| (结束符) | 3 |\n| Transformer | 4 |\n| is | 5 |\n| powerful | 6 |\n| . | 7 |\n\n**中文词汇表示例：**\n\n| 词元 (Token) | 索引 (Index) |\n| --- | --- |\n| (填充符) | 0 |\n| (未知词) | 1 |\n| (起始符) | 2 |\n| (结束符) | 3 |\n| Transformer | 4 |\n| 很 | 5 |\n| 强 | 6 |\n| 大 | 7 |\n| 。 | 8 |\n\n2.3 嵌入（embedding）\n\n把我们的示例词嵌入向量 (维度=4)：\n\n| 词元 (Token) | 索引 (Index) | 示例向量 (Vector) |\n| --- | --- | --- |\n| Transformer | 4 | [0."
+    },
+    {
+      "url": "https://cloud.tencent.com/developer/article/2608139",
+      "claim": "中文教学材料以“Transformer is powerful.”译为“Transformer很强大。”为例串起数据流：分词得到词元与词表索引、词嵌入把离散词元映射为连续向量、位置编码解决并行带来的词序感知问题（如区分“狗咬人”和“人咬狗”）、注意力机制刻画词与词的关联；解码器生成下一个词时用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V，计算注意力权重后对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐。",
+      "quote": "\n计算注意力权重：模型会计算 Q\\_decoder 与所有英文词的K向量的点积，得到一个注意力分数向量。经过Softmax归一化后，这个分数向量就变成了权重向量。我们期望在这个权重向量中，对应“powerful”的权重会非常高。\n\n加权求和：最后，模型用这个权重向量对所有英文词的V向量进行加权求和，得到一个上下文向量。这个向量主要包含了来自“powerful”的信息，并被传递给解码器的下一层，用于最终预测出下一个中文词“强”。\n",
+      "source_id": "ev_2e69479d1666b9a55e05aee3",
+      "finding_id": "f-cn-teaching-flow",
+      "source_hash": "df39ab052a1c4c177733606203c68d606ac0412b3bf0736c2730f7de0868c403",
+      "source_excerpt": "ransformer 在处理长文本、关键信息检索以及对抗幻觉等任务时，常常因过度关注无关上下文而陷入困境，导致模型表现受限。为解决这些问题，研究人员提出了多种改进方案，如 DIFF Transformer、Energy-Based Transformer 等新型架构。\n\nTransformer、MoE 灵活搭配成为主流，也逐渐有加入等新兴架构做混合架构的尝试，据不完全统计，超过一半新发布模型采用混合架构。这种架构创新也许可以打破 \"提升性能必增成本\" 的困境，为 LLM 的高效部署提供了新的可能性。\n\nTransformer架构的核心是Encoder-Decoder结构，编码器负责将输入序列转换为上下文表示，解码器则基于编码器的输出和已生成的输出序列生成下一个输出。\n\n当前主流的LLM架构是只有解码器的模型（Decoder-only Transformer），包含自主力(Self-Attention)和多头注意力(Multi-Head Attention)的注意力层、前馈神经网络(FFN)，注意力层+FFN等模块组成其中一层，多层堆叠，构成一个Decoder-only Transformer模型，层数通常根据任务复杂度而定，层数越多，模型越深，模型效果越好。但是，模型太深，计算量太大，导致训练困难，所以需要一个取舍，层数通常是经验和实战的选择。\n\n在确认LLM架构后，我们就可以开始构建模型了，构建模型时，需要做三件事以把大象装进冰箱：数据、模型、训练。数据的处理包括：文本数据采集、文本数据预处理、文本数据嵌入。模型包括：模型架构、模型参数。训练包括：模型训练、模型评估、模型优化。\n\n数据文本采集此前的文章已经讲过，但为了更好理解 Transformer，还要从另一个视角讲一下文本数据预处理和文本数据嵌入，有助于理解Transformer。文本数据预处理包括：分词、词嵌入。\n\n2.1 Token数据流示例\n\n举例把\"Transformer is powerful.\"翻译成\"Transformer很强大。\"时，翻译到\"Transformer很\"时，解码器已经生成了序列，此时解码器需要根据已生成序列和上下文向量，预测下一个中文词，即\"强\"，已知的Tokens \"Transformer很\"输入时，数据流是如则经过每一层的。\n\n生成Q向量：此时，解码器已经生成了“Transformer 很”。这个已生成的部分序列经过解码器内部的掩码自注意力层处理后，会生成一个代表当前状态（即准备生成下一个词）的查询向量 Q\\_decoder。\n\n提供K、V向量：编码器已经为英文句子“Transformer is powerful.”生成了一个完整的输出矩阵。这个矩阵中的每一行都是一个K-V对，分别代表了“Transformer”、“is”、“powerful”和“.”的键和值信息。\n\n计算注意力权重：模型会计算 Q\\_decoder 与所有英文词的K向量的点积，得到一个注意力分数向量。经过Softmax归一化后，这个分数向量就变成了权重向量。我们期望在这个权重向量中，对应“powerful”的权重会非常高。\n\n加权求和：最后，模型用这个权重向量对所有英文词的V向量进行加权求和，得到一个上下文向量。这个向量主要包含了来自“powerful”的信息，并被传递给解码器的下一层，用于最终预测出下一个中文词“强”。\n\n通过这个过程，模型成功地将源语言中的“powerful”与目标语言中的“强”对齐了起来，实现了精准的翻译。\n\n这个过程把一层Transformer过了一遍。**自此，Transformer的主流程已经讲清楚，接下来，我们再来看看Transformer的细节，如果对Transformer的每个“零件”感兴趣，可以接着看本章内容。**\n\n2.2 分词（token）\n\n举个例子，比如“Transformer is powerful.”，分词后得到“Transformer”、“is”、“powerful”、“.”，其中“.”是句子结束符，表示句子结束，不参与预测。\n\n还想补充的是，我个人的一种理解方式，可以认为分词就是为了得到一本字典的索引（目录），在transformer预测下一个词时，根据当前用户的输入以及已有的预测输出，去匹配字典中的词，找到最匹配的词，然后输出。\n\n这是一种很直观的理解方式，省略了很多细节，比如词嵌入的实现方式，词嵌入的维度，词嵌入的优化方式等，但是这种理解方式，可以让我们对分词有一个直观的认识。 当然，如果只是完全随机在字典里去找下一个词，我们的模型就会表现得很诡异，LLM说出来的话也完全没有意义。所以我们通过设计模型架构，通过嵌入、词位置、神经网络权重调整、注意力机制等手段，在训练中让随机变得逐渐有规律可循。 就好比斑马，在出生前，通过DNA表达在娘胎里构建了基础的大脑结构，刚出生几十分钟后就可以跟随母亲在草原上奔跑，**而不是让肌肉随机抽搐。**\n\n在分词之后，下一步是为所有可能出现的词元构建一个词汇表（Vocabulary）。词汇表是一个从词元到唯一整数ID的映射。例如，我们可以为英文和中文分别构建词汇表：\n\n**英文词汇表示例：**\n\n| 词元 (Token) | 索引 (Index) |\n| --- | --- |\n| (填充符) | 0 |\n| (未知词) | 1 |\n| (起始符) | 2 |\n| (结束符) | 3 |\n| Transformer | 4 |\n| is | 5 |\n| powerful | 6 |\n| . | 7 |\n\n**中文词汇表示例：**\n\n| 词元 (Token) | 索引 (Index) |\n| --- | --- |\n| (填充符) | 0 |\n| (未知词) | 1 |\n| (起始符) | 2 |\n| (结束符) | 3 |\n| Transformer | 4 |\n| 很 | 5 |\n| 强 | 6 |\n| 大 | 7 |\n| 。 | 8 |\n\n2.3 嵌入（embedding）\n\n把我们的示例词嵌入向量 (维度=4)：\n\n| 词元 (Token) | 索引 (Index) | 示例向量 (Vector) |\n| --- | --- | --- |\n| Transformer | 4 | [0."
+    },
+    {
+      "url": "https://cloud.tencent.com/developer/article/2608139",
+      "claim": "中文教学材料以“Transformer is powerful.”译为“Transformer很强大。”为例串起数据流：分词得到词元与词表索引、词嵌入把离散词元映射为连续向量、位置编码解决并行带来的词序感知问题（如区分“狗咬人”和“人咬狗”）、注意力机制刻画词与词的关联；解码器生成下一个词时用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V，计算注意力权重后对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐。",
+      "quote": "\n通过这个过程，模型成功地将源语言中的“powerful”与目标语言中的“强”对齐了起来，实现了精准的翻译。\n\n这个过程把一层Transformer过了一遍。**自此，Transformer的主流程已经讲清楚，接下来，我们再来看看Transformer的细节，如果对Transformer的每个“零件”感兴趣，可以接着看本章内容。**\n\n2.2 分词（token）\n\n",
+      "source_id": "ev_2e69479d1666b9a55e05aee3",
+      "finding_id": "f-cn-teaching-flow",
+      "source_hash": "df39ab052a1c4c177733606203c68d606ac0412b3bf0736c2730f7de0868c403",
+      "source_excerpt": " \"提升性能必增成本\" 的困境，为 LLM 的高效部署提供了新的可能性。\n\nTransformer架构的核心是Encoder-Decoder结构，编码器负责将输入序列转换为上下文表示，解码器则基于编码器的输出和已生成的输出序列生成下一个输出。\n\n当前主流的LLM架构是只有解码器的模型（Decoder-only Transformer），包含自主力(Self-Attention)和多头注意力(Multi-Head Attention)的注意力层、前馈神经网络(FFN)，注意力层+FFN等模块组成其中一层，多层堆叠，构成一个Decoder-only Transformer模型，层数通常根据任务复杂度而定，层数越多，模型越深，模型效果越好。但是，模型太深，计算量太大，导致训练困难，所以需要一个取舍，层数通常是经验和实战的选择。\n\n在确认LLM架构后，我们就可以开始构建模型了，构建模型时，需要做三件事以把大象装进冰箱：数据、模型、训练。数据的处理包括：文本数据采集、文本数据预处理、文本数据嵌入。模型包括：模型架构、模型参数。训练包括：模型训练、模型评估、模型优化。\n\n数据文本采集此前的文章已经讲过，但为了更好理解 Transformer，还要从另一个视角讲一下文本数据预处理和文本数据嵌入，有助于理解Transformer。文本数据预处理包括：分词、词嵌入。\n\n2.1 Token数据流示例\n\n举例把\"Transformer is powerful.\"翻译成\"Transformer很强大。\"时，翻译到\"Transformer很\"时，解码器已经生成了序列，此时解码器需要根据已生成序列和上下文向量，预测下一个中文词，即\"强\"，已知的Tokens \"Transformer很\"输入时，数据流是如则经过每一层的。\n\n生成Q向量：此时，解码器已经生成了“Transformer 很”。这个已生成的部分序列经过解码器内部的掩码自注意力层处理后，会生成一个代表当前状态（即准备生成下一个词）的查询向量 Q\\_decoder。\n\n提供K、V向量：编码器已经为英文句子“Transformer is powerful.”生成了一个完整的输出矩阵。这个矩阵中的每一行都是一个K-V对，分别代表了“Transformer”、“is”、“powerful”和“.”的键和值信息。\n\n计算注意力权重：模型会计算 Q\\_decoder 与所有英文词的K向量的点积，得到一个注意力分数向量。经过Softmax归一化后，这个分数向量就变成了权重向量。我们期望在这个权重向量中，对应“powerful”的权重会非常高。\n\n加权求和：最后，模型用这个权重向量对所有英文词的V向量进行加权求和，得到一个上下文向量。这个向量主要包含了来自“powerful”的信息，并被传递给解码器的下一层，用于最终预测出下一个中文词“强”。\n\n通过这个过程，模型成功地将源语言中的“powerful”与目标语言中的“强”对齐了起来，实现了精准的翻译。\n\n这个过程把一层Transformer过了一遍。**自此，Transformer的主流程已经讲清楚，接下来，我们再来看看Transformer的细节，如果对Transformer的每个“零件”感兴趣，可以接着看本章内容。**\n\n2.2 分词（token）\n\n举个例子，比如“Transformer is powerful.”，分词后得到“Transformer”、“is”、“powerful”、“.”，其中“.”是句子结束符，表示句子结束，不参与预测。\n\n还想补充的是，我个人的一种理解方式，可以认为分词就是为了得到一本字典的索引（目录），在transformer预测下一个词时，根据当前用户的输入以及已有的预测输出，去匹配字典中的词，找到最匹配的词，然后输出。\n\n这是一种很直观的理解方式，省略了很多细节，比如词嵌入的实现方式，词嵌入的维度，词嵌入的优化方式等，但是这种理解方式，可以让我们对分词有一个直观的认识。 当然，如果只是完全随机在字典里去找下一个词，我们的模型就会表现得很诡异，LLM说出来的话也完全没有意义。所以我们通过设计模型架构，通过嵌入、词位置、神经网络权重调整、注意力机制等手段，在训练中让随机变得逐渐有规律可循。 就好比斑马，在出生前，通过DNA表达在娘胎里构建了基础的大脑结构，刚出生几十分钟后就可以跟随母亲在草原上奔跑，**而不是让肌肉随机抽搐。**\n\n在分词之后，下一步是为所有可能出现的词元构建一个词汇表（Vocabulary）。词汇表是一个从词元到唯一整数ID的映射。例如，我们可以为英文和中文分别构建词汇表：\n\n**英文词汇表示例：**\n\n| 词元 (Token) | 索引 (Index) |\n| --- | --- |\n| (填充符) | 0 |\n| (未知词) | 1 |\n| (起始符) | 2 |\n| (结束符) | 3 |\n| Transformer | 4 |\n| is | 5 |\n| powerful | 6 |\n| . | 7 |\n\n**中文词汇表示例：**\n\n| 词元 (Token) | 索引 (Index) |\n| --- | --- |\n| (填充符) | 0 |\n| (未知词) | 1 |\n| (起始符) | 2 |\n| (结束符) | 3 |\n| Transformer | 4 |\n| 很 | 5 |\n| 强 | 6 |\n| 大 | 7 |\n| 。 | 8 |\n\n2.3 嵌入（embedding）\n\n把我们的示例词嵌入向量 (维度=4)：\n\n| 词元 (Token) | 索引 (Index) | 示例向量 (Vector) |\n| --- | --- | --- |\n| Transformer | 4 | [0."
+    },
+    {
+      "url": "https://cloud.tencent.com/developer/article/2608139",
+      "claim": "中文教学材料以“Transformer is powerful.”译为“Transformer很强大。”为例串起数据流：分词得到词元与词表索引、词嵌入把离散词元映射为连续向量、位置编码解决并行带来的词序感知问题（如区分“狗咬人”和“人咬狗”）、注意力机制刻画词与词的关联；解码器生成下一个词时用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V，计算注意力权重后对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐。",
+      "quote": "Transformer模型的一个核心特点是其并行计算能力，它不像循环神经网络（RNN）那样按顺序处理序列。然而，这种并行性也带来了一个问题：模型本身无法感知词语在序列中的位置或顺序。为了解决这个问题，Transformer引入了位置编码（Positional Encoding）机制。位置编码是一组与词嵌入维度相同的向量，它被加到每个词的嵌入向量上，从而为模型提供关于词序的信息。这样，模型就能区分“狗咬人”和“人咬狗”这两种完全不同的含义。位置编码的设计需要满足几个条件：它应该",
+      "source_id": "ev_b36a6fb637f2726baab03dfa",
+      "finding_id": "f-cn-teaching-flow",
+      "source_hash": "0b8a2f6b2ba976de52060fd556f25226880f20e37dd6c6f05784aa77e8ba98c3",
+      "source_excerpt": "PT-3的全部词汇嵌入矩阵就是5025712288=617558016大小，每个维度占据4字节（32位浮点数 FP32），所以GPT-3的词汇嵌入矩阵大小就是6175580164=2470232064字节，也就是2.34GB。\n\n这里维度占据存储空间取决于模型运行时使用的数值精度（数值数据类型）。在深度学习领域，最常见的数据类型是32位浮点数（FP32）和16位浮点数（FP16/BF16）。\n\n不仅是文本，像视频、音频这些不同类型的数据，也能通过专门的神经网络层，或者借助另一个提前训练好的神经网络模型，转换成这种神经网可用的数据格式，这个过程就叫 “嵌入”。 嵌入的分类：\n\n说到底，嵌入的本质其实很简单： **把那些离散的东西（比如单个单词、一张图片，甚至一整篇文档），对应到一个连续的向量空间里，变成一个个 “点”。** 这么做的主要目的，就是把文字、图像这种非数值的数据，转成神经网络能读懂、能处理的格式。\n\n另外，词嵌入中 “维度” 可以从 1 维到几千维不等。一般来说，**维度越高，越能捕捉到数据里那些细微的关系** —— 比如单词之间更复杂的关联。就好比我们用N个字来解释一个词（一维的长序列），解释篇幅越长，这个词的含义就会越能被清晰表达，在整本字典中的位置、与其他词之间的关系就能准确定位，但代价是我们要阅读更多的文字，字典会变得非常厚，我们的大脑也需要理解内化更多知识，超出人脑极限；据说汉字有两万多个，但我们日常常用的仅需四千多个就足够日常生活了，我们无法准确记忆字典每个词的释义，但我们认识的字对应的含义内化在我们的大脑的神经网络当中了。理解回LLM，维度越高我们的计算代价就更高，计算起来会更慢，效率会下降，所以还需要做出权衡。\n\n为更清晰直观理解词嵌入，这里举例rojector.tensorflow 上Word2Vec词嵌入模型在200维度的情况对71291个词元的嵌入结果，再降维到3D，并可视化后的情况，可以直观的看到词元之间的空间情况。可以跳转网页上直观感受动画效果。\n\n词嵌入的实现方式有很多种，如Word2Vec、GloVe、FastText、ELMo、BERT、GPT、GPT-2、GPT-3、GPT-4、GPT-5等，其中GPT-3参数量达到1750亿。\n\n词嵌入外，在AI常见应用中，还有句子嵌入、段落嵌入、文档嵌入等，如RAG应用。\n\n我们的世界还有声音、视频等其他格式的信息，他们之间又如何建立关联关系呢？比如一个多模态的LLM，就需要有这样的能力，这就要实现多模态对齐，需要将不同模态的词元嵌入到同一个空间中，才能进行比较。详细可以参阅：\n\n《CLIP: Connecting text and images》https://openai.com/index/clip/。\n\n2.3.3 位置编码（Positional Encoding）\n\nTransformer模型的一个核心特点是其并行计算能力，它不像循环神经网络（RNN）那样按顺序处理序列。然而，这种并行性也带来了一个问题：模型本身无法感知词语在序列中的位置或顺序。为了解决这个问题，Transformer引入了位置编码（Positional Encoding）机制。位置编码是一组与词嵌入维度相同的向量，它被加到每个词的嵌入向量上，从而为模型提供关于词序的信息。这样，模型就能区分“狗咬人”和“人咬狗”这两种完全不同的含义。位置编码的设计需要满足几个条件：它应该为每个位置生成一个唯一的编码，并且能够处理任意长度的序列。\n\n让我们为案例中的句子“Transformer is powerful.”添加位置编码。假设我们的嵌入维度是4，我们可以使用简化的位置编码函数来生成每个位置的编码向量。\n\n| 词元 (Token) | 位置 (Position) | 词嵌入向量 (Embedding) | 位置编码向量 (Positional Encoding) | 最终输入向量 (Final Input) |\n| --- | --- | --- | --- | --- |\n| Transformer | 0 | [0.2, -0.5, 0.8, 0.1] | [0.0, 1.0, 0.0, 1.0] | [0.2, 0.5, 0.8, 1.1] |\n| is | 1 | [0.1, 0.0, -0.2, 0.9] | [0.8, 0.6, 0.8, 0.6] | [0.9, 0.6, 0.6, 1.5] |\n| powerful | 2 | [0.3, -0.4, 0.7, 0.2] | [0.9, -0.9, 0.9, -0.9] | [1.2, -1.3, 1.6, -0.7] |\n| . | 3 | [-0.1, 0.1, 0.0, 0.1] | [-0.9, 0.9, -0.9, 0.9] | [-1.0, 1.0, -0.9, 1.0] |\n\n在这个例子中，我们为每个位置的词元生成了一个独特的位置编码向量，并将其与词嵌入向量逐元素相加，输入嵌入=词元嵌入矩阵+位置编码矩阵。\n\n位置编码的实现方式有很多种，大致分为两种：\n\n* 绝对位置编码：直接与序列中的特定位置相关联。\n* 相对位置编码：关注的是词元之间的相对位置或距离，而非它们的绝对位置。输入嵌入经过归一化后，可以传递到注意力层。\n\n行文至此，似乎还从未解释过神经网络是什么，以及为什么它们如此强大。\n\n2.4 神经网络\n\n神经网络（Neural Network，NN）是受生物神经网络启发而建立的一种数学模型，它由大量的人工神经元相互连接构成。神经网络是机器学习中非常常用的模型，它具有强大的非线性拟合能力，能够解决很多复杂的问题。神经网络由输入层、隐藏层和输出层组成，其中隐藏层可以有多个，每个隐藏层由多个神经元组成。每个神经元接收上一层神经元的输出，并输出给下一层神经元。神经网络通过反向传播算法来训练，通过不断调整神经元的权重和偏置，使得神经网络能够拟合训练数据。\n\n4层神经网络\n\n1. 输入层 ——输入层由 n 个神经元组成，即 x1、x2、x3、……、x\\_n。\n2. 隐藏层 ——第一个隐藏层由 n-1 个神经元组成，即 h21、h22、h23、……、h\\_n-1，第二个隐藏层由两个神经元组成，即 h31 和 h32。\n3. 输出层 ——输出层有输出 O1，O2，……，On-2。\n4. 并初始化一些随机权重 W1，W2，………，W\\_n。\n5. 输入层由偏差 b1 组成。\n\n我们再来看一个复杂的神经网络：\n\n图中每一个红框都是一层神经网络，如PT-3 davinci版本包含96层神经网络，DeepSeek R1的61层MoE + 前3层密集层Kimi K2的神经网络层数为61层，其中1层为密集层，其余60层为MoE层，最近发布的Kimi K2 thinking也是一样的层数设计。\n\n2.5 注意力机制\n\n编码器（Encoder）是Transformer模型的核心组件之一，其主要任务是接收经过预处理的输入序列（即融合了位置信息的词嵌入向量），并将其转换为一个富含上下文信息的特征表示。这个特征表示捕捉了输入句子中所有词语之间的复杂关系，包括语法结构和语义依赖。编码器由多个相同的层（layers）堆叠而成，每一层都包含两个主要的子层：一个多头自注意力层（Multi-Head Self-Attention）和一个简单的、位置全连接的前馈神经网络（Feed-Forward Network）。在每个子层周围都使用了残差连接（Residual Connection）和层归一化（Layer Normalization），以帮助模型更稳定地进行训练。通过这一系列操作，编码器能够逐步提炼输入序列的表示，为解码器生成目标序列提供全面的上下文信息。\n\n为什么需要注意力机制？解决的是在预测下一个词时，要理解上下文的关系，才能更好的预测下一个词，让模型表现更好。好比别人给我们丢了一个问题，我脑袋空空，手上只有一本几万个字的字典，我怎样才能更好的回答这个问题呢？我需要先看下问题，然后看下问题中的关键词，**再根据关键词去字典中找答案**，这样就能更好的回答这个问题了。那如何能找到与问题最关联的下一个词呢？\n\n这就需要使用注意力机制捕捉数据依赖关系，是现代深度学习模型中非常常见的做法。比如，我们想让模型理解 “我” 和 “你” 之间的关系，就可以用注意力机制，让模型 “看” 到 “我” 和 “你” 之间的关联。举个类比就是就像我们拿SQL语句去关系型数据库查询我们想要的数据一样，我们拿查询条件去匹配库表中的值，从而拿到我们想要的数据记录。当然，远没有那么简单，SQL语句是 “静态” 的，而模型是 “动态” 的，随着输出追加到输入后面再座位新的输入，整个上下文的词列表一直在变化，我们就需要重新计算注意力。\n\n注意力机制包括：自注意力机制、多头注意力机制、位置编码、注意力机制的变体等。\n\n2.5.1 注意力机制\n\n**原理**\n\n传统的注意力机制关注的是两个不同序列元素之间的关系。在自注意力机制中，“自”指的是该机制通过关联单个输入序列中的不同位置来计算注意力权重的能力。核心思想：让每个词关注句子中的其他词。\n\n它可以评估并学习输入本身各个部分之间的关系"
+    },
+    {
+      "url": "https://cloud.tencent.com/developer/article/2608139",
+      "claim": "中文教学材料以“Transformer is powerful.”译为“Transformer很强大。”为例串起数据流：分词得到词元与词表索引、词嵌入把离散词元映射为连续向量、位置编码解决并行带来的词序感知问题（如区分“狗咬人”和“人咬狗”）、注意力机制刻画词与词的关联；解码器生成下一个词时用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V，计算注意力权重后对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐。",
+      "quote": "| 3 | [-0.1, 0.1, 0.0, 0.1] | [-0.9, 0.9, -0.9, 0.9] | [-1.0, 1.0, -0.9, 1.0] |\n\n在这个例子中，我们为每个位置的词元生成了一个独特的位置编码向量，并将其与词嵌入向量逐元素相加，输入嵌入=词元嵌入矩阵+位置编码矩阵。\n\n位置编码的实现方式有很多种，大致分为两种：\n\n* 绝对位置编码：直接与序列中的特定位置相关联。\n",
+      "source_id": "ev_b36a6fb637f2726baab03dfa",
+      "finding_id": "f-cn-teaching-flow",
+      "source_hash": "0b8a2f6b2ba976de52060fd556f25226880f20e37dd6c6f05784aa77e8ba98c3",
+      "source_excerpt": "nsorflow 上Word2Vec词嵌入模型在200维度的情况对71291个词元的嵌入结果，再降维到3D，并可视化后的情况，可以直观的看到词元之间的空间情况。可以跳转网页上直观感受动画效果。\n\n词嵌入的实现方式有很多种，如Word2Vec、GloVe、FastText、ELMo、BERT、GPT、GPT-2、GPT-3、GPT-4、GPT-5等，其中GPT-3参数量达到1750亿。\n\n词嵌入外，在AI常见应用中，还有句子嵌入、段落嵌入、文档嵌入等，如RAG应用。\n\n我们的世界还有声音、视频等其他格式的信息，他们之间又如何建立关联关系呢？比如一个多模态的LLM，就需要有这样的能力，这就要实现多模态对齐，需要将不同模态的词元嵌入到同一个空间中，才能进行比较。详细可以参阅：\n\n《CLIP: Connecting text and images》https://openai.com/index/clip/。\n\n2.3.3 位置编码（Positional Encoding）\n\nTransformer模型的一个核心特点是其并行计算能力，它不像循环神经网络（RNN）那样按顺序处理序列。然而，这种并行性也带来了一个问题：模型本身无法感知词语在序列中的位置或顺序。为了解决这个问题，Transformer引入了位置编码（Positional Encoding）机制。位置编码是一组与词嵌入维度相同的向量，它被加到每个词的嵌入向量上，从而为模型提供关于词序的信息。这样，模型就能区分“狗咬人”和“人咬狗”这两种完全不同的含义。位置编码的设计需要满足几个条件：它应该为每个位置生成一个唯一的编码，并且能够处理任意长度的序列。\n\n让我们为案例中的句子“Transformer is powerful.”添加位置编码。假设我们的嵌入维度是4，我们可以使用简化的位置编码函数来生成每个位置的编码向量。\n\n| 词元 (Token) | 位置 (Position) | 词嵌入向量 (Embedding) | 位置编码向量 (Positional Encoding) | 最终输入向量 (Final Input) |\n| --- | --- | --- | --- | --- |\n| Transformer | 0 | [0.2, -0.5, 0.8, 0.1] | [0.0, 1.0, 0.0, 1.0] | [0.2, 0.5, 0.8, 1.1] |\n| is | 1 | [0.1, 0.0, -0.2, 0.9] | [0.8, 0.6, 0.8, 0.6] | [0.9, 0.6, 0.6, 1.5] |\n| powerful | 2 | [0.3, -0.4, 0.7, 0.2] | [0.9, -0.9, 0.9, -0.9] | [1.2, -1.3, 1.6, -0.7] |\n| . | 3 | [-0.1, 0.1, 0.0, 0.1] | [-0.9, 0.9, -0.9, 0.9] | [-1.0, 1.0, -0.9, 1.0] |\n\n在这个例子中，我们为每个位置的词元生成了一个独特的位置编码向量，并将其与词嵌入向量逐元素相加，输入嵌入=词元嵌入矩阵+位置编码矩阵。\n\n位置编码的实现方式有很多种，大致分为两种：\n\n* 绝对位置编码：直接与序列中的特定位置相关联。\n* 相对位置编码：关注的是词元之间的相对位置或距离，而非它们的绝对位置。输入嵌入经过归一化后，可以传递到注意力层。\n\n行文至此，似乎还从未解释过神经网络是什么，以及为什么它们如此强大。\n\n2.4 神经网络\n\n神经网络（Neural Network，NN）是受生物神经网络启发而建立的一种数学模型，它由大量的人工神经元相互连接构成。神经网络是机器学习中非常常用的模型，它具有强大的非线性拟合能力，能够解决很多复杂的问题。神经网络由输入层、隐藏层和输出层组成，其中隐藏层可以有多个，每个隐藏层由多个神经元组成。每个神经元接收上一层神经元的输出，并输出给下一层神经元。神经网络通过反向传播算法来训练，通过不断调整神经元的权重和偏置，使得神经网络能够拟合训练数据。\n\n4层神经网络\n\n1. 输入层 ——输入层由 n 个神经元组成，即 x1、x2、x3、……、x\\_n。\n2. 隐藏层 ——第一个隐藏层由 n-1 个神经元组成，即 h21、h22、h23、……、h\\_n-1，第二个隐藏层由两个神经元组成，即 h31 和 h32。\n3. 输出层 ——输出层有输出 O1，O2，……，On-2。\n4. 并初始化一些随机权重 W1，W2，………，W\\_n。\n5. 输入层由偏差 b1 组成。\n\n我们再来看一个复杂的神经网络：\n\n图中每一个红框都是一层神经网络，如PT-3 davinci版本包含96层神经网络，DeepSeek R1的61层MoE + 前3层密集层Kimi K2的神经网络层数为61层，其中1层为密集层，其余60层为MoE层，最近发布的Kimi K2 thinking也是一样的层数设计。\n\n2.5 注意力机制\n\n编码器（Encoder）是Transformer模型的核心组件之一，其主要任务是接收经过预处理的输入序列（即融合了位置信息的词嵌入向量），并将其转换为一个富含上下文信息的特征表示。这个特征表示捕捉了输入句子中所有词语之间的复杂关系，包括语法结构和语义依赖。编码器由多个相同的层（layers）堆叠而成，每一层都包含两个主要的子层：一个多头自注意力层（Multi-Head Self-Attention）和一个简单的、位置全连接的前馈神经网络（Feed-Forward Network）。在每个子层周围都使用了残差连接（Residual Connection）和层归一化（Layer Normalization），以帮助模型更稳定地进行训练。通过这一系列操作，编码器能够逐步提炼输入序列的表示，为解码器生成目标序列提供全面的上下文信息。\n\n为什么需要注意力机制？解决的是在预测下一个词时，要理解上下文的关系，才能更好的预测下一个词，让模型表现更好。好比别人给我们丢了一个问题，我脑袋空空，手上只有一本几万个字的字典，我怎样才能更好的回答这个问题呢？我需要先看下问题，然后看下问题中的关键词，**再根据关键词去字典中找答案**，这样就能更好的回答这个问题了。那如何能找到与问题最关联的下一个词呢？\n\n这就需要使用注意力机制捕捉数据依赖关系，是现代深度学习模型中非常常见的做法。比如，我们想让模型理解 “我” 和 “你” 之间的关系，就可以用注意力机制，让模型 “看” 到 “我” 和 “你” 之间的关联。举个类比就是就像我们拿SQL语句去关系型数据库查询我们想要的数据一样，我们拿查询条件去匹配库表中的值，从而拿到我们想要的数据记录。当然，远没有那么简单，SQL语句是 “静态” 的，而模型是 “动态” 的，随着输出追加到输入后面再座位新的输入，整个上下文的词列表一直在变化，我们就需要重新计算注意力。\n\n注意力机制包括：自注意力机制、多头注意力机制、位置编码、注意力机制的变体等。\n\n2.5.1 注意力机制\n\n**原理**\n\n传统的注意力机制关注的是两个不同序列元素之间的关系。在自注意力机制中，“自”指的是该机制通过关联单个输入序列中的不同位置来计算注意力权重的能力。核心思想：让每个词关注句子中的其他词。\n\n它可以评估并学习输入本身各个部分之间的关系和依赖，比如句子中的单词或图片中的像素。如下图中的\"doc\"就需要计算整个输入序列中各个元素之间的关系，从而计算出每个元素对应的权重\n\n，再以此计算出上下文向量\n\n。\n\n在自注意力机制中，我们的目标是为输入序列中的每个元素计算上下文向量。上下文向量(context vector)可以被理解为一种包含了序列中所有元素信息的嵌入向量。\n\n* 一个输入序列，记为x，它由T个元素组成，分别表示为x(1)到x(t)。\n* 嵌入化词元序列之间的注意力权重α= 注意力分数w的归一化\n* 注意力分数w=词元x(n)与其他词元的点积而得；点积值越大则这两个词元相似度越高（即对齐度越高）\n* 注意力分数归一化softmax后得到每一个词元的注"
+    },
+    {
+      "url": "https://cloud.tencent.com/developer/article/2608139",
+      "claim": "中文教学材料以“Transformer is powerful.”译为“Transformer很强大。”为例串起数据流：分词得到词元与词表索引、词嵌入把离散词元映射为连续向量、位置编码解决并行带来的词序感知问题（如区分“狗咬人”和“人咬狗”）、注意力机制刻画词与词的关联；解码器生成下一个词时用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V，计算注意力权重后对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐。",
+      "quote": "们就需要重新计算注意力。\n\n注意力机制包括：自注意力机制、多头注意力机制、位置编码、注意力机制的变体等。\n\n2.5.1 注意力机制\n\n**原理**\n\n传统的注意力机制关注的是两个不同序列元素之间的关系。在自注意力机制中，“自”指的是该机制通过关联单个输入序列中的不同位置来计算注意力权重的能力。核心思想：让每个词关注句子中的其他词。\n",
+      "source_id": "ev_b36a6fb637f2726baab03dfa",
+      "finding_id": "f-cn-teaching-flow",
+      "source_hash": "0b8a2f6b2ba976de52060fd556f25226880f20e37dd6c6f05784aa77e8ba98c3",
+      "source_excerpt": "练，通过不断调整神经元的权重和偏置，使得神经网络能够拟合训练数据。\n\n4层神经网络\n\n1. 输入层 ——输入层由 n 个神经元组成，即 x1、x2、x3、……、x\\_n。\n2. 隐藏层 ——第一个隐藏层由 n-1 个神经元组成，即 h21、h22、h23、……、h\\_n-1，第二个隐藏层由两个神经元组成，即 h31 和 h32。\n3. 输出层 ——输出层有输出 O1，O2，……，On-2。\n4. 并初始化一些随机权重 W1，W2，………，W\\_n。\n5. 输入层由偏差 b1 组成。\n\n我们再来看一个复杂的神经网络：\n\n图中每一个红框都是一层神经网络，如PT-3 davinci版本包含96层神经网络，DeepSeek R1的61层MoE + 前3层密集层Kimi K2的神经网络层数为61层，其中1层为密集层，其余60层为MoE层，最近发布的Kimi K2 thinking也是一样的层数设计。\n\n2.5 注意力机制\n\n编码器（Encoder）是Transformer模型的核心组件之一，其主要任务是接收经过预处理的输入序列（即融合了位置信息的词嵌入向量），并将其转换为一个富含上下文信息的特征表示。这个特征表示捕捉了输入句子中所有词语之间的复杂关系，包括语法结构和语义依赖。编码器由多个相同的层（layers）堆叠而成，每一层都包含两个主要的子层：一个多头自注意力层（Multi-Head Self-Attention）和一个简单的、位置全连接的前馈神经网络（Feed-Forward Network）。在每个子层周围都使用了残差连接（Residual Connection）和层归一化（Layer Normalization），以帮助模型更稳定地进行训练。通过这一系列操作，编码器能够逐步提炼输入序列的表示，为解码器生成目标序列提供全面的上下文信息。\n\n为什么需要注意力机制？解决的是在预测下一个词时，要理解上下文的关系，才能更好的预测下一个词，让模型表现更好。好比别人给我们丢了一个问题，我脑袋空空，手上只有一本几万个字的字典，我怎样才能更好的回答这个问题呢？我需要先看下问题，然后看下问题中的关键词，**再根据关键词去字典中找答案**，这样就能更好的回答这个问题了。那如何能找到与问题最关联的下一个词呢？\n\n这就需要使用注意力机制捕捉数据依赖关系，是现代深度学习模型中非常常见的做法。比如，我们想让模型理解 “我” 和 “你” 之间的关系，就可以用注意力机制，让模型 “看” 到 “我” 和 “你” 之间的关联。举个类比就是就像我们拿SQL语句去关系型数据库查询我们想要的数据一样，我们拿查询条件去匹配库表中的值，从而拿到我们想要的数据记录。当然，远没有那么简单，SQL语句是 “静态” 的，而模型是 “动态” 的，随着输出追加到输入后面再座位新的输入，整个上下文的词列表一直在变化，我们就需要重新计算注意力。\n\n注意力机制包括：自注意力机制、多头注意力机制、位置编码、注意力机制的变体等。\n\n2.5.1 注意力机制\n\n**原理**\n\n传统的注意力机制关注的是两个不同序列元素之间的关系。在自注意力机制中，“自”指的是该机制通过关联单个输入序列中的不同位置来计算注意力权重的能力。核心思想：让每个词关注句子中的其他词。\n\n它可以评估并学习输入本身各个部分之间的关系和依赖，比如句子中的单词或图片中的像素。如下图中的\"doc\"就需要计算整个输入序列中各个元素之间的关系，从而计算出每个元素对应的权重\n\n，再以此计算出上下文向量\n\n。\n\n在自注意力机制中，我们的目标是为输入序列中的每个元素计算上下文向量。上下文向量(context vector)可以被理解为一种包含了序列中所有元素信息的嵌入向量。\n\n* 一个输入序列，记为x，它由T个元素组成，分别表示为x(1)到x(t)。\n* 嵌入化词元序列之间的注意力权重α= 注意力分数w的归一化\n* 注意力分数w=词元x(n)与其他词元的点积而得；点积值越大则这两个词元相似度越高（即对齐度越高）\n* 注意力分数归一化softmax后得到每一个词元的注"
+    }
+  ],
+  "language": "zh",
+  "required": true,
+  "revision": 2,
+  "objectives": [
+    "解释注意力函数是把查询与一组键值对映射为输出，输出为值的加权和，权重由查询与键的相容性函数给出",
+    "按步骤手算缩放点积注意力：Q 与所有 K 点积 → 除以 √dk → softmax 归一化 → 对 V 加权求和，并写出矩阵形式 softmax(QK^T/√dk)V",
+    "说明除以 √dk 的原因：dk 较大时点积幅值增大，会把 softmax 推入梯度极小的区域",
+    "说明自注意力中 Q、K、V 均来自同一序列，用于刻画序列内部各位置的关系"
+  ],
+  "memory_refs": {},
+  "memory_epoch": 0,
+  "objective_ids": [
+    "n3-self-attention:o1",
+    "n3-self-attention:o2",
+    "n3-self-attention:o3",
+    "n3-self-attention:o4"
+  ],
+  "resource_type": "quiz",
+  "learning_check": "能写出缩放点积注意力公式并解释每个符号；能手算一个 3×3 的注意力权重矩阵并验证每行和为 1；能说明缩放因子的作用而不是死记公式。",
+  "memory_subject": "teacher",
+  "schema_version": 2,
+  "config_snapshot": {},
+  "original_content": {
+    "title": "自注意力：Q/K/V 与缩放点积计算 · 练习",
+    "questions": [
+      {
+        "id": "q1",
+        "stem": "关于注意力函数 Attention(Q, K, V) 的一般定义，下列哪一项描述最准确？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "输出是值向量 V 的加权和，每个值的权重由查询 Q 与对应键 K 的相容性函数计算得到",
+          "输出是查询 Q 与键 K 的点积本身，值向量 V 只用于提供维度信息",
+          "输出是键向量 K 的加权和，权重由值向量 V 之间的相似度决定",
+          "输出是查询 Q 与所有键 K 的算术平均，权重对所有键固定为 1/n"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：论文把注意力函数描述为“把一个查询和一组键值对映射为输出”，输出是值的加权和，权重由查询与对应键的相容性函数给出。B 错误：点积只是相容性函数的一种实现，用来产生权重，输出并不是点积本身，V 也不是只提供维度。C 错误：加权求和的对象是值 V 而不是键 K，权重来自 Q 与 K 的相容性，而不是 V 与 V 的相似度。D 错误：权重由相容性函数决定并通常经 softmax 归一化，不是固定为 1/n 的算术平均；若权重固定，注意力就无法根据内容选择信息。"
+      },
+      {
+        "id": "q2",
+        "stem": "设 3 个词元，键维度 dk=2。查询矩阵 Q 的三行（每个词元一个查询）为 q1=(1,0)、q2=(0,1)、q3=(1,1)；键矩阵 K 的三行与查询相同，即 k1=(1,0)、k2=(0,1)、k3=(1,1)；值矩阵 V 的三行为 v1=(1,0)、v2=(0,1)、v3=(2,2)。请按“Q 与所有 K 点积 → 除以 √dk → softmax 归一化 → 对 V 加权求和”的步骤，写出缩放后的分数矩阵、注意力权重矩阵（保留 3 位小数），以及三个输出向量。",
+        "type": "short_answer",
+        "answer": "缩放后分数矩阵（每行除以 √2≈1.414214）：第 1 行 (0.707107, 0, 0.707107)；第 2 行 (0, 0.707107, 0.707107)；第 3 行 (0.707107, 0.707107, 1.414214)。权重矩阵：第 1 行 (0.401, 0.198, 0.401)；第 2 行 (0.198, 0.401, 0.401)；第 3 行 (0.248, 0.248, 0.503)。输出：o1=(1.203, 1.000)，o2=(1.000, 1.203)，o3=(1.255, 1.255)。",
+        "difficulty": "hard",
+        "explanation": "第一步点积 QK^T：q1·k1=1、q1·k2=0、q1·k3=1；q2·k1=0、q2·k2=1、q2·k3=1；q3·k1=1、q3·k2=1、q3·k3=2。第一步点积 QK^T：q1·k1=1、q1·k2=0、q1·k3=1；q2·k1=0、q2·k2=1、q2·k3=1；q3·k1=1、q3·k2=1、q3·k3=2。第二步除以 √dk=√2≈1.414214，得到缩放后的分数矩阵：第 1 行 (0.707107, 0, 0.707107)，第 2 行 (0, 0.707107, 0.707107)，第 3 行 (0.707107, 0.707107, 1.414214)。第三步对每行做 softmax：第 1 行 exp(0.707107)=2.028114、exp(0)=1、exp(0.707107)=2.028114，和为 5.056228，权重为 (2.028114/5.056228, 1/5.056228, 2.028114/5.056228)=(0.401, 0.198, 0.401)。第 2 行与第 1 行对称，权重为 (0.198, 0.401, 0.401)。第 3 行 exp(0.707107)=2.028114、exp(0.707107)=2.028114、exp(1.414214)=4.113251，和为 8.169479，权重为 (2.028114/8.169479, 2.028114/8.169479, 4.113251/8.169479)=(0.248, 0.248, 0.503)。第四步对 V 加权求和：o1=0.401·(1,0)+0.198·(0,1)+0.401·(2,2)=(0.401+0.802, 0.198+0.802)=(1.203, 1.000)；o2 对称得 (1.000, 1.203)；o3=0.248·(1,0)+0.248·(0,1)+0.503·(2,2)=(0.248+1.006, 0.248+1.006)=(1.254, 1.254)，按未舍入权重 0.248255 与 0.503490 计算为 (0.248255+1.006980, 0.248255+1.006980)=(1.255, 1.255)。关键检查：每行权重之和为 1（0.401+0.198+0.401=1.000，0.248+0.248+0.503=0.999≈1），且输出维度等于 dv=2。"
+      },
+      {
+        "id": "q3",
+        "stem": "缩放点积注意力中把点积除以 √dk，主要原因是：",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "dk 较大时点积的幅值会变大，使 softmax 进入梯度极小的区域，缩放可以把分数拉回梯度较正常的范围",
+          "除以 √dk 可以减小模型参数量，从而降低显存占用",
+          "除以 √dk 是为了让注意力权重之和恰好等于 dk",
+          "除以 √dk 是为了防止过拟合，起到正则化作用"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：论文指出 dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域；论文脚注进一步说明，若 q、k 各分量是均值 0、方差 1 的独立随机变量，则点积的方差为 dk，因此用 1/√dk 缩放可把方差拉回 1 量级。B 错误：缩放只是对分数做常数除法，不引入或删除任何参数，参数量不变。C 错误：softmax 的输出按定义每行和为 1，与 dk 无关；缩放改变的是分布的陡峭程度，不是权重总和。D 错误：缩放因子是固定的常数 1/√dk，不是可学习的正则项，也不以抑制过拟合为目的。"
+      },
+      {
+        "id": "q4",
+        "stem": "在自注意力层中，查询 Q、键 K、值 V 都来自同一个序列（例如编码器上一层的输出），其作用是刻画该序列内部各位置之间的关系。",
+        "type": "true_false",
+        "answer": "正确",
+        "difficulty": "easy",
+        "explanation": "论文明确指出，在自注意力层中所有键、值和查询都来自同一处，即编码器上一层的输出；中文材料也把“自”解释为关联单个输入序列中不同位置来计算注意力权重。与之相对，编码器-解码器注意力中查询来自解码器上一层，键和值来自编码器输出，二者来源不同。因此该说法正确。"
+      },
+      {
+        "id": "q5",
+        "stem": "关于缩放点积注意力的矩阵形式 Attention(Q, K, V) = softmax(QK^T/√dk)V，下列说法正确的有：",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "Q 的形状是 n×dk，K 的形状是 m×dk，因此 QK^T 的形状是 n×m",
+          "softmax 作用在 QK^T/√dk 的每一行上，使每个查询对所有键的权重之和为 1",
+          "最终输出的形状是 n×dv，其中 dv 是值向量的维度",
+          "公式中的 √dk 应理解为对 QK^T 的每个元素开平方根"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：Q 的每一行是一个 dk 维查询，K 的每一行是一个 dk 维键，二者转置相乘后得到 n 个查询对 m 个键的分数矩阵，形状 n×m。B 正确：softmax 沿键的方向（即每一行）归一化，这正是“每个查询的权重和为 1”的来源。C 正确：权重矩阵 n×m 再乘 V（m×dv），得到 n×dv 的输出，每个查询对应一个 dv 维输出向量。D 错误：√dk 是对整个分数矩阵统一除以的标量 √dk，不是对每个元素开平方；若对每个元素开方，分数矩阵的数值关系会被彻底改变，也不再是论文定义的缩放方式。"
+      }
+    ]
+  },
+  "teaching_context": {
+    "depth": "introductory",
+    "node_id": "n3-self-attention",
+    "language": "zh",
+    "exclusions": [],
+    "objectives": [
+      "解释注意力函数是把查询与一组键值对映射为输出，输出为值的加权和，权重由查询与键的相容性函数给出",
+      "按步骤手算缩放点积注意力：Q 与所有 K 点积 → 除以 √dk → softmax 归一化 → 对 V 加权求和，并写出矩阵形式 softmax(QK^T/√dk)V",
+      "说明除以 √dk 的原因：dk 较大时点积幅值增大，会把 softmax 推入梯度极小的区域",
+      "说明自注意力中 Q、K、V 均来自同一序列，用于刻画序列内部各位置的关系"
+    ],
+    "self_check": "能写出缩放点积注意力公式并解释每个符号；能手算一个 3×3 的注意力权重矩阵并验证每行和为 1；能说明缩放因子的作用而不是死记公式。",
+    "assumptions": [
+      "用户未指定课程总时长，采用默认 60 分钟",
+      "用户未指定材料语言，按提问语言推断为中文",
+      "用户未说明已有基础，按入门深度组织内容",
+      "用户未说明具体用途（如 NLP 应用、模型微调或研究），按通用架构原理理解组织内容"
+    ],
+    "limitations": [
+      "用户未上传资料，全部知识依据来自公开论文《Attention Is All You Need》与两篇中文技术讲解文章",
+      "课程为入门级原理理解，不包含从零实现可运行 Transformer 代码、训练与调参内容",
+      "节点中引用的 N=6、dmodel=512、h=8、dff=2048 为 2017 年原始 base 模型设定，不代表所有后续变体",
+      "用户未说明已有基础与具体用途，路径按通用架构原理组织，若需面向 NLP 应用或模型微调需另行补充",
+      "用户未上传资料，全部知识依据来自公开论文与中文技术文章",
+      "课程为入门级原理理解，不涉及从零实现可运行 Transformer 代码或训练调参",
+      "论文中的具体超参数（N=6、dmodel=512、h=8、dff=2048）为 2017 年原始 base 模型设定，不代表所有后续变体",
+      "用户未上传任何资料，Transformer 的架构细节、注意力计算、位置编码等知识需由研究阶段从公开来源补充"
+    ],
+    "request_goal": "我想学习transformer",
+    "requirements": [
+      {
+        "text": "讲授 Transformer 的核心概念与架构原理，使学习者理解其工作机制",
+        "source_ref": null,
+        "source_quote": "我想学习transformer",
+        "requirement_id": "req-goal-transformer",
+        "source_document_id": null
+      }
+    ],
+    "objective_ids": [
+      "n3-self-attention:o1",
+      "n3-self-attention:o2",
+      "n3-self-attention:o3",
+      "n3-self-attention:o4"
+    ],
+    "prerequisites": [
+      {
+        "title": "整体结构：编码器-解码器与端到端数据流",
+        "node_id": "n2-overall-architecture",
+        "objectives": [
+          "描述编码器把输入符号序列 (x1..xn) 映射为连续表示 z、解码器基于 z 自回归逐符号生成输出的整体流程",
+          "按顺序说明数据流：分词与词表索引 → 词嵌入 → 加位置编码 → 编码器栈 → 解码器栈 → 线性层与 softmax 输出下一个词元概率",
+          "说明嵌入层与 softmax 前线性变换共享权重、嵌入权重乘以 √dmodel 的设计"
+        ]
+      }
+    ],
+    "source_policy": {
+      "mode": "open"
+    },
+    "schema_version": 1,
+    "prior_knowledge": "未知",
+    "requirement_ids": [
+      "req-goal-transformer"
+    ],
+    "desired_outcomes": [
+      "能说明 Transformer 的整体结构与数据流",
+      "能解释自注意力机制的计算过程与作用",
+      "能区分编码器与解码器各子层（多头注意力、前馈网络、残差与归一化）的职责",
+      "能说明位置编码的必要性及 Transformer 相对循环网络的优势"
+    ],
+    "learning_context": null,
+    "requested_changes": [],
+    "learning_activities": [
+      "用 3 个词元、dk=2 的玩具数值，手算注意力分数矩阵、softmax 权重与加权求和结果",
+      "对照公式 Attention(Q,K,V)=softmax(QK^T/√dk)V，逐项标注 Q、K、V、dk 的维度",
+      "课堂练习：把 dk 从 2 改为 64，讨论不缩放时 softmax 输出会怎样变化"
+    ],
+    "node_budget_minutes": 14,
+    "effective_preferences": {},
+    "resource_target_minutes": null
+  },
+  "revision_feedback": [
+    "RESOURCE_CONTENT_REJECTED",
+    "q2 解析中“第一步点积 QK^T：q1·k1=1、q1·k2=0、q1·k3=1；q2·k1=0、q2·k2=1、q2·k3=1；q3·k1=1、q3·k2=1、q3·k3=2。”整段重复出现两次（explanation_segments 第 0–2 段与第 3–5 段），需删除重复段落。; q2 解析第 0–2 段与第 3–5 段完全重复（“第一步点积 QK^T”整段出现两次），属正文冗余错误；其余数值（缩放分数、softmax 权重、输出向量）经独立复算均正确。; 第 2 题：QK^T=[[1,0,1],[0,1,1],[1,1,2]]；除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；逐行 softmax 得 [[0.4013,0.1979,0.4013],[0.1979,0.4013,0.4013],[0.2483,0.2483,0.5035]]；乘 V=[[1,0],[0,1],[2,2]] 得 o1=(1.204,1.000)、o2=(1.000,1.204)、o3=(1.255,1.255)。答案与解析数值一致，但解析首段重复。"
+  ],
+  "preparation_policy": "automatic_personal_draft_v1",
+  "source_resource_ref": null,
+  "delivery_resource_id": null,
+  "delivery_resource_version": 1
+}

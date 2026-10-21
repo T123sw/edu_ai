@@ -1,0 +1,21 @@
+    // 推进索引 / 轮次
+    var passEnd = st.sortedFrom - 1; // 本轮最后一个左索引
+    if (i >= passEnd - 1){
+      // 本轮结束
+      st.sortedFrom = st.sortedFrom - 1;
+      var noSwap = !st.swappedInPass;
+      st.pass = st.pass + 1;
+      st.i = 0;
+      st.swappedInPass = false;
+      st.comparing = null;
+
+      if (noSwap || st.sortedFrom <= 1){
+        st.done = true;
+        st.lastAction = "第 " + st.pass + " 轮结束，无交换 → 排序完成";
+      } else {
+        st.lastAction = "第 " + st.pass + " 轮结束，最大值已就位";
+      }
+    } else {
+      st.i = i + 1;
+    }
+

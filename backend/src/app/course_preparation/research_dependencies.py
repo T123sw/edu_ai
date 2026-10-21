@@ -43,7 +43,8 @@ def agent_factory(username, snapshot):
         from .research_agent import ResearchError
         raise ResearchError('CONFIG_REVISION_UNAVAILABLE', '任务绑定的模型配置已不可用')
     gateway = ChatModelGateway(api_base=config['base_url'], api_key=config.get('api_key'), model_name=config['model'])
-    return ResearchAgent(model=HarnessPreparationAdapter(gateway, context_tokens=int(os.getenv('COURSE_RESEARCH_CONTEXT_TOKENS', '128000'))), sources=ResearchSources(
+    from .model_capacity import model_capacity
+    return ResearchAgent(model=HarnessPreparationAdapter(gateway, context_tokens=model_capacity(gateway)[0]), sources=ResearchSources(
         tavily_key=os.getenv('TAVILY_API_KEY', ''), bocha_key=os.getenv('BOCHA_API_KEY', ''),
         tavily_base=os.getenv('TAVILY_BASE_URL', 'https://api.tavily.com')))
 

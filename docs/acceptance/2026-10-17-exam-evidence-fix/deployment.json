@@ -1,0 +1,30 @@
+{
+  "deployed_at": "2026-10-17 18:28:51 UTC",
+  "previous_patch": [
+    {
+      "file": "0008-bounded-exam-calculations.patch",
+      "sha256": "7421e0a7c1c2f690d5ac0371d5823e194dace0ce06a60314552e9335fb8c3057"
+    }
+  ],
+  "active_turns_before_restart": 0,
+  "prepared": {
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "version": "1.6.14",
+    "source": "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor",
+    "patches": [
+      {
+        "file": "0009-tree-index-conventions.patch",
+        "sha256": "d9f76e9c0cfacb6b813267f74e6234962a00bd7ae66f0c51a4584da2b1c73dbe"
+      }
+    ]
+  },
+  "service": "MainPID=2032008\nActiveState=active\nActiveEnterTimestamp=Sat 2026-10-17 18:28:51 UTC\n",
+  "validation_boundary": "32-question production test used 0008; 0009 adds explicit tree index-base support and passed 109 service tests plus 11 real-model answer cases",
+  "health": {
+    "status": "ok",
+    "version": "1.6.14",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "scope": "internal_bridge",
+    "exam_ready": false
+  }
+}

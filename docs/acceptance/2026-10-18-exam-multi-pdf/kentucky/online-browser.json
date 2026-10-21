@@ -1,0 +1,101 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "多PDF验收 kentucky 1792299349506",
+  "startedAt": "2026-10-18T04:55:49.506Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/examgen_fa786a3a74a92aae15352a8c728c740b/retry",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-18T04:55:55.241Z",
+      "attempt": 0,
+      "generation_id": "examgen_fa786a3a74a92aae15352a8c728c740b",
+      "job_id": "examgen_fa786a3a74a92aae15352a8c728c740b",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T04:56:11.643Z",
+      "attempt": 0,
+      "generation_id": "examgen_fa786a3a74a92aae15352a8c728c740b",
+      "job_id": "examgen_fa786a3a74a92aae15352a8c728c740b",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T04:56:23.175Z",
+      "attempt": 0,
+      "generation_id": "examgen_fa786a3a74a92aae15352a8c728c740b",
+      "job_id": "examgen_fa786a3a74a92aae15352a8c728c740b",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    },
+    {
+      "at": "2026-10-18T04:56:30.936Z",
+      "attempt": 1,
+      "generation_id": "examgen_e83fa26a0dcc55e01e4c24e60549a7f1",
+      "job_id": "job_23c898864e9e4172",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T04:57:57.511Z",
+      "attempt": 1,
+      "generation_id": "examgen_e83fa26a0dcc55e01e4c24e60549a7f1",
+      "job_id": "job_23c898864e9e4172",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_fa786a3a74a92aae15352a8c728c740b",
+    "examgen_e83fa26a0dcc55e01e4c24e60549a7f1"
+  ],
+  "retries": 1,
+  "refresh_recovery": true,
+  "completed": false,
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "expected_questions": 4,
+  "source": "kentucky",
+  "finishedAt": "2026-10-18T04:58:02.248Z"
+}

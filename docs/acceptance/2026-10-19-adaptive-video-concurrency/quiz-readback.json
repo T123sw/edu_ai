@@ -1,0 +1,11 @@
+{
+  "old_version": 1,
+  "new_version": 2,
+  "same_question_ids": true,
+  "changed_questions": [
+    "q6-hand-calc-weights",
+    "q7-hand-calc-output"
+  ],
+  "programmatic_feedback": [],
+  "manifest_version": 22
+}

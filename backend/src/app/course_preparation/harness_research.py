@@ -28,6 +28,20 @@ class LearningPathTools:
         schema, description = REGISTRY['report_research_blocker']
         self.tools['report_research_blocker'] = {'name':'report_research_blocker',
             'description':description, 'parameters':schema.model_json_schema()}
+        requirement_ids = [r.requirement_id for r in state.brief.requirements] if state.brief else []
+        for spec in self.tools.values():
+            schema = spec['parameters']
+            definitions = schema.get('$defs', {})
+            if requirement_ids and 'RequirementCoverage' in definitions:
+                definitions['RequirementCoverage']['properties']['requirement_id']['enum'] = requirement_ids
+                schema['properties']['coverage'].update(minItems=len(requirement_ids), maxItems=len(requirement_ids))
+                schema['required'] = list(dict.fromkeys([*schema.get('required', []), 'coverage']))
+            if requirement_ids and 'PathNode' in definitions:
+                definitions['PathNode']['properties']['requirement_ids']['items']['enum'] = requirement_ids
+
+    def finding_budget(self):
+        return {'finding_limit': None, 'saved_findings': len(self.state.draft_findings),
+                'remaining_finding_slots': None}
 
     @staticmethod
     def source_key(name, arguments):
@@ -46,7 +60,7 @@ class LearningPathTools:
         if self.fatal:
             raise self.fatal
         if time.monotonic() >= self.deadline:
-            raise ResearchError('BUDGET_EXHAUSTED', '资料研究与路径会话超时')
+            raise ResearchError('PROVIDER_TIMEOUT', '资料研究与路径会话超时，已保存的研究可继续')
         self.guard()
 
     def persist(self, state):
@@ -68,7 +82,7 @@ class LearningPathTools:
                 self.check()
                 if self.result is not None:
                     return {'ok': False, 'error': 'WORKFLOW_FINISHED', 'message': '结果已保存，请结束本轮。'}
-                if self.state.calls >= self.agent.max_calls:
+                if self.agent.max_calls is not None and self.state.calls >= self.agent.max_calls:
                     raise ResearchError('BUDGET_EXHAUSTED', '研究动作次数已达上限')
                 self.persist(self.state.model_copy(update={'calls': self.state.calls + 1}))
                 before = self.state
@@ -126,9 +140,29 @@ class LearningPathTools:
                     if name == 'save_course_plan':
                         message += ('；save_course_plan 每次接收完整课程对象：title、summary、nodes（全部节点数组）、limitations。'
                                     '修订时也必须一次重交完整对象，不能把单个节点当顶层参数，不能拆成多次调用。')
-                    failed = self.agent._error(self.state, 'INVALID_TOOL_RESULT', message)
+                    # A quota error in one tool must not consume the first
+                    # correction opportunity of a different tool. Keep bounded
+                    # counts until actual progress, plus the global action cap.
+                    attempts = dict((self.state.last_error or {}).get('validation_attempts', {}))
+                    previous = attempts.get(name, 0)
+                    attempts[name] = previous + 1
+                    failure_state = self.state.model_copy(update={'errors': previous})
+                    try:
+                        failed = self.agent._error(failure_state, 'INVALID_TOOL_RESULT', message)
+                    except ResearchError:
+                        self.persist(self.state.model_copy(update={'errors': previous+1,
+                            'last_error': {'code':'INVALID_TOOL_RESULT', 'message':message,
+                                'attempted_tool':name, 'validation_attempts':attempts},
+                            'trace': (*self.state.trace, {'call':self.state.calls, 'phase':self.state.phase,
+                                'tool':name, 'status':'error', 'code':'INVALID_TOOL_RESULT', 'message':message})}))
+                        raise
+                    failed = failed.model_copy(update={'last_error': {**failed.last_error,
+                        'attempted_tool':name, 'validation_attempts':attempts}})
                     self.persist(failed)
-                    return {'ok': False, 'error': failed.last_error, 'available_tools': self.available()}
+                    return {'ok': False, 'error': failed.last_error, 'available_tools': self.available(),
+                        'required_requirement_ids': [r.requirement_id for r in self.state.brief.requirements],
+                        'saved_finding_ids': [f.finding_id for f in self.state.draft_findings],
+                        'finding_budget': self.finding_budget()}
                 data = {}
                 if name == 'read_research_evidence':
                     data['evidence_read']=self.agent.read_evidence(updated,args)
@@ -143,6 +177,7 @@ class LearningPathTools:
                     data['finding'] = {'finding_id':finding.finding_id, 'claim':finding.claim,
                         'citations':[{'source_id':c.source_id} for c in finding.citations]}
                     data['message'] = '引用已逐字校验并保存；原文见此前 evidence，不重复返回。'
+                    data['finding_budget'] = self.finding_budget()
                     if reused:
                         data.update(reused=True, message='该结论已保存，本次未重复写入；继续汇总或处理尚未解决的缺口。')
                 elif name in ('finalize_research_summary', 'save_research_summary'):
@@ -158,7 +193,7 @@ class LearningPathTools:
                 if name in ('search_sources','fetch_source') and hasattr(self.agent.sources,'capabilities'):
                     data['source_capabilities']=self.agent.sources.capabilities()
                 return {'ok': True, **data, 'phase': updated.phase, 'available_tools': self.available(),
-                        'remaining_actions': self.agent.max_calls-updated.calls,
+                        'remaining_actions': self.agent.max_calls-updated.calls if self.agent.max_calls is not None else None,
                         'remaining_budget':self.agent.read_budget(updated)}
             except Exception as exc:
                 # MCP cannot carry Python exceptions. Preserve the original error
@@ -169,8 +204,8 @@ class LearningPathTools:
 
 
 def workflow_context(agent, request, state):
-    from .research_context_view import build_research_context_view
-    return {**agent.extra_context, **build_research_context_view(state,required_ids=(),max_bytes=48000),
+    from .research_context_view import build_model_research_context
+    return {**agent.extra_context, **build_model_research_context(state, agent.model),
             'phase':'learning_path', 'request':request.model_dump(mode='json'),
-            'remaining_budget':{'actions':agent.max_calls-state.calls,
-                                'searches':max(0,6-state.searches),**agent.read_budget(state)}}
+            'remaining_budget':{'actions':agent.max_calls-state.calls if agent.max_calls is not None else None,
+                                'searches':max(0,6-state.searches) if agent.max_calls is not None else None,**agent.read_budget(state)}}

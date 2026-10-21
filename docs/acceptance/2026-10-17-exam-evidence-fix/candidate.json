@@ -1,0 +1,7 @@
+{
+  "patch": "0007-computed-exam-evidence.patch",
+  "sha256": "08f57344aa779e6a498a9543dd000399dd53f7be0d7cd12c020cbb7fc7174f95",
+  "service_tests": 98,
+  "status": "candidate_not_deployed",
+  "boundary": "isolated source and storage; production lock remains 0006"
+}

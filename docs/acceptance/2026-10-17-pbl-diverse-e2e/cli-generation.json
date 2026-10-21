@@ -1,0 +1,68 @@
+{
+  "case": "cli",
+  "topic": "做一个 Python 命令行CSV销售统计工具，不要网页。通过 python sales.py input.csv --output result.json 读取商品,数量,单价，计算总销售额与各商品销售额；用Decimal保留两位小数，非法行输出行号到stderr并以非零码退出。要有真实文件读写、命令行参数、退出码和临时目录验收。",
+  "exerciseId": "pbl_4e951c84ad3e39e20b5498b66753b89f",
+  "generationPassed": false,
+  "job": {
+    "schema_version": 2,
+    "version": 7,
+    "edu_job_id": "pbl_4e951c84ad3e39e20b5498b66753b89f",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_cli",
+    "owner": "matrix_cli",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_4e951c84ad3e39e20b5498b66753b89f",
+    "input_summary": {
+      "title": "做一个 Python 命令行CSV销售统计工具，不要网页。通过 python sales.py input.csv --output result.json 读取商品,数量,单价，计算总销售额与各商品销售额；用Decimal保留两位小数，非法行输出行号到stderr并以非零码退出。要有真实文件读写、命令行参数、退出码和临时目录验收。",
+      "topic": "做一个 Python 命令行CSV销售统计工具，不要网页。通过 python sales.py input.csv --output result.json 读取商品,数量,单价，计算总销售额与各商品销售额；用Decimal保留两位小数，非法行输出行号到stderr并以非零码退出。要有真实文件读写、命令行参数、退出码和临时目录验收。",
+      "exercise_id": "pbl_4e951c84ad3e39e20b5498b66753b89f"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目计划经过修复仍未通过检查",
+    "error": "项目计划经过修复仍未通过检查",
+    "error_code": "PBL_PLAN_INVALID",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:20:54.563013+00:00",
+    "started_at": "2026-10-17T09:25:02.832309+00:00",
+    "finished_at": "2026-10-17T09:25:17.650468+00:00",
+    "updated_at": "2026-10-17T09:25:17.650468+00:00"
+  },
+  "events": [
+    {
+      "seconds": 4.29,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 251.4,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 266.01,
+      "state": [
+        "failed",
+        "failed",
+        "任务执行失败"
+      ]
+    }
+  ],
+  "seconds": 266.02,
+  "idempotentCreate": true
+}

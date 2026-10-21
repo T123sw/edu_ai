@@ -1,0 +1,13 @@
+{
+  "bgm": null,
+  "bgm_pending": false,
+  "voices": [
+    {
+      "frame": 1,
+      "path": "assets/audio/483f68bcf13fcc86b8b803d7f87cfd92697493b70e3d1a0dc94d78d19bfd18f8.mp3",
+      "duration_s": 46.464,
+      "words": []
+    }
+  ],
+  "sfx": []
+}

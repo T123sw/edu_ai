@@ -1,0 +1,608 @@
+{
+  "brief": {
+    "depth": "introductory",
+    "topic": "一次函数 y=2x+b 中 b（截距）如何让直线上下平移",
+    "audience": "初中生（会读平面直角坐标图，尚未理解一次函数中 b 的作用）",
+    "language": "中文",
+    "exclusions": [
+      "不扩展到神经网络",
+      "不扩展到其他章节"
+    ],
+    "node_count": 1,
+    "assumptions": [],
+    "requirements": [
+      {
+        "text": "讲授唯一知识点：截距 b 如何让直线上下平移",
+        "source_ref": null,
+        "source_quote": "只安排一个知识点：截距如何让直线上下平移",
+        "requirement_id": "req_intercept_shift",
+        "source_document_id": null
+      },
+      {
+        "text": "在同一坐标系中动态展示 b=0、b=2、b=-2 三条直线",
+        "source_ref": null,
+        "source_quote": "请在同一坐标系中动态展示 b=0、b=2、b=-2",
+        "requirement_id": "req_animation_compare",
+        "source_document_id": null
+      },
+      {
+        "text": "解释与 y 轴交点怎样随 b 变化",
+        "source_ref": null,
+        "source_quote": "解释与 y 轴交点怎样变化",
+        "requirement_id": "req_yaxis_intersection",
+        "source_document_id": null
+      },
+      {
+        "text": "解释为什么斜率始终是 2",
+        "source_ref": null,
+        "source_quote": "为什么斜率始终是 2",
+        "requirement_id": "req_slope_constant",
+        "source_document_id": null
+      },
+      {
+        "text": "动画讲解约 60—90 秒，并配中文语音",
+        "source_ref": null,
+        "source_quote": "其中动画讲解约 60—90 秒，配中文语音",
+        "requirement_id": "req_animation_voice",
+        "source_document_id": null
+      },
+      {
+        "text": "最后保留一份简短讲义",
+        "source_ref": null,
+        "source_quote": "最后保留一份简短讲义",
+        "requirement_id": "req_handout",
+        "source_document_id": null
+      },
+      {
+        "text": "提供两道检查理解的练习",
+        "source_ref": null,
+        "source_quote": "两道检查理解的练习",
+        "requirement_id": "req_two_exercises",
+        "source_document_id": null
+      },
+      {
+        "text": "生成后保存课程，方便反复观看",
+        "source_ref": null,
+        "source_quote": "生成后保存课程，方便我反复观看",
+        "requirement_id": "req_save_course",
+        "source_document_id": null
+      }
+    ],
+    "learning_goal": "理解一次函数 y=2x+b 中常数 b 的作用：b 决定直线与 y 轴的交点位置，改变 b 会让直线整体上下平移，而斜率始终保持 2。",
+    "material_gaps": [],
+    "source_policy": {
+      "mode": "open"
+    },
+    "total_minutes": 3,
+    "prior_knowledge": "用户自述会读平面直角坐标图；对一次函数 y=2x+b 中 b 的作用尚不理解。",
+    "desired_outcomes": [
+      "能说出 b=0、b=2、b=-2 时直线与 y 轴的交点坐标分别是 (0,0)、(0,2)、(0,-2)",
+      "能解释改变 b 时直线整体上下平移、斜率始终为 2 的原因",
+      "能通过两道检查练习判断 b 变化对直线位置的影响"
+    ],
+    "node_count_quote": "只安排一个知识点：截距如何让直线上下平移",
+    "source_policy_quote": null,
+    "required_resource_types": [
+      "report",
+      "quiz",
+      "classroom"
+    ]
+  },
+  "input_documents": [],
+  "research_summary": {
+    "coverage": [
+      {
+        "kind": "knowledge",
+        "reason": "两处来源均说明 b 为 y 轴截距、x=0 时 y=b，并给出上下平移 n 格对应 y=kx+b±n，足以支撑单一知识点的讲授。",
+        "status": "covered",
+        "finding_ids": [
+          "f_yintercept_is_b",
+          "f_vertical_translation",
+          "f_translation_same_slope"
+        ],
+        "requirement_id": "req_intercept_shift"
+      },
+      {
+        "kind": "knowledge",
+        "reason": "教材以“同一坐标系中把原直线所有点平移”的方式对比新旧直线，并说明斜率相同、截距不同的直线平行；据此可设计在同一坐标系中依次呈现 b=0、2、-2 三条直线的动态对比。",
+        "status": "covered",
+        "finding_ids": [
+          "f_translation_same_slope",
+          "f_parallel_lines"
+        ],
+        "requirement_id": "req_animation_compare"
+      },
+      {
+        "kind": "knowledge",
+        "reason": "来源明确 x=0 时 y=b、与 y 轴交点坐标为 (0,b)，且竖直截距即直线与竖直轴的交点，可解释交点随 b 变化。",
+        "status": "covered",
+        "finding_ids": [
+          "f_yintercept_is_b",
+          "f_translation_same_slope"
+        ],
+        "requirement_id": "req_yaxis_intersection"
+      },
+      {
+        "kind": "knowledge",
+        "reason": "来源说明 k 为斜率、平行直线斜率相等，且平移只改变常数项 b，因此 b 变化时斜率始终为 2。",
+        "status": "covered",
+        "finding_ids": [
+          "f_slope_unchanged",
+          "f_parallel_lines"
+        ],
+        "requirement_id": "req_slope_constant"
+      },
+      {
+        "kind": "constraint",
+        "reason": "时长与配音是呈现约束：路径节点把 60—90 秒中文语音动画讲解安排为节点内的核心活动，并给出分镜要点（先 b=0，再 b=2、b=-2），不依赖额外知识证据。",
+        "status": "covered",
+        "finding_ids": [
+          "f_translation_same_slope"
+        ],
+        "requirement_id": "req_animation_voice"
+      },
+      {
+        "kind": "constraint",
+        "reason": "讲义是产出形式约束：节点活动要求整理一页简短讲义，内容限定为 (0,b) 交点、上下平移规则与斜率不变三条结论。",
+        "status": "covered",
+        "finding_ids": [
+          "f_yintercept_is_b",
+          "f_vertical_translation",
+          "f_slope_unchanged"
+        ],
+        "requirement_id": "req_handout"
+      },
+      {
+        "kind": "constraint",
+        "reason": "练习数量是约束：节点自测安排两道题，分别考查由 b 写出 y 轴交点坐标、判断 b 变化后直线位置与斜率，答案可由已保存结论推出。",
+        "status": "covered",
+        "finding_ids": [
+          "f_yintercept_is_b",
+          "f_vertical_translation"
+        ],
+        "requirement_id": "req_two_exercises"
+      },
+      {
+        "kind": "constraint",
+        "reason": "保存课程是产品功能约束：路径以单一节点组织全部内容，便于生成后整体保存并反复观看，不涉及额外知识依据。",
+        "status": "covered",
+        "finding_ids": [
+          "f_translation_same_slope"
+        ],
+        "requirement_id": "req_save_course"
+      }
+    ],
+    "findings": [
+      {
+        "claim": "一次函数 y=kx+b 中，当 x=0 时 y=b，所以直线与 y 轴的交点坐标恒为 (0,b)；b 就是 y 轴截距。对 y=2x+b 而言，b=0、2、-2 时与 y 轴交点分别是 (0,0)、(0,2)、(0,-2)。",
+        "citations": [
+          {
+            "quote": "当b<0时，直线必通过三、四象限。\n\n特别地，当b=0时，直线通过原点O（0，0）表示的是正比例函数的图象。\n\n这时，当k>0时，直线只通过一、三象限，不会通过二、四象限。当k<0时，直线只通过二、[四象限](https://baike.baidu.com/item/%E5%9B%9B%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)，不会通过一、三象限。\n\n5、当x=0时，b为函数在y轴上的交点，坐标为（0，b）。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          },
+          {
+            "quote": "nk)只需知道2点，并连成直线即可。\n\n2、性质：（1）在一次函数上的任意一点P（x，y），都满足等式：y=kx+b（k≠0）。（2）一次函数与y轴交点的坐标总是（0，b），与x轴总是交于（-b/k，0）[正比例函数](https://baike.baidu.com/item/%E6%AD%A3%E6%AF%94%E4%BE%8B%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)的图象都是过原点。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          },
+          {
+            "quote": "其中m是[斜率](https://baike.baidu.com/item/%E6%96%9C%E7%8E%87/0?fromModule=lemma_inlink)，不能为0；x表示自变量，b表示y轴截距。且m和b均为[常数](https://baike.baidu.com/item/%E5%B8%B8%E6%95%B0/2215683?fromModule=lemma_inlink)。先设出函数解析式，再根据条件确定解析式中未知的斜率，从而得出解析式。该解析式类似于直线方",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          }
+        ],
+        "finding_id": "f_yintercept_is_b"
+      },
+      {
+        "claim": "把 y=kx+b 的图象向上平移 n 格，解析式变为 y=kx+b+n；向下平移 n 格变为 y=kx+b-n。即只改变常数项 b 时，直线整体上下平移，平移量等于 b 的变化量。",
+        "citations": [
+          {
+            "quote": "\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          }
+        ],
+        "finding_id": "f_vertical_translation"
+      },
+      {
+        "claim": "k 是一次函数 y=kx+b 的斜率，k=tanθ（θ 为图象与 x 轴正方向夹角）；平面直角坐标系中两直线平行时斜率相等。因此 b 变化只让直线平行移动，斜率 k 保持不变（本题中 k=2）。",
+        "citations": [
+          {
+            "quote": "\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          },
+          {
+            "quote": "\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          }
+        ],
+        "finding_id": "f_slope_unchanged"
+      },
+      {
+        "claim": "教材（Illustrative Mathematics 八年级）用“同一坐标系中把原直线所有点向上平移”的方式得到新直线，并指出 y=mx+b 中 m 是变化率（即斜率），b 是初始量（即竖直截距）；竖直截距是直线与竖直轴相交的点。这支持“同一坐标系中对比 b=0、2、-2 三条平行直线”的动画设计。",
+        "citations": [
+          {
+            "quote": "We can graph this storm on the same axes as the first storm by taking all the points on the graph of the first storm and translating them up 5 inches.\n\nTwo hours after each storm begins, 1 inch of new snow has fallen. ",
+            "source_id": "ev_c2df18f0d2342af2e38faa6c"
+          },
+          {
+            "quote": "The equation representing the storm, $y = \\frac{1}{2} ⁢ x + 5$, is of the form $y = m ⁢ x + b$, where $m$ is the rate of change, also the slope of the graph, and $b$ is the initial amount, also the vertical intercept of the graph.\n",
+            "source_id": "ev_c2df18f0d2342af2e38faa6c"
+          },
+          {
+            "quote": "The vertical intercept is the point where the graph of a line crosses the vertical axis.\n\nThe vertical intercept of this line is $\\left(\\right. 0 , - 6 \\left.\\right)$ or just -6.\n",
+            "source_id": "ev_c2df18f0d2342af2e38faa6c"
+          }
+        ],
+        "finding_id": "f_translation_same_slope"
+      },
+      {
+        "claim": "斜率相同、截距不同的两条直线互相平行、永不相交，例如 y=2x+1 与 y=2x−4；斜率相同的直线以相同速率上升，竖直方向距离始终不变。这为“b 变化时三条直线平行、斜率始终为 2”提供直观解释。",
+        "citations": [
+          {
+            "quote": "\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          }
+        ],
+        "finding_id": "f_parallel_lines"
+      }
+    ],
+    "overview": "已取得中文百科与八年级教材两处正文依据，可支持“y=2x+b 中 b 决定与 y 轴交点 (0,b)、改变 b 使直线整体上下平移、斜率 k 不变”这一唯一知识点的讲授与两道检查练习设计。动画、中文语音、讲义与保存课程属于教学呈现与产品功能要求，由路径节点中的活动安排落实，不作为知识证据。",
+    "limitations": [
+      "来源为中文百科词条与八年级教材节选，未使用用户上传材料；未覆盖 b 对 x 轴交点、象限等其他性质，符合用户“不扩展到其他章节”的排除要求。",
+      "动画、中文语音、讲义与保存课程属于后续资源制作与产品功能，本路径只规划活动与自测，不包含已生成的视频或讲义文件。",
+      "3 分钟总时长内只做直觉层面的理解，不承诺学生能独立完成复杂平移计算。"
+    ],
+    "unresolved_gaps": []
+  },
+  "plan": {
+    "nodes": [
+      {
+        "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+        "minutes": 3,
+        "node_key": "node_intercept_shift",
+        "objectives": [
+          "能说出 y=2x+b 中当 x=0 时 y=b，因此直线与 y 轴交点坐标为 (0,b)；并写出 b=0、b=2、b=-2 时交点分别是 (0,0)、(0,2)、(0,-2)",
+          "能解释 b 增大时直线整体向上平移、b 减小时整体向下平移，平移的格数等于 b 的变化量（如从 b=0 到 b=2 上移 2 格，从 b=0 到 b=-2 下移 2 格）",
+          "能说明 b 变化只改变常数项、不改变斜率，所以三条直线互相平行、斜率始终为 2",
+          "能完成两道检查练习：由 b 写出 y 轴交点坐标；判断 b 变化后直线位置如何变化、斜率是否改变"
+        ],
+        "self_check": "不看讲义回答：y=2x+b 与 y 轴交点坐标是什么？b=0、2、-2 时分别是哪三点？从 b=0 到 b=-2 直线向哪个方向移动几格？三条直线的斜率各是多少、为什么平行？再核对两道练习：第 1 题答案 (0,5) 与 (0,-3)，y=2x+5 在上方；第 2 题直线向下平移 2 格，斜率仍为 2，三条线互相平行。",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b",
+          "ev_c2df18f0d2342af2e38faa6c"
+        ],
+        "finding_ids": [
+          "f_yintercept_is_b",
+          "f_vertical_translation",
+          "f_slope_unchanged",
+          "f_translation_same_slope",
+          "f_parallel_lines"
+        ],
+        "requirement_ids": [
+          "req_intercept_shift",
+          "req_animation_compare",
+          "req_yaxis_intersection",
+          "req_slope_constant",
+          "req_animation_voice",
+          "req_handout",
+          "req_two_exercises",
+          "req_save_course"
+        ],
+        "prerequisite_keys": [],
+        "learning_activities": [
+          "【动画讲解 60—90 秒，配中文语音】同一坐标系中先画出 y=2x（即 b=0），高亮它与 y 轴的交点 (0,0)；语音提示“x=0 时 y=b，所以交点就是 (0,b)”。",
+          "【动画讲解续】保持斜率不变，把整条直线向上平移 2 格得到 y=2x+2，交点变为 (0,2)；再向下平移 4 格得到 y=2x−2，交点变为 (0,-2)。三条直线同时留在画面上，用箭头标出竖直平移距离。",
+          "【动画讲解收尾】语音提问“三条线为什么一样陡？”引导观察：每次 x 增加 1，y 都增加 2，斜率始终是 2；b 只决定起点高度，所以三条线平行。",
+          "【简短讲义】整理一页要点：① x=0 时 y=b，与 y 轴交点为 (0,b)；② b 变大上移、变小下移，平移格数=|b 的变化量|；③ 斜率 k 不变（本题 k=2），直线平行。",
+          "【两道检查练习】第 1 题：写出 y=2x+5 与 y=2x−3 与 y 轴的交点坐标，并说明哪条在上方。第 2 题：把 y=2x 改为 y=2x−2，直线怎样移动？斜率是多少？三条线 y=2x、y=2x+2、y=2x−2 是否平行？",
+          "【保存课程】把动画、讲义与两道练习作为一个完整课程保存，便于反复观看与复习。"
+        ]
+      }
+    ],
+    "title": "一次函数 y=2x+b：截距 b 如何让直线上下平移（3 分钟微课）",
+    "summary": "面向会读平面直角坐标图、但还不理解 b 作用的初中生，用约 3 分钟只讲一个知识点：在 y=2x+b 中，b 决定直线与 y 轴的交点 (0,b)，改变 b 会让整条直线上下平移，而斜率始终是 2。节点内依次安排：60—90 秒中文语音动画（同一坐标系中依次呈现 b=0、b=2、b=-2 三条平行直线）、一页简短讲义、两道检查练习，最后整体保存课程以便反复观看。不涉及神经网络或其他章节。",
+    "limitations": [
+      "来源为中文百科词条与八年级教材节选，未使用用户上传材料；未覆盖 b 对 x 轴交点、象限等其他性质，符合用户“不扩展到其他章节”的排除要求。",
+      "动画、中文语音、讲义与保存课程属于后续资源制作与产品功能，本路径只规划活动与自测，不包含已生成的视频或讲义文件。",
+      "3 分钟总时长内只做直觉层面的理解，不承诺学生能独立完成复杂平移计算。"
+    ]
+  },
+  "node_evidence": {
+    "node_intercept_shift": [
+      {
+        "url": "https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577",
+        "claim": "一次函数 y=kx+b 中，当 x=0 时 y=b，所以直线与 y 轴的交点坐标恒为 (0,b)；b 就是 y 轴截距。对 y=2x+b 而言，b=0、2、-2 时与 y 轴交点分别是 (0,0)、(0,2)、(0,-2)。",
+        "quote": "当b<0时，直线必通过三、四象限。\n\n特别地，当b=0时，直线通过原点O（0，0）表示的是正比例函数的图象。\n\n这时，当k>0时，直线只通过一、三象限，不会通过二、四象限。当k<0时，直线只通过二、[四象限](https://baike.baidu.com/item/%E5%9B%9B%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)，不会通过一、三象限。\n\n5、当x=0时，b为函数在y轴上的交点，坐标为（0，b）。\n",
+        "source_id": "ev_e37765b613e54e7b7f7f085b",
+        "finding_id": "f_yintercept_is_b",
+        "source_hash": "d8090d6ffa95995ccbf84d40925d57cfa5f75303edb3e6406eec64aea0c6e102",
+        "source_excerpt": "95%B0/2215683?fromModule=lemma_inlink)。先设出函数解析式，再根据条件确定解析式中未知的斜率，从而得出解析式。该解析式类似于直线方程中的斜截式。 [1]\n\n## 基本性质\n\n播报\n\n编辑\n\n1、作法与图形：通过如下3个步骤：\n\n（1）列表：每确定自变量x的一个值，求出因变量y的一个值，并列表；\n\n（2）描点：一般取两个点，根据“两点确定一条直线”的道理，即在平面直角坐标系中，以自变量的值为横坐标，相应的函数值为纵坐标，描出表格中数值对应的各点。\n\n一般地，y=kx+b（k≠0）的图象过（0，b）和（-b/k，0）两点即可画出。\n\n正比例函数y=kx（k≠0）的图象是过坐标原点的一条直线，一般取（0，0）和（1，k）两点画出。\n\n（3）连线：可以作出一次函数的图象——一条[直线](https://baike.baidu.com/item/%E7%9B%B4%E7%BA%BF/4876?fromModule=lemma_inlink)。因此，作一次函数的[图象](https://baike.baidu.com/item/%E5%9B%BE%E8%B1%A1/0?fromModule=lemma_inlink)只需知道2点，并连成直线即可。\n\n2、性质：（1）在一次函数上的任意一点P（x，y），都满足等式：y=kx+b（k≠0）。（2）一次函数与y轴交点的坐标总是（0，b），与x轴总是交于（-b/k，0）[正比例函数](https://baike.baidu.com/item/%E6%AD%A3%E6%AF%94%E4%BE%8B%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)的图象都是过原点。\n\n3、函数不是数，它是指某一变化过程中两个变量之间的关系。\n\n4、k，b与函数图像所在[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)：\n\ny=kx时（即b等于0，y与x成正比，此时的图象是一条经过原点的直线）\n\n当k>0时，直线必通过一、三象限，y随x的增大而增大；\n\n当k<0时，直线必通过二、四象限，y随x的增大而减小。\n\ny=kx+b（k，b为常数，k≠0）时：\n\n当k>0，b>0，这时此函数的图象经过一，二，三象限；\n\n当k>0，b<0，这时此函数的图象经过一，三，四象限；\n\n当k<0，b>0，这时此函数的图象经过一，二，四象限；\n\n当k<0，b<0，这时此函数的图象经过二，三，四象限。\n\n当b>0时，直线必通过一、二[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)；\n\n当b<0时，直线必通过三、四象限。\n\n特别地，当b=0时，直线通过原点O（0，0）表示的是正比例函数的图象。\n\n这时，当k>0时，直线只通过一、三象限，不会通过二、四象限。当k<0时，直线只通过二、[四象限](https://baike.baidu.com/item/%E5%9B%9B%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)，不会通过一、三象限。\n\n5、当x=0时，b为函数在y轴上的交点，坐标为（0，b）。\n\n当y=0时，该函数图像在x轴上的交点坐标为（-b/k，0）。\n\n6、直线y=kx+b的图象和性质与k、b的关系如下表所示：\n\nk>0，b>0：经过第一、二、三[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)\n\nk>0，b<0：经过第一、三、四象限\n\nk>0，b=0：经过第一、三象限（经过原点）\n\n结论：k>0时，图象从左到右上升，y随x的增大而增大。\n\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n\n当平面直角坐标系中两直线垂直时，其函数斜率的乘积为-1。 [1]\n\n特殊位置关系的证明\n\n关于平面直角坐标系中两直线垂直时，其函数斜率互为负倒数的证明：\n\n如图，这2个函数互相垂直，但若直接证明，存在困难，不易理解，如果平移平面直角坐标系，使这2个函数的交点交于原点，就会更简单。就像这一样，可以设这2个函数的表达式分别为；\n\ny=ax，y=bx。\n\n在x正半轴上取一点（z，0）（便于计算），做与y轴平行的直线，如图，可知OC=z，AC=a*z，BC=b*z，由[勾股定理](https://baike.baidu.com/item/%E5%8B%BE%E8%82%A1%E5%AE%9A%E7%90%86/91499?fromModule=lemma_inlink)可得：\n\nOA=√z^2+（a*z）^2\n\nOB=√z^2+（b*z）^2\n\n又有OA^2+OB^2=AB^2，得\n\nz^2+（az）^2+z^2+（bz）^2=（az-bz）^2（因为b小于0，故为az-bz）化简得：\n\nz^2+a^2*z^2+z^2+b^2*z^2=a^2*z^2-2ab*z^2+b^2*z^2\n\n2z^2=-2ab*z^2\n\nab=-1\n\n即k=-1\n\n所以两个K值的乘积为-1。\n\n注意：与y轴平行的直线没有函数解析式，与x轴平行的直线的解析式为常函数，故上述性质中这两种直线除外。 [1]\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/cdbf6c81800a19d8c0089e1432fa828ba61e4693?fr=lemma&fromModule=lemma_content-image \"两一次函数平行\")两一次函数平行\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/3ac79f3df8dcd1002902e230738b4710b9122f00?fr=lemma&fromModule=lemma_content-image \"两一次函数垂直\")两一次函数垂直\n\n## 学习方法\n\n播报\n\n编辑\n\n### 知识要点\n\n1、要理解函数的意义。\n\n2、联系实际对函数图像的理解。\n\n3、随图象理解数字的变化而变化。\n\n### 误区提醒\n\n1、对一次函数概念理解有误，漏掉[一次项系数](https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E9%A1%B9%E7%B3%BB%E6%95%B0/0?fromModule=lemma_inlink)不为0这一限制条件；\n\n2、对一次函数图像和性质存在思维误区；\n\n3、忽略一次函数自变量取值范围；（有时x∈Z，其图象表现为非连续性的点的集合）\n\n4.对于一次函数中，把自变量认为不能等于零。\n\n### 和方程的异同\n\n1、一次函数和一元一次方程有相似的表达形式。\n\n2、一次函数表示的是一对（x，y）之间的关系，它有无数对解；一元一次方程表示的是未知数x的值，最多只有1个值。\n\n3、一次函数与x轴交点的横坐标就是相应的[一元一次方程](https://baike.baidu.com/item/%E4%B8%80%E5%85%83%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B/0?fromModule=lemma_inlink)的根。\n\n4、以[二元一次方程](https://baike.baidu.com/item/%E4%BA%8C%E5%85%83%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B/0?fromModule=lemma_inlink)组ax+by=c的解为坐标的点组成的图象与一次函数y=（-a/b）x+c/b的图象相同。\n\n5、二元一次方程组a 1 x+b 1 y=c 1，a 2 x+b 2 y=c 2 的解可以看作是两个一次函数y=（-a 1/b 1）x+c 1/d 1 和y=（-a 2/b 2）"
+      },
+      {
+        "url": "https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577",
+        "claim": "一次函数 y=kx+b 中，当 x=0 时 y=b，所以直线与 y 轴的交点坐标恒为 (0,b)；b 就是 y 轴截距。对 y=2x+b 而言，b=0、2、-2 时与 y 轴交点分别是 (0,0)、(0,2)、(0,-2)。",
+        "quote": "nk)只需知道2点，并连成直线即可。\n\n2、性质：（1）在一次函数上的任意一点P（x，y），都满足等式：y=kx+b（k≠0）。（2）一次函数与y轴交点的坐标总是（0，b），与x轴总是交于（-b/k，0）[正比例函数](https://baike.baidu.com/item/%E6%AD%A3%E6%AF%94%E4%BE%8B%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)的图象都是过原点。\n",
+        "source_id": "ev_e37765b613e54e7b7f7f085b",
+        "finding_id": "f_yintercept_is_b",
+        "source_hash": "d8090d6ffa95995ccbf84d40925d57cfa5f75303edb3e6406eec64aea0c6e102",
+        "source_excerpt": "像法。 [1]\n\n## 解析式\n\n播报\n\n编辑\n\n一次函数的解析式为：\n\n![Image 4](https://bkimg.cdn.bcebos.com/formula/0fc53632ba1b9b3e16e1d986ef3b5f81.svg)\n\n其中m是[斜率](https://baike.baidu.com/item/%E6%96%9C%E7%8E%87/0?fromModule=lemma_inlink)，不能为0；x表示自变量，b表示y轴截距。且m和b均为[常数](https://baike.baidu.com/item/%E5%B8%B8%E6%95%B0/2215683?fromModule=lemma_inlink)。先设出函数解析式，再根据条件确定解析式中未知的斜率，从而得出解析式。该解析式类似于直线方程中的斜截式。 [1]\n\n## 基本性质\n\n播报\n\n编辑\n\n1、作法与图形：通过如下3个步骤：\n\n（1）列表：每确定自变量x的一个值，求出因变量y的一个值，并列表；\n\n（2）描点：一般取两个点，根据“两点确定一条直线”的道理，即在平面直角坐标系中，以自变量的值为横坐标，相应的函数值为纵坐标，描出表格中数值对应的各点。\n\n一般地，y=kx+b（k≠0）的图象过（0，b）和（-b/k，0）两点即可画出。\n\n正比例函数y=kx（k≠0）的图象是过坐标原点的一条直线，一般取（0，0）和（1，k）两点画出。\n\n（3）连线：可以作出一次函数的图象——一条[直线](https://baike.baidu.com/item/%E7%9B%B4%E7%BA%BF/4876?fromModule=lemma_inlink)。因此，作一次函数的[图象](https://baike.baidu.com/item/%E5%9B%BE%E8%B1%A1/0?fromModule=lemma_inlink)只需知道2点，并连成直线即可。\n\n2、性质：（1）在一次函数上的任意一点P（x，y），都满足等式：y=kx+b（k≠0）。（2）一次函数与y轴交点的坐标总是（0，b），与x轴总是交于（-b/k，0）[正比例函数](https://baike.baidu.com/item/%E6%AD%A3%E6%AF%94%E4%BE%8B%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)的图象都是过原点。\n\n3、函数不是数，它是指某一变化过程中两个变量之间的关系。\n\n4、k，b与函数图像所在[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)：\n\ny=kx时（即b等于0，y与x成正比，此时的图象是一条经过原点的直线）\n\n当k>0时，直线必通过一、三象限，y随x的增大而增大；\n\n当k<0时，直线必通过二、四象限，y随x的增大而减小。\n\ny=kx+b（k，b为常数，k≠0）时：\n\n当k>0，b>0，这时此函数的图象经过一，二，三象限；\n\n当k>0，b<0，这时此函数的图象经过一，三，四象限；\n\n当k<0，b>0，这时此函数的图象经过一，二，四象限；\n\n当k<0，b<0，这时此函数的图象经过二，三，四象限。\n\n当b>0时，直线必通过一、二[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)；\n\n当b<0时，直线必通过三、四象限。\n\n特别地，当b=0时，直线通过原点O（0，0）表示的是正比例函数的图象。\n\n这时，当k>0时，直线只通过一、三象限，不会通过二、四象限。当k<0时，直线只通过二、[四象限](https://baike.baidu.com/item/%E5%9B%9B%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)，不会通过一、三象限。\n\n5、当x=0时，b为函数在y轴上的交点，坐标为（0，b）。\n\n当y=0时，该函数图像在x轴上的交点坐标为（-b/k，0）。\n\n6、直线y=kx+b的图象和性质与k、b的关系如下表所示：\n\nk>0，b>0：经过第一、二、三[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)\n\nk>0，b<0：经过第一、三、四象限\n\nk>0，b=0：经过第一、三象限（经过原点）\n\n结论：k>0时，图象从左到右上升，y随x的增大而增大。\n\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n\n当平面直角坐标系中两直线垂直时，其函数斜率的乘积为-1。 [1]\n\n特殊位置关系的证明\n\n关于平面直角坐标系中两直线垂直时，其函数斜率互为负倒数的证明：\n\n如图，这2个函数互相垂直，但若直接证明，存在困难，不易理解，如果平移平面直角坐标系，使这2个函数的交点交于原点，就会更简单。就像这一样，可以设这2个函数的表达式分别为；\n\ny=ax，y=bx。\n\n在x正半轴上取一点（z，0）（便于计算），做与y轴平行的直线，如图，可知OC=z，AC=a*z，BC=b*z，由[勾股定理](https://baike.baidu.com/item/%E5%8B%BE%E8%82%A1%E5%AE%9A%E7%90%86/91499?fromModule=lemma_inlink)可得：\n\nOA=√z^2+（a*z）^2\n\nOB=√z^2+（b*z）^2\n\n又有OA^2+OB^2=AB^2，得\n\nz^2+（az）^2+z^2+（bz）^2=（az-bz）^2（因为b小于0，故为az-bz）化简得：\n\nz^2+a^2*z^2+z^2+b^2*z^2=a^2*z^2-2ab*z^2+b^2*z^2\n\n2z^2=-2ab*z^2\n\nab=-1\n\n即k=-1\n\n所以两个K值的乘积为-1。\n\n注意：与y轴平行的直线没有函数解析式，与x轴平行的直线的解析式为常函数，故上述性质中这两种直线除外。 [1]\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/cdbf6c81800a19d8c0089e1432fa828ba61e4693?fr=lemma&fromModule=lemma_content-image \"两一次函数平行\")两一次函数平行\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/3ac79f3df8dcd1002902e230738b4710b9122f00?fr=lemma&fromModule=lemma_content-image \"两一次函数垂直\")两一次函数垂直\n\n## 学习方法\n\n播报\n\n编辑\n\n### 知识要点\n\n1、要理解函数的意义。\n\n2、联系实际对函数图像的理解。\n\n3、随图象理解数字的变化而变化。\n\n### 误区提醒\n\n1、对一次函数概念理解有误，漏掉[一次项系数](https://"
+      },
+      {
+        "url": "https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577",
+        "claim": "一次函数 y=kx+b 中，当 x=0 时 y=b，所以直线与 y 轴的交点坐标恒为 (0,b)；b 就是 y 轴截距。对 y=2x+b 而言，b=0、2、-2 时与 y 轴交点分别是 (0,0)、(0,2)、(0,-2)。",
+        "quote": "其中m是[斜率](https://baike.baidu.com/item/%E6%96%9C%E7%8E%87/0?fromModule=lemma_inlink)，不能为0；x表示自变量，b表示y轴截距。且m和b均为[常数](https://baike.baidu.com/item/%E5%B8%B8%E6%95%B0/2215683?fromModule=lemma_inlink)。先设出函数解析式，再根据条件确定解析式中未知的斜率，从而得出解析式。该解析式类似于直线方",
+        "source_id": "ev_e37765b613e54e7b7f7f085b",
+        "finding_id": "f_yintercept_is_b",
+        "source_hash": "d8090d6ffa95995ccbf84d40925d57cfa5f75303edb3e6406eec64aea0c6e102",
+        "source_excerpt": "像法。 [1]\n\n## 解析式\n\n播报\n\n编辑\n\n一次函数的解析式为：\n\n![Image 4](https://bkimg.cdn.bcebos.com/formula/0fc53632ba1b9b3e16e1d986ef3b5f81.svg)\n\n其中m是[斜率](https://baike.baidu.com/item/%E6%96%9C%E7%8E%87/0?fromModule=lemma_inlink)，不能为0；x表示自变量，b表示y轴截距。且m和b均为[常数](https://baike.baidu.com/item/%E5%B8%B8%E6%95%B0/2215683?fromModule=lemma_inlink)。先设出函数解析式，再根据条件确定解析式中未知的斜率，从而得出解析式。该解析式类似于直线方程中的斜截式。 [1]\n\n## 基本性质\n\n播报\n\n编辑\n\n1、作法与图形：通过如下3个步骤：\n\n（1）列表：每确定自变量x的一个值，求出因变量y的一个值，并列表；\n\n（2）描点：一般取两个点，根据“两点确定一条直线”的道理，即在平面直角坐标系中，以自变量的值为横坐标，相应的函数值为纵坐标，描出表格中数值对应的各点。\n\n一般地，y=kx+b（k≠0）的图象过（0，b）和（-b/k，0）两点即可画出。\n\n正比例函数y=kx（k≠0）的图象是过坐标原点的一条直线，一般取（0，0）和（1，k）两点画出。\n\n（3）连线：可以作出一次函数的图象——一条[直线](https://baike.baidu.com/item/%E7%9B%B4%E7%BA%BF/4876?fromModule=lemma_inlink)。因此，作一次函数的[图象](https://baike.baidu.com/item/%E5%9B%BE%E8%B1%A1/0?fromModule=lemma_inlink)只需知道2点，并连成直线即可。\n\n2、性质：（1）在一次函数上的任意一点P（x，y），都满足等式：y=kx+b（k≠0）。（2）一次函数与y轴交点的坐标总是（0，b），与x轴总是交于（-b/k，0）[正比例函数](https://baike.baidu.com/item/%E6%AD%A3%E6%AF%94%E4%BE%8B%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)的图象都是过原点。\n\n3、函数不是数，它是指某一变化过程中两个变量之间的关系。\n\n4、k，b与函数图像所在[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)：\n\ny=kx时（即b等于0，y与x成正比，此时的图象是一条经过原点的直线）\n\n当k>0时，直线必通过一、三象限，y随x的增大而增大；\n\n当k<0时，直线必通过二、四象限，y随x的增大而减小。\n\ny=kx+b（k，b为常数，k≠0）时：\n\n当k>0，b>0，这时此函数的图象经过一，二，三象限；\n\n当k>0，b<0，这时此函数的图象经过一，三，四象限；\n\n当k<0，b>0，这时此函数的图象经过一，二，四象限；\n\n当k<0，b<0，这时此函数的图象经过二，三，四象限。\n\n当b>0时，直线必通过一、二[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)；\n\n当b<0时，直线必通过三、四象限。\n\n特别地，当b=0时，直线通过原点O（0，0）表示的是正比例函数的图象。\n\n这时，当k>0时，直线只通过一、三象限，不会通过二、四象限。当k<0时，直线只通过二、[四象限](https://baike.baidu.com/item/%E5%9B%9B%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)，不会通过一、三象限。\n\n5、当x=0时，b为函数在y轴上的交点，坐标为（0，b）。\n\n当y=0时，该函数图像在x轴上的交点坐标为（-b/k，0）。\n\n6、直线y=kx+b的图象和性质与k、b的关系如下表所示：\n\nk>0，b>0：经过第一、二、三[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)\n\nk>0，b<0：经过第一、三、四象限\n\nk>0，b=0：经过第一、三象限（经过原点）\n\n结论：k>0时，图象从左到右上升，y随x的增大而增大。\n\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n\n当平面直角坐标系中两直线垂直时，其函数斜率的乘积为-1。 [1]\n\n特殊位置关系的证明\n\n关于平面直角坐标系中两直线垂直时，其函数斜率互为负倒数的证明：\n\n如图，这2个函数互相垂直，但若直接证明，存在困难，不易理解，如果平移平面直角坐标系，使这2个函数的交点交于原点，就会更简单。就像这一样，可以设这2个函数的表达式分别为；\n\ny=ax，y=bx。\n\n在x正半轴上取一点（z，0）（便于计算），做与y轴平行的直线，如图，可知OC=z，AC=a*z，BC=b*z，由[勾股定理](https://baike.baidu.com/item/%E5%8B%BE%E8%82%A1%E5%AE%9A%E7%90%86/91499?fromModule=lemma_inlink)可得：\n\nOA=√z^2+（a*z）^2\n\nOB=√z^2+（b*z）^2\n\n又有OA^2+OB^2=AB^2，得\n\nz^2+（az）^2+z"
+      },
+      {
+        "url": "https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577",
+        "claim": "把 y=kx+b 的图象向上平移 n 格，解析式变为 y=kx+b+n；向下平移 n 格变为 y=kx+b-n。即只改变常数项 b 时，直线整体上下平移，平移量等于 b 的变化量。",
+        "quote": "\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n",
+        "source_id": "ev_e37765b613e54e7b7f7f085b",
+        "finding_id": "f_vertical_translation",
+        "source_hash": "d8090d6ffa95995ccbf84d40925d57cfa5f75303edb3e6406eec64aea0c6e102",
+        "source_excerpt": "ike.baidu.com/item/%E5%9B%BE%E8%B1%A1/0?fromModule=lemma_inlink)只需知道2点，并连成直线即可。\n\n2、性质：（1）在一次函数上的任意一点P（x，y），都满足等式：y=kx+b（k≠0）。（2）一次函数与y轴交点的坐标总是（0，b），与x轴总是交于（-b/k，0）[正比例函数](https://baike.baidu.com/item/%E6%AD%A3%E6%AF%94%E4%BE%8B%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)的图象都是过原点。\n\n3、函数不是数，它是指某一变化过程中两个变量之间的关系。\n\n4、k，b与函数图像所在[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)：\n\ny=kx时（即b等于0，y与x成正比，此时的图象是一条经过原点的直线）\n\n当k>0时，直线必通过一、三象限，y随x的增大而增大；\n\n当k<0时，直线必通过二、四象限，y随x的增大而减小。\n\ny=kx+b（k，b为常数，k≠0）时：\n\n当k>0，b>0，这时此函数的图象经过一，二，三象限；\n\n当k>0，b<0，这时此函数的图象经过一，三，四象限；\n\n当k<0，b>0，这时此函数的图象经过一，二，四象限；\n\n当k<0，b<0，这时此函数的图象经过二，三，四象限。\n\n当b>0时，直线必通过一、二[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)；\n\n当b<0时，直线必通过三、四象限。\n\n特别地，当b=0时，直线通过原点O（0，0）表示的是正比例函数的图象。\n\n这时，当k>0时，直线只通过一、三象限，不会通过二、四象限。当k<0时，直线只通过二、[四象限](https://baike.baidu.com/item/%E5%9B%9B%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)，不会通过一、三象限。\n\n5、当x=0时，b为函数在y轴上的交点，坐标为（0，b）。\n\n当y=0时，该函数图像在x轴上的交点坐标为（-b/k，0）。\n\n6、直线y=kx+b的图象和性质与k、b的关系如下表所示：\n\nk>0，b>0：经过第一、二、三[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)\n\nk>0，b<0：经过第一、三、四象限\n\nk>0，b=0：经过第一、三象限（经过原点）\n\n结论：k>0时，图象从左到右上升，y随x的增大而增大。\n\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n\n当平面直角坐标系中两直线垂直时，其函数斜率的乘积为-1。 [1]\n\n特殊位置关系的证明\n\n关于平面直角坐标系中两直线垂直时，其函数斜率互为负倒数的证明：\n\n如图，这2个函数互相垂直，但若直接证明，存在困难，不易理解，如果平移平面直角坐标系，使这2个函数的交点交于原点，就会更简单。就像这一样，可以设这2个函数的表达式分别为；\n\ny=ax，y=bx。\n\n在x正半轴上取一点（z，0）（便于计算），做与y轴平行的直线，如图，可知OC=z，AC=a*z，BC=b*z，由[勾股定理](https://baike.baidu.com/item/%E5%8B%BE%E8%82%A1%E5%AE%9A%E7%90%86/91499?fromModule=lemma_inlink)可得：\n\nOA=√z^2+（a*z）^2\n\nOB=√z^2+（b*z）^2\n\n又有OA^2+OB^2=AB^2，得\n\nz^2+（az）^2+z^2+（bz）^2=（az-bz）^2（因为b小于0，故为az-bz）化简得：\n\nz^2+a^2*z^2+z^2+b^2*z^2=a^2*z^2-2ab*z^2+b^2*z^2\n\n2z^2=-2ab*z^2\n\nab=-1\n\n即k=-1\n\n所以两个K值的乘积为-1。\n\n注意：与y轴平行的直线没有函数解析式，与x轴平行的直线的解析式为常函数，故上述性质中这两种直线除外。 [1]\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/cdbf6c81800a19d8c0089e1432fa828ba61e4693?fr=lemma&fromModule=lemma_content-image \"两一次函数平行\")两一次函数平行\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/3ac79f3df8dcd1002902e230738b4710b9122f00?fr=lemma&fromModule=lemma_content-image \"两一次函数垂直\")两一次函数垂直\n\n## 学习方法\n\n播报\n\n编辑\n\n### 知识要点\n\n1、要理解函数的意义。\n\n2、联系实际对函数图像的理解。\n\n3、随图象理解数字的变化而变化。\n\n### 误区提醒\n\n1、对一次函数概念理解有误，漏掉[一次项系数](https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E9%A1%B9%E7%B3%BB%E6%95%B0/0?fromModule=lemma_inlink)不为0这一限制条件；\n\n2、对一次函数图像和性质存在思维误区；\n\n3、忽略一次函数自变量取值范围；（有时x∈Z，其图象表现为非连续性的点的集合）\n\n4.对于一次函数中，把自变量认为不能等于零。\n\n### 和方程的异同\n\n1、一次函数和一元一次方程有相似的表达形式。\n\n2、一次函数表示的是一对（x，y）之间的关系，它有无数对解；一元一次方程表示的是未知数x的值，最多只有1个值。\n\n3、一次函数与x轴交点的横坐标就是相应的[一元一次方程](https://baike.baidu.com/item/%E4%B8%80%E5%85%83%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B/0?fromModule=lemma_inlink)的根。\n\n4、以[二元一次方程](https://baike.baidu.com/item/%E4%BA%8C%E5%85%83%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B/0?fromModule=lemma_inlink)组ax+by=c的解为坐标的点组成的图象与一次函数y=（-a/b）x+c/b的图象相同。\n\n5、二元一次方程组a 1 x+b 1 y=c 1，a 2 x+b 2 y=c 2 的解可以看作是两个一次函数y=（-a 1/b 1）x+c 1/d 1 和y=（-a 2/b 2）x+c 2/d 2 的图象的交点。\n\n### 和不等式关系\n\n从函数的角度看，解[不等式](https://baike.baidu.com/item/%E4%B8%8D%E7%AD%89%E5%BC%8F/91125?fromModule=lemma_inlink)的方法就是寻求使一次函数y=kx+b的值大于（或小于）0的自变量x的取值范围的一个过程；\n\n从函数图像的角度看，就是确定直线y=kx+b在x轴上（或下）方部分所有的点的横坐标所构成的集合。\n\n对应一次函数y=kx+b，它与x轴交点为（-b/k，0）。\n\n当k>0时，不等式kx+b>0的解为：x>-b/k，不等式kx+b<0的解为：x<-b/k；\n\n当k<0的解为：不等式kx+b>0的解为：x<-b/k，不等式kx+b<0的解为：x>-b/k。 [1]\n\n## 函数应用\n\n播报\n\n编辑\n\n### 概括整合\n\n（1）简单的一次函数问题：①建立[函数模型](https://baike.baidu.co"
+      },
+      {
+        "url": "https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577",
+        "claim": "k 是一次函数 y=kx+b 的斜率，k=tanθ（θ 为图象与 x 轴正方向夹角）；平面直角坐标系中两直线平行时斜率相等。因此 b 变化只让直线平行移动，斜率 k 保持不变（本题中 k=2）。",
+        "quote": "\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n",
+        "source_id": "ev_e37765b613e54e7b7f7f085b",
+        "finding_id": "f_slope_unchanged",
+        "source_hash": "d8090d6ffa95995ccbf84d40925d57cfa5f75303edb3e6406eec64aea0c6e102",
+        "source_excerpt": "E6%AD%A3%E6%AF%94%E4%BE%8B%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)的图象都是过原点。\n\n3、函数不是数，它是指某一变化过程中两个变量之间的关系。\n\n4、k，b与函数图像所在[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)：\n\ny=kx时（即b等于0，y与x成正比，此时的图象是一条经过原点的直线）\n\n当k>0时，直线必通过一、三象限，y随x的增大而增大；\n\n当k<0时，直线必通过二、四象限，y随x的增大而减小。\n\ny=kx+b（k，b为常数，k≠0）时：\n\n当k>0，b>0，这时此函数的图象经过一，二，三象限；\n\n当k>0，b<0，这时此函数的图象经过一，三，四象限；\n\n当k<0，b>0，这时此函数的图象经过一，二，四象限；\n\n当k<0，b<0，这时此函数的图象经过二，三，四象限。\n\n当b>0时，直线必通过一、二[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)；\n\n当b<0时，直线必通过三、四象限。\n\n特别地，当b=0时，直线通过原点O（0，0）表示的是正比例函数的图象。\n\n这时，当k>0时，直线只通过一、三象限，不会通过二、四象限。当k<0时，直线只通过二、[四象限](https://baike.baidu.com/item/%E5%9B%9B%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)，不会通过一、三象限。\n\n5、当x=0时，b为函数在y轴上的交点，坐标为（0，b）。\n\n当y=0时，该函数图像在x轴上的交点坐标为（-b/k，0）。\n\n6、直线y=kx+b的图象和性质与k、b的关系如下表所示：\n\nk>0，b>0：经过第一、二、三[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)\n\nk>0，b<0：经过第一、三、四象限\n\nk>0，b=0：经过第一、三象限（经过原点）\n\n结论：k>0时，图象从左到右上升，y随x的增大而增大。\n\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n\n当平面直角坐标系中两直线垂直时，其函数斜率的乘积为-1。 [1]\n\n特殊位置关系的证明\n\n关于平面直角坐标系中两直线垂直时，其函数斜率互为负倒数的证明：\n\n如图，这2个函数互相垂直，但若直接证明，存在困难，不易理解，如果平移平面直角坐标系，使这2个函数的交点交于原点，就会更简单。就像这一样，可以设这2个函数的表达式分别为；\n\ny=ax，y=bx。\n\n在x正半轴上取一点（z，0）（便于计算），做与y轴平行的直线，如图，可知OC=z，AC=a*z，BC=b*z，由[勾股定理](https://baike.baidu.com/item/%E5%8B%BE%E8%82%A1%E5%AE%9A%E7%90%86/91499?fromModule=lemma_inlink)可得：\n\nOA=√z^2+（a*z）^2\n\nOB=√z^2+（b*z）^2\n\n又有OA^2+OB^2=AB^2，得\n\nz^2+（az）^2+z^2+（bz）^2=（az-bz）^2（因为b小于0，故为az-bz）化简得：\n\nz^2+a^2*z^2+z^2+b^2*z^2=a^2*z^2-2ab*z^2+b^2*z^2\n\n2z^2=-2ab*z^2\n\nab=-1\n\n即k=-1\n\n所以两个K值的乘积为-1。\n\n注意：与y轴平行的直线没有函数解析式，与x轴平行的直线的解析式为常函数，故上述性质中这两种直线除外。 [1]\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/cdbf6c81800a19d8c0089e1432fa828ba61e4693?fr=lemma&fromModule=lemma_content-image \"两一次函数平行\")两一次函数平行\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/3ac79f3df8dcd1002902e230738b4710b9122f00?fr=lemma&fromModule=lemma_content-image \"两一次函数垂直\")两一次函数垂直\n\n## 学习方法\n\n播报\n\n编辑\n\n### 知识要点\n\n1、要理解函数的意义。\n\n2、联系实际对函数图像的理解。\n\n3、随图象理解数字的变化而变化。\n\n### 误区提醒\n\n1、对一次函数概念理解有误，漏掉[一次项系数](https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E9%A1%B9%E7%B3%BB%E6%95%B0/0?fromModule=lemma_inlink)不为0这一限制条件；\n\n2、对一次函数图像和性质存在思维误区；\n\n3、忽略一次函数自变量取值范围；（有时x∈Z，其图象表现为非连续性的点的集合）\n\n4.对于一次函数中，把自变量认为不能等于零。\n\n### 和方程的异同\n\n1、一次函数和一元一次方程有相似的表达形式。\n\n2、一次函数表示的是一对（x，y）之间的关系，它有无数对解；一元一次方程表示的是未知数x的值，最多只有1个值。\n\n3、一次函数与x轴交点的横坐标就是相应的[一元一次方程](https://baike.baidu.com/item/%E4%B8%80%E5%85%83%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B/0?fromModule=lemma_inlink)的根。\n\n4、以[二元一次方程](https://baike.baidu.com/item/%E4%BA%8C%E5%85%83%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B/0?fromModule=lemma_inlink)组ax+by=c的解为坐标的点组成的图象与一次函数y=（-a/b）x+c/b的图象相同。\n\n5、二元一次方程组a 1 x+b 1 y=c 1，a 2 x+b 2 y=c 2 的解可以看作是两个一次函数y=（-a 1/b 1）x+c 1/d 1 和y=（-a 2/b 2）x+c 2/d 2 的图象的交点。\n\n### 和不等式关系\n\n从函数的角度看，解[不等式](https://baike.baidu.com/item/%E4%B8%8D%E7%AD%89%E5%BC%8F/91125?fromModule=lemma_inlink)的方法就是寻求使一次函数y=kx+b的值大于（或小于）0的自变量x的取值范围的一个过程；\n\n从函数图像的角度看，就是确定直线y=kx+b在x轴上（或下）方部分所有的点的横坐标所构成的集合。\n\n对应一次函数y=kx+b，它与x轴交点为（-b/k，0）。\n\n当k>0时，不等式kx+b>0的解为：x>-b/k，不等式kx+b<0的解为：x<-b/k；\n\n当k<0的解为：不等式kx+b>0的解为：x<-b/k，不等式kx+b<0的解为：x>-b/k。 [1]\n\n## 函数应用\n\n播报\n\n编辑\n\n### 概括整合\n\n（1）简单的一次函数问题：①建立[函数模型](https://baike.baidu.com/item/%E5%87%BD%E6%95%B0%E6%A8%A1%E5%9E%8B/0?fromModule=lemma_inlink)的方法；②[分段函数](https://baike.baidu.com/item/%E5%88%86%E6%AE%B5%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)思想的应用。\n\n（2）理清题意是采用分段函数解决问题的关键。\n\n### 常"
+      },
+      {
+        "url": "https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577",
+        "claim": "k 是一次函数 y=kx+b 的斜率，k=tanθ（θ 为图象与 x 轴正方向夹角）；平面直角坐标系中两直线平行时斜率相等。因此 b 变化只让直线平行移动，斜率 k 保持不变（本题中 k=2）。",
+        "quote": "\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n",
+        "source_id": "ev_e37765b613e54e7b7f7f085b",
+        "finding_id": "f_slope_unchanged",
+        "source_hash": "d8090d6ffa95995ccbf84d40925d57cfa5f75303edb3e6406eec64aea0c6e102",
+        "source_excerpt": "ike.baidu.com/item/%E5%9B%BE%E8%B1%A1/0?fromModule=lemma_inlink)只需知道2点，并连成直线即可。\n\n2、性质：（1）在一次函数上的任意一点P（x，y），都满足等式：y=kx+b（k≠0）。（2）一次函数与y轴交点的坐标总是（0，b），与x轴总是交于（-b/k，0）[正比例函数](https://baike.baidu.com/item/%E6%AD%A3%E6%AF%94%E4%BE%8B%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)的图象都是过原点。\n\n3、函数不是数，它是指某一变化过程中两个变量之间的关系。\n\n4、k，b与函数图像所在[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)：\n\ny=kx时（即b等于0，y与x成正比，此时的图象是一条经过原点的直线）\n\n当k>0时，直线必通过一、三象限，y随x的增大而增大；\n\n当k<0时，直线必通过二、四象限，y随x的增大而减小。\n\ny=kx+b（k，b为常数，k≠0）时：\n\n当k>0，b>0，这时此函数的图象经过一，二，三象限；\n\n当k>0，b<0，这时此函数的图象经过一，三，四象限；\n\n当k<0，b>0，这时此函数的图象经过一，二，四象限；\n\n当k<0，b<0，这时此函数的图象经过二，三，四象限。\n\n当b>0时，直线必通过一、二[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)；\n\n当b<0时，直线必通过三、四象限。\n\n特别地，当b=0时，直线通过原点O（0，0）表示的是正比例函数的图象。\n\n这时，当k>0时，直线只通过一、三象限，不会通过二、四象限。当k<0时，直线只通过二、[四象限](https://baike.baidu.com/item/%E5%9B%9B%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)，不会通过一、三象限。\n\n5、当x=0时，b为函数在y轴上的交点，坐标为（0，b）。\n\n当y=0时，该函数图像在x轴上的交点坐标为（-b/k，0）。\n\n6、直线y=kx+b的图象和性质与k、b的关系如下表所示：\n\nk>0，b>0：经过第一、二、三[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)\n\nk>0，b<0：经过第一、三、四象限\n\nk>0，b=0：经过第一、三象限（经过原点）\n\n结论：k>0时，图象从左到右上升，y随x的增大而增大。\n\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n\n当平面直角坐标系中两直线垂直时，其函数斜率的乘积为-1。 [1]\n\n特殊位置关系的证明\n\n关于平面直角坐标系中两直线垂直时，其函数斜率互为负倒数的证明：\n\n如图，这2个函数互相垂直，但若直接证明，存在困难，不易理解，如果平移平面直角坐标系，使这2个函数的交点交于原点，就会更简单。就像这一样，可以设这2个函数的表达式分别为；\n\ny=ax，y=bx。\n\n在x正半轴上取一点（z，0）（便于计算），做与y轴平行的直线，如图，可知OC=z，AC=a*z，BC=b*z，由[勾股定理](https://baike.baidu.com/item/%E5%8B%BE%E8%82%A1%E5%AE%9A%E7%90%86/91499?fromModule=lemma_inlink)可得：\n\nOA=√z^2+（a*z）^2\n\nOB=√z^2+（b*z）^2\n\n又有OA^2+OB^2=AB^2，得\n\nz^2+（az）^2+z^2+（bz）^2=（az-bz）^2（因为b小于0，故为az-bz）化简得：\n\nz^2+a^2*z^2+z^2+b^2*z^2=a^2*z^2-2ab*z^2+b^2*z^2\n\n2z^2=-2ab*z^2\n\nab=-1\n\n即k=-1\n\n所以两个K值的乘积为-1。\n\n注意：与y轴平行的直线没有函数解析式，与x轴平行的直线的解析式为常函数，故上述性质中这两种直线除外。 [1]\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/cdbf6c81800a19d8c0089e1432fa828ba61e4693?fr=lemma&fromModule=lemma_content-image \"两一次函数平行\")两一次函数平行\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/3ac79f3df8dcd1002902e230738b4710b9122f00?fr=lemma&fromModule=lemma_content-image \"两一次函数垂直\")两一次函数垂直\n\n## 学习方法\n\n播报\n\n编辑\n\n### 知识要点\n\n1、要理解函数的意义。\n\n2、联系实际对函数图像的理解。\n\n3、随图象理解数字的变化而变化。\n\n### 误区提醒\n\n1、对一次函数概念理解有误，漏掉[一次项系数](https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E9%A1%B9%E7%B3%BB%E6%95%B0/0?fromModule=lemma_inlink)不为0这一限制条件；\n\n2、对一次函数图像和性质存在思维误区；\n\n3、忽略一次函数自变量取值范围；（有时x∈Z，其图象表现为非连续性的点的集合）\n\n4.对于一次函数中，把自变量认为不能等于零。\n\n### 和方程的异同\n\n1、一次函数和一元一次方程有相似的表达形式。\n\n2、一次函数表示的是一对（x，y）之间的关系，它有无数对解；一元一次方程表示的是未知数x的值，最多只有1个值。\n\n3、一次函数与x轴交点的横坐标就是相应的[一元一次方程](https://baike.baidu.com/item/%E4%B8%80%E5%85%83%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B/0?fromModule=lemma_inlink)的根。\n\n4、以[二元一次方程](https://baike.baidu.com/item/%E4%BA%8C%E5%85%83%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B/0?fromModule=lemma_inlink)组ax+by=c的解为坐标的点组成的图象与一次函数y=（-a/b）x+c/b的图象相同。\n\n5、二元一次方程组a 1 x+b 1 y=c 1，a 2 x+b 2 y=c 2 的解可以看作是两个一次函数y=（-a 1/b 1）x+c 1/d 1 和y=（-a 2/b 2）x+c 2/d 2 的图象的交点。\n\n### 和不等式关系\n\n从函数的角度看，解[不等式](https://baike.baidu.com/item/%E4%B8%8D%E7%AD%89%E5%BC%8F/91125?fromModule=lemma_inlink)的方法就是寻求使一次函数y=kx+b的值大于（或小于）0的自变量x的取值范围的一个过程；\n\n从函数图像的角度看，就是确定直线y=kx+b在x轴上（或下）方部分所有的点的横坐标所构成的集合。\n\n对应一次函数y=kx+b，它与x轴交点为（-b/k，0）。\n\n当k>0时，不等式kx+b>0的解为：x>-b/k，不等式kx+b<0的解为：x<-b/k；\n\n当k<0的解为：不等式kx+b>0的解为：x<-b/k，不等式kx+b<0的解为：x>-b/k。 [1]\n\n## 函数应用\n\n播报\n\n编辑\n\n### 概括整合\n\n（1）简单的一次函数问题：①建立[函数模型](https://baike.baidu.co"
+      },
+      {
+        "url": "https://math.libretexts.org/Bookshelves/PreAlgebra/Pre-Algebra_II_(Illustrative_Mathematics_-_Grade_8)/03%3A_Linear_Relationships/3.02%3A_New_Page/3.2.4%3A_Translating_y_%3D_mx___b",
+        "claim": "教材（Illustrative Mathematics 八年级）用“同一坐标系中把原直线所有点向上平移”的方式得到新直线，并指出 y=mx+b 中 m 是变化率（即斜率），b 是初始量（即竖直截距）；竖直截距是直线与竖直轴相交的点。这支持“同一坐标系中对比 b=0、2、-2 三条平行直线”的动画设计。",
+        "quote": "We can graph this storm on the same axes as the first storm by taking all the points on the graph of the first storm and translating them up 5 inches.\n\nTwo hours after each storm begins, 1 inch of new snow has fallen. ",
+        "source_id": "ev_c2df18f0d2342af2e38faa6c",
+        "finding_id": "f_translation_same_slope",
+        "source_hash": "45569f6b68e7af3aa587b23ae5c06183953555c2e0d5cd308d6366d7b7603f4e",
+        "source_excerpt": "ll at a rate of $\\frac{1}{2}$ inch per hour. We can see the rate of change, $\\frac{1}{2}$, in both the equation that represents this storm, $y = \\frac{1}{2} ⁢ x$, and in the slope of the line representing this storm.\n\nIn addition to being a linear relationship between the time since the beginning of the storm and the depth of the snow, we can also call this as a proportional relationship since the depth of snow was 0 at the beginning of the storm.\n\n![Image 9: clipboard_ecd457c01c380c74a86dea0fa929f4681.png](https://math.libretexts.org/@api/deki/files/36414/clipboard_ecd457c01c380c74a86dea0fa929f4681.png?revision=1)\n\nFigure $3 . 2 . 4 . 2$: Graph of line. Horizontal axis, time since beginning of storm in hours, scale 0 to 6, by 1’s. Vertical axis, depth of snow in inches, scale 0 to 9, by 1’s. Points on line include 0 comma 0, 2 comma 1 and 4 comma 2.\n\nDuring a mid-winter storm, the snow again fell at a rate of inch per hour, but this time there was already 5 inches of snow on the ground.\n\n![Image 10: clipboard_e1c96c40b44205fa29a1b192f5dca7543.png](https://math.libretexts.org/@api/deki/files/36415/clipboard_e1c96c40b44205fa29a1b192f5dca7543.png?revision=1)\n\nFigure $3 . 2 . 4 . 3$\n\nWe can graph this storm on the same axes as the first storm by taking all the points on the graph of the first storm and translating them up 5 inches.\n\nTwo hours after each storm begins, 1 inch of new snow has fallen. For the first storm, this means there is now 1 inch of snow on the ground. For the second storm, this means there are now 6 inches of snow on the ground.\n\nUnlike the first storm, the second is not a proportional relationship since the line representing the second storm has a vertical intercept of 5. The equation representing the storm, $y = \\frac{1}{2} ⁢ x + 5$, is of the form $y = m ⁢ x + b$, where $m$ is the rate of change, also the slope of the graph, and $b$ is the initial amount, also the vertical intercept of the graph.\n\n### Glossary Entries\n\nDefinition: Linear Relationship\n\nA linear relationship between two quantities means they are related like this: When one quantity changes by a certain amount, the other quantity always changes by a set amount. In a linear relationship, one quantity has a constant rate of change with respect to the other.\n\nThe relationship is called linear because its graph is a line.\n\nThe graph shows a relationship between number of days and number of pages read.\n\nWhen the number of days increases by 2, the number of pages read always increases by 60. The rate of change is constant, 30 pages per day, so the relationship is linear.\n\n![Image 11: clipboard_e4d1fd0f0259d7198073a02ce75a7303d.png](https://math.libretexts.org/@api/deki/files/36396/clipboard_e4d1fd0f0259d7198073a02ce75a7303d.png?revision=1)\n\nFigure $3 . 2 . 4 . 4$\n\nDefinition: Vertical Intercept\n\nThe vertical intercept is the point where the graph of a line crosses the vertical axis.\n\nThe vertical intercept of this line is $\\left(\\right. 0 , - 6 \\left.\\right)$ or just -6.\n\n![Image 12: clipboard_ea9fc8ec38e43e70ee19cfa3df0f6c2ef.png](https://math.libretexts.org/@api/deki/files/36402/clipboard_ea9fc8ec38e43e70ee19cfa3df0f6c2ef.png?revision=1)\n\nFigure $3 . 2 . 4 . 5$\n\n## Practice\n\nExercise $3 . 2 . 4 . 4$\n\nSelect **all** the equations that have graphs with the same $y$-intercept.\n\n1.   $y = 3 ⁢ x - 8$\n2.   $y = 3 ⁢ x - 9$\n3.   $y = 3 ⁢ x + 8$\n4.   $y = 5 ⁢ x - 8$\n5.   $y = 2 ⁢ x - 8$\n6.   $y = \\frac{1}{3} ⁢ x - 8$\n\nExercise $3 . 2 . 4 . 5$\n\nCreate a graph showing the equations $y = \\frac"
+      },
+      {
+        "url": "https://math.libretexts.org/Bookshelves/PreAlgebra/Pre-Algebra_II_(Illustrative_Mathematics_-_Grade_8)/03%3A_Linear_Relationships/3.02%3A_New_Page/3.2.4%3A_Translating_y_%3D_mx___b",
+        "claim": "教材（Illustrative Mathematics 八年级）用“同一坐标系中把原直线所有点向上平移”的方式得到新直线，并指出 y=mx+b 中 m 是变化率（即斜率），b 是初始量（即竖直截距）；竖直截距是直线与竖直轴相交的点。这支持“同一坐标系中对比 b=0、2、-2 三条平行直线”的动画设计。",
+        "quote": "The equation representing the storm, $y = \\frac{1}{2} ⁢ x + 5$, is of the form $y = m ⁢ x + b$, where $m$ is the rate of change, also the slope of the graph, and $b$ is the initial amount, also the vertical intercept of the graph.\n",
+        "source_id": "ev_c2df18f0d2342af2e38faa6c",
+        "finding_id": "f_translation_same_slope",
+        "source_hash": "45569f6b68e7af3aa587b23ae5c06183953555c2e0d5cd308d6366d7b7603f4e",
+        "source_excerpt": "//math.libretexts.org/@api/deki/files/36414/clipboard_ecd457c01c380c74a86dea0fa929f4681.png?revision=1)\n\nFigure $3 . 2 . 4 . 2$: Graph of line. Horizontal axis, time since beginning of storm in hours, scale 0 to 6, by 1’s. Vertical axis, depth of snow in inches, scale 0 to 9, by 1’s. Points on line include 0 comma 0, 2 comma 1 and 4 comma 2.\n\nDuring a mid-winter storm, the snow again fell at a rate of inch per hour, but this time there was already 5 inches of snow on the ground.\n\n![Image 10: clipboard_e1c96c40b44205fa29a1b192f5dca7543.png](https://math.libretexts.org/@api/deki/files/36415/clipboard_e1c96c40b44205fa29a1b192f5dca7543.png?revision=1)\n\nFigure $3 . 2 . 4 . 3$\n\nWe can graph this storm on the same axes as the first storm by taking all the points on the graph of the first storm and translating them up 5 inches.\n\nTwo hours after each storm begins, 1 inch of new snow has fallen. For the first storm, this means there is now 1 inch of snow on the ground. For the second storm, this means there are now 6 inches of snow on the ground.\n\nUnlike the first storm, the second is not a proportional relationship since the line representing the second storm has a vertical intercept of 5. The equation representing the storm, $y = \\frac{1}{2} ⁢ x + 5$, is of the form $y = m ⁢ x + b$, where $m$ is the rate of change, also the slope of the graph, and $b$ is the initial amount, also the vertical intercept of the graph.\n\n### Glossary Entries\n\nDefinition: Linear Relationship\n\nA linear relationship between two quantities means they are related like this: When one quantity changes by a certain amount, the other quantity always changes by a set amount. In a linear relationship, one quantity has a constant rate of change with respect to the other.\n\nThe relationship is called linear because its graph is a line.\n\nThe graph shows a relationship between number of days and number of pages read.\n\nWhen the number of days increases by 2, the number of pages read always increases by 60. The rate of change is constant, 30 pages per day, so the relationship is linear.\n\n![Image 11: clipboard_e4d1fd0f0259d7198073a02ce75a7303d.png](https://math.libretexts.org/@api/deki/files/36396/clipboard_e4d1fd0f0259d7198073a02ce75a7303d.png?revision=1)\n\nFigure $3 . 2 . 4 . 4$\n\nDefinition: Vertical Intercept\n\nThe vertical intercept is the point where the graph of a line crosses the vertical axis.\n\nThe vertical intercept of this line is $\\left(\\right. 0 , - 6 \\left.\\right)$ or just -6.\n\n![Image 12: clipboard_ea9fc8ec38e43e70ee19cfa3df0f6c2ef.png](https://math.libretexts.org/@api/deki/files/36402/clipboard_ea9fc8ec38e43e70ee19cfa3df0f6c2ef.png?revision=1)\n\nFigure $3 . 2 . 4 . 5$\n\n## Practice\n\nExercise $3 . 2 . 4 . 4$\n\nSelect **all** the equations that have graphs with the same $y$-intercept.\n\n1.   $y = 3 ⁢ x - 8$\n2.   $y = 3 ⁢ x - 9$\n3.   $y = 3 ⁢ x + 8$\n4.   $y = 5 ⁢ x - 8$\n5.   $y = 2 ⁢ x - 8$\n6.   $y = \\frac{1}{3} ⁢ x - 8$\n\nExercise $3 . 2 . 4 . 5$\n\nCreate a graph showing the equations $y = \\frac"
+      },
+      {
+        "url": "https://math.libretexts.org/Bookshelves/PreAlgebra/Pre-Algebra_II_(Illustrative_Mathematics_-_Grade_8)/03%3A_Linear_Relationships/3.02%3A_New_Page/3.2.4%3A_Translating_y_%3D_mx___b",
+        "claim": "教材（Illustrative Mathematics 八年级）用“同一坐标系中把原直线所有点向上平移”的方式得到新直线，并指出 y=mx+b 中 m 是变化率（即斜率），b 是初始量（即竖直截距）；竖直截距是直线与竖直轴相交的点。这支持“同一坐标系中对比 b=0、2、-2 三条平行直线”的动画设计。",
+        "quote": "The vertical intercept is the point where the graph of a line crosses the vertical axis.\n\nThe vertical intercept of this line is $\\left(\\right. 0 , - 6 \\left.\\right)$ or just -6.\n",
+        "source_id": "ev_c2df18f0d2342af2e38faa6c",
+        "finding_id": "f_translation_same_slope",
+        "source_hash": "45569f6b68e7af3aa587b23ae5c06183953555c2e0d5cd308d6366d7b7603f4e",
+        "source_excerpt": "ional relationship since the line representing the second storm has a vertical intercept of 5. The equation representing the storm, $y = \\frac{1}{2} ⁢ x + 5$, is of the form $y = m ⁢ x + b$, where $m$ is the rate of change, also the slope of the graph, and $b$ is the initial amount, also the vertical intercept of the graph.\n\n### Glossary Entries\n\nDefinition: Linear Relationship\n\nA linear relationship between two quantities means they are related like this: When one quantity changes by a certain amount, the other quantity always changes by a set amount. In a linear relationship, one quantity has a constant rate of change with respect to the other.\n\nThe relationship is called linear because its graph is a line.\n\nThe graph shows a relationship between number of days and number of pages read.\n\nWhen the number of days increases by 2, the number of pages read always increases by 60. The rate of change is constant, 30 pages per day, so the relationship is linear.\n\n![Image 11: clipboard_e4d1fd0f0259d7198073a02ce75a7303d.png](https://math.libretexts.org/@api/deki/files/36396/clipboard_e4d1fd0f0259d7198073a02ce75a7303d.png?revision=1)\n\nFigure $3 . 2 . 4 . 4$\n\nDefinition: Vertical Intercept\n\nThe vertical intercept is the point where the graph of a line crosses the vertical axis.\n\nThe vertical intercept of this line is $\\left(\\right. 0 , - 6 \\left.\\right)$ or just -6.\n\n![Image 12: clipboard_ea9fc8ec38e43e70ee19cfa3df0f6c2ef.png](https://math.libretexts.org/@api/deki/files/36402/clipboard_ea9fc8ec38e43e70ee19cfa3df0f6c2ef.png?revision=1)\n\nFigure $3 . 2 . 4 . 5$\n\n## Practice\n\nExercise $3 . 2 . 4 . 4$\n\nSelect **all** the equations that have graphs with the same $y$-intercept.\n\n1.   $y = 3 ⁢ x - 8$\n2.   $y = 3 ⁢ x - 9$\n3.   $y = 3 ⁢ x + 8$\n4.   $y = 5 ⁢ x - 8$\n5.   $y = 2 ⁢ x - 8$\n6.   $y = \\frac{1}{3} ⁢ x - 8$\n\nExercise $3 . 2 . 4 . 5$\n\nCreate a graph showing the equations $y = \\frac"
+      },
+      {
+        "url": "https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577",
+        "claim": "斜率相同、截距不同的两条直线互相平行、永不相交，例如 y=2x+1 与 y=2x−4；斜率相同的直线以相同速率上升，竖直方向距离始终不变。这为“b 变化时三条直线平行、斜率始终为 2”提供直观解释。",
+        "quote": "\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n",
+        "source_id": "ev_e37765b613e54e7b7f7f085b",
+        "finding_id": "f_parallel_lines",
+        "source_hash": "d8090d6ffa95995ccbf84d40925d57cfa5f75303edb3e6406eec64aea0c6e102",
+        "source_excerpt": "E6%AD%A3%E6%AF%94%E4%BE%8B%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)的图象都是过原点。\n\n3、函数不是数，它是指某一变化过程中两个变量之间的关系。\n\n4、k，b与函数图像所在[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)：\n\ny=kx时（即b等于0，y与x成正比，此时的图象是一条经过原点的直线）\n\n当k>0时，直线必通过一、三象限，y随x的增大而增大；\n\n当k<0时，直线必通过二、四象限，y随x的增大而减小。\n\ny=kx+b（k，b为常数，k≠0）时：\n\n当k>0，b>0，这时此函数的图象经过一，二，三象限；\n\n当k>0，b<0，这时此函数的图象经过一，三，四象限；\n\n当k<0，b>0，这时此函数的图象经过一，二，四象限；\n\n当k<0，b<0，这时此函数的图象经过二，三，四象限。\n\n当b>0时，直线必通过一、二[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)；\n\n当b<0时，直线必通过三、四象限。\n\n特别地，当b=0时，直线通过原点O（0，0）表示的是正比例函数的图象。\n\n这时，当k>0时，直线只通过一、三象限，不会通过二、四象限。当k<0时，直线只通过二、[四象限](https://baike.baidu.com/item/%E5%9B%9B%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)，不会通过一、三象限。\n\n5、当x=0时，b为函数在y轴上的交点，坐标为（0，b）。\n\n当y=0时，该函数图像在x轴上的交点坐标为（-b/k，0）。\n\n6、直线y=kx+b的图象和性质与k、b的关系如下表所示：\n\nk>0，b>0：经过第一、二、三[象限](https://baike.baidu.com/item/%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)\n\nk>0，b<0：经过第一、三、四象限\n\nk>0，b=0：经过第一、三象限（经过原点）\n\n结论：k>0时，图象从左到右上升，y随x的增大而增大。\n\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n\n当平面直角坐标系中两直线垂直时，其函数斜率的乘积为-1。 [1]\n\n特殊位置关系的证明\n\n关于平面直角坐标系中两直线垂直时，其函数斜率互为负倒数的证明：\n\n如图，这2个函数互相垂直，但若直接证明，存在困难，不易理解，如果平移平面直角坐标系，使这2个函数的交点交于原点，就会更简单。就像这一样，可以设这2个函数的表达式分别为；\n\ny=ax，y=bx。\n\n在x正半轴上取一点（z，0）（便于计算），做与y轴平行的直线，如图，可知OC=z，AC=a*z，BC=b*z，由[勾股定理](https://baike.baidu.com/item/%E5%8B%BE%E8%82%A1%E5%AE%9A%E7%90%86/91499?fromModule=lemma_inlink)可得：\n\nOA=√z^2+（a*z）^2\n\nOB=√z^2+（b*z）^2\n\n又有OA^2+OB^2=AB^2，得\n\nz^2+（az）^2+z^2+（bz）^2=（az-bz）^2（因为b小于0，故为az-bz）化简得：\n\nz^2+a^2*z^2+z^2+b^2*z^2=a^2*z^2-2ab*z^2+b^2*z^2\n\n2z^2=-2ab*z^2\n\nab=-1\n\n即k=-1\n\n所以两个K值的乘积为-1。\n\n注意：与y轴平行的直线没有函数解析式，与x轴平行的直线的解析式为常函数，故上述性质中这两种直线除外。 [1]\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/cdbf6c81800a19d8c0089e1432fa828ba61e4693?fr=lemma&fromModule=lemma_content-image \"两一次函数平行\")两一次函数平行\n\n[](https://baike.baidu.com/pic/%E4%B8%80%E6%AC%A1%E5%87%BD%E6%95%B0/1653577/0/3ac79f3df8dcd1002902e230738b4710b9122f00?fr=lemma&fromModule=lemma_content-image \"两一次函数垂直\")两一次函数垂直\n\n## 学习方法\n\n播报\n\n编辑\n\n### 知识要点\n\n1、要理解函数的意义。\n\n2、联系实际对函数图像的理解。\n\n3、随图象理解数字的变化而变化。\n\n### 误区提醒\n\n1、对一次函数概念理解有误，漏掉[一次项系数](https://baike.baidu.com/item/%E4%B8%80%E6%AC%A1%E9%A1%B9%E7%B3%BB%E6%95%B0/0?fromModule=lemma_inlink)不为0这一限制条件；\n\n2、对一次函数图像和性质存在思维误区；\n\n3、忽略一次函数自变量取值范围；（有时x∈Z，其图象表现为非连续性的点的集合）\n\n4.对于一次函数中，把自变量认为不能等于零。\n\n### 和方程的异同\n\n1、一次函数和一元一次方程有相似的表达形式。\n\n2、一次函数表示的是一对（x，y）之间的关系，它有无数对解；一元一次方程表示的是未知数x的值，最多只有1个值。\n\n3、一次函数与x轴交点的横坐标就是相应的[一元一次方程](https://baike.baidu.com/item/%E4%B8%80%E5%85%83%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B/0?fromModule=lemma_inlink)的根。\n\n4、以[二元一次方程](https://baike.baidu.com/item/%E4%BA%8C%E5%85%83%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B/0?fromModule=lemma_inlink)组ax+by=c的解为坐标的点组成的图象与一次函数y=（-a/b）x+c/b的图象相同。\n\n5、二元一次方程组a 1 x+b 1 y=c 1，a 2 x+b 2 y=c 2 的解可以看作是两个一次函数y=（-a 1/b 1）x+c 1/d 1 和y=（-a 2/b 2）x+c 2/d 2 的图象的交点。\n\n### 和不等式关系\n\n从函数的角度看，解[不等式](https://baike.baidu.com/item/%E4%B8%8D%E7%AD%89%E5%BC%8F/91125?fromModule=lemma_inlink)的方法就是寻求使一次函数y=kx+b的值大于（或小于）0的自变量x的取值范围的一个过程；\n\n从函数图像的角度看，就是确定直线y=kx+b在x轴上（或下）方部分所有的点的横坐标所构成的集合。\n\n对应一次函数y=kx+b，它与x轴交点为（-b/k，0）。\n\n当k>0时，不等式kx+b>0的解为：x>-b/k，不等式kx+b<0的解为：x<-b/k；\n\n当k<0的解为：不等式kx+b>0的解为：x<-b/k，不等式kx+b<0的解为：x>-b/k。 [1]\n\n## 函数应用\n\n播报\n\n编辑\n\n### 概括整合\n\n（1）简单的一次函数问题：①建立[函数模型](https://baike.baidu.com/item/%E5%87%BD%E6%95%B0%E6%A8%A1%E5%9E%8B/0?fromModule=lemma_inlink)的方法；②[分段函数](https://baike.baidu.com/item/%E5%88%86%E6%AE%B5%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)思想的应用。\n\n（2）理清题意是采用分段函数解决问题的关键。\n\n### 常"
+      }
+    ]
+  },
+  "quality": {
+    "issues": [],
+    "method": "model_review_non_classroom",
+    "decision": "pass",
+    "limitations": [
+      "单节点课程，无跨节点先修顺序问题；节点内活动顺序为动画讲解→讲义→练习→保存，符合“先直观演示再总结再检验”的认知顺序，且动画先于讲义，符合“例子先于原理”。",
+      "节点审阅已通过，报告与习题的目标绑定覆盖全部四项节点目标及 req_intercept_shift、req_animation_compare、req_yaxis_intersection、req_slope_constant、req_handout、req_two_exercises 等要求；动画语音与保存课程属课堂/产品功能，按策略不做生成后内容审查。",
+      "时长仅为建议性指标：讲义约 5.6 分钟、习题约 3.9 分钟、语音约 3.7 分钟，合计约 13.3 分钟，明显超出 3 分钟总时长；不阻断交付，但实际学习时间会远长于用户预期，若需贴近 3 分钟可精简讲义与习题。",
+      "习题实际为 3 道（1 道简答 + 2 道选择），多于用户要求的“两道检查练习”，属超出而非缺失。",
+      "来源为中文百科词条与八年级教材节选，未使用用户上传材料；未覆盖 b 对 x 轴交点、象限分布等性质，符合用户“不扩展到其他章节”的排除要求。",
+      "讲义（resource_1）按阅读量估算约 5.6 分钟，习题（resource_2）约 3.9 分钟，均超出 3 分钟节点预算；时长仅为建议性指标，不阻断交付，但实际学习时间会明显长于 3 分钟，若需严格控制在 3 分钟内可精简讲义第三节的逐点对比表与第七节范围说明。",
+      "动画、中文语音与课程保存属于后续制作与产品功能，本轮提供的报告与习题只包含动画分镜脚本、语音台词要点与讲义要点，未包含已生成的视频文件；课堂资源按策略不做生成后内容审查。",
+      "来源为中文百科词条与八年级教材节选（LibreTexts/Illustrative Mathematics），未使用用户上传材料；未覆盖 b 对 x 轴交点、象限分布等性质，符合用户“不扩展到其他章节”的排除要求。",
+      "习题实际为 3 道（1 道简答 + 2 道选择），多于用户要求的“两道检查练习”，属于超出而非缺失，不影响目标覆盖。",
+      "来源为中文百科词条与八年级教材节选，未使用用户上传材料；未覆盖 b 对 x 轴交点、象限等其他性质，符合用户“不扩展到其他章节”的排除要求。",
+      "动画、中文语音、讲义与保存课程属于后续资源制作与产品功能，本路径只规划活动与自测，不包含已生成的视频或讲义文件。",
+      "3 分钟总时长内只做直觉层面的理解，不承诺学生能独立完成复杂平移计算。"
+    ],
+    "input_digest": "2109c7db700c8a6b6b735ee4babbd0ca7daa7386bcb3e0fc2079aaf3b2da3365",
+    "rule_version": "preparation-delivery-v14-optional-classroom-alignment",
+    "checked_node_ids": [
+      "node_intercept_shift"
+    ],
+    "classroom_content_review": "skipped"
+  },
+  "candidate_manifest": {
+    "goal": "我是一名初中生，会读平面直角坐标图，但不理解一次函数 y=2x+b 中 b 的作用。请为我制作一节中文微课，只安排一个知识点：截距如何让直线上下平移。学习总时长约 3 分钟，其中动画讲解约 60—90 秒，配中文语音。请在同一坐标系中动态展示 b=0、b=2、b=-2，解释与 y 轴交点怎样变化、为什么斜率始终是 2。最后保留一份简短讲义和两道检查理解的练习。不要扩展到神经网络或其他章节。生成后保存课程，方便我反复观看。",
+    "nodes": [
+      {
+        "order": 1,
+        "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+        "checks": [
+          {
+            "mode": "self_check",
+            "locator": {
+              "page": null,
+              "section_id": "sec_check",
+              "question_id": null
+            },
+            "check_id": "node_intercept_shift:check:10fd5838f18edfa2520af5c1",
+            "resource_id": "resource_d882fe11f0c1252a4f8b5ff23e972fe4",
+            "objective_ids": [
+              "node_intercept_shift:o4"
+            ],
+            "resource_version": 1
+          },
+          {
+            "mode": "practice",
+            "locator": {
+              "page": null,
+              "section_id": null,
+              "question_id": "q1_yintercept"
+            },
+            "check_id": "node_intercept_shift:check:14a0b43a2ea2bfc48a4af82e",
+            "resource_id": "resource_a6cc47691be8d2af7e445bf63bdbf248",
+            "objective_ids": [
+              "node_intercept_shift:o1",
+              "node_intercept_shift:o4"
+            ],
+            "resource_version": 1
+          },
+          {
+            "mode": "practice",
+            "locator": {
+              "page": null,
+              "section_id": null,
+              "question_id": "q2_shift_and_slope"
+            },
+            "check_id": "node_intercept_shift:check:95425b63c8b969d326bb2296",
+            "resource_id": "resource_a6cc47691be8d2af7e445bf63bdbf248",
+            "objective_ids": [
+              "node_intercept_shift:o2",
+              "node_intercept_shift:o4"
+            ],
+            "resource_version": 1
+          },
+          {
+            "mode": "practice",
+            "locator": {
+              "page": null,
+              "section_id": null,
+              "question_id": "q3_parallel_check"
+            },
+            "check_id": "node_intercept_shift:check:00ff5e1a99c121906d2455b7",
+            "resource_id": "resource_a6cc47691be8d2af7e445bf63bdbf248",
+            "objective_ids": [
+              "node_intercept_shift:o3"
+            ],
+            "resource_version": 1
+          }
+        ],
+        "node_id": "node_intercept_shift",
+        "required": true,
+        "resources": [
+          {
+            "order": 1,
+            "purpose": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+            "version": 1,
+            "required": true,
+            "resource_id": "resource_d882fe11f0c1252a4f8b5ff23e972fe4",
+            "source_refs": [
+              "ev_e37765b613e54e7b7f7f085b",
+              "ev_c2df18f0d2342af2e38faa6c"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o1",
+              "node_intercept_shift:o2",
+              "node_intercept_shift:o3",
+              "node_intercept_shift:o4"
+            ],
+            "resource_type": "report",
+            "content_sha256": "ce7b3028e0b62f6d6fbc0f5aeb5894c5b4c63957361f7418656f8d342a2b6533",
+            "objective_coverage": "verified"
+          },
+          {
+            "order": 2,
+            "purpose": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+            "version": 1,
+            "required": true,
+            "resource_id": "resource_a6cc47691be8d2af7e445bf63bdbf248",
+            "source_refs": [
+              "ev_e37765b613e54e7b7f7f085b",
+              "ev_c2df18f0d2342af2e38faa6c"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o1",
+              "node_intercept_shift:o2",
+              "node_intercept_shift:o3",
+              "node_intercept_shift:o4"
+            ],
+            "resource_type": "quiz",
+            "content_sha256": "61ba1a2ac35165e1a6a2b42c23efb1557dea92913a97a5b8bd62facd92907f0c",
+            "objective_coverage": "verified"
+          },
+          {
+            "order": 3,
+            "purpose": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+            "version": 1,
+            "required": true,
+            "resource_id": "resource_03cb6c3cc66cced990124c06a24c636b",
+            "source_refs": [
+              "ev_e37765b613e54e7b7f7f085b",
+              "ev_c2df18f0d2342af2e38faa6c"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o1",
+              "node_intercept_shift:o2",
+              "node_intercept_shift:o3",
+              "node_intercept_shift:o4"
+            ],
+            "resource_type": "classroom",
+            "content_sha256": "c14848c2280004ca1772f795802f0ec1561540f7288252344a3cc3d2c0cea8f2",
+            "objective_coverage": "planned"
+          }
+        ],
+        "objectives": [
+          {
+            "text": "能说出 y=2x+b 中当 x=0 时 y=b，因此直线与 y 轴交点坐标为 (0,b)；并写出 b=0、b=2、b=-2 时交点分别是 (0,0)、(0,2)、(0,-2)",
+            "objective_id": "node_intercept_shift:o1"
+          },
+          {
+            "text": "能解释 b 增大时直线整体向上平移、b 减小时整体向下平移，平移的格数等于 b 的变化量（如从 b=0 到 b=2 上移 2 格，从 b=0 到 b=-2 下移 2 格）",
+            "objective_id": "node_intercept_shift:o2"
+          },
+          {
+            "text": "能说明 b 变化只改变常数项、不改变斜率，所以三条直线互相平行、斜率始终为 2",
+            "objective_id": "node_intercept_shift:o3"
+          },
+          {
+            "text": "能完成两道检查练习：由 b 写出 y 轴交点坐标；判断 b 变化后直线位置如何变化、斜率是否改变",
+            "objective_id": "node_intercept_shift:o4"
+          }
+        ],
+        "delivery_state": "ready",
+        "estimated_minutes": 3,
+        "prerequisite_node_ids": [],
+        "pending_resource_types": []
+      }
+    ],
+    "space": "personal",
+    "version": 4,
+    "audience": "初中生（会读平面直角坐标图，尚未理解一次函数中 b 的作用）",
+    "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+    "assumptions": [],
+    "limitations": [
+      "单节点课程，无跨节点先修顺序问题；节点内活动顺序为动画讲解→讲义→练习→保存，符合“先直观演示再总结再检验”的认知顺序，且动画先于讲义，符合“例子先于原理”。",
+      "节点审阅已通过，报告与习题的目标绑定覆盖全部四项节点目标及 req_intercept_shift、req_animation_compare、req_yaxis_intersection、req_slope_constant、req_handout、req_two_exercises 等要求；动画语音与保存课程属课堂/产品功能，按策略不做生成后内容审查。",
+      "时长仅为建议性指标：讲义约 5.6 分钟、习题约 3.9 分钟、语音约 3.7 分钟，合计约 13.3 分钟，明显超出 3 分钟总时长；不阻断交付，但实际学习时间会远长于用户预期，若需贴近 3 分钟可精简讲义与习题。",
+      "习题实际为 3 道（1 道简答 + 2 道选择），多于用户要求的“两道检查练习”，属超出而非缺失。",
+      "来源为中文百科词条与八年级教材节选，未使用用户上传材料；未覆盖 b 对 x 轴交点、象限分布等性质，符合用户“不扩展到其他章节”的排除要求。",
+      "讲义（resource_1）按阅读量估算约 5.6 分钟，习题（resource_2）约 3.9 分钟，均超出 3 分钟节点预算；时长仅为建议性指标，不阻断交付，但实际学习时间会明显长于 3 分钟，若需严格控制在 3 分钟内可精简讲义第三节的逐点对比表与第七节范围说明。",
+      "动画、中文语音与课程保存属于后续制作与产品功能，本轮提供的报告与习题只包含动画分镜脚本、语音台词要点与讲义要点，未包含已生成的视频文件；课堂资源按策略不做生成后内容审查。",
+      "来源为中文百科词条与八年级教材节选（LibreTexts/Illustrative Mathematics），未使用用户上传材料；未覆盖 b 对 x 轴交点、象限分布等性质，符合用户“不扩展到其他章节”的排除要求。",
+      "习题实际为 3 道（1 道简答 + 2 道选择），多于用户要求的“两道检查练习”，属于超出而非缺失，不影响目标覆盖。",
+      "来源为中文百科词条与八年级教材节选，未使用用户上传材料；未覆盖 b 对 x 轴交点、象限等其他性质，符合用户“不扩展到其他章节”的排除要求。",
+      "动画、中文语音、讲义与保存课程属于后续资源制作与产品功能，本路径只规划活动与自测，不包含已生成的视频或讲义文件。",
+      "3 分钟总时长内只做直觉层面的理解，不承诺学生能独立完成复杂平移计算。"
+    ],
+    "manifest_id": "manifest_48386e242bab6af388c156777496cdb8",
+    "route_version": 1,
+    "delivery_state": "complete",
+    "schema_version": 1,
+    "estimated_minutes": 3,
+    "quality_report_id": "quality_2109c7db700c8a6b6b735ee4babbd0ca7daa7386bcb3e0fc2079aaf3b2da3365",
+    "created_by_preparation_id": "prep_f490a8326a334d33a472aa13e1f6c1c9"
+  }
+}

@@ -18,6 +18,19 @@ def automatic_payload(spec: dict, artifact: dict) -> SimpleNamespace:
     original = deepcopy(value.original_content)
     research_context = '\n\n'.join(
         f"[{e['source_id']}] {e['claim']}\n原文：{e['quote']}\n来源：{e['url']}" for e in evidence)
+    if value.schema_version >= 2:
+        # Exact citation claims above are never truncated. Optional surrounding
+        # prose is bounded so richer sources cannot displace the native prompt.
+        excerpts, seen, remaining = [], set(), 12000
+        for entry in evidence:
+            passage = entry.get('source_excerpt')
+            if not passage or passage in seen or remaining <= 0:
+                continue
+            seen.add(passage)
+            passage = passage[:remaining]
+            excerpts.append(f"[{entry['source_id']}] 已读上下文：\n{passage}")
+            remaining -= len(passage)
+        if excerpts: research_context += '\n\n' + '\n\n'.join(excerpts)
     review_research_context = research_context
     if original:
         research_context += '\n现有资料全文（修改基线，不是额外事实来源）：\n' + json.dumps(original, ensure_ascii=False)

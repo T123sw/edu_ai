@@ -1,0 +1,359 @@
+{
+  "preparation_id": "prep_65488c25779346448e1dcbe0b809d73e",
+  "as_of": "2026-10-19T12:35:02.725496+00:00",
+  "status": "succeeded",
+  "elapsed_seconds": 2541.32932,
+  "delivery": {
+    "course_id": "learn-65488c25779346448e1dcbe0b809d73e",
+    "manifest_id": "manifest_35baad82b2f65f5a42d1c42cff0fb9b2",
+    "course_ready": true,
+    "manifest_version": 21,
+    "available_resources": 15,
+    "planned_resources": 15
+  },
+  "videos": [
+    {
+      "node": "n1-why-transformer",
+      "title": "为什么需要 Transformer：循环结构的瓶颈与注意力的登场",
+      "artifact_id": "artifact_f0b49fcee0240a603fcf094c7342e11f",
+      "status": "draft",
+      "started_at": 1792410871.525,
+      "finished_at": 1792412120.904,
+      "production_seconds": 1249.38,
+      "brief_conversion_seconds": 13.579,
+      "flow": "teaching-brief-v2",
+      "tools": 153,
+      "worker_groups": 3,
+      "tool_errors": [
+        {
+          "at": 1792410905.5924556,
+          "tool": "prepare_project",
+          "ok": false,
+          "elapsed": 0.008301431778818369,
+          "exit_code": null,
+          "command_id": null
+        },
+        {
+          "at": 1792410935.5559168,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.00209030881524086,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md"
+        },
+        {
+          "at": 1792410935.8220673,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0011460022069513798,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/rules-index.md"
+        }
+      ],
+      "preparation_including_brief_seconds": 249.547,
+      "scene_execution_seconds": 476.731,
+      "render_workers": 4,
+      "assembly_check_seconds": 99.172,
+      "render_with_poll_seconds": 406.538,
+      "post_render_seconds": 17.392,
+      "duration": 286.6,
+      "segments": 9,
+      "narration_characters": 1446,
+      "narrated_segments": 9,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 286.6
+      },
+      "project": {
+        "id": "hf_resource_f0b49fcee0240a603fcf094c7342e11f",
+        "entry": "index.html",
+        "digest": "b38508a64556ef36a4367f21115e52a0839236aaea0a04b320e7cbbf74387b25"
+      }
+    },
+    {
+      "node": "n2-self-attention",
+      "title": "自注意力与缩放点积：Q、K、V 如何算出加权和",
+      "artifact_id": "artifact_77ce3c35fcdeb86d3d3db7e4e6a73c61",
+      "status": "draft",
+      "started_at": 1792410873.071,
+      "finished_at": 1792412166.625,
+      "production_seconds": 1293.55,
+      "brief_conversion_seconds": 12.771,
+      "flow": "teaching-brief-v2",
+      "tools": 180,
+      "worker_groups": 4,
+      "tool_errors": [],
+      "preparation_including_brief_seconds": 299.027,
+      "scene_execution_seconds": 439.001,
+      "render_workers": 4,
+      "assembly_check_seconds": 145.925,
+      "render_with_poll_seconds": 397.219,
+      "post_render_seconds": 12.381,
+      "duration": 292.0,
+      "segments": 10,
+      "narration_characters": 1427,
+      "narrated_segments": 10,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 292.0
+      },
+      "project": {
+        "id": "hf_resource_77ce3c35fcdeb86d3d3db7e4e6a73c61",
+        "entry": "index.html",
+        "digest": "8a5aa0b10db3000491fb333853e8fa55abccb4d827f4ce7b12a8a3480183975c"
+      }
+    },
+    {
+      "node": "n3-multihead",
+      "title": "多头注意力：多个子空间并行关注",
+      "artifact_id": "artifact_0187982d8a327a9949d6b1cc5eff9c58",
+      "status": "draft",
+      "started_at": 1792410951.397,
+      "finished_at": 1792411846.57,
+      "production_seconds": 895.17,
+      "brief_conversion_seconds": null,
+      "flow": "legacy",
+      "tools": 115,
+      "worker_groups": 7,
+      "tool_errors": [
+        {
+          "at": 1792411287.8220215,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0019030519761145115,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/rules/layer-reveal.md",
+          "worker_id": "414ddb27bc424b74abae88d76e8c8b1c"
+        }
+      ],
+      "preparation_including_brief_seconds": 246.01,
+      "scene_execution_seconds": 310.604,
+      "render_workers": 2,
+      "assembly_check_seconds": 144.936,
+      "render_with_poll_seconds": 181.189,
+      "post_render_seconds": 12.434,
+      "duration": 72.167,
+      "segments": 7,
+      "narration_characters": 389,
+      "narrated_segments": 7,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 72.166667
+      },
+      "project": {
+        "id": "hf_resource_0187982d8a327a9949d6b1cc5eff9c58",
+        "entry": "index.html",
+        "digest": "3bd6a3f32583f23b68ce4eaf734e0acf16f1554650d3bce5e9d42901ac1f3f38"
+      }
+    },
+    {
+      "node": "n4-position-ffn-norm",
+      "title": "位置编码、残差与层归一化、前馈网络：让注意力真正可用",
+      "artifact_id": "artifact_7eadbc2612be47d8d2e3c67000d7de88",
+      "status": "draft",
+      "started_at": 1792410957.741,
+      "finished_at": 1792412097.662,
+      "production_seconds": 1139.92,
+      "brief_conversion_seconds": null,
+      "flow": "legacy",
+      "tools": 146,
+      "worker_groups": 9,
+      "tool_errors": [],
+      "preparation_including_brief_seconds": 342.211,
+      "scene_execution_seconds": 428.064,
+      "render_workers": 2,
+      "assembly_check_seconds": 103.726,
+      "render_with_poll_seconds": 249.993,
+      "post_render_seconds": 15.927,
+      "duration": 100.3,
+      "segments": 9,
+      "narration_characters": 509,
+      "narrated_segments": 9,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 100.3
+      },
+      "project": {
+        "id": "hf_resource_7eadbc2612be47d8d2e3c67000d7de88",
+        "entry": "index.html",
+        "digest": "d1b11b555ee534a0c794f6443d5c9139a3106bcf70566db6f09f5bab76a150ad"
+      }
+    },
+    {
+      "node": "n5-encoder-decoder",
+      "title": "编码器-解码器结构与训练/推理流程",
+      "artifact_id": "artifact_8b503bac1d065bb5fe03996666fe9635",
+      "status": "draft",
+      "started_at": 1792411893.039,
+      "finished_at": 1792413239.145,
+      "production_seconds": 1346.11,
+      "brief_conversion_seconds": 16.339,
+      "flow": "teaching-brief-v2",
+      "tools": 179,
+      "worker_groups": 4,
+      "tool_errors": [
+        {
+          "at": 1792412112.5811808,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0010937661863863468,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/media-use/references/captions/authoring.md"
+        },
+        {
+          "at": 1792412112.8499818,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0026357239112257957,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/media-use/references/tts-to-captions.md"
+        },
+        {
+          "at": 1792412570.7887695,
+          "tool": "edit_file",
+          "ok": false,
+          "elapsed": 0.008439963217824697,
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/compositions/frames/02-encoder-input.html",
+          "worker_id": "021e7f2809024c1c809d487187604c3a"
+        }
+      ],
+      "preparation_including_brief_seconds": 332.311,
+      "scene_execution_seconds": 410.586,
+      "render_workers": 4,
+      "assembly_check_seconds": 121.79,
+      "render_with_poll_seconds": 468.556,
+      "post_render_seconds": 12.864,
+      "duration": 300.933,
+      "segments": 10,
+      "narration_characters": 1552,
+      "narrated_segments": 10,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 300.933333
+      },
+      "project": {
+        "id": "hf_resource_8b503bac1d065bb5fe03996666fe9635",
+        "entry": "index.html",
+        "digest": "35c04b1c59799c40789e901cfbe6816bc1c54627f5a14a13fa42093894629636"
+      }
+    }
+  ],
+  "reports_and_quizzes": [
+    {
+      "node": "n1-why-transformer",
+      "kind": "report",
+      "seconds": 33.31,
+      "status": "draft",
+      "characters": 4852,
+      "questions": null
+    },
+    {
+      "node": "n1-why-transformer",
+      "kind": "quiz",
+      "seconds": 63.13,
+      "status": "draft",
+      "characters": null,
+      "questions": 8
+    },
+    {
+      "node": "n2-self-attention",
+      "kind": "report",
+      "seconds": 30.58,
+      "status": "draft",
+      "characters": 4727,
+      "questions": null
+    },
+    {
+      "node": "n2-self-attention",
+      "kind": "quiz",
+      "seconds": 142.62,
+      "status": "draft",
+      "characters": null,
+      "questions": 9
+    },
+    {
+      "node": "n3-multihead",
+      "kind": "report",
+      "seconds": 32.72,
+      "status": "draft",
+      "characters": 4350,
+      "questions": null
+    },
+    {
+      "node": "n3-multihead",
+      "kind": "quiz",
+      "seconds": 41.12,
+      "status": "draft",
+      "characters": null,
+      "questions": 6
+    },
+    {
+      "node": "n4-position-ffn-norm",
+      "kind": "report",
+      "seconds": 50.24,
+      "status": "draft",
+      "characters": 8333,
+      "questions": null
+    },
+    {
+      "node": "n4-position-ffn-norm",
+      "kind": "quiz",
+      "seconds": 55.32,
+      "status": "draft",
+      "characters": null,
+      "questions": 9
+    },
+    {
+      "node": "n5-encoder-decoder",
+      "kind": "report",
+      "seconds": 42.57,
+      "status": "draft",
+      "characters": 4827,
+      "questions": null
+    },
+    {
+      "node": "n5-encoder-decoder",
+      "kind": "quiz",
+      "seconds": 76.19,
+      "status": "draft",
+      "characters": null,
+      "questions": 8
+    }
+  ],
+  "observations": {
+    "nonintrusive": true,
+    "database_read_only": true,
+    "production_services_changed": false,
+    "mixed_versions": {
+      "main_backend_pid": 2671910,
+      "main_started": "2026-10-19T11:51:54Z",
+      "supplemental_worker_pid": 2588978,
+      "supplemental_started": "2026-10-19T08:34:28Z"
+    },
+    "numeric_spotcheck": "numeric-spotcheck.json",
+    "tts_429": "n4 first prepare_scene_assets audio subprocess returned HTTP 429; automatic retry produced complete audio",
+    "quality_scope": "Existing native snapshots and selected report/quiz calculations; not exhaustive frame-by-frame or spoken-word review"
+  },
+  "observed_elapsed_seconds": 2551.72,
+  "started_at": "2026-10-19T11:52:30.771510+00:00",
+  "finished_at": "2026-10-19T12:34:52.100830+00:00",
+  "node5_wait_from_production_phase_seconds": 1021.81,
+  "total_video_seconds": 1052.0,
+  "total_segments": 45,
+  "all_resources_available_seconds": 2491.97
+}

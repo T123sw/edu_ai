@@ -1,0 +1,1146 @@
+{
+  "plan": {
+    "schemaVersion": 1,
+    "title": "原生 JavaScript 摄氏-华氏温度换算器",
+    "goal": "用原生 HTML、CSS 和 JavaScript 做一个本地温度换算器：输入摄氏温度，点击换算按钮后显示对应的华氏温度（0 摄氏显示 32）；点击重置按钮清空输入和结果。输入与转换逻辑分放在不同文件中，不使用外部 API。",
+    "runtimeKind": "sandpack_project",
+    "runtime": {
+      "template": "vanilla",
+      "entry": "/index.js",
+      "dependencies": {},
+      "moduleType": "commonjs"
+    },
+    "editableFiles": [
+      "/index.html",
+      "/styles.css",
+      "/index.js",
+      "/convert.js"
+    ],
+    "requirements": [
+      {
+        "id": "celsius-input",
+        "description": "页面提供摄氏温度输入框，用户可输入数字。"
+      },
+      {
+        "id": "convert-button",
+        "description": "页面提供“换算”按钮，点击后根据输入框中的摄氏温度计算华氏温度。"
+      },
+      {
+        "id": "fahrenheit-result",
+        "description": "换算结果显示在页面上，0 摄氏显示 32 华氏；例如 100 摄氏显示 212。"
+      },
+      {
+        "id": "reset-button",
+        "description": "页面提供“重置”按钮，点击后输入框清空、结果显示清空。"
+      },
+      {
+        "id": "separate-files",
+        "description": "输入与页面交互逻辑和温度转换逻辑分别放在不同文件中，转换逻辑不依赖页面 DOM。"
+      }
+    ],
+    "steps": [
+      {
+        "id": "step-convert",
+        "title": "第一步：输入摄氏温度并换算成华氏温度",
+        "objective": "搭建页面输入框与换算按钮，把转换逻辑放到独立模块，点击后显示华氏温度。",
+        "dependsOn": [],
+        "entryCondition": "从初始工程开始，工程中只有占位页面。",
+        "deliverable": "页面上有摄氏温度输入框、换算按钮和结果区域；输入 0 点击换算显示 32，输入 100 显示 212。转换公式写在独立的 convert.js 中，index.js 负责读取输入并更新页面。",
+        "requirementIds": [
+          "celsius-input",
+          "convert-button",
+          "fahrenheit-result",
+          "separate-files"
+        ],
+        "focusFiles": [
+          "/index.html",
+          "/index.js",
+          "/convert.js",
+          "/styles.css"
+        ],
+        "newCheckIds": [
+          "convert-zero",
+          "convert-hundred",
+          "convert-negative",
+          "convert-decimal",
+          "convert-module-pure"
+        ]
+      },
+      {
+        "id": "step-reset",
+        "title": "第二步：增加重置按钮",
+        "objective": "在已有换算器上增加重置按钮，点击后清空输入框和结果区域。",
+        "dependsOn": [
+          "step-convert"
+        ],
+        "entryCondition": "第一步已完成：输入摄氏温度点击换算能显示华氏温度。",
+        "deliverable": "页面新增“重置”按钮；无论当前输入和结果是什么，点击重置后输入框为空、结果区域为空；重置后仍可再次输入并换算。",
+        "requirementIds": [
+          "reset-button",
+          "celsius-input",
+          "convert-button",
+          "fahrenheit-result"
+        ],
+        "focusFiles": [
+          "/index.html",
+          "/index.js",
+          "/styles.css"
+        ],
+        "newCheckIds": [
+          "reset-clears-input",
+          "reset-clears-result",
+          "reset-then-convert"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "convert-zero",
+        "stepId": "step-convert",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "celsius-input",
+          "convert-button",
+          "fahrenheit-result"
+        ],
+        "setup": "打开页面，输入框为空，结果区域为空。",
+        "actions": [
+          "在摄氏温度输入框中填入 0",
+          "点击换算按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域显示 32"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "convert-hundred",
+        "stepId": "step-convert",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "convert-button",
+          "fahrenheit-result"
+        ],
+        "setup": "打开页面，输入框为空。",
+        "actions": [
+          "在摄氏温度输入框中填入 100",
+          "点击换算按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域显示 212"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "convert-negative",
+        "stepId": "step-convert",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "convert-button",
+          "fahrenheit-result"
+        ],
+        "setup": "打开页面，输入框为空。",
+        "actions": [
+          "在摄氏温度输入框中填入 -40",
+          "点击换算按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域显示 -40"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "convert-decimal",
+        "stepId": "step-convert",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "convert-button",
+          "fahrenheit-result"
+        ],
+        "setup": "打开页面，输入框为空。",
+        "actions": [
+          "在摄氏温度输入框中填入 37",
+          "点击换算按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域显示 98.6"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "convert-module-pure",
+        "stepId": "step-convert",
+        "kind": "function_case",
+        "requirementIds": [
+          "separate-files",
+          "fahrenheit-result"
+        ],
+        "setup": "从 convert.js 导入转换函数。",
+        "actions": [
+          "调用转换函数传入 0",
+          "调用转换函数传入 100",
+          "调用转换函数传入 -40"
+        ],
+        "expected": [
+          "返回 32",
+          "返回 212",
+          "返回 -40"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "reset-clears-input",
+        "stepId": "step-reset",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "reset-button",
+          "celsius-input"
+        ],
+        "setup": "打开页面，在输入框填入 25 并点击换算。",
+        "actions": [
+          "点击重置按钮",
+          "读取输入框的值"
+        ],
+        "expected": [
+          "输入框为空"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "reset-clears-result",
+        "stepId": "step-reset",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "reset-button",
+          "fahrenheit-result"
+        ],
+        "setup": "打开页面，在输入框填入 25 并点击换算，结果区域显示 77。",
+        "actions": [
+          "点击重置按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域为空"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "reset-then-convert",
+        "stepId": "step-reset",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "reset-button",
+          "convert-button",
+          "fahrenheit-result"
+        ],
+        "setup": "打开页面，填入 25 换算后点击重置。",
+        "actions": [
+          "在输入框填入 0",
+          "点击换算按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域显示 32"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      }
+    ]
+  },
+  "completed": [
+    {
+      "candidate": {
+        "unit": {
+          "stepId": "step-convert",
+          "title": "第一步：输入摄氏温度并换算成华氏温度",
+          "objective": "搭建页面输入框与换算按钮，把转换逻辑放到独立模块，点击后显示华氏温度。",
+          "instructionsMarkdown": "这一步要做出温度换算器的核心部分：一个能输入摄氏温度、点击按钮后显示华氏温度的页面。\n\n**页面组成**\n\n- 一个标题，说明这是摄氏转华氏换算器。\n- 一个摄氏温度输入框，初始为空，用户可以在里面输入数字（包括负数和带小数的数字）。\n- 一个“换算”按钮。\n- 一个结果区域，初始为空；换算后在里面显示华氏温度。\n\n**完成效果**\n\n- 输入 `0` 点击“换算”，结果区域显示 `32`。\n- 输入 `100` 点击“换算”，结果区域显示 `212`。\n- 输入 `-40` 点击“换算”，结果区域显示 `-40`。\n- 输入 `37` 点击“换算”，结果区域显示 `98.6`。\n- 输入框为空时点击“换算”，结果区域保持为空，不显示 `NaN` 之类的错误数字。\n\n结果区域只显示数字本身（例如 `32`），不要加“华氏”等额外文字，方便对照。\n\n**代码组织要求**\n\n温度换算公式必须写在单独的 `convert.js` 文件里，并导出一个转换函数；`index.js` 负责读取输入框、调用这个函数、把结果写进页面。`convert.js` 里不要操作页面元素，它只做纯计算。\n\n**代码约定**\n\n为了让系统能识别页面部件，请给这些元素加上 `data-testid` 属性（它只是给元素贴个标签，不会改变外观）：\n\n- 摄氏温度输入框：`data-testid=\"celsius-input\"`\n- 换算按钮：`data-testid=\"convert-button\"`\n- 结果区域：`data-testid=\"result\"`\n\n`convert.js` 请导出一个名为 `celsiusToFahrenheit` 的函数，接收摄氏温度数字，返回华氏温度数字。",
+          "explanationMarkdown": "摄氏转华氏的公式是：华氏 = 摄氏 × 9 ÷ 5 + 32。\n\n把公式单独放进 `convert.js`，好处是计算逻辑和页面操作分开：以后想测试公式对不对，只要调用函数即可，不用打开页面。`index.js` 用 `import` 引入这个函数，在按钮的点击事件里读取输入框的值（`input.value` 是字符串，需要转成数字），调用函数，再把结果写进结果区域的 `textContent`。\n\n注意 `-40` 摄氏正好等于 `-40` 华氏，`37` 摄氏等于 `98.6` 华氏，可以用它们检查公式和显示是否正确。输入框为空时，`Number(\"\")` 会得到 `0`，直接计算会显示 `32`，所以要先判断输入是否为空，为空就把结果区域清空。",
+          "hints": [
+            "先写 `convert.js`：`export function celsiusToFahrenheit(c) { return c * 9 / 5 + 32; }`，再在 `index.js` 里 `import` 它。",
+            "读取输入框的值用 `document.querySelector('[data-testid=\"celsius-input\"]').value`，它是字符串，用 `Number(...)` 转成数字再计算。",
+            "给按钮加点击监听：`button.addEventListener('click', ...)`，在回调里计算并更新结果区域。",
+            "先判断输入是否为空：`if (input.value.trim() === '') { result.textContent = ''; return; }`，再计算并写入结果。",
+            "结果区域用 `textContent` 写入数字即可，例如 `result.textContent = String(celsiusToFahrenheit(Number(value)));`。"
+          ],
+          "focusFiles": [
+            "/index.html",
+            "/index.js",
+            "/convert.js",
+            "/styles.css"
+          ],
+          "checkIds": [
+            "convert-zero",
+            "convert-hundred",
+            "convert-negative",
+            "convert-decimal",
+            "convert-module-pure"
+          ]
+        },
+        "behaviorCases": [
+          {
+            "requirementId": "fahrenheit-result",
+            "setup": "页面打开，输入框为空，结果区域为空。",
+            "action": "在摄氏输入框填入 0，点击换算按钮。",
+            "expected": "结果区域显示 32。",
+            "checkId": "convert-zero"
+          },
+          {
+            "requirementId": "convert-button",
+            "setup": "页面打开，输入框为空，结果区域为空。",
+            "action": "不输入任何值，直接点击换算按钮。",
+            "expected": "结果区域保持为空，不显示 32 或 NaN 等数字。",
+            "checkId": "convert-zero"
+          },
+          {
+            "requirementId": "fahrenheit-result",
+            "setup": "页面打开，输入框为空。",
+            "action": "在摄氏输入框填入 100，点击换算按钮。",
+            "expected": "结果区域显示 212。",
+            "checkId": "convert-hundred"
+          },
+          {
+            "requirementId": "fahrenheit-result",
+            "setup": "页面打开，输入框为空。",
+            "action": "在摄氏输入框填入 -40，点击换算按钮。",
+            "expected": "结果区域显示 -40。",
+            "checkId": "convert-negative"
+          },
+          {
+            "requirementId": "fahrenheit-result",
+            "setup": "页面打开，输入框为空。",
+            "action": "在摄氏输入框填入 37，点击换算按钮。",
+            "expected": "结果区域显示 98.6。",
+            "checkId": "convert-decimal"
+          },
+          {
+            "requirementId": "separate-files",
+            "setup": "从 convert.js 导入 celsiusToFahrenheit 函数。",
+            "action": "分别传入 0、100、-40 调用函数。",
+            "expected": "依次返回 32、212、-40。",
+            "checkId": "convert-module-pure"
+          },
+          {
+            "requirementId": "separate-files",
+            "setup": "从 convert.js 导入 celsiusToFahrenheit 函数。",
+            "action": "传入 37 调用函数。",
+            "expected": "返回 98.6。",
+            "checkId": "convert-module-pure"
+          }
+        ],
+        "checks": [
+          {
+            "id": "convert-zero",
+            "label": "输入 0 点击换算后结果区域显示 32；输入框为空时点击换算，结果区域保持为空。",
+            "actions": [
+              {
+                "type": "fill",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "celsius-input"
+                },
+                "value": "0",
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "convert-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "result"
+                },
+                "value": null,
+                "assertion": "text",
+                "expected": "32",
+                "relativeTo": null
+              },
+              {
+                "type": "fill",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "celsius-input"
+                },
+                "value": "",
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "convert-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "result"
+                },
+                "value": null,
+                "assertion": "text",
+                "expected": "",
+                "relativeTo": null
+              }
+            ],
+            "viewport": "desktop"
+          },
+          {
+            "id": "convert-hundred",
+            "label": "输入 100 点击换算后结果区域显示 212。",
+            "actions": [
+              {
+                "type": "fill",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "celsius-input"
+                },
+                "value": "100",
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "convert-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "result"
+                },
+                "value": null,
+                "assertion": "text",
+                "expected": "212",
+                "relativeTo": null
+              }
+            ],
+            "viewport": "desktop"
+          },
+          {
+            "id": "convert-negative",
+            "label": "输入 -40 点击换算后结果区域显示 -40。",
+            "actions": [
+              {
+                "type": "fill",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "celsius-input"
+                },
+                "value": "-40",
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "convert-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "result"
+                },
+                "value": null,
+                "assertion": "text",
+                "expected": "-40",
+                "relativeTo": null
+              }
+            ],
+            "viewport": "desktop"
+          },
+          {
+            "id": "convert-decimal",
+            "label": "输入 37 点击换算后结果区域显示 98.6。",
+            "actions": [
+              {
+                "type": "fill",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "celsius-input"
+                },
+                "value": "37",
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "convert-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "result"
+                },
+                "value": null,
+                "assertion": "text",
+                "expected": "98.6",
+                "relativeTo": null
+              }
+            ],
+            "viewport": "desktop"
+          },
+          {
+            "id": "convert-module-pure",
+            "label": "convert.js 导出的 celsiusToFahrenheit 函数对 0、100、-40、37 分别返回 32、212、-40、98.6。",
+            "engine": "sandpack-jest",
+            "source": "import { celsiusToFahrenheit } from \"../convert.js\";\n\ndescribe(\"celsiusToFahrenheit\", () => {\n  test(\"0 摄氏返回 32\", () => {\n    expect(celsiusToFahrenheit(0)).toBe(32);\n  });\n\n  test(\"100 摄氏返回 212\", () => {\n    expect(celsiusToFahrenheit(100)).toBe(212);\n  });\n\n  test(\"-40 摄氏返回 -40\", () => {\n    expect(celsiusToFahrenheit(-40)).toBe(-40);\n  });\n\n  test(\"37 摄氏返回 98.6\", () => {\n    expect(celsiusToFahrenheit(37)).toBeCloseTo(98.6, 5);\n  });\n});\n",
+            "viewport": null
+          }
+        ],
+        "faultyFiles": {},
+        "faultyCheckId": null,
+        "referenceFiles": {
+          "/index.html": "<!DOCTYPE html>\n<html>\n\n<head>\n  <title>摄氏-华氏温度换算器</title>\n  <meta charset=\"UTF-8\" />\n</head>\n\n<body>\n  <div id=\"app\"></div>\n\n  <script src=\"index.js\">\n  </script>\n</body>\n\n</html>",
+          "/styles.css": "body {\n  font-family: sans-serif;\n  -webkit-font-smoothing: auto;\n  -moz-font-smoothing: auto;\n  -moz-osx-font-smoothing: grayscale;\n  font-smoothing: auto;\n  text-rendering: optimizeLegibility;\n  font-smooth: always;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-touch-callout: none;\n}\n\nh1 {\n  font-size: 1.5rem;\n}\n\n.converter {\n  box-sizing: border-box;\n  max-width: 100%;\n  padding: 16px;\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n}\n\n.converter label {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  min-width: 0;\n}\n\n.converter input {\n  box-sizing: border-box;\n  width: 100%;\n  max-width: 100%;\n  padding: 8px;\n  font-size: 1rem;\n}\n\n.converter button {\n  box-sizing: border-box;\n  padding: 8px 16px;\n  font-size: 1rem;\n  cursor: pointer;\n  align-self: flex-start;\n}\n\n.result {\n  font-size: 1.25rem;\n  min-height: 1.5em;\n  word-break: break-word;\n}\n",
+          "/index.js": "import \"./styles.css\";\nimport { celsiusToFahrenheit } from \"./convert.js\";\n\ndocument.getElementById(\"app\").innerHTML = `\n<div class=\"converter\">\n  <h1>摄氏转华氏换算器</h1>\n  <label>\n    摄氏温度\n    <input type=\"number\" data-testid=\"celsius-input\" placeholder=\"输入摄氏温度\" />\n  </label>\n  <button type=\"button\" data-testid=\"convert-button\">换算</button>\n  <div class=\"result\" data-testid=\"result\"></div>\n</div>\n`;\n\nconst input = document.querySelector('[data-testid=\"celsius-input\"]');\nconst convertButton = document.querySelector('[data-testid=\"convert-button\"]');\nconst result = document.querySelector('[data-testid=\"result\"]');\n\nconvertButton.addEventListener(\"click\", () => {\n  const raw = input.value.trim();\n  if (raw === \"\") {\n    result.textContent = \"\";\n    return;\n  }\n  const celsius = Number(raw);\n  if (Number.isNaN(celsius)) {\n    result.textContent = \"\";\n    return;\n  }\n  result.textContent = String(celsiusToFahrenheit(celsius));\n});\n",
+          "/convert.js": "export function celsiusToFahrenheit(celsius) {\n  return (celsius * 9) / 5 + 32;\n}\n"
+        }
+      },
+      "validated": true,
+      "qualityWarnings": [
+        "未提供可执行负例，负例区分度未验证"
+      ],
+      "referenceHash": "e080f73ab76ba5680eb394cc2ca8b2a1dc20a8129bfb71c4e36acdba10ce0073",
+      "faultyHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "evidence": {
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "convert-zero",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"0\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"32\"\n✓ 4. 在 \"celsius-input\" 输入 \"\"\n✓ 5. 点击 \"convert-button\"\n✓ 6. 检查 \"result\" 的显示文字\n   实际：\"\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-hundred",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"100\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"212\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-negative",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"-40\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"-40\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-decimal",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"37\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"98.6\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-module-pure",
+              "status": "passed",
+              "message": "0 摄氏返回 32：通过\n100 摄氏返回 212：通过\n-40 摄氏返回 -40：通过\n37 摄氏返回 98.6：通过"
+            }
+          ],
+          "durationMs": 40008.225518
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "convert-zero",
+              "status": "failed",
+              "message": "× 1. 在 \"celsius-input\" 输入 \"0\"\n操作未完成：目标实际匹配 0 个元素，单目标动作需要 1 个。顺序确定时可用 index，否则使用唯一名称或容器范围。"
+            },
+            {
+              "caseId": "convert-hundred",
+              "status": "failed",
+              "message": "× 1. 在 \"celsius-input\" 输入 \"100\"\n操作未完成：目标实际匹配 0 个元素，单目标动作需要 1 个。顺序确定时可用 index，否则使用唯一名称或容器范围。"
+            },
+            {
+              "caseId": "convert-negative",
+              "status": "failed",
+              "message": "× 1. 在 \"celsius-input\" 输入 \"-40\"\n操作未完成：目标实际匹配 0 个元素，单目标动作需要 1 个。顺序确定时可用 index，否则使用唯一名称或容器范围。"
+            },
+            {
+              "caseId": "convert-decimal",
+              "status": "failed",
+              "message": "× 1. 在 \"celsius-input\" 输入 \"37\"\n操作未完成：目标实际匹配 0 个元素，单目标动作需要 1 个。顺序确定时可用 index，否则使用唯一名称或容器范围。"
+            },
+            {
+              "caseId": "convert-module-pure",
+              "status": "failed",
+              "message": "0 摄氏返回 32：未通过\n(0 , _convert.celsiusToFahrenheit) is not a function\n100 摄氏返回 212：未通过\n(0 , _convert.celsiusToFahrenheit) is not a function\n-40 摄氏返回 -40：未通过\n(0 , _convert.celsiusToFahrenheit) is not a function\n37 摄氏返回 98.6：未通过\n(0 , _convert.celsiusToFahrenheit) is not a function"
+            }
+          ],
+          "durationMs": 35206.546644
+        },
+        "faulty": null,
+        "previousRegression": {
+          "stepId": "step-convert",
+          "referenceHash": "e080f73ab76ba5680eb394cc2ca8b2a1dc20a8129bfb71c4e36acdba10ce0073",
+          "previousHash": "e96899168f6c918f02e1ee1035c6d0b93108994693a1db3c93316391691eff8f",
+          "checkIds": [],
+          "skipped": true,
+          "reason": "首步没有前序验收"
+        }
+      }
+    },
+    {
+      "candidate": {
+        "unit": {
+          "stepId": "step-reset",
+          "title": "第二步：增加重置按钮",
+          "objective": "在已有换算器上增加重置按钮，点击后清空输入框和结果区域。",
+          "instructionsMarkdown": "第一步的换算器已经能用了：输入摄氏温度、点击“换算”，结果区域会显示华氏温度。这一步给它加一个“重置”按钮，让用户能一键清空。\n\n本步要完成的效果：\n\n- 页面上在“换算”按钮旁边（或下方）出现一个“重置”按钮，文字就是“重置”。\n- 无论输入框里填了什么、结果区域显示了什么，点击“重置”后，输入框变空、结果区域也变空。\n- 重置之后还能继续使用：重新输入 0 点击“换算”，结果区域仍然显示 32。\n\n已有的输入框、换算按钮和结果区域保持原样，不要改变它们的行为。\n\n**代码约定**\n\n- 摄氏温度输入框保留 `data-testid=\"celsius-input\"`。\n- 换算按钮保留 `data-testid=\"convert-button\"`，文字为“换算”。\n- 结果显示区域保留 `data-testid=\"result\"`。\n- 新增的重置按钮加 `data-testid=\"reset-button\"`，文字为“重置”。\n\n这些 `data-testid` 只是给系统识别页面部件用的，不会改变外观。",
+          "explanationMarkdown": "重置按钮做的事情很直接：把输入框的 `value` 设为空字符串，把结果区域的 `textContent` 设为空字符串。\n\n在 `index.js` 里，你已经用 `document.querySelector` 拿到了输入框和结果区域的引用，再拿一次重置按钮，给它绑定 `click` 事件即可。注意重置只清空显示，不需要改动 `convert.js` 里的转换函数——转换逻辑和页面交互依然分在两个文件里。\n\n按钮放在同一个 `.converter` 容器里，样式会沿用已有的按钮规则；如果两个按钮挨在一起，可以给它们套一个横向排列的小容器，让它们在窄屏下也能换行显示。",
+          "hints": [
+            "在 `index.js` 里用 `document.querySelector('[data-testid=\"reset-button\"]')` 拿到重置按钮。",
+            "给重置按钮绑定 `click` 事件，在回调里把 `input.value = \"\"`、`result.textContent = \"\"`。",
+            "重置按钮的 HTML 要写在 `innerHTML` 模板里，和换算按钮放在同一个容器中。",
+            "重置后不需要重新计算，也不需要清空 `convert.js` 里的任何东西。"
+          ],
+          "focusFiles": [
+            "/index.html",
+            "/index.js",
+            "/styles.css"
+          ],
+          "checkIds": [
+            "reset-clears-input",
+            "reset-clears-result",
+            "reset-then-convert"
+          ]
+        },
+        "behaviorCases": [
+          {
+            "requirementId": "reset-button",
+            "setup": "页面已打开，输入框填入 25 并点击换算，结果区域显示 77。",
+            "action": "点击“重置”按钮。",
+            "expected": "输入框被清空为空字符串。",
+            "checkId": "reset-clears-input"
+          },
+          {
+            "requirementId": "celsius-input",
+            "setup": "页面已打开，输入框填入 25 并点击换算，结果区域显示 77。",
+            "action": "点击“重置”按钮。",
+            "expected": "输入框被清空为空字符串，而不是保留 25。",
+            "checkId": "reset-clears-input"
+          },
+          {
+            "requirementId": "reset-button",
+            "setup": "页面已打开，输入框填入 25 并点击换算，结果区域显示 77。",
+            "action": "点击“重置”按钮。",
+            "expected": "结果区域文字被清空为空字符串。",
+            "checkId": "reset-clears-result"
+          },
+          {
+            "requirementId": "fahrenheit-result",
+            "setup": "页面已打开，输入框填入 25 并点击换算，结果区域显示 77。",
+            "action": "点击“重置”按钮。",
+            "expected": "结果区域文字被清空为空字符串，而不是保留 77。",
+            "checkId": "reset-clears-result"
+          },
+          {
+            "requirementId": "reset-button",
+            "setup": "页面已打开，输入框填入 25 并点击换算，结果区域显示 77，随后点击“重置”。",
+            "action": "在输入框填入 0 并点击“换算”。",
+            "expected": "结果区域重新显示 32，说明重置后换算功能仍可用。",
+            "checkId": "reset-then-convert"
+          },
+          {
+            "requirementId": "convert-button",
+            "setup": "页面已打开，输入框填入 25 并点击换算，结果区域显示 77，随后点击“重置”。",
+            "action": "在输入框填入 0 并点击“换算”。",
+            "expected": "结果区域显示 32，换算按钮在重置后仍正常工作。",
+            "checkId": "reset-then-convert"
+          }
+        ],
+        "checks": [
+          {
+            "id": "reset-clears-input",
+            "label": "输入 25 点击换算后点击重置，输入框被清空为空字符串。",
+            "actions": [
+              {
+                "type": "fill",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "celsius-input"
+                },
+                "value": "25",
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "convert-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "result"
+                },
+                "value": null,
+                "assertion": "text",
+                "expected": "77",
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "reset-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "celsius-input"
+                },
+                "value": null,
+                "assertion": "value",
+                "expected": "",
+                "relativeTo": null
+              }
+            ],
+            "viewport": "desktop"
+          },
+          {
+            "id": "reset-clears-result",
+            "label": "输入 25 点击换算后结果区域显示 77，点击重置后结果区域被清空为空字符串。",
+            "actions": [
+              {
+                "type": "fill",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "celsius-input"
+                },
+                "value": "25",
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "convert-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "result"
+                },
+                "value": null,
+                "assertion": "text",
+                "expected": "77",
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "reset-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "result"
+                },
+                "value": null,
+                "assertion": "text",
+                "expected": "",
+                "relativeTo": null
+              }
+            ],
+            "viewport": "desktop"
+          },
+          {
+            "id": "reset-then-convert",
+            "label": "输入 25 换算后点击重置，再输入 0 点击换算，结果区域显示 32。",
+            "actions": [
+              {
+                "type": "fill",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "celsius-input"
+                },
+                "value": "25",
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "convert-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "result"
+                },
+                "value": null,
+                "assertion": "text",
+                "expected": "77",
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "reset-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "fill",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "celsius-input"
+                },
+                "value": "0",
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "click",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "convert-button"
+                },
+                "value": null,
+                "assertion": null,
+                "expected": null,
+                "relativeTo": null
+              },
+              {
+                "type": "assert",
+                "target": {
+                  "within": null,
+                  "index": null,
+                  "role": null,
+                  "name": null,
+                  "testId": "result"
+                },
+                "value": null,
+                "assertion": "text",
+                "expected": "32",
+                "relativeTo": null
+              }
+            ],
+            "viewport": "desktop"
+          }
+        ],
+        "faultyFiles": {},
+        "faultyCheckId": null,
+        "referenceFiles": {
+          "/index.html": "<!DOCTYPE html>\n<html>\n\n<head>\n  <title>摄氏-华氏温度换算器</title>\n  <meta charset=\"UTF-8\" />\n</head>\n\n<body>\n  <div id=\"app\"></div>\n\n  <script src=\"index.js\">\n  </script>\n</body>\n\n</html>",
+          "/styles.css": "body {\n  font-family: sans-serif;\n  -webkit-font-smoothing: auto;\n  -moz-font-smoothing: auto;\n  -moz-osx-font-smoothing: grayscale;\n  font-smoothing: auto;\n  text-rendering: optimizeLegibility;\n  font-smooth: always;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-touch-callout: none;\n}\n\nh1 {\n  font-size: 1.5rem;\n}\n\n.converter {\n  box-sizing: border-box;\n  max-width: 100%;\n  padding: 16px;\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n}\n\n.converter label {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  min-width: 0;\n}\n\n.converter input {\n  box-sizing: border-box;\n  width: 100%;\n  max-width: 100%;\n  padding: 8px;\n  font-size: 1rem;\n}\n\n.actions {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 8px;\n}\n\n.converter button {\n  box-sizing: border-box;\n  padding: 8px 16px;\n  font-size: 1rem;\n  cursor: pointer;\n}\n\n.result {\n  font-size: 1.25rem;\n  min-height: 1.5em;\n  word-break: break-word;\n}\n",
+          "/index.js": "import \"./styles.css\";\nimport { celsiusToFahrenheit } from \"./convert.js\";\n\ndocument.getElementById(\"app\").innerHTML = `\n<div class=\"converter\">\n  <h1>摄氏转华氏换算器</h1>\n  <label>\n    摄氏温度\n    <input type=\"number\" data-testid=\"celsius-input\" placeholder=\"输入摄氏温度\" />\n  </label>\n  <div class=\"actions\">\n    <button type=\"button\" data-testid=\"convert-button\">换算</button>\n    <button type=\"button\" data-testid=\"reset-button\">重置</button>\n  </div>\n  <div class=\"result\" data-testid=\"result\"></div>\n</div>\n`;\n\nconst input = document.querySelector('[data-testid=\"celsius-input\"]');\nconst convertButton = document.querySelector('[data-testid=\"convert-button\"]');\nconst resetButton = document.querySelector('[data-testid=\"reset-button\"]');\nconst result = document.querySelector('[data-testid=\"result\"]');\n\nconvertButton.addEventListener(\"click\", () => {\n  const raw = input.value.trim();\n  if (raw === \"\") {\n    result.textContent = \"\";\n    return;\n  }\n  const celsius = Number(raw);\n  if (Number.isNaN(celsius)) {\n    result.textContent = \"\";\n    return;\n  }\n  result.textContent = String(celsiusToFahrenheit(celsius));\n});\n\nresetButton.addEventListener(\"click\", () => {\n  input.value = \"\";\n  result.textContent = \"\";\n});\n",
+          "/convert.js": "export function celsiusToFahrenheit(celsius) {\n  return (celsius * 9) / 5 + 32;\n}\n"
+        }
+      },
+      "validated": true,
+      "qualityWarnings": [
+        "未提供可执行负例，负例区分度未验证"
+      ],
+      "referenceHash": "5d320d860e26a4edfaa936d35110411b94aaf12c62cfb0f9c55a29583c0e8c40",
+      "faultyHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "evidence": {
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "convert-zero",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"0\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"32\"\n✓ 4. 在 \"celsius-input\" 输入 \"\"\n✓ 5. 点击 \"convert-button\"\n✓ 6. 检查 \"result\" 的显示文字\n   实际：\"\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-hundred",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"100\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"212\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-negative",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"-40\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"-40\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-decimal",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"37\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"98.6\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-module-pure",
+              "status": "passed",
+              "message": "0 摄氏返回 32：通过\n100 摄氏返回 212：通过\n-40 摄氏返回 -40：通过\n37 摄氏返回 98.6：通过"
+            },
+            {
+              "caseId": "reset-clears-input",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"25\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"77\"\n✓ 4. 点击 \"reset-button\"\n✓ 5. 检查 \"celsius-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "reset-clears-result",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"25\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"77\"\n✓ 4. 点击 \"reset-button\"\n✓ 5. 检查 \"result\" 的显示文字\n   实际：\"\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "reset-then-convert",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"25\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"77\"\n✓ 4. 点击 \"reset-button\"\n✓ 5. 在 \"celsius-input\" 输入 \"0\"\n✓ 6. 点击 \"convert-button\"\n✓ 7. 检查 \"result\" 的显示文字\n   实际：\"32\"\n本项操作与预期全部通过。"
+            }
+          ],
+          "durationMs": 43095.487324999995
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "reset-clears-input",
+              "status": "failed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"25\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"77\"\n× 4. 点击 \"reset-button\"\n操作未完成：目标实际匹配 0 个元素，单目标动作需要 1 个。顺序确定时可用 index，否则使用唯一名称或容器范围。"
+            },
+            {
+              "caseId": "reset-clears-result",
+              "status": "failed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"25\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"77\"\n× 4. 点击 \"reset-button\"\n操作未完成：目标实际匹配 0 个元素，单目标动作需要 1 个。顺序确定时可用 index，否则使用唯一名称或容器范围。"
+            },
+            {
+              "caseId": "reset-then-convert",
+              "status": "failed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"25\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"77\"\n× 4. 点击 \"reset-button\"\n操作未完成：目标实际匹配 0 个元素，单目标动作需要 1 个。顺序确定时可用 index，否则使用唯一名称或容器范围。"
+            }
+          ],
+          "durationMs": 15473.220249
+        },
+        "faulty": null,
+        "previousRegression": {
+          "stepId": "step-reset",
+          "referenceHash": "5d320d860e26a4edfaa936d35110411b94aaf12c62cfb0f9c55a29583c0e8c40",
+          "previousHash": "e080f73ab76ba5680eb394cc2ca8b2a1dc20a8129bfb71c4e36acdba10ce0073",
+          "checkIds": [
+            "convert-zero",
+            "convert-hundred",
+            "convert-negative",
+            "convert-decimal",
+            "convert-module-pure"
+          ],
+          "passed": true,
+          "results": [
+            {
+              "caseId": "convert-zero",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"0\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"32\"\n✓ 4. 在 \"celsius-input\" 输入 \"\"\n✓ 5. 点击 \"convert-button\"\n✓ 6. 检查 \"result\" 的显示文字\n   实际：\"\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-hundred",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"100\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"212\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-negative",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"-40\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"-40\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-decimal",
+              "status": "passed",
+              "message": "✓ 1. 在 \"celsius-input\" 输入 \"37\"\n✓ 2. 点击 \"convert-button\"\n✓ 3. 检查 \"result\" 的显示文字\n   实际：\"98.6\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "convert-module-pure",
+              "status": "passed",
+              "message": "0 摄氏返回 32：通过\n100 摄氏返回 212：通过\n-40 摄氏返回 -40：通过\n37 摄氏返回 98.6：通过"
+            }
+          ],
+          "durationMs": 37430.223643
+        }
+      }
+    }
+  ],
+  "skillVersions": {
+    "plan": "0d1af2b6a8adf34426cc29a9081258bb9314280713a34d57d4731274ab810ffc",
+    "review_plan": "a36bc6e87ec4d328ca112bdf6589850b7de243fe3ce57e6dbeb41aa6c07c084e",
+    "build_step": "ecb505c64b343998ebfe179ccd4b7b8ad0a6b3d5aa5b77faa72e46c4f741300f",
+    "repair_step": "d1c8d1ff7896f990c01ec354e2a1c6a90b9870b8f631b991225169779c027faf",
+    "build_checks": "85710dc00160b6392eaafcdfc216c5e7cc78eacd1a3b6283ffee5a92dd52d6a1",
+    "repair_checks": "4998babda0d87ea2d09bac451c0d38ce868de5e0c4aa43f5701d736cad3498e9",
+    "validate": "e4c36c324a079d3ae529876643d210e2bd4232a338fa2eec4a28b20f666373c8",
+    "publish": "862add4ae35ac2ca876f72e5b93ab73bdb45ee09d8cc4a0c17f826c6eaab48ff"
+  }
+}

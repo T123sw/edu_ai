@@ -1,0 +1,92 @@
+{
+  "scope": "Real frontend -> authenticated HTTP -> PostgreSQL durable queue -> real model/search -> reviewed learning path -> node evidence -> resource specifications; stop before resource submission",
+  "final_fresh_run": "run-5",
+  "fresh_run_passed": true,
+  "recovery_run": "run-4",
+  "recovery_run_passed": true,
+  "failed_runs_preserved": [
+    "run-1",
+    "run-3"
+  ],
+  "formal_resource_generation": {
+    "generation_actions": 0,
+    "resource_jobs": 0,
+    "private_artifacts": 0,
+    "delivered_manifests": 0,
+    "openmaic_image_video_tts_calls": 0,
+    "stop_mechanism": "Isolated validation handler calls the production prepare_specifications method, checkpoints the complete inputs, verifies zero generation jobs/artifacts, and uses the normal cancellation protocol. GenerationAdapter.submit/reconcile are also forbidden in this isolated process."
+  },
+  "final_fresh_run_results": {
+    "topic": "我想学习快速排序",
+    "seconds_first_stage_to_handoff": 75.05636548995972,
+    "model": "deepseek-v4-flash",
+    "model_calls": 13,
+    "search_calls": 2,
+    "extract_calls": 3,
+    "source_pages": 3,
+    "evidence_chunks": 4,
+    "findings": 6,
+    "nodes": 3,
+    "resource_specs": 9,
+    "provider_total_tokens_accumulated": 204883,
+    "context_restarts": 0,
+    "tool_validation_errors": 0,
+    "browser_page_errors": 0,
+    "browser_http_errors": 0,
+    "duplicate_submission_same_task": true,
+    "browser_driver_note": "After refresh the progress dialog restored itself; the driver's attempted click on the background task button was blocked by that dialog. Observation resumed on the same task without re-submission. Original driver error is retained in run-5/browser-error.json."
+  },
+  "fixes": [
+    "Exact finalized draft duplicates are projected once without changing durable facts.",
+    "Research projection uses a configurable 48000-byte soft target, expands only for protected content, and has a default 96000-byte cap bounded by the model adapter's configured window. Full request guards and task budgets remain active.",
+    "Single-decision Harness turns close locally after an accepted tool result instead of spending another provider call; already loaded Skills are not redundantly offered for reload.",
+    "Research tool schemas enumerate authoritative requirement IDs and require complete coverage; finding receipts expose remaining capacity.",
+    "Independent tool validation failures have separate bounded correction counts until real progress. Global action/deadline/cost caps remain unchanged; the terminal error is persisted for diagnosis.",
+    "Production specification assembly is a separate reusable method with no resource-job side effects."
+  ],
+  "tests": {
+    "full_preparation_shared_resource_classroom_suite": {
+      "passed": 854,
+      "skipped": 16,
+      "failed": 0,
+      "seconds": 738.94,
+      "postgresql": "Dedicated local test cluster; isolated per-test schemas",
+      "skip_categories": "Explicit real-resource-generation opt-ins, backend-specific fixture variants and concurrency cases in SQLite.",
+      "note": "Started before the last research-tool correction was edited; affected research, recovery and context files were subsequently rerun below."
+    },
+    "final_research_correction_regression": {
+      "passed": 78,
+      "failed": 0,
+      "skipped": 0
+    },
+    "git_diff_check": "passed",
+    "changed_python_compileall": "passed"
+  },
+  "deployment": {
+    "validated_environment": "Dedicated local PostgreSQL, isolated storage/account, same deployed frontend build and current backend source, real DeepSeek/Tavily APIs",
+    "production_backend_pid": 3284389,
+    "production_backend_started_at_utc": "2026-10-13T17:56:07+00:00",
+    "production_loaded_current_fixes": false,
+    "restart_attempt": "systemctl --no-ask-password restart edu-ai-backend",
+    "restart_result": "Interactive authentication required"
+  },
+  "limits_of_claim": [
+    "No formal resource generation, classroom rendering/playback or final course delivery was tested.",
+    "This run had no uploaded documents and no previous user preferences.",
+    "Finite real runs and regression tests do not guarantee all topics and all third-party failures succeed.",
+    "The test stop behavior exists only in the opt-in validation server; production continues into normal generation."
+  ],
+  "artifact_checks": {
+    "json_files_validated": 479,
+    "known_secret_matches": 0,
+    "broken_report_links": 0,
+    "report_browser_page_errors": 0,
+    "report_horizontal_overflow": false
+  },
+  "validation_environment_cleanup": {
+    "isolated_backend": "stopped normally",
+    "isolated_postgresql": "stopped normally",
+    "production_backend": "unchanged and active",
+    "evidence_and_database_files": "retained"
+  }
+}

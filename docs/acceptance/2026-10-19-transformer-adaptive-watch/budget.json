@@ -1,0 +1,23 @@
+[
+  {
+    "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda",
+    "deadline": "2026-10-19 16:57:23.165096+00:00",
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "retry_only": true,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 29,
+      "tokens": 875137,
+      "cost_micro_usd": 8751370
+    }
+  }
+]

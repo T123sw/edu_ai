@@ -1,0 +1,43 @@
+{
+  "depth": "introductory",
+  "topic": "Transformer 模型",
+  "audience": "希望系统学习 Transformer 的初学者（具体背景未知）",
+  "language": "zh",
+  "exclusions": [],
+  "node_count": null,
+  "assumptions": [
+    "用户未说明学习时长，默认整门课程 60 分钟",
+    "用户未指定材料语言，按提问语言推断为中文",
+    "用户未说明已有基础，按入门深度组织内容",
+    "用户未说明具体用途（如面试、科研或工程实现），目标按通用原理理解处理"
+  ],
+  "requirements": [
+    {
+      "text": "讲授 Transformer 模型的基本原理与核心结构，包括自注意力、多头注意力、位置编码、前馈网络、残差连接与层归一化等关键机制",
+      "source_ref": null,
+      "source_quote": "我想学习一下transformer",
+      "requirement_id": "req-transformer-basics",
+      "source_document_id": null
+    }
+  ],
+  "learning_goal": "系统了解 Transformer 模型的基本原理与结构，理解其核心机制及工作方式。",
+  "material_gaps": [],
+  "source_policy": {
+    "mode": "open"
+  },
+  "total_minutes": 60,
+  "prior_knowledge": "未知",
+  "desired_outcomes": [
+    "能说明 Transformer 的整体结构（编码器-解码器）及各组成部分的作用",
+    "能解释自注意力机制的计算过程与多头注意力的意义",
+    "能说明位置编码、残差连接与层归一化在模型中的作用",
+    "能描述 Transformer 相比循环网络在并行计算与长距离依赖上的特点"
+  ],
+  "node_count_quote": null,
+  "source_policy_quote": null,
+  "required_resource_types": [
+    "report",
+    "quiz",
+    "classroom"
+  ]
+}

@@ -1,0 +1,470 @@
+{
+  "title": "整体结构与数据流：编码器-解码器、子层、残差与掩码",
+  "content": "# Transformer 的整体结构与数据流\n\n本节只做一件事：把 Transformer 从输入到输出走一遍，看清编码器、解码器各自由哪些子层组成，残差与层归一化放在哪里，以及解码器为什么必须加掩码。自注意力的具体计算细节、位置编码的公式推导由本节点的其他材料承担，这里只在数据流中点到它们的位置。\n\n<a id=\"sec-dataflow\"></a>\n## 一、先看一次完整的前向过程\n\n假设我们要把一句英文翻译成中文。原论文（Vaswani 等，2017）第 3 节给出的总体框架是：编码器把输入符号序列 $(x_1, \\dots, x_n)$ 映射为连续表示 $z = (z_1, \\dots, z_n)$；给定 $z$，解码器一次生成一个输出符号，得到 $(y_1, \\dots, y_m)$，并且在生成下一个符号时把已经生成的符号作为额外输入，这就是自回归（auto-regressive）。\n\n把这句话展开成一次具体的前向清单，顺序如下：\n\n1. **输入嵌入**：把源语言句子切成符号（子词或词），每个符号查嵌入表，得到一个 512 维向量。\n2. **加位置编码**：因为模型里没有循环也没有卷积，符号顺序不会自动体现，所以要把位置信息加到嵌入上（位置编码的具体方案见本节点其他材料）。\n3. **编码器栈（6 层）**：每层依次做「多头自注意力 → 残差 + 层归一化 → 逐位置前馈网络 → 残差 + 层归一化」。6 层之后得到 $z$，形状是「源句长度 × 512」。\n4. **解码器输入准备**：把目标句子的输出嵌入右移一位（最前面补一个起始符号），同样加位置编码。\n5. **解码器栈（6 层）**：每层依次做「掩码多头自注意力 → 残差 + 层归一化 → 交叉注意力（查询来自解码器，键和值来自 $z$）→ 残差 + 层归一化 → 前馈网络 → 残差 + 层归一化」。\n6. **线性层 + softmax**：把解码器最后一层的 512 维输出投影到词表大小，softmax 得到下一个符号的概率分布。\n7. **自回归循环**：把刚生成的符号接到解码器输入末尾，重复第 4–6 步，直到生成结束符号。\n\n注意第 3 步和第 5 步的差别：编码器每层只有 2 个子层，解码器每层有 3 个子层。多出来的那个就是交叉注意力，它是编码器和解码器之间唯一的连接通道——$z$ 只在这里被读取。\n\n<a id=\"sec-encoder\"></a>\n## 二、编码器层：两个子层\n\n原论文第 3.1 节写明：编码器由 $N = 6$ 个相同的层堆叠而成，每层有两个子层。第一个是多头自注意力机制，第二个是简单的、逐位置的全连接前馈网络。\n\n- **多头自注意力**：查询、键、值都来自上一层编码器的输出，因此每个位置都能关注上一层所有位置。它的作用是让每个位置的表示吸收整句的上下文。\n- **逐位置前馈网络**：对每个位置独立地做同一个两层全连接变换。它不跨位置交流，只负责在单个位置上做非线性加工。\n\n「逐位置」这个词很关键：前馈网络在序列维度上是共享且独立的，所以它不会破坏注意力已经建立起来的顺序结构，也不会引入额外的跨位置依赖。\n\n<a id=\"sec-decoder\"></a>\n## 三、解码器层：三个子层\n\n解码器同样是 6 个相同层的堆叠。在编码器的两个子层之外，它插入了第三个子层，对编码器栈的输出做多头注意力，也就是交叉注意力（encoder-decoder attention）。\n\n三个子层按顺序是：\n\n1. **掩码多头自注意力**：查询、键、值都来自解码器上一层，但每个位置只能关注到并包括自身在内的解码器位置。\n2. **交叉注意力**：查询来自上一层解码器，键和值来自编码器输出 $z$。这让解码器的每个位置都能关注输入序列的所有位置。\n3. **逐位置前馈网络**：与编码器中的同名子层作用相同。\n\n用一句话记住三者的分工：第一个子层管「我已经生成了什么」，第二个子层管「原文说了什么」，第三个子层管「在本位置上做加工」。\n\n<a id=\"sec-residual\"></a>\n## 四、残差、层归一化与 d_model = 512\n\n原论文对每个子层都套了残差连接，再接层归一化，即每个子层的输出是\n\n$$\\text{LayerNorm}(x + \\text{Sublayer}(x))$$\n\n其中 $\\text{Sublayer}(x)$ 是该子层自身实现的函数，$x$ 是子层的输入。\n\n这个写法包含两个信息：\n\n- **残差**：把输入 $x$ 原样加到子层输出上。子层只需要学习「在 $x$ 基础上改什么」，梯度也能沿加法这条捷径直接回传，深层堆叠才不至于训练不动。\n- **层归一化**：对相加后的结果做归一化，稳定每层的数值尺度。注意顺序是先相加、后归一化。\n\n为了让加法成立，$x$ 和 $\\text{Sublayer}(x)$ 必须是同一个维度。原论文因此规定：模型中所有子层以及嵌入层的输出维度都是 $d_{model} = 512$。这不是一个随意的超参数，而是残差连接能写出来的前提条件。多头注意力内部会把 512 维切成 $h = 8$ 个头、每头 64 维，但拼接后仍回到 512 维；前馈网络中间层放大到 2048 维，输出也回到 512 维。\n\n<a id=\"sec-mask\"></a>\n## 五、解码器掩码与右移一位\n\n解码器在训练时要一次性看到整条目标句，但生成时只能看到已生成的部分。如果训练时允许位置 $i$ 看到位置 $i+1$ 及之后的内容，模型就会直接抄答案，推理时却拿不到这些答案。\n\n原论文的处理是：修改解码器栈中的自注意力子层，阻止位置关注其后的位置。这种掩码，加上输出嵌入右移一位，共同保证位置 $i$ 的预测只能依赖位置小于 $i$ 的已知输出。\n\n两件事各管一半：\n\n- **右移一位**：把目标序列整体后移一格，位置 $i$ 的输入是第 $i-1$ 个已知输出，于是「预测第 $i$ 个符号」和「输入里不含第 $i$ 个符号」同时成立。\n- **掩码**：即使输入已经右移，位置 $i$ 的查询仍可能通过注意力看到位置 $i$ 及之后那些「未来的」输入。掩码把这些非法连接切断。\n\n实现方式是在缩放点积注意力里，把 softmax 输入中对应非法连接的值设为 $-\\infty$。softmax 之后这些位置的权重变成 0，等于完全不可见。\n\n举一个长度为 4 的小例子，看掩码矩阵长什么样（行是查询位置，列是被关注位置，✓ 表示可见）：\n\n| 查询位置 | 位置1 | 位置2 | 位置3 | 位置4 |\n|---|---|---|---|---|\n| 1 | ✓ | ✗ | ✗ | ✗ |\n| 2 | ✓ | ✓ | ✗ | ✗ |\n| 3 | ✓ | ✓ | ✓ | ✗ |\n| 4 | ✓ | ✓ | ✓ | ✓ |\n\n第 3 行的查询只能看到位置 1、2、3，位置 4 的分数被置为 $-\\infty$，softmax 后权重为 0。这就是「位置 $i$ 只依赖位置小于 $i$ 的已知输出」在矩阵上的样子。\n\n需要区分的是：交叉注意力**不加**这种掩码，因为它的键和值来自编码器输出 $z$，$z$ 是完整已知的输入，不存在「未来信息」泄漏的问题。\n\n<a id=\"sec-check\"></a>\n## 六、自查\n\n合上材料，试着回答：\n\n1. 编码器每层几个子层？解码器每层几个子层？多出来的是哪一个，它的查询、键、值分别来自哪里？\n2. 为什么所有子层输出都必须是 512 维？\n3. 只用掩码、不做右移一位，会出什么问题？只用右移一位、不加掩码，又会出什么问题？\n\n如果第 1 题你能答出「编码器 2 个、解码器 3 个，交叉注意力的查询来自解码器、键值来自编码器输出」，第 3 题你能说出「掩码切断未来位置、右移一位保证输入不含待预测符号，两者缺一不可」，本节的目标就达到了。\n\n> 说明：本节依据 2017 年原始论文的编码器-解码器配置（$N=6$、$d_{model}=512$、$h=8$）。仅编码器或仅解码器的变体、各类高效注意力实现、旋转位置编码等后续方案不在本节范围内。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 6.1
+      },
+      "sections": [
+        {
+          "section_id": "sec-dataflow",
+          "content_sha256": "489799dbe37fab8799b9fe35285aa6aa5a3d73a8c08af8cafd0f02280b4ddd63"
+        },
+        {
+          "section_id": "sec-encoder",
+          "content_sha256": "d610cf1833a446a0325a7df625d0875a18340941783f5c85e2074d38cfde9639"
+        },
+        {
+          "section_id": "sec-decoder",
+          "content_sha256": "8720b31148527593e7369836057e4356b9a7137dcf618e44f4935974ccb841f5"
+        },
+        {
+          "section_id": "sec-residual",
+          "content_sha256": "4be5b65085175aebeef9a7fd2288f276aee809619c07809fd687f0162de76265"
+        },
+        {
+          "section_id": "sec-mask",
+          "content_sha256": "dffb1374bcab9d7f94bc529b7159d10c22d28e8a5f0f78c49737b931a0715453"
+        },
+        {
+          "section_id": "sec-check",
+          "content_sha256": "d8c5050e0be19ab8b69f31de93a4a7d1654ec8a957752adaaadb98e04f2ea5e5"
+        }
+      ],
+      "spec_digest": "a5de567fe4e4ce2029eec1de2332e828c67369bda93aa7d1ccbb2ac9a74d82bc",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-dataflow"
+          },
+          "objective_id": "n2-overall-architecture:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-encoder"
+          },
+          "objective_id": "n2-overall-architecture:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-decoder"
+          },
+          "objective_id": "n2-overall-architecture:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-residual"
+          },
+          "objective_id": "n2-overall-architecture:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-mask"
+          },
+          "objective_id": "n2-overall-architecture:o4"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-check"
+          },
+          "objective_id": "n2-overall-architecture:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-check"
+          },
+          "objective_id": "n2-overall-architecture:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-check"
+          },
+          "objective_id": "n2-overall-architecture:o4"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec-dataflow"
+          },
+          "explanation": "以一次完整前向清单呈现编码器-解码器整体结构与数据流，并在此处点明位置编码、自注意力、前馈网络在流程中的位置，落实“基本原理与整体结构”的要求。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-encoder"
+          },
+          "explanation": "说明编码器层两个子层（多头自注意力、逐位置前馈网络）的构成与各自职责。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-decoder"
+          },
+          "explanation": "说明解码器层三个子层及交叉注意力的查询/键值来源。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-residual"
+          },
+          "explanation": "解释 LayerNorm(x + Sublayer(x)) 的写法与 d_model=512 作为残差前提的作用。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-mask"
+          },
+          "explanation": "解释掩码与右移一位如何共同保证自回归性质，并给出掩码矩阵示例。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "teaching_context_digest": "5110a660219d70debdfd9ed36a0d0fd0a9a7360ec41f0c8fb331e01a6d658d92"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文覆盖本节点分工 req-transformer-basics 的核心组成：第一节给出编码器→z→解码器→线性+softmax 的完整前向清单（含位置编码、自注意力、前馈网络的位置），第二、三节分别讲编码器 2 子层与解码器 3 子层，第四节讲 LayerNorm(x+Sublayer(x)) 与 d_model=512，第五节讲掩码与右移一位；语言为中文、深度为入门，未越界到旋转位置编码等排除范围。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "关键主张与论文第 3、3.1、3.2.3 节一致：N=6、每层 2/3 子层、交叉注意力查询来自解码器而键值来自编码器输出、h=8 每头 64 维、FFN 中间 2048 维、softmax 前置 −∞；掩码矩阵示例（4×4 下三角）与“位置 i 只依赖小于 i 的已知输出”的表述自洽，交叉注意力不加掩码的说明也正确。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第五节给出长度 4 的掩码矩阵示例并逐行解释第 3 行查询可见位置 1–3、位置 4 置 −∞ 后权重为 0，边界（首行仅见自身、末行全见）正确；第六节自查第 3 题要求区分“只掩码不右移”与“只右移不掩码”两种失败情形，能检验理解。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：整体前向数据流→编码器层→解码器层→残差/归一化/维度→掩码→自查，先总后分再落到机制，符合入门深度与 15 分钟节点预算；自查题与四条目标一一对应，不是仅在开头声称采用某顺序。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文明确标注依据 Vaswani 等 2017 年原始论文第 3、3.1、3.2.3 节，与 evidence 中提供的论文原文摘录（编码器-解码器结构、LayerNorm(x+Sublayer(x))、d_model=512、掩码与右移一位、三种注意力用法）逐条对应，未虚构外部来源。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "四条节点目标均有对应章节与自查项：o1 见第一节与自查第 1 题，o2 见第二、三节，o3 见第四节与自查第 2 题，o4 见第五节与自查第 3 题；文末说明限定在 2017 年编码器-解码器配置，未遗漏本节点要求的内容。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文覆盖本节点分工 req-transformer-basics 的核心组成：第一节给出编码器→z→解码器→线性+softmax 的完整前向清单（含位置编码、自注意力、前馈网络的位置），第二、三节分别讲编码器 2 子层与解码器 3 子层，第四节讲 LayerNorm(x+Sublayer(x)) 与 d_model=512，第五节讲掩码与右移一位；语言为中文、深度为入门，未越界到旋转位置编码等排除范围。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "关键主张与论文第 3、3.1、3.2.3 节一致：N=6、每层 2/3 子层、交叉注意力查询来自解码器而键值来自编码器输出、h=8 每头 64 维、FFN 中间 2048 维、softmax 前置 −∞；掩码矩阵示例（4×4 下三角）与“位置 i 只依赖小于 i 的已知输出”的表述自洽，交叉注意力不加掩码的说明也正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第五节给出长度 4 的掩码矩阵示例并逐行解释第 3 行查询可见位置 1–3、位置 4 置 −∞ 后权重为 0，边界（首行仅见自身、末行全见）正确；第六节自查第 3 题要求区分“只掩码不右移”与“只右移不掩码”两种失败情形，能检验理解。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：整体前向数据流→编码器层→解码器层→残差/归一化/维度→掩码→自查，先总后分再落到机制，符合入门深度与 15 分钟节点预算；自查题与四条目标一一对应，不是仅在开头声称采用某顺序。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文明确标注依据 Vaswani 等 2017 年原始论文第 3、3.1、3.2.3 节，与 evidence 中提供的论文原文摘录（编码器-解码器结构、LayerNorm(x+Sublayer(x))、d_model=512、掩码与右移一位、三种注意力用法）逐条对应，未虚构外部来源。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四条节点目标均有对应章节与自查项：o1 见第一节与自查第 1 题，o2 见第二、三节，o3 见第四节与自查第 2 题，o4 见第五节与自查第 3 题；文末说明限定在 2017 年编码器-解码器配置，未遗漏本节点要求的内容。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第一节第 7 步“重复第 4–6 步”可补充说明推理时每步只重算解码器而编码器输出 z 可复用，避免读者误以为编码器也要重跑。",
+              "第四节可补一句说明原论文采用 post-LN（先相加后归一化），与后续 pre-LN 变体不同，帮助读者在阅读其他实现时不混淆。",
+              "自查第 3 题可给出参考答案要点（掩码切断未来位置、右移一位保证输入不含待预测符号），便于自学者核对。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-dataflow 的 7 步前向清单真实呈现编码器映射到 z、解码器自回归生成、线性+softmax，并点明位置编码与自注意力在流程中的位置，支持“基本原理与整体结构”的要求。",
+                "locator": {
+                  "section_id": "sec-dataflow"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-encoder 明确写出 N=6 层、每层两个子层（多头自注意力、逐位置前馈网络）及各自职责，支持该要求。",
+                "locator": {
+                  "section_id": "sec-encoder"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-decoder 列出解码器三个子层并说明交叉注意力查询来自解码器、键值来自编码器输出 z，支持该要求。",
+                "locator": {
+                  "section_id": "sec-decoder"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-residual 解释 LayerNorm(x + Sublayer(x)) 的残差与归一化含义，并说明 d_model=512 是残差相加成立的前提，支持该要求。",
+                "locator": {
+                  "section_id": "sec-residual"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-mask 分别说明右移一位与掩码各管一半，并给出 softmax 置 −∞ 的实现与 4×4 掩码矩阵示例，支持该要求。",
+                "locator": {
+                  "section_id": "sec-mask"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-dataflow 以清单形式描述编码器输出 z、解码器基于 z 逐符号生成的数据流，直接解释目标 o1。",
+                "locator": {
+                  "section_id": "sec-dataflow"
+                },
+                "binding_id": "n2-overall-architecture:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-encoder 说明编码器层两个子层的构成，解释目标 o2 的编码器部分。",
+                "locator": {
+                  "section_id": "sec-encoder"
+                },
+                "binding_id": "n2-overall-architecture:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-decoder 说明解码器层三个子层及交叉注意力来源，解释目标 o2 的解码器部分。",
+                "locator": {
+                  "section_id": "sec-decoder"
+                },
+                "binding_id": "n2-overall-architecture:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-residual 解释 LayerNorm(x + Sublayer(x)) 写法与 d_model=512 的统一维度要求，解释目标 o3。",
+                "locator": {
+                  "section_id": "sec-residual"
+                },
+                "binding_id": "n2-overall-architecture:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-mask 解释掩码配合右移一位保证位置 i 只依赖小于 i 的已知输出，解释目标 o4。",
+                "locator": {
+                  "section_id": "sec-mask"
+                },
+                "binding_id": "n2-overall-architecture:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-check 第 1 题要求回答编码器/解码器子层数与交叉注意力来源，检验目标 o1 的数据流理解。",
+                "locator": {
+                  "section_id": "sec-check"
+                },
+                "binding_id": "n2-overall-architecture:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-check 第 1 题同时核对编码器 2 子层、解码器 3 子层与交叉注意力查询/键值来源，检验目标 o2。",
+                "locator": {
+                  "section_id": "sec-check"
+                },
+                "binding_id": "n2-overall-architecture:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-check 第 3 题要求分析只掩码不右移、只右移不掩码两种失败情形，检验目标 o4 的自回归性质理解。",
+                "locator": {
+                  "section_id": "sec-check"
+                },
+                "binding_id": "n2-overall-architecture:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "80ae4080561a7cfd4ca85eb641ebc49e7643e97250e9a13bd72720c308c6bee0",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第一节第 7 步“重复第 4–6 步”可补充说明推理时每步只重算解码器而编码器输出 z 可复用，避免读者误以为编码器也要重跑。",
+        "第四节可补一句说明原论文采用 post-LN（先相加后归一化），与后续 pre-LN 变体不同，帮助读者在阅读其他实现时不混淆。",
+        "自查第 3 题可给出参考答案要点（掩码切断未来位置、右移一位保证输入不含待预测符号），便于自学者核对。"
+      ],
+      "content_sha256": "80ae4080561a7cfd4ca85eb641ebc49e7643e97250e9a13bd72720c308c6bee0",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec-dataflow 的 7 步前向清单真实呈现编码器映射到 z、解码器自回归生成、线性+softmax，并点明位置编码与自注意力在流程中的位置，支持“基本原理与整体结构”的要求。",
+          "locator": {
+            "section_id": "sec-dataflow"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-encoder 明确写出 N=6 层、每层两个子层（多头自注意力、逐位置前馈网络）及各自职责，支持该要求。",
+          "locator": {
+            "section_id": "sec-encoder"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-decoder 列出解码器三个子层并说明交叉注意力查询来自解码器、键值来自编码器输出 z，支持该要求。",
+          "locator": {
+            "section_id": "sec-decoder"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-residual 解释 LayerNorm(x + Sublayer(x)) 的残差与归一化含义，并说明 d_model=512 是残差相加成立的前提，支持该要求。",
+          "locator": {
+            "section_id": "sec-residual"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-mask 分别说明右移一位与掩码各管一半，并给出 softmax 置 −∞ 的实现与 4×4 掩码矩阵示例，支持该要求。",
+          "locator": {
+            "section_id": "sec-mask"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-dataflow 以清单形式描述编码器输出 z、解码器基于 z 逐符号生成的数据流，直接解释目标 o1。",
+          "locator": {
+            "section_id": "sec-dataflow"
+          },
+          "binding_id": "n2-overall-architecture:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-encoder 说明编码器层两个子层的构成，解释目标 o2 的编码器部分。",
+          "locator": {
+            "section_id": "sec-encoder"
+          },
+          "binding_id": "n2-overall-architecture:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-decoder 说明解码器层三个子层及交叉注意力来源，解释目标 o2 的解码器部分。",
+          "locator": {
+            "section_id": "sec-decoder"
+          },
+          "binding_id": "n2-overall-architecture:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-residual 解释 LayerNorm(x + Sublayer(x)) 写法与 d_model=512 的统一维度要求，解释目标 o3。",
+          "locator": {
+            "section_id": "sec-residual"
+          },
+          "binding_id": "n2-overall-architecture:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-mask 解释掩码配合右移一位保证位置 i 只依赖小于 i 的已知输出，解释目标 o4。",
+          "locator": {
+            "section_id": "sec-mask"
+          },
+          "binding_id": "n2-overall-architecture:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-check 第 1 题要求回答编码器/解码器子层数与交叉注意力来源，检验目标 o1 的数据流理解。",
+          "locator": {
+            "section_id": "sec-check"
+          },
+          "binding_id": "n2-overall-architecture:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-check 第 1 题同时核对编码器 2 子层、解码器 3 子层与交叉注意力查询/键值来源，检验目标 o2。",
+          "locator": {
+            "section_id": "sec-check"
+          },
+          "binding_id": "n2-overall-architecture:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-check 第 3 题要求分析只掩码不右移、只右移不掩码两种失败情形，检验目标 o4 的自回归性质理解。",
+          "locator": {
+            "section_id": "sec-check"
+          },
+          "binding_id": "n2-overall-architecture:o4",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "8a1f927590faf9f89517457f80dbf6a558be431e4738dd6637a1c9aaf378db49"
+    }
+  }
+}

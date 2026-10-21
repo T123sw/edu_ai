@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from app.services.tutoring_response_policy import TUTORING_RESPONSE_POLICY
 from typing import Any
 
 
@@ -35,6 +36,24 @@ def build_classroom_qa_context(
     checkpoint: dict[str, Any],
     recent_turns: list[dict[str, Any]],
 ) -> ClassroomQaContext:
+    from app.self_learning.hyperframes_context import native_content, classroom_timeline_context
+    native = native_content(material)
+    if native:
+        from fastapi import HTTPException
+        try:
+            resolved = classroom_timeline_context(material, {k:v for k,v in checkpoint.items() if k != 'resource_version'})
+        except HTTPException as exc:
+            raise StaleClassroomCheckpointError(str(exc.detail)) from exc
+        segment = resolved.get('current_segment')
+        previous = resolved.get('previous_segment')
+        return ClassroomQaContext(classroom_title=native['title'],
+            scene_id=segment['id'] if segment else 'timeline-gap',
+            scene_title=(segment['title'] if segment else '章节间隙'),
+            scene_speech=(json.dumps(resolved,ensure_ascii=False),), completed_speech=(),
+            interrupted_speech=segment['narration'] if segment else None,
+            previous_scene_speech=(previous['narration'],) if previous else (),
+            full_classroom_sections=tuple(s['title']+'：'+s['narration'] for s in native['timeline']['segments']),
+            recent_turns=tuple(dict(t) for t in recent_turns[-6:] if isinstance(t,dict)))
     scenes = material.get("scenes")
     scene_index = checkpoint.get("scene_index")
     if (
@@ -163,7 +182,8 @@ def build_classroom_qa_messages(
         "只能依据服务端提供的当前课堂讲授、完整课堂相关内容与本课堂最近问答作答。\n"
         "当前场景和被打断句子优先；问题涉及其他场景时，可以使用完整课堂相关内容。\n"
         "回答正文通常为 80～300 个中文字符；当前信息不足时明确说明，并把话题引回当前知识点。\n"
-        "另写一句 10～40 个中文字符的自然衔接语，回到当前场景。\n"
+        "另写一句简短的自然衔接语，衔接当前知识内容，不播报阶段、时间或内部场景名称。\n"
+        f"{TUTORING_RESPONSE_POLICY}\n"
         '只输出 JSON：{"answer_text":"...","transition_text":"..."}。'
     )
     history = [

@@ -1,0 +1,9 @@
+{
+  "typecheck": "passed",
+  "eslint": "passed",
+  "production_build": "passed",
+  "browser": "1440/390/320 widths: 18 rows, no overflow, type filters, search/empty result, keyboard open and close preview; no page errors",
+  "api": "mocked auth, catalog and preview; no real resources changed",
+  "published": true,
+  "baseline_preserved": "practice dropdown style and quiz performance/actions"
+}

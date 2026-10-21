@@ -7,6 +7,7 @@ import pytest
 from app.self_learning.agent_runtime import LearningAgentRuntime
 from app.self_learning.context_builder import ContextBuilder
 from app.self_learning import teaching_skills
+from app.services.tutoring_response_policy import TUTORING_RESPONSE_POLICY
 from tests.self_learning.test_agent_runtime import Model, accept, request, agent_service
 from tests.self_learning.test_session_api import live_service, repository
 from tests.self_learning.test_classroom_context import material as classroom_material
@@ -32,6 +33,7 @@ def test_each_mode_is_loaded_and_version_is_persisted(agent_service, kind, mode,
     skill = teaching_skills.load_teaching_skill(kind)
     instructions = json.loads(model.messages[0])[0]['content']
     assert skill['instructions'] in instructions
+    assert TUTORING_RESPONSE_POLICY in instructions
     assert instructions.count('<teaching_skill ') == 1
     assert turn['result']['teaching_skill'] == {k: skill[k] for k in ('name', 'version', 'mode')}
     assert turn['result']['teaching_skill']['mode'] == mode
@@ -87,5 +89,6 @@ def test_followup_keeps_topic_and_successful_conversation(agent_service):
         assert data['learning_context']['course']['title'] == 'Python'
         assert data['learning_context']['current_topic']['title'] == '变量'
         assert messages[-1]['content'] == question
-    assert any(m['content'] == '请解释这段内容。' for m in messages)
-    assert any(m['content'] == '我们现在在围绕着什么在提问' for m in messages)
+    # Course-wide history prefixes the original question with its saved location.
+    assert any(m['role'] == 'user' and m['content'].split('\n')[-1] == '请解释这段内容。' for m in messages)
+    assert any(m['role'] == 'user' and m['content'].split('\n')[-1] == '我们现在在围绕着什么在提问' for m in messages)

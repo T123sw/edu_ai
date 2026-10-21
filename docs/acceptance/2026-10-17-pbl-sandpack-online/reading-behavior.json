@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "cases": [
+    "blank title rejected",
+    "duplicate names remain separate rows",
+    "only targeted duplicate row toggles",
+    "delete leaves other row unchanged"
+  ],
+  "widths": [
+    {
+      "hostWidth": 1440,
+      "width": 401,
+      "scrollWidth": 401
+    },
+    {
+      "hostWidth": 390,
+      "width": 349,
+      "scrollWidth": 349
+    },
+    {
+      "hostWidth": 320,
+      "width": 279,
+      "scrollWidth": 279
+    }
+  ],
+  "nativeMobilePassed": true,
+  "environment": "production page and actual Sandpack preview, independent assertions"
+}

@@ -1,0 +1,33 @@
+Capability deep_question failed: 'list' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor/deeptutor/runtime/orchestrator.py", line 141, in _run
+    await capability.run(context, bus)
+  File "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor/deeptutor/agents/question/capability.py", line 172, in run
+    await self._run_mimic_mode(
+  File "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor/deeptutor/agents/question/capability.py", line 305, in _run_mimic_mode
+    templates, _ = await parse_exam_paper_to_templates(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor/deeptutor/agents/question/mimic_source.py", line 82, in parse_exam_paper_to_templates
+    return await asyncio.to_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor/deeptutor/agents/question/mimic_source.py", line 117, in _parse_sync
+    ok = extract_questions_from_paper(
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor/deeptutor/tools/question/question_extractor.py", line 485, in extract_questions_from_paper
+    questions = extract_questions_with_llm(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor/deeptutor/tools/question/question_extractor.py", line 386, in extract_questions_with_llm
+    extract(start, end)
+  File "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor/deeptutor/tools/question/question_extractor.py", line 357, in extract
+    data = _extract_question_window(window, content_list, images_dir, api_key, base_url, model, api_version, binding)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor/deeptutor/tools/question/question_extractor.py", line 319, in _extract_question_window
+    questions = result.get("questions")
+                ^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'

@@ -1,0 +1,30 @@
+{
+  "base": "http://127.0.0.1",
+  "checks": [
+    {
+      "width": 1440,
+      "passed": true,
+      "checks": [
+        "matching computed styles",
+        "menu within viewport",
+        "mouse and keyboard selection",
+        "Escape and outside dismiss",
+        "both routes and original focus selection",
+        "no unintended submission or page errors"
+      ]
+    },
+    {
+      "width": 390,
+      "passed": true,
+      "checks": [
+        "matching computed styles",
+        "menu within viewport",
+        "mouse and keyboard selection",
+        "Escape and outside dismiss",
+        "both routes and original focus selection",
+        "no unintended submission or page errors"
+      ]
+    }
+  ],
+  "api": "mock auth/list; no generation"
+}

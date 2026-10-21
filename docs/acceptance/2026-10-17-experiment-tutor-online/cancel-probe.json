@@ -1,0 +1,1 @@
+{"cancel_scope": "anyio", "persisted_status_after_disconnect": "pending", "storage": "isolated temporary files"}

@@ -1,0 +1,37 @@
+{
+  "/health": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "message": "service ready",
+      "knowledge_base_ready": true,
+      "document_count": 593
+    }
+  },
+  "/api/courses": {
+    "status": 200,
+    "body": []
+  },
+  "/api/course-preparations": {
+    "status": 200,
+    "body": {
+      "preparations": []
+    }
+  },
+  "/api/courses/learn-4406eb8b05ec47bdb9b1609e35e31ab5": {
+    "status": 403,
+    "body": {
+      "detail": {
+        "code": "COURSE_ACCESS_DENIED",
+        "course_id": "learn-4406eb8b05ec47bdb9b1609e35e31ab5",
+        "capability": "read"
+      }
+    }
+  },
+  "/api/course-preparations/prep_4406eb8b05ec47bdb9b1609e35e31ab5": {
+    "status": 404,
+    "body": {
+      "detail": "任务不存在或不可访问"
+    }
+  }
+}

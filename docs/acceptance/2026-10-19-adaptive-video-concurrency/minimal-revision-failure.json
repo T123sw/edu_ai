@@ -1,0 +1,39 @@
+{
+  "preparation_id": "prep_de049b31b7f341e0ab98f9d2cb585f3a",
+  "attempt_no": 1,
+  "status": "failed",
+  "created_at": "2026-10-19T15:18:38.933213+00:00",
+  "stage": "research_scope",
+  "revision": 119,
+  "error_code": "RESEARCH_INSUFFICIENT",
+  "failure": {
+    "title": "课程准备遇到问题",
+    "reason": "任务在“查找参考资料”时中断，目前没有足够信息确认更具体的原因。",
+    "next_step": "请稍后重试；如果再次失败，请联系维护人员查看这条任务。",
+    "stage": "查找参考资料",
+    "saved_resources": 0,
+    "planned_resources": 0,
+    "resource_issues": []
+  },
+  "result_ref": null,
+  "budget": {
+    "limits": {
+      "calls": null,
+      "tokens": null,
+      "seconds": null,
+      "retry_only": true,
+      "cost_micro_usd": null
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 30,
+      "tokens": 958426,
+      "cost_micro_usd": 9584260
+    },
+    "deadline": null
+  }
+}

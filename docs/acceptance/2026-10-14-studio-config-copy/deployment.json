@@ -1,0 +1,19 @@
+{
+  "publishedAt": "20261014T050358Z",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "backup": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-studio-config-copy-20261014T050358Z",
+  "release": "/tmp/edu-studio-config-copy-20261014",
+  "previousIndexSha256": "975f6cd68aceb71ba8edb215ea25df335da99836ed8a19ef82dd7e3c73d0d92c",
+  "releaseIndexSha256": "2f3be9eaf9ac97959371fa3830a5215a282fdefd1fea89b9244315f0afd3123a",
+  "checks": {
+    "frontendTypecheck": "tsconfig.self-learning.json passed",
+    "eslint": "StudioHome.tsx passed without warnings",
+    "build": "passed; existing large chunk warning",
+    "configurationPages": "all six headings contain title only, forms visible; mocked APIs"
+  },
+  "publishedBrowserChecks": {
+    "passed": 3,
+    "api": "mocked business responses; production static assets"
+  }
+}

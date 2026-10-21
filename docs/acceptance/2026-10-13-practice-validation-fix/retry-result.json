@@ -1,0 +1,143 @@
+{
+  "job_id": "job_7d0d516e7a7b42b1",
+  "status": "succeeded",
+  "started_at": "2026-10-13T17:26:10.850679+00:00",
+  "finished_at": "2026-10-13T17:26:40.970687+00:00",
+  "validation": {
+    "ok": true,
+    "scope": "browser-smoke-not-scientific-certification",
+    "checks": [
+      "initial-results",
+      "default-run",
+      "valid-parameter-change-and-run",
+      "reset-button",
+      "responsive-layout",
+      "javascript-errors"
+    ],
+    "issues": [],
+    "diagnostics": {
+      "trials": [
+        {
+          "after": {
+            "results": {
+              "交换次数": 1,
+              "基准策略": "first",
+              "数组规模": 8,
+              "比较次数": 0,
+              "递归深度": 0
+            },
+            "parameters": {
+              "size": "8",
+              "pivot": "first",
+              "speed": "3",
+              "pattern": "random"
+            }
+          },
+          "action": "run-with-defaults",
+          "before": {
+            "results": {
+              "交换次数": 0,
+              "基准策略": "first",
+              "数组规模": 8,
+              "比较次数": 0,
+              "递归深度": 0
+            },
+            "parameters": {
+              "size": "8",
+              "pivot": "first",
+              "speed": "3",
+              "pattern": "random"
+            }
+          },
+          "changed": true
+        },
+        {
+          "after": {
+            "results": {
+              "交换次数": 0,
+              "基准策略": "last",
+              "数组规模": 8,
+              "比较次数": 0,
+              "递归深度": 0
+            },
+            "parameters": {
+              "size": "8",
+              "pivot": "last",
+              "speed": "3",
+              "pattern": "random"
+            }
+          },
+          "action": "change-one-parameter-and-run",
+          "before": {
+            "results": {
+              "交换次数": 1,
+              "基准策略": "first",
+              "数组规模": 8,
+              "比较次数": 0,
+              "递归深度": 0
+            },
+            "parameters": {
+              "size": "8",
+              "pivot": "first",
+              "speed": "3",
+              "pattern": "random"
+            }
+          },
+          "changed": true,
+          "control": "pivot",
+          "parameters": {
+            "size": "8",
+            "pivot": "last",
+            "speed": "3",
+            "pattern": "random"
+          }
+        }
+      ],
+      "initial": {
+        "results": {
+          "交换次数": 0,
+          "基准策略": "first",
+          "数组规模": 8,
+          "比较次数": 0,
+          "递归深度": 0
+        },
+        "parameters": {
+          "size": "8",
+          "pivot": "first",
+          "speed": "3",
+          "pattern": "random"
+        }
+      },
+      "controls": [
+        {
+          "name": "pivot",
+          "type": "select",
+          "value": "first"
+        },
+        {
+          "max": "5",
+          "min": "1",
+          "name": "speed",
+          "step": "",
+          "type": "range",
+          "value": "3"
+        },
+        {
+          "max": "16",
+          "min": "4",
+          "name": "size",
+          "step": "",
+          "type": "range",
+          "value": "8"
+        },
+        {
+          "name": "pattern",
+          "type": "select",
+          "value": "random"
+        }
+      ],
+      "evidence_id": "954135a8-ca6a-4fbd-bab2-e739a59e7cd6",
+      "observation_ms": 8000
+    }
+  }
+}

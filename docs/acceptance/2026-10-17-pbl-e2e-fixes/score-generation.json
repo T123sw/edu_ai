@@ -1,0 +1,164 @@
+{
+  "case": "score",
+  "topic": "用 React 做一个双人比赛记分牌。双方名称固定为“红队”和“蓝队”，分数初始都为 0。每队各有加 1 分、减 1 分按钮，分数不能低于 0；操作一队不影响另一队。另有一个“重置比赛”按钮清空双方分数。页面显示当前状态：分数相同时“平局”，否则显示“红队领先”或“蓝队领先”。我会 JSX，请按功能增量拆分步骤，先完成页面外壳再加入交互。不要计时、后端或持久化。",
+  "exerciseId": "pbl_30a7cbe3cae4183538dac3691a503e4b",
+  "generationPassed": false,
+  "job": {
+    "schema_version": 2,
+    "version": 17,
+    "edu_job_id": "pbl_30a7cbe3cae4183538dac3691a503e4b",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_score",
+    "owner": "matrix_score",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_30a7cbe3cae4183538dac3691a503e4b",
+    "input_summary": {
+      "title": "用 React 做一个双人比赛记分牌。双方名称固定为“红队”和“蓝队”，分数初始都为 0。每队各有加 1 分、减 1 分按钮，分数不能低于 0；操作一队不影响另一队。另有一个“重置比赛”按钮清空双方分数。页面显示当前状态：分数相同时“平局”，否则显示“红队领先”或“蓝队领先”。我会 JSX，请按功能增量拆分步骤，先完成页面外壳再加入交互。不要计时、后端或持久化。",
+      "topic": "用 React 做一个双人比赛记分牌。双方名称固定为“红队”和“蓝队”，分数初始都为 0。每队各有加 1 分、减 1 分按钮，分数不能低于 0；操作一队不影响另一队。另有一个“重置比赛”按钮清空双方分数。页面显示当前状态：分数相同时“平局”，否则显示“红队领先”或“蓝队领先”。我会 JSX，请按功能增量拆分步骤，先完成页面外壳再加入交互。不要计时、后端或持久化。",
+      "exercise_id": "pbl_30a7cbe3cae4183538dac3691a503e4b"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "练习生成已取消",
+    "error": "练习生成已取消",
+    "error_code": "GENERATION_CANCELLED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T07:57:49.948577+00:00",
+    "started_at": "2026-10-17T08:01:12.369499+00:00",
+    "finished_at": "2026-10-17T08:02:50.760462+00:00",
+    "updated_at": "2026-10-17T08:02:50.760462+00:00"
+  },
+  "events": [
+    {
+      "seconds": 2.39,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 204.91,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 213.1,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：搭建记分牌页面外壳"
+      ]
+    },
+    {
+      "seconds": 219.26,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：搭建记分牌页面外壳"
+      ]
+    },
+    {
+      "seconds": 225.44,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：搭建记分牌页面外壳"
+      ]
+    },
+    {
+      "seconds": 231.62,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：搭建记分牌页面外壳"
+      ]
+    },
+    {
+      "seconds": 235.74,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：搭建记分牌页面外壳"
+      ]
+    },
+    {
+      "seconds": 241.9,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：搭建记分牌页面外壳"
+      ]
+    },
+    {
+      "seconds": 256.31,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：实现加分与领先状态"
+      ]
+    },
+    {
+      "seconds": 262.48,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：实现加分与领先状态"
+      ]
+    },
+    {
+      "seconds": 264.54,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：实现加分与领先状态"
+      ]
+    },
+    {
+      "seconds": 285.12,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：实现减分与零分下限"
+      ]
+    },
+    {
+      "seconds": 291.29,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：实现减分与零分下限"
+      ]
+    },
+    {
+      "seconds": 295.39,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：实现减分与零分下限"
+      ]
+    },
+    {
+      "seconds": 303.61,
+      "state": [
+        "failed",
+        "failed",
+        "任务执行失败"
+      ]
+    }
+  ],
+  "seconds": 303.63,
+  "idempotentCreate": true
+}

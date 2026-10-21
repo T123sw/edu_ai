@@ -12,7 +12,6 @@ from urllib.parse import quote
 import anyio
 
 from app.chat.model_gateway import ChatModelGateway
-from app.integrations.openmaic import OpenMaicError
 from app.persistence.dependencies import get_postgres_material_repository
 from app.schemas.resource_qa import ResourceQaTurnRequest
 from app.services.classroom_qa_store import (
@@ -207,7 +206,7 @@ class ResourceQaService:
                 filename=filename,
                 resource_version=resource_version,
             )
-        except (OpenMaicError, OSError, ValueError, RuntimeError) as exc:
+        except (OSError, ValueError, RuntimeError) as exc:
             log.warning("resource_qa_tts_failed turn_id=%s error=%r", turn_id, exc)
             filename, mime_type, tts_status, audio_url = None, None, "failed", None
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from types import SimpleNamespace
 
 import pytest
 from fastapi import FastAPI
@@ -54,6 +55,11 @@ class FakeCourseAccessService:
 
 @pytest.fixture()
 def preflight_client(monkeypatch):
+    from core import course_storage
+    monkeypatch.setattr(course_storage, "storage_manager", SimpleNamespace(
+        get_course_info=lambda course: {"title": "数据结构"} if course == "c1" else None,
+        get_knowledge_graph=lambda course: {"root": {"id": "root", "label": "数据结构", "children": [{"id": "linked-list", "label": "链表"}]}},
+    ))
     records = [
         SourceDocumentRecord(
             course_id="c1",
@@ -242,11 +248,12 @@ def test_student_viewer_can_submit_allowed_personal_generation(
     assert captured["command"].resource_type == "report"
 
 
-def test_generation_tool_catalog_is_filtered_by_authenticated_role(
-    preflight_client,
+@pytest.mark.parametrize("role", ["student", "teacher", "admin", "user", ""])
+def test_generation_tool_catalog_is_identical_for_authenticated_accounts(
+    preflight_client, role,
 ):
     client, active_user = preflight_client
-    active_user["role"] = "student"
+    active_user["role"] = role
 
     response = client.get("/api/chat/v2/generation/tools")
 
@@ -258,6 +265,8 @@ def test_generation_tool_catalog_is_filtered_by_authenticated_role(
         "classroom",
         "flashcard",
         "game",
+        "podcast",
+        "scenario",
     ]
     assert all(
         item == {

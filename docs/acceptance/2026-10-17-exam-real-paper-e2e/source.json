@@ -1,0 +1,19 @@
+{
+  "url": "https://icourse.club/uploads/files/4c11001bd1ef0b5200ef9896c4d7792306e31713.pdf",
+  "host": "icourse.club (公开转载，非校方发布站)",
+  "title": "中国科学技术大学2017–2018学年第一学期《数据结构及其算法》A卷",
+  "paper_date": "2017-12-17",
+  "download_date": "2026-10-17",
+  "sha256": "1625baa030d4ad82048d77623cb5658364c40bdf8326632360a1e6afd5b3021a",
+  "bytes": 2262846,
+  "pages": 5,
+  "format": "image-only scanned PDF",
+  "manual_count": {
+    "choice": 14,
+    "fill_in_blank": 11,
+    "application": 5,
+    "algorithm_design": 2,
+    "top_level_total": 32
+  },
+  "manual_review": "逐页查看原始扫描图；应用题前3题各3个子题，算法设计2题各2个子题。"
+}

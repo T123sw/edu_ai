@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "runtime": {
+    "template": "vue",
+    "entry": "/src/main.js",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  },
+  "steps": [
+    {
+      "id": "step-1",
+      "checks": 4,
+      "native": 0
+    },
+    {
+      "id": "step-2",
+      "checks": 9,
+      "native": 0
+    }
+  ],
+  "runs": 7,
+  "files": [
+    "/src/main.js",
+    "/src/App.vue",
+    "/src/styles.css",
+    "/public/index.html"
+  ]
+}

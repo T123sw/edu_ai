@@ -1,0 +1,56 @@
+[
+  {
+    "sample": "old",
+    "width": 1440,
+    "initialGuidance": true,
+    "feedbackBeforePreviewBeforeButtons": true,
+    "backAndReplay": true,
+    "completedHidesPreview": true,
+    "guidedFeedback": true
+  },
+  {
+    "sample": "old",
+    "width": 390,
+    "initialGuidance": true,
+    "feedbackBeforePreviewBeforeButtons": true,
+    "backAndReplay": true,
+    "completedHidesPreview": true,
+    "guidedFeedback": true
+  },
+  {
+    "sample": "new",
+    "width": 1440,
+    "initialGuidance": true,
+    "feedbackBeforePreviewBeforeButtons": true,
+    "backAndReplay": true,
+    "completedHidesPreview": true,
+    "guidedFeedback": true
+  },
+  {
+    "sample": "new",
+    "width": 900,
+    "initialGuidance": true,
+    "feedbackBeforePreviewBeforeButtons": true,
+    "backAndReplay": true,
+    "completedHidesPreview": true,
+    "guidedFeedback": true
+  },
+  {
+    "sample": "new",
+    "width": 390,
+    "initialGuidance": true,
+    "feedbackBeforePreviewBeforeButtons": true,
+    "backAndReplay": true,
+    "completedHidesPreview": true,
+    "guidedFeedback": true
+  },
+  {
+    "sample": "new",
+    "width": 320,
+    "initialGuidance": true,
+    "feedbackBeforePreviewBeforeButtons": true,
+    "backAndReplay": true,
+    "completedHidesPreview": true,
+    "guidedFeedback": true
+  }
+]

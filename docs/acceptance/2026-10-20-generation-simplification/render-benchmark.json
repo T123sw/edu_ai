@@ -1,0 +1,20 @@
+[
+  {
+    "name": "baseline",
+    "seconds": 86.83067015511915,
+    "exit_code": 0,
+    "log": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/baseline/.host/0b9d6441f6b441f586e474f7ebaa228c.log",
+    "video": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/baseline/video/renders/sample.mp4",
+    "fps": 1,
+    "note": "1 fps diagnostic sample, not production fps; identical source and parameters except native frame scheduling"
+  },
+  {
+    "name": "interleaved",
+    "seconds": 65.42236127192155,
+    "exit_code": 0,
+    "log": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/interleaved/.host/33f9fba8f5734753bbee85da8faba30c.log",
+    "video": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/interleaved/video/renders/sample.mp4",
+    "fps": 1,
+    "note": "1 fps diagnostic sample, not production fps; identical source and parameters except native frame scheduling"
+  }
+]

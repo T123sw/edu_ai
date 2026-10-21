@@ -1,0 +1,110 @@
+[
+  {
+    "width": 1440,
+    "boxes": {
+      "main": {
+        "x": 0,
+        "right": 1374,
+        "width": 1374
+      },
+      "rail": {
+        "x": 1374,
+        "right": 1440,
+        "width": 66
+      },
+      "agent": {
+        "x": 1022,
+        "right": 1374,
+        "width": 352
+      },
+      "directory": {
+        "x": 0,
+        "right": 250,
+        "width": 250
+      },
+      "overflow": false
+    },
+    "passed": true
+  },
+  {
+    "width": 1024,
+    "boxes": {
+      "main": {
+        "x": 0,
+        "right": 958,
+        "width": 958
+      },
+      "rail": {
+        "x": 958,
+        "right": 1024,
+        "width": 66
+      },
+      "agent": {
+        "x": 658,
+        "right": 958,
+        "width": 300
+      },
+      "directory": {
+        "x": 0,
+        "right": 210,
+        "width": 210
+      },
+      "overflow": false
+    },
+    "passed": true
+  },
+  {
+    "width": 390,
+    "boxes": {
+      "main": {
+        "x": 0,
+        "right": 342,
+        "width": 342
+      },
+      "rail": {
+        "x": 342,
+        "right": 390,
+        "width": 48
+      },
+      "agent": {
+        "x": 0,
+        "right": 0,
+        "width": 0
+      },
+      "directory": {
+        "x": 0,
+        "right": 0,
+        "width": 0
+      },
+      "overflow": false
+    },
+    "passed": true
+  },
+  {
+    "width": 320,
+    "boxes": {
+      "main": {
+        "x": 0,
+        "right": 272,
+        "width": 272
+      },
+      "rail": {
+        "x": 272,
+        "right": 320,
+        "width": 48
+      },
+      "agent": {
+        "x": 0,
+        "right": 0,
+        "width": 0
+      },
+      "directory": {
+        "x": 0,
+        "right": 0,
+        "width": 0
+      },
+      "overflow": false
+    },
+    "passed": true
+  }
+]

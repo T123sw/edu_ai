@@ -1,0 +1,72 @@
+[
+  {
+    "node": "n1-why-transformer",
+    "status": "draft",
+    "render_started": true,
+    "start": 1792411696.9742985,
+    "workers": 4,
+    "progress": {
+      "code": "assemble",
+      "done": 286.6,
+      "total": 286.6,
+      "pct": 99
+    },
+    "tail": "ndered in 6m 43.4s\n   screenshot capture · software gpu · compile 1.4s · extract 0.0s · audio 11.8s · probe 0.3s · setup 0.0s · capture 5m 2.6s · encode 1m 23.2s · assemble 3.2s\n   Keep editing by chatting with Framey in the HyperFrames desktop app → https://hyperframes.dev/studio/download?os=linux\n"
+  },
+  {
+    "node": "n2-self-attention",
+    "status": "draft",
+    "render_started": true,
+    "start": 1792411757.024345,
+    "workers": 4,
+    "progress": {
+      "code": "assemble",
+      "done": 292,
+      "total": 292,
+      "pct": 99
+    },
+    "tail": "ered in 6m 33.4s\n   screenshot capture · software gpu · compile 1.9s · extract 0.0s · audio 12.3s · probe 0.4s · setup 0.1s · capture 4m 37.3s · encode 1m 24.9s · assemble 15.8s\n   Keep editing by chatting with Framey in the HyperFrames desktop app → https://hyperframes.dev/studio/download?os=linux\n"
+  },
+  {
+    "node": "n3-multihead",
+    "status": "draft",
+    "render_started": true,
+    "start": 1792411652.9473834,
+    "workers": 2,
+    "progress": {
+      "code": "assemble",
+      "done": 72.144,
+      "total": 72.144,
+      "pct": 99
+    },
+    "tail": " rendered in 2m 57.9s\n   screenshot capture · software gpu · compile 1.2s · extract 0.0s · audio 3.5s · probe 0.3s · setup 0.0s · capture 2m 23.9s · encode 24.4s · assemble 4.3s\n   Keep editing by chatting with Framey in the HyperFrames desktop app → https://hyperframes.dev/studio/download?os=linux\n"
+  },
+  {
+    "node": "n4-position-ffn-norm",
+    "status": "draft",
+    "render_started": true,
+    "start": 1792411831.7414315,
+    "workers": 2,
+    "progress": {
+      "code": "assemble",
+      "done": 100.272,
+      "total": 100.272,
+      "pct": 99
+    },
+    "tail": "· rendered in 4m 3.2s\n   screenshot capture · software gpu · compile 1.9s · extract 0.0s · audio 5.3s · probe 0.4s · setup 0.0s · capture 3m 11.2s · encode 37.2s · assemble 6.8s\n   Keep editing by chatting with Framey in the HyperFrames desktop app → https://hyperframes.dev/studio/download?os=linux\n"
+  },
+  {
+    "node": "n5-encoder-decoder",
+    "status": "running",
+    "render_started": true,
+    "start": 1792412757.725284,
+    "workers": 4,
+    "progress": {
+      "code": "assemble",
+      "done": 0,
+      "total": 300.93,
+      "pct": 90
+    },
+    "tail": null
+  }
+]

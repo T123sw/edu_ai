@@ -1,0 +1,224 @@
+{
+  "content": "Sorting exam. Section I: ten single-choice questions.\n\n1. Which statement about quicksort partition is true? A. All items become sorted. B. Items are grouped relative to a pivot. C. Every split is equal. D. The pivot must be the smallest item.\n\n2. Why is standard merge sort stable? A. It never compares keys. B. It uses a heap. C. Ties can be taken from the left half first. D. It uses random pivots.\n\n3. What does removing the maximum from a max-heap require? A. Remove any leaf. B. Reverse the whole heap. C. Sort all leaves. D. Replace the root by the last item and sift down.\n\n4. What does one complete left-to-right bubble-sort pass ensure? A. The smallest is last. B. Everything is sorted. C. The largest unsorted item reaches the right end. D. No swaps occur.\n\n5. Which input usually favors insertion sort? A. Nearly sorted input. B. Only reversed input. C. Only random input. D. Only all-distinct keys.\n\n6. What does selection sort do at each position? A. Pick a random pivot. B. Merge two halves. C. Build a frequency array. D. Select the minimum remaining item.\n\n7. What makes counting sort useful? A. Arbitrary real keys. B. A small bounded integer key range. C. No access to keys. D. Only linked lists.\n\n8. What does LSD radix sort need from each digit-sorting pass? A. Instability. B. Randomness. C. Stability. D. Recursion.\n\n9. What does stability mean in sorting records by key? A. Equal-key records keep their relative order. B. Values never move. C. Keys cannot repeat. D. The algorithm uses constant memory.\n\n10. What does an in-place sorting algorithm primarily minimize? A. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates.\n\nSection II: five fill-in-the-blank questions.\n\n11. The worst-case running time of standard merge sort is\n\n12. The worst case of quicksort with repeatedly unbalanced partitions is\n\n13. Bottom-up heap construction on n items takes time.\n\n14. Sorting n keys from a range of k integers with counting sort takes \\_\\_\\_\\_ time.\n\n15. Any comparison sort requires at least \\_\\_\\_\\_ comparisons in the worst case.",
+  "parser": "mineru-local",
+  "source_hash": "5d426c77d4badc4b81e6155c10ff9268ba6706c6d2595a827e6ba1584733117c",
+  "units": [
+    {
+      "offset_chars": 0,
+      "content": "Sorting exam. Section I: ten single-choice questions.\n\n1. Which statement about quicksort partition is true? A. All items become sorted. B. Items are grouped relative to a pivot. C. Every split is equal. D. The pivot must be the smallest item.\n\n2. Why is standard merge sort stable? A. It never compares keys. B. It uses a heap. C. Ties can be taken from the left half first. D. It uses random pivots.\n\n3. What does removing the maximum from a max-heap require? A. Remove any leaf. B. Reverse the whole heap. C. Sort all leaves. D. Replace the root by the last item and sift down.\n\n4. What does one complete left-to-right bubble-sort pass ensure? A. The smallest is last. B. Everything is sorted. C. The largest unsorted item reaches the right end. D. No swaps occur.\n\n5. Which input usually favors insertion sort? A. Nearly sorted input. B. Only reversed input. C. Only random input. D. Only all-distinct keys.\n\n6. What does selection sort do at each position? A. Pick a random pivot. B. Merge two halves. C. Build a frequency array. D. Select the minimum remaining item.\n\n7. What makes counting sort useful? A. Arbitrary real keys. B. A small bounded integer key range. C. No access to keys. D. Only linked lists.\n\n8. What does LSD radix sort need from each digit-sorting pass? A. Instability. B. Randomness. C. Stability. D. Recursion.\n\n9. What does stability mean in sorting records by key? A. Equal-key records keep their relative order. B. Values never move. C. Keys cannot repeat. D. The algorithm uses constant memory.\n\n10. What does an in-place sorting algorithm primarily minimize? A. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates.\n\nSection II: five fill-in-the-blank questions.\n\n11. The worst-case running time of standard merge sort is\n\n12. The worst case of quicksort with repeatedly unbalanced partitions is\n\n13. Bottom-up heap construction on n items takes time.\n\n14. Sorting n keys from a range of k integers with counting sort takes \\_\\_\\_\\_ time.\n\n15. Any comparison sort requires at least \\_\\_\\_\\_ comparisons in the worst case."
+    }
+  ],
+  "defects": [],
+  "assets": [],
+  "layout": [
+    {
+      "type": "text",
+      "bbox": [
+        0.048,
+        0.039,
+        0.442,
+        0.053
+      ],
+      "content": "Sorting exam. Section I: ten single-choice questions.",
+      "page_idx": 0,
+      "text": "Sorting exam. Section I: ten single-choice questions."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.046,
+        0.068,
+        0.554,
+        0.139
+      ],
+      "content": "1. Which statement about quicksort partition is true? A. All items become sorted. B. Items are grouped relative to a pivot. C. Every split is equal. D. The pivot must be the smallest item.",
+      "page_idx": 0,
+      "text": "1. Which statement about quicksort partition is true? A. All items become sorted. B. Items are grouped relative to a pivot. C. Every split is equal. D. The pivot must be the smallest item."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.046,
+        0.153,
+        0.558,
+        0.224
+      ],
+      "content": "2. Why is standard merge sort stable? A. It never compares keys. B. It uses a heap. C. Ties can be taken from the left half first. D. It uses random pivots.",
+      "page_idx": 0,
+      "text": "2. Why is standard merge sort stable? A. It never compares keys. B. It uses a heap. C. Ties can be taken from the left half first. D. It uses random pivots."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.046,
+        0.239,
+        0.559,
+        0.309
+      ],
+      "content": "3. What does removing the maximum from a max-heap require? A. Remove any leaf. B. Reverse the whole heap. C. Sort all leaves. D. Replace the root by the last item and sift down.",
+      "page_idx": 0,
+      "text": "3. What does removing the maximum from a max-heap require? A. Remove any leaf. B. Reverse the whole heap. C. Sort all leaves. D. Replace the root by the last item and sift down."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.046,
+        0.324,
+        0.581,
+        0.395
+      ],
+      "content": "4. What does one complete left-to-right bubble-sort pass ensure? A. The smallest is last. B. Everything is sorted. C. The largest unsorted item reaches the right end. D. No swaps occur.",
+      "page_idx": 0,
+      "text": "4. What does one complete left-to-right bubble-sort pass ensure? A. The smallest is last. B. Everything is sorted. C. The largest unsorted item reaches the right end. D. No swaps occur."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.047,
+        0.41,
+        0.4,
+        0.481
+      ],
+      "content": "5. Which input usually favors insertion sort? A. Nearly sorted input. B. Only reversed input. C. Only random input. D. Only all-distinct keys.",
+      "page_idx": 0,
+      "text": "5. Which input usually favors insertion sort? A. Nearly sorted input. B. Only reversed input. C. Only random input. D. Only all-distinct keys."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.046,
+        0.496,
+        0.544,
+        0.566
+      ],
+      "content": "6. What does selection sort do at each position? A. Pick a random pivot. B. Merge two halves. C. Build a frequency array. D. Select the minimum remaining item.",
+      "page_idx": 0,
+      "text": "6. What does selection sort do at each position? A. Pick a random pivot. B. Merge two halves. C. Build a frequency array. D. Select the minimum remaining item."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.047,
+        0.581,
+        0.502,
+        0.652
+      ],
+      "content": "7. What makes counting sort useful? A. Arbitrary real keys. B. A small bounded integer key range. C. No access to keys. D. Only linked lists.",
+      "page_idx": 0,
+      "text": "7. What makes counting sort useful? A. Arbitrary real keys. B. A small bounded integer key range. C. No access to keys. D. Only linked lists."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.047,
+        0.666,
+        0.524,
+        0.708
+      ],
+      "content": "8. What does LSD radix sort need from each digit-sorting pass? A. Instability. B. Randomness. C. Stability. D. Recursion.",
+      "page_idx": 0,
+      "text": "8. What does LSD radix sort need from each digit-sorting pass? A. Instability. B. Randomness. C. Stability. D. Recursion."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.047,
+        0.723,
+        0.567,
+        0.794
+      ],
+      "content": "9. What does stability mean in sorting records by key? A. Equal-key records keep their relative order. B. Values never move. C. Keys cannot repeat. D. The algorithm uses constant memory.",
+      "page_idx": 0,
+      "text": "9. What does stability mean in sorting records by key? A. Equal-key records keep their relative order. B. Values never move. C. Keys cannot repeat. D. The algorithm uses constant memory."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.047,
+        0.809,
+        0.605,
+        0.851
+      ],
+      "content": "10. What does an in-place sorting algorithm primarily minimize? A. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates.",
+      "page_idx": 0,
+      "text": "10. What does an in-place sorting algorithm primarily minimize? A. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.048,
+        0.866,
+        0.352,
+        0.878
+      ],
+      "content": "Section II: five fill-in-the-blank questions.",
+      "page_idx": 0,
+      "text": "Section II: five fill-in-the-blank questions."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.047,
+        0.039,
+        0.531,
+        0.054
+      ],
+      "content": "11. The worst-case running time of standard merge sort is",
+      "page_idx": 2,
+      "text": "11. The worst-case running time of standard merge sort is"
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.047,
+        0.068,
+        0.631,
+        0.082
+      ],
+      "content": "12. The worst case of quicksort with repeatedly unbalanced partitions is",
+      "page_idx": 2,
+      "text": "12. The worst case of quicksort with repeatedly unbalanced partitions is"
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.047,
+        0.096,
+        0.507,
+        0.11
+      ],
+      "content": "13. Bottom-up heap construction on n items takes time.",
+      "page_idx": 2,
+      "text": "13. Bottom-up heap construction on n items takes time."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.047,
+        0.124,
+        0.647,
+        0.139
+      ],
+      "content": "14. Sorting n keys from a range of k integers with counting sort takes \\_\\_\\_\\_ time.",
+      "page_idx": 2,
+      "text": "14. Sorting n keys from a range of k integers with counting sort takes \\_\\_\\_\\_ time."
+    },
+    {
+      "type": "text",
+      "bbox": [
+        0.047,
+        0.153,
+        0.636,
+        0.168
+      ],
+      "content": "15. Any comparison sort requires at least \\_\\_\\_\\_ comparisons in the worst case.",
+      "page_idx": 2,
+      "text": "15. Any comparison sort requires at least \\_\\_\\_\\_ comparisons in the worst case."
+    }
+  ],
+  "remote_task": {
+    "provider": "mineru-local",
+    "task_id": "job_fbae2c23a7981af2fe125172"
+  },
+  "parser_revision": "mineru-local-v2"
+}

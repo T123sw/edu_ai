@@ -1,0 +1,372 @@
+{
+  "title": "位置编码：并行结构如何知道词序",
+  "content": "# 位置编码：并行结构如何知道词序\n\n<a id=\"shuffle-demo\"></a>\n## 先看一个现象：打乱词序，自注意力结果几乎不变\n\n先不急着讲定义，我们用一个具体的小例子把问题摆出来。\n\n假设输入序列只有三个词，每个词的词向量维度是 2（真实模型里是 512，这里为了手算方便缩小）：\n\n| 位置 | 词 | 词向量 |\n| --- | --- | --- |\n| 1 | 我 | (1, 0) |\n| 2 | 爱 | (0, 1) |\n| 3 | 你 | (1, 1) |\n\n自注意力先做三组线性映射得到 Q、K、V。为了看清“位置”这件事，我们干脆取最简的映射：Q = K = V = 输入本身（即三个投影矩阵都是单位矩阵）。于是：\n\n- Q = K = V = {(1,0), (0,1), (1,1)}\n\n现在算位置 1（“我”）的输出。它作为 query 与三个 key 做点积打分：\n\n- 与位置 1 的 key (1,0)：1×1 + 0×0 = 1\n- 与位置 2 的 key (0,1)：1×0 + 0×1 = 0\n- 与位置 3 的 key (1,1)：1×1 + 0×1 = 1\n\n打分向量是 (1, 0, 1)。缩放因子 √d_k = √2 ≈ 1.414，缩放后约为 (0.707, 0, 0.707)。做 softmax（按行归一化）：\n\n- e^0.707 ≈ 2.028，e^0 ≈ 1，e^0.707 ≈ 2.028，总和 ≈ 5.056\n- 权重 ≈ (0.401, 0.198, 0.401)\n\n输出 = 0.401×(1,0) + 0.198×(0,1) + 0.401×(1,1) ≈ (0.802, 0.599)。\n\n现在把词序打乱成“你 爱 我”，即输入变成 {(1,1), (0,1), (1,0)}。重新算“我”这个 query（它现在位于位置 3）的输出：\n\n- 与 (1,1) 点积 = 1；与 (0,1) 点积 = 0；与 (1,0) 点积 = 1\n\n打分向量还是 (1, 0, 1)，softmax 权重还是 (0.401, 0.198, 0.401)，输出还是 0.401×(1,1) + 0.198×(0,1) + 0.401×(1,0) ≈ (0.802, 0.599)。\n\n**结果一模一样。** 也就是说：只要每个词自己的向量不变，无论它排在第几位，自注意力给它的输出都不变。模型看到“我 爱 你”和“你 爱 我”，在自注意力这一层里得到的是同一组输出向量，只是顺序跟着输入一起被重排了。\n\n这就是本节的起点：**自注意力对位置是“无感”的**。\n\n<a id=\"why-position\"></a>\n## 为什么自注意力会忽略位置：权重只取决于 Q 与 K 的相关性\n\n回到上一节点学过的公式：\n\n$$\\text{Attention}(Q,K,V)=\\text{softmax}\\left(\\frac{QK^{T}}{\\sqrt{d_k}}\\right)V$$\n\n拆开看，位置信息有没有可能“漏”进来：\n\n1. **打分环节**：第 i 个输出对第 j 个输入的权重，来自 q_i 与 k_j 的点积。点积只衡量两个向量的内容相似度，与 i、j 这两个下标本身无关。把第 j 个词挪到别的位置，只要它的 k_j 不变，打分就不变。\n2. **聚合环节**：输出是 V 的加权求和，权重由上面的打分决定。求和本身是对集合做的操作，不区分“谁在前谁在后”。\n3. **没有别的通道**：自注意力层里没有循环结构（不像 RNN 会把上一步的隐状态带进来），也没有卷积核的局部窗口，因此没有任何机制能告诉模型“这两个词相隔几步”。\n\n所以，正如资料所述：自注意力模型的权重只依赖于 Q 和 K 的相关性，忽略了输入信息的位置信息，因此单独使用时一般需要加入位置编码信息进行修正，Transformer 中就是这么做的。\n\n这里要强调“修正”二字：位置编码不是给自注意力换一套算法，而是在**输入端**把位置信息混进每个时间步的特征里，让后续的 Q、K、V 天然带上位置痕迹。一旦词向量里含有位置成分，q_i 与 k_j 的点积就会间接依赖 i 和 j，权重也就随位置变化了。\n\n<a id=\"parallel-vs-rnn\"></a>\n## 并行输入带来的第二个理由：没有 RNN 的天然顺序\n\n上面是从“注意力公式本身”推出的结论。还有一条更直观的理由，来自 Transformer 的整体设计。\n\nRNN 是逐步读入的：第 t 步的隐状态由第 t−1 步的隐状态和第 t 个输入共同决定。这个递推结构本身就编码了顺序——先读到的词先影响隐状态，后读到的词后影响，模型不需要额外告诉它“谁在前”。\n\nTransformer 不是这样。它把整个序列的所有时间步**同时**送进网络，一次并行推理，各时间步之间没有先后依赖。这带来了训练和推理上的并行优势，代价是：**顺序信息在结构上被彻底抹掉了**。输入只是一个向量的集合，模型无从知道哪个向量是第一个词。\n\n因此，位置编码的作用可以概括为一句话：**为模型提供当前时间步前后出现顺序的信息**。因为 Transformer 不像 RNN 那样有前后不同时间步输入间天然的先后顺序，所有时间步同时输入、并行推理，所以在时间步的特征中融合进位置编码的信息是合理的。\n\n两条理由合起来看：\n\n| 视角 | 问题 | 位置编码怎么解决 |\n| --- | --- | --- |\n| 注意力公式 | 权重只依赖 Q、K 相关性，与下标无关 | 让输入特征本身带位置成分，使 Q、K 间接依赖位置 |\n| 整体结构 | 所有时间步并行输入，无递推顺序 | 在输入端显式注入“第几步”的信息 |\n\n<a id=\"how-to-add\"></a>\n## 加在哪一步、怎么加：逐元素相加，形状不变\n\n位置编码的接入点非常靠前：在 Embedding 之后、第一个编码器层之前。\n\n设第 i 个词的词嵌入向量为 $x_i$（维度 $d_{\\text{model}}$），第 i 个位置的位置编码向量为 $p_i$（同样是 $d_{\\text{model}}$ 维），则送入编码器栈第一个 EncoderLayer 的输入是：\n\n$$z_i = x_i + p_i$$\n\n也就是**逐元素相加**。资料中的表述是：编码器栈第一个 EncoderLayer 的输入是单词的 Embedding 加上位置编码，即 Input Embedding 和 Positional Encoding 相加之后的结果。\n\n用一个小例子把“形状不变”看清楚。设 $d_{\\text{model}} = 4$：\n\n- 词“爱”的嵌入：x = (0.2, −0.5, 0.8, 0.1)\n- 它位于第 2 个位置，位置编码：p = (0.0, 1.0, 0.0, 1.0)\n- 相加后：z = (0.2, 0.5, 0.8, 1.1)\n\n维度仍是 4，形状完全不变。这一点很关键：\n\n- 后续所有层（多头自注意力、前馈网络、残差连接、层归一化）的输入输出维度都按 $d_{\\text{model}}$ 设计，相加不改变维度，因此不需要改动网络任何其他部分。\n- 相加而不是拼接，是为了不增加参数量和维度；代价是位置信息与词义信息混在同一个向量里，模型需要自己学会区分。\n- 编码器和解码器的输入端都要做同样的相加（解码器输入的是已生成目标序列的嵌入）。\n\n一个常见的误解是“位置编码只在编码器加”。实际上编码器和解码器两部分都包含输入，且两部分输入的结构相同，只是推理时用法不同：编码器只推理一次，解码器则类似 RNN 那样循环推理、不断生成预测结果。两边的输入都需要位置信息。\n\n<a id=\"fixed-vs-learnable\"></a>\n## 固定编码与可学习编码：论文用的是哪一种\n\n位置编码可以有很多选择，可以是固定的，也可以设置成可学习的参数。这是两条不同的技术路线：\n\n**可学习位置编码**：把每个位置 i 对应一个可训练向量 $p_i$ 当作模型参数，和词嵌入一起通过梯度下降更新。优点是灵活，模型可以自己决定每个位置该长什么样；缺点是位置向量的数量受最大序列长度限制，超出训练时见过的长度就没有对应的参数可用。\n\n**固定位置编码**：用公式直接算出每个位置、每一维的取值，不设可训练参数。Transformer 论文中使用的就是固定（正弦/余弦）位置编码，它不参与训练。资料明确指出：Transformer 里的位置编码是没有梯度的，不参与训练，每个位置上的值是固定的。\n\n论文的固定编码按下面的方式预定义（$pos$ 为位置，$i$ 为维度下标，$d_{\\text{model}}$ 为编码向量维度）：\n\n$$PE_{(pos,\\,2i)}=\\sin\\left(\\frac{pos}{10000^{2i/d_{\\text{model}}}}\\right),\\qquad PE_{(pos,\\,2i+1)}=\\cos\\left(\\frac{pos}{10000^{2i/d_{\\text{model}}}}\\right)$$\n\n即偶数维用正弦、奇数维用余弦，不同维度对应不同频率。这里不必背公式，抓住三点即可：\n\n1. **每个位置得到一条独一无二的“波形指纹”**，不同位置的编码向量不同，模型因此能区分位置。\n2. **完全由公式决定，没有梯度**，训练过程中不会被修改，也不需要额外的参数存储。\n3. **不依赖最大长度**，任意位置都能按公式算出编码，这是固定方案相对可学习方案的一个实际好处。\n\n课堂互动：请先自己判断一下——“位置编码是训练出来的参数吗？”如果你的答案是“是”，那对应的是可学习方案；而在 Transformer 论文里，答案是“不是”，用的是固定正弦/余弦编码。两种方案各有取舍：可学习更灵活但受长度限制，固定更省参数、可外推到更长序列，但形式被公式锁死。\n\n<a id=\"self-check\"></a>\n## 自检：三个问题\n\n1. **为什么去掉位置编码后 Transformer 无法区分语序？**\n   因为自注意力的权重只由 q 与 k 的点积决定，与位置下标无关；输出是 V 的加权和，对集合操作，不区分先后。同时所有时间步并行输入，没有 RNN 的递推顺序。于是“我 爱 你”和“你 爱 我”在自注意力层得到的是同一组输出向量，只是顺序被重排，模型无法据此判断语序。\n\n2. **位置编码加在哪一步、与词向量如何结合？**\n   加在 Embedding 之后、第一个编码器层（解码器同理）之前，与词嵌入向量**逐元素相加**：$z_i = x_i + p_i$。相加后维度仍为 $d_{\\text{model}}$，形状不变，因此不影响后续各层的结构。\n\n3. **论文中的位置编码是训练出来的吗？**\n   不是。论文使用固定的正弦/余弦位置编码，由公式预定义，没有梯度、不参与训练，每个位置上的值是固定的。可学习位置编码是另一种可选方案，但并非论文采用的做法。\n\n<a id=\"boundaries\"></a>\n## 本节边界\n\n本节只讲位置编码“为什么需要、加在哪、固定与可学习的区别”，不展开 RoPE、ALiBi 等后续变体，也不涉及代码实现。若想进一步验证“打乱词序结果相近”，可以自己用上面的三词例子换一组词向量再算一遍，观察输出是否随位置改变。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 8.5
+      },
+      "sections": [
+        {
+          "section_id": "shuffle-demo",
+          "content_sha256": "f16b9642fc8102e94b5378fca0e04c5af3973194687f5a4722804ca4db8eabc2"
+        },
+        {
+          "section_id": "why-position",
+          "content_sha256": "629918d52abe8a07e3b5d68614c890582ee95fa52d10612b867fa3762b6f8901"
+        },
+        {
+          "section_id": "parallel-vs-rnn",
+          "content_sha256": "ce1ced38838487504e4de48b2ebf20245813213423e60e174b275a5d8eda876d"
+        },
+        {
+          "section_id": "how-to-add",
+          "content_sha256": "c1c2661a8e068c561ffde35c81bbd3470b385fcb320960d795f875a8043233ff"
+        },
+        {
+          "section_id": "fixed-vs-learnable",
+          "content_sha256": "6cee08dad9c08917471effbf022b642ba042607aa5e0d0e1c263007f2427aedc"
+        },
+        {
+          "section_id": "self-check",
+          "content_sha256": "cd330540fea1948e3bf2e0d24d1ae7271f44c39f13aafdafd4e9f648d9dfec6d"
+        },
+        {
+          "section_id": "boundaries",
+          "content_sha256": "9d5447c556128e20180f237df01356a5cb158a5b516070490457f72e393b0ade"
+        }
+      ],
+      "spec_digest": "2e5ddd4c8fc7eb62ef8d1ad39b4769feb7330b12511372d3575f75cbc4345fe2",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "objective_id": "n3-positional-encoding:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "parallel-vs-rnn"
+          },
+          "objective_id": "n3-positional-encoding:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "fixed-vs-learnable"
+          },
+          "objective_id": "n3-positional-encoding:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n3-positional-encoding:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n3-positional-encoding:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n3-positional-encoding:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "why-position"
+          },
+          "explanation": "本节从自注意力只依赖 Q 与 K 相关性出发，说明为何必须加入位置编码，落实整课要求中“位置编码”这一核心机制的讲授。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "how-to-add"
+          },
+          "explanation": "本节给出位置编码与词向量逐元素相加的具体做法与形状不变的图示说明，落实位置编码在 Transformer 结构中的接入方式。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "fixed-vs-learnable"
+          },
+          "explanation": "本节区分固定正弦/余弦编码与可学习编码，并指出论文采用固定编码、不参与训练，落实位置编码机制的原理讲授。",
+          "requirement_id": "req-transformer-learning"
+        }
+      ],
+      "teaching_context_digest": "5783d61cd4163272790e0e658c7147c820e1c201b8c070348084db01eec681bb"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文覆盖本节点分工 req-transformer-learning 中的位置编码部分：why-position 节解释自注意力只依赖 Q/K 相关性故需位置编码修正，how-to-add 节给出 Embedding 与位置编码逐元素相加，fixed-vs-learnable 节区分固定与可学习编码并指出论文用固定正弦/余弦、不参与训练；未越界讲授其他节点内容。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "shuffle-demo 节手算可复核：q=(1,0) 与三个 key 点积为 (1,0,1)，除以 √2 后 softmax 得约 (0.401,0.198,0.401)，输出约 (0.802,0.599)；打乱后 query 仍为 (1,0)、key 集合不变，输出相同，结论“自注意力对位置无感”成立。fixed-vs-learnable 节正弦/余弦公式与论文一致，并正确说明无梯度、不参与训练。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "shuffle-demo 用三词二维向量完整演示打乱前后结果一致，how-to-add 用 d_model=4 的 x=(0.2,−0.5,0.8,0.1) 与 p=(0.0,1.0,0.0,1.0) 相加得 (0.2,0.5,0.8,1.1)，算术正确且直观说明形状不变；例子均在合法输入域内，无边界错误。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为现象演示(shuffle-demo)→公式原因(why-position)→并行结构原因(parallel-vs-rnn)→接入方式(how-to-add)→固定与可学习(fixed-vs-learnable)→自检，与 learning_activities 中“先演示打乱词序现象再引入位置编码”的顺序一致，课堂互动问题也落在 fixed-vs-learnable 节内。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文关键主张（权重只依赖 Q/K 相关性需位置编码修正、Embedding 加位置编码、位置编码无梯度不参与训练、编码器解码器输入结构相同）均可对应 evidence 中 kangshitao 博客、AI-System 教材与 cnblogs 原文；未虚构外部引用，仅引用所提供依据。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三个目标均有解释与自检对应：o1 在 why-position 与 self-check 第 1 问，o2 在 parallel-vs-rnn 与第 2 问，o3 在 fixed-vs-learnable 与第 3 问；boundaries 节明确不展开 RoPE/ALiBi 与代码，与 limitations 一致，中文入门深度符合要求。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文覆盖本节点分工 req-transformer-learning 中的位置编码部分：why-position 节解释自注意力只依赖 Q/K 相关性故需位置编码修正，how-to-add 节给出 Embedding 与位置编码逐元素相加，fixed-vs-learnable 节区分固定与可学习编码并指出论文用固定正弦/余弦、不参与训练；未越界讲授其他节点内容。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "shuffle-demo 节手算可复核：q=(1,0) 与三个 key 点积为 (1,0,1)，除以 √2 后 softmax 得约 (0.401,0.198,0.401)，输出约 (0.802,0.599)；打乱后 query 仍为 (1,0)、key 集合不变，输出相同，结论“自注意力对位置无感”成立。fixed-vs-learnable 节正弦/余弦公式与论文一致，并正确说明无梯度、不参与训练。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "shuffle-demo 用三词二维向量完整演示打乱前后结果一致，how-to-add 用 d_model=4 的 x=(0.2,−0.5,0.8,0.1) 与 p=(0.0,1.0,0.0,1.0) 相加得 (0.2,0.5,0.8,1.1)，算术正确且直观说明形状不变；例子均在合法输入域内，无边界错误。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为现象演示(shuffle-demo)→公式原因(why-position)→并行结构原因(parallel-vs-rnn)→接入方式(how-to-add)→固定与可学习(fixed-vs-learnable)→自检，与 learning_activities 中“先演示打乱词序现象再引入位置编码”的顺序一致，课堂互动问题也落在 fixed-vs-learnable 节内。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文关键主张（权重只依赖 Q/K 相关性需位置编码修正、Embedding 加位置编码、位置编码无梯度不参与训练、编码器解码器输入结构相同）均可对应 evidence 中 kangshitao 博客、AI-System 教材与 cnblogs 原文；未虚构外部引用，仅引用所提供依据。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个目标均有解释与自检对应：o1 在 why-position 与 self-check 第 1 问，o2 在 parallel-vs-rnn 与第 2 问，o3 在 fixed-vs-learnable 与第 3 问；boundaries 节明确不展开 RoPE/ALiBi 与代码，与 limitations 一致，中文入门深度符合要求。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "shuffle-demo 节可补一句说明：真实模型中 Q、K、V 由不同投影矩阵得到，本例取单位矩阵只为手算方便，避免初学者误以为自注意力恒等映射。",
+              "fixed-vs-learnable 节提到固定编码“可外推到更长序列”，可顺带说明这是相对可学习编码的实践优势而非论文明确论证，措辞可更谨慎。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "why-position 节从打分、聚合、无循环/卷积通道三点论证自注意力权重只依赖 Q 与 K 相关性，并明确“单独使用时需加入位置编码修正”，真实支持该需求贡献。",
+                "locator": {
+                  "section_id": "why-position"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "how-to-add 节给出 z_i = x_i + p_i 的逐元素相加、d_model=4 数值示例与形状不变说明，并指出编码器与解码器输入端都需相加，落实接入方式。",
+                "locator": {
+                  "section_id": "how-to-add"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "fixed-vs-learnable 节分别说明可学习编码的灵活性与长度限制、固定编码的公式与无梯度特性，并明确论文采用固定正弦/余弦编码、不参与训练。",
+                "locator": {
+                  "section_id": "fixed-vs-learnable"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-position 节以公式拆解说明权重与下标无关，直接解释目标 o1 的“只依赖 Q 与 K 相关性、忽略位置信息、需位置编码修正”。",
+                "locator": {
+                  "section_id": "why-position"
+                },
+                "binding_id": "n3-positional-encoding:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "parallel-vs-rnn 节对比 RNN 递推与 Transformer 同时输入并行推理，明确位置编码作用为提供时间步前后顺序信息，支持目标 o2。",
+                "locator": {
+                  "section_id": "parallel-vs-rnn"
+                },
+                "binding_id": "n3-positional-encoding:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "fixed-vs-learnable 节区分两条技术路线并指出论文用固定正弦/余弦编码、无梯度不参与训练，支持目标 o3。",
+                "locator": {
+                  "section_id": "fixed-vs-learnable"
+                },
+                "binding_id": "n3-positional-encoding:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 1 问要求解释去掉位置编码后无法区分语序，答案结合点积与集合加权求和及并行输入，构成对 o1 的有效检查。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n3-positional-encoding:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 2 问要求回答位置编码加在哪一步、如何与词向量结合，答案给出 Embedding 之后逐元素相加与维度不变，检查 o2 相关理解。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n3-positional-encoding:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 3 问要求判断论文位置编码是否训练得到，答案明确为固定正弦/余弦、不参与训练，构成对 o3 的有效检查。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n3-positional-encoding:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "c92192d26d1dc6c461e90cbb6e8f8e0ea0f49d6d7ab262841841608e33a97781",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "shuffle-demo 节可补一句说明：真实模型中 Q、K、V 由不同投影矩阵得到，本例取单位矩阵只为手算方便，避免初学者误以为自注意力恒等映射。",
+        "fixed-vs-learnable 节提到固定编码“可外推到更长序列”，可顺带说明这是相对可学习编码的实践优势而非论文明确论证，措辞可更谨慎。"
+      ],
+      "content_sha256": "c92192d26d1dc6c461e90cbb6e8f8e0ea0f49d6d7ab262841841608e33a97781",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "why-position 节从打分、聚合、无循环/卷积通道三点论证自注意力权重只依赖 Q 与 K 相关性，并明确“单独使用时需加入位置编码修正”，真实支持该需求贡献。",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "how-to-add 节给出 z_i = x_i + p_i 的逐元素相加、d_model=4 数值示例与形状不变说明，并指出编码器与解码器输入端都需相加，落实接入方式。",
+          "locator": {
+            "section_id": "how-to-add"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "fixed-vs-learnable 节分别说明可学习编码的灵活性与长度限制、固定编码的公式与无梯度特性，并明确论文采用固定正弦/余弦编码、不参与训练。",
+          "locator": {
+            "section_id": "fixed-vs-learnable"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-position 节以公式拆解说明权重与下标无关，直接解释目标 o1 的“只依赖 Q 与 K 相关性、忽略位置信息、需位置编码修正”。",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "binding_id": "n3-positional-encoding:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "parallel-vs-rnn 节对比 RNN 递推与 Transformer 同时输入并行推理，明确位置编码作用为提供时间步前后顺序信息，支持目标 o2。",
+          "locator": {
+            "section_id": "parallel-vs-rnn"
+          },
+          "binding_id": "n3-positional-encoding:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "fixed-vs-learnable 节区分两条技术路线并指出论文用固定正弦/余弦编码、无梯度不参与训练，支持目标 o3。",
+          "locator": {
+            "section_id": "fixed-vs-learnable"
+          },
+          "binding_id": "n3-positional-encoding:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 1 问要求解释去掉位置编码后无法区分语序，答案结合点积与集合加权求和及并行输入，构成对 o1 的有效检查。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n3-positional-encoding:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 2 问要求回答位置编码加在哪一步、如何与词向量结合，答案给出 Embedding 之后逐元素相加与维度不变，检查 o2 相关理解。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n3-positional-encoding:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 3 问要求判断论文位置编码是否训练得到，答案明确为固定正弦/余弦、不参与训练，构成对 o3 的有效检查。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n3-positional-encoding:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "43ff74e5603b5c5cb17d21da6b60c6ed6c65a3ab608b8e80aceb3c72a5d3d8fc"
+    }
+  }
+}

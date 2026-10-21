@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "title": "逐步实现计算器",
+  "goal": "亲手实现具有数字输入、四则运算和除零恢复的网页计算器",
+  "runtimeKind": "react_app",
+  "editableFiles": [
+    "/src/App.jsx",
+    "/src/styles.css"
+  ],
+  "requirements": [
+    {
+      "id": "layout",
+      "description": "显示区和数字、四则运算、等号、清空按钮齐全且可交互"
+    },
+    {
+      "id": "input",
+      "description": "可输入多位数字、小数并清空"
+    },
+    {
+      "id": "arithmetic",
+      "description": "完成加减乘除，计算结果可见"
+    },
+    {
+      "id": "recovery",
+      "description": "除零时明确提示，清空后可以继续计算"
+    }
+  ],
+  "steps": [
+    {
+      "id": "build-layout",
+      "title": "搭建计算器界面",
+      "objective": "建立显示区和可操作按钮",
+      "dependsOn": [],
+      "entryCondition": "固定 React 模板可以启动，App/CSS 留待实现",
+      "deliverable": "可见显示区与完整按钮",
+      "requirementIds": [
+        "layout"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "controls"
+      ]
+    },
+    {
+      "id": "number-input",
+      "title": "实现数字输入",
+      "objective": "让按钮输入数字并可以清空",
+      "dependsOn": [
+        "build-layout"
+      ],
+      "entryCondition": "已经完成显示区与按钮",
+      "deliverable": "可输入并编辑数字",
+      "requirementIds": [
+        "input"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "newCheckIds": [
+        "digits",
+        "clear"
+      ]
+    },
+    {
+      "id": "four-operations",
+      "title": "实现四则运算",
+      "objective": "实现运算符、等号和结果显示",
+      "dependsOn": [
+        "number-input"
+      ],
+      "entryCondition": "数字输入与清空检查通过",
+      "deliverable": "可进行四则运算",
+      "requirementIds": [
+        "arithmetic"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "newCheckIds": [
+        "add",
+        "subtract",
+        "multiply",
+        "divide"
+      ]
+    },
+    {
+      "id": "error-recovery",
+      "title": "处理异常与恢复",
+      "objective": "明确处理除零并允许用户继续操作",
+      "dependsOn": [
+        "four-operations"
+      ],
+      "entryCondition": "四则运算及全部前序检查通过",
+      "deliverable": "异常反馈清楚且可以恢复",
+      "requirementIds": [
+        "recovery"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "newCheckIds": [
+        "divide-zero",
+        "recover"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "controls",
+      "stepId": "build-layout",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "layout"
+      ],
+      "setup": "新打开页面",
+      "actions": [
+        "依次检查显示区以及 0–9、.、+、−、×、÷、=、C 按钮；聚焦并点击每个按钮"
+      ],
+      "expected": [
+        "显示区存在，每个按钮可见、可聚焦、未禁用且接收点击；本步不要求计算结果"
+      ]
+    },
+    {
+      "id": "digits",
+      "stepId": "number-input",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "input"
+      ],
+      "setup": "新打开页面，显示初始值 0",
+      "actions": [
+        "点击 1、2、.、3"
+      ],
+      "expected": [
+        "显示区为 12.3"
+      ]
+    },
+    {
+      "id": "clear",
+      "stepId": "number-input",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "input"
+      ],
+      "setup": "新打开页面",
+      "actions": [
+        "点击 8、C"
+      ],
+      "expected": [
+        "显示区恢复 0"
+      ]
+    },
+    {
+      "id": "add",
+      "stepId": "four-operations",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "arithmetic"
+      ],
+      "setup": "新打开页面",
+      "actions": [
+        "点击 2、+、3、="
+      ],
+      "expected": [
+        "显示区为 5"
+      ]
+    },
+    {
+      "id": "subtract",
+      "stepId": "four-operations",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "arithmetic"
+      ],
+      "setup": "新打开页面",
+      "actions": [
+        "点击 9、−、4、="
+      ],
+      "expected": [
+        "显示区为 5"
+      ]
+    },
+    {
+      "id": "multiply",
+      "stepId": "four-operations",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "arithmetic"
+      ],
+      "setup": "新打开页面",
+      "actions": [
+        "点击 3、×、4、="
+      ],
+      "expected": [
+        "显示区为 12"
+      ]
+    },
+    {
+      "id": "divide",
+      "stepId": "four-operations",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "arithmetic"
+      ],
+      "setup": "新打开页面",
+      "actions": [
+        "点击 8、÷、2、="
+      ],
+      "expected": [
+        "显示区为 4"
+      ]
+    },
+    {
+      "id": "divide-zero",
+      "stepId": "error-recovery",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "recovery"
+      ],
+      "setup": "新打开页面",
+      "actions": [
+        "点击 8、÷、0、="
+      ],
+      "expected": [
+        "显示区为 不能除以零"
+      ]
+    },
+    {
+      "id": "recover",
+      "stepId": "error-recovery",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "recovery"
+      ],
+      "setup": "新打开页面",
+      "actions": [
+        "点击 8、÷、0、=、C、2、+、3、="
+      ],
+      "expected": [
+        "清空后恢复输入，最终显示区为 5"
+      ]
+    }
+  ]
+}

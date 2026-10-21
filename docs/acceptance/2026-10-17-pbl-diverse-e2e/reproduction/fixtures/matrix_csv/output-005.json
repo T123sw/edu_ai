@@ -1,0 +1,568 @@
+{
+  "unit": {
+    "stepId": "invalid-and-stats",
+    "title": "显示无效行与统计结果",
+    "objective": "在表格基础上增加无效行列表（原始行号与原因）以及有效人数、平均分、最高分统计。",
+    "instructionsMarkdown": "上一步已经能输入多行文本、点击“分析”并把合法记录显示成表格。这一步要让页面把“哪些行有问题”和“整体成绩如何”也告诉用户。\n\n完成后，点击“分析”时页面应同时出现三块内容：\n\n- **有效记录表格**：和上一步一样，按输入顺序显示姓名与分数。\n- **统计区**：显示有效人数、平均分（保留两位小数，例如 `85.00`）、最高分。没有有效记录时，人数显示 `0`，平均分和最高分都显示 `—`。\n- **无效行列表**：每个无效的非空行显示它的原始行号（从 1 开始，按输入文本的行计数）和原因说明。空行直接忽略，既不算有效也不算无效。\n\n无效行的判定：\n\n- 行里没有逗号，或姓名去掉首尾空格后为空；\n- 分数部分不是数字，或不在 0 到 100 之间（0 和 100 本身合法）。\n\n无效行只是被列出来，不影响其他有效行的统计。例如输入 `张三,90`、`李四,abc`、空行、` ,50`，应得到 1 条有效记录、2 条无效记录（行号 2 和行号 4）。\n\n### 代码约定\n\n为了让系统能识别页面部件，请给这些元素加上 `data-testid`（只是标记，不改变外观）：\n\n- 多行输入框：`score-input`\n- “分析”按钮：`analyze-button`\n- 有效记录表格：`valid-table`\n- 统计区容器：`stats-panel`，其中人数、平均分、最高分分别用 `stat-count`、`stat-average`、`stat-max` 标记，且每个标记内只放对应数值文字（如 `2`、`85.00`、`90` 或 `—`），不要混入“人数：”之类前缀。\n- 无效行列表容器：`invalid-list`，每个无效行用 `invalid-item` 标记，条目文字需包含行号与原因。",
+    "explanationMarkdown": "解析时最好一次遍历所有行，同时收集两类结果：有效记录数组和无效行数组。遍历时用行下标加 1 得到原始行号，这样即使跳过空行，行号仍与用户看到的文本行对应。\n\n判断分数是否合法，可以先 `trim` 再转成数字，注意 `Number('')` 是 0，所以要先排除空字符串；同时用 `Number.isNaN` 排除非数字，再检查范围。\n\n统计可以在拿到有效记录后计算：人数就是数组长度；平均分用 `reduce` 求和再除以人数，用 `toFixed(2)` 保留两位小数；最高分用 `Math.max` 或遍历比较。人数为 0 时不要做除法，直接显示 `—`。\n\n渲染时把三块内容放在分析之后的条件里，用各自的 `data-testid` 标记，方便后续步骤继续扩展。",
+    "hints": [
+      "遍历时用 `lines.forEach((raw, i) => ...)`，无效行记录 `i + 1` 作为行号。",
+      "先判断 `raw.trim() === ''` 跳过空行，再判断逗号、姓名和分数。",
+      "分数校验：`scoreText !== '' && !Number.isNaN(Number(scoreText)) && score >= 0 && score <= 100`。",
+      "平均分：`(sum / count).toFixed(2)`；人数为 0 时直接显示 `—`。",
+      "最高分：`Math.max(...scores)`，注意空数组时不要调用。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "invalid-lines-listed",
+      "stats-values",
+      "stats-empty"
+    ]
+  },
+  "behaviorCases": [
+    {
+      "requirementId": "parse-invalid",
+      "setup": "输入含有效行、非数字分数行、空行、空姓名行",
+      "action": "点击分析",
+      "expected": "行号 2（李四,abc）与行号 4（ ,50）被列为无效，空行被忽略，共 2 条无效",
+      "checkId": "invalid-lines-listed"
+    },
+    {
+      "requirementId": "invalid-list",
+      "setup": "输入含缺少逗号的行与超范围分数行",
+      "action": "点击分析",
+      "expected": "缺少逗号行与超范围分数行分别以各自原始行号列出原因",
+      "checkId": "invalid-lines-listed"
+    },
+    {
+      "requirementId": "summary-stats",
+      "setup": "输入 90、80 两条有效与一条非数字无效行",
+      "action": "点击分析",
+      "expected": "人数 2、平均分 85.00、最高分 90",
+      "checkId": "stats-values"
+    },
+    {
+      "requirementId": "parse-valid",
+      "setup": "输入含 0 与 100 边界分数及重复姓名",
+      "action": "点击分析",
+      "expected": "0 与 100 均计入有效，人数 3、平均分 66.67、最高分 100",
+      "checkId": "stats-values"
+    },
+    {
+      "requirementId": "summary-stats",
+      "setup": "输入全部为无效行",
+      "action": "点击分析",
+      "expected": "人数 0、平均分与最高分为 —",
+      "checkId": "stats-empty"
+    },
+    {
+      "requirementId": "summary-stats",
+      "setup": "输入仅空行",
+      "action": "点击分析",
+      "expected": "人数 0、平均分与最高分为 —",
+      "checkId": "stats-empty"
+    }
+  ],
+  "checks": [
+    {
+      "id": "invalid-lines-listed",
+      "label": "无效行按原始行号列出原因，空行被忽略，且不影响有效行统计",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "score-input"
+          },
+          "value": "张三,90\n李四,abc\n\n ,50",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "analyze-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "invalid-list"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "invalid-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "invalid-item"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "第 2 行：分数不是数字",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "invalid-item"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "第 4 行：姓名为空",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "valid-table"
+            },
+            "index": null,
+            "role": "row",
+            "name": null,
+            "testId": null
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "score-input"
+          },
+          "value": "甲,50\n乙 60\n丙,120",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "analyze-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "invalid-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "invalid-item"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "第 2 行：缺少逗号分隔",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "invalid-item"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "第 3 行：分数超出 0 到 100",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "valid-table"
+            },
+            "index": null,
+            "role": "row",
+            "name": null,
+            "testId": null
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "stats-values",
+      "label": "有效人数、平均分（两位小数）与最高分按有效记录计算，0 与 100 边界合法",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "score-input"
+          },
+          "value": "张三,90\n李四,80\n王五,abc",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "analyze-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-count"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-average"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "85.00",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-max"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "90",
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "score-input"
+          },
+          "value": "甲,0\n乙,100\n甲,100",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "analyze-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-count"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "3",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-average"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "66.67",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-max"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "100",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "stats-empty",
+      "label": "无有效记录时人数为 0、平均分与最高分为 —",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "score-input"
+          },
+          "value": "张三,abc\n李四,120",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "analyze-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-count"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-average"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "—",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-max"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "—",
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "score-input"
+          },
+          "value": "\n   \n",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "analyze-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-count"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-average"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "—",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-max"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "—",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "faultyFiles": {},
+  "faultyCheckId": null
+}

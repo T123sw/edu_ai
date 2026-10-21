@@ -1,0 +1,590 @@
+{
+  "kind": "Production APIs and database; real model/TTS/native player; no request mocks",
+  "base": "http://127.0.0.1:18180",
+  "course_id": "hf-e2e-20261017160234",
+  "audio": [
+    {
+      "state": "running",
+      "rms": 0.07948854738891804
+    }
+  ],
+  "question": {
+    "request_id": "dc8ff8a0-fce6-4364-89f9-dc76bbacdbc0",
+    "question": "刚才风扇的例子里，为什么改变偏置就能改变启动温度？请结合我当前看到的画面解释。",
+    "reading_context": {
+      "resource_ref": {
+        "course_id": "hf-e2e-20261017160234",
+        "material_type": "classroom",
+        "material_id": "published-c3b736d8ac969ce79217",
+        "version": 2
+      },
+      "locator": {
+        "kind": "hyperframes",
+        "seconds": 17.30092312915633,
+        "segment_id": "seg-02",
+        "content_hash": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+      },
+      "selected_text": "",
+      "classroom": {
+        "status": "paused",
+        "position": {
+          "seconds": 17.30092312915633,
+          "segment_id": "seg-02"
+        }
+      }
+    }
+  },
+  "answer": {
+    "turn_id": "answer-8c9540e24edc44e0a5b5a35cd26ad1ac",
+    "session_id": "learning-14275f3cfdb4305849dd41e4641a7398447c6dd9cf9bcaeb86dc5316bd8ed4ad",
+    "request_id": "dc8ff8a0-fce6-4364-89f9-dc76bbacdbc0",
+    "topic_id": "bias",
+    "status": "succeeded",
+    "stage": "succeeded",
+    "attempt": 1,
+    "result": {
+      "actions": [],
+      "citations": [
+        {
+          "title": "神经元的偏置：平移直线与降低启动阈值",
+          "locator": {
+            "kind": "hyperframes",
+            "seconds": 17.30092312915633,
+            "segment_id": "seg-02",
+            "content_hash": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+          },
+          "visibility": "course",
+          "citation_id": "ctx_01",
+          "content_hash": "584044dd3b1ccdcbe8caf4443c4a78ed59dad71ea6496496e19b06b659bd5d04",
+          "resource_ref": {
+            "version": 2,
+            "course_id": "hf-e2e-20261017160234",
+            "material_id": "published-c3b736d8ac969ce79217",
+            "material_type": "classroom"
+          }
+        }
+      ],
+      "observation": null,
+      "citation_ids": [
+        "ctx_01"
+      ],
+      "memory_epoch": 0,
+      "model_rounds": 1,
+      "role_version": "learning-role-v3",
+      "tool_attempts": 0,
+      "teaching_skill": {
+        "mode": "classroom",
+        "name": "teach-current-topic",
+        "version": "5aeb8f26b90cb684dae41f9f197913be65ac5df1400fa571b6a369cd05f0b0a1"
+      },
+      "answer_markdown": "你停在 17 秒左右，画面正在讲“正偏置降低启动阈值”这一段。\n\n关键在于：判断风扇是否启动的条件是\n\n**T − 30 + b > 0**\n\n把 b 移到右边，就得到\n\n**T > 30 − b**\n\n也就是说，真正决定“什么时候启动”的门槛不是固定的 30，而是 **30 − b**。b 一变，这个门槛就跟着变，但判断式本身没变。\n\n画面里的两个状态卡片正好对应：\n\n- **b = 0**：阈值 = 30 − 0 = 30°C，数轴上阈值标记落在 30，风扇是灰的，要超过 30°C 才启动。\n- **b = 2**：阈值 = 30 − 2 = 28°C，阈值标记从 30 左移到 28，风扇变青并转动，超过 28°C 就启动。\n\n所以“改变偏置就改变启动温度”的机制是：**b 在判断式里是加项，移到阈值一侧就变成减项**。正偏置把门槛往下拉，让激活更容易；负偏置则把门槛往上推，让激活更难。\n\n再联系上一段：b 在直线 y = w·x + b 里让直线上下平移、不改变斜率；在这里，它同样只是把“启动分界线”整体平移，并没有改变温度对判断的影响强度。",
+      "source_revision": 9,
+      "preparation_receipts": [],
+      "suggested_action_ids": []
+    },
+    "error_code": null,
+    "committed_effects": []
+  },
+  "citationLinks": [
+    {
+      "text": "来源：神经元的偏置：平移直线与降低启动阈值 · v2",
+      "href": "?learningPlayer=1#ai?course_id=hf-e2e-20261017160234&material_type=classroom&material_id=published-c3b736d8ac969ce79217&version=2&visibility=course&citation=1&seconds=17.30092312915633&segment_id=seg-02"
+    }
+  ],
+  "errors": [],
+  "failed": [],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:18180/",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/index-BGDXQoWW.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/index-8vDhdg1F.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/App-BK-LTaLC.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/extends-DtiB_eNV.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/index-D87Mj5BV.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/CheckOutlined-BGwC9Pfn.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/AuthContext-BbhLt7Gh.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/Content-VejGmxHy.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/reportAnchors-BmSgCeKk.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/readingContext-DX8cVRLe.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/ui-DAwPEXKQ.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/index-VqZUwhGM.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/LoginPage-C-Ltowvl.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/LoginPage-C7BFxp_v.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/serialPolling-DhHwmGfk.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/App-B-az73cl.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/classroomEditorial-BlyEFt64.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/auth/verify",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/LiveApp-mA9ic-2c.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/PreparationTaskSummary-nxz7ar5M.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/types-Sgqg8Uqn.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/PreparationTaskSummary-CZhhSnI-.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/PreparationProgress-DExMM3gV.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/PreparationProgress-Be-CRNhV.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/reportReading-j3imbFdD.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/reportReading-BYZTj3zW.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/QuizMarkdown-DWKo4n1f.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/QuizMarkdown-CdbtT6Xg.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/courses-Dygpsgm3.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/CourseMaterialArtifactPreview-BvH0W5Sb.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/MarkdownPreview-DAPkmNFo.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/MarkdownPreview-B4FeaG51.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/courseMaterialPreviewData-C2fDt2M2.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/CourseMaterialArtifactPreview-Duxsw8Fw.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/generationRegistry-0zhwpVV6.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/classroom-tBdjDx-D.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/LiveApp-BOgPqh1M.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/course-preparations",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/state",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/fonts/editorial-modules.woff2",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/?learningPlayer=1",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/enter",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/progress",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/personal-studio",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/index-BGDXQoWW.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/index-8vDhdg1F.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/MaterialEntry-CijqISPA.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/reportReading-j3imbFdD.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/index-VqZUwhGM.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/AuthContext-BbhLt7Gh.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/reportReading-BYZTj3zW.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/courses-Dygpsgm3.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/readingContext-DX8cVRLe.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/styles-De6SfJqj.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/styles-C8vzL9Sa.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/QuizMarkdown-DWKo4n1f.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/QuizMarkdown-CdbtT6Xg.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/courseMaterialPreviewData-C2fDt2M2.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/classroomEditorial-BlyEFt64.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/auth/verify",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/materials/classroom/published-c3b736d8ac969ce79217/versions/2",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/courses/hf-e2e-20261017160234",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/ClassroomPlaybackSurface-C0l2bHle.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/resourceLearning-D8j0hYEe.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/classroom-CWaCwpmA.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/assets/ClassroomPlaybackSurface-CasnaVAj.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/courses/hf-e2e-20261017160234/classrooms/published-c3b736d8ac969ce79217/qa/session",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/materials/classroom/published-c3b736d8ac969ce79217/versions/2/playback",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/hyperframes/projects/[ticket]/index.html",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/hyperframes/projects/[ticket]/exports/lesson.mp4?download=true",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/hyperframes/projects/[ticket]/assets/hyperframe.runtime.iife.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/hyperframes/projects/[ticket]/assets/gsap.min.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/course-preparations",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/hyperframes/projects/[ticket]/assets/seg-01.mp3",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/hyperframes/projects/[ticket]/assets/seg-02.mp3",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/hyperframes/projects/[ticket]/assets/seg-01.mp3",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/hyperframes/projects/[ticket]/assets/seg-02.mp3",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/hyperframes/projects/[ticket]/assets/seg-01.mp3",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/hyperframes/projects/[ticket]/assets/seg-02.mp3",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/jobs?limit=100",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/course-preparations",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/personal-studio",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/progress",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/session",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/session",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/course-preparations",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/session",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/jobs?limit=100",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/personal-studio",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/course-preparations",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/progress",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/session",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/session",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/course-preparations",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/jobs?limit=100",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/personal-studio",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/agent-turns",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:18180/backend/api/self-learning/courses/hf-e2e-20261017160234/topics/bias/events",
+      "method": "POST"
+    }
+  ]
+}

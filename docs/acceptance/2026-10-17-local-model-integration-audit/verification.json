@@ -1,0 +1,192 @@
+{
+  "checked_at": "2026-10-17T08:05:44.785497+00:00",
+  "scope": "real services via project adapters; no production business writes, no restart",
+  "http_calls": [
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8001/health",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8188/health",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8189/health",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8190/v1/health",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:8189/v1/embeddings",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:8190/v1/file_parse",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:8188/v1/audio/speech",
+      "status": 200
+    }
+  ],
+  "effective_config": {
+    "tts": {
+      "provider_name": "local-qwen-tts",
+      "base_url": "http://127.0.0.1:8188/v1",
+      "model": "qwen3-tts",
+      "_source": "environment",
+      "_revision_id": null,
+      "_local_only": true
+    },
+    "embedding": {
+      "provider_name": "environment",
+      "base_url": "http://127.0.0.1:8189/v1",
+      "model": "qwen3-embedding-0.6b",
+      "dimensions": 768,
+      "_source": "environment",
+      "_revision_id": null
+    },
+    "pdf_parser": {
+      "provider_name": "environment",
+      "base_url": "",
+      "model": "",
+      "_source": "environment",
+      "_revision_id": null
+    }
+  },
+  "active_config_profiles": [
+    {
+      "scope": "system",
+      "provider": "tts",
+      "base_url": "http://127.0.0.1:8188/v1",
+      "model": "qwen3-tts"
+    }
+  ],
+  "deployment": {
+    "TTS_LOCAL_ONLY": "true",
+    "PDF_PARSER_PROVIDER": "mineru-local",
+    "PDF_MINERU_LOCAL_BASE_URL": "http://127.0.0.1:8190",
+    "VECTOR_DB_PATH": "/home/zxqs_ep/data/edu_ai/staging/vector_db_qwen3_1024",
+    "RAG_ENABLE_IMAGE_EMBEDDING": "0"
+  },
+  "services": "MainPID=939101\nExecMainStartTimestamp=Sat 2026-10-17 05:39:17 UTC\nId=edu-ai-backend.service\nActiveState=active\n\nMainPID=830336\nExecMainStartTimestamp=Fri 2026-10-16 12:25:33 UTC\nId=edu-ai-tts.service\nActiveState=active\n\nMainPID=834227\nExecMainStartTimestamp=Fri 2026-10-16 12:36:39 UTC\nId=edu-ai-embedding.service\nActiveState=active\n\nMainPID=892308\nExecMainStartTimestamp=Sat 2026-10-17 02:17:30 UTC\nId=edu-ai-mineru.service\nActiveState=active\n",
+  "health_8001": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "message": "service ready",
+      "knowledge_base_ready": true,
+      "document_count": 11249
+    }
+  },
+  "health_8188": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "service": "local-tts",
+      "model_loaded": true,
+      "model": "qwen3-tts",
+      "device": "cuda:0",
+      "formats": [
+        "mp3",
+        "wav"
+      ]
+    }
+  },
+  "health_8189": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "service": "local-embedding",
+      "model_loaded": true,
+      "model": "qwen3-embedding-0.6b",
+      "device": "cuda:1",
+      "dim": 1024,
+      "native_dim": 1024,
+      "load_s": 5.09,
+      "unified_dim": 1024
+    }
+  },
+  "health_8190": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "version": "4.0.12",
+      "features": {
+        "webhook": false,
+        "output_formats": [
+          "markdown",
+          "middle_json",
+          "structured_content",
+          "zip"
+        ],
+        "sources": [
+          "file_id",
+          "url",
+          "inline"
+        ]
+      }
+    }
+  },
+  "embedding": {
+    "ok": true,
+    "seconds": 0.112,
+    "api_base": "http://127.0.0.1:8189/v1",
+    "model": "qwen3-embedding-0.6b",
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "index_dimensions": [
+      [
+        1024
+      ]
+    ],
+    "index_vectors": 11249
+  },
+  "pdf": {
+    "ok": true,
+    "seconds": 4.456,
+    "provider": "LocalMinerUProvider",
+    "base_url": "http://127.0.0.1:8190",
+    "characters": 2074,
+    "defects": [
+      "PAGE_COVERAGE_UNVERIFIED"
+    ],
+    "layout_count": 0,
+    "asset_count": 0,
+    "metadata": {
+      "parser": "mineru-local",
+      "fileName": "integration-audit-sample.pdf",
+      "pageRange": "1-2",
+      "processingTime": 4.2,
+      "durationMs": 4147,
+      "parserVersion": "4.0.12",
+      "taskId": "job_fa10ecb2acad929002045025",
+      "tier": "basic"
+    },
+    "sample_sha256": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+  },
+  "tts": {
+    "ok": true,
+    "seconds": 8.086,
+    "bytes": 56108,
+    "audio_seconds": 3.504,
+    "artifact": "audio/narration-590974e5abf4901dff7bb325e124d8012e5a59e8023e10ddbbcadf806c3c5598.mp3"
+  },
+  "exam_parser_snapshot": {
+    "provider_name": "environment",
+    "base_url": "https://mineru.net/api/v4",
+    "model": "vlm",
+    "_source": "environment"
+  }
+}

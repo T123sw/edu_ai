@@ -1,0 +1,206 @@
+{
+  "status": "passed",
+  "podcast": {
+    "wall_seconds": 383.95,
+    "baseline_job_wall_seconds": 911.1,
+    "speedup_vs_previous_job": 2.37,
+    "calls": [
+      {
+        "chars": 237,
+        "text_sha256": "be1a035532a2bf03bd53d2ffc61c621f0f752105266764f1e869fe09f350d4c9",
+        "started_at": 1792390444.5610793,
+        "elapsed_seconds": 211.27,
+        "http_status": 200,
+        "batch_id": "132de7bf0afc",
+        "batch_size": "4",
+        "fragments": "1",
+        "input_chars": "237"
+      },
+      {
+        "chars": 415,
+        "text_sha256": "9e47fdadd690587b89fc6a01f2654203a33599657a22fc1be1f123727fd154c3",
+        "started_at": 1792390444.5876498,
+        "elapsed_seconds": 211.26,
+        "http_status": 200,
+        "batch_id": "132de7bf0afc",
+        "batch_size": "4",
+        "fragments": "1",
+        "input_chars": "415"
+      },
+      {
+        "chars": 420,
+        "text_sha256": "fe74772a5e0d239ea6f8fa9982637f4da45c8102a2767f9f8f040802eea311cd",
+        "started_at": 1792390444.6103966,
+        "elapsed_seconds": 211.24,
+        "http_status": 200,
+        "batch_id": "132de7bf0afc",
+        "batch_size": "4",
+        "fragments": "1",
+        "input_chars": "420"
+      },
+      {
+        "chars": 330,
+        "text_sha256": "2108064ce86d5ad4ca8bc45709a8d51c776a3336fc532b6ecf0c7e16daad0fa9",
+        "started_at": 1792390444.6346576,
+        "elapsed_seconds": 211.22,
+        "http_status": 200,
+        "batch_id": "132de7bf0afc",
+        "batch_size": "4",
+        "fragments": "1",
+        "input_chars": "330"
+      },
+      {
+        "chars": 301,
+        "text_sha256": "fbe447f8bfcfa3506171eac106c5921d12a594747070318a1b5d87f30fd73ef9",
+        "started_at": 1792390444.657222,
+        "elapsed_seconds": 380.69,
+        "http_status": 200,
+        "batch_id": "6c592684f0ed",
+        "batch_size": "3",
+        "fragments": "1",
+        "input_chars": "301"
+      },
+      {
+        "chars": 265,
+        "text_sha256": "dd965edc719d0067ada2b2bc2bb2dd6d62cc88b0ce03fccb604d850632ca2d19",
+        "started_at": 1792390444.6798139,
+        "elapsed_seconds": 380.67,
+        "http_status": 200,
+        "batch_id": "6c592684f0ed",
+        "batch_size": "3",
+        "fragments": "1",
+        "input_chars": "265"
+      },
+      {
+        "chars": 207,
+        "text_sha256": "3d5a8671d814f4289f34b49de32108ce7369a006575f684793ec484af618575b",
+        "started_at": 1792390444.7022057,
+        "elapsed_seconds": 380.64,
+        "http_status": 200,
+        "batch_id": "6c592684f0ed",
+        "batch_size": "3",
+        "fragments": "1",
+        "input_chars": "207"
+      }
+    ],
+    "baseline_scope": "Previous production run of the same seven-chapter script; includes original script-writing and saving overhead."
+  },
+  "video": {
+    "wall_seconds": 53.73,
+    "calls": [
+      {
+        "chars": 70,
+        "text_sha256": "c7983ba40898670e44a28a125dfa656568838fcecc8dadd2c6fecdbcf1c1cac1",
+        "started_at": 1792390828.91957,
+        "elapsed_seconds": 48.72,
+        "http_status": 200,
+        "batch_id": "a2bfc9cb03e4",
+        "batch_size": "4",
+        "fragments": "1",
+        "input_chars": "70"
+      },
+      {
+        "chars": 66,
+        "text_sha256": "b124eef8d2c9768ad6ea47462d16f9baac4abd15494ae8d6f90849c80b70ead0",
+        "started_at": 1792390828.9202898,
+        "elapsed_seconds": 48.71,
+        "http_status": 200,
+        "batch_id": "a2bfc9cb03e4",
+        "batch_size": "4",
+        "fragments": "1",
+        "input_chars": "66"
+      },
+      {
+        "chars": 68,
+        "text_sha256": "837610eda58b706c787e358dbc87389937c118070f0571beb2d810e02160e80e",
+        "started_at": 1792390828.9209056,
+        "elapsed_seconds": 48.72,
+        "http_status": 200,
+        "batch_id": "a2bfc9cb03e4",
+        "batch_size": "4",
+        "fragments": "1",
+        "input_chars": "68"
+      },
+      {
+        "chars": 69,
+        "text_sha256": "4e3bfacb9c96ed92010301a0bdefd053548541b35d1a036f8c6661ea86875d12",
+        "started_at": 1792390828.921487,
+        "elapsed_seconds": 48.72,
+        "http_status": 200,
+        "batch_id": "a2bfc9cb03e4",
+        "batch_size": "4",
+        "fragments": "1",
+        "input_chars": "69"
+      }
+    ],
+    "metadata": {
+      "bgm": null,
+      "bgm_pending": false,
+      "voices": [
+        {
+          "frame": 1,
+          "path": "assets/audio/afe2a0f899a906de8d4454fe29d73b28c5bda53f449d92e3ff170156e300684c.mp3",
+          "duration_s": 18.696,
+          "words": []
+        },
+        {
+          "frame": 2,
+          "path": "assets/audio/684384dc640c5d1617946ed6297922401d649d9b36f67a892660919c29a2d9b6.mp3",
+          "duration_s": 14.688,
+          "words": []
+        },
+        {
+          "frame": 3,
+          "path": "assets/audio/29dd1372a8b2b5983664469694e4fa5d42346cad561c70c45ea00f4247be6622.mp3",
+          "duration_s": 18.864,
+          "words": []
+        },
+        {
+          "frame": 4,
+          "path": "assets/audio/d508b8ed0bac2622e6f5ce75e9c89d578612f69b19cbd564af7c155a8ce2eeb8.mp3",
+          "duration_s": 14.928,
+          "words": []
+        }
+      ],
+      "sfx": []
+    }
+  },
+  "media": [
+    {
+      "file": "live/podcast/podcast.mp3",
+      "duration": 440.304
+    },
+    {
+      "file": "live/video-workspace/video/assets/audio/afe2a0f899a906de8d4454fe29d73b28c5bda53f449d92e3ff170156e300684c.mp3",
+      "duration": 18.696
+    },
+    {
+      "file": "live/video-workspace/video/assets/audio/684384dc640c5d1617946ed6297922401d649d9b36f67a892660919c29a2d9b6.mp3",
+      "duration": 14.688
+    },
+    {
+      "file": "live/video-workspace/video/assets/audio/29dd1372a8b2b5983664469694e4fa5d42346cad561c70c45ea00f4247be6622.mp3",
+      "duration": 18.864
+    },
+    {
+      "file": "live/video-workspace/video/assets/audio/d508b8ed0bac2622e6f5ce75e9c89d578612f69b19cbd564af7c155a8ce2eeb8.mp3",
+      "duration": 14.928
+    }
+  ],
+  "tts_stats": {
+    "batch_size": 4,
+    "cache_size": 256,
+    "cache_entries": 11,
+    "active_requests": 0,
+    "queued_requests": 0,
+    "requests": 11,
+    "cache_hits": 0,
+    "batch_calls": 3,
+    "fallback_calls": 0,
+    "sentences": 11,
+    "audio_ms": 506880,
+    "infer_ms": 424807,
+    "model_calls": 3,
+    "max_batch_observed": 4
+  }
+}

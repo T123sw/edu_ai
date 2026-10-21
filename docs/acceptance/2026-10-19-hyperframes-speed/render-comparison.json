@@ -1,0 +1,54 @@
+[
+  {
+    "name": "baseline",
+    "elapsed_seconds": 260.58,
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "r_frame_rate": "30/1"
+        },
+        {
+          "codec_type": "audio",
+          "r_frame_rate": "0/0"
+        }
+      ],
+      "format": {
+        "duration": "65.333333"
+      }
+    },
+    "decoded": true,
+    "video": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/render-baseline/video/renders/comparison.mp4",
+    "log": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/render-baseline/.host/233c4a7df5fe42cca48a34fb91c971cd.log",
+    "render_summary": "\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591\u2591\u2591  80%  Streaming frame 1957/1960\n@hf-progress {\"code\":\"capture\",\"done\":1957,\"total\":1960,\"pct\":80}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591\u2591\u2591  80%  Streaming frame 1960/1960\n@hf-progress {\"code\":\"capture\",\"done\":1960,\"total\":1960,\"pct\":80}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591  90%  Encoding frame 1871/1960\n@hf-progress {\"code\":\"encode\",\"done\":1871,\"total\":1960,\"pct\":90}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591  90%  Encoding frame 1960/1960\n@hf-progress {\"code\":\"encode\",\"done\":1960,\"total\":1960,\"pct\":90}\n[INFO] [Render:trace] {\"renderJobId\":\"fc083e09-edd3-44ea-a094-ee3cd9906716\",\"phase\":\"capture_streaming\",\"status\":\"end\",\"elapsedMs\":254243,\"durationMs\":250316,\"stagePhase\":\"capturing\",\"workerCount\":1,\"forceScreenshot\":true,\"totalFrames\":1960,\"framesCompleted\":1960,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"fc083e09-edd3-44ea-a094-ee3cd9906716\",\"phase\":\"assemble\",\"status\":\"start\",\"elapsedMs\":254246,\"stagePhase\":\"capturing\",\"hasAudio\":true,\"workerCount\":1,\"forceScreenshot\":true,\"totalFrames\":1960,\"framesCompleted\":1960,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591  90%  Assembling final video\n@hf-progress {\"code\":\"assemble\",\"done\":0,\"total\":65.328,\"pct\":90}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591  99%  Assembling final video\n@hf-progress {\"code\":\"assemble\",\"done\":65.328,\"total\":65.328,\"pct\":99}\n[INFO] [Render:trace] {\"renderJobId\":\"fc083e09-edd3-44ea-a094-ee3cd9906716\",\"phase\":\"assemble\",\"status\":\"end\",\"elapsedMs\":257065,\"durationMs\":2818,\"stagePhase\":\"capturing\",\"hasAudio\":true,\"workerCount\":1,\"forceScreenshot\":true,\"totalFrames\":1960,\"framesCompleted\":1960,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"fc083e09-edd3-44ea-a094-ee3cd9906716\",\"phase\":\"pipeline\",\"status\":\"checkpoint\",\"elapsedMs\":257149,\"message\":\"artifact validated\",\"totalElapsedMs\":257147}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  100%  Render complete\n\n\u25c7  /home/zxqs_ep/data/main-review/hyperframes-speed-20261019/render-baseline/video/renders/comparison.mp4\n   8.2 MB \u00b7 1m 5.3s video \u00b7 rendered in 4m 17.3s\n   screenshot capture \u00b7 software gpu \u00b7 compile 1.2s \u00b7 extract 0.0s \u00b7 audio 2.7s \u00b7 probe 0.2s \u00b7 setup 0.0s \u00b7 capture 4m 10.3s \u00b7 encode (during capture) 4m 10.3s \u00b7 assemble 2.8s\n   Keep editing by chatting with Framey in the HyperFrames desktop app \u2192 https://hyperframes.dev/studio/download?os=linux\n"
+  },
+  {
+    "name": "two-workers",
+    "elapsed_seconds": 160.63,
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "r_frame_rate": "30/1"
+        },
+        {
+          "codec_type": "audio",
+          "r_frame_rate": "0/0"
+        }
+      ],
+      "format": {
+        "duration": "65.333333"
+      }
+    },
+    "decoded": true,
+    "video": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/render-two-workers/video/renders/comparison.mp4",
+    "log": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/render-two-workers/.host/5b6d7d22fd584f66ade96be7a3fce880.log",
+    "render_summary": "frame 1822/1960\n@hf-progress {\"code\":\"encode\",\"done\":1822,\"total\":1960,\"pct\":89}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591  89%  Encoding frame 1866/1960\n@hf-progress {\"code\":\"encode\",\"done\":1866,\"total\":1960,\"pct\":89}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591  90%  Encoding frame 1905/1960\n@hf-progress {\"code\":\"encode\",\"done\":1905,\"total\":1960,\"pct\":90}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591  90%  Encoding frame 1960/1960\n@hf-progress {\"code\":\"encode\",\"done\":1960,\"total\":1960,\"pct\":90}\n[INFO] [Render:trace] {\"renderJobId\":\"58383c4c-bed7-4cd8-9e99-93b231fadcd1\",\"phase\":\"encode\",\"status\":\"end\",\"elapsedMs\":154086,\"durationMs\":20082,\"stagePhase\":\"capturing\",\"hasAudio\":true,\"isPngSequence\":false,\"isGif\":false,\"chunkedEncode\":false,\"workerCount\":2,\"forceScreenshot\":true,\"totalFrames\":1960,\"framesCompleted\":1960,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"58383c4c-bed7-4cd8-9e99-93b231fadcd1\",\"phase\":\"assemble\",\"status\":\"start\",\"elapsedMs\":154089,\"stagePhase\":\"capturing\",\"hasAudio\":true,\"workerCount\":2,\"forceScreenshot\":true,\"totalFrames\":1960,\"framesCompleted\":1960,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591  90%  Assembling final video\n@hf-progress {\"code\":\"assemble\",\"done\":0,\"total\":65.328,\"pct\":90}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591  99%  Assembling final video\n@hf-progress {\"code\":\"assemble\",\"done\":65.328,\"total\":65.328,\"pct\":99}\n[INFO] [Render:trace] {\"renderJobId\":\"58383c4c-bed7-4cd8-9e99-93b231fadcd1\",\"phase\":\"assemble\",\"status\":\"end\",\"elapsedMs\":156964,\"durationMs\":2875,\"stagePhase\":\"capturing\",\"hasAudio\":true,\"workerCount\":2,\"forceScreenshot\":true,\"totalFrames\":1960,\"framesCompleted\":1960,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"58383c4c-bed7-4cd8-9e99-93b231fadcd1\",\"phase\":\"pipeline\",\"status\":\"checkpoint\",\"elapsedMs\":157076,\"message\":\"artifact validated\",\"totalElapsedMs\":157051}\n  \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  100%  Render complete\n\n\u25c7  /home/zxqs_ep/data/main-review/hyperframes-speed-20261019/render-two-workers/video/renders/comparison.mp4\n   8.2 MB \u00b7 1m 5.3s video \u00b7 rendered in 2m 37.4s\n   screenshot capture \u00b7 software gpu \u00b7 compile 1.3s \u00b7 extract 0.0s \u00b7 audio 2.7s \u00b7 probe 0.3s \u00b7 setup 0.0s \u00b7 capture 2m 10.0s \u00b7 encode 20.1s \u00b7 assemble 2.9s\n   Keep editing by chatting with Framey in the HyperFrames desktop app \u2192 https://hyperframes.dev/studio/download?os=linux\n"
+  }
+]

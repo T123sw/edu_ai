@@ -1,0 +1,1143 @@
+{
+  "title": "编码器-解码器结构与训练/推理流程",
+  "content": {
+    "title": "编码器-解码器结构与训练/推理流程（自测题）",
+    "questions": [
+      {
+        "id": "q1",
+        "stem": "关于原论文 Transformer 的编码器与解码器，下列哪项描述是正确的？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "编码器把输入符号序列映射为连续表示 z，解码器以 z 为条件、每步把先前已生成的符号作为额外输入，逐元素生成输出",
+          "编码器直接输出最终的概率分布，解码器只负责把该分布解码成文字",
+          "解码器先把完整输出序列一次性生成，再交给编码器逐位置校验",
+          "编码器与解码器都只由自注意力层堆叠而成，不含任何前馈网络"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：原论文写明编码器把 (x1..xn) 映射为连续表示 z=(z1..zn)，解码器据此一次一个元素地生成 (y1..ym)，每步是自回归的，把先前生成的符号作为额外输入。B 错误：概率分布由解码器输出端的 Linear+Softmax 产生，编码器只产出连续表示，不做最终预测。C 错误：顺序颠倒，编码器处理输入、解码器生成输出，且解码器是逐步生成而非一次性生成后再校验。D 错误：编码器与解码器都由堆叠的自注意力层和逐位置全连接前馈网络构成，前馈网络是每层必备子层。"
+      },
+      {
+        "id": "q2",
+        "stem": "关于原论文中编码器层与解码器层的子层构成，下列说法正确的有（多选）：",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "编码器每层有两个子层：多头自注意力与逐位置前馈网络",
+          "解码器每层在编码器两个子层之外，插入第三个子层，对编码器堆栈的输出做多头注意力",
+          "每个子层都外包残差连接，随后做层归一化，即输出为 LayerNorm(x + Sublayer(x))",
+          "解码器每层只有两个子层，与编码器完全相同，区别仅在于参数更多"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：原论文明确编码器每层两个子层——多头自注意力与逐位置全连接前馈网络。B 正确：解码器在编码器两个子层之外插入第三个子层，对编码器堆栈输出做多头注意力（编码器-解码器注意力）。C 正确：每个子层外包残差连接再做层归一化，输出为 LayerNorm(x + Sublayer(x))；为使残差可加，所有子层与嵌入层输出维度都是 dmodel=512。D 错误：解码器每层是三个子层，多出的正是编码器-解码器注意力子层，不是“结构相同只是参数更多”。"
+      },
+      {
+        "id": "q3",
+        "stem": "在 Transformer 的三种多头注意力用法中，关于 Q（查询）、K（键）、V（值）的来源，下列哪项正确？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "编码器自注意力：Q/K/V 都来自上一层编码器输出；解码器掩码自注意力：Q/K/V 都来自解码器已生成部分；编码器-解码器注意力：Q 来自上一层解码器，K/V 来自编码器输出",
+          "编码器自注意力：Q 来自编码器、K/V 来自解码器；解码器掩码自注意力：Q/K/V 都来自编码器输出",
+          "编码器-解码器注意力：Q 来自编码器输出，K/V 来自上一层解码器",
+          "三种用法中 Q 都来自编码器输出，K/V 都来自解码器输出，只是掩码不同"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：编码器自注意力中 K、V、Q 都来自同一处，即上一层编码器输出，每个位置可关注上一层所有位置；解码器自注意力中每个位置只能关注到并包括自身的位置；编码器-解码器注意力中查询来自上一层解码器，键和值来自编码器输出，使解码器每个位置都能关注输入序列所有位置。B 错误：编码器自注意力是自注意力，Q/K/V 同源，不可能把 K/V 取自解码器；解码器自注意力的输入也不是编码器输出。C 错误：把编码器-解码器注意力的 Q 与 K/V 来源对调了，Q 应来自解码器、K/V 来自编码器。D 错误：三种用法的 Q/K/V 来源各不相同，差异不只是掩码。"
+      },
+      {
+        "id": "q4",
+        "stem": "解码器自注意力对 3 个位置做掩码，把 softmax 输入中非法连接设为 −∞。若某一行（对应位置 i）的缩放点积得分为 [2, 1, 3]，按“位置 i 只能关注到并包括自身的位置”的规则，该行被掩码后的得分向量是：",
+        "type": "single_choice",
+        "answer": "C",
+        "options": [
+          "[2, 1, 3]",
+          "[2, 1, −∞]",
+          "[2, −∞, −∞]",
+          "[−∞, −∞, −∞]"
+        ],
+        "difficulty": "medium",
+        "explanation": "位置编号从 1 开始，位置 1 只能关注位置 1 自身，因此第 2、3 列对应的连接非法，设为 −∞，得到 [2, −∞, −∞]。A 是未加掩码的原始得分，等于允许看到未来位置，会破坏自回归性质。B 对应位置 2 的行（可看位置 1、2，屏蔽位置 3），不是位置 1 的行。D 把自身也屏蔽了，softmax 输入全为 −∞ 无法得到有效权重，且与“包括自身”的规则矛盾。"
+      },
+      {
+        "id": "q5",
+        "stem": "判断：解码器自注意力的掩码配合“输出嵌入右移一位”，保证位置 i 的预测只能依赖位置小于 i 的已知输出。",
+        "type": "true_false",
+        "answer": "正确",
+        "options": [],
+        "difficulty": "easy",
+        "explanation": "原论文原文即指出：这种掩码，加上输出嵌入偏移一位，确保位置 i 的预测只能依赖位置小于 i 的已知输出。掩码在注意力内部切断对后续位置的连接（softmax 输入设为 −∞），右移一位则让位置 i 的输入槽位放的是位置 i−1 及更早的已知输出，两者配合才使“预测第 i 个词时看不到第 i 个及以后的答案”成立。"
+      },
+      {
+        "id": "q6",
+        "stem": "训练时解码器可以一次并行处理整条右移后的目标序列，推理时却必须一步步生成。请结合掩码说明这两个说法为什么不矛盾。",
+        "type": "short_answer",
+        "answer": "训练时整条右移目标序列同时送入解码器，但掩码把每个位置对后续位置的注意力权重置为 0（softmax 输入设为 −∞），所以位置 i 的计算结果只依赖位置小于 i 的已知输出，与逐步生成时的信息条件一致；因此可以并行算出所有位置的预测，且不会“偷看”答案。推理时真实的目标序列尚不存在，第 i 个位置的输入必须由模型自己刚生成的第 i−1 个词提供，只能逐步生成、每步把新词追加到已生成序列后再算下一步。",
+        "options": [],
+        "difficulty": "hard",
+        "explanation": "要点一：并行性来自掩码保证的信息隔离，而不是取消自回归条件；要点二：训练时已知完整目标序列（右移后），推理时后续词未知，只能依赖已生成前缀。只答“训练快、推理慢”而未说明掩码与信息条件，不算完整。"
+      },
+      {
+        "id": "q7",
+        "stem": "关于原论文的训练与推理设置，下列说法正确的有（多选）：",
+        "type": "multiple_choice",
+        "answer": "A,B,C,D",
+        "options": [
+          "使用 Adam 优化器，学习率先线性 warmup 4000 步，之后按步数的平方根倒数衰减",
+          "对每个子层输出（在加残差并归一化之前）以及嵌入与位置编码之和施加 dropout，base 模型 Pdrop=0.1",
+          "使用标签平滑 0.1，它会让困惑度变差，但提升准确率与 BLEU",
+          "推理时使用 beam size 为 4、长度惩罚 α=0.6 的束搜索，最大输出长度为输入长度+50 并尽早终止",
+          "推理时使用贪心解码，每步只保留概率最高的一个词，不使用束搜索"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：原论文用 Adam（β1=0.9、β2=0.98、ε=1e-9），学习率先线性 warmup，warmup_steps=4000，之后按步数平方根倒数衰减。B 正确：dropout 施加于每个子层输出（加残差并归一化之前）以及嵌入与位置编码之和，base 模型 Pdrop=0.1。C 正确：论文明确标签平滑 0.1 会损害困惑度，因为模型学会“更不确定”，但提升准确率与 BLEU。D 正确：推理用 beam size=4、长度惩罚 α=0.6 的束搜索，最大输出长度为输入长度+50，能提前结束就提前结束。E 错误：与 D 直接冲突，原论文用的是束搜索而非每步只保留一个词的贪心解码。"
+      },
+      {
+        "id": "q8",
+        "stem": "某同学说：“编码器-解码器注意力里，解码器每个位置都能关注输入序列的所有位置，所以解码器自注意力也不需要掩码。”这个推理的问题在于：",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "编码器-解码器注意力关注的是编码器输出（输入序列），而解码器自注意力关注的是解码器自身尚未完全生成的输出，两者对象不同，后者必须掩码以防看到未来位置",
+          "编码器-解码器注意力其实也加了掩码，所以两者没有区别",
+          "解码器自注意力不需要掩码，只是实现上习惯加上",
+          "掩码只影响计算速度，不影响模型能否正确训练"
+        ],
+        "difficulty": "hard",
+        "explanation": "A 正确：编码器-解码器注意力的 K/V 来自编码器输出，即完整已知的输入序列，关注全部位置是合理的；解码器自注意力的 K/V 来自解码器自身，训练时若不加掩码就会看到位置 i 之后的“答案”，破坏自回归性质，因此必须把非法连接设为 −∞。B 错误：原论文只对解码器自注意力做掩码，编码器-解码器注意力不加这种因果掩码。C 错误：掩码是保证自回归性质的必要条件，不是可选习惯。D 错误：掩码改变的是信息可见范围，直接影响训练目标是否泄漏答案，不只是速度问题。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 12.27
+      },
+      "spec_digest": "c0f9ada746d028c61973af6310df3905e490e17f9fa1451c773af6b8382e4df1",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1"
+          },
+          "objective_id": "n5-encoder-decoder:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q6"
+          },
+          "objective_id": "n5-encoder-decoder:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q2"
+          },
+          "objective_id": "n5-encoder-decoder:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q3"
+          },
+          "objective_id": "n5-encoder-decoder:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q4"
+          },
+          "objective_id": "n5-encoder-decoder:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q5"
+          },
+          "objective_id": "n5-encoder-decoder:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q8"
+          },
+          "objective_id": "n5-encoder-decoder:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q7"
+          },
+          "objective_id": "n5-encoder-decoder:o4"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q1"
+          },
+          "explanation": "通过编码器映射输入、解码器自回归生成的整体流程题，落实“讲授 Transformer 核心概念与结构”的要求。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "question_id": "q2"
+          },
+          "explanation": "通过子层构成与残差+层归一化的多选题，检查对编码器/解码器结构的理解。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "question_id": "q7"
+          },
+          "explanation": "通过训练与推理设置的多选题，覆盖优化器、dropout、标签平滑与束搜索等原理要点。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需回忆编码器输出连续表示、解码器自回归逐元素生成，并逐一排除“编码器出概率分布”“先整体生成再校验”“无前馈网络”三个误区。",
+          "question_id": "q1",
+          "thinking_seconds": 30
+        },
+        {
+          "reason": "需分别核对编码器两子层、解码器三子层、残差+层归一化公式，并识别“解码器与编码器结构相同”这一错误主张。",
+          "question_id": "q2",
+          "thinking_seconds": 45
+        },
+        {
+          "reason": "需在三种注意力用法间逐项比对 Q/K/V 来源，尤其区分编码器-解码器注意力中 Q 与 K/V 的方向。",
+          "question_id": "q3",
+          "thinking_seconds": 50
+        },
+        {
+          "reason": "需确定位置编号与“包括自身”的规则，把 3 个得分按列映射到可见/不可见位置，再选出对应掩码结果。",
+          "question_id": "q4",
+          "thinking_seconds": 40
+        },
+        {
+          "reason": "判断掩码与输出右移配合的效果，需回忆“位置 i 只依赖小于 i 的已知输出”这一结论。",
+          "question_id": "q5",
+          "thinking_seconds": 20
+        },
+        {
+          "reason": "需组织两点论证：掩码使并行计算的信息条件与逐步生成一致；推理时后续词未知只能依赖已生成前缀。属简答，需成文表述。",
+          "question_id": "q6",
+          "thinking_seconds": 90
+        },
+        {
+          "reason": "需逐项核对 Adam 与 warmup 4000、dropout 位置与 Pdrop=0.1、标签平滑的代价与收益、束搜索参数，并识别与束搜索冲突的贪心选项。",
+          "question_id": "q7",
+          "thinking_seconds": 55
+        },
+        {
+          "reason": "需区分两种注意力的 K/V 来源（编码器输出 vs 解码器自身），据此判断掩码必要性与各干扰项的错误所在。",
+          "question_id": "q8",
+          "thinking_seconds": 60
+        }
+      ],
+      "teaching_context_digest": "6c908e1b0fa20a5f89cacee0705e35633f9fd87f9c7edc1e91d336813beb2764"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "本节点分工 req-goal-transformer 由 q1（编码器映射输入、解码器自回归生成）、q2（子层构成与残差+层归一化）、q7（Adam+warmup、dropout、标签平滑、束搜索）落实，与节点目标 o1/o2/o4 对应；q3、q4、q5、q8 覆盖 o3 的 Q/K/V 来源与掩码，内容真实支持“讲授 Transformer 核心概念与结构”。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题独立求解：q1=A、q2=ABC、q3=A、q4=C、q5=正确、q7=ABCD、q8=A 均与答案一致；q4 掩码推演按“位置 1 只看自身”得 [2,−∞,−∞] 正确；q7 各项（warmup 4000、Pdrop=0.1、标签平滑 0.1 损害困惑度、beam=4/α=0.6/长度+50）与论文一致，未发现事实或数值错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "习题逐题核验：q4 的数值干扰项分别对应未掩码、位置 2 行、全屏蔽三种可解释错误；q6 简答参考答案给出掩码信息隔离与推理时前缀未知两点，解析指出“只答训练快推理慢”不完整，判分要点明确；无凑数干扰项。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "8 题按“整体流程→子层构成→Q/K/V 来源→掩码推演→掩码结论→并行/逐步辨析→训练推理设置→掩码必要性辨析”递进，与节点活动顺序（结构走查、三处注意力对照、掩码推演、流程梳理）一致；语言为中文、入门深度，未引入排除项内容；估时 12.27 分钟略超 10 分钟节点预算，仅作内容量参考，不构成缺陷。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "题目断言均可回溯到 research_context 中 NIPS 2017 论文原文（3.1 子层与残差、3.2.3 三种注意力、5.3/5.4 优化器与正则化、束搜索设置），未出现无依据的外部结论；未上传资料的限制已在 limitations 中说明。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "四个节点目标均有对应题目：o1→q1/q6，o2→q2/q3，o3→q4/q5/q8，o4→q7；题型含单选、多选、判断、简答，难度分布 easy/medium/hard 齐全，答案位置未全部集中于同一选项（q1/q3/q8 为 A，q4 为 C），无题干泄露答案。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "version": 1,
+          "decision": "revise",
+          "structural_issues": [
+            "本轮输出格式或映射校验失败：preparation_content_envelope_missing。按本轮格式重交完整封装及必需教学映射；原生题目 JSON 应放在 content 字段内。"
+          ]
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本节点分工 req-goal-transformer 由 q1（编码器映射输入、解码器自回归生成）、q2（子层构成与残差+层归一化）、q7（Adam+warmup、dropout、标签平滑、束搜索）落实，与节点目标 o1/o2/o4 对应；q3、q4、q5、q8 覆盖 o3 的 Q/K/V 来源与掩码，内容真实支持“讲授 Transformer 核心概念与结构”。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解：q1=A、q2=ABC、q3=A、q4=C、q5=正确、q7=ABCD、q8=A 均与答案一致；q4 掩码推演按“位置 1 只看自身”得 [2,−∞,−∞] 正确；q7 各项（warmup 4000、Pdrop=0.1、标签平滑 0.1 损害困惑度、beam=4/α=0.6/长度+50）与论文一致，未发现事实或数值错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题逐题核验：q4 的数值干扰项分别对应未掩码、位置 2 行、全屏蔽三种可解释错误；q6 简答参考答案给出掩码信息隔离与推理时前缀未知两点，解析指出“只答训练快推理慢”不完整，判分要点明确；无凑数干扰项。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "8 题按“整体流程→子层构成→Q/K/V 来源→掩码推演→掩码结论→并行/逐步辨析→训练推理设置→掩码必要性辨析”递进，与节点活动顺序（结构走查、三处注意力对照、掩码推演、流程梳理）一致；语言为中文、入门深度，未引入排除项内容；估时 12.27 分钟略超 10 分钟节点预算，仅作内容量参考，不构成缺陷。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "题目断言均可回溯到 research_context 中 NIPS 2017 论文原文（3.1 子层与残差、3.2.3 三种注意力、5.3/5.4 优化器与正则化、束搜索设置），未出现无依据的外部结论；未上传资料的限制已在 limitations 中说明。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个节点目标均有对应题目：o1→q1/q6，o2→q2/q3，o3→q4/q5/q8，o4→q7；题型含单选、多选、判断、简答，难度分布 easy/medium/hard 齐全，答案位置未全部集中于同一选项（q1/q3/q8 为 A，q4 为 C），无题干泄露答案。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q1、q3、q8 正确答案均为 A，虽未形成全同位置规律，仍可考虑把其中一题的选项顺序调整以进一步降低位置线索。",
+              "q7 为五选项多选且答案含四项，对入门学习者认知负荷偏高，可考虑拆成两道小题或减少一个干扰项。",
+              "q4 题干未明说“该行对应位置 1”，解析中才点明，建议在题干中直接写明“位置 1 的行”，避免读者误判为任意行。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [
+                  {
+                    "reasoning": "准确复述论文 3 节：编码器映射 (x1..xn)→z，解码器自回归逐元素生成 (y1..ym)，把先前生成符号作为额外输入。",
+                    "option_text": "编码器把输入符号序列映射为连续表示 z，解码器以 z 为条件、每步把先前已生成的符号作为额外输入，逐元素生成输出",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原论文写明编码器把 (x1..xn) 映射为连续表示 z=(z1..zn)，解码器据此一次一个元素地生成 (y1..ym)，每步是自回归的，把先前生成的符号作为额外输入。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析摘录与论文原文一致，正确说明 A 成立的理由。"
+                  },
+                  {
+                    "reasoning": "编码器只输出连续表示，最终概率分布由解码器输出端的 Linear+Softmax 产生，故该项错误。",
+                    "option_text": "编码器直接输出最终的概率分布，解码器只负责把该分布解码成文字",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：概率分布由解码器输出端的 Linear+Softmax 产生，编码器只产出连续表示，不做最终预测。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出概率分布来自解码器 Linear+Softmax，与论文图 1 结构一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "编码器处理输入、解码器生成输出，且解码器是逐步自回归生成，不存在“先整体生成再交编码器校验”，故错误。",
+                    "option_text": "解码器先把完整输出序列一次性生成，再交给编码器逐位置校验",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：顺序颠倒，编码器处理输入、解码器生成输出，且解码器是逐步生成而非一次性生成后再校验。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析同时指出顺序颠倒与“一次性生成后校验”两点错误，均成立。"
+                  },
+                  {
+                    "reasoning": "编码器与解码器每层都含逐位置全连接前馈网络，并非只有自注意力层，故错误。",
+                    "option_text": "编码器与解码器都只由自注意力层堆叠而成，不含任何前馈网络",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：编码器与解码器都由堆叠的自注意力层和逐位置全连接前馈网络构成，前馈网络是每层必备子层。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析依据论文“stacked self-attention and point-wise, fully connected layers”，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "independent_solution": "编码器把输入符号序列映射为连续表示 z，解码器以 z 为条件自回归逐元素生成输出，故 A 正确；概率分布由解码器末端 Linear+Softmax 产生，B 错；解码器逐步生成而非一次性生成后校验，C 错；两者都含逐位置前馈网络，D 错。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "论文 3.1 明确编码器每层两个子层：多头自注意力与逐位置全连接前馈网络，该项正确。",
+                    "option_text": "编码器每层有两个子层：多头自注意力与逐位置前馈网络",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原论文明确编码器每层两个子层——多头自注意力与逐位置全连接前馈网络。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析与论文 3.1 表述一致，理由成立。"
+                  },
+                  {
+                    "reasoning": "解码器在编码器两子层之外插入第三子层，对编码器堆栈输出做多头注意力，该项正确。",
+                    "option_text": "解码器每层在编码器两个子层之外，插入第三个子层，对编码器堆栈的输出做多头注意力",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：解码器在编码器两个子层之外插入第三个子层，对编码器堆栈输出做多头注意力（编码器-解码器注意力）。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析准确引用“decoder inserts a third sub-layer”，理由成立。"
+                  },
+                  {
+                    "reasoning": "每个子层外包残差连接后做层归一化，输出为 LayerNorm(x+Sublayer(x))，该项正确。",
+                    "option_text": "每个子层都外包残差连接，随后做层归一化，即输出为 LayerNorm(x + Sublayer(x))",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：每个子层外包残差连接再做层归一化，输出为 LayerNorm(x + Sublayer(x))；为使残差可加，所有子层与嵌入层输出维度都是 dmodel=512。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析摘录含 C 的公式说明及 dmodel=512 的补充，均与论文一致，无错误批评。"
+                  },
+                  {
+                    "reasoning": "解码器每层为三个子层，多出编码器-解码器注意力，并非与编码器结构相同，该项错误。",
+                    "option_text": "解码器每层只有两个子层，与编码器完全相同，区别仅在于参数更多",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：解码器每层是三个子层，多出的正是编码器-解码器注意力子层，不是“结构相同只是参数更多”。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出多出的正是编码器-解码器注意力子层，准确否定“结构相同只是参数更多”，成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "independent_solution": "编码器每层两子层（多头自注意力、逐位置前馈网络）→A 对；解码器多出第三个对编码器输出做多头注意力的子层→B 对；每子层外包残差再层归一化 LayerNorm(x+Sublayer(x))→C 对；解码器为三子层，D 错。答案 ABC。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "三项来源描述与论文 3.2.3 完全一致：编码器自注意力同源、解码器自注意力含自身、交叉注意力 Q 来自解码器 K/V 来自编码器。",
+                    "option_text": "编码器自注意力：Q/K/V 都来自上一层编码器输出；解码器掩码自注意力：Q/K/V 都来自解码器已生成部分；编码器-解码器注意力：Q 来自上一层解码器，K/V 来自编码器输出",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：编码器自注意力中 K、V、Q 都来自同一处，即上一层编码器输出，每个位置可关注上一层所有位置；解码器自注意力中每个位置只能关注到并包括自身的位置；编码器-解码器注意力中查询来自上一层解码器，键和值来自编码器输出，使解码器每个位置都能关注输入序列所有位置。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析三段分别对应三种注意力用法，与论文原文一致，理由成立。"
+                  },
+                  {
+                    "reasoning": "编码器自注意力是自注意力，K/V 不可能取自解码器；解码器自注意力输入也不是编码器输出，故错误。",
+                    "option_text": "编码器自注意力：Q 来自编码器、K/V 来自解码器；解码器掩码自注意力：Q/K/V 都来自编码器输出",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：编码器自注意力是自注意力，Q/K/V 同源，不可能把 K/V 取自解码器；解码器自注意力的输入也不是编码器输出。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析分别否定两处来源错误，均成立。"
+                  },
+                  {
+                    "reasoning": "编码器-解码器注意力应为 Q 来自解码器、K/V 来自编码器，该项把两者对调，故错误。",
+                    "option_text": "编码器-解码器注意力：Q 来自编码器输出，K/V 来自上一层解码器",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：把编码器-解码器注意力的 Q 与 K/V 来源对调了，Q 应来自解码器、K/V 来自编码器。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 Q 与 K/V 来源对调，与论文“queries come from the previous decoder layer”一致，成立。"
+                  },
+                  {
+                    "reasoning": "三种用法的 Q/K/V 来源各不相同，差异不止掩码，该项错误。",
+                    "option_text": "三种用法中 Q 都来自编码器输出，K/V 都来自解码器输出，只是掩码不同",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：三种用法的 Q/K/V 来源各不相同，差异不只是掩码。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出来源差异，成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "independent_solution": "编码器自注意力 Q/K/V 同源于上一层编码器输出；解码器掩码自注意力 Q/K/V 来自解码器自身（含当前位置）；编码器-解码器注意力 Q 来自上一层解码器、K/V 来自编码器输出。故 A 正确，B、C、D 均错。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [
+                  {
+                    "reasoning": "[2,1,3] 未做任何掩码，允许看到未来位置，破坏自回归性质，错误。",
+                    "option_text": "[2, 1, 3]",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 是未加掩码的原始得分，等于允许看到未来位置，会破坏自回归性质。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称其为未加掩码的原始得分，与题干数据一致，成立。"
+                  },
+                  {
+                    "reasoning": "[2,1,−∞] 只屏蔽第 3 列，对应位置 2 的行，不是位置 1 的行，错误。",
+                    "option_text": "[2, 1, −∞]",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 对应位置 2 的行（可看位置 1、2，屏蔽位置 3），不是位置 1 的行。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析正确指出该向量对应位置 2 的行，成立。"
+                  },
+                  {
+                    "reasoning": "位置 1 只看自身，第 2、3 列设为 −∞，得 [2,−∞,−∞]，正确。",
+                    "option_text": "[2, −∞, −∞]",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "位置编号从 1 开始，位置 1 只能关注位置 1 自身，因此第 2、3 列对应的连接非法，设为 −∞，得到 [2, −∞, −∞]。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析按“位置 1 只能关注自身”推出掩码结果，推演正确。"
+                  },
+                  {
+                    "reasoning": "全 −∞ 连自身也屏蔽，softmax 无法得到有效权重，且违反“包括自身”规则，错误。",
+                    "option_text": "[−∞, −∞, −∞]",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 把自身也屏蔽了，softmax 输入全为 −∞ 无法得到有效权重，且与“包括自身”的规则矛盾。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出全 −∞ 无法得到有效权重，成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "independent_solution": "位置 1 只能关注位置 1 自身，第 2、3 列非法设为 −∞，得 [2,−∞,−∞]，即 C。A 为未掩码；B 是位置 2 的行；D 连自身也屏蔽，softmax 全 −∞ 无有效权重。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "independent_solution": "论文原文：掩码加上输出嵌入偏移一位，确保位置 i 的预测只依赖位置小于 i 的已知输出，故判断为“正确”。"
+              },
+              {
+                "question_id": "q6",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "independent_solution": "训练时整条右移目标序列并行送入，但掩码把每个位置对后续位置的注意力权重置零（softmax 输入 −∞），使位置 i 只依赖小于 i 的已知输出，与逐步生成的信息条件一致，故可并行且不泄漏答案；推理时后续词尚不存在，第 i 步输入只能来自模型刚生成的第 i−1 个词，必须逐步生成。"
+              },
+              {
+                "question_id": "q7",
+                "option_checks": [
+                  {
+                    "reasoning": "Adam 参数与 warmup 4000 步、平方根倒数衰减均与论文 5.3 一致，正确。",
+                    "option_text": "使用 Adam 优化器，学习率先线性 warmup 4000 步，之后按步数的平方根倒数衰减",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原论文用 Adam（β1=0.9、β2=0.98、ε=1e-9），学习率先线性 warmup，warmup_steps=4000，之后按步数平方根倒数衰减。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用 5.3 节参数与 warmup_steps=4000，准确。"
+                  },
+                  {
+                    "reasoning": "dropout 位置（子层输出加残差归一化前、嵌入与位置编码之和）与 Pdrop=0.1 与论文 5.4 一致，正确。",
+                    "option_text": "对每个子层输出（在加残差并归一化之前）以及嵌入与位置编码之和施加 dropout，base 模型 Pdrop=0.1",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：dropout 施加于每个子层输出（加残差并归一化之前）以及嵌入与位置编码之和，base 模型 Pdrop=0.1。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析与 5.4 节 Residual Dropout 表述一致，成立。"
+                  },
+                  {
+                    "reasoning": "论文明确标签平滑 0.1 损害困惑度但提升准确率与 BLEU，该项正确。",
+                    "option_text": "使用标签平滑 0.1，它会让困惑度变差，但提升准确率与 BLEU",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：论文明确标签平滑 0.1 会损害困惑度，因为模型学会“更不确定”，但提升准确率与 BLEU。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析复述论文 Label Smoothing 段结论，准确。"
+                  },
+                  {
+                    "reasoning": "beam size=4、长度惩罚 α=0.6、最大输出长度输入+50 并尽早终止，与论文一致，正确。",
+                    "option_text": "推理时使用 beam size 为 4、长度惩罚 α=0.6 的束搜索，最大输出长度为输入长度+50 并尽早终止",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：推理用 beam size=4、长度惩罚 α=0.6 的束搜索，最大输出长度为输入长度+50，能提前结束就提前结束。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析与论文束搜索设置一致，成立。"
+                  },
+                  {
+                    "reasoning": "论文使用束搜索而非每步只保留一个词的贪心解码，该项错误。",
+                    "option_text": "推理时使用贪心解码，每步只保留概率最高的一个词，不使用束搜索",
+                    "option_index": 4,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "E 错误：与 D 直接冲突，原论文用的是束搜索而非每步只保留一个词的贪心解码。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出与 D 冲突且论文用束搜索，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "independent_solution": "A：Adam(β1=0.9,β2=0.98,ε=1e-9)，线性 warmup 4000 步后按步数平方根倒数衰减，正确；B：dropout 施加于子层输出（加残差归一化前）与嵌入+位置编码之和，Pdrop=0.1，正确；C：标签平滑 0.1 损害困惑度但提升准确率与 BLEU，正确；D：beam=4、α=0.6、最大长度输入+50、可提前终止，正确；E：与 D 冲突，论文用束搜索而非贪心，错误。答案 ABCD。"
+              },
+              {
+                "question_id": "q8",
+                "option_checks": [
+                  {
+                    "reasoning": "准确区分两种注意力的关注对象，并说明解码器自注意力必须掩码以防看到未来位置，正确。",
+                    "option_text": "编码器-解码器注意力关注的是编码器输出（输入序列），而解码器自注意力关注的是解码器自身尚未完全生成的输出，两者对象不同，后者必须掩码以防看到未来位置",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：编码器-解码器注意力的 K/V 来自编码器输出，即完整已知的输入序列，关注全部位置是合理的；解码器自注意力的 K/V 来自解码器自身，训练时若不加掩码就会看到位置 i 之后的“答案”，破坏自回归性质，因此必须把非法连接设为 −∞。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析两段分别说明交叉注意力 K/V 来自编码器输出、解码器自注意力需掩码，与论文一致。"
+                  },
+                  {
+                    "reasoning": "论文只对解码器自注意力做因果掩码，编码器-解码器注意力不加这种掩码，该项错误。",
+                    "option_text": "编码器-解码器注意力其实也加了掩码，所以两者没有区别",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：原论文只对解码器自注意力做掩码，编码器-解码器注意力不加这种因果掩码。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出掩码仅用于解码器自注意力，成立。"
+                  },
+                  {
+                    "reasoning": "掩码是保持自回归性质的必要条件，不是可选习惯，该项错误。",
+                    "option_text": "解码器自注意力不需要掩码，只是实现上习惯加上",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：掩码是保证自回归性质的必要条件，不是可选习惯。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析强调掩码的必要性，成立。"
+                  },
+                  {
+                    "reasoning": "掩码改变信息可见范围，直接决定训练是否泄漏答案，不只是速度问题，该项错误。",
+                    "option_text": "掩码只影响计算速度，不影响模型能否正确训练",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：掩码改变的是信息可见范围，直接影响训练目标是否泄漏答案，不只是速度问题。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出掩码影响是否泄漏答案，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "independent_solution": "编码器-解码器注意力的 K/V 来自完整已知的编码器输出，关注全部位置合理；解码器自注意力的 K/V 来自解码器自身，训练时若不加掩码会看到位置 i 之后的答案，破坏自回归性质，故必须掩码。A 正确；B 称交叉注意力也加掩码，错；C 称掩码非必需，错；D 称掩码只影响速度，错。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 直接考查编码器映射输入为连续表示、解码器自回归逐元素生成，真实支持“讲授核心概念与结构”的要求。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 逐项核对编码器两子层、解码器第三子层与 LayerNorm(x+Sublayer(x))，确实检查结构理解。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 覆盖 Adam+warmup 4000、dropout 位置与 Pdrop=0.1、标签平滑代价与收益、束搜索参数，落实训练推理要点。",
+                "locator": {
+                  "question_id": "q7"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1 的检查题，正确区分编码器输出连续表示与解码器自回归生成，能检验该目标。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n5-encoder-decoder:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 要求结合掩码解释训练并行与推理逐步生成不矛盾，是对 o1 整体流程的练习性深化。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "n5-encoder-decoder:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 检查编码器两子层与解码器三子层构成，对应 o2 的“列出子层”部分。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n5-encoder-decoder:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 逐项比对三种注意力用法的 Q/K/V 来源，完整覆盖 o2 的“说明 Q/K/V 来源”。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n5-encoder-decoder:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 以 3 位置掩码推演练习“非法连接设为 −∞”，是 o3 的实践性题目。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n5-encoder-decoder:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 判断掩码配合右移一位保证位置 i 只依赖小于 i 的已知输出，直接检查 o3 结论。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n5-encoder-decoder:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 辨析交叉注意力与解码器自注意力掩码必要性，深化 o3 对掩码作用的理解。",
+                "locator": {
+                  "question_id": "q8"
+                },
+                "binding_id": "n5-encoder-decoder:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 覆盖 Adam+warmup、dropout、标签平滑与束搜索，完整对应 o4 的训练与推理轮廓。",
+                "locator": {
+                  "question_id": "q7"
+                },
+                "binding_id": "n5-encoder-decoder:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 2,
+          "decision": "pass",
+          "content_sha256": "f642db5d82808a129180d89123081eed347ad73e32723a7bbcb9f2d88af4462f"
+        }
+      ],
+      "version": 2,
+      "decision": "pass",
+      "suggestions": [
+        "q1、q3、q8 正确答案均为 A，虽未形成全同位置规律，仍可考虑把其中一题的选项顺序调整以进一步降低位置线索。",
+        "q7 为五选项多选且答案含四项，对入门学习者认知负荷偏高，可考虑拆成两道小题或减少一个干扰项。",
+        "q4 题干未明说“该行对应位置 1”，解析中才点明，建议在题干中直接写明“位置 1 的行”，避免读者误判为任意行。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "f642db5d82808a129180d89123081eed347ad73e32723a7bbcb9f2d88af4462f",
+      "question_checks": [
+        {
+          "question_id": "q1",
+          "option_checks": [
+            {
+              "reasoning": "准确复述论文 3 节：编码器映射 (x1..xn)→z，解码器自回归逐元素生成 (y1..ym)，把先前生成符号作为额外输入。",
+              "option_text": "编码器把输入符号序列映射为连续表示 z，解码器以 z 为条件、每步把先前已生成的符号作为额外输入，逐元素生成输出",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原论文写明编码器把 (x1..xn) 映射为连续表示 z=(z1..zn)，解码器据此一次一个元素地生成 (y1..ym)，每步是自回归的，把先前生成的符号作为额外输入。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析摘录与论文原文一致，正确说明 A 成立的理由。"
+            },
+            {
+              "reasoning": "编码器只输出连续表示，最终概率分布由解码器输出端的 Linear+Softmax 产生，故该项错误。",
+              "option_text": "编码器直接输出最终的概率分布，解码器只负责把该分布解码成文字",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：概率分布由解码器输出端的 Linear+Softmax 产生，编码器只产出连续表示，不做最终预测。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出概率分布来自解码器 Linear+Softmax，与论文图 1 结构一致，批评成立。"
+            },
+            {
+              "reasoning": "编码器处理输入、解码器生成输出，且解码器是逐步自回归生成，不存在“先整体生成再交编码器校验”，故错误。",
+              "option_text": "解码器先把完整输出序列一次性生成，再交给编码器逐位置校验",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：顺序颠倒，编码器处理输入、解码器生成输出，且解码器是逐步生成而非一次性生成后再校验。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析同时指出顺序颠倒与“一次性生成后校验”两点错误，均成立。"
+            },
+            {
+              "reasoning": "编码器与解码器每层都含逐位置全连接前馈网络，并非只有自注意力层，故错误。",
+              "option_text": "编码器与解码器都只由自注意力层堆叠而成，不含任何前馈网络",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：编码器与解码器都由堆叠的自注意力层和逐位置全连接前馈网络构成，前馈网络是每层必备子层。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析依据论文“stacked self-attention and point-wise, fully connected layers”，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "independent_solution": "编码器把输入符号序列映射为连续表示 z，解码器以 z 为条件自回归逐元素生成输出，故 A 正确；概率分布由解码器末端 Linear+Softmax 产生，B 错；解码器逐步生成而非一次性生成后校验，C 错；两者都含逐位置前馈网络，D 错。"
+        },
+        {
+          "question_id": "q2",
+          "option_checks": [
+            {
+              "reasoning": "论文 3.1 明确编码器每层两个子层：多头自注意力与逐位置全连接前馈网络，该项正确。",
+              "option_text": "编码器每层有两个子层：多头自注意力与逐位置前馈网络",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原论文明确编码器每层两个子层——多头自注意力与逐位置全连接前馈网络。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析与论文 3.1 表述一致，理由成立。"
+            },
+            {
+              "reasoning": "解码器在编码器两子层之外插入第三子层，对编码器堆栈输出做多头注意力，该项正确。",
+              "option_text": "解码器每层在编码器两个子层之外，插入第三个子层，对编码器堆栈的输出做多头注意力",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：解码器在编码器两个子层之外插入第三个子层，对编码器堆栈输出做多头注意力（编码器-解码器注意力）。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析准确引用“decoder inserts a third sub-layer”，理由成立。"
+            },
+            {
+              "reasoning": "每个子层外包残差连接后做层归一化，输出为 LayerNorm(x+Sublayer(x))，该项正确。",
+              "option_text": "每个子层都外包残差连接，随后做层归一化，即输出为 LayerNorm(x + Sublayer(x))",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 正确：每个子层外包残差连接再做层归一化，输出为 LayerNorm(x + Sublayer(x))；为使残差可加，所有子层与嵌入层输出维度都是 dmodel=512。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析摘录含 C 的公式说明及 dmodel=512 的补充，均与论文一致，无错误批评。"
+            },
+            {
+              "reasoning": "解码器每层为三个子层，多出编码器-解码器注意力，并非与编码器结构相同，该项错误。",
+              "option_text": "解码器每层只有两个子层，与编码器完全相同，区别仅在于参数更多",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：解码器每层是三个子层，多出的正是编码器-解码器注意力子层，不是“结构相同只是参数更多”。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出多出的正是编码器-解码器注意力子层，准确否定“结构相同只是参数更多”，成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "independent_solution": "编码器每层两子层（多头自注意力、逐位置前馈网络）→A 对；解码器多出第三个对编码器输出做多头注意力的子层→B 对；每子层外包残差再层归一化 LayerNorm(x+Sublayer(x))→C 对；解码器为三子层，D 错。答案 ABC。"
+        },
+        {
+          "question_id": "q3",
+          "option_checks": [
+            {
+              "reasoning": "三项来源描述与论文 3.2.3 完全一致：编码器自注意力同源、解码器自注意力含自身、交叉注意力 Q 来自解码器 K/V 来自编码器。",
+              "option_text": "编码器自注意力：Q/K/V 都来自上一层编码器输出；解码器掩码自注意力：Q/K/V 都来自解码器已生成部分；编码器-解码器注意力：Q 来自上一层解码器，K/V 来自编码器输出",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：编码器自注意力中 K、V、Q 都来自同一处，即上一层编码器输出，每个位置可关注上一层所有位置；解码器自注意力中每个位置只能关注到并包括自身的位置；编码器-解码器注意力中查询来自上一层解码器，键和值来自编码器输出，使解码器每个位置都能关注输入序列所有位置。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析三段分别对应三种注意力用法，与论文原文一致，理由成立。"
+            },
+            {
+              "reasoning": "编码器自注意力是自注意力，K/V 不可能取自解码器；解码器自注意力输入也不是编码器输出，故错误。",
+              "option_text": "编码器自注意力：Q 来自编码器、K/V 来自解码器；解码器掩码自注意力：Q/K/V 都来自编码器输出",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：编码器自注意力是自注意力，Q/K/V 同源，不可能把 K/V 取自解码器；解码器自注意力的输入也不是编码器输出。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析分别否定两处来源错误，均成立。"
+            },
+            {
+              "reasoning": "编码器-解码器注意力应为 Q 来自解码器、K/V 来自编码器，该项把两者对调，故错误。",
+              "option_text": "编码器-解码器注意力：Q 来自编码器输出，K/V 来自上一层解码器",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：把编码器-解码器注意力的 Q 与 K/V 来源对调了，Q 应来自解码器、K/V 来自编码器。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 Q 与 K/V 来源对调，与论文“queries come from the previous decoder layer”一致，成立。"
+            },
+            {
+              "reasoning": "三种用法的 Q/K/V 来源各不相同，差异不止掩码，该项错误。",
+              "option_text": "三种用法中 Q 都来自编码器输出，K/V 都来自解码器输出，只是掩码不同",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：三种用法的 Q/K/V 来源各不相同，差异不只是掩码。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出来源差异，成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "independent_solution": "编码器自注意力 Q/K/V 同源于上一层编码器输出；解码器掩码自注意力 Q/K/V 来自解码器自身（含当前位置）；编码器-解码器注意力 Q 来自上一层解码器、K/V 来自编码器输出。故 A 正确，B、C、D 均错。"
+        },
+        {
+          "question_id": "q4",
+          "option_checks": [
+            {
+              "reasoning": "[2,1,3] 未做任何掩码，允许看到未来位置，破坏自回归性质，错误。",
+              "option_text": "[2, 1, 3]",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 是未加掩码的原始得分，等于允许看到未来位置，会破坏自回归性质。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析称其为未加掩码的原始得分，与题干数据一致，成立。"
+            },
+            {
+              "reasoning": "[2,1,−∞] 只屏蔽第 3 列，对应位置 2 的行，不是位置 1 的行，错误。",
+              "option_text": "[2, 1, −∞]",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 对应位置 2 的行（可看位置 1、2，屏蔽位置 3），不是位置 1 的行。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析正确指出该向量对应位置 2 的行，成立。"
+            },
+            {
+              "reasoning": "位置 1 只看自身，第 2、3 列设为 −∞，得 [2,−∞,−∞]，正确。",
+              "option_text": "[2, −∞, −∞]",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "位置编号从 1 开始，位置 1 只能关注位置 1 自身，因此第 2、3 列对应的连接非法，设为 −∞，得到 [2, −∞, −∞]。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析按“位置 1 只能关注自身”推出掩码结果，推演正确。"
+            },
+            {
+              "reasoning": "全 −∞ 连自身也屏蔽，softmax 无法得到有效权重，且违反“包括自身”规则，错误。",
+              "option_text": "[−∞, −∞, −∞]",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 把自身也屏蔽了，softmax 输入全为 −∞ 无法得到有效权重，且与“包括自身”的规则矛盾。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出全 −∞ 无法得到有效权重，成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "independent_solution": "位置 1 只能关注位置 1 自身，第 2、3 列非法设为 −∞，得 [2,−∞,−∞]，即 C。A 为未掩码；B 是位置 2 的行；D 连自身也屏蔽，softmax 全 −∞ 无有效权重。"
+        },
+        {
+          "question_id": "q5",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "independent_solution": "论文原文：掩码加上输出嵌入偏移一位，确保位置 i 的预测只依赖位置小于 i 的已知输出，故判断为“正确”。"
+        },
+        {
+          "question_id": "q6",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "independent_solution": "训练时整条右移目标序列并行送入，但掩码把每个位置对后续位置的注意力权重置零（softmax 输入 −∞），使位置 i 只依赖小于 i 的已知输出，与逐步生成的信息条件一致，故可并行且不泄漏答案；推理时后续词尚不存在，第 i 步输入只能来自模型刚生成的第 i−1 个词，必须逐步生成。"
+        },
+        {
+          "question_id": "q7",
+          "option_checks": [
+            {
+              "reasoning": "Adam 参数与 warmup 4000 步、平方根倒数衰减均与论文 5.3 一致，正确。",
+              "option_text": "使用 Adam 优化器，学习率先线性 warmup 4000 步，之后按步数的平方根倒数衰减",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原论文用 Adam（β1=0.9、β2=0.98、ε=1e-9），学习率先线性 warmup，warmup_steps=4000，之后按步数平方根倒数衰减。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析引用 5.3 节参数与 warmup_steps=4000，准确。"
+            },
+            {
+              "reasoning": "dropout 位置（子层输出加残差归一化前、嵌入与位置编码之和）与 Pdrop=0.1 与论文 5.4 一致，正确。",
+              "option_text": "对每个子层输出（在加残差并归一化之前）以及嵌入与位置编码之和施加 dropout，base 模型 Pdrop=0.1",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：dropout 施加于每个子层输出（加残差并归一化之前）以及嵌入与位置编码之和，base 模型 Pdrop=0.1。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析与 5.4 节 Residual Dropout 表述一致，成立。"
+            },
+            {
+              "reasoning": "论文明确标签平滑 0.1 损害困惑度但提升准确率与 BLEU，该项正确。",
+              "option_text": "使用标签平滑 0.1，它会让困惑度变差，但提升准确率与 BLEU",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 正确：论文明确标签平滑 0.1 会损害困惑度，因为模型学会“更不确定”，但提升准确率与 BLEU。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析复述论文 Label Smoothing 段结论，准确。"
+            },
+            {
+              "reasoning": "beam size=4、长度惩罚 α=0.6、最大输出长度输入+50 并尽早终止，与论文一致，正确。",
+              "option_text": "推理时使用 beam size 为 4、长度惩罚 α=0.6 的束搜索，最大输出长度为输入长度+50 并尽早终止",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 正确：推理用 beam size=4、长度惩罚 α=0.6 的束搜索，最大输出长度为输入长度+50，能提前结束就提前结束。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析与论文束搜索设置一致，成立。"
+            },
+            {
+              "reasoning": "论文使用束搜索而非每步只保留一个词的贪心解码，该项错误。",
+              "option_text": "推理时使用贪心解码，每步只保留概率最高的一个词，不使用束搜索",
+              "option_index": 4,
+              "explanation_valid": true,
+              "explanation_excerpt": "E 错误：与 D 直接冲突，原论文用的是束搜索而非每步只保留一个词的贪心解码。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出与 D 冲突且论文用束搜索，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "independent_solution": "A：Adam(β1=0.9,β2=0.98,ε=1e-9)，线性 warmup 4000 步后按步数平方根倒数衰减，正确；B：dropout 施加于子层输出（加残差归一化前）与嵌入+位置编码之和，Pdrop=0.1，正确；C：标签平滑 0.1 损害困惑度但提升准确率与 BLEU，正确；D：beam=4、α=0.6、最大长度输入+50、可提前终止，正确；E：与 D 冲突，论文用束搜索而非贪心，错误。答案 ABCD。"
+        },
+        {
+          "question_id": "q8",
+          "option_checks": [
+            {
+              "reasoning": "准确区分两种注意力的关注对象，并说明解码器自注意力必须掩码以防看到未来位置，正确。",
+              "option_text": "编码器-解码器注意力关注的是编码器输出（输入序列），而解码器自注意力关注的是解码器自身尚未完全生成的输出，两者对象不同，后者必须掩码以防看到未来位置",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：编码器-解码器注意力的 K/V 来自编码器输出，即完整已知的输入序列，关注全部位置是合理的；解码器自注意力的 K/V 来自解码器自身，训练时若不加掩码就会看到位置 i 之后的“答案”，破坏自回归性质，因此必须把非法连接设为 −∞。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析两段分别说明交叉注意力 K/V 来自编码器输出、解码器自注意力需掩码，与论文一致。"
+            },
+            {
+              "reasoning": "论文只对解码器自注意力做因果掩码，编码器-解码器注意力不加这种掩码，该项错误。",
+              "option_text": "编码器-解码器注意力其实也加了掩码，所以两者没有区别",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：原论文只对解码器自注意力做掩码，编码器-解码器注意力不加这种因果掩码。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出掩码仅用于解码器自注意力，成立。"
+            },
+            {
+              "reasoning": "掩码是保持自回归性质的必要条件，不是可选习惯，该项错误。",
+              "option_text": "解码器自注意力不需要掩码，只是实现上习惯加上",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：掩码是保证自回归性质的必要条件，不是可选习惯。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析强调掩码的必要性，成立。"
+            },
+            {
+              "reasoning": "掩码改变信息可见范围，直接决定训练是否泄漏答案，不只是速度问题，该项错误。",
+              "option_text": "掩码只影响计算速度，不影响模型能否正确训练",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：掩码改变的是信息可见范围，直接影响训练目标是否泄漏答案，不只是速度问题。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出掩码影响是否泄漏答案，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "independent_solution": "编码器-解码器注意力的 K/V 来自完整已知的编码器输出，关注全部位置合理；解码器自注意力的 K/V 来自解码器自身，训练时若不加掩码会看到位置 i 之后的答案，破坏自回归性质，故必须掩码。A 正确；B 称交叉注意力也加掩码，错；C 称掩码非必需，错；D 称掩码只影响速度，错。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q1 直接考查编码器映射输入为连续表示、解码器自回归逐元素生成，真实支持“讲授核心概念与结构”的要求。",
+          "locator": {
+            "question_id": "q1"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 逐项核对编码器两子层、解码器第三子层与 LayerNorm(x+Sublayer(x))，确实检查结构理解。",
+          "locator": {
+            "question_id": "q2"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 覆盖 Adam+warmup 4000、dropout 位置与 Pdrop=0.1、标签平滑代价与收益、束搜索参数，落实训练推理要点。",
+          "locator": {
+            "question_id": "q7"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 作为 o1 的检查题，正确区分编码器输出连续表示与解码器自回归生成，能检验该目标。",
+          "locator": {
+            "question_id": "q1"
+          },
+          "binding_id": "n5-encoder-decoder:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 要求结合掩码解释训练并行与推理逐步生成不矛盾，是对 o1 整体流程的练习性深化。",
+          "locator": {
+            "question_id": "q6"
+          },
+          "binding_id": "n5-encoder-decoder:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 检查编码器两子层与解码器三子层构成，对应 o2 的“列出子层”部分。",
+          "locator": {
+            "question_id": "q2"
+          },
+          "binding_id": "n5-encoder-decoder:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 逐项比对三种注意力用法的 Q/K/V 来源，完整覆盖 o2 的“说明 Q/K/V 来源”。",
+          "locator": {
+            "question_id": "q3"
+          },
+          "binding_id": "n5-encoder-decoder:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 以 3 位置掩码推演练习“非法连接设为 −∞”，是 o3 的实践性题目。",
+          "locator": {
+            "question_id": "q4"
+          },
+          "binding_id": "n5-encoder-decoder:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 判断掩码配合右移一位保证位置 i 只依赖小于 i 的已知输出，直接检查 o3 结论。",
+          "locator": {
+            "question_id": "q5"
+          },
+          "binding_id": "n5-encoder-decoder:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 辨析交叉注意力与解码器自注意力掩码必要性，深化 o3 对掩码作用的理解。",
+          "locator": {
+            "question_id": "q8"
+          },
+          "binding_id": "n5-encoder-decoder:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 覆盖 Adam+warmup、dropout、标签平滑与束搜索，完整对应 o4 的训练与推理轮廓。",
+          "locator": {
+            "question_id": "q7"
+          },
+          "binding_id": "n5-encoder-decoder:o4",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "af67dc1c085f47f5c673d16d916e9db149e1f776cb5856560dcfe77d06db6345",
+      "option_binding_version": 1
+    }
+  }
+}

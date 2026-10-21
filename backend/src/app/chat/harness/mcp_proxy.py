@@ -20,7 +20,7 @@ def main():
                      "Content-Type": "application/json"}, method="POST",
         )
         try:
-            with urlopen(request, timeout=125) as response:
+            with urlopen(request, timeout=float(os.environ.get('EDU_MCP_TIMEOUT_SECONDS', '125'))) as response:
                 result = response.read().decode()
         except Exception:
             result = json.dumps({"jsonrpc": "2.0", "id": message["id"],

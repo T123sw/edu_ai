@@ -114,6 +114,10 @@ class KnowledgeBaseDirectQuizServiceV2:
         if selected_doc_ids and not documents:
             raise ValueError("selected documents content is empty")
 
+        research_context = str(getattr(payload, "research_context", "") or "").strip()
+        if research_context:
+            documents.append({"document_id": "course-context", "title": "当前课程资料", "content": research_context})
+
         quiz_config = dict(getattr(payload, "quiz_config", {}) or {})
         topic = _clean(quiz_config.get("topic")) or self._fallback_topic(documents)
         if not topic:
@@ -140,6 +144,13 @@ class KnowledgeBaseDirectQuizServiceV2:
             preparation=preparation,
             conversation_id=f"direct-quiz-{uuid4().hex[:12]}",
         )
+        # Apply output switches after normalization, which can synthesize an
+        # explanation even when the model omitted it. Persist the same result.
+        for question in artifact["content"]["questions"]:
+            if not quiz_config.get("include_answers", True):
+                question["answer"] = ""
+            if not quiz_config.get("include_explanations", True):
+                question["explanation"] = ""
         requested_material_id = _clean(getattr(payload, "material_id", ""))
         if requested_material_id:
             artifact["artifact_id"] = requested_material_id
@@ -204,6 +215,7 @@ class KnowledgeBaseDirectQuizServiceV2:
     ) -> list[dict[str, str]]:
         prompt_draft = _clean(getattr(payload, "prompt_draft", ""))
         final_user_prompt = _clean(getattr(payload, "final_user_prompt", "")) or "请直接生成习题。"
+        audience = _clean((getattr(payload, "quiz_config", {}) or {}).get("audience"))
         include_answers = bool((getattr(payload, "quiz_config", {}) or {}).get("include_answers", True))
         include_explanations = bool((getattr(payload, "quiz_config", {}) or {}).get("include_explanations", True))
 
@@ -248,6 +260,7 @@ class KnowledgeBaseDirectQuizServiceV2:
                     f"固定习题生成提示：{prompt_draft}\n"
                     f"用户最终要求：{final_user_prompt}\n"
                     f"主题：{preparation['topic']}\n"
+                    f"适用对象：{audience or '未指定'}\n"
                     f"难度：{preparation['difficulty']}\n"
                     f"数量：{preparation['question_count']}\n"
                     f"题型：{'、'.join(preparation['question_types'])}\n"

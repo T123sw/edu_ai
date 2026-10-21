@@ -1,0 +1,114 @@
+{
+  "measurements": [
+    {
+      "name": "baseline-0.wav",
+      "duration": 17.84,
+      "median_hz": 242.27,
+      "p10_hz": 188.99,
+      "p90_hz": 444.33,
+      "voiced_frames": 47
+    },
+    {
+      "name": "baseline-1.wav",
+      "duration": 13.6,
+      "median_hz": 224.75,
+      "p10_hz": 188.99,
+      "p90_hz": 288.11,
+      "voiced_frames": 31
+    },
+    {
+      "name": "baseline-2.wav",
+      "duration": 15.84,
+      "median_hz": 278.3,
+      "p10_hz": 213.36,
+      "p90_hz": 316.74,
+      "voiced_frames": 97
+    },
+    {
+      "name": "baseline-3.wav",
+      "duration": 12.96,
+      "median_hz": 278.3,
+      "p10_hz": 249.71,
+      "p90_hz": 363.42,
+      "voiced_frames": 59
+    },
+    {
+      "name": "stable-0.wav",
+      "duration": 19.44,
+      "median_hz": 214.6,
+      "p10_hz": 164.52,
+      "p90_hz": 336.74,
+      "voiced_frames": 157
+    },
+    {
+      "name": "stable-1.wav",
+      "duration": 24.32,
+      "median_hz": 218.35,
+      "p10_hz": 166.44,
+      "p90_hz": 303.49,
+      "voiced_frames": 263
+    },
+    {
+      "name": "stable-2.wav",
+      "duration": 19.36,
+      "median_hz": 243.68,
+      "p10_hz": 166.24,
+      "p90_hz": 347.41,
+      "voiced_frames": 117
+    },
+    {
+      "name": "stable-3.wav",
+      "duration": 16.32,
+      "median_hz": 267.27,
+      "p10_hz": 204.91,
+      "p90_hz": 380.17,
+      "voiced_frames": 88
+    }
+  ],
+  "groups": {
+    "baseline": {
+      "median_hz": [
+        242.27,
+        224.75,
+        278.3,
+        278.3
+      ],
+      "range_hz": 53.55,
+      "cv": 0.0908
+    },
+    "stable": {
+      "median_hz": [
+        214.6,
+        218.35,
+        243.68,
+        267.27
+      ],
+      "range_hz": 52.67,
+      "cv": 0.0901
+    }
+  },
+  "repeatability": [
+    {
+      "a": "repeat-0.wav",
+      "b": "repeat-1.wav",
+      "same_pcm": true,
+      "samples_a": 487680,
+      "samples_b": 487680
+    },
+    {
+      "a": "stable-0.wav",
+      "b": "repeat-0.wav",
+      "same_pcm": false,
+      "samples_a": 466560,
+      "samples_b": 487680
+    },
+    {
+      "a": "stable-1.wav",
+      "b": "repeat-2.wav",
+      "same_pcm": false,
+      "samples_a": 583680,
+      "samples_b": 416640
+    }
+  ],
+  "limitations": "F0 measures pitch, not speaker identity or intelligibility; no ASR or human listening result is claimed."
+}

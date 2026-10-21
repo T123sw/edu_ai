@@ -1,0 +1,27 @@
+{
+  "frontend": "published; production asset and route smoke verified",
+  "backend": "source implemented, restart blocked by sudo password; endpoint currently 404",
+  "changes": [
+    "我的资源作为第四个主导航入口",
+    "工具仅在具体课程最右侧展示，保持桌面目录和对话宽度",
+    "课程内生成自动关联课程/知识点，复用模型生成器并传入授权资料内容及版本",
+    "本课资源与全局资源共用私有原件，报告/习题可显式加入当前课程目录",
+    "全局资源页显示课程/知识点，并汇总原 Agent 私有资源，支持课程筛选"
+  ],
+  "verification": {
+    "backend_isolated_tests": 49,
+    "direct_report_quiz_prompt_tests": 9,
+    "typecheck": "pass: shared and isolated frontend",
+    "eslint": "pass: Studio, LiveApp, ModuleNavigation",
+    "build": "pass, existing large chunk advisory",
+    "browser": "4 viewport flows; 3 additional themes at each size; mocked APIs",
+    "production_smoke": "Production smoke PASS"
+  },
+  "limits": [
+    "No real LLM or search generation in this turn",
+    "Backend source requires administrator service restart",
+    "Course context currently uses current node material excerpts, up to 32000 characters; saved source references record included versions",
+    "Resource metadata is a generation-time course/node title snapshot; older independent resources retain their legacy designation"
+  ],
+  "storage": "Private namespace retained for compatibility; generated resources carry authoritative studio_course_id and studio_chapter_id. No new course is created."
+}

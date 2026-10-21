@@ -39,6 +39,11 @@ def retry_durable_job(
     )
     try:
         command = dict(original_task.command)
+        if original_task.workflow_type == 'pbl_generate':
+            from app.pbl.generation_policy import generation_limits
+            command = generation_limits(command)
+        if original_task.workflow_type == 'exam_generate':
+            command.update(deadline_seconds=1800, execution_timeout_seconds=1800)
         standard_kind = _standard_resource_kind(command)
         if standard_kind is not None:
             command["deadline_seconds"] = (
@@ -47,6 +52,12 @@ def retry_durable_job(
             command["execution_timeout_seconds"] = (
                 standard_resource_execution_timeout_seconds(standard_kind)
             )
+        if original_task.workflow_type == 'classroom_generate':
+            from app.integrations.hyperframes.generation_policy import generation_limits
+            command = generation_limits(command)
+        if original_task.workflow_type == 'personal_studio' and command.get('resource_type') == 'podcast':
+            from app.services.podcast_generation_policy import generation_limits
+            command = generation_limits(command)
         task_store.enqueue(
             task_id=retried.edu_job_id,
             workflow_type=original_task.workflow_type,

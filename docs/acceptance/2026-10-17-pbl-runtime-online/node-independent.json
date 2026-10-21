@@ -1,0 +1,92 @@
+{
+  "passed": false,
+  "observations": [
+    {
+      "path": "/health",
+      "actual": {
+        "status": 200,
+        "json": {
+          "status": "ok"
+        }
+      }
+    },
+    {
+      "path": "/square?n=4",
+      "actual": {
+        "status": 200,
+        "json": {
+          "result": 16
+        }
+      }
+    },
+    {
+      "path": "/square?n=-2.5",
+      "actual": {
+        "status": 200,
+        "json": {
+          "result": 6.25
+        }
+      }
+    },
+    {
+      "path": "/square?n=0",
+      "actual": {
+        "status": 200,
+        "json": {
+          "result": 0
+        }
+      }
+    },
+    {
+      "path": "/square",
+      "actual": {
+        "status": 400,
+        "json": {
+          "error": "invalid n"
+        }
+      }
+    },
+    {
+      "path": "/square?n=abc",
+      "actual": {
+        "status": 400,
+        "json": {
+          "error": "invalid n"
+        }
+      }
+    },
+    {
+      "path": "/square?n=",
+      "actual": {
+        "status": 400,
+        "json": {
+          "error": "invalid n"
+        }
+      }
+    }
+  ],
+  "additionalEdges": [
+    {
+      "path": "/square?n=Infinity",
+      "actual": {
+        "status": 200,
+        "json": {
+          "result": null
+        }
+      }
+    },
+    {
+      "path": "/square?n=%20",
+      "actual": {
+        "status": 200,
+        "json": {
+          "result": 0
+        }
+      }
+    }
+  ],
+  "editedModuleRestarted": true,
+  "restored": true,
+  "corePathsPassed": true,
+  "boundaryInputsPassed": false
+}

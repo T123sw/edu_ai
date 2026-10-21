@@ -1,0 +1,59 @@
+{
+  "status": "media_decode_passed",
+  "video": "/home/zxqs_ep/data/main-review/hyperframes-native-workflow/lesson.mp4",
+  "video_sha256": "b088ce293de54daa5399513444bda2382eb94b977a7b1f8cdc6f047508168c75",
+  "duration": 43.633333,
+  "streams": [
+    {
+      "codec_type": "video",
+      "codec_name": "h264",
+      "width": 1920,
+      "height": 1080,
+      "sample_rate": null,
+      "channels": null
+    },
+    {
+      "codec_type": "audio",
+      "codec_name": "aac",
+      "width": null,
+      "height": null,
+      "sample_rate": "48000",
+      "channels": 2
+    }
+  ],
+  "segments": 6,
+  "shots": [
+    {
+      "path": "frame-01.png",
+      "seconds": 2.952,
+      "title": "只差一个加 2"
+    },
+    {
+      "path": "frame-02.png",
+      "seconds": 9.852,
+      "title": "b=0：从原点出发"
+    },
+    {
+      "path": "frame-03.png",
+      "seconds": 17.784,
+      "title": "b=2：整条线上移"
+    },
+    {
+      "path": "frame-04.png",
+      "seconds": 27.0,
+      "title": "固定 x 检验"
+    },
+    {
+      "path": "frame-05.png",
+      "seconds": 35.664,
+      "title": "这个 2 就是 b"
+    },
+    {
+      "path": "frame-06.png",
+      "seconds": 41.364,
+      "title": "记住这一句"
+    }
+  ],
+  "within_requested_duration": true,
+  "scope": "Actual native model/script/audio/render through production generation entry; isolated storage, not frontend-submitted production job"
+}

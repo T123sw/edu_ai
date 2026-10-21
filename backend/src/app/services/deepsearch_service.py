@@ -463,6 +463,7 @@ def run_deepsearch_and_crawl(
     max_urls: Optional[int] = 10,
     crawl_timeout: Optional[int] = 60,
     save_to_kb: Optional[bool] = True,
+    persist_batch: bool = True,
     course_id: Optional[str] = None,
     scope_type: Optional[str] = None,
     scope_id: Optional[str] = None,
@@ -506,7 +507,8 @@ def run_deepsearch_and_crawl(
             crawl_batch = _build_basic_batch(query, hits)
     else:
         crawl_batch = _build_basic_batch(query, hits)
-    _localize_crawl_batch_images(crawl_batch, owner=owner, course_id=course_id)
+    if persist_batch or save_to_kb:
+        _localize_crawl_batch_images(crawl_batch, owner=owner, course_id=course_id)
     print(
         "[DeepSearch] phase=content status=ready "
         f"mode={depth} results={crawl_batch.total_urls} success={crawl_batch.success_count} "
@@ -516,9 +518,9 @@ def run_deepsearch_and_crawl(
 
     cleaned_results = _clean_crawl_results(crawl_batch)
 
-    batch_id = crawl_batch_store.save_crawl_batch(crawl_batch, owner=owner)
+    batch_id = crawl_batch_store.save_crawl_batch(crawl_batch, owner=owner) if persist_batch else ""
     crawl_batch.batch_id = batch_id
-    print(f"[DeepSearch] phase=batch_store status=saved batch_id={batch_id}")
+    print(f"[DeepSearch] phase=batch_store status={'saved' if persist_batch else 'skipped'} batch_id={batch_id}")
 
     imported_docs: List[dict] = []
     archive_error = ""

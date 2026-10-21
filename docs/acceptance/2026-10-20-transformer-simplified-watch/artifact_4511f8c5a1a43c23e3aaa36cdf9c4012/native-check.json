@@ -1,0 +1,2169 @@
+{
+  "ok": false,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 19,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame01-title.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"frame01-title-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame01-title.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame02-encoder-recap.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"frame02-encoder-recap-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame02-encoder-recap.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "gsap_repeated_fromto_without_baseline",
+        "severity": "warning",
+        "message": "2 tl.fromTo() calls target \"#frame02-encoder-recap-memory-outline\" with no stable baseline. The last-authored fromTo \"from\" values become the element's resting state for any seek before the first tween actually runs, because GSAP applies fromTo from-values at authoring time (immediateRender), not at tween position.",
+        "selector": "#frame02-encoder-recap-memory-outline",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame02-encoder-recap.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add `immediateRender: false` to every fromTo except the earliest-positioned one (at 9.2s), so pre-first-tween seeks keep its \"from\" values. A hiding `tl.set(..., 0)` baseline trips gsap_timeline_set_initial_hide, and a `gsap.set` authored before the fromTo calls is overwritten by them."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame03-three-sublayers.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"frame03-three-sublayers-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame03-three-sublayers.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "composition_file_too_large",
+        "severity": "warning",
+        "message": "This HTML composition file has 327 lines. Smaller sub-compositions are easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame03-three-sublayers.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Split this sub-composition further into smaller .html files, then mount them from the parent with data-composition-src so each file stays small enough to inspect, revise, and validate independently."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f04-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame04-encoder-compare.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f05-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame05-causal-mask.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f06-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame06-mask-purposes.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame07-shifted-right.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame08-cross-attention.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame09-three-attentions.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"frame10-end-to-end-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame10-end-to-end.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"frame11-translate-demo-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame11-translate-demo.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame12-architectures.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame13-tradeoffs.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/compositions/frames/frame14-recap.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      }
+    ],
+    "filesScanned": 15
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 14,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame01-title-voice\" is 13.66s but its slot (data-duration) is 14.11s — the slot is shortened to the media length when rendered. Set data-duration to ~13.66s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame02-encoder-recap-voice\" is 19.10s but its slot (data-duration) is 19.55s — the slot is shortened to the media length when rendered. Set data-duration to ~19.10s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame03-three-sublayers-voice\" is 32.06s but its slot (data-duration) is 32.51s — the slot is shortened to the media length when rendered. Set data-duration to ~32.06s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame04-encoder-compare-voice\" is 14.62s but its slot (data-duration) is 15.07s — the slot is shortened to the media length when rendered. Set data-duration to ~14.62s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame05-causal-mask-voice\" is 19.01s but its slot (data-duration) is 19.46s — the slot is shortened to the media length when rendered. Set data-duration to ~19.01s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame06-mask-purposes-voice\" is 28.54s but its slot (data-duration) is 28.99s — the slot is shortened to the media length when rendered. Set data-duration to ~28.54s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame07-shifted-right-voice\" is 23.42s but its slot (data-duration) is 23.87s — the slot is shortened to the media length when rendered. Set data-duration to ~23.42s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame08-cross-attention-voice\" is 25.49s but its slot (data-duration) is 25.94s — the slot is shortened to the media length when rendered. Set data-duration to ~25.49s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame09-three-attentions-voice\" is 19.42s but its slot (data-duration) is 19.87s — the slot is shortened to the media length when rendered. Set data-duration to ~19.42s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame10-end-to-end-voice\" is 28.13s but its slot (data-duration) is 28.58s — the slot is shortened to the media length when rendered. Set data-duration to ~28.13s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame11-translate-demo-voice\" is 29.18s but its slot (data-duration) is 29.63s — the slot is shortened to the media length when rendered. Set data-duration to ~29.18s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame12-architectures-voice\" is 21.65s but its slot (data-duration) is 22.10s — the slot is shortened to the media length when rendered. Set data-duration to ~21.65s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame13-tradeoffs-voice\" is 19.90s but its slot (data-duration) is 20.35s — the slot is shortened to the media length when rendered. Set data-duration to ~19.90s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-frame14-recap-voice\" is 15.58s but its slot (data-duration) is 16.03s — the slot is shortened to the media length when rendered. Set data-duration to ~15.58s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "316.044",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      }
+    ]
+  },
+  "layout": {
+    "ok": false,
+    "errorCount": 11,
+    "warningCount": 0,
+    "infoCount": 23,
+    "findings": [
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 17.558,
+        "selector": "#frame02-encoder-recap-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 512,
+          "top": 547,
+          "right": 1643.69,
+          "bottom": 865,
+          "width": 1131.69,
+          "height": 318
+        },
+        "text": "ENCODER",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame02-encoder-recap.html",
+        "bbox": {
+          "x": 512,
+          "y": 547,
+          "width": 1131.69,
+          "height": 318
+        },
+        "firstSeen": 17.558,
+        "lastSeen": 17.558,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          17.558
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 52.674,
+        "selector": "#frame03-three-sublayers-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 897.39,
+          "top": 591,
+          "right": 1636.38,
+          "bottom": 909,
+          "width": 738.98,
+          "height": 318
+        },
+        "text": "LAYER",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame03-three-sublayers.html",
+        "bbox": {
+          "x": 897.39,
+          "y": 591,
+          "width": 738.98,
+          "height": 318
+        },
+        "firstSeen": 52.674,
+        "lastSeen": 52.674,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          52.674
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 87.79,
+        "selector": "div.f05-bg-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 172.12,
+          "top": 591,
+          "right": 824.22,
+          "bottom": 909,
+          "width": 652.09,
+          "height": 318
+        },
+        "text": "MASK",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame05-causal-mask.html",
+        "bbox": {
+          "x": 172.12,
+          "y": 591,
+          "width": 652.09,
+          "height": 318
+        },
+        "firstSeen": 87.79,
+        "lastSeen": 87.79,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          87.79
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 122.906,
+        "selector": "div.f06-bg-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1130.27,
+          "top": 511,
+          "right": 1782.36,
+          "bottom": 829,
+          "width": 652.09,
+          "height": 318
+        },
+        "text": "MASK",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame06-mask-purposes.html",
+        "bbox": {
+          "x": 1130.27,
+          "y": 511,
+          "width": 652.09,
+          "height": 318
+        },
+        "firstSeen": 122.906,
+        "lastSeen": 122.906,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          122.906
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 158.022,
+        "selector": "#frame08-cross-attention-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 727.3,
+          "top": 700,
+          "right": 1499.5,
+          "bottom": 1018,
+          "width": 772.2,
+          "height": 318
+        },
+        "text": "CROSS",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame08-cross-attention.html",
+        "bbox": {
+          "x": 727.3,
+          "y": 700,
+          "width": 772.2,
+          "height": 318
+        },
+        "firstSeen": 158.022,
+        "lastSeen": 158.022,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          158.022
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "error",
+        "time": 167.733,
+        "selector": "#frame08-cross-attention-tag-q",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 23.14,
+          "top": 6,
+          "right": 46.84,
+          "bottom": 50,
+          "width": 23.7,
+          "height": 44
+        },
+        "containerSelector": "#frame08-cross-attention-tag-k",
+        "text": "Q",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame08-cross-attention.html",
+        "bbox": {
+          "x": 23.14,
+          "y": 6,
+          "width": 23.7,
+          "height": 44
+        },
+        "firstSeen": 167.733,
+        "lastSeen": 178.327,
+        "occurrences": 9,
+        "heldMs": 500,
+        "times": [
+          167.733,
+          168.233,
+          169.498,
+          169.998,
+          171.264,
+          173.03,
+          174.795,
+          176.561,
+          178.327
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "error",
+        "time": 168.233,
+        "selector": "#frame08-cross-attention-tag-k",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 24.41,
+          "top": 6,
+          "right": 45.59,
+          "bottom": 50,
+          "width": 21.18,
+          "height": 44
+        },
+        "containerSelector": "#frame08-cross-attention-tag-v",
+        "text": "K",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame08-cross-attention.html",
+        "bbox": {
+          "x": 24.41,
+          "y": 6,
+          "width": 21.18,
+          "height": 44
+        },
+        "firstSeen": 168.233,
+        "lastSeen": 178.327,
+        "occurrences": 8,
+        "heldMs": 500,
+        "times": [
+          168.233,
+          169.498,
+          169.998,
+          171.264,
+          173.03,
+          174.795,
+          176.561,
+          178.327
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 193.138,
+        "selector": "#frame09-three-attentions-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1062.07,
+          "top": 690,
+          "right": 2373.71,
+          "bottom": 1008,
+          "width": 1311.64,
+          "height": 318
+        },
+        "text": "ATTENTION",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame09-three-attentions.html",
+        "bbox": {
+          "x": 1062.07,
+          "y": 690,
+          "width": 1311.64,
+          "height": 318
+        },
+        "firstSeen": 193.138,
+        "lastSeen": 193.138,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          193.138
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 228.254,
+        "selector": "#frame11-translate-demo-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": -0.02,
+          "top": 555,
+          "right": 867.01,
+          "bottom": 873,
+          "width": 867.03,
+          "height": 318
+        },
+        "text": "DECODE",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame11-translate-demo.html",
+        "bbox": {
+          "x": -0.02,
+          "y": 555,
+          "width": 867.03,
+          "height": 318
+        },
+        "firstSeen": 228.254,
+        "lastSeen": 228.254,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          228.254
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 263.37,
+        "selector": "div.f12-stage > div:nth-of-type(1) > div:nth-of-type(3)",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": -104.5,
+          "top": 569,
+          "right": 1635.05,
+          "bottom": 887,
+          "width": 1739.55,
+          "height": 318
+        },
+        "text": "TRANSFORMER",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame12-architectures.html",
+        "bbox": {
+          "x": -104.5,
+          "y": 569,
+          "width": 1739.55,
+          "height": 318
+        },
+        "firstSeen": 263.37,
+        "lastSeen": 263.37,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          263.37
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 298.486,
+        "selector": "div.f13-stage > div:nth-of-type(1) > div:nth-of-type(3)",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 830,
+          "top": 561,
+          "right": 2176.84,
+          "bottom": 879,
+          "width": 1346.84,
+          "height": 318
+        },
+        "text": "TRADEOFFS",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame13-tradeoffs.html",
+        "bbox": {
+          "x": 830,
+          "y": 561,
+          "width": 1346.84,
+          "height": 318
+        },
+        "firstSeen": 298.486,
+        "lastSeen": 298.486,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          298.486
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 17.558,
+        "selector": "#frame02-encoder-recap-bgglow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1102.29,
+          "top": 382.29,
+          "right": 2237.71,
+          "bottom": 1517.71,
+          "width": 1135.42,
+          "height": 1135.42
+        },
+        "containerSelector": "#el-frame02-encoder-recap > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 317.71,
+          "bottom": 437.71
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame02-encoder-recap.html",
+        "bbox": {
+          "x": 1102.29,
+          "y": 382.29,
+          "width": 1135.42,
+          "height": 1135.42
+        },
+        "firstSeen": 17.558,
+        "lastSeen": 17.558,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          17.558
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 52.674,
+        "selector": "#frame03-three-sublayers-ghost",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 897.39,
+          "top": 591,
+          "right": 1636.38,
+          "bottom": 909,
+          "width": 738.98,
+          "height": 318
+        },
+        "containerSelector": "#frame03-three-sublayers-panel-fill",
+        "text": "LAYER",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.15,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame03-three-sublayers.html",
+        "bbox": {
+          "x": 897.39,
+          "y": 591,
+          "width": 738.98,
+          "height": 318
+        },
+        "firstSeen": 52.674,
+        "lastSeen": 52.674,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          52.674
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 52.674,
+        "selector": "#frame03-three-sublayers-bgglow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -358.5,
+          "top": 401.5,
+          "right": 818.5,
+          "bottom": 1578.5,
+          "width": 1177,
+          "height": 1177
+        },
+        "containerSelector": "#el-frame03-three-sublayers > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 358.5,
+          "bottom": 498.5
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame03-three-sublayers.html",
+        "bbox": {
+          "x": -358.5,
+          "y": 401.5,
+          "width": 1177,
+          "height": 1177
+        },
+        "firstSeen": 52.674,
+        "lastSeen": 52.674,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          52.674
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 87.79,
+        "selector": "div.f05-bg-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1120,
+          "top": -320,
+          "right": 2220,
+          "bottom": 780,
+          "width": 1100,
+          "height": 1100
+        },
+        "containerSelector": "div.f05-stage > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 300,
+          "top": 320
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame05-causal-mask.html",
+        "bbox": {
+          "x": 1120,
+          "y": -320,
+          "width": 1100,
+          "height": 1100
+        },
+        "firstSeen": 87.79,
+        "lastSeen": 87.79,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          87.79
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 122.906,
+        "selector": "div.f06-bg-ghost",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 1130.27,
+          "top": 511,
+          "right": 1782.36,
+          "bottom": 829,
+          "width": 652.09,
+          "height": 318
+        },
+        "containerSelector": "#f06-panel-bottom",
+        "text": "MASK",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 1,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame06-mask-purposes.html",
+        "bbox": {
+          "x": 1130.27,
+          "y": 511,
+          "width": 652.09,
+          "height": 318
+        },
+        "firstSeen": 122.906,
+        "lastSeen": 122.906,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          122.906
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 122.906,
+        "selector": "div.f06-bg-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -300,
+          "top": -300,
+          "right": 800,
+          "bottom": 800,
+          "width": 1100,
+          "height": 1100
+        },
+        "containerSelector": "div.f06-stage > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 300,
+          "top": 300
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame06-mask-purposes.html",
+        "bbox": {
+          "x": -300,
+          "y": -300,
+          "width": 1100,
+          "height": 1100
+        },
+        "firstSeen": 122.906,
+        "lastSeen": 122.906,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          122.906
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 158.022,
+        "selector": "#frame08-cross-attention-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1175.13,
+          "top": 200,
+          "right": 2275.13,
+          "bottom": 1300,
+          "width": 1100,
+          "height": 1100
+        },
+        "containerSelector": "#frame08-cross-attention-stage > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 355.13,
+          "bottom": 220
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame08-cross-attention.html",
+        "bbox": {
+          "x": 1175.13,
+          "y": 200,
+          "width": 1100,
+          "height": 1100
+        },
+        "firstSeen": 158.022,
+        "lastSeen": 158.022,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          158.022
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 193.138,
+        "selector": "#frame09-three-attentions-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 1062.07,
+          "top": 690,
+          "right": 2373.71,
+          "bottom": 1008,
+          "width": 1311.64,
+          "height": 318
+        },
+        "containerSelector": "#frame09-three-attentions-stage > div:nth-of-type(1)",
+        "text": "ATTENTION",
+        "fixHint": "Text is 1312px x 318px inside 1920px x 1080px and overflows by up to 454px; widen the container to at least ~2374px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 453.71
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame09-three-attentions.html",
+        "bbox": {
+          "x": 1062.07,
+          "y": 690,
+          "width": 1311.64,
+          "height": 318
+        },
+        "firstSeen": 193.138,
+        "lastSeen": 193.138,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          193.138
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 193.138,
+        "selector": "#frame09-three-attentions-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 1062.07,
+          "top": 690,
+          "right": 2373.71,
+          "bottom": 1008,
+          "width": 1311.64,
+          "height": 318
+        },
+        "containerSelector": "#root",
+        "text": "ATTENTION",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 453.71
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame09-three-attentions.html",
+        "bbox": {
+          "x": 1062.07,
+          "y": 690,
+          "width": 1311.64,
+          "height": 318
+        },
+        "firstSeen": 193.138,
+        "lastSeen": 193.138,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          193.138
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 193.138,
+        "selector": "#frame09-three-attentions-card-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1222.41,
+          "top": 162.14,
+          "right": 1937.59,
+          "bottom": 797.86,
+          "width": 715.18,
+          "height": 635.71
+        },
+        "containerSelector": "#frame09-three-attentions-stage",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 17.59
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame09-three-attentions.html",
+        "bbox": {
+          "x": 1222.41,
+          "y": 162.14,
+          "width": 715.18,
+          "height": 635.71
+        },
+        "firstSeen": 193.138,
+        "lastSeen": 193.138,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          193.138
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 193.138,
+        "selector": "#frame09-three-attentions-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 868.94,
+          "top": -240,
+          "right": 1968.94,
+          "bottom": 860,
+          "width": 1100,
+          "height": 1100
+        },
+        "containerSelector": "#frame09-three-attentions-stage > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 48.94,
+          "top": 240
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame09-three-attentions.html",
+        "bbox": {
+          "x": 868.94,
+          "y": -240,
+          "width": 1100,
+          "height": 1100
+        },
+        "firstSeen": 193.138,
+        "lastSeen": 193.138,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          193.138
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 193.138,
+        "selector": "#frame09-three-attentions-ghost",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1062.07,
+          "top": 690,
+          "right": 2373.71,
+          "bottom": 1008,
+          "width": 1311.64,
+          "height": 318
+        },
+        "containerSelector": "#frame09-three-attentions-stage > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 453.71
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame09-three-attentions.html",
+        "bbox": {
+          "x": 1062.07,
+          "y": 690,
+          "width": 1311.64,
+          "height": 318
+        },
+        "firstSeen": 193.138,
+        "lastSeen": 193.138,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          193.138
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 228.254,
+        "selector": "#frame11-translate-demo-grid",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -153.59,
+          "top": -86.39,
+          "right": 2073.59,
+          "bottom": 1166.39,
+          "width": 2227.19,
+          "height": 1252.78
+        },
+        "containerSelector": "#frame11-translate-demo-bg",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 153.59,
+          "right": 153.59,
+          "top": 86.39,
+          "bottom": 86.39
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame11-translate-demo.html",
+        "bbox": {
+          "x": -153.59,
+          "y": -86.39,
+          "width": 2227.19,
+          "height": 1252.78
+        },
+        "firstSeen": 228.254,
+        "lastSeen": 228.254,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          228.254
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 228.254,
+        "selector": "#frame11-translate-demo-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 924.33,
+          "top": 344.33,
+          "right": 1915.67,
+          "bottom": 1335.67,
+          "width": 991.33,
+          "height": 991.33
+        },
+        "containerSelector": "#frame11-translate-demo-bg",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "bottom": 255.67
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame11-translate-demo.html",
+        "bbox": {
+          "x": 924.33,
+          "y": 344.33,
+          "width": 991.33,
+          "height": 991.33
+        },
+        "firstSeen": 228.254,
+        "lastSeen": 228.254,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          228.254
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 263.37,
+        "selector": "div.f12-stage > div:nth-of-type(1) > div:nth-of-type(3)",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": -104.5,
+          "top": 596,
+          "right": 1635.05,
+          "bottom": 860,
+          "width": 1739.55,
+          "height": 264
+        },
+        "containerSelector": "div.f12-stage > div:nth-of-type(1)",
+        "text": "TRANSFORMER",
+        "fixHint": "Text is 1740px x 264px inside 1920px x 1080px and overflows by up to 105px; widen the container to at least ~2025px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 104.5
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame12-architectures.html",
+        "bbox": {
+          "x": -104.5,
+          "y": 596,
+          "width": 1739.55,
+          "height": 264
+        },
+        "firstSeen": 263.37,
+        "lastSeen": 263.37,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          263.37
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 263.37,
+        "selector": "div.f12-stage > div:nth-of-type(1) > div:nth-of-type(3)",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": -104.5,
+          "top": 569,
+          "right": 1635.05,
+          "bottom": 887,
+          "width": 1739.55,
+          "height": 318
+        },
+        "containerSelector": "#root",
+        "text": "TRANSFORMER",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 104.5
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame12-architectures.html",
+        "bbox": {
+          "x": -104.5,
+          "y": 569,
+          "width": 1739.55,
+          "height": 318
+        },
+        "firstSeen": 263.37,
+        "lastSeen": 263.37,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          263.37
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 263.37,
+        "selector": "div.f12-stage > div:nth-of-type(1) > div:nth-of-type(1)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -288,
+          "top": -162,
+          "right": 2208,
+          "bottom": 1242,
+          "width": 2496,
+          "height": 1404
+        },
+        "containerSelector": "div.f12-stage > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 288,
+          "right": 288,
+          "top": 162,
+          "bottom": 162
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame12-architectures.html",
+        "bbox": {
+          "x": -288,
+          "y": -162,
+          "width": 2496,
+          "height": 1404
+        },
+        "firstSeen": 263.37,
+        "lastSeen": 263.37,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          263.37
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 263.37,
+        "selector": "div.f12-stage > div:nth-of-type(1) > div:nth-of-type(3)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -104.5,
+          "top": 596,
+          "right": 1635.05,
+          "bottom": 860,
+          "width": 1739.55,
+          "height": 264
+        },
+        "containerSelector": "div.f12-stage > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 104.5
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame12-architectures.html",
+        "bbox": {
+          "x": -104.5,
+          "y": 596,
+          "width": 1739.55,
+          "height": 264
+        },
+        "firstSeen": 263.37,
+        "lastSeen": 263.37,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          263.37
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 298.486,
+        "selector": "div.f13-stage > div:nth-of-type(1) > div:nth-of-type(3)",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 830,
+          "top": 588,
+          "right": 2176.84,
+          "bottom": 852,
+          "width": 1346.84,
+          "height": 264
+        },
+        "containerSelector": "div.f13-stage > div:nth-of-type(1)",
+        "text": "TRADEOFFS",
+        "fixHint": "Text is 1347px x 264px inside 1920px x 1080px and overflows by up to 257px; widen the container to at least ~2177px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 256.84
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame13-tradeoffs.html",
+        "bbox": {
+          "x": 830,
+          "y": 588,
+          "width": 1346.84,
+          "height": 264
+        },
+        "firstSeen": 298.486,
+        "lastSeen": 298.486,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          298.486
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 298.486,
+        "selector": "div.f13-stage > div:nth-of-type(1) > div:nth-of-type(3)",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 830,
+          "top": 561,
+          "right": 2176.84,
+          "bottom": 879,
+          "width": 1346.84,
+          "height": 318
+        },
+        "containerSelector": "#root",
+        "text": "TRADEOFFS",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 256.84
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame13-tradeoffs.html",
+        "bbox": {
+          "x": 830,
+          "y": 561,
+          "width": 1346.84,
+          "height": 318
+        },
+        "firstSeen": 298.486,
+        "lastSeen": 298.486,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          298.486
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 298.486,
+        "selector": "div.f13-stage > div:nth-of-type(1) > div:nth-of-type(3)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 830,
+          "top": 561,
+          "right": 2176.84,
+          "bottom": 879,
+          "width": 1346.84,
+          "height": 318
+        },
+        "containerSelector": "div.f13-panel.f13-panel-left",
+        "text": "TRADEOFFS",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.63,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame13-tradeoffs.html",
+        "bbox": {
+          "x": 830,
+          "y": 561,
+          "width": 1346.84,
+          "height": 318
+        },
+        "firstSeen": 298.486,
+        "lastSeen": 298.486,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          298.486
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 298.486,
+        "selector": "div.f13-stage > div:nth-of-type(1) > div:nth-of-type(1)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -288,
+          "top": -162,
+          "right": 2208,
+          "bottom": 1242,
+          "width": 2496,
+          "height": 1404
+        },
+        "containerSelector": "div.f13-stage > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 288,
+          "right": 288,
+          "top": 162,
+          "bottom": 162
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame13-tradeoffs.html",
+        "bbox": {
+          "x": -288,
+          "y": -162,
+          "width": 2496,
+          "height": 1404
+        },
+        "firstSeen": 298.486,
+        "lastSeen": 298.486,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          298.486
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 298.486,
+        "selector": "div.f13-stage > div:nth-of-type(1) > div:nth-of-type(3)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 830,
+          "top": 588,
+          "right": 2176.84,
+          "bottom": 852,
+          "width": 1346.84,
+          "height": 264
+        },
+        "containerSelector": "div.f13-stage > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 256.84
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame13-tradeoffs.html",
+        "bbox": {
+          "x": 830,
+          "y": 588,
+          "width": 1346.84,
+          "height": 264
+        },
+        "firstSeen": 298.486,
+        "lastSeen": 298.486,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          298.486
+        ]
+      }
+    ],
+    "duration": 316.044,
+    "samples": [
+      17.558,
+      52.674,
+      87.79,
+      122.906,
+      158.022,
+      193.138,
+      228.254,
+      263.37,
+      298.486
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 34,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 5,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.1:1; WCAG AA requires 3:1.",
+        "text": "ENCODER",
+        "fg": "rgb(24,32,50)",
+        "bg": "rgb(15,23,42)",
+        "ratio": 1.1,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(95,100,113)",
+        "large": true,
+        "selector": "#frame02-encoder-recap-ghost",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame02-encoder-recap.html",
+        "bbox": {
+          "x": 512.0009765625,
+          "y": 596,
+          "width": 1131.6875,
+          "height": 220
+        },
+        "time": 17.558,
+        "times": [
+          17.558
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.1:1; WCAG AA requires 3:1.",
+        "text": "MASK",
+        "fg": "rgb(24,32,50)",
+        "bg": "rgb(15,23,42)",
+        "ratio": 1.1,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(95,100,113)",
+        "large": true,
+        "selector": "div > div:nth-of-type(5) > div > div > div:nth-of-type(1) > div:nth-of-type(3)",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame05-causal-mask.html",
+        "bbox": {
+          "x": 172.12139892578125,
+          "y": 640,
+          "width": 652.09375,
+          "height": 220
+        },
+        "time": 87.79,
+        "times": [
+          87.79
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.1:1; WCAG AA requires 3:1.",
+        "text": "CROSS",
+        "fg": "rgb(24,32,50)",
+        "bg": "rgb(15,23,42)",
+        "ratio": 1.1,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(95,100,113)",
+        "large": true,
+        "selector": "#frame08-cross-attention-ghost",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame08-cross-attention.html",
+        "bbox": {
+          "x": 727.298828125,
+          "y": 700,
+          "width": 772.203125,
+          "height": 318
+        },
+        "time": 158.022,
+        "times": [
+          158.022
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.1:1; WCAG AA requires 3:1.",
+        "text": "DECODE",
+        "fg": "rgb(24,32,50)",
+        "bg": "rgb(15,23,42)",
+        "ratio": 1.1,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(95,100,113)",
+        "large": true,
+        "selector": "#frame11-translate-demo-ghost",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame11-translate-demo.html",
+        "bbox": {
+          "x": -0.021800994873046875,
+          "y": 604,
+          "width": 867.03125,
+          "height": 220
+        },
+        "time": 228.254,
+        "times": [
+          228.254
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.12:1; WCAG AA requires 3:1.",
+        "text": "TRADEOFFS",
+        "fg": "rgb(35,45,63)",
+        "bg": "rgb(26,36,55)",
+        "ratio": 1.12,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(103,110,122)",
+        "large": true,
+        "selector": "div > div:nth-of-type(13) > div > div > div:nth-of-type(1) > div:nth-of-type(3)",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/frame13-tradeoffs.html",
+        "bbox": {
+          "x": 830,
+          "y": 588,
+          "width": 1346.84375,
+          "height": 264
+        },
+        "time": 298.486,
+        "times": [
+          298.486
+        ]
+      }
+    ],
+    "enabled": true,
+    "samples": [
+      17.558,
+      87.79,
+      158.022,
+      228.254,
+      298.486
+    ],
+    "checked": 45,
+    "passed": 40
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "saved": {
+    "id": "64633bf4-5a38-41b8-984c-8df84de1922b",
+    "revision": null,
+    "report": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/.hyperframes/artifacts/checks/64633bf4-5a38-41b8-984c-8df84de1922b.json",
+    "attribution": "unversioned"
+  },
+  "_meta": {
+    "version": "0.8.168",
+    "updateAvailable": false
+  }
+}

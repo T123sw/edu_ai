@@ -1,0 +1,38 @@
+{
+  "checked_at": "2026-10-17T13:49:39.332427+00:00",
+  "status": "active-main-facts-verified-one-model-inference-error-remains",
+  "backend_service_start": "2026-10-17T13:40:48Z",
+  "backend_pid": 1442794,
+  "health": "ok",
+  "new_evidence_tools_live": true,
+  "source_hashes": {
+    "backend/src/app/practice/experiment/facts.py": "d926fd30a27ef38139f53b9bcffb23ed694ff805b2c74a82f4e29c227ce0bf85",
+    "backend/src/app/practice/experiment/tutor.py": "fb095140ea6b95cefd1569908bcbd4fc7abf7cd35e16c9b6b7648ebb104c0e58",
+    "backend/src/app/practice/experiment/teaching.py": "719949c91fc99d9fb5045c1ab12860b639b5000e9a2dc29ca9024574a2ed298b",
+    "backend/src/app/practice/experiment/repository.py": "7fe2c8fcc937db72827297238d2b5f04480425bd279ddcec14de0f9a83c3700d",
+    "backend/src/app/practice/skills/teach-experiment/SKILL.md": "87f41a51812a968156ffda67dbfae74adb611329c3e8ad0023ceab1c829f1bf7",
+    "backend/src/tests/practice/test_experiment_facts.py": "99a8565b8dfcd685b05767dd62f2ce8902660cd32235d5767d330832bb410660",
+    "backend/src/tests/practice/test_experiment_tutor.py": "a768f8c1785fc251db4c33c1e5200588be6585fff792daef10b643819f89849c"
+  },
+  "practice_id": "practice_792ef220f0ee56f7576d4417540dc83f",
+  "previous_run": "87798862-28b3-4b1d-81c3-883b6ffb9bc5",
+  "new_run": "acf96b17-3629-4b4e-b3ab-1c3fdc2db745",
+  "real_qa_complete": 9,
+  "pending_at_end": 0,
+  "facts_and_counts_assertions_passed": true,
+  "refresh_preserved_state_and_chat": true,
+  "browser_errors": [],
+  "latency_ms": {
+    "first_text_min": 1727,
+    "first_text_max": 4823,
+    "first_text_median": 2294,
+    "full_min": 3012,
+    "full_max": 7800,
+    "full_median": 3918
+  },
+  "product_code_changes": false,
+  "generated_new_experiment": false,
+  "production_writes": "new run and 9 tutor turns in existing dedicated acceptance experiment; previous run retained",
+  "quality_limit": "case 8: resettable round flag misinterpreted as historical no-swap proof; fabricated fourth-round inference. Generated page completion text also remains wrong.",
+  "disconnect_lease_issue": "not retested or fixed; known prior issue"
+}

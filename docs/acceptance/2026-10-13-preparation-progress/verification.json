@@ -1,0 +1,28 @@
+{
+  "deployed_at": "2026-10-13T13:06:38.319704+00:00",
+  "backup": "/tmp/edu-ai-before-preparation-progress-20261013T130637Z",
+  "index_sha256": "091745f62fd3ea1af2ad291e0dbab903251afea4daabcf1c53713ef95635e867",
+  "checks": {
+    "production_build": "passed",
+    "typescript": "passed",
+    "eslint_changed_components": "passed",
+    "unit_tests": 5,
+    "browser_tests": 10
+  },
+  "browser_api_mode": "mocked stage transitions, errors and committed course entry",
+  "real_services": {
+    "backend_health": "ok",
+    "backend_systemd": "active",
+    "tts_systemd": "active"
+  },
+  "production_smoke": {
+    "passed": 2,
+    "url": "http://127.0.0.1",
+    "viewports": [
+      1440,
+      390
+    ],
+    "nginx_matches_build": true,
+    "api_mode": "mocked"
+  }
+}

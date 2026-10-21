@@ -15,7 +15,7 @@ test('mind map starts with a balanced overview and preserves hidden nodes in exp
     const path = new URL(route.request().url()).pathname;
     return route.fulfill({ json: materials.find(m => path.endsWith('/' + m.material_id)) || materials });
   });
-  await page.goto('/#resources?course_id=course-physics&material_type=graph&material_id=map-one');
+  await page.goto('/?legacy=1#resources?course_id=course-physics&material_type=graph&material_id=map-one');
   await expect(page.locator('.balanced-mind-map__diagram')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('.balanced-mind-map__side--left > .balanced-mind-map__branch')).toHaveCount(4);
   await expect(page.locator('.balanced-mind-map__side--right > .balanced-mind-map__branch')).toHaveCount(4);
@@ -39,7 +39,11 @@ test('mind map starts with a balanced overview and preserves hidden nodes in exp
   await page.getByRole('button', { name: '缩小', exact: true }).click();
   await page.getByRole('button', { name: '复位', exact: true }).click();
   await expect(page.getByText('连续存储细节', { exact: true })).toHaveCount(0);
-  await expect(page.locator('.balanced-mind-map__zoom-controls')).toContainText('100%');
+  await expect.poll(() => page.locator('.balanced-mind-map__viewport').evaluate(viewport => {
+    const bounds = viewport.getBoundingClientRect();
+    const diagram = viewport.querySelector('.balanced-mind-map__diagram')!.getBoundingClientRect();
+    return diagram.left >= bounds.left && diagram.right <= bounds.right && diagram.top >= bounds.top && diagram.bottom <= bounds.bottom;
+  })).toBe(true);
   await page.getByRole('button', { name: '展开布局', exact: true }).click();
   await page.evaluate(() => { location.hash = '#resources?course_id=course-physics&material_type=graph&material_id=map-two'; });
   await expect(page.getByRole('heading', { name: 'map-two', exact: true })).toBeVisible();

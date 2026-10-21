@@ -1,0 +1,24 @@
+{
+  "status": "content_not_accepted",
+  "operational_validation": "passed_after_two_frontend_retries_with_scoped_lease_support",
+  "issues": [
+    "视频实际 224.544 秒，超过输入要求的 60—90 秒",
+    "练习实际为 3 道，超过要求的 2 道",
+    "图示存在实质数学错误：开场直线的斜率和截距与公式不符，y=2x+2 甚至画在 y=2x 下方",
+    "原生检查仍报告部分文字重叠和图形溢出，按当前播放优先策略记录为非阻断问题"
+  ],
+  "details": {
+    "math_evidence": "visual-math-review.json",
+    "native_issue_counts": {
+      "content_overlap": 2,
+      "container_overflow": 17
+    },
+    "scope": "one knowledge point: linear function intercept"
+  },
+  "manual_video_frames_reviewed": [
+    1,
+    4,
+    6
+  ],
+  "qa_answer_review": "Correct current segment and mathematics; no stale time claim"
+}

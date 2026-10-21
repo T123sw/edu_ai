@@ -1,0 +1,97 @@
+{
+  "status": "published_verified",
+  "changes": [
+    "顶部提供步骤说明、编辑代码、查看页面预览入口",
+    "所有宽度均可切换代码和预览；宽屏可并排显示",
+    "修复 Sandpack 在 701–768px 自动换行后被固定高度裁剪的问题",
+    "项目工作区限制在视口内，跳转时保留顶部导航与项目目录",
+    "React 项目立即初始化运行环境，避免长教程或代码视图下等待预览进入屏幕才启动"
+  ],
+  "checks": {
+    "typescript": "passed in final isolated release source",
+    "lint_changed_files": "passed in final isolated release source, zero warnings",
+    "browser_regression": {
+      "passed": 19,
+      "seconds": 270,
+      "business_api": "mocked",
+      "runtime": "real Sandpack iframe and Worker",
+      "stage": "initial shared implementation; final release limits changes to React project workspace"
+    },
+    "release_browser": {
+      "passed": 1,
+      "widths": [
+        1440,
+        1024,
+        900,
+        768,
+        720,
+        701,
+        700,
+        390
+      ],
+      "checks": [
+        "long lesson entry visible in first viewport",
+        "preview completely visible after entry click",
+        "no horizontal overflow or clipping",
+        "code retained after switching",
+        "wide screen side by side layout"
+      ]
+    },
+    "production_build": "passed; existing large chunk advisory",
+    "calculator_replay": {
+      "runtime": "real Sandpack bundle of read-only public production artifact and current workspace; APIs replayed locally",
+      "widths": [
+        1440,
+        1024,
+        768,
+        720,
+        390
+      ],
+      "pageErrors": [],
+      "rendered": "我的项目 / 从第一步开始实现。"
+    },
+    "regressions_during_fix": [
+      "Visual review caught top navigation scrolling out of view; bounded project height and internal scrolling fixed it, regression now asserts navigation stays visible.",
+      "Two legacy algorithm runs timed out connecting to the remote Sandpack runtime. A diagnostic that opened the runtime passed. Legacy workspace/layout changes were excluded from the final release; original production source retained."
+    ],
+    "final_project_release": {
+      "passed": 5,
+      "seconds": 32.1,
+      "source": "final PBL scope on original isolated baseline",
+      "api": "mocked fixtures; real Sandpack React runtime"
+    },
+    "reconciled_release": {
+      "passed": 5,
+      "seconds": 46.6,
+      "api": "mocked business API; real Sandpack React bundle",
+      "target": "latest deployed non-PBL features plus final project preview fix"
+    },
+    "production": {
+      "layoutTestPassed": 1,
+      "viewportWidths": [
+        1440,
+        1024,
+        900,
+        768,
+        720,
+        701,
+        700,
+        390
+      ],
+      "calculatorReplayWidths": [
+        1440,
+        1024,
+        768,
+        720,
+        390
+      ],
+      "pageErrors": [],
+      "api": "mocked fixtures and read-only public artifact/workspace replay",
+      "runtime": "real remote Sandpack iframe; starter page rendered",
+      "productionUserDataModified": false
+    }
+  },
+  "backend_changed": false,
+  "production_user_data_modified": false,
+  "scope": "React project preview; legacy algorithm source and layout preserved"
+}

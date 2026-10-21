@@ -1,0 +1,178 @@
+{
+  "nodes": [
+    {
+      "title": "为什么需要 Transformer：Seq2Seq 与注意力动机",
+      "minutes": 10,
+      "node_key": "n1-motivation",
+      "objectives": [
+        "说明 Transformer 是 2017 年提出的基于多头注意力的 Seq2Seq 模型，整体由编码器与解码器两部分组成，且不使用 CNN/RNN",
+        "描述编码器-解码器结构在机器翻译等序列到序列任务中的基本分工：编码器把输入编码为语义表示，解码器据此生成输出序列",
+        "解释注意力机制“用 Query 与 Key 算权重、再用权重对 Value 加权求和”的基本思路，以及它相比 RNN 在并行计算与长距离依赖上的优势"
+      ],
+      "self_check": "不看资料，用 3 句话说明：Transformer 由哪两部分组成、它替代了什么结构、注意力机制的两步计算分别是什么。",
+      "source_ids": [
+        "ev_81397b48eb6b00add2ed7bf0",
+        "ev_80c33e5b5a0d727232f5b1c6",
+        "ev_3e2f1f4c8e3a25a49399f75a"
+      ],
+      "finding_ids": [
+        "f-overall-architecture",
+        "f-seq2seq-background",
+        "f-attention-qkv",
+        "f-pros-cons"
+      ],
+      "requirement_ids": [
+        "req-transformer-learning"
+      ],
+      "prerequisite_keys": [],
+      "learning_activities": [
+        "课堂讲解：用“中译英”例子展示输入输出长度不定的 Seq2Seq 问题，引出编码器-解码器分工",
+        "图示对比：RNN 逐时间步处理 vs 注意力可并行计算，标注长距离依赖问题",
+        "课堂互动：请学习者用一句话说出“注意力就是加权求和”中权重从哪来、加权的对象是什么"
+      ]
+    },
+    {
+      "title": "自注意力与多头注意力：QKV 与多子空间",
+      "minutes": 15,
+      "node_key": "n2-self-attention",
+      "objectives": [
+        "写出自注意力的计算流程：输入经三个线性映射得到 Q、K、V，用点积打分，缩放点积形式为 softmax(QK^T/√d_k)V，softmax 按行归一化",
+        "解释自注意力中 Q、K、V 同源的含义，以及输出向量为何是输入向量的加权组合",
+        "说明多头注意力用多组不同投影矩阵在多个子空间分别做自注意力再拼接，从而捕捉不同的交互信息"
+      ],
+      "self_check": "能默写缩放点积注意力公式并解释 √d_k 与按行 softmax 的位置；能说明多头注意力与单头注意力在参数与输出上的差别。",
+      "source_ids": [
+        "ev_80c33e5b5a0d727232f5b1c6",
+        "ev_81397b48eb6b00add2ed7bf0",
+        "ev_b3c04ac70003fc8b7c12586d"
+      ],
+      "finding_ids": [
+        "f-attention-qkv",
+        "f-self-attention-motivation",
+        "f-multi-head"
+      ],
+      "requirement_ids": [
+        "req-transformer-learning"
+      ],
+      "prerequisite_keys": [
+        "n1-motivation"
+      ],
+      "learning_activities": [
+        "课堂讲解：逐步推导 Q=XW_Q、K=XW_K、V=XW_V → 打分 → softmax 按行归一化 → 加权求和",
+        "手算演示：用 3 个词的极小例子（如“我 爱 你”）走一遍注意力权重矩阵，标出每一行和为 1",
+        "课堂互动：讨论“如果只有一个头会缺什么”，引出多头在不同投影空间捕捉不同关系，并说明多头结果拼接后合并输出"
+      ]
+    },
+    {
+      "title": "位置编码：并行结构如何知道词序",
+      "minutes": 10,
+      "node_key": "n3-positional-encoding",
+      "objectives": [
+        "解释自注意力只依赖 Q 与 K 的相关性、忽略位置信息，因此单独使用时必须加入位置编码修正",
+        "说明位置编码的作用是为模型提供时间步前后顺序信息，因为 Transformer 所有时间步同时输入、并行推理，没有 RNN 的天然顺序",
+        "区分固定位置编码与可学习位置编码，并指出论文中使用的是固定（正弦/余弦）编码、不参与训练"
+      ],
+      "self_check": "能回答：为什么去掉位置编码后 Transformer 无法区分语序？位置编码加在哪一步、与词向量如何结合？",
+      "source_ids": [
+        "ev_80c33e5b5a0d727232f5b1c6",
+        "ev_81397b48eb6b00add2ed7bf0",
+        "ev_b3c04ac70003fc8b7c12586d"
+      ],
+      "finding_ids": [
+        "f-positional-encoding",
+        "f-self-attention-motivation"
+      ],
+      "requirement_ids": [
+        "req-transformer-learning"
+      ],
+      "prerequisite_keys": [
+        "n2-self-attention"
+      ],
+      "learning_activities": [
+        "课堂讲解：先演示“打乱词序后自注意力结果相近”的现象，再引入位置编码",
+        "图示说明：Embedding 向量与位置编码向量逐元素相加，形状保持不变",
+        "课堂互动：让学习者判断“位置编码是训练出来的参数吗”，并说明固定编码与可学习编码各自的取舍"
+      ]
+    },
+    {
+      "title": "编码器结构：两子层与 Add&Norm",
+      "minutes": 10,
+      "node_key": "n4-encoder",
+      "objectives": [
+        "描述编码器由 N 个相同编码器层堆叠（论文中 N=6），每层含多头自注意力子层与逐位置前馈网络子层",
+        "说明每个子层后接残差连接与层归一化（Add&Norm），并解释残差缓解梯度消失、层归一化稳定数值的作用",
+        "说明编码器并行处理、只做一次前向传播，输出高阶上下文表示（memory）供解码器使用"
+      ],
+      "self_check": "能画出单个编码器层的数据流并说明每个子层后为什么都要 Add&Norm；能说出编码器输出被称为什么、交给谁使用。",
+      "source_ids": [
+        "ev_81397b48eb6b00add2ed7bf0",
+        "ev_80c33e5b5a0d727232f5b1c6",
+        "ev_b3c04ac70003fc8b7c12586d"
+      ],
+      "finding_ids": [
+        "f-encoder-structure",
+        "f-add-norm",
+        "f-three-attention-roles"
+      ],
+      "requirement_ids": [
+        "req-transformer-learning"
+      ],
+      "prerequisite_keys": [
+        "n2-self-attention",
+        "n3-positional-encoding"
+      ],
+      "learning_activities": [
+        "课堂讲解：按“输入+位置编码 → 多头自注意力 → Add&Norm → FFN → Add&Norm”顺序画出单个编码器层",
+        "课堂互动：请学习者指出 FFN 是逐位置独立变换、不跨位置交互，与自注意力形成对比",
+        "课堂练习：给出一个编码器层的模块清单，让学习者排序并标注哪些操作保持张量形状不变"
+      ]
+    },
+    {
+      "title": "解码器、掩码与端到端数据流",
+      "minutes": 15,
+      "node_key": "n5-decoder-and-flow",
+      "objectives": [
+        "描述解码器每层的三个子层：掩码自注意力、编码器-解码器交叉注意力、逐位置前馈网络，并说明交叉注意力中 Q 来自解码器、K/V 来自编码器输出",
+        "解释掩码的两个作用（屏蔽 padding、屏蔽未来信息）以及解码器为何需要保持自回归属性",
+        "按顺序复述完整数据流：Embedding+位置编码 → 编码器 → 解码器（起始符右移输入）→ 线性层+softmax → 自回归逐词生成直至结束符，并说明三种架构变体与 Transformer 的优缺点"
+      ],
+      "self_check": "能独立复述从输入句子到输出词的完整数据流；能说明三种注意力（编码器自注意力、解码器掩码自注意力、交叉注意力）的 Q/K/V 来源差异；能各举一条 Transformer 的优势与局限。",
+      "source_ids": [
+        "ev_81397b48eb6b00add2ed7bf0",
+        "ev_80c33e5b5a0d727232f5b1c6",
+        "ev_5a11455a5fa07018bd025f49",
+        "ev_71f007138d9036fffa973325",
+        "ev_b3c04ac70003fc8b7c12586d",
+        "ev_5ced602daa0e0dd7fdb77ca6",
+        "ev_fa9f2203fa1858167819467e"
+      ],
+      "finding_ids": [
+        "f-decoder-structure",
+        "f-three-attention-roles",
+        "f-masking",
+        "f-data-flow",
+        "f-architecture-variants",
+        "f-pros-cons"
+      ],
+      "requirement_ids": [
+        "req-transformer-learning"
+      ],
+      "prerequisite_keys": [
+        "n4-encoder"
+      ],
+      "learning_activities": [
+        "课堂讲解：对照编码器层，逐项标出解码器多出的交叉注意力子层及其 Q/K/V 来源",
+        "课堂互动：以“我吃了一个苹果 → I ate an apple”为例，让学习者判断每一步的 Q、K、V 分别来自哪里，并说明掩码挡住了什么",
+        "课堂小结与测验：用一张空白结构图让学习者补全数据流箭头，并讨论仅编码器、仅解码器、编码器-解码器三种变体的差别与 Transformer 的优缺点"
+      ]
+    }
+  ],
+  "title": "Transformer 入门：原理与结构 60 分钟",
+  "summary": "面向初学者的 60 分钟中文入门课程，按“动机 → 核心机制 → 结构 → 数据流 → 边界”的顺序组织为 5 个节点：先建立 Seq2Seq 与注意力的直觉，再拆解 QKV 自注意力与多头注意力，接着讲位置编码为何必需，然后逐层展开编码器与解码器（含掩码自注意力、交叉注意力、Add&Norm），最后串起端到端数据流并讨论优缺点与架构变体。每个节点配讲解、图示推演、课堂互动与自测，帮助学习者能用自己的话说明 Transformer 的整体结构与数据流、解释自注意力与多头注意力的作用、描述编码器-解码器结构与位置编码的意义。",
+  "limitations": [
+    "用户未提供附件资料，全部依据来自公开中文教材、技术博客与论文解读，未直接引用原始论文全文。",
+    "课程为 60 分钟入门级原理讲解，不包含 PyTorch 代码实现与训练实践。",
+    "位置编码仅覆盖论文中的固定正弦/余弦方案与可学习方案的概念区分，未展开 RoPE、ALiBi 等后续变体。",
+    "用户未说明已有基础，路径按入门深度组织，若学习者缺乏神经网络基础，节点 1 可能需要额外补充前置知识。"
+  ]
+}

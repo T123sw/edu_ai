@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "steps": [
+    {
+      "stepId": "add-books",
+      "checks": 5,
+      "nativeChecks": 5,
+      "passed": true
+    },
+    {
+      "stepId": "manage-books",
+      "checks": 10,
+      "nativeChecks": 10,
+      "passed": true
+    }
+  ],
+  "runs": 5,
+  "serverErrors": [],
+  "tested": [
+    "empty starter fails",
+    "cumulative server execution",
+    "native browser execution",
+    "modified source invalidates results",
+    "broken source fails both runtimes",
+    "restore and refresh",
+    "320/390/1440 widths"
+  ],
+  "backend": "production Nginx + production PostgreSQL API, dedicated test account",
+  "generation": "actual model"
+}

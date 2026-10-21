@@ -585,6 +585,8 @@ class GenerationTaskHandler:
             "config_snapshot_id": context.config_snapshot_id or "",
         }
         signature = inspect.signature(generator.generate)
+        if 'progress' in signature.parameters:
+            generate_kwargs['progress'] = context.progress
         if (
             "execution_context" in signature.parameters
             or any(

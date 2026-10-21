@@ -1,0 +1,63 @@
+{
+  "request": {
+    "schema_version": 1,
+    "request_id": "44d7b83f-ccfc-4193-89b6-3eb9b12d3c44",
+    "operation": "revise_resource",
+    "goal": "修正这套现有习题第6、7题解析中遗留的小数误差。正确的缩放第一行权重是 [0.4011120926797859,0.1977758146404282,0.4011120926797859]，请替换解析中错误的 0.40110905 和 0.19778190，并同步所有引用。第6题指数示例请使用符号形式 exp(1/√2)、exp(√2)，删除不必要的指数中间近似数及分母小数，直接列出经完整精度计算的权重，避免又引入近似误差。第7题用完整精度权重计算，第一行输出约 [0.8022241853595718,0.5988879073202141]，第三行约 [0.7517449217422769,0.7517449217422769]。保留现在已经正确的三位权重、两位输出及未缩放对照。保留原9题编号、题干、题型和学习目标，其余正确内容无需改写。",
+    "target": {
+      "course_id": "learn-65488c25779346448e1dcbe0b809d73e",
+      "base_manifest_version": 22,
+      "node_id": "n2-self-attention",
+      "resource_id": "resource_471ae3cd827344574d74384701f842c1",
+      "base_resource_version": 2,
+      "base_route_version": null
+    },
+    "origin": null,
+    "learning_context": null,
+    "requested_changes": [],
+    "uploads": [],
+    "overrides": {
+      "include_classroom": false,
+      "language": null,
+      "total_minutes": null,
+      "depth": null,
+      "required_resource_types": [
+        "quiz"
+      ]
+    },
+    "source_policy": {
+      "mode": "open"
+    }
+  },
+  "receipt": {
+    "preparation_id": "prep_de049b31b7f341e0ab98f9d2cb585f3a",
+    "attempt_no": 1,
+    "status": "accepted",
+    "created_at": "2026-10-19T15:18:38.933213+00:00",
+    "stage": "normalize",
+    "revision": 1,
+    "error_code": null,
+    "failure": null,
+    "result_ref": null,
+    "budget": {
+      "limits": {
+        "calls": null,
+        "tokens": null,
+        "seconds": null,
+        "retry_only": true,
+        "cost_micro_usd": null
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "deadline": null
+    }
+  }
+}

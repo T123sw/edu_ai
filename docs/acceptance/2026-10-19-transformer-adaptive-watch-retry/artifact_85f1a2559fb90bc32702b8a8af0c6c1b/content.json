@@ -1,0 +1,1277 @@
+{
+  "title": "Transformer 是什么：编码器-解码器整体结构",
+  "content": {
+    "title": "Transformer 是什么：编码器-解码器整体结构（自测题）",
+    "questions": [
+      {
+        "id": "q1",
+        "stem": "关于 Transformer 的定位，下列哪一项描述最准确？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "2017 年提出、完全依赖自注意力来计算输入与输出表示的序列转换模型，不使用序列对齐的 RNN 或卷积",
+          "2017 年提出、在循环神经网络之上叠加注意力机制的序列转换模型",
+          "2015 年提出、用卷积替代循环结构的序列转换模型",
+          "2017 年提出、只包含编码器、没有解码器的表示学习模型"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：原始论文背景部分明确说 Transformer 是第一个完全依赖自注意力来计算输入和输出表示的转换模型，不使用序列对齐的 RNN 或卷积，提出时间为 2017 年（Google 团队）。B 错误：Transformer 恰恰摒弃了循环结构，注意力不是叠加在 RNN 之上，而是取代了循环。C 错误：年份是 2017 年而非 2015 年，且 Transformer 不用卷积作为基本构建块（用卷积的是 ConvS2S、ByteNet 等前作）。D 错误：Transformer 由编码器和解码器两部分组成，缺一不可。"
+      },
+      {
+        "id": "q2",
+        "stem": "编码器把符号表示的输入序列 (x1, …, xn) 映射成什么？解码器又基于它做什么？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "编码器把输入映射为一系列连续表示 z = (z1, …, zn)；解码器给定 z 后一次生成一个符号，得到输出序列 (y1, …, ym)",
+          "编码器把输入映射为注意力权重矩阵；解码器直接用该矩阵查表得到输出序列",
+          "编码器把输入压缩成单个向量；解码器一次性并行输出全部 m 个符号",
+          "编码器把输入映射为位置编码；解码器用位置编码重建输出序列"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：原文表述为编码器将符号表示的输入序列映射到一系列连续表示 z，给定 z，解码器一次生成一个符号元素，从而生成输出序列。B 错误：注意力权重是编码器内部子层的中间产物，不是编码器的输出，解码器也不是查表。C 错误：编码器输出的是与输入等长的表示序列 z，不是单个向量；解码器是逐符号生成，不是一次性并行输出。D 错误：位置编码是加在输入嵌入上的辅助信息，不是编码器的输出。"
+      },
+      {
+        "id": "q3",
+        "stem": "关于解码器的“自回归”生成方式，下列理解正确的是：",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "生成下一个符号时，会把先前已经生成的符号作为额外输入",
+          "解码器一次前向就同时输出所有位置的符号，彼此互不影响",
+          "解码器只依赖编码器输出 z，与已生成的符号无关",
+          "解码器在生成时会把输入序列的符号当作已生成的符号使用"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：原文说在每个步骤中模型是自回归的，在生成下一个符号时会将先前生成的符号作为额外的输入。B 错误：那正是非自回归的做法；自回归意味着后一个符号依赖前面已生成的符号。C 错误：解码器既接收编码器输出 z，也接收上一层解码器输出（已生成前缀），二者都用。D 错误：输入序列属于编码器一侧，解码器用的是目标侧已生成的符号（训练时用右移的目标序列）。"
+      },
+      {
+        "id": "q4",
+        "stem": "按原始论文，编码器与解码器各由多少层堆叠而成？每层分别包含几个子层？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "各 6 层；编码器每层 2 个子层，解码器每层 3 个子层",
+          "各 6 层；编码器每层 3 个子层，解码器每层 2 个子层",
+          "编码器 6 层、解码器 12 层；每层都是 2 个子层",
+          "各 12 层；编码器每层 2 个子层，解码器每层 3 个子层"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：原文写明编码器由 N=6 个相同的层堆叠，每层含两个子层（多头自注意力、逐位置前馈网络）；解码器同样 N=6 层，在编码器的两个子层之外插入第三个子层（对编码器输出做多头注意力），共 3 个子层。B 错误：子层数量说反了。C 错误：解码器也是 6 层，不是 12 层。D 错误：层数是 6 而非 12。"
+      },
+      {
+        "id": "q5",
+        "stem": "下列哪些子层出现在解码器的每一层中？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "掩蔽自注意力层（Masked Self-Attention）",
+          "编码器-解码器注意力层",
+          "逐位置前馈网络（Position-wise Feed-Forward Network）",
+          "位置编码层"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：解码器每层第一个子层是掩蔽自注意力，防止位置注意到后续位置。B 正确：这是解码器比编码器多出的第三个子层，对编码器堆叠的输出做多头注意力。C 正确：解码器每层最后一个子层与编码器相同，是逐位置前馈网络。D 错误：位置编码是加在输入/输出嵌入上的固定编码，不是解码器层内的子层。"
+      },
+      {
+        "id": "q6",
+        "stem": "解码器层中的“编码器-解码器注意力”子层，其查询（Query）来自哪里？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "来自解码器上一层（或掩蔽自注意力子层）的输出",
+          "来自编码器堆叠的输出 z",
+          "来自输入序列的原始符号",
+          "来自位置编码"
+        ],
+        "difficulty": "hard",
+        "explanation": "A 正确：资料指出解码器接收编码器输出和上一层解码器的输出，其中上一层解码器的输出用来生成查询向量。B 错误：编码器输出 z 经线性映射后提供键和值，供解码器查询，而不是查询本身。C 错误：原始符号先经嵌入与位置编码进入编码器，不直接作为查询。D 错误：位置编码只提供位置信息，不充当查询。"
+      },
+      {
+        "id": "q7",
+        "stem": "判断：在 Transformer 中，编码器的每个子层之后都接有残差连接与层归一化（合称 Add&Norm），解码器也是如此。",
+        "type": "true_false",
+        "answer": "正确",
+        "options": [],
+        "difficulty": "easy",
+        "explanation": "正确：原文说明编码器在每个子层周围使用残差连接，之后是层归一化，即每个子层输出为 LayerNorm(x + Sublayer(x))；解码器同样在每个子层周围使用残差连接和层归一化。因此编码器 2 个子层、解码器 3 个子层后面都有 Add&Norm。"
+      },
+      {
+        "id": "q8",
+        "stem": "不看资料，请写出：编码器每层有哪两个子层？解码器每层比编码器多出哪个子层？并简要说明解码器为什么要自回归地逐符号生成输出。",
+        "type": "short_answer",
+        "answer": "编码器每层两个子层：多头自注意力层、逐位置前馈网络。解码器每层三个子层：掩蔽自注意力层、编码器-解码器注意力层、逐位置前馈网络，即比编码器多出“编码器-解码器注意力层”。解码器自回归生成的原因：输出序列的每个符号都依赖前面已生成的符号，生成下一个符号时需把先前生成的符号作为额外输入；同时用掩蔽自注意力阻止位置 i 注意到后续位置，保证位置 i 的预测只依赖小于 i 的已知输出。",
+        "difficulty": "medium",
+        "explanation": "评分要点：①编码器两个子层名称正确；②解码器三个子层名称正确，并指出多出的是编码器-解码器注意力层；③说明自回归是“生成下一个符号时把已生成符号作为额外输入”，并提到掩蔽保证不看到未来位置。只答“逐词生成”而未说明依赖已生成符号，算部分正确。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 9.33
+      },
+      "spec_digest": "98ccbf9331c8f42cb070b913955d3c8ce28947933b935146f73d4f28fd42d7ac",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1"
+          },
+          "objective_id": "n1-overview:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q2"
+          },
+          "objective_id": "n1-overview:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q3"
+          },
+          "objective_id": "n1-overview:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q8"
+          },
+          "objective_id": "n1-overview:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q4"
+          },
+          "objective_id": "n1-overview:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q5"
+          },
+          "objective_id": "n1-overview:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q6"
+          },
+          "objective_id": "n1-overview:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q7"
+          },
+          "objective_id": "n1-overview:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q8"
+          },
+          "objective_id": "n1-overview:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q1"
+          },
+          "explanation": "考查 Transformer 的定位：2017 年提出、完全基于注意力、摒弃循环与卷积，落实“基本原理”中的模型定位。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q2"
+          },
+          "explanation": "考查编码器把符号序列映射为连续表示 z、解码器基于 z 逐符号生成输出，落实编码器-解码器整体结构。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q4"
+          },
+          "explanation": "考查各 6 层堆叠与编码器 2 个子层、解码器 3 个子层的骨架结构。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q5"
+          },
+          "explanation": "考查解码器三个子层的组成（掩蔽自注意力、编码器-解码器注意力、前馈网络）。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q6"
+          },
+          "explanation": "考查编码器-解码器注意力中查询来自解码器、键值来自编码器输出的分工。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q7"
+          },
+          "explanation": "考查每个子层后的残差连接与层归一化（Add&Norm）这一关键机制。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需回忆提出年份、是否使用 RNN/卷积、是否含解码器三个要点，并逐一排除三个混淆项。",
+          "question_id": "q1",
+          "thinking_seconds": 25
+        },
+        {
+          "reason": "需区分编码器输出（表示序列 z）与中间产物（注意力权重、位置编码），并确认解码器逐符号生成。",
+          "question_id": "q2",
+          "thinking_seconds": 35
+        },
+        {
+          "reason": "需理解自回归定义，并排除“一次性并行输出”“只依赖 z”“用输入符号当已生成符号”三种误解。",
+          "question_id": "q3",
+          "thinking_seconds": 30
+        },
+        {
+          "reason": "直接回忆 N=6 与 2/3 个子层的数字，属记忆型判断。",
+          "question_id": "q4",
+          "thinking_seconds": 20
+        },
+        {
+          "reason": "需在四个候选中判断哪些属于解码器层内子层，并识别位置编码不是子层，属多选需逐项核对。",
+          "question_id": "q5",
+          "thinking_seconds": 40
+        },
+        {
+          "reason": "需回忆编码器-解码器注意力中 Q 来自解码器、K/V 来自编码器输出的分工，属较细的结构推演。",
+          "question_id": "q6",
+          "thinking_seconds": 45
+        },
+        {
+          "reason": "只需确认 Add&Norm 在编码器与解码器每个子层后都出现。",
+          "question_id": "q7",
+          "thinking_seconds": 15
+        },
+        {
+          "reason": "需完整回忆编码器 2 个子层、解码器 3 个子层名称，指出多出的子层，并组织自回归与掩蔽的解释，属综合复述。",
+          "question_id": "q8",
+          "thinking_seconds": 90
+        }
+      ],
+      "teaching_context_digest": "a46320e5fc70601597652a681f503da00edf6a6eca39088881a7d37881976a04"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "8 道题覆盖本节点分工：q1 定位（2017、完全基于注意力、无 RNN/卷积）、q2 编码器映射为 z 与解码器逐符号生成、q3 自回归、q4 各 6 层与 2/3 子层、q5 解码器三子层、q6 编码器-解码器注意力 Q 来源、q7 Add&Norm、q8 综合复述，均对应 req-transformer-basics 与 n1-overview 三个目标。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题独立求解后答案与解析一致：q1 A、q2 A、q3 A、q4 A、q5 A,B,C、q6 A、q7 正确、q8 参考答案与评分要点均符合原始论文 3.1 节表述（N=6、编码器 2 子层、解码器 3 子层、LayerNorm(x+Sublayer(x))、掩蔽保证位置 i 只依赖小于 i 的输出）。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "习题的“例子”即各干扰项与解析：q1 的 2015/卷积、q2 的注意力权重矩阵与单向量压缩、q3 的非自回归并行输出、q4 的 12 层与子层数对调、q6 的 K/V 与 Q 混淆，均为真实误区且解析给出明确错误原因，无随意数字或猜测式解析。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序由定位→编码器/解码器分工→自回归→层数与子层→解码器子层→注意力分工→Add&Norm→综合复述，符合入门深度与节点活动顺序；题干自足、未泄露答案，难度标注 easy/medium/hard 与思考量（q6 hard、q8 综合）基本匹配。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "解析中的事实（完全依赖自注意力、N=6、LayerNorm(x+Sublayer(x))、右移目标序列）均可在 research_context 引用的原始论文中文解读与 kangshitao 博客中找到对应表述，未声称核查外部全文。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "8 题覆盖三个目标且含单选、多选、判断、简答四种题型，答案、解析、难度字段齐全；未越界到位置编码公式、多头细节等后续节点内容，符合本节点 10 分钟共享预算下的自测定位。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "version": 1,
+          "decision": "revise",
+          "structural_issues": [
+            "本轮输出格式或映射校验失败：preparation_content_envelope_missing。按本轮格式重交完整封装及必需教学映射；原生题目 JSON 应放在 content 字段内。"
+          ]
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "8 道题覆盖本节点分工：q1 定位（2017、完全基于注意力、无 RNN/卷积）、q2 编码器映射为 z 与解码器逐符号生成、q3 自回归、q4 各 6 层与 2/3 子层、q5 解码器三子层、q6 编码器-解码器注意力 Q 来源、q7 Add&Norm、q8 综合复述，均对应 req-transformer-basics 与 n1-overview 三个目标。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解后答案与解析一致：q1 A、q2 A、q3 A、q4 A、q5 A,B,C、q6 A、q7 正确、q8 参考答案与评分要点均符合原始论文 3.1 节表述（N=6、编码器 2 子层、解码器 3 子层、LayerNorm(x+Sublayer(x))、掩蔽保证位置 i 只依赖小于 i 的输出）。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题的“例子”即各干扰项与解析：q1 的 2015/卷积、q2 的注意力权重矩阵与单向量压缩、q3 的非自回归并行输出、q4 的 12 层与子层数对调、q6 的 K/V 与 Q 混淆，均为真实误区且解析给出明确错误原因，无随意数字或猜测式解析。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序由定位→编码器/解码器分工→自回归→层数与子层→解码器子层→注意力分工→Add&Norm→综合复述，符合入门深度与节点活动顺序；题干自足、未泄露答案，难度标注 easy/medium/hard 与思考量（q6 hard、q8 综合）基本匹配。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "解析中的事实（完全依赖自注意力、N=6、LayerNorm(x+Sublayer(x))、右移目标序列）均可在 research_context 引用的原始论文中文解读与 kangshitao 博客中找到对应表述，未声称核查外部全文。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "8 题覆盖三个目标且含单选、多选、判断、简答四种题型，答案、解析、难度字段齐全；未越界到位置编码公式、多头细节等后续节点内容，符合本节点 10 分钟共享预算下的自测定位。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q1、q2、q3、q4、q6 的正确答案均位于 A 位，虽解析正确，但建议打乱选项顺序以避免答案位置规律。",
+              "q2 解析中“C 错误”被拆成两个片段（segment 2 与 3），阅读时略割裂，可合并为一句完整说明。",
+              "q8 简答题可补充一句“训练时用右移的目标序列一次性并行计算、推理时逐符号生成”的对比，帮助初学者区分训练与推理两种情形。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [
+                  {
+                    "reasoning": "与原始论文背景部分“第一个完全依赖自注意力……不使用序列对齐的 RNN 或卷积”一致，年份 2017 正确。",
+                    "option_text": "2017 年提出、完全依赖自注意力来计算输入与输出表示的序列转换模型，不使用序列对齐的 RNN 或卷积",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原始论文背景部分明确说 Transformer 是第一个完全依赖自注意力来计算输入和输出表示的转换模型，不使用序列对齐的 RNN 或卷积，提出时间为 2017 年（Google 团队）。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析称 A 正确并引用背景部分原句与 2017 年 Google 团队，与资料一致，无多余错误批评。"
+                  },
+                  {
+                    "reasoning": "Transformer 摒弃循环结构，注意力取代而非叠加于 RNN，故错误。",
+                    "option_text": "2017 年提出、在循环神经网络之上叠加注意力机制的序列转换模型",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：Transformer 恰恰摒弃了循环结构，注意力不是叠加在 RNN 之上，而是取代了循环。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出“注意力不是叠加在 RNN 之上，而是取代了循环”，准确对应选项“在循环神经网络之上叠加注意力”的错误点。"
+                  },
+                  {
+                    "reasoning": "年份应为 2017 而非 2015，且 Transformer 不以卷积为基本构建块，故错误。",
+                    "option_text": "2015 年提出、用卷积替代循环结构的序列转换模型",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：年份是 2017 年而非 2015 年，且 Transformer 不用卷积作为基本构建块（用卷积的是 ConvS2S、ByteNet 等前作）。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析同时指出年份错误与卷积定位错误，并说明用卷积的是 ConvS2S、ByteNet 等前作，与资料背景部分一致。"
+                  },
+                  {
+                    "reasoning": "Transformer 由编码器与解码器两部分组成，并非只有编码器，故错误。",
+                    "option_text": "2017 年提出、只包含编码器、没有解码器的表示学习模型",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：Transformer 由编码器和解码器两部分组成，缺一不可。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称“由编码器和解码器两部分组成，缺一不可”，准确否定“只包含编码器”的说法。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Transformer 由 Google 团队 2017 年提出，是第一个完全依赖自注意力计算输入与输出表示、不使用序列对齐 RNN 或卷积的序列转换模型，含编码器与解码器。故 A 正确；B 说叠加在 RNN 上错；C 年份与卷积定位均错；D 说只有编码器错。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "与原文“编码器将符号表示的输入序列映射到一系列连续表示 z，给定 z，解码器一次生成一个符号元素”完全对应。",
+                    "option_text": "编码器把输入映射为一系列连续表示 z = (z1, …, zn)；解码器给定 z 后一次生成一个符号，得到输出序列 (y1, …, ym)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原文表述为编码器将符号表示的输入序列映射到一系列连续表示 z，给定 z，解码器一次生成一个符号元素，从而生成输出序列。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析复述原文表述并判 A 正确，与资料一致。"
+                  },
+                  {
+                    "reasoning": "注意力权重是编码器内部子层的中间产物，不是编码器输出；解码器也不是查表，故错误。",
+                    "option_text": "编码器把输入映射为注意力权重矩阵；解码器直接用该矩阵查表得到输出序列",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：注意力权重是编码器内部子层的中间产物，不是编码器的输出，解码器也不是查表。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出注意力权重是中间产物、解码器非查表，两点均准确对应选项错误。"
+                  },
+                  {
+                    "reasoning": "编码器输出与输入等长的表示序列 z 而非单个向量，解码器逐符号生成而非一次性并行输出，故错误。",
+                    "option_text": "编码器把输入压缩成单个向量；解码器一次性并行输出全部 m 个符号",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：编码器输出的是与输入等长的表示序列 z，不是单个向量；解码器是逐符号生成，不是一次性并行输出。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析分两句分别否定“单个向量”与“一次性并行输出”，两处批评均成立，仅排版上被拆成两个片段。"
+                  },
+                  {
+                    "reasoning": "位置编码是加在嵌入上的辅助信息，不是编码器输出，故错误。",
+                    "option_text": "编码器把输入映射为位置编码；解码器用位置编码重建输出序列",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：位置编码是加在输入嵌入上的辅助信息，不是编码器的输出。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称位置编码是加在输入嵌入上的辅助信息，与资料中位置编码的定位一致。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "编码器把符号序列 (x1,…,xn) 映射为等长的连续表示序列 z=(z1,…,zn)；解码器给定 z 后一次生成一个符号，得到 (y1,…,ym)。故 A 正确；B 把中间注意力权重当输出且称查表，错；C 称压缩为单向量且并行输出，错；D 称输出位置编码，错。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "与原文“在生成下一个符号时，会将先前生成的符号作为额外的输入”一致。",
+                    "option_text": "生成下一个符号时，会把先前已经生成的符号作为额外输入",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原文说在每个步骤中模型是自回归的，在生成下一个符号时会将先前生成的符号作为额外的输入。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用原文自回归定义判 A 正确，准确。"
+                  },
+                  {
+                    "reasoning": "一次前向同时输出所有位置符号是典型的非自回归做法，与自回归定义相反，故错误。",
+                    "option_text": "解码器一次前向就同时输出所有位置的符号，彼此互不影响",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：那正是非自回归的做法；自回归意味着后一个符号依赖前面已生成的符号。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出这是非自回归做法，并补充自回归意味着后一符号依赖前面已生成符号，两处均成立。"
+                  },
+                  {
+                    "reasoning": "解码器既用编码器输出 z，也用已生成前缀，称“与已生成符号无关”错误。",
+                    "option_text": "解码器只依赖编码器输出 z，与已生成的符号无关",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：解码器既接收编码器输出 z，也接收上一层解码器输出（已生成前缀），二者都用。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明解码器同时接收 z 与上一层解码器输出，准确否定“只依赖 z”。"
+                  },
+                  {
+                    "reasoning": "解码器使用的是目标侧已生成符号（训练时为右移目标序列），不是输入序列符号，故错误。",
+                    "option_text": "解码器在生成时会把输入序列的符号当作已生成的符号使用",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：输入序列属于编码器一侧，解码器用的是目标侧已生成的符号（训练时用右移的目标序列）。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析区分编码器侧输入与目标侧已生成符号，并提到训练时右移目标序列，与资料一致。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "自回归指生成下一个符号时把先前已生成的符号作为额外输入。A 正确；B 描述的是非自回归并行输出，错；C 称与已生成符号无关，错；D 把输入序列符号当作已生成符号，错。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [
+                  {
+                    "reasoning": "6 层、编码器 2 子层、解码器 3 子层，与论文 3.1 节完全一致。",
+                    "option_text": "各 6 层；编码器每层 2 个子层，解码器每层 3 个子层",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原文写明编码器由 N=6 个相同的层堆叠，每层含两个子层（多头自注意力、逐位置前馈网络）；解码器同样 N=6 层，在编码器的两个子层之外插入第三个子层（对编码器输出做多头注意力），共 3 个子层。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析分两句给出编码器 N=6 与两子层、解码器 N=6 与三子层，均与资料一致。"
+                  },
+                  {
+                    "reasoning": "编码器 2 子层、解码器 3 子层，选项把数量说反，故错误。",
+                    "option_text": "各 6 层；编码器每层 3 个子层，解码器每层 2 个子层",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：子层数量说反了。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析“子层数量说反了”准确指出该选项的错误所在。"
+                  },
+                  {
+                    "reasoning": "解码器也是 6 层，不是 12 层，故错误。",
+                    "option_text": "编码器 6 层、解码器 12 层；每层都是 2 个子层",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：解码器也是 6 层，不是 12 层。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出解码器为 6 层而非 12 层，与论文一致。"
+                  },
+                  {
+                    "reasoning": "层数为 6 而非 12，故错误。",
+                    "option_text": "各 12 层；编码器每层 2 个子层，解码器每层 3 个子层",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：层数是 6 而非 12。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出层数是 6 而非 12，准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "原始论文中编码器与解码器各由 N=6 个相同层堆叠；编码器每层 2 个子层（多头自注意力、逐位置前馈网络），解码器每层 3 个子层（多出编码器-解码器注意力）。故 A 正确，B 子层数对调、C 解码器 12 层、D 各 12 层均错。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [
+                  {
+                    "reasoning": "掩蔽自注意力是解码器每层第一个子层，用于防止注意到后续位置，应选。",
+                    "option_text": "掩蔽自注意力层（Masked Self-Attention）",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：解码器每层第一个子层是掩蔽自注意力，防止位置注意到后续位置。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析说明其为第一个子层并给出掩蔽目的，与资料一致。"
+                  },
+                  {
+                    "reasoning": "编码器-解码器注意力是解码器比编码器多出的第三个子层，对编码器输出做多头注意力，应选。",
+                    "option_text": "编码器-解码器注意力层",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：这是解码器比编码器多出的第三个子层，对编码器堆叠的输出做多头注意力。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析称其为解码器多出的子层并对编码器输出做多头注意力，与论文 3.1 节一致。"
+                  },
+                  {
+                    "reasoning": "逐位置前馈网络是解码器每层最后一个子层，与编码器相同，应选。",
+                    "option_text": "逐位置前馈网络（Position-wise Feed-Forward Network）",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：解码器每层最后一个子层与编码器相同，是逐位置前馈网络。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析称其与编码器相同、为最后一个子层，准确。"
+                  },
+                  {
+                    "reasoning": "位置编码是加在输入/输出嵌入上的固定编码，不属于解码器层内子层，不应选。",
+                    "option_text": "位置编码层",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：位置编码是加在输入/输出嵌入上的固定编码，不是解码器层内的子层。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出位置编码是加在嵌入上的固定编码而非层内子层，与资料中位置编码的定位一致。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "解码器每层三个子层：掩蔽自注意力、编码器-解码器注意力、逐位置前馈网络；位置编码是加在嵌入上的固定编码，不是层内子层。故答案为 A、B、C。"
+              },
+              {
+                "question_id": "q6",
+                "option_checks": [
+                  {
+                    "reasoning": "资料明确“上一层解码器的输出用来生成查询向量”，故 A 正确。",
+                    "option_text": "来自解码器上一层（或掩蔽自注意力子层）的输出",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：资料指出解码器接收编码器输出和上一层解码器的输出，其中上一层解码器的输出用来生成查询向量。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用资料中“上一层解码器的输出用来生成查询向量”，与原文一致。"
+                  },
+                  {
+                    "reasoning": "编码器输出 z 经线性映射提供键和值，不是查询，故错误。",
+                    "option_text": "来自编码器堆叠的输出 z",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：编码器输出 z 经线性映射后提供键和值，供解码器查询，而不是查询本身。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 z 提供 K 和 V 而非 Q，与资料中“将 z 映射到 K 和 V 作为键值对供解码器使用”一致。"
+                  },
+                  {
+                    "reasoning": "原始符号先经嵌入与位置编码进入编码器，不直接作为查询，故错误。",
+                    "option_text": "来自输入序列的原始符号",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：原始符号先经嵌入与位置编码进入编码器，不直接作为查询。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明原始符号经嵌入与位置编码进入编码器，不直接作查询，成立。"
+                  },
+                  {
+                    "reasoning": "位置编码只提供位置信息，不充当查询，故错误。",
+                    "option_text": "来自位置编码",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：位置编码只提供位置信息，不充当查询。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称位置编码只提供位置信息，与资料中位置编码的作用一致。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "编码器-解码器注意力中，查询来自解码器上一层（掩蔽自注意力子层）的输出，键和值来自编码器堆叠输出 z 的线性映射。故 A 正确；B 是 K/V 来源；C、D 均不充当查询。"
+              },
+              {
+                "question_id": "q7",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文 3.1 节：编码器每个子层输出为 LayerNorm(x + Sublayer(x))，解码器同样在每个子层周围使用残差连接与层归一化。故命题正确。"
+              },
+              {
+                "question_id": "q8",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "编码器每层两个子层：多头自注意力、逐位置前馈网络；解码器每层三个子层：掩蔽自注意力、编码器-解码器注意力、逐位置前馈网络，多出编码器-解码器注意力。自回归是因为输出符号依赖已生成前缀，生成下一符号时把先前符号作为额外输入，并用掩蔽阻止位置 i 看到后续位置。参考答案与评分要点完整覆盖这三点。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 直接考查 2017 年提出、完全基于注意力、摒弃 RNN 与卷积的定位，真实支持 req-transformer-basics 中的基本原理部分。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 考查编码器映射为连续表示 z、解码器基于 z 逐符号生成，真实支持编码器-解码器整体结构这一要求。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 考查各 6 层堆叠与编码器 2 子层、解码器 3 子层，直接对应骨架结构目标。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 多选考查解码器三个子层组成，并排除位置编码层，支持解码器结构理解。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 考查编码器-解码器注意力中 Q 来自解码器、K/V 来自编码器输出的分工，属核心结构机制。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 判断题考查每个子层后的残差连接与层归一化，落实 Add&Norm 关键机制。",
+                "locator": {
+                  "question_id": "q7"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 的 A 选项完整表述 2017 年、完全基于注意力、编码器-解码器，可作为目标 o1 的检查点。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n1-overview:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 同时考查编码器映射为 z 与解码器逐符号生成，对应目标 o2 的检查。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n1-overview:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 考查自回归定义，是目标 o2 中“自回归逐符号生成”的直接检查。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n1-overview:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 要求复述编码器/解码器子层并解释自回归与掩蔽，综合检查目标 o2 与 o3。",
+                "locator": {
+                  "question_id": "q8"
+                },
+                "binding_id": "n1-overview:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 以数字形式检查 6 层与 2/3 子层，对应目标 o3 的骨架结构要点。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n1-overview:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为练习要求识别解码器三子层，帮助学习者构建骨架图所需的子层清单。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n1-overview:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 作为练习要求判断编码器-解码器注意力的 Q 来源，强化骨架图中跨模块连线的理解。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "n1-overview:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 作为练习要求确认每个子层后的 Add&Norm，正对应“在图上标注 Add&Norm 位置”的活动。",
+                "locator": {
+                  "question_id": "q7"
+                },
+                "binding_id": "n1-overview:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 作为检查要求写出子层差异并解释自回归，与节点 self_check 问题一致。",
+                "locator": {
+                  "question_id": "q8"
+                },
+                "binding_id": "n1-overview:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 2,
+          "decision": "pass",
+          "content_sha256": "98c74a869316b2f135d8253ee8dd6396c502957565e6fdf69aabfcd8eaf1fc3c"
+        }
+      ],
+      "version": 2,
+      "decision": "pass",
+      "suggestions": [
+        "q1、q2、q3、q4、q6 的正确答案均位于 A 位，虽解析正确，但建议打乱选项顺序以避免答案位置规律。",
+        "q2 解析中“C 错误”被拆成两个片段（segment 2 与 3），阅读时略割裂，可合并为一句完整说明。",
+        "q8 简答题可补充一句“训练时用右移的目标序列一次性并行计算、推理时逐符号生成”的对比，帮助初学者区分训练与推理两种情形。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "98c74a869316b2f135d8253ee8dd6396c502957565e6fdf69aabfcd8eaf1fc3c",
+      "question_checks": [
+        {
+          "question_id": "q1",
+          "option_checks": [
+            {
+              "reasoning": "与原始论文背景部分“第一个完全依赖自注意力……不使用序列对齐的 RNN 或卷积”一致，年份 2017 正确。",
+              "option_text": "2017 年提出、完全依赖自注意力来计算输入与输出表示的序列转换模型，不使用序列对齐的 RNN 或卷积",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原始论文背景部分明确说 Transformer 是第一个完全依赖自注意力来计算输入和输出表示的转换模型，不使用序列对齐的 RNN 或卷积，提出时间为 2017 年（Google 团队）。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析称 A 正确并引用背景部分原句与 2017 年 Google 团队，与资料一致，无多余错误批评。"
+            },
+            {
+              "reasoning": "Transformer 摒弃循环结构，注意力取代而非叠加于 RNN，故错误。",
+              "option_text": "2017 年提出、在循环神经网络之上叠加注意力机制的序列转换模型",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：Transformer 恰恰摒弃了循环结构，注意力不是叠加在 RNN 之上，而是取代了循环。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出“注意力不是叠加在 RNN 之上，而是取代了循环”，准确对应选项“在循环神经网络之上叠加注意力”的错误点。"
+            },
+            {
+              "reasoning": "年份应为 2017 而非 2015，且 Transformer 不以卷积为基本构建块，故错误。",
+              "option_text": "2015 年提出、用卷积替代循环结构的序列转换模型",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：年份是 2017 年而非 2015 年，且 Transformer 不用卷积作为基本构建块（用卷积的是 ConvS2S、ByteNet 等前作）。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析同时指出年份错误与卷积定位错误，并说明用卷积的是 ConvS2S、ByteNet 等前作，与资料背景部分一致。"
+            },
+            {
+              "reasoning": "Transformer 由编码器与解码器两部分组成，并非只有编码器，故错误。",
+              "option_text": "2017 年提出、只包含编码器、没有解码器的表示学习模型",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：Transformer 由编码器和解码器两部分组成，缺一不可。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析称“由编码器和解码器两部分组成，缺一不可”，准确否定“只包含编码器”的说法。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "Transformer 由 Google 团队 2017 年提出，是第一个完全依赖自注意力计算输入与输出表示、不使用序列对齐 RNN 或卷积的序列转换模型，含编码器与解码器。故 A 正确；B 说叠加在 RNN 上错；C 年份与卷积定位均错；D 说只有编码器错。"
+        },
+        {
+          "question_id": "q2",
+          "option_checks": [
+            {
+              "reasoning": "与原文“编码器将符号表示的输入序列映射到一系列连续表示 z，给定 z，解码器一次生成一个符号元素”完全对应。",
+              "option_text": "编码器把输入映射为一系列连续表示 z = (z1, …, zn)；解码器给定 z 后一次生成一个符号，得到输出序列 (y1, …, ym)",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原文表述为编码器将符号表示的输入序列映射到一系列连续表示 z，给定 z，解码器一次生成一个符号元素，从而生成输出序列。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析复述原文表述并判 A 正确，与资料一致。"
+            },
+            {
+              "reasoning": "注意力权重是编码器内部子层的中间产物，不是编码器输出；解码器也不是查表，故错误。",
+              "option_text": "编码器把输入映射为注意力权重矩阵；解码器直接用该矩阵查表得到输出序列",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：注意力权重是编码器内部子层的中间产物，不是编码器的输出，解码器也不是查表。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出注意力权重是中间产物、解码器非查表，两点均准确对应选项错误。"
+            },
+            {
+              "reasoning": "编码器输出与输入等长的表示序列 z 而非单个向量，解码器逐符号生成而非一次性并行输出，故错误。",
+              "option_text": "编码器把输入压缩成单个向量；解码器一次性并行输出全部 m 个符号",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：编码器输出的是与输入等长的表示序列 z，不是单个向量；解码器是逐符号生成，不是一次性并行输出。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析分两句分别否定“单个向量”与“一次性并行输出”，两处批评均成立，仅排版上被拆成两个片段。"
+            },
+            {
+              "reasoning": "位置编码是加在嵌入上的辅助信息，不是编码器输出，故错误。",
+              "option_text": "编码器把输入映射为位置编码；解码器用位置编码重建输出序列",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：位置编码是加在输入嵌入上的辅助信息，不是编码器的输出。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析称位置编码是加在输入嵌入上的辅助信息，与资料中位置编码的定位一致。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "编码器把符号序列 (x1,…,xn) 映射为等长的连续表示序列 z=(z1,…,zn)；解码器给定 z 后一次生成一个符号，得到 (y1,…,ym)。故 A 正确；B 把中间注意力权重当输出且称查表，错；C 称压缩为单向量且并行输出，错；D 称输出位置编码，错。"
+        },
+        {
+          "question_id": "q3",
+          "option_checks": [
+            {
+              "reasoning": "与原文“在生成下一个符号时，会将先前生成的符号作为额外的输入”一致。",
+              "option_text": "生成下一个符号时，会把先前已经生成的符号作为额外输入",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原文说在每个步骤中模型是自回归的，在生成下一个符号时会将先前生成的符号作为额外的输入。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析引用原文自回归定义判 A 正确，准确。"
+            },
+            {
+              "reasoning": "一次前向同时输出所有位置符号是典型的非自回归做法，与自回归定义相反，故错误。",
+              "option_text": "解码器一次前向就同时输出所有位置的符号，彼此互不影响",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：那正是非自回归的做法；自回归意味着后一个符号依赖前面已生成的符号。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出这是非自回归做法，并补充自回归意味着后一符号依赖前面已生成符号，两处均成立。"
+            },
+            {
+              "reasoning": "解码器既用编码器输出 z，也用已生成前缀，称“与已生成符号无关”错误。",
+              "option_text": "解码器只依赖编码器输出 z，与已生成的符号无关",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：解码器既接收编码器输出 z，也接收上一层解码器输出（已生成前缀），二者都用。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析说明解码器同时接收 z 与上一层解码器输出，准确否定“只依赖 z”。"
+            },
+            {
+              "reasoning": "解码器使用的是目标侧已生成符号（训练时为右移目标序列），不是输入序列符号，故错误。",
+              "option_text": "解码器在生成时会把输入序列的符号当作已生成的符号使用",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：输入序列属于编码器一侧，解码器用的是目标侧已生成的符号（训练时用右移的目标序列）。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析区分编码器侧输入与目标侧已生成符号，并提到训练时右移目标序列，与资料一致。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "自回归指生成下一个符号时把先前已生成的符号作为额外输入。A 正确；B 描述的是非自回归并行输出，错；C 称与已生成符号无关，错；D 把输入序列符号当作已生成符号，错。"
+        },
+        {
+          "question_id": "q4",
+          "option_checks": [
+            {
+              "reasoning": "6 层、编码器 2 子层、解码器 3 子层，与论文 3.1 节完全一致。",
+              "option_text": "各 6 层；编码器每层 2 个子层，解码器每层 3 个子层",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原文写明编码器由 N=6 个相同的层堆叠，每层含两个子层（多头自注意力、逐位置前馈网络）；解码器同样 N=6 层，在编码器的两个子层之外插入第三个子层（对编码器输出做多头注意力），共 3 个子层。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析分两句给出编码器 N=6 与两子层、解码器 N=6 与三子层，均与资料一致。"
+            },
+            {
+              "reasoning": "编码器 2 子层、解码器 3 子层，选项把数量说反，故错误。",
+              "option_text": "各 6 层；编码器每层 3 个子层，解码器每层 2 个子层",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：子层数量说反了。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析“子层数量说反了”准确指出该选项的错误所在。"
+            },
+            {
+              "reasoning": "解码器也是 6 层，不是 12 层，故错误。",
+              "option_text": "编码器 6 层、解码器 12 层；每层都是 2 个子层",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：解码器也是 6 层，不是 12 层。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出解码器为 6 层而非 12 层，与论文一致。"
+            },
+            {
+              "reasoning": "层数为 6 而非 12，故错误。",
+              "option_text": "各 12 层；编码器每层 2 个子层，解码器每层 3 个子层",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：层数是 6 而非 12。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出层数是 6 而非 12，准确。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "原始论文中编码器与解码器各由 N=6 个相同层堆叠；编码器每层 2 个子层（多头自注意力、逐位置前馈网络），解码器每层 3 个子层（多出编码器-解码器注意力）。故 A 正确，B 子层数对调、C 解码器 12 层、D 各 12 层均错。"
+        },
+        {
+          "question_id": "q5",
+          "option_checks": [
+            {
+              "reasoning": "掩蔽自注意力是解码器每层第一个子层，用于防止注意到后续位置，应选。",
+              "option_text": "掩蔽自注意力层（Masked Self-Attention）",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：解码器每层第一个子层是掩蔽自注意力，防止位置注意到后续位置。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析说明其为第一个子层并给出掩蔽目的，与资料一致。"
+            },
+            {
+              "reasoning": "编码器-解码器注意力是解码器比编码器多出的第三个子层，对编码器输出做多头注意力，应选。",
+              "option_text": "编码器-解码器注意力层",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：这是解码器比编码器多出的第三个子层，对编码器堆叠的输出做多头注意力。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析称其为解码器多出的子层并对编码器输出做多头注意力，与论文 3.1 节一致。"
+            },
+            {
+              "reasoning": "逐位置前馈网络是解码器每层最后一个子层，与编码器相同，应选。",
+              "option_text": "逐位置前馈网络（Position-wise Feed-Forward Network）",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 正确：解码器每层最后一个子层与编码器相同，是逐位置前馈网络。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析称其与编码器相同、为最后一个子层，准确。"
+            },
+            {
+              "reasoning": "位置编码是加在输入/输出嵌入上的固定编码，不属于解码器层内子层，不应选。",
+              "option_text": "位置编码层",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：位置编码是加在输入/输出嵌入上的固定编码，不是解码器层内的子层。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出位置编码是加在嵌入上的固定编码而非层内子层，与资料中位置编码的定位一致。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "解码器每层三个子层：掩蔽自注意力、编码器-解码器注意力、逐位置前馈网络；位置编码是加在嵌入上的固定编码，不是层内子层。故答案为 A、B、C。"
+        },
+        {
+          "question_id": "q6",
+          "option_checks": [
+            {
+              "reasoning": "资料明确“上一层解码器的输出用来生成查询向量”，故 A 正确。",
+              "option_text": "来自解码器上一层（或掩蔽自注意力子层）的输出",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：资料指出解码器接收编码器输出和上一层解码器的输出，其中上一层解码器的输出用来生成查询向量。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析引用资料中“上一层解码器的输出用来生成查询向量”，与原文一致。"
+            },
+            {
+              "reasoning": "编码器输出 z 经线性映射提供键和值，不是查询，故错误。",
+              "option_text": "来自编码器堆叠的输出 z",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：编码器输出 z 经线性映射后提供键和值，供解码器查询，而不是查询本身。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 z 提供 K 和 V 而非 Q，与资料中“将 z 映射到 K 和 V 作为键值对供解码器使用”一致。"
+            },
+            {
+              "reasoning": "原始符号先经嵌入与位置编码进入编码器，不直接作为查询，故错误。",
+              "option_text": "来自输入序列的原始符号",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：原始符号先经嵌入与位置编码进入编码器，不直接作为查询。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析说明原始符号经嵌入与位置编码进入编码器，不直接作查询，成立。"
+            },
+            {
+              "reasoning": "位置编码只提供位置信息，不充当查询，故错误。",
+              "option_text": "来自位置编码",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：位置编码只提供位置信息，不充当查询。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析称位置编码只提供位置信息，与资料中位置编码的作用一致。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "编码器-解码器注意力中，查询来自解码器上一层（掩蔽自注意力子层）的输出，键和值来自编码器堆叠输出 z 的线性映射。故 A 正确；B 是 K/V 来源；C、D 均不充当查询。"
+        },
+        {
+          "question_id": "q7",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "论文 3.1 节：编码器每个子层输出为 LayerNorm(x + Sublayer(x))，解码器同样在每个子层周围使用残差连接与层归一化。故命题正确。"
+        },
+        {
+          "question_id": "q8",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "编码器每层两个子层：多头自注意力、逐位置前馈网络；解码器每层三个子层：掩蔽自注意力、编码器-解码器注意力、逐位置前馈网络，多出编码器-解码器注意力。自回归是因为输出符号依赖已生成前缀，生成下一符号时把先前符号作为额外输入，并用掩蔽阻止位置 i 看到后续位置。参考答案与评分要点完整覆盖这三点。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q1 直接考查 2017 年提出、完全基于注意力、摒弃 RNN 与卷积的定位，真实支持 req-transformer-basics 中的基本原理部分。",
+          "locator": {
+            "question_id": "q1"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 考查编码器映射为连续表示 z、解码器基于 z 逐符号生成，真实支持编码器-解码器整体结构这一要求。",
+          "locator": {
+            "question_id": "q2"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 考查各 6 层堆叠与编码器 2 子层、解码器 3 子层，直接对应骨架结构目标。",
+          "locator": {
+            "question_id": "q4"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 多选考查解码器三个子层组成，并排除位置编码层，支持解码器结构理解。",
+          "locator": {
+            "question_id": "q5"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 考查编码器-解码器注意力中 Q 来自解码器、K/V 来自编码器输出的分工，属核心结构机制。",
+          "locator": {
+            "question_id": "q6"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 判断题考查每个子层后的残差连接与层归一化，落实 Add&Norm 关键机制。",
+          "locator": {
+            "question_id": "q7"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 的 A 选项完整表述 2017 年、完全基于注意力、编码器-解码器，可作为目标 o1 的检查点。",
+          "locator": {
+            "question_id": "q1"
+          },
+          "binding_id": "n1-overview:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 同时考查编码器映射为 z 与解码器逐符号生成，对应目标 o2 的检查。",
+          "locator": {
+            "question_id": "q2"
+          },
+          "binding_id": "n1-overview:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 考查自回归定义，是目标 o2 中“自回归逐符号生成”的直接检查。",
+          "locator": {
+            "question_id": "q3"
+          },
+          "binding_id": "n1-overview:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 要求复述编码器/解码器子层并解释自回归与掩蔽，综合检查目标 o2 与 o3。",
+          "locator": {
+            "question_id": "q8"
+          },
+          "binding_id": "n1-overview:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 以数字形式检查 6 层与 2/3 子层，对应目标 o3 的骨架结构要点。",
+          "locator": {
+            "question_id": "q4"
+          },
+          "binding_id": "n1-overview:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 作为练习要求识别解码器三子层，帮助学习者构建骨架图所需的子层清单。",
+          "locator": {
+            "question_id": "q5"
+          },
+          "binding_id": "n1-overview:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 作为练习要求判断编码器-解码器注意力的 Q 来源，强化骨架图中跨模块连线的理解。",
+          "locator": {
+            "question_id": "q6"
+          },
+          "binding_id": "n1-overview:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 作为练习要求确认每个子层后的 Add&Norm，正对应“在图上标注 Add&Norm 位置”的活动。",
+          "locator": {
+            "question_id": "q7"
+          },
+          "binding_id": "n1-overview:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 作为检查要求写出子层差异并解释自回归，与节点 self_check 问题一致。",
+          "locator": {
+            "question_id": "q8"
+          },
+          "binding_id": "n1-overview:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "45f1960e3b87e64b2fc1cc7f23a93ea34a5cf356edf9697a6de27984c09ad83e",
+      "numeric_verification": {
+        "version": 1,
+        "coverage": "source_bound_claims_and_literal_softmax",
+        "questions": [
+          {
+            "checks": [],
+            "question_index": 0
+          },
+          {
+            "checks": [],
+            "question_index": 1
+          },
+          {
+            "checks": [],
+            "question_index": 2
+          },
+          {
+            "checks": [],
+            "question_index": 3
+          },
+          {
+            "checks": [],
+            "question_index": 4
+          },
+          {
+            "checks": [],
+            "question_index": 5
+          },
+          {
+            "checks": [],
+            "question_index": 6
+          },
+          {
+            "checks": [],
+            "question_index": 7
+          }
+        ]
+      },
+      "option_binding_version": 1
+    }
+  }
+}

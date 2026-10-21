@@ -1,0 +1,171 @@
+{
+  "base": "http://127.0.0.1",
+  "errors": [],
+  "failed": [],
+  "requests": [
+    {
+      "url": "http://127.0.0.1/",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/index-BGDXQoWW.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/index-8vDhdg1F.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/App-BK-LTaLC.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/extends-DtiB_eNV.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/index-D87Mj5BV.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/CheckOutlined-BGwC9Pfn.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/AuthContext-BbhLt7Gh.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/Content-VejGmxHy.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/reportAnchors-BmSgCeKk.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/readingContext-DX8cVRLe.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/ui-DAwPEXKQ.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/index-VqZUwhGM.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/LoginPage-C-Ltowvl.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/LoginPage-C7BFxp_v.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/serialPolling-DhHwmGfk.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/App-B-az73cl.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/classroomEditorial-BlyEFt64.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/backend/api/auth/verify",
+      "method": "POST"
+    },
+    {
+      "url": "http://127.0.0.1/assets/LiveApp-mA9ic-2c.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/PreparationTaskSummary-nxz7ar5M.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/types-Sgqg8Uqn.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/PreparationTaskSummary-CZhhSnI-.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/PreparationProgress-DExMM3gV.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/PreparationProgress-Be-CRNhV.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/reportReading-j3imbFdD.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/reportReading-BYZTj3zW.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/QuizMarkdown-DWKo4n1f.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/QuizMarkdown-CdbtT6Xg.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/courses-Dygpsgm3.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/CourseMaterialArtifactPreview-BvH0W5Sb.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/MarkdownPreview-DAPkmNFo.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/MarkdownPreview-B4FeaG51.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/courseMaterialPreviewData-C2fDt2M2.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/CourseMaterialArtifactPreview-Duxsw8Fw.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/generationRegistry-0zhwpVV6.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/classroom-tBdjDx-D.js",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/assets/LiveApp-BOgPqh1M.css",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/backend/api/course-preparations",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/backend/api/self-learning/state",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1/fonts/editorial-modules.woff2",
+      "method": "GET"
+    }
+  ]
+}

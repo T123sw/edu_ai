@@ -1,0 +1,127 @@
+[
+  {
+    "node": "n1-why-transformer",
+    "file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/renders/video.mp4",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "duration": "286.300000"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "duration": "286.300000"
+        }
+      ],
+      "format": {
+        "duration": "286.300000",
+        "size": "42230263"
+      }
+    }
+  },
+  {
+    "node": "n2-overall-architecture",
+    "file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/662ba27468512e487c028a88bac28a9611778c0eebd498151548770abc88afe6/videos/transformer-overall-architecture/renders/video.mp4",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "duration": "296.000000"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "duration": "296.000000"
+        }
+      ],
+      "format": {
+        "duration": "296.000000",
+        "size": "24174664"
+      }
+    }
+  },
+  {
+    "node": "n3-self-attention",
+    "file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/13921f99179dbdc3dec619b7b8e000fd258bde8b937167b70bfdcf24d10e3bb1/videos/n3-self-attention/renders/video.mp4",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "duration": "305.200000"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "duration": "305.200000"
+        }
+      ],
+      "format": {
+        "duration": "305.200000",
+        "size": "28229797"
+      }
+    }
+  },
+  {
+    "node": "n4-position-ffn",
+    "file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/1cab0e1b7ecece1cdb9e3a60387edcc88f47614f904791f7a7af033ad5f34e1d/videos/transformer-position-ffn/renders/video.mp4",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "duration": "295.566667"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "duration": "295.566667"
+        }
+      ],
+      "format": {
+        "duration": "295.566667",
+        "size": "36370417"
+      }
+    }
+  },
+  {
+    "node": "n5-tradeoff",
+    "file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/renders/video.mp4",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "duration": "289.600000"
+        },
+        {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "duration": "289.600000"
+        }
+      ],
+      "format": {
+        "duration": "289.600000",
+        "size": "15126394"
+      }
+    }
+  }
+]

@@ -1,0 +1,707 @@
+{
+  "exerciseId": "pbl_c590ff382a66f9b109569d25d037b3a5",
+  "job": {
+    "schema_version": 2,
+    "version": 8,
+    "edu_job_id": "pbl_c590ff382a66f9b109569d25d037b3a5",
+    "kind": "generate_pbl",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "编程项目已就绪，可以开始实现",
+    "owner_user_id": "matrix_form",
+    "owner": "matrix_form",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_c590ff382a66f9b109569d25d037b3a5",
+    "input_summary": {
+      "title": "用 React 做一个本地活动报名表，只做一个完整交互步骤。页面有姓名输入框和报名按钮。空字符串或只有空格的姓名提交后显示“请输入姓名”；合法姓名提交后显示“报名成功：”加去掉首尾空格的姓名。修改姓名时清除旧的成功或错误提示。不要联网、持久化、手机号或其他字段。",
+      "topic": "用 React 做一个本地活动报名表，只做一个完整交互步骤。页面有姓名输入框和报名按钮。空字符串或只有空格的姓名提交后显示“请输入姓名”；合法姓名提交后显示“报名成功：”加去掉首尾空格的姓名。修改姓名时清除旧的成功或错误提示。不要联网、持久化、手机号或其他字段。",
+      "exercise_id": "pbl_c590ff382a66f9b109569d25d037b3a5"
+    },
+    "result_ref": {
+      "exercise_id": "pbl_c590ff382a66f9b109569d25d037b3a5",
+      "resource_type": "pbl_exercise"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-10-17T08:28:31.960968+00:00",
+    "started_at": "2026-10-17T08:28:32.502903+00:00",
+    "finished_at": "2026-10-17T08:29:07.269658+00:00",
+    "updated_at": "2026-10-17T08:29:07.269658+00:00"
+  },
+  "artifact": {
+    "schemaVersion": 2,
+    "runtimeKind": "react_app",
+    "templateVersion": "react-app-v1",
+    "exerciseId": "pbl_c590ff382a66f9b109569d25d037b3a5",
+    "artifactVersion": 1,
+    "topic": "用 React 做一个本地活动报名表，只做一个完整交互步骤。页面有姓名输入框和报名按钮。空字符串或只有空格的姓名提交后显示“请输入姓名”；合法姓名提交后显示“报名成功：”加去掉首尾空格的姓名。修改姓名时清除旧的成功或错误提示。不要联网、持久化、手机号或其他字段。",
+    "title": "本地活动报名表",
+    "summary": "在 React 页面中实现一个本地活动报名表：姓名输入框与报名按钮；空或仅空白的姓名提交显示“请输入姓名”，合法姓名提交显示“报名成功：”加去掉首尾空格的姓名；修改姓名时清除旧提示。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "本地活动报名表",
+      "goal": "在 React 页面中实现一个本地活动报名表：姓名输入框与报名按钮；空或仅空白的姓名提交显示“请输入姓名”，合法姓名提交显示“报名成功：”加去掉首尾空格的姓名；修改姓名时清除旧提示。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "name-input",
+          "description": "页面提供姓名输入框，可输入任意文本，输入值随用户输入更新。"
+        },
+        {
+          "id": "submit-button",
+          "description": "页面提供报名按钮，点击后根据当前姓名内容给出提示。"
+        },
+        {
+          "id": "empty-error",
+          "description": "姓名为空字符串或只含空格时提交，显示提示“请输入姓名”。"
+        },
+        {
+          "id": "success-message",
+          "description": "姓名含非空白字符时提交，显示“报名成功：”加去掉首尾空格的姓名。"
+        },
+        {
+          "id": "clear-on-edit",
+          "description": "修改姓名输入内容时，清除此前显示的成功或错误提示。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "signup-form",
+          "title": "完成报名表交互",
+          "objective": "实现姓名输入、报名提交、空姓名错误提示、合法姓名成功提示，以及修改姓名时清除旧提示。",
+          "dependsOn": [],
+          "entryCondition": "从初始工程开始，页面已有可编辑的 App.jsx 与 styles.css。",
+          "deliverable": "一个可交互的本地报名表：输入姓名并点击报名，空或仅空白姓名显示“请输入姓名”，合法姓名显示“报名成功：”加去首尾空格的姓名；再次修改姓名时旧提示消失。",
+          "requirementIds": [
+            "name-input",
+            "submit-button",
+            "empty-error",
+            "success-message",
+            "clear-on-edit"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "empty-name-error",
+            "whitespace-name-error",
+            "valid-name-success",
+            "trimmed-name-success",
+            "clear-message-on-edit",
+            "error-then-valid-success"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "empty-name-error",
+          "stepId": "signup-form",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "submit-button",
+            "empty-error"
+          ],
+          "setup": "打开页面，姓名输入框为空。",
+          "actions": [
+            "点击报名按钮",
+            "读取提示区域文字"
+          ],
+          "expected": [
+            "提示区域显示“请输入姓名”"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "whitespace-name-error",
+          "stepId": "signup-form",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "name-input",
+            "submit-button",
+            "empty-error"
+          ],
+          "setup": "打开页面。",
+          "actions": [
+            "在姓名输入框填入“   ”（三个空格）",
+            "点击报名按钮",
+            "读取提示区域文字"
+          ],
+          "expected": [
+            "提示区域显示“请输入姓名”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "valid-name-success",
+          "stepId": "signup-form",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "name-input",
+            "submit-button",
+            "success-message"
+          ],
+          "setup": "打开页面。",
+          "actions": [
+            "在姓名输入框填入“张三”",
+            "点击报名按钮",
+            "读取提示区域文字"
+          ],
+          "expected": [
+            "提示区域显示“报名成功：张三”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "trimmed-name-success",
+          "stepId": "signup-form",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "name-input",
+            "submit-button",
+            "success-message"
+          ],
+          "setup": "打开页面。",
+          "actions": [
+            "在姓名输入框填入“  李四  ”（前后各两个空格）",
+            "点击报名按钮",
+            "读取提示区域文字"
+          ],
+          "expected": [
+            "提示区域显示“报名成功：李四”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "clear-message-on-edit",
+          "stepId": "signup-form",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "name-input",
+            "clear-on-edit"
+          ],
+          "setup": "打开页面。",
+          "actions": [
+            "在姓名输入框填入“王五”",
+            "点击报名按钮",
+            "确认提示区域显示“报名成功：王五”",
+            "在姓名输入框继续输入，改为“王五五”",
+            "读取提示区域文字"
+          ],
+          "expected": [
+            "修改姓名后提示区域不再显示“报名成功：王五”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "error-then-valid-success",
+          "stepId": "signup-form",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "empty-error",
+            "success-message",
+            "clear-on-edit"
+          ],
+          "setup": "打开页面。",
+          "actions": [
+            "直接点击报名按钮",
+            "确认提示区域显示“请输入姓名”",
+            "在姓名输入框填入“赵六”",
+            "点击报名按钮",
+            "读取提示区域文字"
+          ],
+          "expected": [
+            "提示区域显示“报名成功：赵六”，不再显示“请输入姓名”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        }
+      ]
+    },
+    "starterFiles": {
+      "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+      "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+    },
+    "tasks": [
+      {
+        "stepId": "signup-form",
+        "title": "完成报名表交互",
+        "objective": "实现姓名输入、报名提交、空姓名错误提示、合法姓名成功提示，以及修改姓名时清除旧提示。",
+        "instructionsMarkdown": "做一个本地活动报名表页面，包含一个姓名输入框和一个“报名”按钮，点击按钮后根据姓名内容显示提示。\n\n- 姓名输入框初始为空，可以输入任意文字。\n- 点击“报名”按钮时：如果姓名是空字符串或只由空格组成，提示区域显示“请输入姓名”。\n- 如果姓名含有非空白字符，提示区域显示“报名成功：”加上去掉首尾空格后的姓名，例如输入“  李四  ”后显示“报名成功：李四”。\n- 只要修改姓名输入框的内容，之前显示的成功或错误提示都要消失。\n- 页面不联网、不保存数据，也不需要手机号等其他字段。\n\n提示区域在没有任何提示时可以是空的。\n\n**代码约定**\n\n- 姓名输入框加 `data-testid=\"name-input\"`。\n- “报名”按钮加 `data-testid=\"submit-button\"`，按钮文字为“报名”。\n- 显示提示的区域加 `data-testid=\"message\"`，里面只放提示文字（没有提示时为空）。\n\n这些标记只供系统识别页面部件，不会改变外观。",
+        "explanationMarkdown": "这个页面需要保存两类状态：当前输入的姓名，以及当前要显示的提示。\n\n用 `useState` 保存姓名，输入框的 `value` 绑定它，`onChange` 时更新姓名，同时把提示清空——这样修改姓名就会清除旧提示。\n\n点击按钮时读取姓名，用 `trim()` 去掉首尾空格：结果为空就设置提示为“请输入姓名”，否则设置提示为“报名成功：”加去空格后的姓名。\n\n提示区域始终渲染，内容为空字符串时页面上看不到文字，检查时也能稳定定位。",
+        "hints": [
+          "用两个 useState：一个存姓名，一个存提示文字。",
+          "输入框的 onChange 里同时更新姓名和把提示设为空字符串。",
+          "判断空姓名用 name.trim() === ''。",
+          "成功提示用 '报名成功：' + name.trim() 拼接。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "empty-name-error",
+          "whitespace-name-error",
+          "valid-name-success",
+          "trimmed-name-success",
+          "clear-message-on-edit",
+          "error-then-valid-success"
+        ],
+        "id": "signup-form",
+        "cumulativeCheckIds": [
+          "empty-name-error",
+          "whitespace-name-error",
+          "valid-name-success",
+          "trimmed-name-success",
+          "clear-message-on-edit",
+          "error-then-valid-success"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "empty-name-error",
+        "label": "姓名输入框为空时点击“报名”，提示区域显示“请输入姓名”",
+        "actions": [
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "name-input"
+            },
+            "value": null,
+            "assertion": "value",
+            "expected": "",
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "submit-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "请输入姓名",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "whitespace-name-error",
+        "label": "姓名只含空格时点击“报名”，提示区域显示“请输入姓名”",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "name-input"
+            },
+            "value": "   ",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "submit-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "请输入姓名",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "valid-name-success",
+        "label": "输入“张三”并点击“报名”，提示区域显示“报名成功：张三”",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "name-input"
+            },
+            "value": "张三",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "submit-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "报名成功：张三",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "trimmed-name-success",
+        "label": "输入前后带空格的“  李四  ”并点击“报名”，提示区域显示去掉首尾空格的“报名成功：李四”",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "name-input"
+            },
+            "value": "  李四  ",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "submit-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "报名成功：李四",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "clear-message-on-edit",
+        "label": "成功报名后修改姓名，旧成功提示消失；再次提交显示新的成功提示",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "name-input"
+            },
+            "value": "王五",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "submit-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "报名成功：王五",
+            "relativeTo": null
+          },
+          {
+            "type": "fill",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "name-input"
+            },
+            "value": "王五五",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "",
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "submit-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "报名成功：王五五",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "error-then-valid-success",
+        "label": "空姓名报错后修改姓名，旧错误提示消失；提交合法姓名显示“报名成功：赵六”",
+        "actions": [
+          {
+            "type": "click",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "submit-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "请输入姓名",
+            "relativeTo": null
+          },
+          {
+            "type": "fill",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "name-input"
+            },
+            "value": "赵六",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "",
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "submit-button"
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "message"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "报名成功：赵六",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      }
+    ],
+    "validationSummary": {
+      "passed": true,
+      "templateVersion": "react-app-v1",
+      "validatedSteps": 1,
+      "qualityWarnings": []
+    }
+  }
+}

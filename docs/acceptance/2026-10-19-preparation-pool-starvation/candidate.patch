@@ -1,0 +1,198 @@
+--- a/backend/src/app/course_preparation/authorizer.py
++++ b/backend/src/app/course_preparation/authorizer.py
+@@ -10,19 +10,30 @@
+ 
+     def authorize(self,owner,request):
+         with Session(self.engine) as session:
+-            user=session.get(User,owner)
+-            if user is None or user.is_disabled: raise PermissionError('OWNER_UNAVAILABLE')
+-            if request.origin:
+-                conversation=session.get(Conversation,request.origin.conversation_id)
+-                message=session.get(ConversationMessage,request.origin.message_id)
+-                if (conversation is None or conversation.owner != user.username
+-                        or message is None or message.conversation_id!=conversation.conversation_id):
+-                    raise PermissionError('ORIGIN_UNAVAILABLE')
++            return self.authorize_in_session(session,owner,request)
++
++    def authorize_in_session(self,session,owner,request):
++        # A caller may hold the preparation/memory locks. Reuse its connection:
++        # acquiring another from the same pool can strand the lock holder when
++        # all remaining connections are occupied by callers waiting for its lock.
++        user=session.get(User,owner,populate_existing=True)
++        if user is None or user.is_disabled: raise PermissionError('OWNER_UNAVAILABLE')
++        if request.origin:
++            conversation=session.get(Conversation,request.origin.conversation_id,populate_existing=True)
++            message=session.get(ConversationMessage,request.origin.message_id,populate_existing=True)
++            if (conversation is None or conversation.owner != user.username
++                    or message is None or message.conversation_id!=conversation.conversation_id):
++                raise PermissionError('ORIGIN_UNAVAILABLE')
+         for ref in request.uploads:
+-            try: self.documents.authorize(owner,ref)
++            try:
++                authorize=getattr(self.documents,'authorize_in_session',None)
++                if authorize is not None: authorize(session,owner,ref)
++                else: self.documents.authorize(owner,ref)
+             except (LookupError,RuntimeError) as exc: raise PermissionError('SOURCE_UNAVAILABLE') from exc
+         if request.target:
+             if self.targets is None: raise PermissionError('TARGET_ADAPTER_UNAVAILABLE')
+-            self.targets.authorize(owner,request)
++            authorize=getattr(self.targets,'authorize_in_session',None)
++            if authorize is not None: authorize(session,owner,request)
++            else: self.targets.authorize(owner,request)
+         if request.learning_context and (not request.target or self.targets is None):
+             raise PermissionError('LEARNING_CONTEXT_UNAVAILABLE')
+--- a/backend/src/app/course_preparation/repository.py
++++ b/backend/src/app/course_preparation/repository.py
+@@ -28,6 +28,12 @@
+     def __init__(self, engine: Engine, *, authorizer: PreparationAuthorizer):
+         self.engine = engine
+         self.authorizer = authorizer
++
++    def _authorize(self, session, owner_user_id, request):
++        authorize = getattr(self.authorizer, 'authorize_in_session', None)
++        if authorize is not None:
++            return authorize(session, owner_user_id, request)
++        return self.authorizer.authorize(owner_user_id, request)
+ 
+     @staticmethod
+     def _request_record(session, owner_user_id, request_id):
+@@ -114,14 +120,14 @@
+                 existing = self._request_record(session, owner_user_id, request.request_id)
+                 if existing is None:
+                     raise
+-                self.authorizer.authorize(owner_user_id, request)
++                self._authorize(session, owner_user_id, request)
+                 return self._replay(session, existing, digest)
+ 
+     def get(self, *, owner_user_id: str, preparation_id: str) -> PreparationSnapshot:
+         with Session(self.engine) as session:
+             record = self._owned_record(session, owner_user_id, preparation_id)
+             snapshot = self._snapshot(session, record)
+-            self.authorizer.authorize(owner_user_id, snapshot.request)
++            self._authorize(session, owner_user_id, snapshot.request)
+             return snapshot
+ 
+     def events(self, *, owner_user_id: str, preparation_id: str,
+@@ -131,7 +137,7 @@
+         with Session(self.engine) as session:
+             record = self._owned_record(session, owner_user_id, preparation_id)
+             request = PreparationRequest.model_validate(record.request_payload)
+-            self.authorizer.authorize(owner_user_id, request)
++            self._authorize(session, owner_user_id, request)
+             rows = session.scalars(select(CoursePreparationEventRecord).where(
+                 CoursePreparationEventRecord.preparation_id == preparation_id,
+                 CoursePreparationEventRecord.sequence > after,
+--- a/backend/src/app/course_preparation/lifecycle_repository.py
++++ b/backend/src/app/course_preparation/lifecycle_repository.py
+@@ -94,7 +94,7 @@
+         if not allow_expired_deadline and budget_deadline(budget) and budget_deadline(budget) <= self.clock():
+             raise BudgetExceeded('DEADLINE_EXCEEDED')
+         if authorize:
+-            self.authorizer.authorize(prep.owner_user_id, PreparationRequest.model_validate(prep.request_payload))
++            self._authorize(session, prep.owner_user_id, PreparationRequest.model_validate(prep.request_payload))
+         return prep, attempt, run, budget
+ 
+     def get_public(self, owner, preparation_id):
+@@ -145,7 +145,7 @@
+                 budget.limits = {**budget.limits, 'retry_only': True}
+             error = None
+             try:
+-                self.authorizer.authorize(prep.owner_user_id, PreparationRequest.model_validate(prep.request_payload))
++                self._authorize(session, prep.owner_user_id, PreparationRequest.model_validate(prep.request_payload))
+             except (PermissionError, LookupError):
+                 error = 'SOURCE_OR_OWNER_UNAVAILABLE'
+             except RevisionConflict:
+@@ -304,7 +304,7 @@
+         with Session(self.engine) as session, session.begin():
+             prep = session.scalar(select(Prep).where(Prep.preparation_id == preparation_id).with_for_update())
+             self._owner(session, owner, preparation_id)
+-            self.authorizer.authorize(owner, PreparationRequest.model_validate(prep.request_payload))
++            self._authorize(session, owner, PreparationRequest.model_validate(prep.request_payload))
+             old = session.get(Attempt, (preparation_id, prep.current_attempt_no))
+             budget = session.get(Budget, preparation_id)
+             if self.retry_only and not budget.limits.get('retry_only'):
+--- a/backend/src/app/course_preparation/artifact_store.py
++++ b/backend/src/app/course_preparation/artifact_store.py
+@@ -91,7 +91,7 @@
+             raise StaleLease('RESOURCE_SUPERSEDED_BY_MANUAL_RETRY')
+         user=session.get(User,prep.owner_user_id)
+         if user is None or user.is_disabled: raise PermissionError('OWNER_UNAVAILABLE')
+-        self.repository.authorizer.authorize(prep.owner_user_id,PreparationRequest.model_validate(prep.request_payload))
++        self.repository._authorize(session,prep.owner_user_id,PreparationRequest.model_validate(prep.request_payload))
+         return prep,attempt,budget
+ 
+     def claim(self,owner,artifact_id):
+--- a/backend/src/app/course_preparation/progressive_delivery.py
++++ b/backend/src/app/course_preparation/progressive_delivery.py
+@@ -45,7 +45,7 @@
+             run = session.get(Run, (preparation_id, prep.current_attempt_no))
+             if attempt.status not in ('failed', 'canceled'):
+                 raise ValueError('ONLY_STOPPED_PREPARATION_CAN_RECOVER_SAVED_RESOURCES')
+-            self.repository.authorizer.authorize(owner, PreparationRequest.model_validate(prep.request_payload))
++            self.repository._authorize(session, owner, PreparationRequest.model_validate(prep.request_payload))
+             self._publish(session, prep, attempt, run, dict(run.checkpoint))
+         return self.repository.get_public(owner, preparation_id)
+ 
+--- a/backend/src/app/course_preparation/adapters/document_store.py
++++ b/backend/src/app/course_preparation/adapters/document_store.py
+@@ -45,12 +45,15 @@
+ 
+     def authorize(self,owner,ref):
+         with Session(self.engine) as session:
+-            row=session.get(Version,(owner,ref.document_id,ref.version))
+-            if row is None: raise PermissionError('DOCUMENT_VERSION_UNAVAILABLE')
+-            _,data=self.reader.read_bytes(self._username(session,owner),ref.document_id)
+-            if hashlib.sha256(data).hexdigest()!=row.content_sha256:
+-                raise PermissionError('DOCUMENT_VERSION_CHANGED')
+-            return {'filename':row.filename,'content_sha256':row.content_sha256}
++            return self.authorize_in_session(session,owner,ref)
++
++    def authorize_in_session(self,session,owner,ref):
++        row=session.get(Version,(owner,ref.document_id,ref.version),populate_existing=True)
++        if row is None: raise PermissionError('DOCUMENT_VERSION_UNAVAILABLE')
++        _,data=self.reader.read_bytes(self._username(session,owner),ref.document_id)
++        if hashlib.sha256(data).hexdigest()!=row.content_sha256:
++            raise PermissionError('DOCUMENT_VERSION_CHANGED')
++        return {'filename':row.filename,'content_sha256':row.content_sha256}
+ 
+     def parse_controlled(self, owner, ref, **controls):
+         return self.parse(owner, ref, **controls)
+--- a/backend/src/app/course_preparation/adapters/targets.py
++++ b/backend/src/app/course_preparation/adapters/targets.py
+@@ -15,11 +15,11 @@
+             return self.read_in_session(session, owner, target)
+ 
+     def read_in_session(self, session, owner, target):
+-        user=session.get(User,owner)
+-        if user is None or user.is_disabled or session.get(CourseMembership,(target.course_id,owner)) is None:
++        user=session.get(User,owner,populate_existing=True)
++        if user is None or user.is_disabled or session.get(CourseMembership,(target.course_id,owner),populate_existing=True) is None:
+             raise PermissionError('TARGET_COURSE_UNAVAILABLE')
+-        pointer=session.get(PreparedCoursePointer,(owner,target.course_id))
+-        row=session.get(PreparedManifestVersion,(owner,target.course_id,pointer.version)) if pointer else None
++        pointer=session.get(PreparedCoursePointer,(owner,target.course_id),populate_existing=True)
++        row=session.get(PreparedManifestVersion,(owner,target.course_id,pointer.version),populate_existing=True) if pointer else None
+         if row is None:
+             from ..publication import PreparedPublication
+             row=PreparedPublication.current(session,target.course_id)
+@@ -53,11 +53,14 @@
+         return {'manifest':manifest,'node':node,'resource':resource,'source_owner':row.owner_user_id,'resource_content':resource_content}
+ 
+     def authorize(self,owner,request):
+-        snapshot=self.read(owner,request.target)
++        with Session(self.engine) as session:
++            return self.authorize_in_session(session,owner,request)
++
++    def authorize_in_session(self,session,owner,request):
++        snapshot=self.read_in_session(session,owner,request.target)
+         if request.learning_context:
+-            with Session(self.engine) as session:
+-                for ref in request.learning_context.evidence_refs:
+-                    message=session.get(ConversationMessage,ref)
+-                    if not request.origin or message is None or message.conversation_id!=request.origin.conversation_id:
+-                        raise PermissionError('LEARNING_EVIDENCE_UNAVAILABLE')
++            for ref in request.learning_context.evidence_refs:
++                message=session.get(ConversationMessage,ref,populate_existing=True)
++                if not request.origin or message is None or message.conversation_id!=request.origin.conversation_id:
++                    raise PermissionError('LEARNING_EVIDENCE_UNAVAILABLE')
+         return snapshot

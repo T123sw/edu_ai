@@ -1,0 +1,28 @@
+{
+  "preparation_id": "prep_593ea484dc7c4247bacf13fcaddf8c5d",
+  "created_at": "2026-10-20 05:17:41.657974+00:00",
+  "request": {
+    "goal": "我想学习transformer",
+    "origin": null,
+    "target": null,
+    "uploads": [],
+    "operation": "create_course",
+    "overrides": {
+      "depth": null,
+      "language": null,
+      "total_minutes": null,
+      "include_classroom": true,
+      "required_resource_types": [
+        "report",
+        "quiz"
+      ]
+    },
+    "request_id": "3871fbbf-f944-4025-b8ba-16cc46b1edec",
+    "source_policy": {
+      "mode": "open"
+    },
+    "schema_version": 1,
+    "learning_context": null,
+    "requested_changes": []
+  }
+}

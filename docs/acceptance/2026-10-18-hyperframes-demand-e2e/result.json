@@ -1,0 +1,133 @@
+{
+  "status": "passed",
+  "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+  "checks": [
+    {
+      "name": "saved-resource-opened",
+      "type": "report",
+      "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+      "version": 1
+    },
+    {
+      "name": "saved-resource-opened",
+      "type": "quiz",
+      "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+      "version": 1
+    },
+    {
+      "name": "saved-resource-opened",
+      "type": "classroom",
+      "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+      "version": 1
+    },
+    {
+      "name": "new-video-audio-signal",
+      "duration": 224.544,
+      "audio": [
+        {
+          "state": "running",
+          "rms": 0.0465451793651539
+        }
+      ]
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_intro_question",
+      "seconds": 11.766666666666667,
+      "rms": 0.05877604063729101
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_yintercept_derive",
+      "seconds": 35.32621746041282,
+      "rms": 0.04383803378237279
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_b_zero",
+      "seconds": 53.42471745993599,
+      "rms": 0.02607293830640556
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_b_positive",
+      "seconds": 67.03412494321529,
+      "rms": 0.027627253530388165
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_b_negative",
+      "seconds": 84.7,
+      "rms": 0.015844802401833204
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_slope_why",
+      "seconds": 105.92551746012673,
+      "rms": 0.016096029397852627
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_parallel",
+      "seconds": 124.8,
+      "rms": 0.022869821602822596
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_misconception",
+      "seconds": 140.6,
+      "rms": 0.005252347033552747
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_check1",
+      "seconds": 163.66666666666666,
+      "rms": 0.029054505482307154
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_check2",
+      "seconds": 190.63333333333333,
+      "rms": 0.025817895632503217
+    },
+    {
+      "name": "segment-audio-and-picture",
+      "segment": "seg_summary",
+      "seconds": 213.36666666666667,
+      "rms": 0.06005181261348651
+    },
+    {
+      "name": "new-project-browser-downloads",
+      "segments": 11
+    },
+    {
+      "name": "fresh-course-question-and-citation",
+      "seconds": 27.51087483012271,
+      "segment": "seg_yintercept_derive"
+    },
+    {
+      "name": "new-course-refresh-restores",
+      "position": 28.132406122830453,
+      "restored": 28.1
+    }
+  ],
+  "downloads": [
+    {
+      "file": "lesson.mp4",
+      "bytes": 11229511,
+      "sha256": "4ff181b564d4ca3c80d7f8ce73e13bbe64a06794c93ec308ca46299e163e4b1c"
+    },
+    {
+      "file": "lesson.srt",
+      "bytes": 2907,
+      "sha256": "bc0cadedcf25c2a4ab3e9819d270fdcca2a41fdca7d7a474f5804cdc842f905d"
+    },
+    {
+      "file": "project.zip",
+      "bytes": 3752243,
+      "sha256": "b649b84494c60a9a4dbc6528b222d63ade2000362cf3d0023df8c17eb090be3e"
+    }
+  ],
+  "errors": [],
+  "failures": []
+}

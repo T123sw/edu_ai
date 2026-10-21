@@ -1,0 +1,40 @@
+{
+  "status": "published",
+  "at": "2026-10-19T07:53:01.979352+00:00",
+  "config": {
+    "protocol": "qwen-audio-tts",
+    "model": "qwen-audio-3.1-tts-flash",
+    "voice": "longanhuan_v3.1",
+    "speed": 1.0,
+    "pitch": 1.0
+  },
+  "audio_bytes": 190171,
+  "seconds": 1.5,
+  "legacy_local_voice_override_ignored": true,
+  "services": {
+    "edu-ai-backend.service": {
+      "pid": "2561907",
+      "effective_environment": {
+        "TTS_LOCAL_ONLY": "false",
+        "TTS_REMOTE_MODEL": "qwen-audio-3.1-tts-flash",
+        "TTS_REMOTE_VOICE": "longanhuan_v3.1"
+      }
+    },
+    "edu-ai-durable-workers.service": {
+      "pid": "2561974",
+      "effective_environment": {
+        "TTS_LOCAL_ONLY": "false",
+        "TTS_REMOTE_MODEL": "qwen-audio-3.1-tts-flash",
+        "TTS_REMOTE_VOICE": "longanhuan_v3.1"
+      }
+    }
+  },
+  "health": {
+    "status": "ok",
+    "message": "service ready",
+    "knowledge_base_ready": true,
+    "document_count": 11249
+  },
+  "audio_decode": "passed",
+  "scope": "New synthesis uses cloud for shared video/podcast service; existing published media retained. No local pitch processing."
+}

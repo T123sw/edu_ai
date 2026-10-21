@@ -1,0 +1,26 @@
+{
+  "request_id": "62995e72-e811-409c-ba9d-9505450f85eb",
+  "question": "结合我当前播放到的讲解，为什么 b 变大时直线向上移动，但斜率还是 2？请用一个 x 的取值解释，并引用当前片段。",
+  "reading_context": {
+    "resource_ref": {
+      "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+      "material_type": "classroom",
+      "material_id": "resource_03cb6c3cc66cced990124c06a24c636b",
+      "version": 1
+    },
+    "locator": {
+      "kind": "hyperframes",
+      "seconds": 27.51087483012271,
+      "segment_id": "seg_yintercept_derive",
+      "content_hash": "bccae734d99b912d67400a03b68cbd9ea5e3bfea9d9cf16761be6019a02d711d"
+    },
+    "selected_text": "",
+    "classroom": {
+      "status": "paused",
+      "position": {
+        "seconds": 27.51087483012271,
+        "segment_id": "seg_yintercept_derive"
+      }
+    }
+  }
+}

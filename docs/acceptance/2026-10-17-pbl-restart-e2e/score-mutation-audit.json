@@ -1,0 +1,275 @@
+[
+  {
+    "name": "score-blue-decrement-noop",
+    "case": "score",
+    "requirement": "蓝队从2分减到1分",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shell-teams-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"team-red\" 的可见状态\n   实际：true\n✓ 2. 检查 \"team-blue\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-initial-scores",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-initial-status",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "controls-red-buttons",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"team-red\" 中的 \"加 1 分\" 的可见状态\n   实际：true\n✓ 2. 检查 \"team-red\" 中的 \"加 1 分\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"team-red\" 中的 \"减 1 分\" 的可见状态\n   实际：true\n✓ 4. 检查 \"team-red\" 中的 \"减 1 分\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "controls-blue-buttons",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"team-blue\" 中的 \"加 1 分\" 的可见状态\n   实际：true\n✓ 2. 检查 \"team-blue\" 中的 \"加 1 分\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"team-blue\" 中的 \"减 1 分\" 的可见状态\n   实际：true\n✓ 4. 检查 \"team-blue\" 中的 \"减 1 分\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "increment-red",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 5. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 6. 检查 \"score-red\" 的显示文字\n   实际：\"3\"\n✓ 7. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "increment-blue",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 6. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "decrement-red",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 3. 点击 \"team-red\" 中的 \"减 1 分\"\n✓ 4. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 6. 点击 \"team-red\" 中的 \"减 1 分\"\n✓ 7. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 8. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "decrement-blue-floor",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"减 1 分\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 5. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 6. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 7. 点击 \"team-blue\" 中的 \"减 1 分\"\n× 8. 检查 \"score-blue\" 的显示文字\n预期：\"1\"\n实际：\"2\""
+        },
+        {
+          "caseId": "status-red-lead",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 2. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 4. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 5. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-blue-lead",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 4. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 5. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 6. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 7. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 8. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 9. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 10. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 11. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 12. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 13. 检查 \"score-blue\" 的显示文字\n   实际：\"3\"\n✓ 14. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-tie",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 4. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 6. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 7. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 9. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 10. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 11. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 12. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reset-clears-scores",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 3. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 4. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 6. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 7. 点击 \"重置比赛\"\n✓ 8. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 9. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 11. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 12. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 13. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 14. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 15. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 16. 点击 \"重置比赛\"\n✓ 17. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 18. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 19. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 20. 点击 \"重置比赛\"\n✓ 21. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 22. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 23. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 24. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 25. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 26. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 27. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 28. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 29. 点击 \"重置比赛\"\n✓ 30. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 31. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 32. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 33. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 34. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 35. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 36. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 5957.713502000006
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "score-blue-decrement-noop",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 2. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 3. 点击 \"team-blue\" 中的 \"减 1 分\"\n× 4. 检查 \"score-blue\" 的显示文字\n预期：\"1\"\n实际：\"2\""
+        }
+      ],
+      "durationMs": 1859.7368949999945
+    }
+  },
+  {
+    "name": "score-red-negative",
+    "case": "score",
+    "requirement": "红队分数下限0",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shell-teams-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"team-red\" 的可见状态\n   实际：true\n✓ 2. 检查 \"team-blue\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-initial-scores",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-initial-status",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "controls-red-buttons",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"team-red\" 中的 \"加 1 分\" 的可见状态\n   实际：true\n✓ 2. 检查 \"team-red\" 中的 \"加 1 分\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"team-red\" 中的 \"减 1 分\" 的可见状态\n   实际：true\n✓ 4. 检查 \"team-red\" 中的 \"减 1 分\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "controls-blue-buttons",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"team-blue\" 中的 \"加 1 分\" 的可见状态\n   实际：true\n✓ 2. 检查 \"team-blue\" 中的 \"加 1 分\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"team-blue\" 中的 \"减 1 分\" 的可见状态\n   实际：true\n✓ 4. 检查 \"team-blue\" 中的 \"减 1 分\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "increment-red",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 5. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 6. 检查 \"score-red\" 的显示文字\n   实际：\"3\"\n✓ 7. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "increment-blue",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 6. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "decrement-red",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 3. 点击 \"team-red\" 中的 \"减 1 分\"\n✓ 4. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 6. 点击 \"team-red\" 中的 \"减 1 分\"\n× 7. 检查 \"score-red\" 的显示文字\n预期：\"0\"\n实际：\"-1\""
+        },
+        {
+          "caseId": "decrement-blue-floor",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"减 1 分\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 5. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 6. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 7. 点击 \"team-blue\" 中的 \"减 1 分\"\n✓ 8. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 9. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 10. 点击 \"team-blue\" 中的 \"减 1 分\"\n✓ 11. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 12. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-red-lead",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 2. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 4. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 5. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-blue-lead",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 4. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 5. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 6. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 7. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 8. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 9. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 10. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 11. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 12. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 13. 检查 \"score-blue\" 的显示文字\n   实际：\"3\"\n✓ 14. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-tie",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 4. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 6. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 7. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 9. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 10. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 11. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 12. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reset-clears-scores",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 3. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 4. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 6. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 7. 点击 \"重置比赛\"\n✓ 8. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 9. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 11. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 12. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 13. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 14. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 15. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 16. 点击 \"重置比赛\"\n✓ 17. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 18. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 19. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 20. 点击 \"重置比赛\"\n✓ 21. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 22. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 23. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 24. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 25. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 26. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 27. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 28. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 29. 点击 \"重置比赛\"\n✓ 30. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 31. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 32. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 33. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 34. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 35. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 36. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 5992.183384999997
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "score-red-negative",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"减 1 分\"\n× 2. 检查 \"score-red\" 的显示文字\n预期：\"0\"\n实际：\"-1\""
+        }
+      ],
+      "durationMs": 1802.661432000008
+    }
+  },
+  {
+    "name": "score-reset-blue-omitted",
+    "case": "score",
+    "requirement": "重置双方分数",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shell-teams-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"team-red\" 的可见状态\n   实际：true\n✓ 2. 检查 \"team-blue\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-initial-scores",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-initial-status",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "controls-red-buttons",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"team-red\" 中的 \"加 1 分\" 的可见状态\n   实际：true\n✓ 2. 检查 \"team-red\" 中的 \"加 1 分\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"team-red\" 中的 \"减 1 分\" 的可见状态\n   实际：true\n✓ 4. 检查 \"team-red\" 中的 \"减 1 分\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "controls-blue-buttons",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"team-blue\" 中的 \"加 1 分\" 的可见状态\n   实际：true\n✓ 2. 检查 \"team-blue\" 中的 \"加 1 分\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"team-blue\" 中的 \"减 1 分\" 的可见状态\n   实际：true\n✓ 4. 检查 \"team-blue\" 中的 \"减 1 分\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "increment-red",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 5. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 6. 检查 \"score-red\" 的显示文字\n   实际：\"3\"\n✓ 7. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "increment-blue",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 6. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "decrement-red",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 3. 点击 \"team-red\" 中的 \"减 1 分\"\n✓ 4. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 6. 点击 \"team-red\" 中的 \"减 1 分\"\n✓ 7. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 8. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "decrement-blue-floor",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"减 1 分\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 5. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 6. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 7. 点击 \"team-blue\" 中的 \"减 1 分\"\n✓ 8. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 9. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 10. 点击 \"team-blue\" 中的 \"减 1 分\"\n✓ 11. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 12. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-red-lead",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 2. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 4. 检查 \"score-blue\" 的显示文字\n   实际：\"0\"\n✓ 5. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-blue-lead",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 2. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n✓ 4. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 5. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 6. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 7. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 8. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 9. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 10. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 11. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 12. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 13. 检查 \"score-blue\" 的显示文字\n   实际：\"3\"\n✓ 14. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-tie",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 4. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"1\"\n✓ 6. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 7. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 9. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 10. 检查 \"score-red\" 的显示文字\n   实际：\"2\"\n✓ 11. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 12. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reset-clears-scores",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"team-red\" 中的 \"加 1 分\"\n✓ 2. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 3. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 4. 检查 \"score-red\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"score-blue\" 的显示文字\n   实际：\"2\"\n✓ 6. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 7. 点击 \"重置比赛\"\n✓ 8. 检查 \"score-red\" 的显示文字\n   实际：\"0\"\n× 9. 检查 \"score-blue\" 的显示文字\n预期：\"0\"\n实际：\"2\""
+        }
+      ],
+      "durationMs": 5449.019173000008
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "score-reset-blue-omitted",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"team-blue\" 中的 \"加 1 分\"\n✓ 2. 点击 \"重置比赛\"\n× 3. 检查 \"score-blue\" 的显示文字\n预期：\"0\"\n实际：\"1\""
+        }
+      ],
+      "durationMs": 1758.7934629999945
+    }
+  }
+]

@@ -1,0 +1,69 @@
+{
+  "boundary": "isolated storage; real upload/generation APIs, durable executor, MinerU and model; local authentication overridden",
+  "owner": "exam-isolated-c9adfce195c4",
+  "run_directory": "/home/zxqs_ep/Edu_AI/.runtime/exam-real-paper-e2e/isolated-1072a146",
+  "source_sha256": "1625baa030d4ad82048d77623cb5658364c40bdf8326632360a1e6afd5b3021a",
+  "timeline": [
+    {
+      "seconds": 0.3,
+      "generation_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+      "job_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+      "status": "queued",
+      "progress": 0,
+      "message": "",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "seconds": 2.32,
+      "generation_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+      "job_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "seconds": 40.73,
+      "generation_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+      "job_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "seconds": 59.02,
+      "generation_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+      "job_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+      "status": "running",
+      "progress": 35,
+      "message": "正在规划题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "seconds": 61.05,
+      "generation_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+      "job_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    }
+  ],
+  "production_business_writes": false,
+  "candidate_patch": [
+    {
+      "file": "0007-computed-exam-evidence.patch",
+      "sha256": "f5f7f0753c1959c3a9bfa4cbe523505677a46b8d27f89ed7916e7e8bf89a91a5"
+    }
+  ],
+  "upload_http": 201,
+  "create_http": 202,
+  "generation_id": "examgen_c4ec5faa5dfd79def8d58022fb74fbc2",
+  "canceled_reason": "Independent audit found a false acceptance in seven-case question 26; this candidate is not suitable for release."
+}

@@ -688,6 +688,8 @@ def _validate_material_content(material_type: str, content: Any) -> dict[str, An
     if len(json.dumps(content, ensure_ascii=False, default=str)) > 2_000_000:
         raise ValueError("资源内容过大")
 
+    if normalized_type == 'classroom' and content.get('format') == 'hyperframes/v1':
+        raise ValueError('原生课堂修改需要同步重建动画、配音与时间轴，请通过资料修改助手生成新版本')
     if normalized_type == "graph":
         root = content.get("root")
         if not isinstance(root, dict):
@@ -2258,6 +2260,8 @@ async def generate_classroom(
         requirement=payload.requirement,
         owner=owner,
         course_storage_manager=mgr,
+        scope_type=payload.scope_type,
+        scope_id=payload.scope_id,
         enable_web_search=payload.enable_web_search,
         enable_tts=payload.enable_tts,
         source_mode=payload.source_mode,
@@ -2267,6 +2271,7 @@ async def generate_classroom(
         scene_count=payload.scene_count,
         objectives=payload.objectives,
         duration_minutes=payload.duration_minutes,
+        video_preferences=payload.video_preferences.model_dump(exclude_none=True) if payload.video_preferences else None,
         teaching_style=payload.teaching_style,
         voice=payload.voice,
         include_visuals=payload.include_visuals,
@@ -2340,7 +2345,7 @@ def get_classroom(
 @router.post(
     "/{course_id}/classrooms/{classroom_id}/video/export",
     status_code=202,
-    summary="提交 OpenMAIC 课堂 MP4 导出任务",
+    summary="提交原生课堂 MP4 导出任务",
 )
 async def export_classroom_video(
     course_id: str,
@@ -2401,7 +2406,7 @@ def list_classrooms(
 @router.get(
     "/{course_id}/classrooms/{classroom_id}/audio/{filename}",
     response_class=FileResponse,
-    summary="读取课件配音文件（D1 迁移落盘，见 classroom_media.migrate_classroom_speech_audio）",
+    summary="读取历史课件配音文件",
 )
 def get_classroom_audio(
     course_id: str,

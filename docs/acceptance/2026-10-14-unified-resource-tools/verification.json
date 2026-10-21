@@ -1,0 +1,29 @@
+{
+  "status": "validated_locally_not_deployed",
+  "requirement": "资源工具与资源分类对所有登录用户一致，不按历史教师/学生/管理员角色区分。",
+  "studio_tools": [
+    "report",
+    "lesson_plan",
+    "blog",
+    "quiz",
+    "flashcard",
+    "graph"
+  ],
+  "changes": [
+    "Remove role filtering from current Studio and its resource categories",
+    "Shared eight-type backend catalog and generation permissions for authenticated users",
+    "Sharing entry displayed for all users; course ownership still required for publication"
+  ],
+  "validation": {
+    "backend": "103 passed",
+    "browser": "3 passed; legacy student/teacher/admin accounts, all six forms, resource filters, sharing entry and mobile overflow",
+    "typescript": "passed",
+    "eslint": "passed for changed frontend components",
+    "production_build": "passed; existing chunk-size advisory",
+    "diff_check": "passed"
+  },
+  "isolation": "Backend tests use temporary storage and mocked generators; browser API responses are mocked. No live model generation or production publication.",
+  "build_directory": "/tmp/edu-ai-unified-tools-20261014",
+  "deployment": "Not deployed; frontend build publication and backend restart required for production effect.",
+  "scope": "Current resource tools, backend tool catalog/permissions and home sharing entry. Legacy account role fields retained for compatibility; game/classroom not added to current Studio."
+}

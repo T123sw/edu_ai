@@ -9,6 +9,37 @@ from app.course_preparation.queue_bridge import PreparationQueueBridge
 from tests.course_preparation.test_runtime_foundation import repo, request
 
 
+def test_identical_goal_new_request_creates_new_task_and_expired_retry_gets_new_window(runtime_engine):
+    from datetime import datetime, timedelta, timezone
+    from uuid import uuid4
+    from app.course_preparation.runtime_contracts import BudgetLimits
+    now = [datetime.now(timezone.utc)]
+    repository = repo(runtime_engine, now)
+    app = FastAPI()
+    app.include_router(api.router)
+    app.state.preparation_service = PreparationService(repository)
+    app.dependency_overrides[api.owner] = lambda: 'alice'
+    client = TestClient(app)
+    payload = request().model_dump(mode='json')
+    first = client.post('/api/course-preparations', json=payload).json()
+    assert client.post('/api/course-preparations', json=payload).json()['preparation_id'] == first['preparation_id']
+    payload['request_id'] = str(uuid4())
+    second = client.post('/api/course-preparations', json=payload).json()
+    assert second['preparation_id'] != first['preparation_id']
+    assert second['attempt_no'] == first['attempt_no'] == 1
+    context = repository.claim('worker', preparation_id=first['preparation_id'])
+    repository.fail(context, 'DEADLINE_EXCEEDED')
+    now[0] += timedelta(hours=2)
+    response = client.post(f"/api/course-preparations/{first['preparation_id']}/retry")
+    assert response.status_code == 202
+    retried = response.json()
+    assert retried['preparation_id'] == first['preparation_id'] and retried['attempt_no'] == 2
+    assert datetime.fromisoformat(retried['budget']['deadline']) == now[0] + timedelta(seconds=BudgetLimits().seconds)
+    events = client.get(f"/api/course-preparations/{first['preparation_id']}/events").json()['events']
+    assert events[-1]['payload']['previous_deadline'] == first['budget']['deadline']
+    assert events[-1]['payload']['deadline'] == retried['budget']['deadline']
+
+
 def test_authenticated_api_events_retry_and_http_independent_worker(runtime_engine):
     repository = repo(runtime_engine)
     app = FastAPI()

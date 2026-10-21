@@ -140,3 +140,31 @@ def test_graph_generation_uses_configured_topic_without_documents():
 
     assert result["artifacts"][0]["title"] == "Variable knowledge map"
     assert "Agent evidence" in str(llm.messages[0])
+
+
+def test_graph_focus_reaches_model_and_depth_caps_saved_tree():
+    class DeepLlm:
+        def invoke(self, messages):
+            assert '说明：比较赋值与复制的关系' in messages[1]['content']
+            assert '最大层级：2' in messages[1]['content']
+            return SimpleNamespace(content='{"title":"变量","children":[{"title":"赋值","children":[{"title":"不应保留的第三层"}]}]}')
+    storage = _Storage()
+    service = KnowledgeBaseDirectGraphServiceV2(content_provider=_NoSourceProvider(), llm=DeepLlm(), course_storage_manager=storage)
+    service.generate(SimpleNamespace(owner='teacher-a', course_id='course-1', selected_doc_ids=[],
+        graph_config={'title': '变量', 'description': '比较赋值与复制的关系', 'max_depth': 2}),
+        job_id='test-depth', config_snapshot_id='test-config')
+    assert storage.saved['material_data']['content']['root']['children'][0]['children'] == []
+
+
+def test_model_receives_concise_summary_guidance_and_output_is_not_truncated():
+    explanation = '选择基准后，把较小的元素移至左侧，较大的移至右侧；相等元素的处理取决于具体划分实现。'
+    class Model:
+        def invoke(self, messages):
+            assert '一个短语或短句' in messages[0]['content']
+            assert 'summary 可以留空' in messages[0]['content']
+            assert '不要截取原文首句' in messages[0]['content']
+            return SimpleNamespace(content=__import__('json').dumps({'title': '划分', 'summary': explanation, 'children': []}, ensure_ascii=False))
+    storage = _Storage()
+    service = KnowledgeBaseDirectGraphServiceV2(content_provider=_NoSourceProvider(), llm=Model(), course_storage_manager=storage)
+    service.generate(SimpleNamespace(owner='teacher-a', course_id='course-1', selected_doc_ids=[], graph_config={'title': '快速排序', 'max_depth': 3}), job_id='concise', config_snapshot_id='cfg')
+    assert storage.saved['material_data']['content']['root']['summary'] == explanation

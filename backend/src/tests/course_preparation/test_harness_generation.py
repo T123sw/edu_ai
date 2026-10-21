@@ -238,12 +238,12 @@ def test_successful_submission_with_close_failure_is_not_deliverable(content_ski
         root.for_phase('resource_write', context={}).chat([])
 
 
-def test_hard_context_limits_and_phase_quotas_fail_before_provider(content_skills):
+def test_legacy_context_limit_remains_without_a_separate_phase_quota(content_skills):
     root, ledger = gateway(completion(), context_tokens=13000)
     bound = root.for_phase('resource_write', context={'requirements': ['must keep ' * 4000]})
     with pytest.raises(RuntimeError, match='CONTEXT_BUDGET_EXCEEDED'):
         bound.chat([])
-    with pytest.raises(RuntimeError, match='OUTPUT_BUDGET_INVALID'):
+    with pytest.raises(RuntimeError, match='CONTEXT_BUDGET_EXCEEDED'):
         bound.chat([], max_tokens=65536)
     assert not ledger.actions
 

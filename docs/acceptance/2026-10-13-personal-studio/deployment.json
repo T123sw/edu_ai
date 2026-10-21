@@ -1,0 +1,14 @@
+{
+  "source_snapshot": "/tmp/edu-personal-studio/source/frontend",
+  "published_at": "20261013T194738Z",
+  "uncommitted_source_changes": true,
+  "task": "personal-studio-home",
+  "backend_status": "source implemented; service restart requires administrator authentication",
+  "previous_index_sha256": "6676468dde6bd8bcbb608a8204df17331baaa4581136e6e9513e2802b5fb74fc",
+  "backup": "/tmp/edu-personal-studio/dist-backup-20261013T194738Z",
+  "http_verified": true,
+  "assets": [
+    "/assets/index-CGJy5eyE.js",
+    "/assets/index-8vDhdg1F.css"
+  ]
+}

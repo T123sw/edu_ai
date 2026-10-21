@@ -1,0 +1,355 @@
+{
+  "boundary": "isolated storage; real upload/generation APIs, durable executor, MinerU and model; local authentication overridden",
+  "owner": "exam-isolated-4f9475d230dc",
+  "run_directory": "/home/zxqs_ep/Edu_AI/.runtime/exam-real-paper-e2e/isolated-ba6360e7",
+  "source_sha256": "1625baa030d4ad82048d77623cb5658364c40bdf8326632360a1e6afd5b3021a",
+  "timeline": [
+    {
+      "seconds": 0.43,
+      "generation_id": "examgen_3f986f884a4c14b068eb98889b31b627",
+      "job_id": "examgen_3f986f884a4c14b068eb98889b31b627",
+      "status": "queued",
+      "progress": 0,
+      "message": "",
+      "exam_ready": false
+    },
+    {
+      "seconds": 2.45,
+      "generation_id": "examgen_3f986f884a4c14b068eb98889b31b627",
+      "job_id": "examgen_3f986f884a4c14b068eb98889b31b627",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false
+    },
+    {
+      "seconds": 40.74,
+      "generation_id": "examgen_3f986f884a4c14b068eb98889b31b627",
+      "job_id": "examgen_3f986f884a4c14b068eb98889b31b627",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false
+    }
+  ],
+  "production_business_writes": false,
+  "upload_http": 201,
+  "create_http": 202,
+  "generation_id": "examgen_3f986f884a4c14b068eb98889b31b627",
+  "seconds": 64.03,
+  "final": {
+    "generation_id": "examgen_3f986f884a4c14b068eb98889b31b627",
+    "job_id": "examgen_3f986f884a4c14b068eb98889b31b627",
+    "status": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "exam_ready": false
+  },
+  "error_code": "EXAM_UPSTREAM_INCOMPLETE",
+  "parsed": [
+    {
+      "parser": "mineru-local",
+      "characters": 4483,
+      "layout_blocks": 66,
+      "image_count": 11
+    }
+  ],
+  "knowledge_ingestion_blocked_calls": 0,
+  "embedding_calls": 0,
+  "network": [
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/health"
+    },
+    {
+      "method": "POST",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_4d2ba86e4bdb82156c1c563b/result"
+    },
+    {
+      "method": "POST",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/internal/generations"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/internal/turns/turn_1792232172925_a686ed0e3a"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/internal/turns/turn_1792232172925_a686ed0e3a/events"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 38153,
+      "path": "/internal/turns/turn_1792232172925_a686ed0e3a"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "deployed_at": "2026-10-17 17:55:34 UTC",
+  "previous_patch": [
+    {
+      "file": "0006-independent-exam-checks.patch",
+      "sha256": "7c34c783c702b239bd862fc44d7e598497b9cd6b32eca58d61d6295f24babc8a"
+    }
+  ],
+  "active_turns_before_restart": 0,
+  "prepared": {
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "version": "1.6.14",
+    "source": "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor",
+    "patches": [
+      {
+        "file": "0007-computed-exam-evidence.patch",
+        "sha256": "06b61ce69eac98bb3e199dd3a47db96adb33ff4e5cdfd646e1fcb64cab64f0fe"
+      }
+    ]
+  },
+  "service": "MainPID=2011487\nActiveState=active\nActiveEnterTimestamp=Sat 2026-10-17 17:55:34 UTC\n",
+  "health": {
+    "status": "ok",
+    "version": "1.6.14",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "scope": "internal_bridge",
+    "exam_ready": false
+  }
+}

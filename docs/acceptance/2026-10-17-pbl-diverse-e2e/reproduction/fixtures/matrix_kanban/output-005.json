@@ -1,0 +1,31 @@
+{
+  "unit": {
+    "stepId": "move-tasks",
+    "title": "前进与后退移动任务",
+    "objective": "为任务添加前进和后退按钮，按所在列限制可用方向，任务在列间移动。",
+    "instructionsMarkdown": "上一步已经能添加任务，任务会出现在「待办」列。这一步让任务能在三列之间移动。\n\n请为每个任务加上两个操作按钮：\n\n- **前进**：把任务移到右边一列。待办 → 进行中 → 已完成。\n- **后退**：把任务移到左边一列。已完成 → 进行中 → 待办。\n\n按钮要按任务当前所在列显示：\n\n- 待办列的任务只有「前进」按钮，没有「后退」按钮。\n- 进行中列的任务同时有「前进」和「后退」按钮。\n- 已完成列的任务只有「后退」按钮，没有「前进」按钮。\n\n点击后任务应立即出现在目标列，并从原列消失；任务标题保持不变。\n\n### 代码约定\n\n为了让系统能识别页面部件，请使用以下标记（这些标记不会改变页面外观）：\n\n- 每个任务所在的行容器加 `data-testid=\"task-item\"`。\n- 任务的前进按钮加 `data-testid=\"move-forward\"`，按钮文字为「前进」。\n- 任务的后退按钮加 `data-testid=\"move-back\"`，按钮文字为「后退」。\n- 三列容器沿用上一步的 `column-todo`、`column-progress`、`column-done`。\n- 任务标题文字放在单独的 `data-testid=\"task-title\"` 元素里，操作按钮放在它外面，这样列标题和任务标题的文字不会被按钮文字混在一起。",
+    "explanationMarkdown": "每个任务需要一个能表示它当前所在列的状态字段（例如 `status`，取值为 `todo`、`progress`、`done`）。移动任务时，只需更新这个字段，界面就会根据字段把任务渲染到对应列。\n\n判断方向是否可用，可以看任务在列顺序中的位置：位于第一列时没有后退，位于最后一列时没有前进。把三列定义成一个有序数组，用下标判断边界会更清晰。\n\n更新状态时建议用不可变的方式生成新数组（例如 `map` 找到目标任务并返回新对象），避免直接修改原对象。",
+    "hints": [
+      "把三列定义成有序数组，用任务 status 的下标判断是否还有上一列或下一列。",
+      "前进时把 status 换成下一列的 key，后退时换成上一列的 key。",
+      "用条件渲染控制按钮：只有存在上一列时才渲染后退按钮，只有存在下一列时才渲染前进按钮。",
+      "更新任务时用 map 生成新数组，只替换目标任务对象，其余任务保持不变。",
+      "把任务标题单独放在一个带标记的元素里，按钮放在它旁边，避免按钮文字混进标题文字。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx"
+    ],
+    "checkIds": [
+      "todo-forward-to-progress",
+      "progress-back-to-todo",
+      "progress-forward-to-done",
+      "done-back-to-progress",
+      "todo-has-no-back",
+      "done-has-no-forward"
+    ]
+  },
+  "referenceFiles": {
+    "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nconst COLUMNS = [\n  { key: 'todo', label: '待办', testId: 'column-todo' },\n  { key: 'progress', label: '进行中', testId: 'column-progress' },\n  { key: 'done', label: '已完成', testId: 'column-done' },\n];\n\nconst ORDER = COLUMNS.map((c) => c.key);\n\nlet nextId = 1;\n\nexport default function App() {\n  const [input, setInput] = useState('');\n  const [tasks, setTasks] = useState([]);\n\n  function handleAdd() {\n    const title = input.trim();\n    if (!title) return;\n    setTasks((prev) => [...prev, { id: nextId++, title, status: 'todo' }]);\n    setInput('');\n  }\n\n  function moveTask(id, delta) {\n    setTasks((prev) =>\n      prev.map((t) => {\n        if (t.id !== id) return t;\n        const idx = ORDER.indexOf(t.status);\n        const nextIdx = idx + delta;\n        if (nextIdx < 0 || nextIdx >= ORDER.length) return t;\n        return { ...t, status: ORDER[nextIdx] };\n      })\n    );\n  }\n\n  return (\n    <main className=\"board\">\n      <h1>本地任务看板</h1>\n      <div className=\"add-row\">\n        <input\n          data-testid=\"title-input\"\n          value={input}\n          onChange={(e) => setInput(e.target.value)}\n          placeholder=\"输入任务标题\"\n        />\n        <button data-testid=\"add-button\" onClick={handleAdd}>添加</button>\n      </div>\n      <div className=\"columns\">\n        {COLUMNS.map((col) => (\n          <section key={col.key} className=\"column\" data-testid={col.testId}>\n            <h2>{col.label}</h2>\n            <ul className=\"task-list\">\n              {tasks\n                .filter((t) => t.status === col.key)\n                .map((t) => {\n                  const idx = ORDER.indexOf(t.status);\n                  const canBack = idx > 0;\n                  const canForward = idx < ORDER.length - 1;\n                  return (\n                    <li key={t.id} className=\"task\" data-testid=\"task-item\">\n                      <span className=\"task-title\" data-testid=\"task-title\">{t.title}</span>\n                      <div className=\"task-actions\">\n                        {canBack && (\n                          <button data-testid=\"move-back\" onClick={() => moveTask(t.id, -1)}>\n                            后退\n                          </button>\n                        )}\n                        {canForward && (\n                          <button data-testid=\"move-forward\" onClick={() => moveTask(t.id, 1)}>\n                            前进\n                          </button>\n                        )}\n                      </div>\n                    </li>\n                  );\n                })}\n            </ul>\n          </section>\n        ))}\n      </div>\n    </main>\n  );\n}\n",
+    "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\n.board { padding: 16px; }\n.add-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }\n.add-row input { flex: 1 1 160px; min-width: 0; padding: 6px 8px; }\n.add-row button { padding: 6px 12px; }\n.columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }\n.column { background: #f4f5f7; border-radius: 8px; padding: 8px; min-width: 0; }\n.column h2 { font-size: 15px; margin: 4px 0 8px; }\n.task-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }\n.task { background: #fff; border-radius: 6px; padding: 6px 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }\n.task-title { flex: 1 1 auto; min-width: 0; word-break: break-word; }\n.task-actions { display: flex; gap: 4px; flex-wrap: wrap; }\n.task-actions button { padding: 2px 8px; font-size: 12px; }\n"
+  }
+}

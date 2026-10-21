@@ -1,0 +1,14 @@
+{
+  "preparation_id": "prep_7e85f0dd8be64359a2461488d95a346a",
+  "goal": "我想学习快速排序",
+  "seconds": 75.05636548995972,
+  "duration_basis": "first backend stage to persisted handoff",
+  "status": "canceled",
+  "stage": "produce",
+  "error": null,
+  "stopped_before_generation": true,
+  "passed": true,
+  "errors": [],
+  "httpErrors": [],
+  "automation_resume": true
+}

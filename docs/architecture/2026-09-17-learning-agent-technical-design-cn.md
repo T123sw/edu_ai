@@ -1,5 +1,7 @@
 # 学习辅导 Agent 详细技术设计 V1
 
+2026-10-20 会话范围更新：以学习主设计最新规则为准，学习对话按用户与课程共享；知识点仅标记每轮发问和资料引用，不再划分会话或历史上下文。原有预算、摘要、权限和来源失效规则保留。文中的旧知识点会话隔离约定已被本更新替代。
+
 日期：2026-09-17。状态：详细技术设计 V1，分阶段实施中；P0 已完成；P1 会话持久化/API/前端恢复已完成隔离验收，P2 版本化事实与非聊天闭环已实现，见[P2验收](../acceptance/2026-09-17-learning-agent-p2-cn.md)；P3 阅读定位/受限工具/持久化答疑已通过隔离及真实模型验证，见[P3验收](../acceptance/2026-09-17-learning-agent-p3-cn.md)；P4 检查、显式偏好生命周期与来源摘要已隔离验收，见[P4记录](../acceptance/2026-09-17-learning-agent-p4-cn.md)；业务环境未启用，P5/P6 待实施。依据[学习 Agent 主设计](2026-09-17-learning-agent-design-cn.md)、[课程准备 Agent 主设计](2026-09-17-course-preparation-agent-design-cn.md)和[读取与记忆约定](2026-09-08-agent-access-memory-contract-cn.md)。本文细化实现选择，不改变已确认的产品约束。执行顺序与任务清单见[分阶段实施计划](../superpowers/plans/2026-09-17-learning-agent-implementation-cn.md)，实际证据见[实施验收记录](../acceptance/2026-09-17-learning-agent-implementation-cn.md)。
 
 ## 1. 架构决策

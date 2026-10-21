@@ -1,0 +1,222 @@
+{
+  "protocol": "edu-experiment/1",
+  "title": "快速排序的基准选择",
+  "subject": "算法",
+  "overview": "观察当前区间的边界，并按最右侧元素策略选择基准。",
+  "objectives": [
+    "按最右侧元素策略选择基准"
+  ],
+  "scientific_model": {
+    "assumptions": [
+      "浏览器内理想化模型"
+    ],
+    "rules": [
+      "本示例选择当前区间最右侧元素；快速排序还可采用其他基准策略。"
+    ],
+    "limitations": [
+      "只验证当前模型条件，不替代真实实验"
+    ]
+  },
+  "state_fields": [
+    {
+      "path": [
+        "array"
+      ],
+      "label": "array",
+      "description": "当前实验的array",
+      "unit": ""
+    },
+    {
+      "path": [
+        "lo"
+      ],
+      "label": "lo",
+      "description": "当前实验的lo",
+      "unit": ""
+    },
+    {
+      "path": [
+        "hi"
+      ],
+      "label": "hi",
+      "description": "当前实验的hi",
+      "unit": ""
+    },
+    {
+      "path": [
+        "selected"
+      ],
+      "label": "selected",
+      "description": "当前实验的selected",
+      "unit": ""
+    }
+  ],
+  "actions": [
+    {
+      "id": "select",
+      "label": "执行操作",
+      "description": "按最右侧元素策略选择基准",
+      "phases": [
+        "demonstrate",
+        "guided",
+        "explore"
+      ],
+      "parameters": [
+        {
+          "name": "index",
+          "label": "元素位置（从 0 开始）",
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 4,
+          "options": []
+        }
+      ]
+    }
+  ],
+  "checkpoints": {
+    "start": {
+      "array": [
+        5,
+        3,
+        8,
+        4,
+        2
+      ],
+      "lo": 0,
+      "hi": 4,
+      "selected": -1
+    }
+  },
+  "demo_checkpoint": "start",
+  "demo_steps": [
+    {
+      "id": "demo",
+      "title": "观察一次关键操作",
+      "before": "观察当前区间的边界，并按最右侧元素策略选择基准。",
+      "after": "选中了最右侧的 2；这是本实验约定的策略。",
+      "commands": [
+        {
+          "action": "select",
+          "input": {
+            "index": 4
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "path": [
+            "after",
+            "selected"
+          ],
+          "op": "eq",
+          "value": null,
+          "right_path": [
+            "after",
+            "hi"
+          ]
+        }
+      ]
+    }
+  ],
+  "guided_checkpoint": "start",
+  "tasks": [
+    {
+      "id": "practice",
+      "title": "亲手试一次",
+      "objective": "按最右侧元素策略选择基准",
+      "prompt": "按最右侧元素策略选择基准",
+      "checkpoint": "start",
+      "allowed_actions": [
+        "select"
+      ],
+      "submission": "on_action",
+      "submit_action": "select",
+      "assessment": "deterministic",
+      "checks": [
+        {
+          "path": [
+            "after",
+            "selected"
+          ],
+          "op": "eq",
+          "value": null,
+          "right_path": [
+            "after",
+            "hi"
+          ]
+        }
+      ],
+      "rubric": [],
+      "success": "选中了最右侧的 2；这是本实验约定的策略。",
+      "retry": "请根据本任务说明重新尝试。",
+      "recovery": "rollback",
+      "hints": [
+        "本示例选择当前区间最右侧元素；快速排序还可采用其他基准策略。"
+      ]
+    }
+  ],
+  "explore_checkpoint": "start",
+  "exploration_prompts": [
+    "尝试选择不同基准，思考两侧区间是否可能不均衡。"
+  ],
+  "teaching_context": {
+    "background": "观察当前区间的边界，并按最右侧元素策略选择基准。",
+    "misconceptions": [
+      "完成一次任务不表示整个实验目标都已掌握"
+    ]
+  },
+  "validation_cases": [
+    {
+      "id": "correct",
+      "task_id": "practice",
+      "commands": [
+        {
+          "action": "select",
+          "input": {
+            "index": 4
+          }
+        }
+      ],
+      "expected": "pass",
+      "assertions": [
+        {
+          "path": [
+            "after",
+            "selected"
+          ],
+          "op": "eq",
+          "value": null,
+          "right_path": [
+            "after",
+            "hi"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "incorrect",
+      "task_id": "practice",
+      "commands": [
+        {
+          "action": "select",
+          "input": {
+            "index": 2
+          }
+        }
+      ],
+      "expected": "fail",
+      "assertions": [
+        {
+          "path": [
+            "after",
+            "selected"
+          ],
+          "op": "eq",
+          "value": 2,
+          "tolerance": 0
+        }
+      ]
+    }
+  ]
+}

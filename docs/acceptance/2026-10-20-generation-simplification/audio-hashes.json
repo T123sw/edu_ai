@@ -1,0 +1,47 @@
+{
+  "baseline": {
+    "decoded_first_327_seconds_hash": "SHA256=eb8c1309ba29720e9ce019ce46e8c7fd64c3502a0999ce3eb097f8f12a224f01",
+    "streams": [
+      {
+        "codec_type": "video",
+        "duration": "328.000000",
+        "nb_frames": "328"
+      },
+      {
+        "codec_type": "audio",
+        "duration": "328.000000",
+        "nb_frames": "15376"
+      }
+    ]
+  },
+  "interleaved": {
+    "decoded_first_327_seconds_hash": "SHA256=eb8c1309ba29720e9ce019ce46e8c7fd64c3502a0999ce3eb097f8f12a224f01",
+    "streams": [
+      {
+        "codec_type": "video",
+        "duration": "328.000000",
+        "nb_frames": "328"
+      },
+      {
+        "codec_type": "audio",
+        "duration": "328.000000",
+        "nb_frames": "15376"
+      }
+    ]
+  },
+  "interleaved-production": {
+    "decoded_first_327_seconds_hash": "SHA256=0bffddf3b26433672217b784aa6029cd598e043807c264817ad77ac485e5db35",
+    "streams": [
+      {
+        "codec_type": "video",
+        "duration": "327.500000",
+        "nb_frames": "9825"
+      },
+      {
+        "codec_type": "audio",
+        "duration": "327.500000",
+        "nb_frames": "15353"
+      }
+    ]
+  }
+}

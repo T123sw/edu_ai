@@ -124,8 +124,11 @@ def run_draft_turn(service, *, state, source, original, kind, question, pending,
                     if not all(isinstance(output.get(k), str) and output[k].strip() for k in ('focus', 'reason', 'benefit')):
                         raise ValueError('修改预览必须包含定位范围 focus、修改原因 reason 与优势 benefit')
                     updated = apply_edits(current, output['edits'])
+                    if kind == 'classroom' and current.get('format') == 'hyperframes/v1':
+                        from .hyperframes import regenerate
+                        updated = regenerate(service, current, updated, question)
                     validate(kind, updated)
-                    if kind == 'classroom' and updated['stage']['id'] != original['stage']['id']:
+                    if kind == 'classroom' and updated.get('format') != 'hyperframes/v1' and updated['stage']['id'] != original['stage']['id']:
                         raise ValueError('不能更换课堂 ID')
                 for key in ('answer', 'question'):
                     if key in output and (not isinstance(output[key], str) or not output[key].strip()):

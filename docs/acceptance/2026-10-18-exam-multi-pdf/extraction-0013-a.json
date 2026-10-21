@@ -1,0 +1,62 @@
+[
+  {
+    "name": "kentucky",
+    "count": 4,
+    "expected": 4,
+    "children": [
+      4,
+      4,
+      5,
+      4
+    ],
+    "types": [
+      "compound",
+      "compound",
+      "compound",
+      "compound"
+    ],
+    "passed": true,
+    "fidelity_passed": true,
+    "seconds": 10.26
+  },
+  {
+    "name": "princeton",
+    "count": 9,
+    "expected": 9,
+    "children": [
+      2,
+      2,
+      5,
+      3,
+      4,
+      4,
+      8,
+      5,
+      5
+    ],
+    "types": [
+      "compound",
+      "compound",
+      "compound",
+      "compound",
+      "compound",
+      "compound",
+      "compound",
+      "compound",
+      "compound"
+    ],
+    "passed": true,
+    "fidelity_checks": {
+      "2": true,
+      "3": true,
+      "4": true,
+      "5": true,
+      "7": true,
+      "8": true,
+      "9": true,
+      "10": true
+    },
+    "fidelity_passed": true,
+    "seconds": 40.59
+  }
+]

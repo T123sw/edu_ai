@@ -1,0 +1,111 @@
+{
+  "observed_at": 1792301160.1752808,
+  "tag": "多PDF验收 shanghai-0010 1792300022100",
+  "generations": [
+    {
+      "generation_id": "examgen_ea63cd431d846f6740ee9f972e7761bf",
+      "job_id": "examgen_ea63cd431d846f6740ee9f972e7761bf",
+      "turn": {
+        "id": "turn_1792300056089_56f2b4e4df",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792300056.2522454,
+        "updated_at": 1792301067.7806466
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 7198,
+          "layout_blocks": 104,
+          "images": 6
+        }
+      ],
+      "blueprint_count": 45,
+      "local_events": 45760,
+      "upstream_events": 45760,
+      "done_received": true,
+      "summary": {
+        "failed": 2,
+        "success": false,
+        "completed": 43,
+        "requested": 45,
+        "template_count": 45
+      },
+      "failed_questions": [
+        {
+          "ordinal": 18,
+          "issues": [
+            "independent_calculation_failed",
+            "single_choice_not_unique: computed correct options ['A', 'B', 'C', 'D']",
+            "Solver statement (must be checked, not blindly copied): 按层序从 1 开始编号的 12 个结点完全二叉树：结点 i 的左孩子为 2i，右孩子为 2i+1（若不超过 12）。\n\nA：12 个结点的树有 12-1=11 条边，不是 12 条，故 A 错误。\nB：树中任意两结点间路径唯一，根到结点 9 存在唯一路径（1→2→4→9），故 B 正确。\nC：结点 3 的左孩子为 6，右孩子为 7。结点 6 有左孩子 12，故以 6 为根的子树高度为 1；结点 7 无孩子（2·7=14>12），高度为 0。高度差为 1，故 C 正确。\nD：广度优先遍历按层推进，可记录每个结点的深度，故 D 正确。\n\n因此错误的是 A。",
+            "Executed calculator evidence: [{\"expression\": \"complete_tree_subtree(12,3,1)\", \"actual\": [3, 6, 7, 12], \"matches\": null, \"name\": \"sub3\"}, {\"expression\": \"complete_tree_subtree(12,6,1)\", \"actual\": [6, 12], \"matches\": null, \"name\": \"sub6\"}, {\"expression\": \"complete_tree_subtree(12,7,1)\", \"actual\": [7], \"matches\": null, \"name\": \"sub7\"}, {\"expression\": \"complete_tree_path(9,1)\", \"actual\": [1, 2, 4, 9], \"matches\": null, \"name\": \"path9\"}, {\"expression\": \"len(sub6)-1\", \"actual\": 1, \"matches\": null, \"name\": \"h6\"}, {\"expression\": \"len(sub7)-1\", \"actual\": 0, \"matches\": null, \"name\": \"h7\"}, {\"expression\": \"h6-h7\", \"actual\": 1, \"matches\": null, \"name\": \"diff\"}, {\"expression\": \"12-1\", \"actual\": 11, \"matches\": null, \"name\": \"edges\"}]"
+          ]
+        },
+        {
+          "ordinal": 30,
+          "issues": [
+            "multiple_choice_answers_invalid"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 232,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 31,
+          "deepseek-v4-flash": 201
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_f4cc281c067ccfcd6c9066fde01fa575",
+      "job_id": "job_03edf50e77374864",
+      "turn": {
+        "id": "turn_1792301098678_8ed36f917f",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792301098.784822,
+        "updated_at": 1792301146.3455799
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 7198,
+          "layout_blocks": 104,
+          "images": 6
+        }
+      ],
+      "blueprint_count": 45,
+      "local_events": 5297,
+      "upstream_events": 5297,
+      "done_received": true,
+      "summary": {
+        "failed": 1,
+        "success": false,
+        "completed": 44,
+        "requested": 45,
+        "template_count": 45
+      },
+      "failed_questions": [
+        {
+          "ordinal": 30,
+          "issues": [
+            "multiple_choice_answers_invalid"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 7,
+        "models": {
+          "deepseek-v4-flash": 5,
+          "deepseek-v4-flash-vision-exp": 2
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 43,
+    "unchanged_in_latest": 43
+  }
+}

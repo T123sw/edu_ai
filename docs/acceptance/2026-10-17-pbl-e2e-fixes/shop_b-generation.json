@@ -1,0 +1,209 @@
+{
+  "case": "shop_b",
+  "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+  "exerciseId": "pbl_e74c597a1604ccbb88f3304f8b8d1439",
+  "generationPassed": true,
+  "job": {
+    "schema_version": 2,
+    "version": 23,
+    "edu_job_id": "pbl_e74c597a1604ccbb88f3304f8b8d1439",
+    "kind": "generate_pbl",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "编程项目已就绪，可以开始实现",
+    "owner_user_id": "matrix_shop_b",
+    "owner": "matrix_shop_b",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_e74c597a1604ccbb88f3304f8b8d1439",
+    "input_summary": {
+      "title": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+      "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+      "exercise_id": "pbl_e74c597a1604ccbb88f3304f8b8d1439"
+    },
+    "result_ref": {
+      "exercise_id": "pbl_e74c597a1604ccbb88f3304f8b8d1439",
+      "resource_type": "pbl_exercise"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-10-17T07:57:49.932514+00:00",
+    "started_at": "2026-10-17T07:57:50.884849+00:00",
+    "finished_at": "2026-10-17T08:01:12.221179+00:00",
+    "updated_at": "2026-10-17T08:01:12.221179+00:00"
+  },
+  "events": [
+    {
+      "seconds": 2.17,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 4.23,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 12.71,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：添加商品与空白校验"
+      ]
+    },
+    {
+      "seconds": 19.1,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：添加商品与空白校验"
+      ]
+    },
+    {
+      "seconds": 34.1,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：增减数量（最低 1）"
+      ]
+    },
+    {
+      "seconds": 40.51,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：增减数量（最低 1）"
+      ]
+    },
+    {
+      "seconds": 42.65,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：增减数量（最低 1）"
+      ]
+    },
+    {
+      "seconds": 62.0,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：增减数量（最低 1）"
+      ]
+    },
+    {
+      "seconds": 68.41,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：增减数量（最低 1）"
+      ]
+    },
+    {
+      "seconds": 70.53,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：增减数量（最低 1）"
+      ]
+    },
+    {
+      "seconds": 89.75,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：增减数量（最低 1）"
+      ]
+    },
+    {
+      "seconds": 96.1,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：增减数量（最低 1）"
+      ]
+    },
+    {
+      "seconds": 98.16,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：增减数量（最低 1）"
+      ]
+    },
+    {
+      "seconds": 118.8,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：切换购买状态与删除商品"
+      ]
+    },
+    {
+      "seconds": 124.96,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：切换购买状态与删除商品"
+      ]
+    },
+    {
+      "seconds": 129.08,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：切换购买状态与删除商品"
+      ]
+    },
+    {
+      "seconds": 151.79,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：筛选与全局统计"
+      ]
+    },
+    {
+      "seconds": 160.21,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：筛选与全局统计"
+      ]
+    },
+    {
+      "seconds": 166.48,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：筛选与全局统计"
+      ]
+    },
+    {
+      "seconds": 204.43,
+      "state": [
+        "succeeded",
+        "completed",
+        "编程项目已就绪，可以开始实现"
+      ]
+    }
+  ],
+  "seconds": 204.47,
+  "idempotentCreate": true,
+  "stepCount": 4,
+  "checkCount": 17
+}

@@ -1,3 +1,5 @@
+import {RecentOpenProvider} from '../recent/RecentOpenProvider';
+import { ThemeSwitcher } from "../stitch/theme/ThemeSwitcher";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { Home } from "./Home";
@@ -6,11 +8,9 @@ import { Classroom } from "./Classroom";
 import { ResourceCenter } from "./Library";
 import { addToLearning } from "./library";
 import { createLearningSession, reviewEnabled, reviewOwner, reviewRole, reviewWorkbenchHref } from "./review";
-import { PublishDialog } from "./PublishDialog";
 import {
   addClassroom,
   createClassroom,
-  startShared,
   updateRoom,
   type Classroom as Room,
 } from "./model";
@@ -50,10 +50,9 @@ function LearningApp({
   const showcase =
     review || (!!preview && new URLSearchParams(location.search).get("demo") === "1");
   const owner = review ? reviewOwner() : `${preview ? "preview" : "user"}:${username}${showcase ? ":showcase" : ""}`;
-  const { state, setState, shared, setShared, storageError } = useLearningStore(owner, showcase);
+  const { state, setState, storageError } = useLearningStore(owner, showcase);
   const [workbenchSession] = useState(() => review ? undefined : createLearningSession(owner, role));
   const { path, query } = useRoute();
-  const [publish, setPublish] = useState(false);
   const [account, setAccount] = useState(false);
   const [notice, setNotice] = useState("");
   const roomId = path.startsWith("/classroom/")
@@ -71,18 +70,12 @@ function LearningApp({
     const timer = setTimeout(() => setNotice(""), 4500);
     return () => clearTimeout(timer);
   }, [notice]);
-  function open(value: Room, isShared?: boolean) {
-    if (isShared) {
-      const [next, copy] = startShared(state, value);
-      setState(updateRoom(next, copy.id, r => ({ ...r, updatedAt: Date.now() })));
-      location.hash = `/classroom/${copy.id}`;
-    } else {
-      setState(s => updateRoom(s, value.id, r => ({ ...r, updatedAt: Date.now() })));
-      location.hash = `/classroom/${value.id}`;
-    }
+  function open(value: Room) {
+    setState(s => updateRoom(s, value.id, r => ({ ...r, updatedAt: Date.now() })));
+    location.hash = `/classroom/${value.id}`;
   }
   return (
-    <div className={`sl-app ${review ? "frontend-review" : ""} ${room && !studio && !resources ? "in-classroom" : ""} ${!home ? "in-course-workspace" : ""}`}>
+    <RecentOpenProvider owner={owner}><div className={`sl-app ${review ? "frontend-review" : ""} ${room && !studio && !resources ? "in-classroom" : ""} ${!home ? "in-course-workspace" : ""}`}>
       <PageHeader className={home ? "sl-home-account" : "sl-header"}>
         {!home && (
           <a className="sl-home-link" href="#/" aria-label="Edu AI 首页">
@@ -112,6 +105,7 @@ function LearningApp({
         <div className="sl-account">
           {review && <span className="sl-review-label">前端预览</span>}
           {!home && <span className="sl-preview-label">交互预览</span>}
+          <ThemeSwitcher />
           <button
             className="sl-avatar"
             aria-label="账户菜单"
@@ -148,15 +142,12 @@ function LearningApp({
       {home ? (
         <Home
           rooms={state.rooms}
-          shared={shared}
-          canPublish={role === "teacher"}
           onCreate={(text) => {
             const value = createClassroom(text);
             setState((s) => addClassroom(s, value));
             location.hash = `/classroom/${value.id}`;
           }}
           onOpen={open}
-          onPublish={() => setPublish(true)}
         />
       ) : room && !studio && !resources ? (
         <Classroom
@@ -211,24 +202,13 @@ function LearningApp({
           }
         />
       )}
-      {publish && role === "teacher" && (
-        <PublishDialog
-          publisher={username}
-          onClose={() => setPublish(false)}
-          onPublish={(value) => {
-            setShared((s) => [value, ...s]);
-            setPublish(false);
-            setNotice("已发布到本浏览器的共享课堂；尚未上传服务器。");
-          }}
-        />
-      )}
       {notice && (
         <div className="sl-toast" role="status">
           <Icon name="check" size={18} />
           {notice}
         </div>
       )}
-    </div>
+    </div></RecentOpenProvider>
   );
 }
 function WorkbenchRedirect({ href }: { href: string }) {

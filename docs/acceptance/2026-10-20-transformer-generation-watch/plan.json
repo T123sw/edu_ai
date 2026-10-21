@@ -1,0 +1,171 @@
+{
+  "nodes": [
+    {
+      "title": "为什么需要 Transformer：循环网络的串行瓶颈与设计决策",
+      "minutes": 10,
+      "node_key": "n1-why-transformer",
+      "objectives": [
+        "说明循环模型沿符号位置分解计算、隐藏状态 h_t 依赖 h_{t−1} 导致的训练样本内不可并行问题",
+        "复述 Transformer 的核心架构决策：不用循环也不用卷积，只用注意力与逐位置前馈网络",
+        "指出拿掉循环后必须补上的两件事：显式注入顺序信息、用残差与归一化支撑深层堆叠"
+      ],
+      "self_check": "能不看资料说出循环网络为何难以并行，并准确说出 Transformer 拿掉循环后需要补上的两件事。",
+      "source_ids": [
+        "ev_b80e609b8cfdeccece3ba5cf",
+        "ev_5b5f1a2af449e08cba91e9ad"
+      ],
+      "finding_ids": [
+        "f-motivation-parallel",
+        "f-design-decision"
+      ],
+      "requirement_ids": [
+        "req-transformer-basics"
+      ],
+      "prerequisite_keys": [],
+      "learning_activities": [
+        "阅读原始论文摘要与第 1 节，标出“固有串行性使训练样本内无法并行”的原句",
+        "用一句话写下 Transformer 的架构决策，并列出它带来的三项效果（消除串行瓶颈、建立直接连接、统一计算模式）",
+        "在纸上画一条 RNN 的依赖链与一条自注意力的全连接示意，对比两者顺序步数"
+      ]
+    },
+    {
+      "title": "整体结构与数据流：编码器-解码器、子层、残差与掩码",
+      "minutes": 15,
+      "node_key": "n2-overall-architecture",
+      "objectives": [
+        "描述编码器把输入序列映射为连续表示 z、解码器基于 z 自回归逐符号生成输出的数据流",
+        "说明编码器层两个子层（多头自注意力、逐位置前馈网络）与解码器层三个子层（掩码多头自注意力、交叉注意力、前馈网络）的构成",
+        "解释每个子层的 LayerNorm(x + Sublayer(x)) 写法与 d_model=512 的统一维度要求",
+        "解释解码器掩码如何配合输出右移一位保证位置 i 只依赖位置小于 i 的已知输出"
+      ],
+      "self_check": "能画出编码器 2 个子层、解码器 3 个子层并说明交叉注意力的查询来自解码器、键值来自编码器输出；能说明掩码与右移一位共同保证自回归性质。",
+      "source_ids": [
+        "ev_19d7e9acc5d9f228f6ccaa9b",
+        "ev_38117ad348ffbef8b434ba34"
+      ],
+      "finding_ids": [
+        "f-overall-architecture",
+        "f-encoder-decoder-layers",
+        "f-decoder-masking",
+        "f-three-attention-uses"
+      ],
+      "requirement_ids": [
+        "req-transformer-basics"
+      ],
+      "prerequisite_keys": [
+        "n1-why-transformer"
+      ],
+      "learning_activities": [
+        "对照论文图 1 与第 3.1 节，手绘编码器层与解码器层的子层框图，标注残差与层归一化位置",
+        "按“输入嵌入→编码器栈→z→解码器栈→线性+softmax”写出一次前向的数据流清单",
+        "用一句话解释解码器为何要掩码，并指出掩码在缩放点积注意力中如何实现（softmax 输入置 −∞）"
+      ]
+    },
+    {
+      "title": "自注意力与多头注意力：Q/K/V 与缩放点积计算思路",
+      "minutes": 15,
+      "node_key": "n3-self-attention",
+      "objectives": [
+        "解释自注意力让每个位置关注同一序列所有位置（含自身），与交叉注意力的区别",
+        "说明用三个不同投影矩阵把同一向量拆成 Query、Key、Value 的理由",
+        "按 Attention(Q,K,V)=softmax(QK^T/√dk)V 复述计算步骤，并说明除以 √dk 的原因",
+        "说明多头注意力“投影—并行注意力—拼接—再投影”的流程及其作用，以及 h=8、dk=dv=64 的配置关系"
+      ],
+      "self_check": "能独立写出缩放点积注意力公式并解释每一步；能说明多头注意力为何比单头更能同时关注不同表示子空间，且总计算成本与全维单头相近。",
+      "source_ids": [
+        "ev_5b5f1a2af449e08cba91e9ad",
+        "ev_19d7e9acc5d9f228f6ccaa9b",
+        "ev_38117ad348ffbef8b434ba34"
+      ],
+      "finding_ids": [
+        "f-qkv-intuition",
+        "f-scaled-dot-product",
+        "f-multi-head",
+        "f-three-attention-uses"
+      ],
+      "requirement_ids": [
+        "req-transformer-basics"
+      ],
+      "prerequisite_keys": [
+        "n2-overall-architecture"
+      ],
+      "learning_activities": [
+        "用“The animal didn't cross the street because it was too tired”中的 it 为例，说明自注意力如何建立词与词的关系",
+        "对一个 3 个词元、dk=4 的玩具矩阵，手算 QK^T、除以 √dk、softmax 归一化、加权求和 V 的完整流程",
+        "写出多头注意力的四步流程，并核对 h×dk=d_model 在 base 配置（8×64=512）上成立"
+      ]
+    },
+    {
+      "title": "位置编码与逐位置前馈网络：补回顺序信息与逐位置非线性",
+      "minutes": 12,
+      "node_key": "n4-position-ffn",
+      "objectives": [
+        "解释自注意力对位置置换等变，因此必须显式注入位置信息，且位置编码与嵌入同维相加",
+        "写出正弦位置编码公式 PE(pos,2i)=sin(pos/10000^(2i/d_model))、PE(pos,2i+1)=cos(pos/10000^(2i/d_model)) 并说明波长几何级数与相对位置线性关系",
+        "说明前馈网络 FFN(x)=max(0, xW1+b1)W2+b2 对每个位置分别且相同地施加，d_model=512、d_ff=2048"
+      ],
+      "self_check": "能说明位置编码为何要与嵌入同维相加、正弦方案的两个设计理由；能写出前馈网络公式并指出不同位置共享参数、不同层参数不同。",
+      "source_ids": [
+        "ev_38117ad348ffbef8b434ba34",
+        "ev_e5ae46e60f42b4c9bc7a29a5"
+      ],
+      "finding_ids": [
+        "f-positional-encoding",
+        "f-ffn"
+      ],
+      "requirement_ids": [
+        "req-transformer-basics"
+      ],
+      "prerequisite_keys": [
+        "n3-self-attention"
+      ],
+      "learning_activities": [
+        "做一个小实验：把同一句子的词序打乱后只做自注意力，说明输出为何只是跟着重排，从而论证位置编码的必要性",
+        "对 pos=0..3、d_model=4 手算前几个位置编码值，观察不同维度正弦波长的差异",
+        "对比正弦位置编码与可学习位置嵌入的论文结论，并说明作者选择正弦版本的理由"
+      ]
+    },
+    {
+      "title": "取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界",
+      "minutes": 8,
+      "node_key": "n5-tradeoff",
+      "objectives": [
+        "从每层计算复杂度、最少顺序操作数、最大路径长度三方面比较自注意力与循环/卷积层",
+        "说明自注意力在 n<d 时更快、路径长度 O(1) 更利于长程依赖，但每层复杂度随 n 平方增长",
+        "区分训练时并行与推理时串行，说明 Transformer 消掉的是训练的顺序步数而非生成的顺序步数"
+      ],
+      "self_check": "能不看资料说出自注意力相对循环网络的两项优势与一项代价，并准确指出“完全并行”只对编码器和训练时的解码器成立。",
+      "source_ids": [
+        "ev_e5ae46e60f42b4c9bc7a29a5",
+        "ev_38117ad348ffbef8b434ba34",
+        "ev_5b5f1a2af449e08cba91e9ad",
+        "ev_b80e609b8cfdeccece3ba5cf"
+      ],
+      "finding_ids": [
+        "f-self-attention-vs-rnn",
+        "f-parallel-scope",
+        "f-motivation-parallel"
+      ],
+      "requirement_ids": [
+        "req-transformer-basics"
+      ],
+      "prerequisite_keys": [
+        "n2-overall-architecture",
+        "n3-self-attention"
+      ],
+      "learning_activities": [
+        "填写一张三行对比表（自注意力/循环/卷积 × 复杂度、顺序操作数、最大路径长度），并标注各自适用条件",
+        "给出一个具体场景（如超长文档建模），说明为何需要受限自注意力或其它改进，并指出其代价",
+        "用两句话向同伴解释“Transformer 完全并行”这句话在什么范围内成立"
+      ]
+    }
+  ],
+  "title": "Transformer 入门：原理、结构与核心机制（60 分钟）",
+  "summary": "面向初学者的 60 分钟入门路径，以原始论文《Attention Is All You Need》与中文教材《大模型原理与架构》为依据，按“为什么—整体结构—自注意力计算—位置编码与前馈网络—取舍判断”的顺序组织 5 个节点。学完后能画出 Transformer 的整体数据流、说明编码器与解码器各子层的作用、按公式复述缩放点积注意力与多头注意力的计算思路，并能从复杂度、并行度与路径长度三方面判断 Transformer 相对循环网络的取舍，同时清楚“完全并行”只对训练成立。",
+  "limitations": [
+    "依据以 2017 年原始论文的编码器-解码器配置（N=6、d_model=512、h=8）为主，未覆盖仅编码器/仅解码器变体与各类高效注意力实现的细节。",
+    "用户未提供附件与既有基础信息，路径按入门深度与 60 分钟总时长组织，未安排特定编程框架的代码实现练习。",
+    "位置编码仅覆盖原论文正弦方案与可学习嵌入的对比，未展开旋转位置编码等后续方案。",
+    "本路径为学习规划，不含已生成的讲义、测验题与课堂材料。"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "caseId": "input-and-button-visible",
+      "status": "passed",
+      "message": "✓ 1. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 2. 检查 \"name-input\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"submit-button\" 的可见状态\n   实际：true\n✓ 4. 检查 \"submit-button\" 的可操作状态\n   实际：true\n✓ 5. 检查 \"submit-button\" 的显示文字\n   实际：\"报名\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "empty-name-error",
+      "status": "passed",
+      "message": "✓ 1. 检查 \"name-input\" 的输入值\n   实际：\"\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "whitespace-name-error",
+      "status": "passed",
+      "message": "✓ 1. 在 \"name-input\" 输入 \"   \"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "valid-name-success",
+      "status": "passed",
+      "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：张三\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "trimmed-name-success",
+      "status": "passed",
+      "message": "✓ 1. 在 \"name-input\" 输入 \"  李四  \"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：李四\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "clear-message-on-edit",
+      "status": "passed",
+      "message": "✓ 1. 在 \"name-input\" 输入 \"王五\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：王五\"\n✓ 4. 在 \"name-input\" 输入 \"王五五\"\n✓ 5. 检查 \"message\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+    }
+  ],
+  "durationMs": 1861.021944
+}

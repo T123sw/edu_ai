@@ -1,0 +1,1310 @@
+{
+  "phase": "repair_checks",
+  "data": {
+    "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "React 购物清单：状态管理与列表操作",
+      "goal": "在单个 React 页面中实现购物清单：可添加商品（初始数量 1、清空输入框、空白名称提示）、增减数量（最低 1）、切换待购买/已购买、删除商品、按全部/待购买/已购买筛选，并显示基于整个清单的商品种类数与待购买总件数。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "add-item",
+          "description": "输入商品名称并点击“添加”后，商品以数量 1 加入清单，输入框被清空。"
+        },
+        {
+          "id": "blank-guard",
+          "description": "名称为空白（空或仅空格）时点击“添加”不新增商品，页面显示提示文字。"
+        },
+        {
+          "id": "quantity-control",
+          "description": "每件商品有增加和减少数量按钮；减少到 1 后不再下降。"
+        },
+        {
+          "id": "toggle-purchased",
+          "description": "每件商品可在“待购买”和“已购买”之间切换状态。"
+        },
+        {
+          "id": "delete-item",
+          "description": "每件商品可被删除，删除后从清单消失。"
+        },
+        {
+          "id": "filter",
+          "description": "可按“全部 / 待购买 / 已购买”筛选列表显示内容。"
+        },
+        {
+          "id": "stats",
+          "description": "显示商品种类数与待购买总件数，统计基于整个清单，不受筛选影响。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "add-and-guard",
+          "title": "添加商品与空白校验",
+          "objective": "实现输入框、添加按钮，把商品以数量 1 加入列表并清空输入框；空白名称不添加并显示提示。",
+          "dependsOn": [],
+          "entryCondition": "从初始工程开始，页面仅有占位内容。",
+          "deliverable": "页面包含商品名称输入框和“添加”按钮；输入名称点击添加后，列表出现该商品且数量为 1，输入框清空；名称为空或仅空格时点击添加不新增商品，并显示提示文字。",
+          "requirementIds": [
+            "add-item",
+            "blank-guard"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "add-item-appears",
+            "add-clears-input",
+            "blank-shows-hint",
+            "blank-no-item"
+          ]
+        },
+        {
+          "id": "quantity",
+          "title": "增减数量",
+          "objective": "为每件商品提供增加与减少数量按钮，数量最低为 1。",
+          "dependsOn": [
+            "add-and-guard"
+          ],
+          "entryCondition": "上一步已能添加商品并显示数量 1。",
+          "deliverable": "每件商品显示当前数量，并有“增加”和“减少”按钮；点击增加数量加 1，点击减少数量减 1，但数量不会低于 1。",
+          "requirementIds": [
+            "add-item",
+            "quantity-control"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "increase-quantity",
+            "decrease-quantity",
+            "decrease-floor-one"
+          ]
+        },
+        {
+          "id": "toggle-and-delete",
+          "title": "切换购买状态与删除",
+          "objective": "为每件商品提供待购买/已购买切换与删除操作。",
+          "dependsOn": [
+            "quantity"
+          ],
+          "entryCondition": "上一步已能添加商品并调整数量。",
+          "deliverable": "每件商品显示其购买状态，并有切换按钮在“待购买”和“已购买”之间切换；每件商品有“删除”按钮，点击后该商品从列表消失。",
+          "requirementIds": [
+            "toggle-purchased",
+            "delete-item"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "toggle-to-purchased",
+            "toggle-back-pending",
+            "delete-removes-item"
+          ]
+        },
+        {
+          "id": "filter-and-stats",
+          "title": "筛选与统计",
+          "objective": "实现全部/待购买/已购买筛选，并显示基于整个清单的商品种类数与待购买总件数。",
+          "dependsOn": [
+            "toggle-and-delete"
+          ],
+          "entryCondition": "上一步已能切换状态与删除商品。",
+          "deliverable": "页面提供“全部 / 待购买 / 已购买”筛选，切换后列表只显示对应商品；页面显示商品种类数与待购买总件数，二者基于整个清单计算，不随筛选变化。",
+          "requirementIds": [
+            "filter",
+            "stats",
+            "toggle-purchased"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "filter-pending",
+            "filter-purchased",
+            "filter-all",
+            "stats-ignore-filter"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "add-item-appears",
+          "stepId": "add-and-guard",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "add-item"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "在商品名称输入框填入“牛奶”",
+            "点击“添加”按钮",
+            "在列表中查找文字为“牛奶”的商品项"
+          ],
+          "expected": [
+            "列表出现“牛奶”商品项",
+            "该商品数量显示为 1"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "add-clears-input",
+          "stepId": "add-and-guard",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "add-item"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "在商品名称输入框填入“面包”",
+            "点击“添加”按钮",
+            "读取商品名称输入框的值"
+          ],
+          "expected": [
+            "添加后输入框为空"
+          ],
+          "requiredAssertions": [
+            "value"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "blank-shows-hint",
+          "stepId": "add-and-guard",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "blank-guard"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "保持商品名称输入框为空",
+            "点击“添加”按钮",
+            "查找提示文字"
+          ],
+          "expected": [
+            "页面显示空白名称提示文字"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "blank-no-item",
+          "stepId": "add-and-guard",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "blank-guard"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "在商品名称输入框填入“   ”（仅空格）",
+            "点击“添加”按钮",
+            "统计列表中的商品项数量"
+          ],
+          "expected": [
+            "商品项数量为 0"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "increase-quantity",
+          "stepId": "quantity",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "quantity-control"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "填入“苹果”并点击“添加”",
+            "点击“苹果”商品项的“增加”按钮",
+            "读取“苹果”商品项的数量"
+          ],
+          "expected": [
+            "数量由 1 变为 2"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "decrease-quantity",
+          "stepId": "quantity",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "quantity-control"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "填入“香蕉”并点击“添加”",
+            "点击“香蕉”商品项的“增加”按钮",
+            "点击“香蕉”商品项的“减少”按钮",
+            "读取“香蕉”商品项的数量"
+          ],
+          "expected": [
+            "数量回到 1"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "decrease-floor-one",
+          "stepId": "quantity",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "quantity-control"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "填入“橙子”并点击“添加”",
+            "连续点击“橙子”商品项的“减少”按钮两次",
+            "读取“橙子”商品项的数量"
+          ],
+          "expected": [
+            "数量保持为 1，不出现 0 或负数"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "toggle-to-purchased",
+          "stepId": "toggle-and-delete",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "toggle-purchased"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "填入“酸奶”并点击“添加”",
+            "点击“酸奶”商品项的“切换状态”按钮",
+            "读取“酸奶”商品项的状态文字"
+          ],
+          "expected": [
+            "状态显示为“已购买”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "toggle-back-pending",
+          "stepId": "toggle-and-delete",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "toggle-purchased"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "填入“鸡蛋”并点击“添加”",
+            "点击“鸡蛋”商品项的“切换状态”按钮",
+            "再次点击“鸡蛋”商品项的“切换状态”按钮",
+            "读取“鸡蛋”商品项的状态文字"
+          ],
+          "expected": [
+            "状态回到“待购买”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "delete-removes-item",
+          "stepId": "toggle-and-delete",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "delete-item"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "填入“可乐”并点击“添加”",
+            "点击“可乐”商品项的“删除”按钮",
+            "统计列表中的商品项数量"
+          ],
+          "expected": [
+            "商品项数量为 0"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-pending",
+          "stepId": "filter-and-stats",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "填入“大米”并点击“添加”",
+            "填入“面粉”并点击“添加”",
+            "点击“面粉”商品项的“切换状态”按钮",
+            "点击“待购买”筛选按钮",
+            "统计列表中的商品项数量"
+          ],
+          "expected": [
+            "只显示待购买商品，数量为 1"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-purchased",
+          "stepId": "filter-and-stats",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "填入“茶叶”并点击“添加”",
+            "填入“咖啡”并点击“添加”",
+            "点击“咖啡”商品项的“切换状态”按钮",
+            "点击“已购买”筛选按钮",
+            "统计列表中的商品项数量"
+          ],
+          "expected": [
+            "只显示已购买商品，数量为 1"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-all",
+          "stepId": "filter-and-stats",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "填入“土豆”并点击“添加”",
+            "填入“番茄”并点击“添加”",
+            "点击“番茄”商品项的“切换状态”按钮",
+            "点击“已购买”筛选按钮",
+            "点击“全部”筛选按钮",
+            "统计列表中的商品项数量"
+          ],
+          "expected": [
+            "显示全部商品，数量为 2"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "stats-ignore-filter",
+          "stepId": "filter-and-stats",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "stats"
+          ],
+          "setup": "页面初始无商品。",
+          "actions": [
+            "填入“牛奶”并点击“添加”",
+            "点击“牛奶”商品项的“增加”按钮",
+            "填入“面包”并点击“添加”",
+            "点击“面包”商品项的“切换状态”按钮",
+            "点击“已购买”筛选按钮",
+            "读取商品种类数显示",
+            "读取待购买总件数显示"
+          ],
+          "expected": [
+            "商品种类数为 2",
+            "待购买总件数为 2（牛奶数量 2，面包已购买不计入）"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        }
+      ]
+    },
+    "step": {
+      "id": "filter-and-stats",
+      "title": "筛选与统计",
+      "objective": "实现全部/待购买/已购买筛选，并显示基于整个清单的商品种类数与待购买总件数。",
+      "dependsOn": [
+        "toggle-and-delete"
+      ],
+      "entryCondition": "上一步已能切换状态与删除商品。",
+      "deliverable": "页面提供“全部 / 待购买 / 已购买”筛选，切换后列表只显示对应商品；页面显示商品种类数与待购买总件数，二者基于整个清单计算，不随筛选变化。",
+      "requirementIds": [
+        "filter",
+        "stats",
+        "toggle-purchased"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "filter-pending",
+        "filter-purchased",
+        "filter-all",
+        "stats-ignore-filter"
+      ]
+    },
+    "requiredChecks": [
+      {
+        "id": "filter-pending",
+        "stepId": "filter-and-stats",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "filter"
+        ],
+        "setup": "页面初始无商品。",
+        "actions": [
+          "填入“大米”并点击“添加”",
+          "填入“面粉”并点击“添加”",
+          "点击“面粉”商品项的“切换状态”按钮",
+          "点击“待购买”筛选按钮",
+          "统计列表中的商品项数量"
+        ],
+        "expected": [
+          "只显示待购买商品，数量为 1"
+        ],
+        "requiredAssertions": [
+          "count"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "filter-purchased",
+        "stepId": "filter-and-stats",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "filter"
+        ],
+        "setup": "页面初始无商品。",
+        "actions": [
+          "填入“茶叶”并点击“添加”",
+          "填入“咖啡”并点击“添加”",
+          "点击“咖啡”商品项的“切换状态”按钮",
+          "点击“已购买”筛选按钮",
+          "统计列表中的商品项数量"
+        ],
+        "expected": [
+          "只显示已购买商品，数量为 1"
+        ],
+        "requiredAssertions": [
+          "count"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "filter-all",
+        "stepId": "filter-and-stats",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "filter"
+        ],
+        "setup": "页面初始无商品。",
+        "actions": [
+          "填入“土豆”并点击“添加”",
+          "填入“番茄”并点击“添加”",
+          "点击“番茄”商品项的“切换状态”按钮",
+          "点击“已购买”筛选按钮",
+          "点击“全部”筛选按钮",
+          "统计列表中的商品项数量"
+        ],
+        "expected": [
+          "显示全部商品，数量为 2"
+        ],
+        "requiredAssertions": [
+          "count"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "stats-ignore-filter",
+        "stepId": "filter-and-stats",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "stats"
+        ],
+        "setup": "页面初始无商品。",
+        "actions": [
+          "填入“牛奶”并点击“添加”",
+          "点击“牛奶”商品项的“增加”按钮",
+          "填入“面包”并点击“添加”",
+          "点击“面包”商品项的“切换状态”按钮",
+          "点击“已购买”筛选按钮",
+          "读取商品种类数显示",
+          "读取待购买总件数显示"
+        ],
+        "expected": [
+          "商品种类数为 2",
+          "待购买总件数为 2（牛奶数量 2，面包已购买不计入）"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      }
+    ],
+    "previousFiles": {
+      "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nlet nextId = 1;\n\nexport default function App() {\n  const [name, setName] = useState('');\n  const [items, setItems] = useState([]);\n  const [hint, setHint] = useState('');\n\n  function handleAdd() {\n    const trimmed = name.trim();\n    if (trimmed === '') {\n      setHint('请输入商品名称');\n      return;\n    }\n    setItems([...items, { id: nextId++, name: trimmed, quantity: 1, purchased: false }]);\n    setName('');\n    setHint('');\n  }\n\n  function handleIncrease(id) {\n    setItems(items.map((item) =>\n      item.id === id ? { ...item, quantity: item.quantity + 1 } : item\n    ));\n  }\n\n  function handleDecrease(id) {\n    setItems(items.map((item) =>\n      item.id === id ? { ...item, quantity: Math.max(1, item.quantity - 1) } : item\n    ));\n  }\n\n  function handleToggle(id) {\n    setItems(items.map((item) =>\n      item.id === id ? { ...item, purchased: !item.purchased } : item\n    ));\n  }\n\n  function handleDelete(id) {\n    setItems(items.filter((item) => item.id !== id));\n  }\n\n  return (\n    <main>\n      <h1>购物清单</h1>\n      <div className=\"add-row\">\n        <input\n          data-testid=\"item-input\"\n          type=\"text\"\n          placeholder=\"商品名称\"\n          value={name}\n          onChange={(e) => setName(e.target.value)}\n        />\n        <button type=\"button\" onClick={handleAdd}>添加</button>\n      </div>\n      <p data-testid=\"hint\" className=\"hint\">{hint}</p>\n      <ul className=\"item-list\">\n        {items.map((item) => (\n          <li key={item.id} data-testid=\"item-row\" className=\"item-row\">\n            <span className=\"item-name\">{item.name}</span>\n            <span data-testid=\"item-quantity\">数量：{item.quantity}</span>\n            <span data-testid=\"item-status\" className=\"item-status\">\n              {item.purchased ? '已购买' : '待购买'}\n            </span>\n            <button type=\"button\" onClick={() => handleDecrease(item.id)}>减少</button>\n            <button type=\"button\" onClick={() => handleIncrease(item.id)}>增加</button>\n            <button type=\"button\" onClick={() => handleToggle(item.id)}>切换状态</button>\n            <button type=\"button\" onClick={() => handleDelete(item.id)}>删除</button>\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+      "/src/styles.css": "body { margin: 0; font-family: sans-serif; background: #f7f7f8; }\nmain { padding: 24px; max-width: 640px; margin: 0 auto; }\nh1 { font-size: 22px; }\n.add-row { display: flex; gap: 8px; }\n.add-row input { flex: 1; padding: 8px; font-size: 14px; }\n.add-row button { padding: 8px 16px; font-size: 14px; cursor: pointer; }\n.hint { color: #c0392b; min-height: 20px; margin: 8px 0; font-size: 13px; }\n.item-list { list-style: none; padding: 0; margin: 0; }\n.item-row { display: flex; align-items: center; gap: 10px; padding: 10px; background: #fff; border-radius: 6px; margin-bottom: 8px; flex-wrap: wrap; }\n.item-name { flex: 1; }\n.item-status { font-size: 13px; color: #555; }\n.item-row button { padding: 4px 10px; font-size: 13px; cursor: pointer; }\n"
+    },
+    "previousChecks": [
+      {
+        "id": "add-item-appears",
+        "label": "输入“牛奶”点击“添加”后，列表出现该商品项，且数量显示为“数量：1”",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-input"
+            },
+            "value": "牛奶",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "添加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 1,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-quantity"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "数量：1",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "add-clears-input",
+        "label": "添加“面包”后，商品名称输入框被清空",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-input"
+            },
+            "value": "面包",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "添加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-input"
+            },
+            "value": null,
+            "assertion": "value",
+            "expected": "",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "blank-shows-hint",
+        "label": "输入框为空时点击“添加”，页面显示空白名称提示文字",
+        "actions": [
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "添加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "hint"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "hint"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "请输入商品名称",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "blank-no-item",
+        "label": "只输入空格点击“添加”不新增商品，列表商品项数量为 0",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-input"
+            },
+            "value": "   ",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "添加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 0,
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "increase-quantity",
+        "label": "添加“苹果”后点击其“增加”按钮，数量文字由“数量：1”变为“数量：2”",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-input"
+            },
+            "value": "苹果",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "添加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-quantity"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "数量：1",
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "增加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-quantity"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "数量：2",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "decrease-quantity",
+        "label": "添加“香蕉”后点一次“增加”再点一次“减少”，数量文字回到“数量：1”",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-input"
+            },
+            "value": "香蕉",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "添加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "增加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-quantity"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "数量：2",
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "减少",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-quantity"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "数量：1",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "decrease-floor-one",
+        "label": "添加“橙子”后连续点击两次“减少”，数量文字保持“数量：1”，不出现 0 或负数",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-input"
+            },
+            "value": "橙子",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "添加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "减少",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "减少",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-quantity"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "数量：1",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "toggle-to-purchased",
+        "label": "添加“酸奶”后点击其“切换状态”按钮，状态文字由“待购买”变为“已购买”",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-input"
+            },
+            "value": "酸奶",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "添加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-status"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "待购买",
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "切换状态",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-status"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "已购买",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "toggle-back-pending",
+        "label": "添加“鸡蛋”后连续点击两次“切换状态”，状态文字回到“待购买”",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-input"
+            },
+            "value": "鸡蛋",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "添加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "切换状态",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-status"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "已购买",
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "切换状态",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-status"
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "待购买",
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      },
+      {
+        "id": "delete-removes-item",
+        "label": "添加“可乐”后点击其“删除”按钮，商品项数量变为 0",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-input"
+            },
+            "value": "可乐",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "添加",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 1,
+            "relativeTo": null
+          },
+          {
+            "type": "click",
+            "target": {
+              "role": "button",
+              "name": "删除",
+              "testId": null
+            },
+            "value": null,
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 0,
+            "relativeTo": null
+          }
+        ],
+        "viewport": null
+      }
+    ],
+    "previousCheckReport": {
+      "passed": true,
+      "results": [
+        {
+          "caseId": "add-item-appears",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-row\" 的数量\n   实际：1\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "add-clears-input",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-input\" 输入 \"面包\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "blank-shows-hint",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"添加\"\n✓ 2. 检查 \"hint\" 的可见状态\n   实际：true\n✓ 3. 检查 \"hint\" 的显示文字\n   实际：\"请输入商品名称\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "blank-no-item",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-input\" 输入 \"   \"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-row\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "increase-quantity",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-input\" 输入 \"苹果\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n✓ 4. 点击 \"增加\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：2\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "decrease-quantity",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-input\" 输入 \"香蕉\"\n✓ 2. 点击 \"添加\"\n✓ 3. 点击 \"增加\"\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：2\"\n✓ 5. 点击 \"减少\"\n✓ 6. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "decrease-floor-one",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-input\" 输入 \"橙子\"\n✓ 2. 点击 \"添加\"\n✓ 3. 点击 \"减少\"\n✓ 4. 点击 \"减少\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "toggle-to-purchased",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-input\" 输入 \"酸奶\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-status\" 的显示文字\n   实际：\"待购买\"\n✓ 4. 点击 \"切换状态\"\n✓ 5. 检查 \"item-status\" 的显示文字\n   实际：\"已购买\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "toggle-back-pending",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-input\" 输入 \"鸡蛋\"\n✓ 2. 点击 \"添加\"\n✓ 3. 点击 \"切换状态\"\n✓ 4. 检查 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 5. 点击 \"切换状态\"\n✓ 6. 检查 \"item-status\" 的显示文字\n   实际：\"待购买\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "delete-removes-item",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-input\" 输入 \"可乐\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-row\" 的数量\n   实际：1\n✓ 4. 点击 \"删除\"\n✓ 5. 检查 \"item-row\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 3495.6403240000004
+    },
+    "issues": [
+      "本步代码未通过前序验收，尚未设计本步验收；对照 previousFiles、priorCandidate.referenceFiles 和 previousCheckReport 修复本步代码，保留前序检查及本步目标：[{\"caseId\": \"toggle-to-purchased\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"item-input\\\" 输入 \\\"酸奶\\\"\\n✓ 2. 点击 \\\"添加\\\"\\n✓ 3. 检查 \\\"item-status\\\" 的显示文字\\n   实际：\\\"待购买\\\"\\n× 4. 点击 \\\"切换状态\\\"\\n操作未完成：目标控件缺失、重复、不可见或无法操作。\"}, {\"caseId\": \"toggle-back-pending\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"item-input\\\" 输入 \\\"鸡蛋\\\"\\n✓ 2. 点击 \\\"添加\\\"\\n× 3. 点击 \\\"切换状态\\\"\\n操作未完成：目标控件缺失、重复、不可见或无法操作。\"}]"
+    ],
+    "priorCandidate": {
+      "unit": {
+        "stepId": "filter-and-stats",
+        "title": "筛选与统计",
+        "objective": "实现全部/待购买/已购买筛选，并显示基于整个清单的商品种类数与待购买总件数。",
+        "instructionsMarkdown": "本步给购物清单加上**筛选**和**统计**。\n\n**起点**：上一步已经能添加商品、增减数量、切换待购买/已购买、删除商品。\n\n**要做出的东西**：\n\n1. 在列表上方放一组筛选按钮，文字分别是「全部」「待购买」「已购买」。默认选中「全部」。点击某个按钮后，列表只显示对应商品：\n   - 「全部」显示所有商品；\n   - 「待购买」只显示状态为待购买的商品；\n   - 「已购买」只显示状态为已购买的商品。\n2. 在页面上显示两项统计：\n   - **商品种类数**：清单里一共有多少件商品（不管状态、不管当前筛选）；\n   - **待购买总件数**：所有待购买商品的数量之和（已购买商品不计入）。\n   这两项统计始终基于整个清单，切换筛选时数字不变。\n\n**完成效果举例**：添加「牛奶」并把数量加到 2，再添加「面包」并切换为已购买，然后点「已购买」筛选——列表只剩「面包」，但商品种类数仍显示 2，待购买总件数仍显示 2。\n\n**代码约定**（供系统识别，不影响外观）：\n- 三个筛选按钮用普通 `<button>`，可见文字分别为「全部」「待购买」「已购买」。\n- 商品种类数的数字放在一个元素上，加 `data-testid=\"stat-kinds\"`，文字形如 `商品种类：2`。\n- 待购买总件数的数字放在一个元素上，加 `data-testid=\"stat-pending\"`，文字形如 `待购买件数：2`。\n- 商品列表项继续使用 `data-testid=\"item-row\"`，数量文字用 `data-testid=\"item-quantity\"`（形如 `数量：1`），状态文字用 `data-testid=\"item-status\"`（`待购买` 或 `已购买`）。\n- 每件商品的「切换状态」按钮的可访问名称要包含该商品名称，例如「切换状态：面粉」，这样系统能区分是哪件商品。",
+        "explanationMarkdown": "筛选和统计是两种不同的「派生数据」：\n\n- **筛选**只影响「列表显示哪些商品」。你可以用 `useState` 保存当前筛选值（如 `'all' | 'pending' | 'purchased'`），渲染前用 `filter` 得到要显示的子集。注意：筛选只改变显示，不要改动 `items` 本身。\n- **统计**要基于完整的 `items`，而不是筛选后的子集。商品种类数就是 `items.length`；待购买总件数用 `reduce` 把 `purchased === false` 的 `quantity` 累加。\n\n关键点：先算出筛选后的列表用于渲染，再用原始 `items` 算统计，两者互不影响。这样切换筛选时统计数字保持稳定。",
+        "hints": [
+          "用 `useState('all')` 保存当前筛选，三个按钮分别把筛选设为 `'all'`、`'pending'`、`'purchased'`。",
+          "渲染列表前先算 `const visible = items.filter(...)`，根据筛选值决定保留哪些商品。",
+          "商品种类数用 `items.length`；待购买总件数用 `items.filter(i => !i.purchased).reduce((sum, i) => sum + i.quantity, 0)`。",
+          "统计元素要放在列表外面，用 `items` 计算，不要用 `visible`。",
+          "每件商品的「切换状态」按钮文字带上商品名，如 `切换状态：${item.name}`，方便区分不同商品。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "filter-pending",
+          "filter-purchased",
+          "filter-all",
+          "stats-ignore-filter"
+        ]
+      },
+      "referenceFiles": {
+        "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nlet nextId = 1;\n\nexport default function App() {\n  const [name, setName] = useState('');\n  const [items, setItems] = useState([]);\n  const [hint, setHint] = useState('');\n  const [filter, setFilter] = useState('all');\n\n  function handleAdd() {\n    const trimmed = name.trim();\n    if (trimmed === '') {\n      setHint('请输入商品名称');\n      return;\n    }\n    setItems([...items, { id: nextId++, name: trimmed, quantity: 1, purchased: false }]);\n    setName('');\n    setHint('');\n  }\n\n  function handleIncrease(id) {\n    setItems(items.map((item) =>\n      item.id === id ? { ...item, quantity: item.quantity + 1 } : item\n    ));\n  }\n\n  function handleDecrease(id) {\n    setItems(items.map((item) =>\n      item.id === id ? { ...item, quantity: Math.max(1, item.quantity - 1) } : item\n    ));\n  }\n\n  function handleToggle(id) {\n    setItems(items.map((item) =>\n      item.id === id ? { ...item, purchased: !item.purchased } : item\n    ));\n  }\n\n  function handleDelete(id) {\n    setItems(items.filter((item) => item.id !== id));\n  }\n\n  const visibleItems = items.filter((item) => {\n    if (filter === 'pending') return !item.purchased;\n    if (filter === 'purchased') return item.purchased;\n    return true;\n  });\n\n  const kinds = items.length;\n  const pendingTotal = items\n    .filter((item) => !item.purchased)\n    .reduce((sum, item) => sum + item.quantity, 0);\n\n  return (\n    <main>\n      <h1>购物清单</h1>\n      <div className=\"add-row\">\n        <input\n          data-testid=\"item-input\"\n          type=\"text\"\n          placeholder=\"商品名称\"\n          value={name}\n          onChange={(e) => setName(e.target.value)}\n        />\n        <button type=\"button\" onClick={handleAdd}>添加</button>\n      </div>\n      <p data-testid=\"hint\" className=\"hint\">{hint}</p>\n\n      <div className=\"stats\">\n        <span data-testid=\"stat-kinds\">商品种类：{kinds}</span>\n        <span data-testid=\"stat-pending\">待购买件数：{pendingTotal}</span>\n      </div>\n\n      <div className=\"filters\">\n        <button type=\"button\" className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>全部</button>\n        <button type=\"button\" className={filter === 'pending' ? 'active' : ''} onClick={() => setFilter('pending')}>待购买</button>\n        <button type=\"button\" className={filter === 'purchased' ? 'active' : ''} onClick={() => setFilter('purchased')}>已购买</button>\n      </div>\n\n      <ul className=\"item-list\">\n        {visibleItems.map((item) => (\n          <li key={item.id} data-testid=\"item-row\" className=\"item-row\">\n            <span className=\"item-name\">{item.name}</span>\n            <span data-testid=\"item-quantity\">数量：{item.quantity}</span>\n            <span data-testid=\"item-status\" className=\"item-status\">\n              {item.purchased ? '已购买' : '待购买'}\n            </span>\n            <button type=\"button\" onClick={() => handleDecrease(item.id)}>减少</button>\n            <button type=\"button\" onClick={() => handleIncrease(item.id)}>增加</button>\n            <button type=\"button\" onClick={() => handleToggle(item.id)}>切换状态：{item.name}</button>\n            <button type=\"button\" onClick={() => handleDelete(item.id)}>删除</button>\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+        "/src/styles.css": "body { margin: 0; font-family: sans-serif; background: #f7f7f8; }\nmain { padding: 24px; max-width: 640px; margin: 0 auto; }\nh1 { font-size: 22px; }\n.add-row { display: flex; gap: 8px; }\n.add-row input { flex: 1; padding: 8px; font-size: 14px; }\n.add-row button { padding: 8px 16px; font-size: 14px; cursor: pointer; }\n.hint { color: #c0392b; min-height: 20px; margin: 8px 0; font-size: 13px; }\n.stats { display: flex; gap: 16px; margin: 8px 0; font-size: 14px; color: #333; }\n.filters { display: flex; gap: 8px; margin: 8px 0 12px; }\n.filters button { padding: 6px 14px; font-size: 13px; cursor: pointer; border: 1px solid #ccc; background: #fff; border-radius: 4px; }\n.filters button.active { background: #2d6cdf; color: #fff; border-color: #2d6cdf; }\n.item-list { list-style: none; padding: 0; margin: 0; }\n.item-row { display: flex; align-items: center; gap: 10px; padding: 10px; background: #fff; border-radius: 6px; margin-bottom: 8px; flex-wrap: wrap; }\n.item-name { flex: 1; }\n.item-status { font-size: 13px; color: #555; }\n.item-row button { padding: 4px 10px; font-size: 13px; cursor: pointer; }\n"
+      }
+    },
+    "unit": {
+      "stepId": "filter-and-stats",
+      "title": "筛选与统计",
+      "objective": "实现全部/待购买/已购买筛选，并显示基于整个清单的商品种类数与待购买总件数。",
+      "instructionsMarkdown": "本步给购物清单加上**筛选**和**统计**。\n\n**起点**：上一步已经能添加商品、增减数量、切换待购买/已购买、删除商品。\n\n**要做出的东西**：\n\n1. 在列表上方放一组筛选按钮，文字分别是「全部」「待购买」「已购买」。默认选中「全部」。点击某个按钮后，列表只显示对应商品：\n   - 「全部」显示所有商品；\n   - 「待购买」只显示状态为待购买的商品；\n   - 「已购买」只显示状态为已购买的商品。\n2. 在页面上显示两项统计：\n   - **商品种类数**：清单里一共有多少件商品（不管状态、不管当前筛选）；\n   - **待购买总件数**：所有待购买商品的数量之和（已购买商品不计入）。\n   这两项统计始终基于整个清单，切换筛选时数字不变。\n\n**完成效果举例**：添加「牛奶」并把数量加到 2，再添加「面包」并切换为已购买，然后点「已购买」筛选——列表只剩「面包」，但商品种类数仍显示 2，待购买总件数仍显示 2。\n\n**代码约定**（供系统识别，不影响外观）：\n- 三个筛选按钮用普通 `<button>`，可见文字分别为「全部」「待购买」「已购买」。\n- 商品种类数的数字放在一个元素上，加 `data-testid=\"stat-kinds\"`，文字形如 `商品种类：2`。\n- 待购买总件数的数字放在一个元素上，加 `data-testid=\"stat-pending\"`，文字形如 `待购买件数：2`。\n- 商品列表项继续使用 `data-testid=\"item-row\"`，数量文字用 `data-testid=\"item-quantity\"`（形如 `数量：1`），状态文字用 `data-testid=\"item-status\"`（`待购买` 或 `已购买`）。\n- 每件商品的「切换状态」按钮文字保持为「切换状态」（与上一步一致），系统通过所在商品行区分是哪件商品。",
+      "explanationMarkdown": "筛选和统计是两种不同的「派生数据」：\n\n- **筛选**只影响「列表显示哪些商品」。你可以用 `useState` 保存当前筛选值（如 `'all' | 'pending' | 'purchased'`），渲染前用 `filter` 得到要显示的子集。注意：筛选只改变显示，不要改动 `items` 本身。\n- **统计**要基于完整的 `items`，而不是筛选后的子集。商品种类数就是 `items.length`；待购买总件数用 `reduce` 把 `purchased === false` 的 `quantity` 累加。\n\n关键点：先算出筛选后的列表用于渲染，再用原始 `items` 算统计，两者互不影响。这样切换筛选时统计数字保持稳定。",
+      "hints": [
+        "用 `useState('all')` 保存当前筛选，三个按钮分别把筛选设为 `'all'`、`'pending'`、`'purchased'`。",
+        "渲染列表前先算 `const visible = items.filter(...)`，根据筛选值决定保留哪些商品。",
+        "商品种类数用 `items.length`；待购买总件数用 `items.filter(i => !i.purchased).reduce((sum, i) => sum + i.quantity, 0)`。",
+        "统计元素要放在列表外面，用 `items` 计算，不要用 `visible`。",
+        "每件商品的「切换状态」按钮文字保持「切换状态」不变，系统会按商品行定位对应按钮。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "checkIds": [
+        "filter-pending",
+        "filter-purchased",
+        "filter-all",
+        "stats-ignore-filter"
+      ]
+    },
+    "referenceFiles": {
+      "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nlet nextId = 1;\n\nexport default function App() {\n  const [name, setName] = useState('');\n  const [items, setItems] = useState([]);\n  const [hint, setHint] = useState('');\n  const [filter, setFilter] = useState('all');\n\n  function handleAdd() {\n    const trimmed = name.trim();\n    if (trimmed === '') {\n      setHint('请输入商品名称');\n      return;\n    }\n    setItems([...items, { id: nextId++, name: trimmed, quantity: 1, purchased: false }]);\n    setName('');\n    setHint('');\n  }\n\n  function handleIncrease(id) {\n    setItems(items.map((item) =>\n      item.id === id ? { ...item, quantity: item.quantity + 1 } : item\n    ));\n  }\n\n  function handleDecrease(id) {\n    setItems(items.map((item) =>\n      item.id === id ? { ...item, quantity: Math.max(1, item.quantity - 1) } : item\n    ));\n  }\n\n  function handleToggle(id) {\n    setItems(items.map((item) =>\n      item.id === id ? { ...item, purchased: !item.purchased } : item\n    ));\n  }\n\n  function handleDelete(id) {\n    setItems(items.filter((item) => item.id !== id));\n  }\n\n  const visibleItems = items.filter((item) => {\n    if (filter === 'pending') return !item.purchased;\n    if (filter === 'purchased') return item.purchased;\n    return true;\n  });\n\n  const kinds = items.length;\n  const pendingTotal = items\n    .filter((item) => !item.purchased)\n    .reduce((sum, item) => sum + item.quantity, 0);\n\n  return (\n    <main>\n      <h1>购物清单</h1>\n      <div className=\"add-row\">\n        <input\n          data-testid=\"item-input\"\n          type=\"text\"\n          placeholder=\"商品名称\"\n          value={name}\n          onChange={(e) => setName(e.target.value)}\n        />\n        <button type=\"button\" onClick={handleAdd}>添加</button>\n      </div>\n      <p data-testid=\"hint\" className=\"hint\">{hint}</p>\n\n      <div className=\"stats\">\n        <span data-testid=\"stat-kinds\">商品种类：{kinds}</span>\n        <span data-testid=\"stat-pending\">待购买件数：{pendingTotal}</span>\n      </div>\n\n      <div className=\"filters\">\n        <button type=\"button\" className={filter === 'all' ? 'active' : ''} onClick={() => setFilter('all')}>全部</button>\n        <button type=\"button\" className={filter === 'pending' ? 'active' : ''} onClick={() => setFilter('pending')}>待购买</button>\n        <button type=\"button\" className={filter === 'purchased' ? 'active' : ''} onClick={() => setFilter('purchased')}>已购买</button>\n      </div>\n\n      <ul className=\"item-list\">\n        {visibleItems.map((item) => (\n          <li key={item.id} data-testid=\"item-row\" className=\"item-row\">\n            <span className=\"item-name\">{item.name}</span>\n            <span data-testid=\"item-quantity\">数量：{item.quantity}</span>\n            <span data-testid=\"item-status\" className=\"item-status\">\n              {item.purchased ? '已购买' : '待购买'}\n            </span>\n            <button type=\"button\" onClick={() => handleDecrease(item.id)}>减少</button>\n            <button type=\"button\" onClick={() => handleIncrease(item.id)}>增加</button>\n            <button type=\"button\" onClick={() => handleToggle(item.id)}>切换状态</button>\n            <button type=\"button\" onClick={() => handleDelete(item.id)}>删除</button>\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+      "/src/styles.css": "body { margin: 0; font-family: sans-serif; background: #f7f7f8; }\nmain { padding: 24px; max-width: 640px; margin: 0 auto; }\nh1 { font-size: 22px; }\n.add-row { display: flex; gap: 8px; }\n.add-row input { flex: 1; padding: 8px; font-size: 14px; }\n.add-row button { padding: 8px 16px; font-size: 14px; cursor: pointer; }\n.hint { color: #c0392b; min-height: 20px; margin: 8px 0; font-size: 13px; }\n.stats { display: flex; gap: 16px; margin: 8px 0; font-size: 14px; color: #333; }\n.filters { display: flex; gap: 8px; margin: 8px 0 12px; }\n.filters button { padding: 6px 14px; font-size: 13px; cursor: pointer; border: 1px solid #ccc; background: #fff; border-radius: 4px; }\n.filters button.active { background: #2d6cdf; color: #fff; border-color: #2d6cdf; }\n.item-list { list-style: none; padding: 0; margin: 0; }\n.item-row { display: flex; align-items: center; gap: 10px; padding: 10px; background: #fff; border-radius: 6px; margin-bottom: 8px; flex-wrap: wrap; }\n.item-name { flex: 1; }\n.item-status { font-size: 13px; color: #555; }\n.item-row button { padding: 4px 10px; font-size: 13px; cursor: pointer; }\n"
+    }
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "title": "解码器、掩码与端到端数据流",
+  "content": {
+    "title": "解码器、掩码与端到端数据流",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_4511f8c5a1a43c23e3aaa36cdf9c4012",
+      "entry": "index.html",
+      "digest": "1faaa52d91d5acf8b2bd90fb3f9458b03883b4fd13eab84a21a9bc3f28294158"
+    },
+    "timeline": {
+      "duration": 316.066667,
+      "segments": [
+        {
+          "id": "frame01-title",
+          "end": 14.106,
+          "start": 0.0,
+          "title": "标题与本节路线",
+          "events": [],
+          "narration": "这一节，我们把 Transformer 的解码器拆开，先看清它比编码器多了哪一层，再弄明白掩码到底挡住了什么，最后用一条完整的数据流，把编码器和解码器串起来。",
+          "audio_path": "assets/audio/901f5c56794f0bb6dc1a48fa46d6db9772322c517ecf2f01d9fb1e3b72bc3c43.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "主标题出场，右侧解码器轮廓线稿，三枚路线徽章"
+        },
+        {
+          "id": "frame02-encoder-recap",
+          "end": 33.66,
+          "start": 14.106,
+          "title": "先回到编码器",
+          "events": [],
+          "narration": "先花一点时间回到编码器。输入句子先被切成 token，查表变成词向量，再加上位置编码，然后经过 N 个相同的层，一次并行前向，得到一个统一的上下文表示，也就是 memory。它之后会一直作为解码器的信息来源。",
+          "audio_path": "assets/audio/5770a7f7d331752577d6be62c96cdd4a1caa2f5ded787d522cf44a9fc91fdd65.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "编码器流水线：tokens → Embedding → N 层 → memory"
+        },
+        {
+          "id": "frame03-three-sublayers",
+          "end": 66.174,
+          "start": 33.66,
+          "title": "一层三个子层",
+          "events": [],
+          "narration": "解码器同样由 N 个相同的层堆叠，论文里 N 也是 6。区别在于，每一层从两个子层变成了三个。第一个是掩码自注意力，只看已经生成的部分；第二个是编码器解码器交叉注意力，负责到编码器的输出里查信息；第三个是逐位置前馈网络，把这个位置的信息再综合一遍。三个子层后面都跟着 Add&Norm，也就是残差连接加层归一化，和编码器的做法完全一致。",
+          "audio_path": "assets/audio/129c677c9cc5c2e47152072f59a437921f9060b7431546e3816471d93cc4f7bc.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "解码器层三个子层逐个装入，交叉注意力金色标出，Add&Norm 附在每层后"
+        },
+        {
+          "id": "frame04-encoder-compare",
+          "end": 81.24000000000001,
+          "start": 66.174,
+          "title": "对照编码器",
+          "events": [],
+          "narration": "把两层并排放，差异就很清楚了。编码器是两个子层，解码器是三个子层，多出来的正是中间这一层交叉注意力。它也是解码器唯一一处能直接读到输入句子的地方。",
+          "audio_path": "assets/audio/a80ea67dd1b6c54bc960b1e2af851563090a583f534810637188fc7fecba7741.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "编码器两层 vs 解码器三层并排对照，多出的交叉注意力高亮"
+        },
+        {
+          "id": "frame05-causal-mask",
+          "end": 100.69800000000001,
+          "start": 81.24000000000001,
+          "title": "掩码矩阵",
+          "events": [],
+          "narration": "先说掩码自注意力。这里的掩码可以想成一张三角表：行是当前位置，列是它能关注的位置，右上方的格子全部被挡住，因为那里是还没生成的未来词。所以第三个位置只能看第一到第三个位置，看不到第四个。",
+          "audio_path": "assets/audio/91c434970d60b7c7bf7414db8794c446e29c7d60f9649d5788f62755a8ec5bf2.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "4×4 因果掩码矩阵，右上三角逐个被挡住，第三行高亮"
+        },
+        {
+          "id": "frame06-mask-purposes",
+          "end": 129.684,
+          "start": 100.69800000000001,
+          "title": "掩码的两个作用",
+          "events": [],
+          "narration": "掩码有两个作用。第一，屏蔽无效的 padding。批量训练时句子长短不齐，补出来的空位不该参与计算，这一条编码器也会用到。第二，屏蔽未来的信息，这是解码器专有的。训练时，我们直接把整句目标序列右移后一次喂进去，靠掩码让每个位置只看自己之前的部分。于是一次前向就能并行预测所有位置，效果上又等价于一个一个地生成。",
+          "audio_path": "assets/audio/4223b7421354b27970d95f57157fe0cf643d01200121775786c0d767a4191214.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "上半区 padding 掩码，下半区因果掩码与并行训练"
+        },
+        {
+          "id": "frame07-shifted-right",
+          "end": 153.558,
+          "start": 129.684,
+          "title": "右移与起始符",
+          "events": [],
+          "narration": "右移操作，是在目标序列前面补一个起始符。第一个位置输入起始符，期望输出 I；第二个位置输入起始符和 I，期望输出 ate。一直生成到结束符，解码就停止。推理时其实没有未来词可以偷看，但掩码依然保留，这样训练和推理的计算方式完全一致。",
+          "audio_path": "assets/audio/8c390043534358d93d0bd806730e38a21c7cb03a9ace64cb28ac013b02852aa6.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "目标序列与右移输入上下错位，三步 输入→输出 示例"
+        },
+        {
+          "id": "frame08-cross-attention",
+          "end": 179.49599999999998,
+          "start": 153.558,
+          "title": "交叉注意力的 Q/K/V",
+          "events": [],
+          "narration": "交叉注意力是解码器的第二步。它的 Q 来自刚才掩码自注意力的输出，也就是解码器这边的当前状态；K 和 V 来自编码器输出的 memory。所以解码器的每一个位置，都能关注到输入句子的所有位置。一句话总结：K 和 V 的来源总是一样的，Q 在两次自注意力里和它们同源，只有交叉注意力里不同源。",
+          "audio_path": "assets/audio/35cc76ac23ae1b5322a2935590c6600cddfa445357d450862e245e3044a66cfa.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "Q 来自解码器、K/V 来自编码器 memory 的箭头图"
+        },
+        {
+          "id": "frame09-three-attentions",
+          "end": 199.36199999999997,
+          "start": 179.49599999999998,
+          "title": "三种注意力对照",
+          "events": [],
+          "narration": "把三处注意力放在一起对照。编码器自注意力，Q、K、V 同源，可以看整个输入序列；解码器的掩码自注意力，Q、K、V 也同源，但只能看已经生成的位置；交叉注意力，Q 来自解码器，K 和 V 来自编码器的输出。",
+          "audio_path": "assets/audio/ea6c9a33bb9f6052bdd4671dceee01342684e66548d9a0a65c02f2a150cfe36c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三张注意力场景卡片并排，第三张金色高亮"
+        },
+        {
+          "id": "frame10-end-to-end",
+          "end": 227.93999999999997,
+          "start": 199.36199999999997,
+          "title": "端到端数据流",
+          "events": [],
+          "narration": "现在把整条流程走一遍。输入序列先做词嵌入加位置编码，进编码器并行算出 memory。解码器拿起始符和 memory 作为起点，掩码自注意力先看自己，交叉注意力再去查 memory，前馈网络加工之后，线性层加 softmax 给出下一个词的概率分布。选出这个词，追加回输入端，重复这一过程，直到输出结束符，或者达到指定长度。",
+          "audio_path": "assets/audio/4ebbb0d4f061e9ac4bfb3f3264348abb508d663d3f443375a4fd4e96f2bebb0b.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "从上排编码路径到下排解码路径的完整流程图，最后回环成自回归"
+        },
+        {
+          "id": "frame11-translate-demo",
+          "end": 257.57399999999996,
+          "start": 227.93999999999997,
+          "title": "翻译示例演示",
+          "events": [],
+          "narration": "用一句话演示：我吃了一个苹果，翻译成 I ate an apple。第一步只有起始符，没有历史可看，交叉注意力从 memory 里取出“我”的信息，输出 I。第二步输入变成起始符和 I，输出 ate。第三步，掩码把它后面的位置挡住，它只能用前三个词，输出 an，最后输出 apple 和结束符。",
+          "audio_path": "assets/audio/6da4554e091664828d54b59c3b181b9280128dc83c12ceef64474f4dab93bfe3.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "我吃了一个苹果 → I ate an apple，四步逐词生成"
+        },
+        {
+          "id": "frame12-architectures",
+          "end": 279.67199999999997,
+          "start": 257.57399999999996,
+          "title": "三种架构变体",
+          "events": [],
+          "narration": "Transformer 的架构不止一种。只保留编码器，所有 token 并行处理，适合理解类任务；只保留解码器，以自回归方式生成，是今天大语言模型的主流形态；经典的编码器解码器结构，用编码输出作为交叉注意力的输入，适合翻译这类序列到序列的任务。",
+          "audio_path": "assets/audio/e85a0aa77614270cd5f66c43033ec123ad8f7fdcaaf3080ffcf80932326836f7.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "仅编码器 / 仅解码器 / 编码器-解码器 三张迷你结构图"
+        },
+        {
+          "id": "frame13-tradeoffs",
+          "end": 300.018,
+          "start": 279.67199999999997,
+          "title": "优势与代价",
+          "events": [],
+          "narration": "最后看代价。好处是任意两个位置的距离都是 1，长距离依赖更容易建模；计算高度可并行，非常契合 GPU；而且能推广到文本之外的领域。代价是丢掉 RNN 和 CNN 之后，局部特征的捕捉弱了一些；位置信息也只能靠位置编码补回来。",
+          "audio_path": "assets/audio/c962dabd5b9be665aabab3f0f6333d70d9123d2ca455f3f07f6139ec4d675634.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左栏优势三条、右栏代价两条"
+        },
+        {
+          "id": "frame14-recap",
+          "end": 316.044,
+          "start": 300.018,
+          "title": "小结",
+          "events": [],
+          "narration": "记住三句话：解码器比编码器多一层交叉注意力；掩码挡住 padding 和未来；数据流是编码一次、解码逐词。到这里，解码器、掩码和端到端数据流就串起来了。",
+          "audio_path": "assets/audio/50f2f286d7480e63a7617964a41613922f3ec2a86c1be1b8012c4dd94b750dbb.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三句话结论卡与收束落版"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 316.066667
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.267777783333333
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "5c9841061c452055c94e0f153dd22aa0551eb7add9c8fb2dcb7ecd62ad3ca4d7",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 316.066667
+      },
+      "content_digest": "f9f8e2785808e8895ac28f8b46afdfe12559aae8d5915d76f848f9d18d0a545e",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.267777783333333
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "cc371a841ee4833585a940b39641f9a24583d6736fdcd5771d6b517e9414cbd7"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "814f1aa3e8decfc84f938d9fb84030044c6db374d853bd2f31757c8b15d968a7",
+      "preparation_sha256": "075a1badefd89cc675f89d07287759cfa2b98c2ed1ab83f5ffa6ca19da14b9d0"
+    }
+  }
+}

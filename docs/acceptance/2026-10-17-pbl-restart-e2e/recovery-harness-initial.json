@@ -1,0 +1,19 @@
+{
+  "productionDataModified": false,
+  "exerciseId": "pbl_1e65c3c85195cfa91355581fc60ec485",
+  "pendingCodeBeforeCancel": true,
+  "cancelResponse": "cancel_requested",
+  "canceledWithoutPublication": true,
+  "retryJobId": "job_4e5d91d9b9fe4047",
+  "modelPhases": [
+    "plan",
+    "plan",
+    "build_step",
+    "build_checks",
+    "build_checks"
+  ],
+  "passed": false,
+  "error": "",
+  "errorType": "AssertionError",
+  "seconds": 385.48
+}

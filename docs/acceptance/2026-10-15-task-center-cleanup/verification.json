@@ -1,0 +1,35 @@
+{
+  "verifiedAt": "2026-10-15T05:54:44.665201+00:00",
+  "status": "published",
+  "changes": [
+    "Remove task IDs and top summary banner",
+    "Order filters: completed, active, attention, all",
+    "Sort tasks by creation time descending across task types",
+    "Remove preparation stage list and retain failure explanation"
+  ],
+  "checks": {
+    "typescript": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "frontendUnitTests": 8,
+    "backendTests": {
+      "passed": 9,
+      "skipped": 11
+    },
+    "learningStateTimestampProjection": "passed with mocked dependencies",
+    "browserTests": 24,
+    "widths": [
+      1440,
+      390
+    ],
+    "businessApi": "mocked",
+    "visualInspection": "passed"
+  },
+  "build": "/tmp/edu-ai-task-center-build",
+  "frontendPublished": true,
+  "backendRestarted": true,
+  "deploymentRequires": null,
+  "productionDataModified": false,
+  "onlineBrowserTests": 5,
+  "livePreparationCreationTimestampMatchesDatabase": true
+}

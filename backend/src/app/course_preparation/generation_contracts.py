@@ -14,9 +14,9 @@ class ResourceSpec(Contract):
     resource_type: ResourceType
     required: bool=True
     revision: int=Field(default=1,ge=1)
-    objectives: tuple[ShortText,...]=Field(min_length=1,max_length=10)
-    objective_ids: tuple[Identifier,...]=Field(min_length=1,max_length=10)
-    evidence: tuple[dict,...]=Field(min_length=1,max_length=40)
+    objectives: tuple[ShortText,...]=Field(min_length=1)
+    objective_ids: tuple[Identifier,...]=Field(min_length=1)
+    evidence: tuple[dict,...]=Field(min_length=1)
     language: Identifier
     audience: ShortText
     minutes: int=Field(ge=1)
@@ -25,7 +25,7 @@ class ResourceSpec(Contract):
     memory_refs: dict=Field(default_factory=dict)
     memory_epoch: int=Field(ge=0)
     config_snapshot: dict=Field(default_factory=dict)
-    revision_feedback: tuple[ShortText,...]=Field(default=(),max_length=10)
+    revision_feedback: tuple[ShortText,...]=Field(default=())
     delivery_resource_id: Identifier | None = None
     delivery_resource_version: int = Field(default=1, ge=1)
     source_resource_ref: dict | None = None

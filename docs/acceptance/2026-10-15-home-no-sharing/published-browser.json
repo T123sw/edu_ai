@@ -1,0 +1,34 @@
+{
+  "base": "http://127.0.0.1",
+  "mockedBusinessApi": true,
+  "results": [
+    {
+      "role": "teacher",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "role": "student",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "role": "student",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "review": "teacher",
+      "passed": true
+    },
+    {
+      "review": "student",
+      "passed": true
+    }
+  ]
+}

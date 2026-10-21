@@ -1,0 +1,15 @@
+[WebServer] (node:3087537) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:3087568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:3087617) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  1 tests/live-learning/video-chat.spec.ts:92:5 › native video can resume after focus, answers and repeated questions without reload (9.9s)
+  ✓  2 tests/live-learning/video-chat.spec.ts:123:5 › mobile question and directory panels pause hidden video and leave playback usable on return (6.2s)
+  ✓  3 tests/live-learning/video-chat.spec.ts:143:5 › course agent retains the sent video context while playback continues during an answer or after failure (10.8s)
+
+  3 passed (31.8s)

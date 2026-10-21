@@ -8,8 +8,8 @@ class NodeEvidenceDecision(Contract):
     node_key: Identifier
     sufficient: bool
     reason: ShortText
-    source_ids: tuple[Identifier,...]=Field(default=(),max_length=12)
-    gap_queries: tuple[ShortText,...]=Field(default=(),max_length=3)
+    source_ids: tuple[Identifier,...]=Field(default=())
+    gap_queries: tuple[ShortText,...]=Field(default=())
 
     @model_validator(mode='after')
     def coherent(self):
@@ -21,8 +21,8 @@ class NodeEvidenceDecision(Contract):
 class NodeEvidenceAssessment(Contract):
     sufficient: bool
     reason: ShortText
-    source_refs: tuple[Identifier,...]=Field(default=(),max_length=12)
-    gap_queries: tuple[ShortText,...]=Field(default=(),max_length=3)
+    source_refs: tuple[Identifier,...]=Field(default=())
+    gap_queries: tuple[ShortText,...]=Field(default=())
 
 
 def review_node(model,state,node,*,timeout=60,preferences=None):

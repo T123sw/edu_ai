@@ -1,0 +1,89 @@
+{
+  "case": "layout",
+  "topic": "用 React 做一个个人作品展示页，只需要一个页面布局步骤。页面有标题“我的作品”、简介“记录我的学习成果”，下方展示三件作品，每件含标题和一句介绍。作品标题分别是“天气卡片”“读书笔记”“像素画”。桌面标题在简介上方，作品区域在简介下方；手机页面不横向溢出。无需按钮、输入框或交互功能，不要图片或外部资源。",
+  "exerciseId": "pbl_a4d4d267c5a9a84f9fea2d5d989e1dfa",
+  "generationPassed": true,
+  "job": {
+    "schema_version": 2,
+    "version": 8,
+    "edu_job_id": "pbl_a4d4d267c5a9a84f9fea2d5d989e1dfa",
+    "kind": "generate_pbl",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "编程项目已就绪，可以开始实现",
+    "owner_user_id": "matrix_layout",
+    "owner": "matrix_layout",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_a4d4d267c5a9a84f9fea2d5d989e1dfa",
+    "input_summary": {
+      "title": "用 React 做一个个人作品展示页，只需要一个页面布局步骤。页面有标题“我的作品”、简介“记录我的学习成果”，下方展示三件作品，每件含标题和一句介绍。作品标题分别是“天气卡片”“读书笔记”“像素画”。桌面标题在简介上方，作品区域在简介下方；手机页面不横向溢出。无需按钮、输入框或交互功能，不要图片或外部资源。",
+      "topic": "用 React 做一个个人作品展示页，只需要一个页面布局步骤。页面有标题“我的作品”、简介“记录我的学习成果”，下方展示三件作品，每件含标题和一句介绍。作品标题分别是“天气卡片”“读书笔记”“像素画”。桌面标题在简介上方，作品区域在简介下方；手机页面不横向溢出。无需按钮、输入框或交互功能，不要图片或外部资源。",
+      "exercise_id": "pbl_a4d4d267c5a9a84f9fea2d5d989e1dfa"
+    },
+    "result_ref": {
+      "exercise_id": "pbl_a4d4d267c5a9a84f9fea2d5d989e1dfa",
+      "resource_type": "pbl_exercise"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-10-17T07:31:30.247466+00:00",
+    "started_at": "2026-10-17T07:33:42.957379+00:00",
+    "finished_at": "2026-10-17T07:34:15.365167+00:00",
+    "updated_at": "2026-10-17T07:34:15.365167+00:00"
+  },
+  "events": [
+    {
+      "seconds": 2.48,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 135.87,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 140.07,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：搭建作品展示页"
+      ]
+    },
+    {
+      "seconds": 146.36,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：搭建作品展示页"
+      ]
+    },
+    {
+      "seconds": 167.54,
+      "state": [
+        "succeeded",
+        "completed",
+        "编程项目已就绪，可以开始实现"
+      ]
+    }
+  ],
+  "seconds": 167.55,
+  "idempotentCreate": true,
+  "stepCount": 1,
+  "checkCount": 7
+}

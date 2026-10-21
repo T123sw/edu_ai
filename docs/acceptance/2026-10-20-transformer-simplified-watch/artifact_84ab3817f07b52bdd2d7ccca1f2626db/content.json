@@ -1,0 +1,420 @@
+{
+  "title": "编码器结构：两子层与 Add&Norm",
+  "content": "# 编码器结构：两子层与 Add&Norm\n\n前面两个节点已经准备好两块积木：自注意力/多头注意力（用 Q、K、V 让每个位置汇总整句信息）和位置编码（让并行输入知道词序）。本节点把它们装进 Transformer 的**编码器**，看清一个编码器层内部到底发生了什么，以及编码器整体输出什么、交给谁。\n\n<a id=\"encoder-stack\"></a>\n## 一、编码器 = N 个相同编码器层堆叠\n\nTransformer 的编码器不是一个大模块，而是**同一个编码器层（EncoderLayer）重复堆叠 N 次**。论文原图只画一个编码器层，旁边标注 `Nx`，这个 N 在论文中取 **6**。\n\n- 第 1 个编码器层的输入：词嵌入 + 位置编码（即先修节点讲过的“词向量”）。\n- 第 2 到第 N 个编码器层的输入：上一层编码器层的输出。\n- 各层结构完全相同，但**参数不共享**——每层有自己的注意力权重和前馈网络权重。\n\n张量形状在整个编码器栈中保持不变：输入输出都是 `[batch_size, seq_len, embedding_dim]`。这一点很关键，因为残差连接要做逐元素相加，形状必须一致；也正因为形状不变，同一套层结构才能一层层往上套。\n\n<a id=\"two-sublayers\"></a>\n## 二、一个编码器层里的两个子层\n\n每个编码器层由两个子层串联而成：\n\n1. **多头自注意力子层（Multi-Head Self-Attention）**\n   - Q、K、V 全部来自同一个输入序列（上一层输出），所以叫“自”注意力。\n   - 作用：让每个位置都能看到整句所有位置，把上下文信息混入自己的表示。例如翻译“我吃了一个苹果”时，判断用 “a” 还是 “an” 需要看后面的“苹果”，这种跨位置的信息交换就发生在这里。\n   - 这是编码器里**唯一跨位置交互**的子层。\n\n2. **逐位置前馈网络子层（Position-wise Feed-Forward Network, FFN）**\n   - 结构：两层线性变换，中间夹一个 ReLU，即 `FFN(x) = max(0, xW₁ + b₁)W₂ + b₂`。\n   - 关键在“逐位置”：对序列中**每个位置的向量独立地**做同一套变换，位置之间互不影响。\n   - 作用：对注意力汇总后的向量再做一次非线性加工，得到更抽象、更丰富的表示，增强模型的非线性表达能力。\n\n两个子层的分工可以这样记：**自注意力负责“横向”在位置之间搬运信息，FFN 负责“纵向”在每个位置内部加工特征。** 二者交替，编码器才能既懂上下文、又有足够的表达能力。\n\n<a id=\"add-norm\"></a>\n## 三、每个子层后面都接 Add&Norm\n\n两个子层后面都跟着同一个结构，合称 **Add&Norm**：\n\n```\n输出 = LayerNorm( x + Sublayer(x) )\n```\n\n其中 `x` 是该子层的输入，`Sublayer(x)` 是子层（多头自注意力或 FFN）的输出。\n\n- **Add（残差连接）**：把子层新算出的结果与子层原始输入**逐元素相加**。这样梯度可以沿加法这条“直通路”回传，缓解深层网络的**梯度消失**问题；同时保证子层只需学习“增量”，不必从零重建整个表示。\n- **Norm（层归一化 LayerNorm）**：对每个位置的向量做归一化，使其均值约为 0、方差约为 1。层数一多，数值容易变得过大或过小，导致训练异常、收敛很慢；归一化把特征数值拉回合理范围，使训练**更稳定**。\n\n注意顺序：先 Add 再 Norm（论文中的 Post-LN 形式）。另外，子层与 Add&Norm 之间通常还有 dropout，本课不展开。\n\n<a id=\"parallel-memory\"></a>\n## 四、并行处理与编码器输出 memory\n\n编码器与 RNN 最大的不同在于**没有循环**：\n\n- 整句所有时间步**同时输入**，一次前向传播就全部算完，不需要“算完第 1 个词再算第 2 个词”。\n- 因此编码器**只做一次前向传播**，得到的是对整句的并行编码结果。\n\n经过 N 层之后，最后一个编码器层的输出就是编码器的输出，常被称为 **memory**（编码器与解码器之间的隐状态）。它是对原始输入的高阶抽象表示，位于更高维的语义空间中，并且是上下文感知的：每个位置上的向量都已经融合了整句信息。\n\nmemory 的用途：送入解码器栈中的**每一个**解码器层，作为交叉注意力（Encoder-Decoder Attention）的 **K 和 V**；解码器自己产生 Q。这样解码器每生成一个词，都能回看输入序列的每一个位置。\n\n<a id=\"layer-walkthrough\"></a>\n## 五、走一遍单个编码器层的数据流\n\n按课堂讲解的顺序，把“输入+位置编码 → 多头自注意力 → Add&Norm → FFN → Add&Norm”串起来。设输入为 `X`（形状 `[batch, seq_len, d]`）：\n\n| 步骤 | 操作 | 输出形状 | 是否跨位置交互 |\n| --- | --- | --- | --- |\n| 0 | 词嵌入 + 位置编码 → `X` | `[batch, seq_len, d]` | 否（逐位置相加） |\n| 1 | 多头自注意力：`Z = MHA(X)` | `[batch, seq_len, d]` | **是**，每个位置汇总全句 |\n| 2 | Add&Norm：`A = LayerNorm(X + Z)` | `[batch, seq_len, d]` | 否 |\n| 3 | FFN：`F = max(0, A W₁ + b₁)W₂ + b₂` | `[batch, seq_len, d]` | 否，逐位置独立 |\n| 4 | Add&Norm：`R = LayerNorm(A + F)` | `[batch, seq_len, d]` | 否 |\n\n`R` 就是这一层的输出，作为下一层的输入；重复 N 次后得到 memory。\n\n课堂互动要点：请指出上表中**只有第 1 步跨位置**。FFN 虽然也是“全连接”，但它是逐位置独立变换，不同位置之间不交换信息——这正是它与自注意力的根本区别。\n\n课堂练习：把上面的模块清单打乱（如“FFN、Add&Norm、多头自注意力、Add&Norm、词嵌入+位置编码”），请学习者重新排序，并标注哪些操作**保持张量形状不变**。答案：全部步骤都保持 `[batch, seq_len, d]` 不变，这正是残差相加得以成立的前提。\n\n<a id=\"self-check\"></a>\n## 六、自检\n\n- 能画出单个编码器层的数据流，并说明每个子层后为什么都要 Add&Norm：残差让梯度有直通路、缓解梯度消失；层归一化把数值拉回合理范围、稳定训练。\n- 能说出编码器输出被称为什么、交给谁使用：称为 **memory**，送入解码器每一层，作为交叉注意力的 K 和 V。\n- 能说出编码器与解码器在推理方式上的差别：编码器并行、只前向一次；解码器自回归、循环生成。\n\n> 说明：本课为入门级原理讲解，不包含 PyTorch 实现与训练实践；位置编码只做概念区分，不展开 RoPE、ALiBi 等后续变体。以上内容依据公开中文教材与技术博客（如 Microsoft AI-System 教材第 2.9 节、相关 Transformer 解读文章），未直接引用原始论文全文。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 5.7
+      },
+      "sections": [
+        {
+          "section_id": "encoder-stack",
+          "content_sha256": "568806718d3096b5bd3c194dc865a2950eef67cbac860e5466bec7b4f0ea0c7b"
+        },
+        {
+          "section_id": "two-sublayers",
+          "content_sha256": "0e1808be7e9d01412f7d5ffcd315021b1e4f4e6a01f304d8a84403fbecc1d9d0"
+        },
+        {
+          "section_id": "add-norm",
+          "content_sha256": "eb66462152a1e4ad38508633b3000805ca81edd69df8d4145ab18294cd686683"
+        },
+        {
+          "section_id": "parallel-memory",
+          "content_sha256": "2cccfc39b03524bce09a179907bfbf4d5a416aceb96908bfbcc268f499a1b6f3"
+        },
+        {
+          "section_id": "layer-walkthrough",
+          "content_sha256": "b8617b433663ccd0e3052d73779b0a4e5d069fac2a42e9676f8de82d520e09c2"
+        },
+        {
+          "section_id": "self-check",
+          "content_sha256": "880722c9516e31f5296e900618335a2324b3a4e41b2d6a29f0925a0e8cdf9bf9"
+        }
+      ],
+      "spec_digest": "5492def6cc248a89612a1376bcc7621d53e6c28bc70e82f43e70781d99d2e9cc",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "encoder-stack"
+          },
+          "objective_id": "n4-encoder:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "two-sublayers"
+          },
+          "objective_id": "n4-encoder:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "add-norm"
+          },
+          "objective_id": "n4-encoder:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "parallel-memory"
+          },
+          "objective_id": "n4-encoder:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "layer-walkthrough"
+          },
+          "objective_id": "n4-encoder:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "layer-walkthrough"
+          },
+          "objective_id": "n4-encoder:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n4-encoder:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "encoder-stack"
+          },
+          "explanation": "本节落实“讲授 Transformer 基本原理与结构”中编码器部分：说明编码器由 N 个相同编码器层堆叠（论文 N=6），并给出整体数据流。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "two-sublayers"
+          },
+          "explanation": "本节落实编码器内部结构：多头自注意力子层与逐位置前馈网络子层的分工与形状，衔接先修节点的自注意力/多头注意力机制。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "add-norm"
+          },
+          "explanation": "本节落实 Add&Norm 机制：残差连接缓解梯度消失、层归一化稳定数值，并给出 Norm(x+Sublayer(x)) 的写法。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "parallel-memory"
+          },
+          "explanation": "本节落实编码器并行处理、一次前向传播，输出高阶上下文表示 memory 供解码器（交叉注意力的 K/V）使用。",
+          "requirement_id": "req-transformer-learning"
+        }
+      ],
+      "teaching_context_digest": "257271227033907490f1248040d8c27476e6f71758f167e35d49110a6a7961bf"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文按节点分工覆盖 req-transformer-learning 的编码器部分：第一节（encoder-stack）说明 N 个相同层堆叠、论文 N=6；第二节（two-sublayers）给出多头自注意力与逐位置 FFN 两子层；第三节（add-norm）给出 Norm(x+Sublayer(x)) 及残差/层归一化作用；第四节（parallel-memory）说明并行一次前向与 memory 供解码器作 K/V。未越界讲授解码器内部或位置编码细节，仅作衔接引用。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "技术表述正确：FFN 公式 max(0, xW₁+b₁)W₂+b₂、Post-LN 顺序、残差缓解梯度消失、LayerNorm 逐位置归一化、memory 作为交叉注意力 K/V 均与依据一致；第五节表格中“只有第 1 步跨位置”与“全部步骤保持 [batch, seq_len, d]”在合法输入域内成立（MHA 输出投影与 FFN 输出维度均为 d）。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第二节用“我吃了一个苹果”判断 a/an 的例子说明跨位置信息交换，与依据中“I ate an apple”示例同源且解释正确；第五节给出 X→Z→A→F→R 的逐步推演与形状表，并附课堂练习排序题及“全部保持形状不变”的答案，边界（残差需形状一致）说明清楚。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：堆叠结构 → 两子层 → Add&Norm → 并行与 memory → 单层数据流走查 → 自检，与课堂活动“输入+位置编码 → 多头自注意力 → Add&Norm → FFN → Add&Norm”一致，且第五节表格逐行落实该顺序；课堂互动（指出仅第 1 步跨位置）与练习（排序并标注形状不变）均在正文中实际出现，非仅声称。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "文末说明依据公开中文教材与技术博客（Microsoft AI-System 教材 2.9 节、Transformer 解读文章），未直接引用原始论文全文，与 limitations 及提供的 evidence 来源一致；正文未出现无依据的外部断言或虚构引用。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三个目标均有对应内容与自检项：o1 见第一、二节及第五节练习；o2 见第三节与第五节 Add&Norm 两行；o3 见第四节与第六节自检。入门深度、中文表述、无排除项冲突；未包含 PyTorch 实现与 RoPE 等变体，与 limitations 声明一致，属合理范围而非遗漏。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文按节点分工覆盖 req-transformer-learning 的编码器部分：第一节（encoder-stack）说明 N 个相同层堆叠、论文 N=6；第二节（two-sublayers）给出多头自注意力与逐位置 FFN 两子层；第三节（add-norm）给出 Norm(x+Sublayer(x)) 及残差/层归一化作用；第四节（parallel-memory）说明并行一次前向与 memory 供解码器作 K/V。未越界讲授解码器内部或位置编码细节，仅作衔接引用。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "技术表述正确：FFN 公式 max(0, xW₁+b₁)W₂+b₂、Post-LN 顺序、残差缓解梯度消失、LayerNorm 逐位置归一化、memory 作为交叉注意力 K/V 均与依据一致；第五节表格中“只有第 1 步跨位置”与“全部步骤保持 [batch, seq_len, d]”在合法输入域内成立（MHA 输出投影与 FFN 输出维度均为 d）。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第二节用“我吃了一个苹果”判断 a/an 的例子说明跨位置信息交换，与依据中“I ate an apple”示例同源且解释正确；第五节给出 X→Z→A→F→R 的逐步推演与形状表，并附课堂练习排序题及“全部保持形状不变”的答案，边界（残差需形状一致）说明清楚。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：堆叠结构 → 两子层 → Add&Norm → 并行与 memory → 单层数据流走查 → 自检，与课堂活动“输入+位置编码 → 多头自注意力 → Add&Norm → FFN → Add&Norm”一致，且第五节表格逐行落实该顺序；课堂互动（指出仅第 1 步跨位置）与练习（排序并标注形状不变）均在正文中实际出现，非仅声称。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "文末说明依据公开中文教材与技术博客（Microsoft AI-System 教材 2.9 节、Transformer 解读文章），未直接引用原始论文全文，与 limitations 及提供的 evidence 来源一致；正文未出现无依据的外部断言或虚构引用。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个目标均有对应内容与自检项：o1 见第一、二节及第五节练习；o2 见第三节与第五节 Add&Norm 两行；o3 见第四节与第六节自检。入门深度、中文表述、无排除项冲突；未包含 PyTorch 实现与 RoPE 等变体，与 limitations 声明一致，属合理范围而非遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第一节“各层结构完全相同，但参数不共享”一句在提供的依据中无直接原文支撑，虽属通行事实，建议补一条来源或改为“各层结构相同、各自拥有独立参数”的谨慎表述。",
+              "第四节提到 memory 送入解码器每一层作 K/V，可顺带一句说明解码器 Q 来自自身，避免与先修节点交叉注意力概念脱节（当前已提及，可略作强调）。",
+              "第五节表格第 0 步“词嵌入+位置编码”标为“否（逐位置相加）”，可补一句位置编码与词嵌入维度相同才能相加，帮助入门学习者理解形状前提。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "encoder-stack 节实际写明编码器由同一 EncoderLayer 重复 N 次、论文 N=6，并给出第 1 层与后续层输入来源，真实支持该需求贡献。",
+                "locator": {
+                  "section_id": "encoder-stack"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "two-sublayers 节实际列出多头自注意力子层（QKV 同源、跨位置）与逐位置 FFN 子层（两层线性+ReLU、逐位置独立），并说明分工，支持编码器内部结构要求。",
+                "locator": {
+                  "section_id": "two-sublayers"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "add-norm 节给出 输出=LayerNorm(x+Sublayer(x))，并分别解释残差缓解梯度消失、LayerNorm 稳定数值，且注明 Post-LN 顺序，支持该要求。",
+                "locator": {
+                  "section_id": "add-norm"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "parallel-memory 节说明无循环、所有时间步同时输入、只做一次前向传播，输出称 memory 并作为解码器交叉注意力 K/V，支持该要求。",
+                "locator": {
+                  "section_id": "parallel-memory"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "encoder-stack 节明确 N 个相同层堆叠与论文 N=6，直接支撑目标 o1 的堆叠描述。",
+                "locator": {
+                  "section_id": "encoder-stack"
+                },
+                "binding_id": "n4-encoder:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "two-sublayers 节明确每层含多头自注意力子层与逐位置前馈网络子层，并给出 FFN 结构，支撑 o1 的子层组成。",
+                "locator": {
+                  "section_id": "two-sublayers"
+                },
+                "binding_id": "n4-encoder:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "add-norm 节说明每个子层后接 Add&Norm，并解释残差缓解梯度消失、层归一化稳定数值，完整支撑 o2。",
+                "locator": {
+                  "section_id": "add-norm"
+                },
+                "binding_id": "n4-encoder:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "parallel-memory 节说明并行处理、一次前向传播、输出高阶上下文表示 memory 供解码器使用，完整支撑 o3。",
+                "locator": {
+                  "section_id": "parallel-memory"
+                },
+                "binding_id": "n4-encoder:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "layer-walkthrough 节以表格逐步走查单层数据流并附排序练习，作为 o1 的练习定位真实可用。",
+                "locator": {
+                  "section_id": "layer-walkthrough"
+                },
+                "binding_id": "n4-encoder:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "layer-walkthrough 节第 2、4 步显式写出 LayerNorm(X+Z) 与 LayerNorm(A+F)，练习要求标注形状不变，支撑 o2 的练习。",
+                "locator": {
+                  "section_id": "layer-walkthrough"
+                },
+                "binding_id": "n4-encoder:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 节明确要求说出编码器输出称为 memory、交给解码器使用，并对比编码器并行与解码器自回归，支撑 o3 的检查。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n4-encoder:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "bda0f36e10d2eceaf46f50c87bef453f2a8754bd07a3aa2324232acacada7a1b",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第一节“各层结构完全相同，但参数不共享”一句在提供的依据中无直接原文支撑，虽属通行事实，建议补一条来源或改为“各层结构相同、各自拥有独立参数”的谨慎表述。",
+        "第四节提到 memory 送入解码器每一层作 K/V，可顺带一句说明解码器 Q 来自自身，避免与先修节点交叉注意力概念脱节（当前已提及，可略作强调）。",
+        "第五节表格第 0 步“词嵌入+位置编码”标为“否（逐位置相加）”，可补一句位置编码与词嵌入维度相同才能相加，帮助入门学习者理解形状前提。"
+      ],
+      "content_sha256": "bda0f36e10d2eceaf46f50c87bef453f2a8754bd07a3aa2324232acacada7a1b",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "encoder-stack 节实际写明编码器由同一 EncoderLayer 重复 N 次、论文 N=6，并给出第 1 层与后续层输入来源，真实支持该需求贡献。",
+          "locator": {
+            "section_id": "encoder-stack"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "two-sublayers 节实际列出多头自注意力子层（QKV 同源、跨位置）与逐位置 FFN 子层（两层线性+ReLU、逐位置独立），并说明分工，支持编码器内部结构要求。",
+          "locator": {
+            "section_id": "two-sublayers"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "add-norm 节给出 输出=LayerNorm(x+Sublayer(x))，并分别解释残差缓解梯度消失、LayerNorm 稳定数值，且注明 Post-LN 顺序，支持该要求。",
+          "locator": {
+            "section_id": "add-norm"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "parallel-memory 节说明无循环、所有时间步同时输入、只做一次前向传播，输出称 memory 并作为解码器交叉注意力 K/V，支持该要求。",
+          "locator": {
+            "section_id": "parallel-memory"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "encoder-stack 节明确 N 个相同层堆叠与论文 N=6，直接支撑目标 o1 的堆叠描述。",
+          "locator": {
+            "section_id": "encoder-stack"
+          },
+          "binding_id": "n4-encoder:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "two-sublayers 节明确每层含多头自注意力子层与逐位置前馈网络子层，并给出 FFN 结构，支撑 o1 的子层组成。",
+          "locator": {
+            "section_id": "two-sublayers"
+          },
+          "binding_id": "n4-encoder:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "add-norm 节说明每个子层后接 Add&Norm，并解释残差缓解梯度消失、层归一化稳定数值，完整支撑 o2。",
+          "locator": {
+            "section_id": "add-norm"
+          },
+          "binding_id": "n4-encoder:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "parallel-memory 节说明并行处理、一次前向传播、输出高阶上下文表示 memory 供解码器使用，完整支撑 o3。",
+          "locator": {
+            "section_id": "parallel-memory"
+          },
+          "binding_id": "n4-encoder:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "layer-walkthrough 节以表格逐步走查单层数据流并附排序练习，作为 o1 的练习定位真实可用。",
+          "locator": {
+            "section_id": "layer-walkthrough"
+          },
+          "binding_id": "n4-encoder:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "layer-walkthrough 节第 2、4 步显式写出 LayerNorm(X+Z) 与 LayerNorm(A+F)，练习要求标注形状不变，支撑 o2 的练习。",
+          "locator": {
+            "section_id": "layer-walkthrough"
+          },
+          "binding_id": "n4-encoder:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 节明确要求说出编码器输出称为 memory、交给解码器使用，并对比编码器并行与解码器自回归，支撑 o3 的检查。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n4-encoder:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "d25f0c425b85506fde0b486a063cc7ca38d4b90a6ca9d956f10d2963ccbc259f"
+    }
+  }
+}

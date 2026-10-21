@@ -1,0 +1,79 @@
+{
+  "action": "retried",
+  "before": {
+    "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda",
+    "attempt_no": 1,
+    "status": "failed",
+    "created_at": "2026-10-19T15:57:23.154773+00:00",
+    "stage": "research_nodes",
+    "revision": 132,
+    "error_code": "STEP_FAILED",
+    "failure": {
+      "title": "课程准备遇到问题",
+      "reason": "任务在“补充知识点资料”时中断，目前没有足够信息确认更具体的原因。",
+      "next_step": "请稍后重试；如果再次失败，请联系维护人员查看这条任务。",
+      "stage": "补充知识点资料",
+      "saved_resources": 0,
+      "planned_resources": 0,
+      "resource_issues": []
+    },
+    "result_ref": null,
+    "budget": {
+      "limits": {
+        "calls": null,
+        "tokens": null,
+        "seconds": null,
+        "retry_only": true,
+        "cost_micro_usd": null
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 29,
+        "tokens": 875137,
+        "cost_micro_usd": 8751370
+      },
+      "deadline": null
+    }
+  },
+  "receipt": {
+    "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda",
+    "attempt_no": 2,
+    "status": "accepted",
+    "created_at": "2026-10-19T15:57:23.154773+00:00",
+    "stage": "research_nodes",
+    "revision": 133,
+    "error_code": null,
+    "failure": null,
+    "result_ref": null,
+    "budget": {
+      "limits": {
+        "calls": null,
+        "tokens": null,
+        "seconds": null,
+        "retry_only": true,
+        "cost_micro_usd": null
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 29,
+        "tokens": 875137,
+        "cost_micro_usd": 8751370
+      },
+      "deadline": null
+    }
+  },
+  "retained_checkpoints": {
+    "plan": true,
+    "research_summary": true,
+    "source_snapshots": true,
+    "node_research_checks": true
+  }
+}

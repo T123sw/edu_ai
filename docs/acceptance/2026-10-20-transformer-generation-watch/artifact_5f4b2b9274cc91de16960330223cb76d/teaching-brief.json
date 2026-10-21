@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 15.269920110702515,
+  "decisions": {
+    "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置为空，有效个人偏好为空，故采用 defaults 的 target_minutes=5.0 与 narration=true、aspect=16:9；节点 15 分钟学习预算含阅读与练习，不作为成片时长。约 5 分钟常规教学解释按原生路由走 general-video，flow=automation、storyboard=no。语言按提问语言推断为中文，画幅沿用课程视觉契约 16:9。教师演示型活动（it 指代例子、3 词元 dk=4 手算、多头四步与 8×64=512 核对）写入视频必须覆盖项，独立自测留给习题，详细阅读留给报告。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792473634.543271,
+  "brief_sha256": "90d1de4ca1238c242a668491b281b9863643752aca38b1c1a922a0e35c0b41c9",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力用 Q/K/V 三个投影让每个位置向全序列发问，再用缩放点积 softmax(QK^T/√dk)V 加权取回内容；多头把这件事并行做 h 次\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n面向希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织），讲清本节点“自注意力与多头注意力：Q/K/V 与缩放点积计算思路”。用户原话是“我想学习transformer”，本节点属于 req-transformer-basics（讲授 Transformer 的基本原理与整体结构，包括编码器-解码器、自注意力、位置编码与前馈网络等核心组成）中的自注意力部分。语气：清晰、逐步推进、以图示与手算演示为主，避免堆砌公式而不解释。\n\n本视频必须覆盖（教师演示型活动进入视频）：\n\n1. 自注意力的定义与动机：序列中每个位置去看同一序列的所有位置（包括自己），与解码器读编码器的交叉注意力（Cross-Attention）相对。用 “The animal didn't cross the street because it was too tired” 中的 it 为例，说明要判断 it 指向 animal 还是 street，必须在同一句子内部建立词与词的关系，自注意力让每个词向其余所有词发问并按相关性更新自己的表示。\n2. 为什么拆成 Q/K/V：同一向量同时承担“发问、被匹配、提供内容”三种角色，矛盾比 Bahdanau 的 h_j 一身两职更尖锐；解法是乘三个不同的可学习矩阵，分别得到 Query（发问）、Key（被匹配）、Value（被取走的内容），从而学出“容易被找到”与“携带有用内容”两套不同表示。\n3. 缩放点积注意力的计算步骤，按 Attention(Q,K,V)=softmax(QK^T/√dk)V 逐步演示：查询与所有键做点积 → 各自除以 √dk → softmax 归一化成对值的权重 → 对 V 加权求和得到输出。必须讲清缩放的原因：dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域（论文脚注的假设：q、k 各分量独立、均值 0、方差 1）。\n4. 玩具矩阵手算演示（教师演示，视频内必须走完一遍）：3 个词元、dk=4 的小矩阵，依次展示 QK^T、除以 √dk、softmax 归一化、加权求和 V 的完整流程，并让每一步的矩阵形状可见。\n5. 多头注意力：把 Q、K、V 分别用 h 组不同的可学习线性投影映射到 dk、dk、dv 维，并行执行注意力，拼接后再投影得到最终输出；作用是让模型同时关注不同位置、不同表示子空间的信息，而单头注意力的平均会抑制这一点。给出原论文配置 h=8、dk=dv=d_model/h=64，并核对 h×dk=d_model 在 base 配置上成立（8×64=512），说明因每头维度降低，总计算成本与全维单头注意力相近。\n\n## Assets\n\n- 无用户提供的附件或素材；所有图示需自行绘制（矩阵、箭头、权重条形图等），不得引用不存在的素材路径。\n\n## Customizations\n\n- 公式与矩阵演示按步骤分屏推进，不要一次性铺满整屏；密集图示拆成多步而不是缩小字号。\n- 玩具矩阵的数值需自洽可核对（softmax 权重和为 1，加权结果与手算一致）。\n\n## Notes\n\n必须讲清的内容与演示深度：\n\n- 自注意力 vs 交叉注意力的区别要明确点出（同一序列 vs 解码器读编码器）。\n- Q/K/V 的“为什么”优先于“怎么算”，先讲角色拆分再讲公式。\n- 缩放因子 √dk 的理由必须给出，不能只写公式。\n- 多头注意力的四步流程（投影—并行注意力—拼接—再投影）与 h×dk=d_model 的关系必须核对展示。\n- 先修假设：学习者已看过上一节点“整体结构与数据流：编码器-解码器、子层、残差与掩码”，可引用编码器/解码器层中子层的位置，但不要重新讲整体架构。\n\n排除项与边界：\n\n- 依据以 2017 年原始论文的编码器-解码器配置（N=6、d_model=512、h=8）为主；不展开仅编码器/仅解码器变体与各类高效注意力实现的细节。\n- 不展开位置编码的后续方案（如旋转位置编码），本节点不涉及。\n- 不安排特定编程框架的代码实现。\n- 视频不承载独立练习与自测题：3 词元玩具矩阵的手算作为教师演示在视频内走完；学习者自行复述公式、判断多头优势等自测留给习题，视频只做提示。\n- 详细阅读材料（论文原文、教材章节）留给报告，视频不逐段朗读。\n\n来源：\n\n- Vaswani 等《Attention Is All You Need》(https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf)，3.2.1 缩放点积注意力、3.2.2 多头注意力、3.2.3 三种注意力用法。\n- 《大模型原理与架构 | LLM Internals》1.4 节 Transformer 的提出与核心思想 (https://yeasy.gitbook.io/llm_internals/di-yi-bu-fen-ji-chu-pian/01_introduction/1.4_transformer_idea)。\n\n语音与画幅：中文配音讲解；16:9 画幅；视觉沿用课程默认（Noto Sans SC，1920×1080，深色底 #0f172a、前景 #f8fafc、强调色 #38bdf8，正文不小于 32px，图示标签不小于 28px，标题不小于 48px）。\n\n时长：用户未指定视频时长，按默认约 5 分钟（300s）安排充分解释与示例；节点 15 分钟学习预算包含阅读与练习，不等同于视频时长。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

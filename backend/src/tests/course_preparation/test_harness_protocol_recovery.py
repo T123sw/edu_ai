@@ -105,3 +105,30 @@ def test_native_response_deadline_has_typed_provider_failure_and_settles_usage(m
     with pytest.raises(ResearchError, match='PROVIDER_TIMEOUT'):
         model.decide({**CONTEXT, 'phase': 'resource_write'}, [TOOL], timeout=30)
     assert len(ledger) == 1 and ledger[0]['failed'] is True
+
+
+@pytest.mark.parametrize('always_unknown', [False, True])
+def test_unknown_tool_is_corrected_before_dispatch_instead_of_poisoning_session(always_unknown):
+    requests=[]
+    def complete(request):
+        payload=json.loads(request.content);requests.append(payload)
+        allowed=next(t['function']['name'] for t in payload['tools'] if t['function']['name']!='skill')
+        if len(requests)>1:
+            assert '未挂载工具' in payload['messages'][-1]['content']
+            assert allowed in payload['messages'][-1]['content']
+        name='mcp__hyperframes__invented_edit' if always_unknown or len(requests)==1 else allowed
+        return httpx.Response(200,json={'id':'unknown-tool-recovery','object':'chat.completion','created':1,
+            'model':'test','choices':[{'index':0,'finish_reason':'tool_calls','message':{'role':'assistant','content':None,
+                'tool_calls':[{'id':'call-unknown','type':'function','function':{'name':name,'arguments':'{"summary":"corrected"}'}}]}}],
+            'usage':{'prompt_tokens':50,'completion_tokens':10,'total_tokens':60}})
+    model=adapter(DeepSeekHarness,client_factory=lambda **kw:httpx.Client(transport=httpx.MockTransport(complete),**kw))
+    model.gateway._build_headers=lambda key:{}
+    model.gateway._thinking_params=lambda name:{}
+    if always_unknown:
+        from app.course_preparation.harness_provider import CompletionFormatError
+        with pytest.raises(CompletionFormatError,match='after two corrections'):
+            model.decide({**CONTEXT,'phase':'resource_write'},[TOOL],timeout=30)
+        assert len(requests)==3
+    else:
+        assert model.decide({**CONTEXT,'phase':'resource_write'},[TOOL],timeout=30)==('record_input_document',{'summary':'corrected'})
+        assert len(requests)==2

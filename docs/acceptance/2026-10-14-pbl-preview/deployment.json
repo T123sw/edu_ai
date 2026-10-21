@@ -1,0 +1,13 @@
+{
+  "publishedAt": "2026-10-14T04:58:59.792855+00:00",
+  "frontendPublished": true,
+  "previousIndexSha256": "f8f7483a67dd01563d82a27d509aaf3ddd03b5af620dfd731415ecd234227b38",
+  "releaseIndexSha256": "975f6cd68aceb71ba8edb215ea25df335da99836ed8a19ef82dd7e3c73d0d92c",
+  "nginxIndexMatches": true,
+  "backup": "/tmp/edu-pbl-preview-backup-20261014T045859Z",
+  "release": "/tmp/edu-pbl-preview-reconciled-build",
+  "backendChanged": false,
+  "productionUserDataModified": false,
+  "productionBrowserVerified": true,
+  "productionBrowserChecks": "8 viewport regression and 5 viewport calculator replay, business APIs mocked, real Sandpack rendering"
+}

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import httpx
 import time
 from datetime import datetime, timezone
 from functools import partial
@@ -13,7 +14,6 @@ from urllib.parse import quote
 import anyio
 
 from app.chat.model_gateway import ChatModelGateway
-from app.integrations.openmaic import OpenMaicError
 from app.schemas.classroom_qa import ClassroomQaTurnRequest
 from app.services.classroom_qa_prompt import (
     ClassroomQaAnswerError,
@@ -252,10 +252,10 @@ class ClassroomQaService:
                 session_id=session["session_id"],
                 filename=audio_filename,
             )
-        except (OpenMaicError, OSError, ValueError, RuntimeError) as exc:
+        except (httpx.HTTPError, OSError, ValueError, RuntimeError) as exc:
             log.warning(
                 "classroom_qa_tts_failed provider=%s turn_id=%s error_type=%s",
-                Config.OPENMAIC_LIVE_TTS_PROVIDER,
+                "runtime-tts",
                 turn_id,
                 type(exc).__name__,
             )

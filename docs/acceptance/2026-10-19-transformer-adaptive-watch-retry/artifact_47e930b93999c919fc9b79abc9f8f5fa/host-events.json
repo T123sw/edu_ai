@@ -1,0 +1,655 @@
+[
+  {
+    "at": 1792428770.9375136,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0003790282644331455,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/.host/BRIEF.md",
+    "sha256": "239cb2940c790d7c721dc56cf7abfc1041ffa4cf25207194fffee4e1144457c7"
+  },
+  {
+    "at": 1792428771.0536785,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.005129816941916943,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/.host/teaching-brief.json",
+    "sha256": "5644f0120c3fdf76cc014cff78d519678a99f20513f3a1e43583b78247d0e073"
+  },
+  {
+    "at": 1792428771.2903798,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.016949512995779514,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/REQUEST.json",
+    "sha256": "7f8ed5f4f87181b7c5b6325a54bffae7dfec9ff4a858970f38ef3507f57177c1"
+  },
+  {
+    "at": 1792428771.4558833,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0021421420387923717,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/SKILL.md",
+    "sha256": "dd67af24e6ca148769f191abd68e670bade17c4b8c847d1ff9aa847fbd7ffe23"
+  },
+  {
+    "at": 1792428776.315666,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22844648361206055,
+    "command": "ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/; echo ---; ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/ 2>/dev/null; echo ---; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/; echo ---; ls -R /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video | head -50",
+    "exit_code": 0,
+    "command_id": "4bc7ae12adfb40b589302c4e4f7b6218"
+  },
+  {
+    "at": 1792428779.427055,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0011778599582612514,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/SKILL.md",
+    "sha256": "db87c1909eff755d810f83de6064bfb7c52a76e76ba388d4b00c98893dddcb1f"
+  },
+  {
+    "at": 1792428783.3814306,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21323457593098283,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123 && ls -la .host && npx hyperframes init \"videos/transformer-overview\" --non-interactive --example=blank --skill=general-video 2>&1 | tail -30",
+    "exit_code": null,
+    "command_id": "975d9bc024e54982b922f239404b5be3"
+  },
+  {
+    "at": 1792428783.5286436,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0010240720584988594,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/brief-format.md",
+    "sha256": "1e4f2f67989052fedd56fd1211e7a8c27f70aa5dba14ccd18e23cbd44d825adb"
+  },
+  {
+    "at": 1792428783.8710349,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002743797842413187,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/production-loop.md",
+    "sha256": "95b09c92c768de0736a77f5e3f8f88260ee38e80e96bfcbf804694a9fac624c5"
+  },
+  {
+    "at": 1792428787.5824971,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.36671807104721665,
+    "exit_code": 0,
+    "command_id": "975d9bc024e54982b922f239404b5be3"
+  },
+  {
+    "at": 1792428787.9019096,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002446922939270735,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/frame-worker-core.md",
+    "sha256": "75a1aafaf2e656ba075cfcf13c1f79bc825005f90aa78f0cafe6778df2493226"
+  },
+  {
+    "at": 1792428788.0923395,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0015772641636431217,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/subagent-dispatch.md",
+    "sha256": "92082776fe6618eda8aa5eb0cba40312f55210f4e542a40ae2f85afd1459f3e7"
+  },
+  {
+    "at": 1792428793.3461113,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0025068451650440693,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/sub-agents/frame-worker.md",
+    "sha256": "447395b986126769a0d169c468f3f24b324781761130bc5155802656d1f22999"
+  },
+  {
+    "at": 1792428794.2847893,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.23549483995884657,
+    "command": "ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/ /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references 2>/dev/null | head -60; echo ---; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-creative/references; echo ---; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references; echo ---; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/blueprints 2>/dev/null | head -40",
+    "exit_code": 0,
+    "command_id": "4ac2dc85ce7a42febad8cfac5addcb3b"
+  },
+  {
+    "at": 1792428799.2436612,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.000630503986030817,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-creative/references/house-style.md",
+    "sha256": "3adc51745bfce9719b63ba74251fcf9e5b9eed56b1e0d8c3928f47c3703eba92"
+  },
+  {
+    "at": 1792428799.7099442,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00046104099601507187,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-creative/references/video-composition.md",
+    "sha256": "037a966583e4b5fc4c3385ef6217560d36237ec638d2b68b5808950c873e424b"
+  },
+  {
+    "at": 1792428799.9943488,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0015362477861344814,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/blueprints-index.md",
+    "sha256": "601228ddcfda89ed6add52bd08becf53296764e155126fb5e7100eb29caaa46e"
+  },
+  {
+    "at": 1792428800.176733,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005799448117613792,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/rules-index.md",
+    "sha256": "e6142e35d7090934fc139ec490df97fd3c7d4995d35745417afc52476aecd7ca"
+  },
+  {
+    "at": 1792428806.3552525,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.005290985107421875,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/data-attributes.md",
+    "sha256": "9da0123bbd9508c32b3ea11bf6ab8edbf4fd725ab35d51cce735a6b03f3b4a96"
+  },
+  {
+    "at": 1792428806.6289423,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.012529104016721249,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/sub-compositions.md",
+    "sha256": "7caf63046ea0d1915b51e4eb49897101e36dc716ea1195f9a34cef4ba9c18f64"
+  },
+  {
+    "at": 1792428807.0250866,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20872686710208654,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && ls general-video/scripts faceless-explainer/scripts faceless-explainer/scripts/lib 2>/dev/null; echo ---SCRIPTS_ROOTS; find . -maxdepth 3 -name \"*.mjs\" | grep -Ei \"assembl|caption|transition|audio|sfx|bgm|sync\" | head -40; echo ---MEDIA_USE; ls media-use media-use/scripts media-use/references 2>/dev/null | head -60",
+    "exit_code": 0,
+    "command_id": "8e50ae4ea1154812b5b82652a3b3aa6f"
+  },
+  {
+    "at": 1792428811.2378027,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.023327393922954798,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/media-use/references/audio.md",
+    "sha256": "13409d128c10b55016f29c9bec55f53ac0ab63061fc87d054a45492467a9456d"
+  },
+  {
+    "at": 1792428811.786554,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2130934172309935,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && head -80 assemble-index.mjs; echo '=====CAPTIONS'; head -60 captions.mjs; echo '=====TRANSITIONS'; head -50 transitions.mjs; echo '=====PACKETS'; head -60 /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts/frame-packets.mjs",
+    "exit_code": 0,
+    "command_id": "9c69c6f0e31d4450962b4ef3f5e60a68"
+  },
+  {
+    "at": 1792428818.9481266,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2153972713276744,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts/lib && sed -n 1,160p frame-packets-core.mjs",
+    "exit_code": 0,
+    "command_id": "db3b26f49956441aa2975730ef213cbf"
+  },
+  {
+    "at": 1792428819.353029,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20864308718591928,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/lib && sed -n 1,140p storyboard.mjs",
+    "exit_code": 0,
+    "command_id": "ab8b17ee28524a039d014aa7d38128df"
+  },
+  {
+    "at": 1792428826.2382262,
+    "tool": "prepare_project",
+    "ok": true,
+    "elapsed": 0.20337995095178485,
+    "exit_code": null,
+    "command_id": "e8428ecc5c224df2961d8a5a7180ba22"
+  },
+  {
+    "at": 1792428826.5801551,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21861887676641345,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview && cat hyperframes.json && echo ==== && cat index.html && echo ==== && ls -R assets 2>/dev/null | head -20 && cat package.json",
+    "exit_code": 0,
+    "command_id": "7c08f39fdae74c6e8e9eb8cc03ef6607"
+  },
+  {
+    "at": 1792428830.749912,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.6176420859992504,
+    "exit_code": 0,
+    "command_id": "e8428ecc5c224df2961d8a5a7180ba22"
+  },
+  {
+    "at": 1792428847.7810297,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21170110069215298,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview && ls -a && echo --- && ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/rules | tr '\\n' ' '",
+    "exit_code": 0,
+    "command_id": "0ef5e59ca6754dc6a16925af9f196951"
+  },
+  {
+    "at": 1792428864.7645931,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.23609285801649094,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && grep -n \"voices\\|frame.index\\|duration\\|format\\|extra\\b\\|music\\|voice\" assemble-index.mjs | sed -n 1,120p",
+    "exit_code": 0,
+    "command_id": "b1057a07040c4339b93220014c166504"
+  },
+  {
+    "at": 1792428885.6560853,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.010811738204210997,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/frame.md"
+  },
+  {
+    "at": 1792428886.768633,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0018555219285190105,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/SCRIPT.md"
+  },
+  {
+    "at": 1792428887.7927547,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.00537705235183239,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/audio_request.json"
+  },
+  {
+    "at": 1792428895.8327374,
+    "tool": "prepare_narration",
+    "ok": true,
+    "elapsed": 0.29620785918086767
+  },
+  {
+    "at": 1792428927.4973013,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 20.173290234059095,
+    "exit_code": 0,
+    "command_id": "3af26a1080cd449b9ebaf5df35bf43ed"
+  },
+  {
+    "at": 1792428932.83291,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21993916109204292,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview && node -e \"const m=require('./audio_meta.json');console.log(JSON.stringify(m,null,1).slice(0,3000))\"",
+    "exit_code": null,
+    "command_id": "771e0b3031584cde856cb0ebe7d52333"
+  },
+  {
+    "at": 1792428938.0388541,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.7614352041855454,
+    "exit_code": 0,
+    "command_id": "771e0b3031584cde856cb0ebe7d52333"
+  },
+  {
+    "at": 1792428953.6973627,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.00198570778593421,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/audio_request.json"
+  },
+  {
+    "at": 1792428954.1760774,
+    "tool": "prepare_narration",
+    "ok": true,
+    "elapsed": 0.21454756008461118
+  },
+  {
+    "at": 1792428976.3619962,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 13.499993500299752,
+    "exit_code": 0,
+    "command_id": "52b04ce871844c7ab743ff91be47b08c"
+  },
+  {
+    "at": 1792428980.6883326,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20269792806357145,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview && node -e \"const m=require('./audio_meta.json');let t=0;m.voices.forEach(v=>{t+=v.duration_s+0.9;console.log(v.id, v.duration_s, 'scene', (v.duration_s+0.9).toFixed(1), 'cum', t.toFixed(1))});console.log('total voices', m.total_duration_s, 'with tails', t.toFixed(1))\"",
+    "exit_code": null,
+    "command_id": "49b2b2293b564ebe84585bd657dd19d0"
+  },
+  {
+    "at": 1792428986.1568694,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.48801579093560576,
+    "exit_code": 0,
+    "command_id": "49b2b2293b564ebe84585bd657dd19d0"
+  },
+  {
+    "at": 1792429031.9404602,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.001714322715997696,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/STORYBOARD.md"
+  },
+  {
+    "at": 1792429042.099124,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0042710029520094395,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/SCRIPT.md"
+  },
+  {
+    "at": 1792429042.722282,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.23530928790569305,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview && node -e \"\nconst fs=require('fs');\nconst m=JSON.parse(fs.readFileSync('audio_meta.json','utf8'));\nconst voices=m.voices.map((v,i)=>({frame:i+1,id:v.id,path:v.path}));\nfs.writeFileSync('audio_meta_frames.json', JSON.stringify({bgm:null,voices,sfx:[]},null,1));\nconsole.log(voices.map(v=>v.frame+' '+v.id+' '+v.path).join('\\n'));\n\" && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts/frame-packets.mjs --project \"$PWD\" --storyboard \"$PWD/STORYBOARD.md\"",
+    "exit_code": null,
+    "command_id": "f0ec20fdfbbb4b1db7decb827b6849d8"
+  },
+  {
+    "at": 1792429046.3618157,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.31553323194384575,
+    "exit_code": 0,
+    "command_id": "f0ec20fdfbbb4b1db7decb827b6849d8"
+  },
+  {
+    "at": 1792429065.8773003,
+    "tool": "run_workers",
+    "ok": true,
+    "elapsed": 3.4932988798245788,
+    "workers": [
+      {
+        "worker_id": "88fbc65270e243f6ba50c4ebe4890c6c",
+        "status": "queued",
+        "submitted_at": 1792429062.6659079,
+        "prompt_sha256": "6a7c25a45400374f0b7ea207a1accc43c7ed8754b65a5a0f7c1f23f1de829bd2"
+      },
+      {
+        "worker_id": "553493feaa9946d3a883e71787ebe02d",
+        "status": "queued",
+        "submitted_at": 1792429062.8100967,
+        "prompt_sha256": "cb8ceed24a47e222b2cce7e2386aad6884561871e86b2926cfae6dbb5be6277b"
+      },
+      {
+        "worker_id": "dcb529714f4f4d828fee2941fad0c546",
+        "status": "queued",
+        "submitted_at": 1792429063.0767183,
+        "prompt_sha256": "ae9b8a3b38bf464877d70e3e257ea5b40e9436c0d67b2e8202f78f2db3cefff0"
+      },
+      {
+        "worker_id": "462f7c1d79774e22a4608255f2487798",
+        "status": "queued",
+        "submitted_at": 1792429064.2022727,
+        "prompt_sha256": "fa766f2f399ab14f8be0f6b3268bc27739a6b802ea3869ea6e3541b25af959b0"
+      },
+      {
+        "worker_id": "05d61e12c0f34520a3bd150703c013c4",
+        "status": "queued",
+        "submitted_at": 1792429065.875786,
+        "prompt_sha256": "30e40aff8fbddeeb81d46087f42086519db339f9b45ee45831a1c0d5d5c11818"
+      }
+    ]
+  },
+  {
+    "at": 1792429075.3831596,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0008329162374138832,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/frame.md",
+    "worker_id": "88fbc65270e243f6ba50c4ebe4890c6c",
+    "sha256": "664b3107af0a21f953d64e591a24dead7355e59c03eb3851b9af3b47eaca4a1f"
+  },
+  {
+    "at": 1792429075.7521582,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002455734182149172,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/frame.md",
+    "worker_id": "553493feaa9946d3a883e71787ebe02d",
+    "sha256": "664b3107af0a21f953d64e591a24dead7355e59c03eb3851b9af3b47eaca4a1f"
+  },
+  {
+    "at": 1792429076.224927,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.008217383176088333,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame01-title.md",
+    "worker_id": "88fbc65270e243f6ba50c4ebe4890c6c",
+    "sha256": "d76697cbf62564f33339750bcec8bb7d8f34fb503b0108d3b619e6d633ea02c3"
+  },
+  {
+    "at": 1792429077.1868742,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.005000632721930742,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame04-encoder-io.md",
+    "worker_id": "553493feaa9946d3a883e71787ebe02d",
+    "sha256": "df0fa440c129c55576e15ba61ce66a1a02cb1ffc57d9dd1a76983452a21c3bea"
+  },
+  {
+    "at": 1792429077.3436122,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0024143029004335403,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/frame.md",
+    "worker_id": "dcb529714f4f4d828fee2941fad0c546",
+    "sha256": "664b3107af0a21f953d64e591a24dead7355e59c03eb3851b9af3b47eaca4a1f"
+  },
+  {
+    "at": 1792429078.5079303,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.000896776095032692,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/frame.md",
+    "worker_id": "462f7c1d79774e22a4608255f2487798",
+    "sha256": "664b3107af0a21f953d64e591a24dead7355e59c03eb3851b9af3b47eaca4a1f"
+  },
+  {
+    "at": 1792429078.9968467,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.005064666271209717,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame07-mask.md",
+    "worker_id": "dcb529714f4f4d828fee2941fad0c546",
+    "sha256": "a2200cc894789e6ad1191ea3b7b81cc8f51658ba839ea1dcf6b5410500df53d8"
+  },
+  {
+    "at": 1792429079.375303,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0019303150475025177,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/frame.md",
+    "worker_id": "05d61e12c0f34520a3bd150703c013c4",
+    "sha256": "664b3107af0a21f953d64e591a24dead7355e59c03eb3851b9af3b47eaca4a1f"
+  },
+  {
+    "at": 1792429079.7078063,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0010452130809426308,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame10-addnorm.md",
+    "worker_id": "462f7c1d79774e22a4608255f2487798",
+    "sha256": "10bba41cf8a248953118410de07779b040a47473f6a62a829e123d0f6cc7b4ff"
+  },
+  {
+    "at": 1792429080.9090033,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0018210667185485363,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame13-cross-attention.md",
+    "worker_id": "05d61e12c0f34520a3bd150703c013c4",
+    "sha256": "7535e733e5b6b9a82c122a3ad826962d6519aea0889694a1541e37f957b273cd"
+  },
+  {
+    "at": 1792429085.311121,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.004076117184013128,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame02-attention-only.md",
+    "worker_id": "88fbc65270e243f6ba50c4ebe4890c6c",
+    "sha256": "9a59df05a24b70823411730f62a0fcd972633b15ecb39a04d49a9ea443a003e7"
+  },
+  {
+    "at": 1792429087.5009415,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002608291804790497,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame05-decoder-io.md",
+    "worker_id": "553493feaa9946d3a883e71787ebe02d",
+    "sha256": "adc277755653a22bc742b59dc9caa91dccef0be247db4ea8c623917454a52537"
+  },
+  {
+    "at": 1792429090.165533,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0007984023541212082,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame06-autoregressive.md",
+    "worker_id": "553493feaa9946d3a883e71787ebe02d",
+    "sha256": "257d8447875a85c5fafa49b26cc1b8be85c44a4a4bb40507271cf89d3388c204"
+  },
+  {
+    "at": 1792429090.5805159,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002360392827540636,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame08-stack6.md",
+    "worker_id": "dcb529714f4f4d828fee2941fad0c546",
+    "sha256": "84601b514798c03e08e88894ea0af2a958b143e795e24786d6f0bfae56d7fe2d"
+  },
+  {
+    "at": 1792429090.9734986,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0008417149074375629,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame11-dim512.md",
+    "worker_id": "462f7c1d79774e22a4608255f2487798",
+    "sha256": "7e5ae61b466b93d52911c46441a74213a91bb7d3fd22c1d2cbe9d299d1fb70c2"
+  },
+  {
+    "at": 1792429091.7904034,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0009674173779785633,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame14-summary.md",
+    "worker_id": "05d61e12c0f34520a3bd150703c013c4",
+    "sha256": "c969631109ecfb423488b60699eec7ad9c649e67cfbc40ff5266f3cae977c3fb"
+  },
+  {
+    "at": 1792429093.5578535,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.008201062213629484,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame09-encoder-sublayers.md",
+    "worker_id": "dcb529714f4f4d828fee2941fad0c546",
+    "sha256": "146d03b611980cb95367f9d573b4af2a0be26b3b96d70df8d911b9679724e408"
+  },
+  {
+    "at": 1792429094.0067067,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0011034063063561916,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame12-decoder-sublayers.md",
+    "worker_id": "462f7c1d79774e22a4608255f2487798",
+    "sha256": "e16ff58c917f418299a506691360426786c03dccf3e12979e3daaf6d3770585b"
+  },
+  {
+    "at": 1792429098.7069917,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002222066279500723,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview/.hyperframes/frame-packets/frame03-overview.md",
+    "worker_id": "88fbc65270e243f6ba50c4ebe4890c6c",
+    "sha256": "6fa812fc39e6358f130b71d4771c820a8dc3bd1f141a11ff4f8d2d597eebf754"
+  },
+  {
+    "at": 1792429166.3190365,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.23438738333061337,
+    "worker_id": "553493feaa9946d3a883e71787ebe02d",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview && ls -la && echo '---compositions---' && find compositions -maxdepth 2 -type f | head -50 && echo '---assets---' && ls -la assets 2>/dev/null && ls -la assets/fonts 2>/dev/null",
+    "exit_code": 0,
+    "command_id": "aa8c5128d03c4b9cbaa5f8270a784a2c"
+  },
+  {
+    "at": 1792429166.3629272,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 91.22915516328067,
+    "workers": [
+      {
+        "worker_id": "88fbc65270e243f6ba50c4ebe4890c6c",
+        "status": "running",
+        "submitted_at": 1792429062.6659079,
+        "prompt_sha256": "6a7c25a45400374f0b7ea207a1accc43c7ed8754b65a5a0f7c1f23f1de829bd2",
+        "started_at": 1792429063.8115664
+      },
+      {
+        "worker_id": "553493feaa9946d3a883e71787ebe02d",
+        "status": "running",
+        "submitted_at": 1792429062.8100967,
+        "prompt_sha256": "cb8ceed24a47e222b2cce7e2386aad6884561871e86b2926cfae6dbb5be6277b",
+        "started_at": 1792429064.9506762
+      },
+      {
+        "worker_id": "dcb529714f4f4d828fee2941fad0c546",
+        "status": "running",
+        "submitted_at": 1792429063.0767183,
+        "prompt_sha256": "ae9b8a3b38bf464877d70e3e257ea5b40e9436c0d67b2e8202f78f2db3cefff0",
+        "started_at": 1792429066.2836719
+      },
+      {
+        "worker_id": "462f7c1d79774e22a4608255f2487798",
+        "status": "running",
+        "submitted_at": 1792429064.2022727,
+        "prompt_sha256": "fa766f2f399ab14f8be0f6b3268bc27739a6b802ea3869ea6e3541b25af959b0",
+        "started_at": 1792429067.0248904
+      },
+      {
+        "worker_id": "05d61e12c0f34520a3bd150703c013c4",
+        "status": "running",
+        "submitted_at": 1792429065.875786,
+        "prompt_sha256": "30e40aff8fbddeeb81d46087f42086519db339f9b45ee45831a1c0d5d5c11818",
+        "started_at": 1792429068.5501587
+      }
+    ]
+  },
+  {
+    "at": 1792429167.091294,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.24818309396505356,
+    "worker_id": "05d61e12c0f34520a3bd150703c013c4",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview && ls -la && echo \"--- assets ---\" && ls -la assets assets/fonts 2>/dev/null && echo \"--- compositions ---\" && ls -la compositions compositions/frames 2>/dev/null",
+    "exit_code": 2,
+    "command_id": "1b44e414c4294cd784e9b3aad4f807b4"
+  },
+  {
+    "at": 1792429167.4089227,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21606451412662864,
+    "worker_id": "462f7c1d79774e22a4608255f2487798",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123/videos/transformer-overview && ls -la && echo \"--- assets ---\" && ls -la assets assets/fonts 2>/dev/null && echo \"--- frames ---\" && ls -la compositions compositions/frames 2>/dev/null",
+    "exit_code": 2,
+    "command_id": "46a1d234f7fe4fae8ae136baf1a675f0"
+  }
+]

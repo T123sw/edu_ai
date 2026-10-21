@@ -1,0 +1,449 @@
+[
+  {
+    "question_index": 0,
+    "checks": [
+      {
+        "source_field": "explanation",
+        "excerpt": "第 1 行 [1,0] 与三个键得 1、0、1；第 2 行 [0,1] 得 0、1、1；第 3 行 [1,1] 得 1、1、2。",
+        "expression": "matmul([[1,0],[0,1],[1,1]], transpose([[1,0],[0,1],[1,1]]))",
+        "claimed": "[[1,0,1],[0,1,1],[1,1,2]]",
+        "decimal_places": 0,
+        "computed": [
+          [
+            1.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            1.0
+          ],
+          [
+            1.0,
+            1.0,
+            2.0
+          ]
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "√dk=√2≈1.4142",
+        "expression": "sqrt(2)",
+        "claimed": "1.4142",
+        "decimal_places": 4,
+        "computed": 1.4142135623730951,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "第 1 行 0.7071、0、0.7071；第 2 行 0、0.7071、0.7071；第 3 行 0.7071、0.7071、1.4142。",
+        "expression": "matmul([[1,0],[0,1],[1,1]], transpose([[1,0],[0,1],[1,1]])) / sqrt(2)",
+        "claimed": "[[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]",
+        "decimal_places": 4,
+        "computed": [
+          [
+            0.7071067811865475,
+            0.0,
+            0.7071067811865475
+          ],
+          [
+            0.0,
+            0.7071067811865475,
+            0.7071067811865475
+          ],
+          [
+            0.7071067811865475,
+            0.7071067811865475,
+            1.414213562373095
+          ]
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "S = [[0.71, 0.00, 0.71], [0.00, 0.71, 0.71], [0.71, 0.71, 1.41]]",
+        "expression": "matmul([[1,0],[0,1],[1,1]], transpose([[1,0],[0,1],[1,1]])) / sqrt(2)",
+        "claimed": "[[0.71,0.00,0.71],[0.00,0.71,0.71],[0.71,0.71,1.41]]",
+        "decimal_places": 2,
+        "computed": [
+          [
+            0.7071067811865475,
+            0.0,
+            0.7071067811865475
+          ],
+          [
+            0.0,
+            0.7071067811865475,
+            0.7071067811865475
+          ],
+          [
+            0.7071067811865475,
+            0.7071067811865475,
+            1.414213562373095
+          ]
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "e^0.7071=2.0281",
+        "expression": "exp(1/sqrt(2))",
+        "claimed": "2.0281",
+        "decimal_places": 4,
+        "computed": 2.028114981647472,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "和 5.0562",
+        "expression": "2*exp(1/sqrt(2))+1",
+        "claimed": "5.0562",
+        "decimal_places": 4,
+        "computed": 5.056229963294944,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "权重 0.4011、0.1978、0.4011。",
+        "expression": "softmax([1/sqrt(2),0,1/sqrt(2)])",
+        "claimed": "[0.4011,0.1978,0.4011]",
+        "decimal_places": 4,
+        "computed": [
+          0.4011120926797859,
+          0.1977758146404282,
+          0.4011120926797859
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "第 2 行对称，得 0.1978、0.4011、0.4011。",
+        "expression": "softmax([0,1/sqrt(2),1/sqrt(2)])",
+        "claimed": "[0.1978,0.4011,0.4011]",
+        "decimal_places": 4,
+        "computed": [
+          0.1977758146404282,
+          0.4011120926797859,
+          0.4011120926797859
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "e^1.4142=4.1133",
+        "expression": "exp(sqrt(2))",
+        "claimed": "4.1133",
+        "decimal_places": 4,
+        "computed": 4.1132503787829275,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "和 8.1695",
+        "expression": "2*exp(1/sqrt(2))+exp(sqrt(2))",
+        "claimed": "8.1695",
+        "decimal_places": 4,
+        "computed": 8.169480342077872,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "权重 0.2483、0.2483、0.5035。",
+        "expression": "softmax([1/sqrt(2),1/sqrt(2),sqrt(2)])",
+        "claimed": "[0.2483,0.2483,0.5035]",
+        "decimal_places": 4,
+        "computed": [
+          0.24825507825772306,
+          0.24825507825772306,
+          0.5034898434845538
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "[0.401, 0.198, 0.401]",
+        "expression": "softmax([1/sqrt(2),0,1/sqrt(2)])",
+        "claimed": "[0.401,0.198,0.401]",
+        "decimal_places": 3,
+        "computed": [
+          0.4011120926797859,
+          0.1977758146404282,
+          0.4011120926797859
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "[0.198, 0.401, 0.401]",
+        "expression": "softmax([0,1/sqrt(2),1/sqrt(2)])",
+        "claimed": "[0.198,0.401,0.401]",
+        "decimal_places": 3,
+        "computed": [
+          0.1977758146404282,
+          0.4011120926797859,
+          0.4011120926797859
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "[0.248, 0.248, 0.504]",
+        "expression": "softmax([1/sqrt(2),1/sqrt(2),sqrt(2)])",
+        "claimed": "[0.248,0.248,0.504]",
+        "decimal_places": 3,
+        "computed": [
+          0.24825507825772306,
+          0.24825507825772306,
+          0.5034898434845538
+        ],
+        "status": "fail"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "每行之和均为 1.000",
+        "expression": "sum(softmax([1/sqrt(2),1/sqrt(2),sqrt(2)]))",
+        "claimed": "1.000",
+        "decimal_places": 3,
+        "computed": 1.0,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "直接对 1、0、1 做 softmax 会得到 0.422、0.207、0.371",
+        "expression": "softmax([1,0,1])",
+        "claimed": "[0.422,0.207,0.371]",
+        "decimal_places": 3,
+        "computed": [
+          0.4223187982515182,
+          0.15536240349696362,
+          0.4223187982515182
+        ],
+        "status": "fail"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "对 1、0、1 做 softmax 会得到 0.422、0.207、0.371，",
+        "computed": [
+          0.4223187982515182,
+          0.15536240349696362,
+          0.4223187982515182
+        ],
+        "status": "fail",
+        "method": "literal_softmax"
+      }
+    ],
+    "errors": [
+      "数值不符：[0.248, 0.248, 0.504]；softmax([1/sqrt(2),1/sqrt(2),sqrt(2)]) = [0.24825507825772306, 0.24825507825772306, 0.5034898434845538]，原文声称 [0.248, 0.248, 0.504]",
+      "数值不符：直接对 1、0、1 做 softmax 会得到 0.422、0.207、0.371；softmax([1,0,1]) = [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]，原文声称 [0.422, 0.207, 0.371]",
+      "解析中的 softmax 数值错误：对 1、0、1 做 softmax 会得到 0.422、0.207、0.371，；复算为 [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]"
+    ]
+  },
+  {
+    "question_index": 1,
+    "checks": [
+      {
+        "source_field": "answer",
+        "excerpt": "输出 1 = 0.401×[1,0] + 0.198×[0,1] + 0.401×[1,1] = [0.80, 0.60]",
+        "expression": "weighted_sum(softmax([1/sqrt(2),0,1/sqrt(2)]), [[1,0],[0,1],[1,1]])",
+        "claimed": "[0.80, 0.60]",
+        "decimal_places": 2,
+        "computed": [
+          0.8022241853595719,
+          0.5988879073202141
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "输出 2 = 0.198×[1,0] + 0.401×[0,1] + 0.401×[1,1] = [0.60, 0.80]",
+        "expression": "weighted_sum(softmax([0,1/sqrt(2),1/sqrt(2)]), [[1,0],[0,1],[1,1]])",
+        "claimed": "[0.60, 0.80]",
+        "decimal_places": 2,
+        "computed": [
+          0.5988879073202141,
+          0.8022241853595719
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "输出 3 = 0.248×[1,0] + 0.248×[0,1] + 0.504×[1,1] = [0.75, 0.75]",
+        "expression": "weighted_sum(softmax([1/sqrt(2),1/sqrt(2),sqrt(2)]), [[1,0],[0,1],[1,1]])",
+        "claimed": "[0.75, 0.75]",
+        "decimal_places": 2,
+        "computed": [
+          0.7517449217422769,
+          0.7517449217422769
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "0.401×[1,0] + 0.198×[0,1] + 0.401×[1,1]",
+        "expression": "softmax([1/sqrt(2),0,1/sqrt(2)])",
+        "claimed": "[0.401,0.198,0.401]",
+        "decimal_places": 3,
+        "computed": [
+          0.4011120926797859,
+          0.1977758146404282,
+          0.4011120926797859
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "0.198×[1,0] + 0.401×[0,1] + 0.401×[1,1]",
+        "expression": "softmax([0,1/sqrt(2),1/sqrt(2)])",
+        "claimed": "[0.198,0.401,0.401]",
+        "decimal_places": 3,
+        "computed": [
+          0.1977758146404282,
+          0.4011120926797859,
+          0.4011120926797859
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "0.248×[1,0] + 0.248×[0,1] + 0.504×[1,1]",
+        "expression": "softmax([1/sqrt(2),1/sqrt(2),sqrt(2)])",
+        "claimed": "[0.248,0.248,0.504]",
+        "decimal_places": 3,
+        "computed": [
+          0.24825507825772306,
+          0.24825507825772306,
+          0.5034898434845538
+        ],
+        "status": "fail"
+      },
+      {
+        "source_field": "answer",
+        "excerpt": "0.504",
+        "expression": "exp(sqrt(2))/(2*exp(1/sqrt(2))+exp(sqrt(2)))",
+        "claimed": "0.504",
+        "decimal_places": 3,
+        "computed": 0.503489843484554,
+        "status": "fail"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "第 1 维 = 0.4011×1 + 0.1978×0 + 0.4011×1 = 0.8022",
+        "expression": "(2*exp(1/sqrt(2)))/(2*exp(1/sqrt(2))+1)",
+        "claimed": "0.8022",
+        "decimal_places": 4,
+        "computed": 0.8022241853595719,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "第 2 维 = 0.4011×0 + 0.1978×1 + 0.4011×1 = 0.5989",
+        "expression": "(1+exp(1/sqrt(2)))/(2*exp(1/sqrt(2))+1)",
+        "claimed": "0.5989",
+        "decimal_places": 4,
+        "computed": 0.5988879073202141,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "输出 2 对称，得 [0.60, 0.80]",
+        "expression": "weighted_sum(softmax([0,1/sqrt(2),1/sqrt(2)]), [[1,0],[0,1],[1,1]])",
+        "claimed": "[0.60, 0.80]",
+        "decimal_places": 2,
+        "computed": [
+          0.5988879073202141,
+          0.8022241853595719
+        ],
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "第 1 维 = 0.2483×1 + 0.2483×0 + 0.5035×1 = 0.7518",
+        "expression": "(exp(1/sqrt(2))+exp(sqrt(2)))/(2*exp(1/sqrt(2))+exp(sqrt(2)))",
+        "claimed": "0.7518",
+        "decimal_places": 4,
+        "computed": 0.7517449217422769,
+        "status": "fail"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "第 2 维 = 0.2483×0 + 0.2483×1 + 0.5035×1 = 0.7518",
+        "expression": "(exp(1/sqrt(2))+exp(sqrt(2)))/(2*exp(1/sqrt(2))+exp(sqrt(2)))",
+        "claimed": "0.7518",
+        "decimal_places": 4,
+        "computed": 0.7517449217422769,
+        "status": "fail"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "与键 1 [1,0] 的点积为 1",
+        "expression": "1*1+0*0",
+        "claimed": "1",
+        "decimal_places": 0,
+        "computed": 1.0,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "与键 2 [0,1] 的点积为 0",
+        "expression": "1*0+0*1",
+        "claimed": "0",
+        "decimal_places": 0,
+        "computed": 0.0,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "缩放后分别是 0.7071 与 0",
+        "expression": "1/sqrt(2)",
+        "claimed": "0.7071",
+        "decimal_places": 4,
+        "computed": 0.7071067811865475,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "缩放后分别是 0.7071 与 0",
+        "expression": "0/sqrt(2)",
+        "claimed": "0",
+        "decimal_places": 0,
+        "computed": 0.0,
+        "status": "pass"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "未缩放打分的权重（0.422、0.207、0.371）",
+        "expression": "softmax([1,0,1])",
+        "claimed": "[0.422,0.207,0.371]",
+        "decimal_places": 3,
+        "computed": [
+          0.4223187982515182,
+          0.15536240349696362,
+          0.4223187982515182
+        ],
+        "status": "fail"
+      },
+      {
+        "source_field": "explanation",
+        "excerpt": "输出 1 会算成 [0.79, 0.58]",
+        "expression": "weighted_sum(softmax([1,0,1]), [[1,0],[0,1],[1,1]])",
+        "claimed": "[0.79, 0.58]",
+        "decimal_places": 2,
+        "computed": [
+          0.8446375965030364,
+          0.5776812017484818
+        ],
+        "status": "fail"
+      }
+    ],
+    "errors": [
+      "数值不符：0.248×[1,0] + 0.248×[0,1] + 0.504×[1,1]；softmax([1/sqrt(2),1/sqrt(2),sqrt(2)]) = [0.24825507825772306, 0.24825507825772306, 0.5034898434845538]，原文声称 [0.248, 0.248, 0.504]",
+      "数值不符：0.504；exp(sqrt(2))/(2*exp(1/sqrt(2))+exp(sqrt(2))) = 0.503489843484554，原文声称 0.504",
+      "数值不符：第 1 维 = 0.2483×1 + 0.2483×0 + 0.5035×1 = 0.7518；(exp(1/sqrt(2))+exp(sqrt(2)))/(2*exp(1/sqrt(2))+exp(sqrt(2))) = 0.7517449217422769，原文声称 0.7518",
+      "数值不符：第 2 维 = 0.2483×0 + 0.2483×1 + 0.5035×1 = 0.7518；(exp(1/sqrt(2))+exp(sqrt(2)))/(2*exp(1/sqrt(2))+exp(sqrt(2))) = 0.7517449217422769，原文声称 0.7518",
+      "数值不符：未缩放打分的权重（0.422、0.207、0.371）；softmax([1,0,1]) = [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]，原文声称 [0.422, 0.207, 0.371]",
+      "数值不符：输出 1 会算成 [0.79, 0.58]；weighted_sum(softmax([1,0,1]), [[1,0],[0,1],[1,1]]) = [0.8446375965030364, 0.5776812017484818]，原文声称 [0.79, 0.58]"
+    ]
+  }
+]

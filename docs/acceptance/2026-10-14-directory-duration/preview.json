@@ -1,0 +1,22 @@
+{
+  "base": "http://127.0.0.1:4195",
+  "checks": [
+    {
+      "width": 1440,
+      "noDuration": true,
+      "pendingStatusPreserved": true,
+      "navigation": true,
+      "chapterCollapse": true,
+      "completionMarker": true
+    },
+    {
+      "width": 390,
+      "noDuration": true,
+      "pendingStatusPreserved": true,
+      "navigation": true,
+      "chapterCollapse": true,
+      "completionMarker": true
+    }
+  ],
+  "scope": "Built frontend with mocked business APIs; no production data mutations"
+}

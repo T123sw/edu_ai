@@ -1,0 +1,25 @@
+{
+  "results": [
+    {
+      "resource": "resource_2bee3896ead5f9b0081b53e33f506d3c",
+      "questions": 7,
+      "rendered": true
+    },
+    {
+      "resource": "resource_02c71e2a611ac1947c9511086eb1780e",
+      "questions": 10,
+      "rendered": true
+    },
+    {
+      "resource": "resource_72216cdec9d154200b912d959157dfa2",
+      "questions": 6,
+      "rendered": true
+    }
+  ],
+  "extra_question_requests": 0,
+  "page_errors": [],
+  "backend": "captured production responses replayed",
+  "notice_removed": true,
+  "submitted_answers": false,
+  "mobile": true
+}

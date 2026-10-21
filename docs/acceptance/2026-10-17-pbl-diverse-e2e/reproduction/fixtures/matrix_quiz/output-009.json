@@ -1,0 +1,302 @@
+{
+  "unit": {
+    "stepId": "submit-and-feedback",
+    "title": "提交判定与锁定",
+    "objective": "实现未选不能提交、提交后显示对错与正确答案并锁定本题。",
+    "instructionsMarkdown": "上一步你已经能显示第一题并选中选项。这一步让测验真正能“作答”。\n\n需要完成的效果：\n\n- 在选项下方放一个“提交”按钮。没有选中任何选项时，这个按钮不可用；选中选项后按钮变为可用。\n- 点击“提交”后，页面显示本题反馈：答对显示“回答正确”，答错显示“回答错误”，并且无论对错都显示正确答案（例如“正确答案：5”）。\n- 提交之后，本题被锁定：再点击其他选项不会改变选择，提交按钮也不再可用，不能重复提交。\n\n本步只处理第一题的提交与反馈，下一题切换和总分留到后面步骤。\n\n**代码约定**\n\n- 提交按钮使用 `data-testid=\"submit\"`，文字为“提交”。\n- 反馈文字放在一个元素里，使用 `data-testid=\"feedback\"`，内容为“回答正确”或“回答错误”。\n- 正确答案放在一个元素里，使用 `data-testid=\"correct-answer\"`，内容为“正确答案：”加正确答案文字（如“正确答案：5”）。\n- 选项继续沿用上一步的 `data-testid=\"option\"` 与 `role=\"radio\"`，选中状态用 `aria-checked` 表示。\n- 这些标记只供系统识别，不会改变页面外观。",
+    "explanationMarkdown": "这一步的核心是把“选择”和“提交”分开，并引入一个“本题是否已提交”的状态。\n\n思路提示：\n\n1. 新增一个状态记录本题是否已提交，例如 `const [submitted, setSubmitted] = useState(false)`。\n2. 提交按钮的 `disabled` 属性可以写成“没有选中选项”或“已经提交”时为真，这样同时满足“未选不能提交”和“提交后不能再提交”。\n3. 点击选项时，如果本题已提交就不再更新选择，从而锁定本题。\n4. 提交时把 `submitted` 设为 `true`，并根据 `selected === q.answer` 判断对错，渲染对应反馈和正确答案。\n\n注意反馈和正确答案只在提交后出现，未提交时不要显示。",
+    "hints": [
+      "用一个布尔状态记录本题是否已提交，提交按钮的 disabled 同时考虑“未选择”和“已提交”两种情况。",
+      "点击选项的处理函数里先判断是否已提交，已提交就直接返回，不再改变选择。",
+      "对错判断就是比较当前选择和这道题的正确答案是否相等。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "submit-disabled-without-selection",
+      "submit-shows-feedback",
+      "locked-after-submit"
+    ]
+  },
+  "behaviorCases": [
+    {
+      "requirementId": "submit-requires-selection",
+      "setup": "初始页面，未选择任何选项",
+      "action": "观察提交按钮状态",
+      "expected": "提交按钮不可用",
+      "checkId": "submit-disabled-without-selection"
+    },
+    {
+      "requirementId": "submit-requires-selection",
+      "setup": "初始页面，未选择任何选项",
+      "action": "点击选项“5”后观察提交按钮",
+      "expected": "提交按钮变为可用",
+      "checkId": "submit-disabled-without-selection"
+    },
+    {
+      "requirementId": "submit-feedback",
+      "setup": "初始页面，选择正确选项“5”",
+      "action": "点击提交按钮",
+      "expected": "显示“回答正确”反馈，并显示正确答案“正确答案：5”",
+      "checkId": "submit-shows-feedback"
+    },
+    {
+      "requirementId": "submit-feedback",
+      "setup": "初始页面，选择错误选项“4”",
+      "action": "点击提交按钮",
+      "expected": "显示“回答错误”反馈，并显示正确答案“正确答案：5”",
+      "checkId": "locked-after-submit"
+    },
+    {
+      "requirementId": "submit-feedback",
+      "setup": "已选择“4”并提交，本题已锁定",
+      "action": "尝试点击选项“5”",
+      "expected": "选择仍保持“4”，“5”未被选中",
+      "checkId": "locked-after-submit"
+    },
+    {
+      "requirementId": "submit-feedback",
+      "setup": "已选择“4”并提交，本题已锁定",
+      "action": "观察提交按钮状态",
+      "expected": "提交按钮不可用，不能重复提交",
+      "checkId": "locked-after-submit"
+    }
+  ],
+  "checks": [
+    {
+      "id": "submit-disabled-without-selection",
+      "label": "初始未选择时提交按钮不可用；点击选项“5”后提交按钮变为可用",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "submit-shows-feedback",
+      "label": "选择正确选项“5”并提交后显示“回答正确”与正确答案“正确答案：5”",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "feedback"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "回答正确",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "correct-answer"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "正确答案：5",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "locked-after-submit",
+      "label": "选择错误选项“4”并提交后显示“回答错误”与正确答案“5”，且本题锁定：再点“5”不改变选择，提交按钮不可用",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "feedback"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "回答错误",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "correct-answer"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "正确答案：5",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 0,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "4",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": 1,
+            "role": null,
+            "name": null,
+            "testId": "option"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "5",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "faultyFiles": {},
+  "faultyCheckId": null
+}

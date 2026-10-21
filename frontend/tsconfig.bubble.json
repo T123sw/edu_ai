@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.json","include":["src/practice/teaching/**/*.ts","src/practice/teaching/**/*.tsx"],"exclude":["src/practice/teaching/**/*.test.ts"]}

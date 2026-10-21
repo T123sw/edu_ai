@@ -1,0 +1,4 @@
+{
+  "performed": false,
+  "reason": "Read-only observation: ffprobe metadata and existing native screenshots only; no interactive playback or re-render initiated."
+}

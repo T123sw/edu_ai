@@ -1,0 +1,12 @@
+{
+  "real_http": true,
+  "real_process_kill_and_restart": true,
+  "model_boundary": "controlled HTTP test double",
+  "terminal_status": "failed",
+  "duplicate_keeps_turn": true,
+  "model_requests": 1,
+  "other_owner_status": 404,
+  "recovery_done_event": true,
+  "production_writes": false,
+  "services_stopped": true
+}

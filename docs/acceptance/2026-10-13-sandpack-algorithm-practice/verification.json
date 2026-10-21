@@ -1,0 +1,165 @@
+{
+  "completedAt": "2026-10-13T21:25:48.684655+00:00",
+  "scope": "JavaScript quicksort single-task PBL; left directory and native Sandpack editor/preview",
+  "sourceImplemented": true,
+  "productionDeployed": false,
+  "productionMigrationExecuted": false,
+  "branch": "feat/self-learning-frontend-20260914",
+  "dependencyVersions": {
+    "@codesandbox/sandpack-react": "2.20.0",
+    "acorn": "8.15.0",
+    "hostedRuntime": "https://2-19-8-sandpack.codesandbox.io"
+  },
+  "checks": [
+    {
+      "name": "Backend PBL + durable executor + retry",
+      "passed": 63,
+      "skipped": 0,
+      "exitCode": 0,
+      "seconds": 59.83,
+      "evidence": "backend-report.md",
+      "command": "python scripts/pbl/isolated.py pytest backend/src/tests/pbl backend/src/tests/test_durable_task_executor.py backend/src/tests/test_job_retry_service.py -q",
+      "environment": "explicit PBL_TEST_DATABASE_URL; isolated PostgreSQL schemas, no production data"
+    },
+    {
+      "name": "Final real-model E2E and all business browser regressions",
+      "passed": 10,
+      "skipped": 0,
+      "exitCode": 0,
+      "evidence": "logs/final-e2e.log",
+      "command": "PBL_LIVE=1 PBL_FRONTEND_URL=http://127.0.0.1:5208 pnpm exec playwright test -c playwright.pbl.config.ts pbl.spec.ts pbl-live.spec.ts"
+    },
+    {
+      "name": "Hosted runtime and original business browser suite",
+      "passed": 7,
+      "skipped": 0,
+      "exitCode": 0,
+      "evidence": "logs/runtime-and-ui-dev.log",
+      "command": "pnpm exec playwright test -c playwright.pbl.config.ts pbl-runtime.spec.ts pbl.spec.ts",
+      "note": "Before final save fixes: includes 2 runtime tests; all business tests plus 4 new regressions rerun in final E2E above. Probe is intentionally excluded from production build."
+    },
+    {
+      "name": "Final frontend unit checks",
+      "passed": 18,
+      "skipped": 0,
+      "exitCode": 0,
+      "evidence": "logs/unit.log",
+      "command": "node --import tsx --test src/pbl/protocol.test.ts src/pbl/draftStore.test.ts src/pbl/runtime/runner.test.ts src/jobs/jobPresentation.test.ts src/jobs/jobResultTarget.test.ts"
+    },
+    {
+      "name": "Shared browser generation validator",
+      "passed": 3,
+      "exitCode": 0,
+      "evidence": "logs/validator.log",
+      "command": "node --import tsx --test scripts/pbl-validation.test.ts"
+    },
+    {
+      "name": "Existing practice backend regression",
+      "passed": 7,
+      "exitCode": 0,
+      "command": "python scripts/pbl/isolated.py pytest backend/src/tests/practice -q"
+    },
+    {
+      "name": "Existing practice browser regression",
+      "passed": 2,
+      "skipped": 1,
+      "exitCode": 0,
+      "evidence": "logs/practice-regression.log",
+      "note": "Optional external real-artifact test skipped because no real practice artifact supplied; desktop and mobile fixture regressions passed."
+    },
+    {
+      "name": "Final Vite build",
+      "exitCode": 0,
+      "seconds": 22.58,
+      "evidence": "logs/build.log",
+      "command": "VITE_API_BASE_URL=http://127.0.0.1:8017 pnpm exec vite build --outDir dist-pbl",
+      "note": "Acceptance-only build; do not deploy with test API URL."
+    },
+    {
+      "name": "Full frontend lint",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 41,
+      "evidence": "logs/lint-full.log",
+      "command": "pnpm lint"
+    },
+    {
+      "name": "Final scoped lint",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 2,
+      "evidence": "logs/lint-final-scoped.log",
+      "command": "pnpm exec eslint src/pbl src/jobs/jobResultTarget.test.ts tests/live-learning/pbl*.spec.ts",
+      "note": "Two probe-only Fast Refresh warnings."
+    },
+    {
+      "name": "Full TypeScript diagnostic comparison",
+      "exitCode": 2,
+      "passed": false,
+      "baselineUniqueDiagnostics": 146,
+      "finalUniqueDiagnostics": 146,
+      "newDiagnostics": 0,
+      "evidence": "logs/typecheck-comparison.json",
+      "command": "pnpm exec tsc --noEmit",
+      "note": "Existing repository errors remain; compare filename and error message ignoring shifted line/column. No claim of full typecheck pass."
+    },
+    {
+      "name": "Final scoped tracked diff whitespace check",
+      "exitCode": 0
+    }
+  ],
+  "realFlow": {
+    "passed": true,
+    "exerciseId": "pbl_e9a9e84a42ae939f3b87205c1f0e8e63",
+    "jobId": "pbl_e9a9e84a42ae939f3b87205c1f0e8e63",
+    "createdAt": "2026-10-13T21:23:25.899Z",
+    "durationMs": 35129,
+    "cases": 16,
+    "runs": [
+      {
+        "runId": "1996772a-b439-4be6-900b-35cc6fdadccf",
+        "status": "passed",
+        "codeHash": "5f06daf99623f3fbaebea33d2016b86be675e9318d5bf64a3e5767c2adde8bca"
+      },
+      {
+        "runId": "86f6b73a-34f6-48ef-ac92-8a2b6160bf7a",
+        "status": "passed",
+        "codeHash": "da6c6d9b30a4ba3662185356695a04c2e1f1df5658bed6671b3c298ec4871dd9"
+      },
+      {
+        "runId": "1a22329d-0929-4515-8909-4574b33226c2",
+        "status": "failed",
+        "codeHash": "99eb02df92eb1ad88da64bbb17e543562ca2e61274a4bdfad9060df8dd22cab3"
+      }
+    ],
+    "auth": "real isolated user login",
+    "backend": "real PostgreSQL and durable task",
+    "runtime": "official hosted Sandpack",
+    "model": "actual configured provider; artifact generated during test"
+  },
+  "reviews": {
+    "runtime": "PASS after fixes; runtime-review-report.md",
+    "final": "PASS after scoped re-review; final-review-report.md",
+    "saveRecovery": "6 targeted browser checks passed; save-fix-report.md"
+  },
+  "migration": {
+    "head": "20261013_0038",
+    "tested": "upgrade/downgrade/re-upgrade in isolated PostgreSQL schema",
+    "productionExecuted": false
+  },
+  "limits": [
+    "Only JavaScript quicksort, one task; no complex projects, Python or agent chat.",
+    "Browser-reported checks are not exam-grade proof of algorithm choice.",
+    "Hosted Sandpack needs network access.",
+    "Generation browser subprocess is bounded by 75 seconds; cancellation prevents publish."
+  ],
+  "screenshots": [
+    "real-1440.png",
+    "real-1024.png",
+    "real-390.png",
+    "real-wrong-code.png",
+    "fixture-1440.png",
+    "fixture-1024.png",
+    "fixture-390.png"
+  ]
+}

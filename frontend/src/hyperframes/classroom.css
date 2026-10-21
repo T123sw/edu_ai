@@ -1,0 +1,14 @@
+.hf-classroom { width: 100%; min-width: 0; padding: 16px; box-sizing: border-box; background: var(--app-bg, #fff); color: var(--app-text, #17202a); overflow: auto; }
+.hf-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.hf-heading h2 { min-width: 0; font-size: 1.2rem; margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
+.hf-player { width: 100%; min-width: 0; }
+.hf-player video { display: block; width: 100%; aspect-ratio: 16/9; object-fit: contain; background: #000; }
+.hf-classroom button, .hf-export summary { padding: 6px 10px; border: 1px solid var(--app-border, #cbd5e1); border-radius: 6px; background: var(--panel-bg, #fff); color: inherit; cursor: pointer; }
+.hf-export { position: relative; flex: none; font-size: 13px; }
+.hf-export summary { display: flex; align-items: center; gap: 6px; list-style: none; }
+.hf-export summary::-webkit-details-marker { display: none; }
+.hf-export summary:focus-visible, .hf-export a:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+.hf-export nav { position: absolute; right: 0; top: calc(100% + 6px); z-index: 2; display: grid; min-width: 160px; padding: 4px; border: 1px solid var(--app-border, #cbd5e1); border-radius: 8px; background: var(--panel-bg, #fff); box-shadow: 0 6px 20px #0002; }
+.hf-export a { padding: 9px 10px; color: inherit; text-decoration: none; border-radius: 4px; }
+.hf-export a:hover { background: var(--app-bg, #f1f5f9); }
+@media (max-width: 480px) { .hf-classroom { padding: 8px; } .hf-heading h2 { font-size: 1rem; } }

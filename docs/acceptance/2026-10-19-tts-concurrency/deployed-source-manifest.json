@@ -1,0 +1,14 @@
+{
+  "services/local_tts/qwen_server.py": "03d6816e95d84a3677ff52c6060cd674d1de1410eabedff8c6f4f251dbc1f543",
+  "services/local_tts/batching.py": "905e335a8e1c6e8a36ff28f7ac20c25a52a2661034908f5463d13b6b58be202f",
+  "backend/src/app/services/studio_learning_resources.py": "71b48a2cf24d2596e9a0682e692dfc7734195f0b9e4ab4ca7cbcf60c4d5be50c",
+  "backend/src/app/services/tts_service.py": "1a2492f25f3620aaa101bdbbe30b23e04f90819b07efd25d3a46b2f5aac0a14d",
+  "backend/src/app/integrations/hyperframes/workflow_audio.py": "1a57c10138d3bc8f7508bb6ae2c5071157148e97e77408da13b6e0886813cd83",
+  ".env.example": "4ed97bb7eed79cb97d025bace969004af4ccf34d918e828d0f94d4bf8dc5f48c",
+  "deploy/systemd/edu-ai-tts-batch.service": "82d1ab385def20acdb414cbd1a4bbdf18e38f021c7238c027cf9302c33cb8146",
+  "backend/src/tests/test_tts_request_batching.py": "9c22be977eed7bb4fb7dad6a13c74dd8673877ebce27b5802b8528dd292cc913",
+  "backend/src/tests/personal_studio/test_parallel_audio.py": "eacf2355329865f0393eb93f0e8c6a25b4bf07977d3a7b5334ece3df4cbca51e",
+  "backend/src/tests/hyperframes/test_parallel_audio.py": "b0e8897a9d565ddfa0646f243fdb51641f713d655ff8a254e166b72986935be1",
+  "deploy/systemd/edu-ai-durable-workers.service": "e1008df7cbd50aeb869a83df59f3270353db83d642c1e25c7dadeb2d61a759a1",
+  "docs/deployment/hyperframes.md": "33cc4f81c0f9d6d4c7628f784677e4ec1028c673a6dca3452f92bb0772460229"
+}

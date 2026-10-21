@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "delivery_state": "complete",
+  "manifest_id": "manifest_bubble_demo_20261019",
+  "course_id": "bubble-sort-demo-20261019",
+  "version": 1,
+  "route_version": 1,
+  "space": "personal",
+  "goal": "通过两段中文配音动画，认识冒泡排序的相邻比较与交换，并跟踪前两趟排序过程。共约 1 分 50 秒。本课程是已完成片段的演示版，不包含完整算法课程的后续内容。",
+  "audience": "算法初学者与教学演示观众",
+  "estimated_minutes": 3,
+  "assumptions": [],
+  "nodes": [
+    {
+      "node_id": "bubble_basic",
+      "title": "基本思想：相邻比较与交换",
+      "order": 1,
+      "required": true,
+      "delivery_state": "ready",
+      "pending_resource_types": [],
+      "objectives": [
+        {
+          "objective_id": "bubble_basic_objective",
+          "text": "认识相邻比较、顺序不对时交换，以及一趟扫描中较大数向后移动的过程。"
+        }
+      ],
+      "prerequisite_node_ids": [],
+      "estimated_minutes": 1,
+      "resources": [
+        {
+          "resource_id": "bubble_demo_basic_20261019",
+          "resource_type": "classroom",
+          "version": 1,
+          "content_sha256": "8b3d88bc8996fd0d5267226de98129541a4a148cc91a11dac2524cc9667b0fd9",
+          "purpose": "观看动画演示，并可按场景跳转回看。",
+          "required": true,
+          "order": 1,
+          "objective_ids": [
+            "bubble_basic_objective"
+          ],
+          "objective_coverage": "planned",
+          "source_refs": []
+        }
+      ],
+      "checks": []
+    },
+    {
+      "node_id": "bubble_trace",
+      "title": "手工追踪：看懂前两趟排序",
+      "order": 2,
+      "required": true,
+      "delivery_state": "ready",
+      "pending_resource_types": [],
+      "objectives": [
+        {
+          "objective_id": "bubble_trace_objective",
+          "text": "跟踪数组 [6, 2, 4, 9, 3, 7] 的前两趟排序，观察较大元素逐步归位。"
+        }
+      ],
+      "prerequisite_node_ids": [
+        "bubble_basic"
+      ],
+      "estimated_minutes": 2,
+      "resources": [
+        {
+          "resource_id": "bubble_demo_trace_20261019",
+          "resource_type": "classroom",
+          "version": 1,
+          "content_sha256": "77fd8d54586fe8f1b1874a214b204bd63876360937db5af2a0e7411337db6a80",
+          "purpose": "观看动画演示，并可按场景跳转回看。",
+          "required": true,
+          "order": 1,
+          "objective_ids": [
+            "bubble_trace_objective"
+          ],
+          "objective_coverage": "planned",
+          "source_refs": []
+        }
+      ],
+      "checks": []
+    }
+  ],
+  "quality_report_id": "manual_preview_validation_20261019",
+  "limitations": [
+    "本演示课仅包含原任务已完成的前 4 个和前 5 个场景，不代表原完整课程已完成。",
+    "已验证文件、音轨和播放；未进行完整教学内容审校。"
+  ],
+  "created_by_preparation_id": "prep_7503c0c7836a416899607228aba1e35e"
+}

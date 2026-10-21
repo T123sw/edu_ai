@@ -1,0 +1,20 @@
+{
+  "questions": 32,
+  "errors": [],
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "model_calls": 0,
+  "boundary": "production saved-paper preview after CSS fix"
+}

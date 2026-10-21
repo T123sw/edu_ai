@@ -1,0 +1,53 @@
+{
+  "observed_at": 1792304091.9943836,
+  "tag": "多PDF验收 kentucky-0012 1792303148527",
+  "generations": [
+    {
+      "generation_id": "examgen_7cd4cd536e24e1cef418fdef720e1532",
+      "job_id": "examgen_7cd4cd536e24e1cef418fdef720e1532",
+      "turn": {
+        "id": "turn_1792303208630_d46d99354c",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792303208.8660212,
+        "updated_at": 1792304017.8438911
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4022,
+          "layout_blocks": 42,
+          "images": 1
+        }
+      ],
+      "blueprint_count": 17,
+      "local_events": 31043,
+      "upstream_events": 31043,
+      "done_received": true,
+      "summary": {
+        "failed": 1,
+        "success": false,
+        "completed": 16,
+        "requested": 17,
+        "template_count": 17
+      },
+      "failed_questions": [
+        {
+          "ordinal": 15,
+          "issues": [
+            "model_transport_exhausted"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 99,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 4,
+          "deepseek-v4-flash": 95
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0
+}

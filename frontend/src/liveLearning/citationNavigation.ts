@@ -1,7 +1,7 @@
 import type { ResourceRef } from './readingContext';
 
 export type Citation = { resource_ref: ResourceRef; visibility?: string; locator?: {
-  kind: string; block_id?: string; question_index?: number; scene_id?: string;
+  kind: string; block_id?: string; question_index?: number; scene_id?: string; seconds?: number; segment_id?: string; content_hash?: string;
 } | null };
 
 export function citationUrl(citation: Citation): string {
@@ -11,5 +11,6 @@ export function citationUrl(citation: Citation): string {
   if (locator?.kind === 'document' && /^report-v1:\d+:\d+:[0-9a-f]{8}$/.test(locator.block_id || '')) params.set('block_id', locator.block_id!);
   if (locator?.kind === 'quiz' && Number.isSafeInteger(locator.question_index) && locator.question_index! >= 0) params.set('question_index', String(locator.question_index));
   if (locator?.kind === 'classroom' && locator.scene_id) params.set('scene_id', locator.scene_id);
+  if (locator?.kind === 'hyperframes' && Number.isFinite(locator.seconds) && locator.seconds! >= 0) { params.set('seconds', String(locator.seconds)); if (locator.segment_id) params.set('segment_id', locator.segment_id); }
   return `?learningPlayer=1#ai?${params}`;
 }

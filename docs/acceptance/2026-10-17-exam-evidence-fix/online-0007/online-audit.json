@@ -1,0 +1,183 @@
+{
+  "observed_at": 1792260792.2017696,
+  "tag": "计算证据修复验收 1792259743007",
+  "generations": [
+    {
+      "generation_id": "examgen_75f85c7d5a431790c34100351a4f48fa",
+      "job_id": "examgen_75f85c7d5a431790c34100351a4f48fa",
+      "turn": {
+        "id": "turn_1792259781722_974e215921",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792259781.9448526,
+        "updated_at": 1792260354.5544353
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4483,
+          "layout_blocks": 71,
+          "images": 16
+        }
+      ],
+      "blueprint_count": 32,
+      "local_events": 41336,
+      "upstream_events": 41336,
+      "done_received": true,
+      "summary": {
+        "failed": 3,
+        "success": false,
+        "completed": 29,
+        "requested": 32,
+        "template_count": 32
+      },
+      "failed_questions": [
+        {
+          "ordinal": 15,
+          "issues": [
+            "novel_question",
+            "requirements_met",
+            "no_substantive_task_change",
+            "候选仅给原题同一知识点套上具体插入场景，实际填空答案仍是同一个固定判断条件 head->next == NULL，未形成新的有效输入或需实际使用的新条件。",
+            "题干中的“插入数据结点 7”对最终答案没有实质影响，属于装饰性叙述，未改变任务。",
+            "Independent solution to check against the question: 带头结点的单链表中，head 指向头结点，头结点的 next 指向第一个数据结点。插入数据结点 7 后，头结点的 next 指向该数据结点，因此链表非空。判断除头结点外没有数据结点的条件应检查头结点的 next 是否为 NULL，即：head->next == NULL。"
+          ]
+        },
+        {
+          "ordinal": 16,
+          "issues": [
+            "novel_question",
+            "requirements_met",
+            "no_substantive_task_change",
+            "候选题目与源题几乎逐字相同，仅把“0(n log n)”规范为“O(n log n)”，未引入新的有效数据、场景或条件，属于同题重述。",
+            "不满足“使用新的有效数据、不照抄原题”的整卷生成要求。",
+            "Independent solution to check against the question: 题目要求在希尔排序、快速排序、归并排序、堆排序、基数排序中，找出平均时间复杂度为 O(n log n) 且稳定的排序方法。逐一判断：希尔排序平均复杂度依赖增量序列，通常不是 O(n log n) 且不稳定；快速排序平均 O(n log n)，但不稳定；归并排序平均 O(n log n)，且稳定；堆排序平均 O(n log n)，但不稳定；基数排序稳定，但平均复杂度为 O(d(n+r))，并非 O(n log n)。因此唯一符合条件的是归并排序。"
+          ]
+        },
+        {
+          "ordinal": 26,
+          "issues": [
+            "tree_answer_unverified",
+            "calculation_unverified: complete_tree_subtree(2017,251,0): TypeError",
+            "calculation_unverified: tx==[251,252,253,254,255,256,257,258,259,260,261,262,263,264,265]: unknown variable: tx",
+            "calculation_unverified: len(tx)==15: unknown variable: tx",
+            "calculation_unverified: complete_tree_path(2017,2016,0)[-4]==251: TypeError",
+            "tree_answer_unverified: q_1547df775d7cc57ea1d9",
+            "Executed comparisons to candidate answers: [{\"expression\": \"complete_tree_facts(2017,2016,0)\", \"actual\": {\"node_count\": 2017, \"index_base\": 0, \"target\": 2016, \"path\": [0, 2, 6, 14, 30, 62, 125, 251, 503, 1007, 2016], \"top_subtree_root\": 2, \"top_subtree_side\": \"right\", \"top_subtree_count\": 993, \"top_subtree_height\": 10, \"top_subtree_max_label\": 2016, \"target_is_leaf\": true, \"leaves_before_by_label\": 496, \"leaves_to_left\": 481, \"top_subtree_leaf_count\": 497}, \"matches\": null, \"name\": \"facts\"}, {\"expression\": \"facts['top_subtree_side']=='right'\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['top_subtree_root']==2\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['path']==[0,2,6,14,30,62,125,251,503,1007,2016]\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['top_subtree_count']==993\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['top_subtree_height']==10\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['top_subtree_max_label']==2016\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['top_subtree_leaf_count']==497\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['leaves_before_by_label']==496\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['leaves_to_left']==481\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}]"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 159,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 10,
+          "deepseek-v4-flash": 149
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_ffb7289210ca948aa6d7e70aeb044fce",
+      "job_id": "job_1a8777bf52e44c3a",
+      "turn": {
+        "id": "turn_1792260395496_8cc5d8d255",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792260395.6212058,
+        "updated_at": 1792260492.9541655
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4483,
+          "layout_blocks": 71,
+          "images": 16
+        }
+      ],
+      "blueprint_count": 32,
+      "local_events": 11135,
+      "upstream_events": 11135,
+      "done_received": true,
+      "summary": {
+        "failed": 1,
+        "success": false,
+        "completed": 31,
+        "requested": 32,
+        "template_count": 32
+      },
+      "failed_questions": [
+        {
+          "ordinal": 15,
+          "issues": [
+            "novel_question",
+            "requirements_met",
+            "no_substantive_task_change",
+            "新题仅将头指针 L 改名为 p，并加入“经过若干次插入和删除”等装饰性叙述，实际考查的仍是同一个判断条件，属于同一事实的直接复述。",
+            "未使用新的有效数据或改变实际任务条件，不满足“使用新的有效数据、不照抄原题”的验收要求。",
+            "Independent solution to check against the question: 该单链表带头结点，p 指向头结点，头结点的数据域不存放有效数据，有效结点从 p->next 开始。因此链表为空当且仅当 p->next 为空，即判断条件为：p->next == NULL（或 p->next == nullptr）。"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 24,
+        "models": {
+          "deepseek-v4-flash": 24
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_8fda3c85c0e36592ec259f17ef6581fe",
+      "job_id": "job_ac8d8ca6d3b3426f",
+      "turn": {
+        "id": "turn_1792260627404_f4b212f305",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792260627.5350065,
+        "updated_at": 1792260645.5696614
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4483,
+          "layout_blocks": 71,
+          "images": 16
+        }
+      ],
+      "blueprint_count": 32,
+      "local_events": 363,
+      "upstream_events": 363,
+      "done_received": true,
+      "summary": {
+        "failed": 1,
+        "success": false,
+        "completed": 31,
+        "requested": 32,
+        "template_count": 32
+      },
+      "failed_questions": [
+        {
+          "ordinal": 15,
+          "issues": [
+            "novel_question",
+            "requirements_met",
+            "no_substantive_task_change",
+            "候选仅给原题套上“删除全部数据结点”的叙述外壳，实际要求仍是写出同一个空表判断条件 head->next == NULL，未改变需要推理的任务或条件。",
+            "题干虽未直接给出填空框架，但考点与答案和原题完全相同，属于同一事实的复述，不满足“使用新的有效数据、不照抄原题”的换新要求。",
+            "Independent solution to check against the question: 带头结点的单链表：head 指向头结点，头结点的 next 域指向第一个数据结点。当所有数据结点都被删除、只剩头结点时，头结点的 next 为空指针。因此判断该链表为空表的 C 语言条件应写成：head->next == NULL（等价写法 head->next == 0）。"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 9,
+        "models": {
+          "deepseek-v4-flash": 9
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 29,
+    "unchanged_in_latest": 29
+  }
+}

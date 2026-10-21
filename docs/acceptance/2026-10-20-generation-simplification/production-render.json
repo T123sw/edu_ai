@@ -1,0 +1,11 @@
+[
+  {
+    "name": "interleaved-production",
+    "seconds": 686.3301241360605,
+    "exit_code": 0,
+    "log": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/interleaved-production/.host/8f378ed392894b8d9a1952088e16f11e.log",
+    "video": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/interleaved-production/video/renders/sample.mp4",
+    "fps": 30,
+    "note": "30 fps full production timeline, native interleaved scheduling"
+  }
+]

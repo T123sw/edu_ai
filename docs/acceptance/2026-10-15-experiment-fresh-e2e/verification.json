@@ -1,0 +1,281 @@
+{
+  "startedAt": "2026-10-15T11:29:39.041866+00:00",
+  "sourceManifest": {
+    "backend/src/app/practice/skills/design-experiment/SKILL.md": "ae0cd97b66f9cec409a731c5aad37123814775ede99a436b7a0da7eef31de0fd",
+    "backend/src/app/practice/skills/design-experiment/references/pages-runtime.md": "3031791aa3bd549a12dfedec70015752dbb64a882df224256ea116d63bb8913a",
+    "frontend/scripts/pages-validation.mjs": "819013f9084ea9e5971fc5f5cebfa036fdcaff52c2538898ba7e179805638fc8"
+  },
+  "backend": "MainPID=496318\nExecMainStartTimestamp=Thu 2026-10-15 11:28:15 UTC",
+  "frontendIndexSha256": "d793138ecc47b34cac65315da6caa52bd35950fa557f93536167ed0edecf20b7",
+  "status": "completed-with-finding",
+  "overallPassed": false,
+  "experimentId": "practice_4066691d3732c56e8c087ca9f8389060",
+  "protocol": "edu-experiment/2",
+  "generationSeconds": 94.584661,
+  "freshGeneration": true,
+  "reusedPreviousArtifact": false,
+  "modelCalls": 5,
+  "stageAttempts": {
+    "guided-attempt-1": {
+      "ok": true,
+      "scope": "basic-page-runtime",
+      "checks": [
+        "registered-and-initialized",
+        "reset",
+        "saved-state-restore",
+        "visible-content"
+      ],
+      "issues": [],
+      "diagnostics": {
+        "evidence_id": "36e3f719-308e-4b1f-8c6c-b952f3f23325"
+      },
+      "scientific_certification": false
+    },
+    "explore-attempt-1": {
+      "ok": true,
+      "scope": "basic-page-runtime",
+      "checks": [
+        "registered-and-initialized",
+        "reset",
+        "saved-state-restore",
+        "visible-content"
+      ],
+      "issues": [],
+      "diagnostics": {
+        "evidence_id": "4926e872-806f-489b-8645-d436d2b38985"
+      },
+      "scientific_certification": false
+    },
+    "demonstrate-attempt-1": {
+      "ok": true,
+      "scope": "basic-page-runtime",
+      "checks": [
+        "registered-and-initialized",
+        "demo-steps-and-replay",
+        "reset",
+        "saved-state-restore",
+        "visible-content"
+      ],
+      "issues": [],
+      "diagnostics": {
+        "evidence_id": "4197ff50-d6b6-49c5-a83f-07db46a13a8b"
+      },
+      "scientific_certification": false
+    }
+  },
+  "demoSteps": 4,
+  "tasks": 3,
+  "browserResults": [
+    {
+      "width": 1440,
+      "ok": false,
+      "mainFlowPassed": true,
+      "checks": [
+        "all-demo-steps-at-most-one-comparison-and-one-adjacent-swap",
+        "task-1-wrong-feedback-retry-correct-auto-advance",
+        "real-frozen-question-context",
+        "task-2-wrong-feedback-retry-correct-auto-advance",
+        "task-3-wrong-feedback-retry-correct-auto-advance",
+        "custom-input-changes-computation-and-reset-baseline",
+        "sorted-input-1-2-3-4",
+        "sorted-input-4-3-2-1",
+        "sorted-input-3-1-3-2",
+        "all-exploration-presets-exist-and-change-state",
+        "frozen-context-unchanged-after-exploration",
+        "fresh-browser-restores-custom-parameters-and-reset-baseline"
+      ],
+      "demo": [
+        {
+          "step": 1,
+          "comparisonsBefore": 0,
+          "comparisonsAfter": 1,
+          "before": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "after": [
+            2,
+            4,
+            3,
+            1
+          ]
+        },
+        {
+          "step": 2,
+          "comparisonsBefore": 1,
+          "comparisonsAfter": 2,
+          "before": [
+            2,
+            4,
+            3,
+            1
+          ],
+          "after": [
+            2,
+            3,
+            4,
+            1
+          ]
+        },
+        {
+          "step": 3,
+          "comparisonsBefore": 2,
+          "comparisonsAfter": 3,
+          "before": [
+            2,
+            3,
+            4,
+            1
+          ],
+          "after": [
+            2,
+            3,
+            1,
+            4
+          ]
+        },
+        {
+          "step": 4,
+          "comparisonsBefore": 3,
+          "comparisonsAfter": 3,
+          "before": [
+            2,
+            3,
+            1,
+            4
+          ],
+          "after": [
+            2,
+            3,
+            1,
+            4
+          ]
+        }
+      ],
+      "issues": [
+        {
+          "code": "INVALID_INPUT_FEEDBACK_MISSING",
+          "input": ",",
+          "arrayPreserved": true,
+          "blockedAlert": true,
+          "detail": "非法输入仅调用 alert，沙箱禁止弹窗，页面没有显示错误提示"
+        }
+      ],
+      "errors": [],
+      "mockedRequests": 0
+    },
+    {
+      "width": 390,
+      "ok": false,
+      "mainFlowPassed": true,
+      "checks": [
+        "all-demo-steps-at-most-one-comparison-and-one-adjacent-swap",
+        "task-1-wrong-feedback-retry-correct-auto-advance",
+        "real-frozen-question-context",
+        "task-2-wrong-feedback-retry-correct-auto-advance",
+        "task-3-wrong-feedback-retry-correct-auto-advance",
+        "custom-input-changes-computation-and-reset-baseline",
+        "sorted-input-1-2-3-4",
+        "sorted-input-4-3-2-1",
+        "sorted-input-3-1-3-2",
+        "all-exploration-presets-exist-and-change-state",
+        "frozen-context-unchanged-after-exploration",
+        "fresh-browser-restores-custom-parameters-and-reset-baseline"
+      ],
+      "demo": [
+        {
+          "step": 1,
+          "comparisonsBefore": 0,
+          "comparisonsAfter": 1,
+          "before": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "after": [
+            2,
+            4,
+            3,
+            1
+          ]
+        },
+        {
+          "step": 2,
+          "comparisonsBefore": 1,
+          "comparisonsAfter": 2,
+          "before": [
+            2,
+            4,
+            3,
+            1
+          ],
+          "after": [
+            2,
+            3,
+            4,
+            1
+          ]
+        },
+        {
+          "step": 3,
+          "comparisonsBefore": 2,
+          "comparisonsAfter": 3,
+          "before": [
+            2,
+            3,
+            4,
+            1
+          ],
+          "after": [
+            2,
+            3,
+            1,
+            4
+          ]
+        },
+        {
+          "step": 4,
+          "comparisonsBefore": 3,
+          "comparisonsAfter": 3,
+          "before": [
+            2,
+            3,
+            1,
+            4
+          ],
+          "after": [
+            2,
+            3,
+            1,
+            4
+          ]
+        }
+      ],
+      "issues": [
+        {
+          "code": "INVALID_INPUT_FEEDBACK_MISSING",
+          "input": ",",
+          "arrayPreserved": true,
+          "blockedAlert": true,
+          "detail": "非法输入仅调用 alert，沙箱禁止弹窗，页面没有显示错误提示"
+        }
+      ],
+      "errors": [],
+      "mockedRequests": 0
+    }
+  ],
+  "productionCodeChanged": false,
+  "sourceManifestStillMatches": true,
+  "leftAtDemoStart": {
+    "ok": true,
+    "url": "http://127.0.0.1/#/practice/practice_4066691d3732c56e8c087ca9f8389060",
+    "phase": "demonstrate",
+    "index": 0,
+    "seq": 1,
+    "errors": [],
+    "mockedRequests": 0
+  }
+}

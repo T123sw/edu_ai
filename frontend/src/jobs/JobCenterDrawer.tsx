@@ -15,6 +15,7 @@ import { MaterialIcon } from "../stitch/shared";
 import { listCourses } from "../stitch/api/courses";
 import { useCourseRoute } from "../stitch/course/CourseRouteProvider";
 import "./jobCenter.css";
+import { PreparationTaskSummary } from '../liveLearning/PreparationTaskSummary';
 
 const OPEN_JOB_CENTER_EVENT = "edu-ai:open-job-center";
 
@@ -32,11 +33,11 @@ export function JobCenterTrigger({
   const activeCount = Object.values(jobsById).filter(
     (job) =>
       isActiveJob(job) &&
-      (!scopedCourseId || job.course_id === scopedCourseId),
+      (!scopedCourseId || job.course_id === scopedCourseId || job.preparation),
   ).length;
   const hasUnreadFailure = unreadIds.some(
     (id) =>
-      (!scopedCourseId || jobsById[id]?.course_id === scopedCourseId) &&
+      (!scopedCourseId || jobsById[id]?.course_id === scopedCourseId || jobsById[id]?.preparation) &&
       (jobsById[id]?.status === "failed" ||
         jobsById[id]?.status === "partially_succeeded"),
   );
@@ -66,12 +67,19 @@ export function JobCenterDrawer({
   showLauncher = true,
   currentCourseId = null,
   currentCourseTitle = null,
+  preparationError = '',
 }: {
   showLauncher?: boolean;
   currentCourseId?: string | null;
   currentCourseTitle?: string | null;
+  preparationError?: string;
 }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const close = () => setOpen(false);
+    window.addEventListener('edu-ai:open-preparation', close);
+    return () => window.removeEventListener('edu-ai:open-preparation', close);
+  }, []);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [courseTitles, setCourseTitles] = useState<ReadonlyMap<string, string>>(
@@ -213,6 +221,7 @@ export function JobCenterDrawer({
                 {actionError}
               </div>
             ) : null}
+            {preparationError && <div className="job-center-action-error" role="alert">{preparationError}</div>}
 
             <div className="job-center-content">
               <section
@@ -324,6 +333,7 @@ function CourseJobGroup({
         busyId={busyId}
         onAction={onAction}
       />
+      <JobGroup title="已取消" jobs={jobs.filter(job => job.status === 'canceled')} busyId={busyId} onAction={onAction} />
     </section>
   );
 }
@@ -369,6 +379,13 @@ function JobCard({
   busy: boolean;
   onAction: (job: JobRecord, action: "cancel" | "retry") => Promise<void>;
 }) {
+  if (job.preparation) return <article className={`job-card is-${job.status}`}>
+    <div className="job-card__top"><span className="job-card__icon"><MaterialIcon name="auto_stories" /></span>
+      <div className="min-w-0 flex-1"><p className="job-card__kind">课程准备</p><h4>{job.message}</h4></div>
+      <span className={`job-card__status is-${job.status}`}>{jobStatusLabel(job)}</span></div>
+    <PreparationTaskSummary task={job.preparation} />
+    <div className="job-card__actions"><button type="button" onClick={() => window.dispatchEvent(new CustomEvent('edu-ai:open-preparation', { detail: job.edu_job_id }))}>查看准备进度</button></div>
+  </article>;
   const title =
     typeof job.input_summary.title === "string"
       ? job.input_summary.title

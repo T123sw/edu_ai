@@ -1,0 +1,665 @@
+{
+  "scope": "real native Harness SDK and provider; in-memory usage ledger; not full course delivery",
+  "teaching_context": {
+    "schema_version": 1,
+    "request_goal": "学习工具调用，不要面试话术",
+    "requirements": [
+      {
+        "requirement_id": "req-order",
+        "text": "每题先给具体调用例子，再问职责或缺失参数；总共两道单选题，每项都有对应解析",
+        "source_quote": "本次要求",
+        "source_document_id": null
+      }
+    ],
+    "prior_knowledge": "会 Python，没有 Agent 基础",
+    "desired_outcomes": [
+      "解释工具职责"
+    ],
+    "exclusions": [
+      "面试话术"
+    ],
+    "language": "zh-CN",
+    "depth": "introductory",
+    "source_policy": {
+      "mode": "uploaded_only"
+    },
+    "effective_preferences": {},
+    "node_id": "tools",
+    "objective_ids": [
+      "tools:o1",
+      "tools:o2"
+    ],
+    "objectives": [
+      "解释工具职责",
+      "检查缺失参数"
+    ],
+    "prerequisites": [],
+    "learning_activities": [
+      "追踪12+30例子",
+      "解释模型与程序职责"
+    ],
+    "self_check": "程序是否执行了工具？",
+    "node_budget_minutes": 10,
+    "resource_target_minutes": null,
+    "assumptions": [],
+    "limitations": []
+  },
+  "artifact": {
+    "artifact_type": "quiz",
+    "title": "工具调用",
+    "content": {
+      "title": "工具调用：职责与缺失参数",
+      "questions": [
+        {
+          "id": "q1",
+          "type": "single_choice",
+          "stem": "模型输出了一次工具调用：工具名 add，参数 a=12、b=30。程序校验名称、权限和参数都通过后执行，返回 42。在这个流程里，真正执行 add 计算、得到 42 的是谁？",
+          "options": [
+            "模型，因为它算出了 12+30=42",
+            "程序，因为校验通过后由程序执行工具",
+            "模型和程序各算一半",
+            "工具自己决定要不要执行"
+          ],
+          "answer": "B",
+          "explanation": "先看具体调用：模型只输出“调用 add，参数 a=12、b=30”这个请求，它并不亲自做加法；程序收到请求后校验工具名 add 是否存在、调用者有没有权限、参数 a 和 b 是否齐全，校验通过后由程序执行 add 这个工具，add 内部完成 12+30 得到 42。所以执行计算的是程序（通过工具），选 B。A 错在把“提出调用”当成了“执行计算”，模型只负责输出工具名和参数，不负责算出结果；C 错在把职责拆成两半，实际计算只发生在程序执行工具这一步；D 错在工具本身是被动被程序调用的代码，不会自己决定要不要执行，决定权在程序校验环节。",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q2",
+          "type": "single_choice",
+          "stem": "模型输出了一次工具调用：工具名 add，参数 a=12，但没有给出参数 b。程序校验时发现缺少 b，于是校验失败，工具没有执行。这次调用失败的直接原因是什么？",
+          "options": [
+            "模型算错了 12 加某个数的结果",
+            "程序没有权限调用 add",
+            "工具名 add 不存在",
+            "缺少必填参数 b，校验未通过"
+          ],
+          "answer": "D",
+          "explanation": "先看具体调用：模型只给出了 a=12，没有给出 b。程序按规则校验工具名、权限和参数，发现参数 b 缺失，于是判定校验失败，不执行 add。所以失败的直接原因是缺少必填参数 b，选 D。A 错在模型根本没有做加法，它只是输出工具名和参数，谈不上算错结果；B 错在题干没有提到权限问题，权限校验是另一类检查，与本次缺参数无关；C 错在工具名 add 是存在的，问题出在参数不完整而不是名称错误。",
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "generation_state": {
+      "resource_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "resource_type": "quiz",
+        "content_sha256": "0f9c6d7c95d2930370c38d77262b5b92645bac4cdc3cbc5a886b6cb704cfcacf",
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "req-order 要求每题先给具体调用例子再问职责/缺失参数，共两道单选且每项有解析。q1 题干先给 add(a=12,b=30) 返回 42 的例子再问执行计算职责，q2 先给缺 b 的例子再问失败原因，均为 single_choice，且每题 4 个选项在 explanation 中逐项说明对错，满足要求。"
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "q1 正确选项 B（程序校验通过后执行工具）符合 research_context 中'程序校验名称、权限和参数后执行工具'的机制；q2 正确选项 D（缺 b 校验未通过）符合'缺少 b 时校验失败，工具不执行'。两题答案与解析的事实判断均正确。"
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "习题核验求解：q1 独立求解为 B，q2 为 D，均与 answer 一致；12+30=42 计算正确，缺 b 导致校验失败的事实正确。逐选项核对见 question_checks。"
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "两题均为 single_choice，难度 easy/medium 与入门受众（会 Python、无 Agent 基础）匹配；题干自足无歧义，正确答案位置 B/D 不重复；解析逐步说明正确项并逐项解释干扰项，符合 contract 要求。"
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "source_policy 为 uploaded_only，research_context 提供了 add(a,b)、add(a=12,b=30)=42、缺 b 校验失败等依据，两题内容均来自该材料，未引入外部未提供的事实。"
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "两道单选覆盖 objectives tools:o1（解释工具职责，q1）与 tools:o2（检查缺失参数，q2），每项均有对应解析，无缺失选项或解析；无多余题目，符合本节点分工。"
+          }
+        ],
+        "version": 1,
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "0f9c6d7c95d2930370c38d77262b5b92645bac4cdc3cbc5a886b6cb704cfcacf",
+            "decision": "pass",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "req-order 要求每题先给具体调用例子再问职责/缺失参数，共两道单选且每项有解析。q1 题干先给 add(a=12,b=30) 返回 42 的例子再问执行计算职责，q2 先给缺 b 的例子再问失败原因，均为 single_choice，且每题 4 个选项在 explanation 中逐项说明对错，满足要求。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "q1 正确选项 B（程序校验通过后执行工具）符合 research_context 中'程序校验名称、权限和参数后执行工具'的机制；q2 正确选项 D（缺 b 校验未通过）符合'缺少 b 时校验失败，工具不执行'。两题答案与解析的事实判断均正确。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "习题核验求解：q1 独立求解为 B，q2 为 D，均与 answer 一致；12+30=42 计算正确，缺 b 导致校验失败的事实正确。逐选项核对见 question_checks。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "两题均为 single_choice，难度 easy/medium 与入门受众（会 Python、无 Agent 基础）匹配；题干自足无歧义，正确答案位置 B/D 不重复；解析逐步说明正确项并逐项解释干扰项，符合 contract 要求。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "source_policy 为 uploaded_only，research_context 提供了 add(a,b)、add(a=12,b=30)=42、缺 b 校验失败等依据，两题内容均来自该材料，未引入外部未提供的事实。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "两道单选覆盖 objectives tools:o1（解释工具职责，q1）与 tools:o2（检查缺失参数，q2），每项均有对应解析，无缺失选项或解析；无多余题目，符合本节点分工。"
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": [
+                "q1 选项 A 的表述'模型，因为它算出了 12+30=42'把错误理由直接写进选项，可能让干扰项过于明显；可考虑改为'模型，因为它负责算出结果'以更贴近真实误区。",
+                "两题正确答案分别为 B 和 D，位置不重复，符合要求；若后续扩充题量可继续保持答案位置随机分布。"
+              ],
+              "question_checks": [
+                {
+                  "question_index": 0,
+                  "question_id": "q1",
+                  "independent_solution": "题干：模型输出工具调用 add(a=12,b=30)，程序校验名称、权限、参数通过后执行，返回 42。问真正执行 add 计算得到 42 的是谁。根据机制，模型只输出工具名和参数（提出调用请求），程序校验通过后执行工具，add 内部完成 12+30=42。因此执行计算的是程序（通过工具），选 B。",
+                  "calculation_checks": [
+                    {
+                      "source_field": "stem",
+                      "excerpt": "程序校验名称、权限和参数都通过后执行，返回 42。",
+                      "start_segment": 1,
+                      "end_segment": 1,
+                      "expression": "12+30",
+                      "claimed": "42",
+                      "decimal_places": 0
+                    },
+                    {
+                      "source_field": "explanation",
+                      "excerpt": "程序收到请求后校验工具名 add 是否存在、调用者有没有权限、参数 a 和 b 是否齐全，校验通过后由程序执行 add 这个工具，add 内部完成 12+30 得到 42。",
+                      "start_segment": 1,
+                      "end_segment": 1,
+                      "expression": "12+30",
+                      "claimed": "42",
+                      "decimal_places": 0
+                    }
+                  ],
+                  "answer_matches": true,
+                  "explanation_valid": true,
+                  "option_checks": [
+                    {
+                      "option_index": 0,
+                      "reasoning": "选项 A 说'模型，因为它算出了 12+30=42'。模型只输出工具名和参数，不亲自做加法，因此该选项错误。",
+                      "explanation_valid": true,
+                      "option_text": "模型，因为它算出了 12+30=42",
+                      "explanation_excerpt": "A 错在把“提出调用”当成了“执行计算”，模型只负责输出工具名和参数，不负责算出结果；",
+                      "independent_correct": false,
+                      "explanation_reasoning": "解析第 3 段说'A 错在把提出调用当成执行计算，模型只负责输出工具名和参数，不负责算出结果'，与机制一致，批评成立。"
+                    },
+                    {
+                      "option_index": 1,
+                      "reasoning": "选项 B 说'程序，因为校验通过后由程序执行工具'。程序校验通过后执行 add 工具，add 内部完成计算，因此该选项正确。",
+                      "explanation_valid": true,
+                      "option_text": "程序，因为校验通过后由程序执行工具",
+                      "explanation_excerpt": "所以执行计算的是程序（通过工具），选 B。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "解析第 2 段说'执行计算的是程序（通过工具），选 B'，与机制一致，正确。"
+                    },
+                    {
+                      "option_index": 2,
+                      "reasoning": "选项 C 说'模型和程序各算一半'。计算只发生在程序执行工具这一步，模型不参与计算，因此该选项错误。",
+                      "explanation_valid": true,
+                      "option_text": "模型和程序各算一半",
+                      "explanation_excerpt": "C 错在把职责拆成两半，实际计算只发生在程序执行工具这一步；",
+                      "independent_correct": false,
+                      "explanation_reasoning": "解析第 4 段说'C 错在把职责拆成两半，实际计算只发生在程序执行工具这一步'，批评成立。"
+                    },
+                    {
+                      "option_index": 3,
+                      "reasoning": "选项 D 说'工具自己决定要不要执行'。工具是被动被程序调用的代码，不会自己决定是否执行，决定权在程序校验环节，因此该选项错误。",
+                      "explanation_valid": true,
+                      "option_text": "工具自己决定要不要执行",
+                      "explanation_excerpt": "D 错在工具本身是被动被程序调用的代码，不会自己决定要不要执行，决定权在程序校验环节。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "解析第 5 段说'D 错在工具本身是被动被程序调用的代码，不会自己决定要不要执行，决定权在程序校验环节'，批评成立。"
+                    }
+                  ]
+                },
+                {
+                  "question_index": 1,
+                  "question_id": "q2",
+                  "independent_solution": "题干：模型输出工具调用 add(a=12) 但缺 b，程序校验发现缺 b，校验失败，工具未执行。问失败直接原因。根据机制，程序校验名称、权限和参数，缺 b 属于参数缺失导致校验失败，因此直接原因是缺少必填参数 b，选 D。",
+                  "calculation_checks": [],
+                  "answer_matches": true,
+                  "explanation_valid": true,
+                  "option_checks": [
+                    {
+                      "option_index": 0,
+                      "reasoning": "选项 A 说'模型算错了 12 加某个数的结果'。模型只输出工具名和参数，不做加法，谈不上算错，因此该选项错误。",
+                      "explanation_valid": true,
+                      "option_text": "模型算错了 12 加某个数的结果",
+                      "explanation_excerpt": "A 错在模型根本没有做加法，它只是输出工具名和参数，谈不上算错结果；",
+                      "independent_correct": false,
+                      "explanation_reasoning": "解析第 3 段说'A 错在模型根本没有做加法，只是输出工具名和参数，谈不上算错结果'，批评成立。"
+                    },
+                    {
+                      "option_index": 1,
+                      "reasoning": "选项 B 说'程序没有权限调用 add'。题干未提及权限问题，失败原因是缺参数而非权限，因此该选项错误。",
+                      "explanation_valid": true,
+                      "option_text": "程序没有权限调用 add",
+                      "explanation_excerpt": "B 错在题干没有提到权限问题，权限校验是另一类检查，与本次缺参数无关；",
+                      "independent_correct": false,
+                      "explanation_reasoning": "解析第 4 段说'B 错在题干没有提到权限问题，权限校验是另一类检查，与本次缺参数无关'，批评成立。"
+                    },
+                    {
+                      "option_index": 2,
+                      "reasoning": "选项 C 说'工具名 add 不存在'。工具名 add 是存在的，问题在参数不完整而非名称错误，因此该选项错误。",
+                      "explanation_valid": true,
+                      "option_text": "工具名 add 不存在",
+                      "explanation_excerpt": "C 错在工具名 add 是存在的，问题出在参数不完整而不是名称错误。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "解析第 5 段说'C 错在工具名 add 是存在的，问题出在参数不完整而不是名称错误'，批评成立。"
+                    },
+                    {
+                      "option_index": 3,
+                      "reasoning": "选项 D 说'缺少必填参数 b，校验未通过'。题干明确缺 b 导致校验失败，因此该选项正确。",
+                      "explanation_valid": true,
+                      "option_text": "缺少必填参数 b，校验未通过",
+                      "explanation_excerpt": "所以失败的直接原因是缺少必填参数 b，选 D。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "解析第 2 段说'失败的直接原因是缺少必填参数 b，选 D'，与题干一致，正确。"
+                    }
+                  ]
+                }
+              ],
+              "preparation_checks": [
+                {
+                  "binding_type": "requirement_id",
+                  "binding_id": "req-order",
+                  "locator": {
+                    "question_id": "q1"
+                  },
+                  "passed": true,
+                  "reason": "req-order 绑定到 q1：题干先给出 add(a=12,b=30) 返回 42 的具体调用例子，再问执行计算职责，解析逐项说明 A/B/C/D 对错，真实支持该要求。"
+                },
+                {
+                  "binding_type": "requirement_id",
+                  "binding_id": "req-order",
+                  "locator": {
+                    "question_id": "q2"
+                  },
+                  "passed": true,
+                  "reason": "req-order 绑定到 q2：题干先给出缺 b 参数的具体调用例子，再问失败原因，解析逐项说明 A/B/C/D 对错，真实支持该要求。"
+                },
+                {
+                  "binding_type": "objective_id",
+                  "binding_id": "tools:o1",
+                  "locator": {
+                    "question_id": "q1"
+                  },
+                  "passed": true,
+                  "reason": "objective tools:o1（解释工具职责）绑定到 q1：q1 通过区分模型提出调用与程序执行工具，考查并解释工具职责归属，真实支持该目标。"
+                },
+                {
+                  "binding_type": "objective_id",
+                  "binding_id": "tools:o2",
+                  "locator": {
+                    "question_id": "q2"
+                  },
+                  "passed": true,
+                  "reason": "objective tools:o2（检查缺失参数）绑定到 q2：q2 通过缺 b 导致校验失败的场景考查参数缺失检查，真实支持该目标。"
+                }
+              ]
+            }
+          }
+        ],
+        "suggestions": [
+          "q1 选项 A 的表述'模型，因为它算出了 12+30=42'把错误理由直接写进选项，可能让干扰项过于明显；可考虑改为'模型，因为它负责算出结果'以更贴近真实误区。",
+          "两题正确答案分别为 B 和 D，位置不重复，符合要求；若后续扩充题量可继续保持答案位置随机分布。"
+        ],
+        "preparation_sha256": "150618838b2d2ded5dd773b24cf35cf3bd606ca2b1bb2bfed087169c6195f12a",
+        "numeric_verification": {
+          "version": 1,
+          "coverage": "source_bound_claims_and_literal_softmax",
+          "questions": [
+            {
+              "question_index": 0,
+              "checks": [
+                {
+                  "source_field": "stem",
+                  "excerpt": "程序校验名称、权限和参数都通过后执行，返回 42。",
+                  "start_segment": 1,
+                  "end_segment": 1,
+                  "expression": "12+30",
+                  "claimed": "42",
+                  "decimal_places": 0,
+                  "computed": 42.0,
+                  "status": "pass"
+                },
+                {
+                  "source_field": "explanation",
+                  "excerpt": "程序收到请求后校验工具名 add 是否存在、调用者有没有权限、参数 a 和 b 是否齐全，校验通过后由程序执行 add 这个工具，add 内部完成 12+30 得到 42。",
+                  "start_segment": 1,
+                  "end_segment": 1,
+                  "expression": "12+30",
+                  "claimed": "42",
+                  "decimal_places": 0,
+                  "computed": 42.0,
+                  "status": "pass"
+                }
+              ]
+            },
+            {
+              "question_index": 1,
+              "checks": []
+            }
+          ]
+        },
+        "option_binding_version": 1,
+        "question_checks": [
+          {
+            "question_index": 0,
+            "question_id": "q1",
+            "independent_solution": "题干：模型输出工具调用 add(a=12,b=30)，程序校验名称、权限、参数通过后执行，返回 42。问真正执行 add 计算得到 42 的是谁。根据机制，模型只输出工具名和参数（提出调用请求），程序校验通过后执行工具，add 内部完成 12+30=42。因此执行计算的是程序（通过工具），选 B。",
+            "calculation_checks": [
+              {
+                "source_field": "stem",
+                "excerpt": "程序校验名称、权限和参数都通过后执行，返回 42。",
+                "start_segment": 1,
+                "end_segment": 1,
+                "expression": "12+30",
+                "claimed": "42",
+                "decimal_places": 0
+              },
+              {
+                "source_field": "explanation",
+                "excerpt": "程序收到请求后校验工具名 add 是否存在、调用者有没有权限、参数 a 和 b 是否齐全，校验通过后由程序执行 add 这个工具，add 内部完成 12+30 得到 42。",
+                "start_segment": 1,
+                "end_segment": 1,
+                "expression": "12+30",
+                "claimed": "42",
+                "decimal_places": 0
+              }
+            ],
+            "answer_matches": true,
+            "explanation_valid": true,
+            "option_checks": [
+              {
+                "option_index": 0,
+                "reasoning": "选项 A 说'模型，因为它算出了 12+30=42'。模型只输出工具名和参数，不亲自做加法，因此该选项错误。",
+                "explanation_valid": true,
+                "option_text": "模型，因为它算出了 12+30=42",
+                "explanation_excerpt": "A 错在把“提出调用”当成了“执行计算”，模型只负责输出工具名和参数，不负责算出结果；",
+                "independent_correct": false,
+                "explanation_reasoning": "解析第 3 段说'A 错在把提出调用当成执行计算，模型只负责输出工具名和参数，不负责算出结果'，与机制一致，批评成立。"
+              },
+              {
+                "option_index": 1,
+                "reasoning": "选项 B 说'程序，因为校验通过后由程序执行工具'。程序校验通过后执行 add 工具，add 内部完成计算，因此该选项正确。",
+                "explanation_valid": true,
+                "option_text": "程序，因为校验通过后由程序执行工具",
+                "explanation_excerpt": "所以执行计算的是程序（通过工具），选 B。",
+                "independent_correct": true,
+                "explanation_reasoning": "解析第 2 段说'执行计算的是程序（通过工具），选 B'，与机制一致，正确。"
+              },
+              {
+                "option_index": 2,
+                "reasoning": "选项 C 说'模型和程序各算一半'。计算只发生在程序执行工具这一步，模型不参与计算，因此该选项错误。",
+                "explanation_valid": true,
+                "option_text": "模型和程序各算一半",
+                "explanation_excerpt": "C 错在把职责拆成两半，实际计算只发生在程序执行工具这一步；",
+                "independent_correct": false,
+                "explanation_reasoning": "解析第 4 段说'C 错在把职责拆成两半，实际计算只发生在程序执行工具这一步'，批评成立。"
+              },
+              {
+                "option_index": 3,
+                "reasoning": "选项 D 说'工具自己决定要不要执行'。工具是被动被程序调用的代码，不会自己决定是否执行，决定权在程序校验环节，因此该选项错误。",
+                "explanation_valid": true,
+                "option_text": "工具自己决定要不要执行",
+                "explanation_excerpt": "D 错在工具本身是被动被程序调用的代码，不会自己决定要不要执行，决定权在程序校验环节。",
+                "independent_correct": false,
+                "explanation_reasoning": "解析第 5 段说'D 错在工具本身是被动被程序调用的代码，不会自己决定要不要执行，决定权在程序校验环节'，批评成立。"
+              }
+            ]
+          },
+          {
+            "question_index": 1,
+            "question_id": "q2",
+            "independent_solution": "题干：模型输出工具调用 add(a=12) 但缺 b，程序校验发现缺 b，校验失败，工具未执行。问失败直接原因。根据机制，程序校验名称、权限和参数，缺 b 属于参数缺失导致校验失败，因此直接原因是缺少必填参数 b，选 D。",
+            "calculation_checks": [],
+            "answer_matches": true,
+            "explanation_valid": true,
+            "option_checks": [
+              {
+                "option_index": 0,
+                "reasoning": "选项 A 说'模型算错了 12 加某个数的结果'。模型只输出工具名和参数，不做加法，谈不上算错，因此该选项错误。",
+                "explanation_valid": true,
+                "option_text": "模型算错了 12 加某个数的结果",
+                "explanation_excerpt": "A 错在模型根本没有做加法，它只是输出工具名和参数，谈不上算错结果；",
+                "independent_correct": false,
+                "explanation_reasoning": "解析第 3 段说'A 错在模型根本没有做加法，只是输出工具名和参数，谈不上算错结果'，批评成立。"
+              },
+              {
+                "option_index": 1,
+                "reasoning": "选项 B 说'程序没有权限调用 add'。题干未提及权限问题，失败原因是缺参数而非权限，因此该选项错误。",
+                "explanation_valid": true,
+                "option_text": "程序没有权限调用 add",
+                "explanation_excerpt": "B 错在题干没有提到权限问题，权限校验是另一类检查，与本次缺参数无关；",
+                "independent_correct": false,
+                "explanation_reasoning": "解析第 4 段说'B 错在题干没有提到权限问题，权限校验是另一类检查，与本次缺参数无关'，批评成立。"
+              },
+              {
+                "option_index": 2,
+                "reasoning": "选项 C 说'工具名 add 不存在'。工具名 add 是存在的，问题在参数不完整而非名称错误，因此该选项错误。",
+                "explanation_valid": true,
+                "option_text": "工具名 add 不存在",
+                "explanation_excerpt": "C 错在工具名 add 是存在的，问题出在参数不完整而不是名称错误。",
+                "independent_correct": false,
+                "explanation_reasoning": "解析第 5 段说'C 错在工具名 add 是存在的，问题出在参数不完整而不是名称错误'，批评成立。"
+              },
+              {
+                "option_index": 3,
+                "reasoning": "选项 D 说'缺少必填参数 b，校验未通过'。题干明确缺 b 导致校验失败，因此该选项正确。",
+                "explanation_valid": true,
+                "option_text": "缺少必填参数 b，校验未通过",
+                "explanation_excerpt": "所以失败的直接原因是缺少必填参数 b，选 D。",
+                "independent_correct": true,
+                "explanation_reasoning": "解析第 2 段说'失败的直接原因是缺少必填参数 b，选 D'，与题干一致，正确。"
+              }
+            ]
+          }
+        ],
+        "preparation_checks": [
+          {
+            "binding_type": "requirement_id",
+            "binding_id": "req-order",
+            "locator": {
+              "question_id": "q1"
+            },
+            "passed": true,
+            "reason": "req-order 绑定到 q1：题干先给出 add(a=12,b=30) 返回 42 的具体调用例子，再问执行计算职责，解析逐项说明 A/B/C/D 对错，真实支持该要求。"
+          },
+          {
+            "binding_type": "requirement_id",
+            "binding_id": "req-order",
+            "locator": {
+              "question_id": "q2"
+            },
+            "passed": true,
+            "reason": "req-order 绑定到 q2：题干先给出缺 b 参数的具体调用例子，再问失败原因，解析逐项说明 A/B/C/D 对错，真实支持该要求。"
+          },
+          {
+            "binding_type": "objective_id",
+            "binding_id": "tools:o1",
+            "locator": {
+              "question_id": "q1"
+            },
+            "passed": true,
+            "reason": "objective tools:o1（解释工具职责）绑定到 q1：q1 通过区分模型提出调用与程序执行工具，考查并解释工具职责归属，真实支持该目标。"
+          },
+          {
+            "binding_type": "objective_id",
+            "binding_id": "tools:o2",
+            "locator": {
+              "question_id": "q2"
+            },
+            "passed": true,
+            "reason": "objective tools:o2（检查缺失参数）绑定到 q2：q2 通过缺 b 导致校验失败的场景考查参数缺失检查，真实支持该目标。"
+          }
+        ]
+      },
+      "preparation": {
+        "schema_version": 1,
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "teaching_context_digest": "0a1f979bbc8f23b78675d0e251af497074e71f6d67105d5d76f787ae92de57ff",
+        "applied_requirements": [
+          {
+            "requirement_id": "req-order",
+            "locator": {
+              "question_id": "q1"
+            },
+            "explanation": "q1 题干先给出 add(a=12,b=30) 返回 42 的具体调用例子，再问执行计算的职责归属，解析逐项说明每个选项对错。"
+          },
+          {
+            "requirement_id": "req-order",
+            "locator": {
+              "question_id": "q2"
+            },
+            "explanation": "q2 题干先给出缺 b 参数的具体调用例子，再问失败原因，解析逐项说明每个选项对错。"
+          }
+        ],
+        "objective_bindings": [
+          {
+            "objective_id": "tools:o1",
+            "locator": {
+              "question_id": "q1"
+            },
+            "role": "check"
+          },
+          {
+            "objective_id": "tools:o2",
+            "locator": {
+              "question_id": "q2"
+            },
+            "role": "check"
+          }
+        ],
+        "duration": {
+          "value_minutes": 2.38,
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated"
+        },
+        "question_time_estimates": [
+          {
+            "question_id": "q1",
+            "thinking_seconds": 30,
+            "reason": "需先区分模型输出调用请求与程序执行工具两个环节，再排除把提出调用当执行、把职责拆半、把工具当主动决策者的干扰项。"
+          },
+          {
+            "question_id": "q2",
+            "thinking_seconds": 30,
+            "reason": "需对照题干中缺 b 的事实，判断失败属于参数缺失而非算错、权限或名称问题，逐一排除三个干扰项。"
+          }
+        ]
+      }
+    }
+  },
+  "calls": [
+    {
+      "action_id": "provider:1287b8c00d874431902b0c3dc8fe6131",
+      "reserved": {
+        "calls": 1,
+        "tokens": 40382,
+        "cost_micro_usd": 403820
+      },
+      "failed": false,
+      "evidence": {
+        "runtime": "deepseek-harness",
+        "phase": "resource_write",
+        "skill": {
+          "name": "generate-learning-resource",
+          "sha256": "5ffd032d586db116063fa52e4115fe31cf1cf42720e91002f194275bc615caf8",
+          "loaded": true
+        },
+        "provider": "configured",
+        "model": "deepseek-v4-pro",
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "usage": {
+        "prompt_tokens": 6286,
+        "completion_tokens": 982,
+        "total_tokens": 7268,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 6286
+      }
+    },
+    {
+      "action_id": "provider:65deaacdd678450bb8899baf09869277",
+      "reserved": {
+        "calls": 1,
+        "tokens": 41934,
+        "cost_micro_usd": 419340
+      },
+      "failed": false,
+      "evidence": {
+        "runtime": "deepseek-harness",
+        "phase": "resource_write",
+        "skill": {
+          "name": "generate-learning-resource",
+          "sha256": "5ffd032d586db116063fa52e4115fe31cf1cf42720e91002f194275bc615caf8",
+          "loaded": true
+        },
+        "provider": "configured",
+        "model": "deepseek-v4-pro",
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "usage": {
+        "prompt_tokens": 6653,
+        "completion_tokens": 952,
+        "total_tokens": 7605,
+        "prompt_tokens_details": {
+          "cached_tokens": 6272
+        },
+        "prompt_cache_hit_tokens": 6272,
+        "prompt_cache_miss_tokens": 381
+      }
+    },
+    {
+      "action_id": "provider:e35c1b56b87145b7ac571ff874bef24a",
+      "reserved": {
+        "calls": 1,
+        "tokens": 75212,
+        "cost_micro_usd": 752120
+      },
+      "failed": false,
+      "evidence": {
+        "runtime": "deepseek-harness",
+        "phase": "resource_review",
+        "skill": {
+          "name": "review-learning-resource",
+          "sha256": "a2c3d50e12d2e3549805bba7226304456ccc853e38fad3c8cc6d62efbe5bb690",
+          "loaded": true
+        },
+        "provider": "configured",
+        "model": "deepseek-v4-pro",
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "usage": {
+        "prompt_tokens": 9459,
+        "completion_tokens": 2283,
+        "total_tokens": 11742,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 9459
+      }
+    }
+  ]
+}

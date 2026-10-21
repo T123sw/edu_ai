@@ -22,19 +22,19 @@ class PreparationQueueBridge:
         now = self.repository.clock()
         with Session(self.repository.engine) as session:
             rows = session.execute(select(Prep.preparation_id, Prep.owner_user_id, Prep.current_attempt_no,
-                Prep.revision, Budget.deadline).join(Attempt, (Attempt.preparation_id == Prep.preparation_id) &
+                Prep.revision, Budget.deadline, Budget.limits).join(Attempt, (Attempt.preparation_id == Prep.preparation_id) &
                 (Attempt.attempt_no == Prep.current_attempt_no)).join(Run, (Run.preparation_id == Prep.preparation_id) &
                 (Run.attempt_no == Attempt.attempt_no)).join(Budget, Budget.preparation_id == Prep.preparation_id)
                 .where(Attempt.status.in_(('accepted', 'running', 'checking')), Run.wake_at <= now,
                        or_(Run.lease_until.is_(None), Run.lease_until <= now)).limit(100)).all()
-        for prep_id, owner, attempt, revision, deadline in rows:
+        for prep_id, owner, attempt, revision, deadline, limits in rows:
             # The time bucket permits re-dispatch if a queue ticket failed before claiming SQL.
             # SQL leases remain authoritative: duplicate tickets can never execute concurrently.
             key = digest([prep_id, attempt, revision, int(now.timestamp() // 30)])
             self.task_store.enqueue(task_id='prepstep_' + key[:32], workflow_type='preparation_step',
                 handler_version=1, owner_user_id=owner, course_id=None, scope_type='preparation', scope_id=prep_id,
                 command={'preparation_id': prep_id}, config_snapshot_id=None, idempotency_key=key,
-                max_attempts=3, deadline_at=max(aware(deadline).timestamp(), now.timestamp() + 180))
+                max_attempts=3, deadline_at=None if self.repository.retry_only or limits.get('retry_only') else max(aware(deadline).timestamp(), now.timestamp() + 180))
         return len(rows)
 
     def wake(self, preparation_id):

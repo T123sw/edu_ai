@@ -1,0 +1,140 @@
+[
+  {
+    "concurrency": 4,
+    "seconds": 280.89,
+    "workers": [
+      {
+        "worker_id": "f5890de23ce640a98624be496daed787",
+        "status": "succeeded",
+        "submitted_at": 1792406389.2352645,
+        "prompt_sha256": "a5599d08277be5d9ee901294a4d3f456c846497dc73511049e0363ecca24097c",
+        "started_at": 1792406389.2357543,
+        "finished_at": 1792406475.3813038,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/4/.host/workers/f5890de23ce640a98624be496daed787.json"
+      },
+      {
+        "worker_id": "b1f684f9deb146ca901d0088efb9ea61",
+        "status": "succeeded",
+        "submitted_at": 1792406389.2365642,
+        "prompt_sha256": "d568975d232786e1f1c5dcbb2b499d9015268e02a28fa28748d97d5d488829a2",
+        "started_at": 1792406389.237371,
+        "finished_at": 1792406530.9732966,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/4/.host/workers/b1f684f9deb146ca901d0088efb9ea61.json"
+      },
+      {
+        "worker_id": "986202a2f76f43939a1b7ec74e150cf1",
+        "status": "succeeded",
+        "submitted_at": 1792406389.239404,
+        "prompt_sha256": "0172d6fa35765c1d6d79983acf09c3db30b80ea5b10643b4d22119a0bdd8ebbb",
+        "started_at": 1792406389.2414806,
+        "finished_at": 1792406515.0137906,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/4/.host/workers/986202a2f76f43939a1b7ec74e150cf1.json"
+      },
+      {
+        "worker_id": "5cbd364213a844b2977043139e09aa60",
+        "status": "succeeded",
+        "submitted_at": 1792406389.2496266,
+        "prompt_sha256": "7ee39c5b1bca0b58197de2914b63970f51f7b8a891395ea2b8ebc8d99d4cd7a1",
+        "started_at": 1792406389.2506495,
+        "finished_at": 1792406534.158857,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/4/.host/workers/5cbd364213a844b2977043139e09aa60.json"
+      },
+      {
+        "worker_id": "c7e50d3221ca4efc8913bdd933a6c35d",
+        "status": "succeeded",
+        "submitted_at": 1792406389.2632523,
+        "prompt_sha256": "eec5f103c75a7d1d9afa278a05396b4bfab2b890cc2bf93238d9d29a08dffb3e",
+        "started_at": 1792406475.3822126,
+        "finished_at": 1792406629.3538888,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/4/.host/workers/c7e50d3221ca4efc8913bdd933a6c35d.json"
+      },
+      {
+        "worker_id": "e56743a85dac46928836ce82f72ac3fe",
+        "status": "succeeded",
+        "submitted_at": 1792406389.2943306,
+        "prompt_sha256": "a189e73b24e56a8de4318ae0cb86317a51a513bb167ddba05c41bba4d2823c04",
+        "started_at": 1792406515.0147188,
+        "finished_at": 1792406670.1176507,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/4/.host/workers/e56743a85dac46928836ce82f72ac3fe.json"
+      }
+    ],
+    "frames": [
+      "01-hook-array",
+      "02-swap-rule",
+      "03-sorted-tail",
+      "04-swapped-flag",
+      "05-pass1-first",
+      "06-pass1-second"
+    ],
+    "note": "Same six native scene packets; model calls are nondeterministic and share provider capacity with validation work."
+  },
+  {
+    "concurrency": 6,
+    "seconds": 193.69,
+    "workers": [
+      {
+        "worker_id": "d93b95f926f44744bf6c2ee55afadc17",
+        "status": "succeeded",
+        "submitted_at": 1792406670.17117,
+        "prompt_sha256": "a0624c0096ce1be5b3167124a6012a878be077f63f485d38c7d02482e69ff947",
+        "started_at": 1792406670.1715298,
+        "finished_at": 1792406737.2324455,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/6/.host/workers/d93b95f926f44744bf6c2ee55afadc17.json"
+      },
+      {
+        "worker_id": "624d88261bc14120918b9096d9656bde",
+        "status": "succeeded",
+        "submitted_at": 1792406670.1727426,
+        "prompt_sha256": "eba024fadf893da5263297557db5c04a4470d6753b0eee1cfd085d6d21d6a0c6",
+        "started_at": 1792406670.1731167,
+        "finished_at": 1792406851.2431462,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/6/.host/workers/624d88261bc14120918b9096d9656bde.json"
+      },
+      {
+        "worker_id": "85fffd63874d41afae36942b4b46bebf",
+        "status": "succeeded",
+        "submitted_at": 1792406670.174294,
+        "prompt_sha256": "ea0c2be31b252ab4ff9aeb5929bfbbf62bebcd7ce66152844080e12e64d15788",
+        "started_at": 1792406670.1750124,
+        "finished_at": 1792406844.9644868,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/6/.host/workers/85fffd63874d41afae36942b4b46bebf.json"
+      },
+      {
+        "worker_id": "ea494c6969414e129bb2e06e9730ddcd",
+        "status": "succeeded",
+        "submitted_at": 1792406670.1761844,
+        "prompt_sha256": "27910e9152842be893d695a96f264505a853baffb75318447b07b4e10b292cc9",
+        "started_at": 1792406670.1769326,
+        "finished_at": 1792406818.1025753,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/6/.host/workers/ea494c6969414e129bb2e06e9730ddcd.json"
+      },
+      {
+        "worker_id": "bf9f85e19b0d4c8f982f12cd802c901e",
+        "status": "succeeded",
+        "submitted_at": 1792406670.1788106,
+        "prompt_sha256": "336d192ce065b5e889977f6feb2487ac2c2bac3747d7acd35c19533873f6d936",
+        "started_at": 1792406670.1803923,
+        "finished_at": 1792406783.668826,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/6/.host/workers/bf9f85e19b0d4c8f982f12cd802c901e.json"
+      },
+      {
+        "worker_id": "2a01ac4d1fa748b9a69cd8f1399ab249",
+        "status": "succeeded",
+        "submitted_at": 1792406670.186449,
+        "prompt_sha256": "7cfbe605c08db02a50a6df06300f9cbbb9baeb39c4031c0b4a31c4a708bfdd9e",
+        "started_at": 1792406670.194629,
+        "finished_at": 1792406863.8520346,
+        "result_file": "/home/zxqs_ep/data/main-review/hyperframes-teaching-brief-20261019/scene-comparison/6/.host/workers/2a01ac4d1fa748b9a69cd8f1399ab249.json"
+      }
+    ],
+    "frames": [
+      "01-hook-array",
+      "02-swap-rule",
+      "03-sorted-tail",
+      "04-swapped-flag",
+      "05-pass1-first",
+      "06-pass1-second"
+    ],
+    "note": "Same six native scene packets; model calls are nondeterministic and share provider capacity with validation work."
+  }
+]

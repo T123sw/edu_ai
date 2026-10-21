@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "provider": "official DeepSeek through registered key-failover proxy",
+  "model": "deepseek-v4-flash",
+  "context_capacity": 1000000,
+  "accepted_max_output_tokens": 384000,
+  "provider_calls": 1,
+  "no_production_mutations": true,
+  "source": "https://api-docs.deepseek.com/quick_start/pricing/"
+}

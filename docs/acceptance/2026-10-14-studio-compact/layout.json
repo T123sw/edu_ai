@@ -1,0 +1,42 @@
+[
+  {
+    "width": 1440,
+    "columns": "224.656px 224.672px 224.672px",
+    "cardHeight": 102.1875,
+    "cardRows": 2,
+    "resourcesVisible": true,
+    "types": [
+      "全部2",
+      "学习报告1",
+      "习题1",
+      "闪卡0",
+      "思维导图0",
+      "播客0",
+      "情景案例0",
+      "研究记录0"
+    ],
+    "overflow": false,
+    "dialogOverflow": false,
+    "removedCopyPresent": false
+  },
+  {
+    "width": 390,
+    "columns": "324px",
+    "cardHeight": 84.59375,
+    "cardRows": 6,
+    "resourcesVisible": true,
+    "types": [
+      "全部2",
+      "学习报告1",
+      "习题1",
+      "闪卡0",
+      "思维导图0",
+      "播客0",
+      "情景案例0",
+      "研究记录0"
+    ],
+    "overflow": false,
+    "dialogOverflow": false,
+    "removedCopyPresent": false
+  }
+]

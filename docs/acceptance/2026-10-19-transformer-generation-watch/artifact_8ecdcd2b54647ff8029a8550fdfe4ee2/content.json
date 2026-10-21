@@ -1,0 +1,847 @@
+{
+  "title": "多头注意力：多个子空间并行关注",
+  "content": {
+    "title": "多头注意力：多个子空间并行关注（习题）",
+    "questions": [
+      {
+        "id": "q1",
+        "stem": "关于多头注意力的定义，下列哪一项与原论文的写法一致？（设 h 为头数，dmodel 为模型维度，dk、dv 为每个头的键/值维度）",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，其中 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V)",
+          "MultiHead(Q,K,V)=Attention(Q,K,V)W^O，即先做一次全维注意力再乘一个输出矩阵",
+          "MultiHead(Q,K,V)=Concat(head_1,…,head_h)，拼接结果直接作为输出，不再做任何投影",
+          "MultiHead(Q,K,V)=Σ_{i=1}^{h} Attention(QW_i^Q, KW_i^K, VW_i^V)，即把各头输出逐元素相加"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：原论文给出的定义正是 MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，且 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V)，即每个头先用自己的一组可学习投影把 Q、K、V 投到 dk/dk/dv 维，再各自做注意力。B 错误：它把多头退化成“一次全维注意力 + 一个输出矩阵”，丢掉了 h 组不同投影和并行注意力这两个关键环节。C 错误：拼接后还要乘 W^O∈R^{h·dv×dmodel} 把 h·dv 维融合回 dmodel 维，原论文明确写了“These are concatenated and once again projected”。D 错误：各头输出是拼接（Concat）而不是相加；若相加，维度仍是 dv 而非 h·dv，且不同头的信息会被直接混叠，与公式不符。"
+      },
+      {
+        "id": "q2",
+        "stem": "原论文 base 模型取 dmodel=512、h=8。按 dk=dv=dmodel/h 计算，每个头的 dk 和 dv 是多少？拼接后（乘 W^O 之前）的维度又是多少？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "dk=dv=64，拼接后维度为 512",
+          "dk=dv=512，拼接后维度为 4096",
+          "dk=dv=8，拼接后维度为 64",
+          "dk=dv=64，拼接后维度为 4096"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：dk=dv=dmodel/h=512/8=64；8 个头各输出 64 维，拼接后为 8×64=512 维，正好回到 dmodel，再由 W^O∈R^{512×512} 融合。B 错误：把每个头当成全维 512 维，于是拼接成 8×512=4096，这相当于把总宽度放大了 8 倍，与 dmodel/h 的设定矛盾。C 错误：把 h=8 当成了每个头的维度，拼接后 8×8=64，维度被压缩了 8 倍。D 错误：dk=dv=64 算对了，但拼接维度应为 h·dv=8×64=512，4096 是 8×512 的结果，混淆了“每头维度”和“全维”。"
+      },
+      {
+        "id": "q3",
+        "stem": "原论文说“由于每个头的维度降低，总计算量与全维单头注意力相近”。下列哪种解释最准确？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "每个头的 dk 缩小为 dmodel/h，单头注意力中与 dk 成正比的那部分计算量随之缩小约 h 倍，h 个头加起来大致回到全维单头的量级",
+          "多头注意力把 h 个头串行执行，所以总时间与单头相同",
+          "多头注意力通过共享同一组 Q、K、V 投影矩阵来节省计算",
+          "因为 softmax 的计算量与维度无关，所以头数多少都不影响计算量"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：缩放点积注意力里 QK^T 与 softmax(QK^T/√dk)V 的主要计算量随 dk（以及 dv）线性增长；每个头维度降到 dmodel/h，单头成本约降为 1/h，h 个头并行相加后与全维单头同量级，这正是原论文“Due to the reduced dimension of each head”的意思。B 错误：原论文说的是“perform the attention function in parallel”，多头是并行而非串行；串行执行会让耗时随 h 增长。C 错误：多头恰恰要求 h 组“不同、可学习”的投影矩阵 W_i^Q、W_i^K、W_i^V，不共享；共享投影就退化成同一个子空间。D 错误：softmax 本身逐行归一化，但打分矩阵 QK^T 的每个元素是 dk 维点积，计算量随 dk 增长，说“与维度无关”不成立。"
+      },
+      {
+        "id": "q4",
+        "stem": "关于“多头为何优于单头”，下列哪些说法符合原论文的表述？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B",
+        "options": [
+          "多头允许模型同时关注来自不同表示子空间、不同位置的信息",
+          "单头注意力会把不同子空间的信息平均在一起，从而抑制这种同时关注",
+          "多头注意力通过增加总维度到 h·dmodel 来获得更强的表达能力",
+          "多头注意力取消了缩放因子 1/√dk，因此数值更稳定"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：原论文原句为“Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions”。B 正确：紧接着的一句是“With a single attention head, averaging inhibits this”，即单头把不同子空间的信息平均掉，抑制了这种联合关注。C 错误：拼接后维度是 h·dv=dmodel（在 dk=dv=dmodel/h 的设定下），总宽度并没有放大到 h·dmodel；多头增加的是“子空间数量”，不是总维度。D 错误：每个头内部仍然是缩放点积注意力，1/√dk 依然保留，多头并没有取消缩放。"
+      },
+      {
+        "id": "q5",
+        "stem": "判断：原论文的消融实验显示，单头注意力比最佳设置低 0.9 BLEU，而头数越多质量就越好。",
+        "type": "true_false",
+        "answer": "错误",
+        "difficulty": "easy",
+        "explanation": "前半句正确：原论文在英德翻译开发集上的消融实验确实报告“single-head attention is 0.9 BLEU worse than the best setting”。后半句错误：同一句接着说“quality also drops off with too many heads”，即头数过多时质量也会下降，所以“头越多越好”不成立。正确理解是：多头优于单头，但头数存在一个合适区间，并非单调递增。"
+      },
+      {
+        "id": "q6",
+        "stem": "请按“投影 → 并行注意力 → 拼接 → 输出投影”的顺序，写出多头注意力的数据流，并说明为什么 8 个头各 64 维不比 1 个头 512 维更贵（设 dmodel=512）。",
+        "type": "short_answer",
+        "answer": "数据流：①用 h 组不同的可学习矩阵 W_i^Q、W_i^K、W_i^V 分别把 Q、K、V 从 dmodel 维投影到 dk、dk、dv 维（base 模型 dk=dv=64）；②每个头独立并行地做缩放点积注意力 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V)，得到 dv 维输出；③把 h 个头的输出拼接成 h·dv=8×64=512 维；④乘 W^O∈R^{512×512} 融合回 dmodel 维。成本：注意力打分与加权求和的计算量随每个头的维度 dk、dv 线性增长，每头维度降到 512/8=64，单头成本约为全维单头的 1/8，8 个头并行相加后与 1 个 512 维单头同量级；多出来的只是 h 组投影矩阵与一个输出投影的参数，量级与全维单头相当。",
+        "difficulty": "hard",
+        "explanation": "评分要点：四个环节齐全（投影、并行注意力、拼接、输出投影）且顺序正确；写出 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V) 与 Concat 后乘 W^O；维度推演 512/8=64、8×64=512 正确；成本解释指出“每头维度缩小约 h 倍、h 头相加回到同量级”。常见错误：把拼接结果直接当输出（漏掉 W^O）；把各头输出相加而非拼接；认为多头把总维度放大到 4096；把“并行”说成“串行”。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 11.44
+      },
+      "spec_digest": "a1a4d6b49b0c4431da1986e550e56979289096ef3b303e9d3ac9ae07a97ba1fd",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1"
+          },
+          "objective_id": "n3-multihead:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q6"
+          },
+          "objective_id": "n3-multihead:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q4"
+          },
+          "objective_id": "n3-multihead:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q5"
+          },
+          "objective_id": "n3-multihead:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q2"
+          },
+          "objective_id": "n3-multihead:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q3"
+          },
+          "objective_id": "n3-multihead:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q6"
+          },
+          "objective_id": "n3-multihead:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q1"
+          },
+          "explanation": "通过公式辨识题落实“讲授 Transformer 核心结构”中多头注意力这一子结构：要求区分正确的 MultiHead 定义与三种常见错误写法。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "question_id": "q6"
+          },
+          "explanation": "通过数据流简答题要求完整复述投影→并行注意力→拼接→输出投影，检验对多头注意力结构原理的理解。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需回忆 MultiHead 与 head_i 两个公式，并逐一判断四个选项是否漏掉投影、W^O 或把拼接写成相加。",
+          "question_id": "q1",
+          "thinking_seconds": 40
+        },
+        {
+          "reason": "需做两步除法与乘法：512/8=64，再算 8×64=512，并排除把每头当全维或把 h 当维度的干扰项。",
+          "question_id": "q2",
+          "thinking_seconds": 45
+        },
+        {
+          "reason": "需理解注意力计算量随 dk、dv 增长，再推理每头缩小 h 倍、h 头相加回到同量级，并排除串行、共享投影等错误解释。",
+          "question_id": "q3",
+          "thinking_seconds": 60
+        },
+        {
+          "reason": "需回忆原论文关于不同表示子空间与单头平均抑制的两句表述，并判断总维度是否放大、缩放因子是否保留。",
+          "question_id": "q4",
+          "thinking_seconds": 55
+        },
+        {
+          "reason": "需分辨消融结论的前半句（单头低 0.9 BLEU）与后半句（头数过多质量下降），判断整体命题真假。",
+          "question_id": "q5",
+          "thinking_seconds": 25
+        },
+        {
+          "reason": "需组织四步数据流、写出公式、完成 512/8=64 与 8×64=512 的维度推演，并给出计算量同量级的理由，属于综合复述与推演。",
+          "question_id": "q6",
+          "thinking_seconds": 150
+        }
+      ],
+      "teaching_context_digest": "c3f145d5f4757a84c4e7f7446d2d39576bc44d4cd2bcd6e94a362b94001b9e57"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "q1/q6 落实 req-goal-transformer 中多头注意力子结构（公式与数据流），q2/q3 落实 h=8、dk=dv=64 与计算量同量级，q4/q5 落实多头优于单头及消融结论，均属本节点分工内的真实贡献。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "q1 公式与原论文式(4)一致；q2 512/8=64、8×64=512 正确；q3 关于每头维度缩小 h 倍、总成本同量级的解释与原文 'Due to the reduced dimension of each head' 相符；q4 引用两句原文准确，并正确指出总宽度仍为 dmodel、缩放因子保留；q5 正确区分 0.9 BLEU 与 'too many heads' 质量下降。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "q2 的维度推演与 q6 的 512/8=64、8×64=512 数值示例可独立复算成立；干扰项 4096、64、8 均对应可解释的错误算式（8×512、8×8、把 h 当维度），无随意数字。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序为定义→维度→成本→动机→消融→综合复述，与节点活动（公式讲解、维度推演、读消融结论）一致；难度 easy/medium/medium/medium/easy/hard 递进合理，语言为中文、入门深度，未引入排除项内容。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "解析中的英文引文（式(4)、'These are concatenated and once again projected'、'averaging inhibits this'、'single-head attention is 0.9 BLEU worse'、'quality also drops off with too many heads'）与 research_context 提供的 NIPS 2017 原文片段逐字一致，未声称核查外部全文。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "六个题目覆盖三个节点目标（o1: q1/q6；o2: q4/q5；o3: q2/q3/q6），题型含单选、多选、判断、简答，每题均有答案与逐步解析，无缺项。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "q1/q6 落实 req-goal-transformer 中多头注意力子结构（公式与数据流），q2/q3 落实 h=8、dk=dv=64 与计算量同量级，q4/q5 落实多头优于单头及消融结论，均属本节点分工内的真实贡献。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "q1 公式与原论文式(4)一致；q2 512/8=64、8×64=512 正确；q3 关于每头维度缩小 h 倍、总成本同量级的解释与原文 'Due to the reduced dimension of each head' 相符；q4 引用两句原文准确，并正确指出总宽度仍为 dmodel、缩放因子保留；q5 正确区分 0.9 BLEU 与 'too many heads' 质量下降。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q2 的维度推演与 q6 的 512/8=64、8×64=512 数值示例可独立复算成立；干扰项 4096、64、8 均对应可解释的错误算式（8×512、8×8、把 h 当维度），无随意数字。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为定义→维度→成本→动机→消融→综合复述，与节点活动（公式讲解、维度推演、读消融结论）一致；难度 easy/medium/medium/medium/easy/hard 递进合理，语言为中文、入门深度，未引入排除项内容。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "解析中的英文引文（式(4)、'These are concatenated and once again projected'、'averaging inhibits this'、'single-head attention is 0.9 BLEU worse'、'quality also drops off with too many heads'）与 research_context 提供的 NIPS 2017 原文片段逐字一致，未声称核查外部全文。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "六个题目覆盖三个节点目标（o1: q1/q6；o2: q4/q5；o3: q2/q3/q6），题型含单选、多选、判断、简答，每题均有答案与逐步解析，无缺项。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q1、q2、q3 的正确答案均位于选项 A，虽 q4 为多选、q5/q6 无选项，仍建议打乱 q1–q3 的选项顺序，避免答案位置规律。",
+              "q3 解析中“主要计算量随 dk（以及 dv）线性增长”可更精确地说明：打分矩阵 QK^T 的计算量随 dk 增长，加权求和随 dv 增长，二者在 dk=dv=dmodel/h 下同时缩小 h 倍。",
+              "q6 参考答案提到“多出来的只是 h 组投影矩阵与一个输出投影的参数”，可补充说明投影参数总量与全维单头同量级（h·dmodel·dk = dmodel²），使成本论证更完整。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [
+                  {
+                    "reasoning": "与原论文式(4)逐字一致，包含 Concat 后乘 W^O 以及每头独立投影的 head_i 定义，正确。",
+                    "option_text": "MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，其中 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原论文给出的定义正是 MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，且 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V)，即每个头先用自己的一组可学习投影把 Q、K、V 投到 dk/dk/dv 维，再各自做注意力。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析称“原论文给出的定义正是……每个头先用自己的一组可学习投影把 Q、K、V 投到 dk/dk/dv 维”，与式(4)及 W_i^Q∈R^{dmodel×dk} 等维度说明一致，批评与陈述均成立。"
+                  },
+                  {
+                    "reasoning": "该式只有一次全维注意力加一个输出矩阵，没有 h 组不同投影和并行注意力，不是多头定义，错误。",
+                    "option_text": "MultiHead(Q,K,V)=Attention(Q,K,V)W^O，即先做一次全维注意力再乘一个输出矩阵",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：它把多头退化成“一次全维注意力 + 一个输出矩阵”，丢掉了 h 组不同投影和并行注意力这两个关键环节。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出它“丢掉了 h 组不同投影和并行注意力这两个关键环节”，正是该选项与原式的实质差别，理由成立。"
+                  },
+                  {
+                    "reasoning": "拼接后维度为 h·dv，必须再乘 W^O∈R^{h·dv×dmodel} 回到 dmodel，缺此步错误。",
+                    "option_text": "MultiHead(Q,K,V)=Concat(head_1,…,head_h)，拼接结果直接作为输出，不再做任何投影",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：拼接后还要乘 W^O∈R^{h·dv×dmodel} 把 h·dv 维融合回 dmodel 维，原论文明确写了“These are concatenated and once again projected”。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析引用原文“These are concatenated and once again projected”并给出 W^O 维度，与 research_context 中 W^O∈R^{hdv×dmodel} 一致，成立。"
+                  },
+                  {
+                    "reasoning": "各头输出是拼接而非逐元素相加，相加后维度仍为 dv 且信息混叠，错误。",
+                    "option_text": "MultiHead(Q,K,V)=Σ_{i=1}^{h} Attention(QW_i^Q, KW_i^K, VW_i^V)，即把各头输出逐元素相加",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：各头输出是拼接（Concat）而不是相加；若相加，维度仍是 dv 而非 h·dv，且不同头的信息会被直接混叠，与公式不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析分两句说明“是拼接而不是相加”以及“若相加维度仍是 dv 而非 h·dv”，两点均与式(4)的 Concat 及维度推导相符。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "independent_solution": "原论文式(4)：MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，head_i=Attention(QW_i^Q,KW_i^K,VW_i^V)，故 A 正确；B 丢掉 h 组投影与并行注意力，C 漏掉 W^O，D 把拼接写成相加，均错。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "512/8=64，8×64=512，与 dmodel/h 设定及拼接维度一致，正确。",
+                    "option_text": "dk=dv=64，拼接后维度为 512",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：dk=dv=dmodel/h=512/8=64；8 个头各输出 64 维，拼接后为 8×64=512 维，正好回到 dmodel，再由 W^O∈R^{512×512} 融合。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析给出 512/8=64 与 8×64=512 两步算式，并说明 W^O∈R^{512×512}，计算与维度均正确。"
+                  },
+                  {
+                    "reasoning": "把每头当成 512 维，拼接成 8×512=4096，与 dk=dv=dmodel/h 矛盾，错误。",
+                    "option_text": "dk=dv=512，拼接后维度为 4096",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：把每个头当成全维 512 维，于是拼接成 8×512=4096，这相当于把总宽度放大了 8 倍，与 dmodel/h 的设定矛盾。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出该选项“把每个头当成全维 512 维，于是拼接成 8×512=4096”，算式与错误来源对应，成立。"
+                  },
+                  {
+                    "reasoning": "把 h=8 误当每头维度，拼接 8×8=64，维度被压缩，错误。",
+                    "option_text": "dk=dv=8，拼接后维度为 64",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：把 h=8 当成了每个头的维度，拼接后 8×8=64，维度被压缩了 8 倍。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明“把 h=8 当成了每个头的维度，拼接后 8×8=64”，与选项数值吻合，理由成立。"
+                  },
+                  {
+                    "reasoning": "dk=dv=64 正确但拼接维度应为 512，4096 是 8×512 的结果，错误。",
+                    "option_text": "dk=dv=64，拼接后维度为 4096",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：dk=dv=64 算对了，但拼接维度应为 h·dv=8×64=512，4096 是 8×512 的结果，混淆了“每头维度”和“全维”。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析承认前半部分算对、指出拼接维度混淆“每头维度”与“全维”，对部分正确的选项作了准确区分，成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "independent_solution": "dk=dv=dmodel/h=512/8=64；8 个头各输出 64 维，拼接为 8×64=512 维，再由 W^O 融合回 512 维，故 A 正确。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "维度缩小 h 倍使单头成本约降 1/h，h 头相加回到同量级，与原论文表述一致，正确。",
+                    "option_text": "每个头的 dk 缩小为 dmodel/h，单头注意力中与 dk 成正比的那部分计算量随之缩小约 h 倍，h 个头加起来大致回到全维单头的量级",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：缩放点积注意力里 QK^T 与 softmax(QK^T/√dk)V 的主要计算量随 dk（以及 dv）线性增长；每个头维度降到 dmodel/h，单头成本约降为 1/h，h 个头并行相加后与全维单头同量级，这正是原论文“Due to the reduced dimension of each head”的意思。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析说明主要计算量随 dk（及 dv）增长、每头成本约降为 1/h、h 头并行相加同量级，并引用原文 'Due to the reduced dimension of each head'，论证成立。"
+                  },
+                  {
+                    "reasoning": "原论文明确是并行执行，串行会使耗时随 h 增长，该说法错误。",
+                    "option_text": "多头注意力把 h 个头串行执行，所以总时间与单头相同",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：原论文说的是“perform the attention function in parallel”，多头是并行而非串行；串行执行会让耗时随 h 增长。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析引用 'perform the attention function in parallel' 并指出串行会让耗时随 h 增长，两点均成立。"
+                  },
+                  {
+                    "reasoning": "多头要求 h 组不同、可学习的投影矩阵，共享投影会退化为同一子空间，错误。",
+                    "option_text": "多头注意力通过共享同一组 Q、K、V 投影矩阵来节省计算",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：多头恰恰要求 h 组“不同、可学习”的投影矩阵 W_i^Q、W_i^K、W_i^V，不共享；共享投影就退化成同一个子空间。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出多头需要 h 组“不同、可学习”的 W_i^Q/W_i^K/W_i^V，共享即退化为同一子空间，与原文 'different, learned linear projections' 一致。"
+                  },
+                  {
+                    "reasoning": "softmax 逐行归一化，但打分矩阵每个元素是 dk 维点积，计算量随 dk 增长，错误。",
+                    "option_text": "因为 softmax 的计算量与维度无关，所以头数多少都不影响计算量",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：softmax 本身逐行归一化，但打分矩阵 QK^T 的每个元素是 dk 维点积，计算量随 dk 增长，说“与维度无关”不成立。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析区分了 softmax 的逐行归一化与 QK^T 每个元素为 dk 维点积，正确否定“与维度无关”，成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "independent_solution": "打分矩阵 QK^T 的计算量随 dk 增长、加权求和随 dv 增长；每头维度降为 dmodel/h，单头成本约降为 1/h，h 头并行相加回到全维单头量级，故 A 正确；B 串行、C 共享投影、D softmax 与维度无关均错。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [
+                  {
+                    "reasoning": "与原论文 'jointly attend to information from different representation subspaces at different positions' 一致，正确。",
+                    "option_text": "多头允许模型同时关注来自不同表示子空间、不同位置的信息",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原论文原句为“Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions”。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析逐字引用原句并判为正确，引用与 research_context 一致，成立。"
+                  },
+                  {
+                    "reasoning": "原论文 'With a single attention head, averaging inhibits this' 支持该说法，正确。",
+                    "option_text": "单头注意力会把不同子空间的信息平均在一起，从而抑制这种同时关注",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：紧接着的一句是“With a single attention head, averaging inhibits this”，即单头把不同子空间的信息平均掉，抑制了这种联合关注。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用原句并解释为单头把不同子空间信息平均掉、抑制联合关注，与原文语义一致。"
+                  },
+                  {
+                    "reasoning": "拼接后维度为 h·dv=dmodel，总宽度未放大到 h·dmodel，该说法错误。",
+                    "option_text": "多头注意力通过增加总维度到 h·dmodel 来获得更强的表达能力",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：拼接后维度是 h·dv=dmodel（在 dk=dv=dmodel/h 的设定下），总宽度并没有放大到 h·dmodel；多头增加的是“子空间数量”，不是总维度。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出拼接后为 h·dv=dmodel、多头增加的是子空间数量而非总维度，与 dk=dv=dmodel/h 设定一致，成立。"
+                  },
+                  {
+                    "reasoning": "每个头内部仍是缩放点积注意力，1/√dk 保留，该说法错误。",
+                    "option_text": "多头注意力取消了缩放因子 1/√dk，因此数值更稳定",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：每个头内部仍然是缩放点积注意力，1/√dk 依然保留，多头并没有取消缩放。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明每头内部仍为缩放点积注意力、1/√dk 依然保留，与 head_i=Attention(...) 的定义一致，成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "independent_solution": "原论文两句：多头可联合关注不同表示子空间、不同位置的信息；单头平均会抑制这一点。故 A、B 正确；C 错在总宽度仍为 h·dv=dmodel 而非 h·dmodel；D 错在每头内部仍保留 1/√dk 缩放。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "independent_solution": "原论文消融：单头比最佳设置低 0.9 BLEU（前半句真），但 'quality also drops off with too many heads'（后半句假），故整句为错误。"
+              },
+              {
+                "question_id": "q6",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "independent_solution": "数据流：h 组 W_i^Q/W_i^K/W_i^V 把 Q、K、V 投到 dk/dk/dv（512/8=64）→ 各头并行做缩放点积注意力得 dv 维输出 → 拼接为 8×64=512 维 → 乘 W^O∈R^{512×512} 回到 dmodel。成本：每头维度降为 1/8，单头成本约 1/8，8 头并行相加与 1 个 512 维单头同量级；投影参数总量 h·dmodel·dk=dmodel² 亦同量级。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 要求辨识 MultiHead 定义与 head_i 投影写法，确实支持“讲授 Transformer 核心结构”中多头注意力子结构这一局部贡献。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 要求按投影→并行注意力→拼接→输出投影复述数据流并给出维度推演，真实检验结构原理理解。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 的选项与解析完整给出 MultiHead=Concat(...)W^O 与 head_i=Attention(QW_i^Q,KW_i^K,VW_i^V)，可检验目标 o1 的公式书写。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n3-multihead:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 参考答案要求写出 head_i 公式与 Concat 后乘 W^O，作为 o1 的练习环节，定位合理。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "n3-multihead:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 直接对应 o2：多头可联合关注不同子空间/位置，单头平均抑制，选项与解析均准确。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n3-multihead:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 通过消融结论检验“头越多越好”的误解，与 o2 中多头优于单头的边界理解相关，作为检查项成立。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n3-multihead:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 以 dmodel=512、h=8 推演 dk=dv=64 与拼接 512 维，正是 o3 的维度练习。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n3-multihead:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 要求解释总计算量与全维单头相近的原因，直接检验 o3 的第三项要求。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n3-multihead:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 的成本解释部分要求说明“8 头各 64 维不比 1 头 512 维更贵”，覆盖 o3 的计算量论证。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "n3-multihead:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "b9d10232cf1deb2a9d5be0ac013dd03afce5558f3c1281fc8a4004fa4398b4cd"
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "suggestions": [
+        "q1、q2、q3 的正确答案均位于选项 A，虽 q4 为多选、q5/q6 无选项，仍建议打乱 q1–q3 的选项顺序，避免答案位置规律。",
+        "q3 解析中“主要计算量随 dk（以及 dv）线性增长”可更精确地说明：打分矩阵 QK^T 的计算量随 dk 增长，加权求和随 dv 增长，二者在 dk=dv=dmodel/h 下同时缩小 h 倍。",
+        "q6 参考答案提到“多出来的只是 h 组投影矩阵与一个输出投影的参数”，可补充说明投影参数总量与全维单头同量级（h·dmodel·dk = dmodel²），使成本论证更完整。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "b9d10232cf1deb2a9d5be0ac013dd03afce5558f3c1281fc8a4004fa4398b4cd",
+      "question_checks": [
+        {
+          "question_id": "q1",
+          "option_checks": [
+            {
+              "reasoning": "与原论文式(4)逐字一致，包含 Concat 后乘 W^O 以及每头独立投影的 head_i 定义，正确。",
+              "option_text": "MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，其中 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V)",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原论文给出的定义正是 MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，且 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V)，即每个头先用自己的一组可学习投影把 Q、K、V 投到 dk/dk/dv 维，再各自做注意力。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析称“原论文给出的定义正是……每个头先用自己的一组可学习投影把 Q、K、V 投到 dk/dk/dv 维”，与式(4)及 W_i^Q∈R^{dmodel×dk} 等维度说明一致，批评与陈述均成立。"
+            },
+            {
+              "reasoning": "该式只有一次全维注意力加一个输出矩阵，没有 h 组不同投影和并行注意力，不是多头定义，错误。",
+              "option_text": "MultiHead(Q,K,V)=Attention(Q,K,V)W^O，即先做一次全维注意力再乘一个输出矩阵",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：它把多头退化成“一次全维注意力 + 一个输出矩阵”，丢掉了 h 组不同投影和并行注意力这两个关键环节。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出它“丢掉了 h 组不同投影和并行注意力这两个关键环节”，正是该选项与原式的实质差别，理由成立。"
+            },
+            {
+              "reasoning": "拼接后维度为 h·dv，必须再乘 W^O∈R^{h·dv×dmodel} 回到 dmodel，缺此步错误。",
+              "option_text": "MultiHead(Q,K,V)=Concat(head_1,…,head_h)，拼接结果直接作为输出，不再做任何投影",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：拼接后还要乘 W^O∈R^{h·dv×dmodel} 把 h·dv 维融合回 dmodel 维，原论文明确写了“These are concatenated and once again projected”。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析引用原文“These are concatenated and once again projected”并给出 W^O 维度，与 research_context 中 W^O∈R^{hdv×dmodel} 一致，成立。"
+            },
+            {
+              "reasoning": "各头输出是拼接而非逐元素相加，相加后维度仍为 dv 且信息混叠，错误。",
+              "option_text": "MultiHead(Q,K,V)=Σ_{i=1}^{h} Attention(QW_i^Q, KW_i^K, VW_i^V)，即把各头输出逐元素相加",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：各头输出是拼接（Concat）而不是相加；若相加，维度仍是 dv 而非 h·dv，且不同头的信息会被直接混叠，与公式不符。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析分两句说明“是拼接而不是相加”以及“若相加维度仍是 dv 而非 h·dv”，两点均与式(4)的 Concat 及维度推导相符。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "independent_solution": "原论文式(4)：MultiHead(Q,K,V)=Concat(head_1,…,head_h)W^O，head_i=Attention(QW_i^Q,KW_i^K,VW_i^V)，故 A 正确；B 丢掉 h 组投影与并行注意力，C 漏掉 W^O，D 把拼接写成相加，均错。"
+        },
+        {
+          "question_id": "q2",
+          "option_checks": [
+            {
+              "reasoning": "512/8=64，8×64=512，与 dmodel/h 设定及拼接维度一致，正确。",
+              "option_text": "dk=dv=64，拼接后维度为 512",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：dk=dv=dmodel/h=512/8=64；8 个头各输出 64 维，拼接后为 8×64=512 维，正好回到 dmodel，再由 W^O∈R^{512×512} 融合。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析给出 512/8=64 与 8×64=512 两步算式，并说明 W^O∈R^{512×512}，计算与维度均正确。"
+            },
+            {
+              "reasoning": "把每头当成 512 维，拼接成 8×512=4096，与 dk=dv=dmodel/h 矛盾，错误。",
+              "option_text": "dk=dv=512，拼接后维度为 4096",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：把每个头当成全维 512 维，于是拼接成 8×512=4096，这相当于把总宽度放大了 8 倍，与 dmodel/h 的设定矛盾。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出该选项“把每个头当成全维 512 维，于是拼接成 8×512=4096”，算式与错误来源对应，成立。"
+            },
+            {
+              "reasoning": "把 h=8 误当每头维度，拼接 8×8=64，维度被压缩，错误。",
+              "option_text": "dk=dv=8，拼接后维度为 64",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：把 h=8 当成了每个头的维度，拼接后 8×8=64，维度被压缩了 8 倍。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析说明“把 h=8 当成了每个头的维度，拼接后 8×8=64”，与选项数值吻合，理由成立。"
+            },
+            {
+              "reasoning": "dk=dv=64 正确但拼接维度应为 512，4096 是 8×512 的结果，错误。",
+              "option_text": "dk=dv=64，拼接后维度为 4096",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：dk=dv=64 算对了，但拼接维度应为 h·dv=8×64=512，4096 是 8×512 的结果，混淆了“每头维度”和“全维”。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析承认前半部分算对、指出拼接维度混淆“每头维度”与“全维”，对部分正确的选项作了准确区分，成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "independent_solution": "dk=dv=dmodel/h=512/8=64；8 个头各输出 64 维，拼接为 8×64=512 维，再由 W^O 融合回 512 维，故 A 正确。"
+        },
+        {
+          "question_id": "q3",
+          "option_checks": [
+            {
+              "reasoning": "维度缩小 h 倍使单头成本约降 1/h，h 头相加回到同量级，与原论文表述一致，正确。",
+              "option_text": "每个头的 dk 缩小为 dmodel/h，单头注意力中与 dk 成正比的那部分计算量随之缩小约 h 倍，h 个头加起来大致回到全维单头的量级",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：缩放点积注意力里 QK^T 与 softmax(QK^T/√dk)V 的主要计算量随 dk（以及 dv）线性增长；每个头维度降到 dmodel/h，单头成本约降为 1/h，h 个头并行相加后与全维单头同量级，这正是原论文“Due to the reduced dimension of each head”的意思。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析说明主要计算量随 dk（及 dv）增长、每头成本约降为 1/h、h 头并行相加同量级，并引用原文 'Due to the reduced dimension of each head'，论证成立。"
+            },
+            {
+              "reasoning": "原论文明确是并行执行，串行会使耗时随 h 增长，该说法错误。",
+              "option_text": "多头注意力把 h 个头串行执行，所以总时间与单头相同",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：原论文说的是“perform the attention function in parallel”，多头是并行而非串行；串行执行会让耗时随 h 增长。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析引用 'perform the attention function in parallel' 并指出串行会让耗时随 h 增长，两点均成立。"
+            },
+            {
+              "reasoning": "多头要求 h 组不同、可学习的投影矩阵，共享投影会退化为同一子空间，错误。",
+              "option_text": "多头注意力通过共享同一组 Q、K、V 投影矩阵来节省计算",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：多头恰恰要求 h 组“不同、可学习”的投影矩阵 W_i^Q、W_i^K、W_i^V，不共享；共享投影就退化成同一个子空间。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出多头需要 h 组“不同、可学习”的 W_i^Q/W_i^K/W_i^V，共享即退化为同一子空间，与原文 'different, learned linear projections' 一致。"
+            },
+            {
+              "reasoning": "softmax 逐行归一化，但打分矩阵每个元素是 dk 维点积，计算量随 dk 增长，错误。",
+              "option_text": "因为 softmax 的计算量与维度无关，所以头数多少都不影响计算量",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：softmax 本身逐行归一化，但打分矩阵 QK^T 的每个元素是 dk 维点积，计算量随 dk 增长，说“与维度无关”不成立。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析区分了 softmax 的逐行归一化与 QK^T 每个元素为 dk 维点积，正确否定“与维度无关”，成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "independent_solution": "打分矩阵 QK^T 的计算量随 dk 增长、加权求和随 dv 增长；每头维度降为 dmodel/h，单头成本约降为 1/h，h 头并行相加回到全维单头量级，故 A 正确；B 串行、C 共享投影、D softmax 与维度无关均错。"
+        },
+        {
+          "question_id": "q4",
+          "option_checks": [
+            {
+              "reasoning": "与原论文 'jointly attend to information from different representation subspaces at different positions' 一致，正确。",
+              "option_text": "多头允许模型同时关注来自不同表示子空间、不同位置的信息",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原论文原句为“Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions”。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析逐字引用原句并判为正确，引用与 research_context 一致，成立。"
+            },
+            {
+              "reasoning": "原论文 'With a single attention head, averaging inhibits this' 支持该说法，正确。",
+              "option_text": "单头注意力会把不同子空间的信息平均在一起，从而抑制这种同时关注",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：紧接着的一句是“With a single attention head, averaging inhibits this”，即单头把不同子空间的信息平均掉，抑制了这种联合关注。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析引用原句并解释为单头把不同子空间信息平均掉、抑制联合关注，与原文语义一致。"
+            },
+            {
+              "reasoning": "拼接后维度为 h·dv=dmodel，总宽度未放大到 h·dmodel，该说法错误。",
+              "option_text": "多头注意力通过增加总维度到 h·dmodel 来获得更强的表达能力",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：拼接后维度是 h·dv=dmodel（在 dk=dv=dmodel/h 的设定下），总宽度并没有放大到 h·dmodel；多头增加的是“子空间数量”，不是总维度。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出拼接后为 h·dv=dmodel、多头增加的是子空间数量而非总维度，与 dk=dv=dmodel/h 设定一致，成立。"
+            },
+            {
+              "reasoning": "每个头内部仍是缩放点积注意力，1/√dk 保留，该说法错误。",
+              "option_text": "多头注意力取消了缩放因子 1/√dk，因此数值更稳定",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：每个头内部仍然是缩放点积注意力，1/√dk 依然保留，多头并没有取消缩放。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析说明每头内部仍为缩放点积注意力、1/√dk 依然保留，与 head_i=Attention(...) 的定义一致，成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "independent_solution": "原论文两句：多头可联合关注不同表示子空间、不同位置的信息；单头平均会抑制这一点。故 A、B 正确；C 错在总宽度仍为 h·dv=dmodel 而非 h·dmodel；D 错在每头内部仍保留 1/√dk 缩放。"
+        },
+        {
+          "question_id": "q5",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "independent_solution": "原论文消融：单头比最佳设置低 0.9 BLEU（前半句真），但 'quality also drops off with too many heads'（后半句假），故整句为错误。"
+        },
+        {
+          "question_id": "q6",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "independent_solution": "数据流：h 组 W_i^Q/W_i^K/W_i^V 把 Q、K、V 投到 dk/dk/dv（512/8=64）→ 各头并行做缩放点积注意力得 dv 维输出 → 拼接为 8×64=512 维 → 乘 W^O∈R^{512×512} 回到 dmodel。成本：每头维度降为 1/8，单头成本约 1/8，8 头并行相加与 1 个 512 维单头同量级；投影参数总量 h·dmodel·dk=dmodel² 亦同量级。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q1 要求辨识 MultiHead 定义与 head_i 投影写法，确实支持“讲授 Transformer 核心结构”中多头注意力子结构这一局部贡献。",
+          "locator": {
+            "question_id": "q1"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 要求按投影→并行注意力→拼接→输出投影复述数据流并给出维度推演，真实检验结构原理理解。",
+          "locator": {
+            "question_id": "q6"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 的选项与解析完整给出 MultiHead=Concat(...)W^O 与 head_i=Attention(QW_i^Q,KW_i^K,VW_i^V)，可检验目标 o1 的公式书写。",
+          "locator": {
+            "question_id": "q1"
+          },
+          "binding_id": "n3-multihead:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 参考答案要求写出 head_i 公式与 Concat 后乘 W^O，作为 o1 的练习环节，定位合理。",
+          "locator": {
+            "question_id": "q6"
+          },
+          "binding_id": "n3-multihead:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 直接对应 o2：多头可联合关注不同子空间/位置，单头平均抑制，选项与解析均准确。",
+          "locator": {
+            "question_id": "q4"
+          },
+          "binding_id": "n3-multihead:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 通过消融结论检验“头越多越好”的误解，与 o2 中多头优于单头的边界理解相关，作为检查项成立。",
+          "locator": {
+            "question_id": "q5"
+          },
+          "binding_id": "n3-multihead:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 以 dmodel=512、h=8 推演 dk=dv=64 与拼接 512 维，正是 o3 的维度练习。",
+          "locator": {
+            "question_id": "q2"
+          },
+          "binding_id": "n3-multihead:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 要求解释总计算量与全维单头相近的原因，直接检验 o3 的第三项要求。",
+          "locator": {
+            "question_id": "q3"
+          },
+          "binding_id": "n3-multihead:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 的成本解释部分要求说明“8 头各 64 维不比 1 头 512 维更贵”，覆盖 o3 的计算量论证。",
+          "locator": {
+            "question_id": "q6"
+          },
+          "binding_id": "n3-multihead:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "5fe5526d4e3c1a4d370a285498001d61fa551bd2127cf58c47586970d865f908",
+      "option_binding_version": 1
+    }
+  }
+}

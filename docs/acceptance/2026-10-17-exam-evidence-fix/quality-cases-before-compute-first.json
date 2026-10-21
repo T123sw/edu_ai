@@ -1,0 +1,102 @@
+[
+  {
+    "case": "old_binary",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "computed_choice_answer_mismatch: unique computed correct option is A"
+    ],
+    "seconds": 2.85
+  },
+  {
+    "case": "old_partition",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_calculation_failed",
+      "single_choice_not_unique: computed correct options []",
+      "Solver statement (must be checked, not blindly copied): 以第一个元素 47 为枢轴，按题目描述的双指针两端向中间扫描、交换式划分（partition_hole 对应的挖坑/交换式划分），对输入序列 [47, 23, 68, 35, 56, 19, 74, 31] 执行第一趟划分，权威计算结果为 [31, 23, 19, 35, 47, 56, 74, 68]。即枢轴 47 落在下标 4，左侧为 (31, 23, 19, 35)，右侧为 (56, 74, 68)。逐一核对四个选项：A 为 (31,23,35,19) 47 (56,68,74)，与计算结果不同；B 为 (31,23,35,19) 47 (56,74,68)，左半不同；C 为 (19,23,35,31) 47 (74,56,68)，不同；D 为 (23,31,35,19) 47 (56,68,74)，不同。四个选项均不等于实际划分结果，因此没有正确选项，题目与选项不一致，well_posed=false。",
+      "Executed calculator evidence: [{\"expression\": \"partition_hole([47, 23, 68, 35, 56, 19, 74, 31])\", \"actual\": [31, 23, 19, 35, 47, 56, 74, 68], \"expected\": [31, 23, 19, 35, 47, 56, 74, 68], \"matches\": true, \"name\": \"partitioned\"}, {\"expression\": \"partitioned[4]\", \"actual\": 47, \"expected\": 47, \"matches\": true}, {\"expression\": \"partitioned[:4]\", \"actual\": [31, 23, 19, 35], \"expected\": [31, 23, 19, 35], \"matches\": true}, {\"expression\": \"partitioned[5:]\", \"actual\": [56, 74, 68], \"expected\": [56, 74, 68], \"matches\": true}, {\"expression\": \"all(partitioned[i] < 47 for i in range(4))\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"all(partitioned[i] > 47 for i in range(5, 8))\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"sorted(partitioned) == sorted([47, 23, 68, 35, 56, 19, 74, 31])\", \"actual\": true, \"expected\": true, \"matches\": true}]"
+    ],
+    "seconds": 4.65
+  },
+  {
+    "case": "new_arithmetic",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2328-2000 = 328, not 276",
+      "arithmetic_claim_invalid: 276 / 82 = 3.3658536585365852, not 4"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "new_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2**(11) = 2048, not 2047"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "correct_binary",
+    "expected_accept": true,
+    "accepted": false,
+    "issues": [
+      "independent_calculation_failed",
+      "calculation_mismatch: [5,11,18,24,30,37,43,50,58,66,73,81,89,96,104][7] = 50, claimed 43",
+      "Solver statement (must be checked, not blindly copied): 有序表共 15 个元素，下标从 1 开始：a[1..15]=(5,11,18,24,30,37,43,50,58,66,73,81,89,96,104)。\n二分查找关键字 43（mid=⌊(low+high)/2⌋）：\n1. low=1, high=15，mid=⌊(1+15)/2⌋=8，a[8]=50，43<50，high=7；\n2. low=1, high=7，mid=⌊(1+7)/2⌋=4，a[4]=24，43>24，low=5；\n3. low=5, high=7，mid=⌊(5+7)/2⌋=6，a[6]=37，43>37，low=7；\n4. low=7, high=7，mid=⌊(7+7)/2⌋=7，a[7]=43，查找成功。\n共比较 4 次，对应选项 C。注意：原解答中“a[8]=43”的表达式有误，按 1 起始下标 a[8] 实际为 50，但这不影响比较次数结论。",
+      "Executed calculator evidence: [{\"expression\": \"[(1+15)//2, (1+7)//2, (5+7)//2, (7+7)//2]\", \"actual\": [8, 4, 6, 7], \"expected\": [8, 4, 6, 7], \"matches\": true}, {\"expression\": \"[5,11,18,24,30,37,43,50,58,66,73,81,89,96,104][7]\", \"actual\": 50, \"expected\": 43, \"matches\": false}, {\"expression\": \"[5,11,18,24,30,37,43,50,58,66,73,81,89,96,104][7]\", \"actual\": 50, \"expected\": 50, \"matches\": true}, {\"expression\": \"len([50,24,37,43])\", \"actual\": 4, \"expected\": 4, \"matches\": true}]"
+    ],
+    "seconds": 4.59
+  },
+  {
+    "case": "correct_partition",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 5.94
+  },
+  {
+    "case": "fresh_heap_multiple_answers",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_calculation_failed",
+      "single_choice_not_unique: computed correct options ['A', 'D']",
+      "Solver statement (must be checked, not blindly copied): 按完全二叉树的层序（数组下标从0开始）检查最小堆性质：对每个下标 i，左孩子为 2i+1、右孩子为 2i+2，要求父结点不大于孩子。\n\nA：序列 [15,45,25,60,50,30,40,70]。检查父结点与孩子：\n- i=0：15≤45、15≤25，满足；\n- i=1：45≤60、45≤50，满足；\n- i=2：25≤30、25≤40，满足；\n- i=3：60≤70，满足。\n全部满足，A 能构成最小堆。\n\nB：序列 [12,20,18,35,40,15,25,30]。i=2 处 18>15（右孩子下标5），违反最小堆性质。\n\nC：序列 [8,24,16,40,32,20,12,48]。i=2 处 16>12（右孩子下标6），违反最小堆性质。\n\nD：序列 [9,27,18,45,36,24,30,54]。检查：\n- i=0：9≤27、9≤18，满足；\n- i=1：27≤45、27≤36，满足；\n- i=2：18≤24、18≤30，满足；\n- i=3：45≤54，满足。\n全部满足，D 能构成最小堆。\n\n结论：A 与 D 均满足最小堆性质，因此本题为单选题但有两个正确选项，题目不唯一。",
+      "Executed calculator evidence: [{\"expression\": \"all([15,45,25,60,50,30,40,70][i] <= [15,45,25,60,50,30,40,70][2*i+1] for i in range(4) if 2*i+1 < 8) and all([15,45,25,60,50,30,40,70][i] <= [15,45,25,60,50,30,40,70][2*i+2] for i in range(4) if 2*i+2 < 8)\", \"actual\": true, \"expected\": true, \"matches\": true, \"name\": \"checkA\"}, {\"expression\": \"all([12,20,18,35,40,15,25,30][i] <= [12,20,18,35,40,15,25,30][2*i+1] for i in range(4) if 2*i+1 < 8) and all([12,20,18,35,40,15,25,30][i] <= [12,20,18,35,40,15,25,30][2*i+2] for i in range(4) if 2*i+2 < 8)\", \"actual\": false, \"expected\": false, \"matches\": true, \"name\": \"checkB\"}, {\"expression\": \"all([8,24,16,40,32,20,12,48][i] <= [8,24,16,40,32,20,12,48][2*i+1] for i in range(4) if 2*i+1 < 8) and all([8,24,16,40,32,20,12,48][i] <= [8,24,16,40,32,20,12,48][2*i+2] for i in range(4) if 2*i+2 < 8)\", \"actual\": false, \"expected\": false, \"matches\": true, \"name\": \"checkC\"}, {\"expression\": \"all([9,27,18,45,36,24,30,54][i] <= [9,27,18,45,36,24,30,54][2*i+1] for i in range(4) if 2*i+1 < 8) and all([9,27,18,45,36,24,30,54][i] <= [9,27,18,45,36,24,30,54][2*i+2] for i in range(4) if 2*i+2 < 8)\", \"actual\": true, \"expected\": true, \"matches\": true, \"name\": \"checkD\"}, {\"expression\": \"[checkA, checkB, checkC, checkD]\", \"actual\": [true, false, false, true], \"expected\": [true, false, false, true], \"matches\": true}, {\"expression\": \"sum([checkA, checkB, checkC, checkD])\", \"actual\": 2, \"expected\": 2, \"matches\": true}]"
+    ],
+    "seconds": 8.77
+  },
+  {
+    "case": "correct_tree_variant",
+    "expected_accept": true,
+    "accepted": false,
+    "issues": [
+      "independent_calculation_failed",
+      "calculation_mismatch: [i for i in sub_nodes if 2*i>27 and i<25] = [14, 15, 24], claimed [14, 23, 24]",
+      "Solver statement (must be checked, not blindly copied): 按层序从1编号，根为1，结点i的左孩子为2i、右孩子为2i+1（若存在）。(1) S=25：25为奇数，是结点12的右孩子；12是结点6的左孩子；6是结点3的左孩子；3是结点1的右孩子，故S在根的右子树。(2) 叶子满足2i>27，即i≥14，叶子为14..27。根右子树（以3为根）的结点由complete_tree_subtree(27,2)给出为[2,5,6,11,12,13,14,23,24,25,26]（零基下标，对应编号3,6,7,12,13,14,15,24,25,26,27）。其中叶子且编号小于25的为14,23,24，共3个。(3) 该子树有4层：根3，第2层6,7，第3层12,13,14,15，第4层24,25,26,27，最大编号为27。",
+      "Executed calculator evidence: [{\"expression\": \"complete_tree_subtree(27,2)\", \"actual\": [2, 5, 6, 11, 12, 13, 14, 23, 24, 25, 26], \"expected\": [2, 5, 6, 11, 12, 13, 14, 23, 24, 25, 26], \"matches\": true, \"name\": \"sub\"}, {\"expression\": \"[i+1 for i in sub]\", \"actual\": [3, 6, 7, 12, 13, 14, 15, 24, 25, 26, 27], \"expected\": [3, 6, 7, 12, 13, 14, 15, 24, 25, 26, 27], \"matches\": true, \"name\": \"sub_nodes\"}, {\"expression\": \"[i for i in range(1,28) if 2*i>27]\", \"actual\": [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27], \"expected\": [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27], \"matches\": true, \"name\": \"leaves\"}, {\"expression\": \"[i for i in sub_nodes if 2*i>27 and i<25]\", \"actual\": [14, 15, 24], \"expected\": [14, 23, 24], \"matches\": false, \"name\": \"small_leaves\"}, {\"expression\": \"len(small_leaves)\", \"actual\": 3, \"expected\": 3, \"matches\": true}, {\"expression\": \"max(sub_nodes)\", \"actual\": 27, \"expected\": 27, \"matches\": true}, {\"expression\": \"complete_tree_path(24)\", \"actual\": [0, 2, 5, 11, 24], \"expected\": [0, 2, 5, 11, 24], \"matches\": true}]"
+    ],
+    "seconds": 5.2
+  },
+  {
+    "case": "correct_matrix_boundary",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 5.86
+  },
+  {
+    "case": "old_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_solution_unverified",
+      "Independent solver did not provide an answer"
+    ],
+    "seconds": 47.8
+  }
+]

@@ -1,0 +1,179 @@
+{
+  "title": "为什么需要 Transformer：循环网络的瓶颈与注意力思路",
+  "content": {
+    "title": "为什么需要 Transformer：循环网络的瓶颈与注意力思路",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_aa836bc1306d9bb940c50175fb361e93",
+      "entry": "index.html",
+      "digest": "82868c6a12328b1e650ec8d8160906b0ffa32631ed02a771c3d30f53e67c2f06"
+    },
+    "timeline": {
+      "duration": 288.033333,
+      "segments": [
+        {
+          "id": "frame01-hook",
+          "end": 20.84,
+          "start": 0.0,
+          "title": "开场：一个前置问题",
+          "events": [],
+          "narration": "我们先从一个问题开始：为什么会有 Transformer？在它出现之前，处理序列的主力是循环网络，从机器翻译到语音识别，都靠它一步一步往下推。这一节不写公式，只做一件事——把循环模型的瓶颈讲透，再看清注意力给出的另一条路。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "大字提问 + 「循环网络 · 顺序」与「注意力 · 并行」两枚对照芯片"
+        },
+        {
+          "id": "frame02-recurrence",
+          "end": 64.32,
+          "start": 20.84,
+          "title": "循环模型怎么算",
+          "events": [],
+          "narration": "循环模型处理序列的方式，是沿着符号位置分解计算。它把输入序列的每个位置，对齐到计算时间上的一个步。每一步，模型读取当前位置的输入，再加上上一步留下的隐藏状态，产生新的隐藏状态。写成式子就是：h t 是 h t 减一和位置 t 输入的函数。这个 h，可以理解成模型读到第 t 个词为止的全部记忆，每读一个词，它就更新一次。请注意图上的箭头：第 t 步必须等第 t 减一步算完，才能开始。读第五个词的时候，你并没有五个独立的计算，而是一条排好队的队伍。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "h₁→h₂→h₃→h₄ 的隐藏状态链，每个 h 由 xₜ 与上一个 h 共同产生"
+        },
+        {
+          "id": "frame03-cost",
+          "end": 102.67999999999999,
+          "start": 64.32,
+          "title": "顺序性的代价",
+          "events": [],
+          "narration": "这条箭头带来了什么？第一，同一个训练样本内部，位置之间不能并行——后一步在等前一步。第二，序列越长，代价越关键，因为要等更长的链条走完。第三，显存是有限的，没法靠把更多样本塞进一个批次来把时间摊薄。这三句连起来是一条因果链：顺序依赖，导致样本内无法并行；序列变长，把代价放大；内存限制，又堵住了横向扩展的路。于是长度变成了时间，而设备上的时间，没法打包一起算。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三条代价逐条落下，右侧一根串行时间柱说明\"长度变成了时间\""
+        },
+        {
+          "id": "frame04-constraint",
+          "end": 126.4,
+          "start": 102.68,
+          "title": "缓解手段与根本约束",
+          "events": [],
+          "narration": "业界也做过努力。因子分解技巧和条件计算，都能显著提升计算效率，后者还顺带改善了模型表现。但要看清楚：它们优化的是效率，并没有拆掉那条链。换句话说，让每一步更轻，却没有让步数变少。论文写得很直接——顺序计算这一根本约束，依然存在。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "两枚\"效率\"芯片浮在仍然完整的链上方，论文原句压在链上"
+        },
+        {
+          "id": "frame05-attention-status",
+          "end": 154.59,
+          "start": 126.4,
+          "title": "注意力已有的位置",
+          "events": [],
+          "narration": "另一边，注意力机制早已是序列建模和转换模型的重要组件。它的好处是：建模依赖时，不必考虑两个位置在序列中相隔多远，远处和近处一样直接。句子里隔得再远的两个词，也能一次连上。但在绝大多数工作里，注意力是和循环网络配合使用的——注意力负责找关联，循环仍然负责推进时间。所以顺序计算还在那里。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左\"忽略距离\"的成对连线，右\"注意力嵌在循环里\"的闭环"
+        },
+        {
+          "id": "frame06-two-paths",
+          "end": 195.98,
+          "start": 154.59,
+          "title": "两条信息路径",
+          "events": [],
+          "narration": "现在把两条信息路径并排放。左边是循环网络：h 一交给 h 二，h 二交给 h 三，信息像接力一样一站一站传下去，每个位置只能看到已经流过来的部分。右边是注意力：每一个位置，直接和包括自己在内的所有位置建立连接，没有接力，也没有等待。在图上量一下：左边的两个位置隔得越远，路径就越长；右边不管隔多远，路径长度都是同一个常数。这就是本节的核心画面——一条链，对一张网。链的深度随长度增长，网的半径不随长度增长。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左侧接力链 vs 右侧全连接网，落版「一条链，对一张网」"
+        },
+        {
+          "id": "frame07-hundred",
+          "end": 227.14,
+          "start": 195.98,
+          "title": "一百个词的推演",
+          "events": [],
+          "narration": "我们用课堂上的那个问题推一遍。假设一句话有一百个词。循环网络逐个位置计算，后一步依赖前一步，所以需要大约一百步顺序计算，时间随长度线性增长。注意力层不一样：所有位置的连接可以同时建立，一步之内并行处理全部位置。长度翻倍，循环的步数也翻倍，注意力还是那一步。结论很清楚——序列越长，两者的差距越大。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "100 个点：左边逐个点亮，右边一次全亮；结论\"序列越长，差距越大\""
+        },
+        {
+          "id": "frame08-transformer",
+          "end": 265.26,
+          "start": 227.14,
+          "title": "Transformer 的答案",
+          "events": [],
+          "narration": "2017 年，论文 Attention Is All You Need 给出了答案：Transformer。论文标题本身就是主张：你需要的只是注意力。它完全基于注意力机制，不用循环，也不用卷积。结构上沿用编码器-解码器：编码器把输入符号表示序列 x 一到 x n，映射成连续表示 z；解码器基于 z，自回归地一次生成一个输出符号。收益也很直接：它允许显著更多的并行，在八块 P100 GPU 上训练十二小时，就达到了当时新的翻译质量水平。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "输入→编码器→z→解码器→输出 的架构条，配\"无循环/无卷积/纯注意力\"与 8×P100 · 12 小时"
+        },
+        {
+          "id": "frame09-next",
+          "end": 288.03,
+          "start": 265.26,
+          "title": "收束：下一个节点",
+          "events": [],
+          "narration": "所以这个节点只回答一个问题：为什么要把循环换掉。答案不是注意力更时髦，而是顺序计算挡住了并行。顺序、长序列、批处理，三道限制都指向同一件事。下一节，我们走进 Transformer 内部，看自注意力到底怎么算。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "定版句 + 两句对照总结 + 下一节点接口"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 288.033333
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.80055555
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "54572c5f2c9374fe64c57a9d6f9a9a510d0f4fe495b4f7e5f3570105db8e99a8",
+      "capabilities": {
+        "animation": true,
+        "narration": false,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 288.033333
+      },
+      "content_digest": "8bcc5a97060fc9484bf66eda19af5e437dea2c8795d6f25b9968d59a42134ee3",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.80055555
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "9b353d05b245f0dbd44cd08cdb12c51a4063c18afcd73e388063d753f6e059da"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "3ea4fe77dab87fcc657ddf2e06b2e604b5a5a3cf65b0547d91c393e9d8571dde",
+      "preparation_sha256": "d7d33333378f247c5ade1cf8882768d42263b10c419cad28c5c077a286566ff1"
+    }
+  }
+}

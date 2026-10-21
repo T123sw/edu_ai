@@ -1,0 +1,26 @@
+{
+  "request_id": "7633ec6e-2f42-4847-9b9b-96948eec919a",
+  "question": "刚才风扇的例子里，为什么改变偏置就能改变启动温度？请结合我当前看到的画面解释。",
+  "reading_context": {
+    "resource_ref": {
+      "course_id": "hf-e2e-20261017160234",
+      "material_type": "classroom",
+      "material_id": "published-c3b736d8ac969ce79217",
+      "version": 2
+    },
+    "locator": {
+      "kind": "hyperframes",
+      "seconds": 17.329448072466988,
+      "segment_id": "seg-02",
+      "content_hash": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+    },
+    "selected_text": "",
+    "classroom": {
+      "status": "paused",
+      "position": {
+        "seconds": 17.329448072466988,
+        "segment_id": "seg-02"
+      }
+    }
+  }
+}

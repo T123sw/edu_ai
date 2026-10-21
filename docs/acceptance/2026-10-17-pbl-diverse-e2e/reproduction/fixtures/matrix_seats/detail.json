@@ -1,0 +1,38 @@
+{
+  "exerciseId": "pbl_69a25b53ff47a759c544c731c1a95798",
+  "job": {
+    "schema_version": 2,
+    "version": 11,
+    "edu_job_id": "pbl_69a25b53ff47a759c544c731c1a95798",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_seats",
+    "owner": "matrix_seats",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_69a25b53ff47a759c544c731c1a95798",
+    "input_summary": {
+      "title": "用 React 做本地选座练习：2行3列，座位A1/A2/A3/B1/B2/B3，A2已售不可选。点击空位可选、再次点击取消；最多同时选择3个，第4个保持未选并提示最多3个。每个座位20元，显示已选数量与总价。确认按钮在未选择时不可用；确认后所选座位变成已售、选择清空、总价归零，并显示订单座位与金额。重置恢复仅A2已售、清空订单和提示。不需要真实支付或后端，分步实现。",
+      "topic": "用 React 做本地选座练习：2行3列，座位A1/A2/A3/B1/B2/B3，A2已售不可选。点击空位可选、再次点击取消；最多同时选择3个，第4个保持未选并提示最多3个。每个座位20元，显示已选数量与总价。确认按钮在未选择时不可用；确认后所选座位变成已售、选择清空、总价归零，并显示订单座位与金额。重置恢复仅A2已售、清空订单和提示。不需要真实支付或后端，分步实现。",
+      "exercise_id": "pbl_69a25b53ff47a759c544c731c1a95798"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error_code": "PBL_VALIDATION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:20:54.558214+00:00",
+    "started_at": "2026-10-17T09:24:47.794717+00:00",
+    "finished_at": "2026-10-17T09:25:46.734364+00:00",
+    "updated_at": "2026-10-17T09:25:46.734364+00:00"
+  },
+  "artifact": null
+}

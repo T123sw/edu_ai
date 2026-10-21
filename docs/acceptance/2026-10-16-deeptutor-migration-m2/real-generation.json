@@ -1,0 +1,27 @@
+{
+  "model_boundary": "live",
+  "pdf_parser": "pypdf-validation-only",
+  "production_writes": false,
+  "cases": [
+    {
+      "mode": "custom",
+      "saved": true,
+      "seconds": 22.51,
+      "events": 933,
+      "result_ref": {
+        "resource_type": "exam_generation",
+        "generation_id": "examgen_11e63f6afb6fbc50ad9c02fc9b37bddc"
+      }
+    },
+    {
+      "mode": "mimic",
+      "saved": true,
+      "seconds": 8.06,
+      "events": 14,
+      "result_ref": {
+        "resource_type": "exam_generation",
+        "generation_id": "examgen_33e5949022ab9a8bf46b5913009a48eb"
+      }
+    }
+  ]
+}

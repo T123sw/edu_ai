@@ -1,0 +1,19 @@
+{
+  "backend": "MainPID=1442794\nActiveEnterTimestamp=Sat 2026-10-17 13:40:48 UTC\n",
+  "history_api_loaded": true,
+  "paper_api_loaded": true,
+  "unauthenticated_history_http": 401,
+  "bridge_health": {
+    "status": "ok",
+    "version": "1.6.14",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "scope": "internal_bridge",
+    "exam_ready": false
+  },
+  "frontend_published": "published",
+  "published_at": "20261017T134148Z",
+  "served_hash_matches_release": true,
+  "final_published_at": "20261017T141142Z",
+  "final_entry_sha256": "6263d7806d3eea1f896b171a428911a2066aa66827c8a5cc51ba5fd8db770fe7",
+  "deeptutor_unit": "MainPID=1512915\nActiveEnterTimestamp=Sat 2026-10-17 14:06:07 UTC\n"
+}

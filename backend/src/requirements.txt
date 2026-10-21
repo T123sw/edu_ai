@@ -32,6 +32,7 @@ langmem @ https://github.com/langchain-ai/langmem/archive/29cbe41e58528f92e9efa7
 docx2txt>=0.8
 python-docx>=1.0.0
 Pillow>=10,<13
+PyPDF2==3.0.1  # MAIC-UI native ai_processor import (upstream dependency)
 openai>=2.45,<3
 playwright>=1.50,<2
 trio>=0.30,<1

@@ -1,0 +1,374 @@
+{
+  "title": "自注意力：QKV 与缩放点积的计算过程",
+  "content": "# 自注意力：QKV 与缩放点积的计算过程\n\n> 本节是 Transformer 课程的第 2 个节点。上一节点你已经看过编码器-解码器骨架；这一节把镜头推到骨架里最核心的那一块——**自注意力（Self-Attention）**。学完本节，你应当能写出 `Attention(Q,K,V)=softmax(QK^T/√d_k)V`，说清每一步在做什么、softmax 沿哪一维做、除以 √d_k 解决什么问题。\n\n<a id=\"sec-intuition\"></a>\n## 一、先看一个例子：\"it\" 怎么找到 \"cat\"\n\n先不写公式，看一个具体句子：\n\n> **The cat sat down because it was tired.**\n\n模型处理到 **it** 这个词时，需要判断它指代谁。它不能只看自己，必须去整句里\"检索\"。自注意力就是把这个检索过程变成可计算的矩阵运算，它借用了信息检索系统的命名习惯（查询、键、值），让每个 token 同时扮演\"提问者\"和\"被检索的条目\"。\n\n具体到这句话：\n\n- **it 发出的查询（Query）**：\"我在找一个可以被指代的名词，最好是前面出现过的动物。\"\n- **每个 token 提供的键（Key）**：\"我是 cat，我是一个名词，我是动物。\" / \"我是 sat，我是一个动词。\" / \"我是 because，我是一个连词。\"……\n- **匹配结果**：it 的查询和 cat 的键点积最大，说明\"cat 这个标签最符合我在找的东西\"。\n- **取走的值（Value）**：既然 cat 最匹配，就把 cat 携带的信息向量（\"一只猫、单数、主语\"）按较大权重取过来，其他 token 的信息按较小权重取一点。\n\n于是 it 这一位置的新表示里，就混入了 cat 的语义。这就是\"注意力\"：**权重不是固定的，而是由内容相似度动态算出来的**。\n\n> 注意：这个例子是教学用的直觉说明，帮助理解 Q/K/V 的分工；模型内部学到的投影矩阵具体编码了什么，需要靠训练数据决定，不能保证一定学出\"指代\"这种可读语义。\n\n<a id=\"sec-qkv\"></a>\n## 二、Q、K、V 三个线性投影各自的角色\n\n把上面的直觉写成矩阵。设一层输入为 $X \\in \\mathbb{R}^{n \\times d}$：$n$ 个 token，每个 token 是一个 $d$ 维向量（来自上一层的输出，或第一层的词嵌入加位置编码）。\n\n用三个**可学习的**参数矩阵把同一个 $X$ 投影三次：\n\n$$\nQ = XW_Q,\\qquad K = XW_K,\\qquad V = XW_V\n$$\n\n其中 $W_Q, W_K \\in \\mathbb{R}^{d \\times d_k}$，$W_V \\in \\mathbb{R}^{d \\times d_v}$（单头简化记号；多头时通常 $d_k = d_v = d/h$）。\n\n三个矩阵的角色可以这样记：\n\n| 符号 | 名称 | 一句话角色 | 在\"it / cat\"例子里 |\n| --- | --- | --- | --- |\n| $Q$ | 查询 Query | 当前位置**在找什么**信息 | it 在找\"可指代的名词\" |\n| $K$ | 键 Key | 每个位置**提供什么标签**，供别人来匹配 | cat 的键声明\"我是候选先行词\" |\n| $V$ | 值 Value | 一旦被选中，**实际被取走的信息** | cat 的值携带\"猫、单数、主语\" |\n\n三个要点，初学者最容易在这里出错：\n\n1. **Q、K、V 都来自同一个 $X$**，只是用了三套不同的参数。这正是\"自\"（self）的含义：序列自己查自己，而不是查另一个序列。\n2. **Q 和 K 的维度必须相同**（都是 $d_k$），因为要算点积；$V$ 的维度 $d_v$ 可以不同，它只决定输出向量的宽度。\n3. **K 和 V 是成对的**：K 负责\"被选中\"，V 负责\"被取走\"。把两者分开，模型就能做到\"用标签匹配、用内容传递\"，匹配标准和传递内容不必是同一套表示。\n\n<a id=\"sec-steps\"></a>\n## 三、计算步骤：五步走完一次自注意力\n\n自注意力的完整计算可以拆成五步，顺序不能乱：\n\n1. **线性投影得 Q/K/V**：$Q = XW_Q$，$K = XW_K$，$V = XW_V$。\n2. **计算打分矩阵** $S = QK^\\top \\in \\mathbb{R}^{n \\times n}$。第 $i$ 行第 $j$ 列的元素 $s_{ij} = q_i^\\top k_j$，表示\"位置 $i$ 的查询\"与\"位置 $j$ 的键\"有多匹配。\n3. **除以 $\\sqrt{d_k}$**：$S' = S/\\sqrt{d_k}$，把打分幅度拉回稳定范围（原因见第五节）。\n4. **softmax 归一化**：$A = \\mathrm{softmax}(S')$，**沿 key 维（每一行）**做，使每一行加起来等于 1。$A_{ij}$ 就是\"位置 $i$ 从位置 $j$ 取走多少比例的信息\"。\n5. **加权求和 V**：$O = AV$。第 $i$ 行 $o_i = \\sum_j A_{ij} v_j$，即按权重把所有位置的值向量混合起来。\n\n合起来就是缩放点积注意力公式：\n\n$$\n\\boxed{\\ \\mathrm{Attention}(Q,K,V) = \\mathrm{softmax}\\!\\left(\\frac{QK^\\top}{\\sqrt{d_k}}\\right)V\\ }\n$$\n\n维度检查（养成习惯，能挡掉大部分理解错误）：$QK^\\top$ 是 $n\\times n$；softmax 后仍是 $n\\times n$；乘 $V$（$n \\times d_v$）得 $n \\times d_v$。**输出序列长度仍是 $n$，每个位置一个 $d_v$ 维向量**——自注意力不改变序列长度，只改变每个位置的表示内容。\n\n<a id=\"sec-worked-example\"></a>\n## 四、动手推演：n=3、d_k=2 的小矩阵\n\n现在按上面的五步，手算一个最小例子。设序列有 3 个 token，$d_k = d_v = 2$，已经投影得到：\n\n$$\nQ = \\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\\\ 1 & 1 \\end{pmatrix},\\qquad\nK = \\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\\\ 1 & 1 \\end{pmatrix},\\qquad\nV = \\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\\\ 2 & 2 \\end{pmatrix}\n$$\n\n（这里故意让 $Q=K$，方便你核对数字；真实模型中 $W_Q \\ne W_K$。）\n\n**第 1 步**：Q/K/V 已给出，跳过。\n\n**第 2 步：算 $S = QK^\\top$**。$QK^\\top$ 的第 $i$ 行第 $j$ 列 = $q_i \\cdot k_j$：\n\n- 第 1 行：$q_1=(1,0)$，与 $k_1,k_2,k_3$ 点积得 $1,\\ 0,\\ 1$\n- 第 2 行：$q_2=(0,1)$，得 $0,\\ 1,\\ 1$\n- 第 3 行：$q_3=(1,1)$，得 $1,\\ 1,\\ 2$\n\n$$\nS = QK^\\top = \\begin{pmatrix} 1 & 0 & 1 \\\\ 0 & 1 & 1 \\\\ 1 & 1 & 2 \\end{pmatrix}\n$$\n\n**第 3 步：除以 $\\sqrt{d_k} = \\sqrt{2} \\approx 1.414$**：\n\n$$\nS' = \\frac{S}{\\sqrt{2}} \\approx \\begin{pmatrix} 0.707 & 0 & 0.707 \\\\ 0 & 0.707 & 0.707 \\\\ 0.707 & 0.707 & 1.414 \\end{pmatrix}\n$$\n\n**第 4 步：按行 softmax**。以第 1 行为例：$e^{0.707} \\approx 2.028$，$e^{0} = 1$，$e^{0.707} \\approx 2.028$，和为 $5.056$，于是权重约为 $(0.401,\\ 0.198,\\ 0.401)$，加起来 $=1$。\n\n第 2 行同理（对称）：$(0.198,\\ 0.401,\\ 0.401)$。\n\n第 3 行：$e^{0.707}\\approx 2.028$，$e^{0.707}\\approx 2.028$，$e^{1.414}\\approx 4.113$，和为 $8.169$，权重约为 $(0.248,\\ 0.248,\\ 0.504)$。\n\n$$\nA \\approx \\begin{pmatrix} 0.401 & 0.198 & 0.401 \\\\ 0.198 & 0.401 & 0.401 \\\\ 0.248 & 0.248 & 0.504 \\end{pmatrix}\n$$\n\n**检查**：每一行之和都是 1（$0.401+0.198+0.401=1.000$；$0.248+0.248+0.504=1.000$）。这就是\"按行归一化\"的含义——**每一行是一个概率分布，描述某个位置如何分配注意力**。\n\n**第 5 步：$O = AV$**。第 1 行：$0.401\\cdot(1,0) + 0.198\\cdot(0,1) + 0.401\\cdot(2,2) = (1.203,\\ 1.000)$。\n\n$$\nO \\approx \\begin{pmatrix} 1.203 & 1.000 \\\\ 1.000 & 1.203 \\\\ 1.248 & 1.248 \\end{pmatrix}\n$$\n\n**从数字里读出三件事**：\n\n- 第 3 个 token 的查询与自己的键最匹配（打分 2 最大），所以它从自己那里取走最多（0.504），输出 $(1.248, 1.248)$ 明显偏向自己的值 $(2,2)$。\n- 第 1 个 token 与第 3 个 token 打分相同（都是 1），所以权重也相同（0.401），输出里两者贡献一样多。\n- 输出每一行都是 $V$ 各行按权重混合的结果，所以**输出向量落在 $V$ 张成的空间里**，而不是凭空产生新方向。\n\n<a id=\"sec-scaling\"></a>\n## 五、为什么要除以 √d_k\n\n第 3 步的缩放不是可有可无的细节，它直接决定训练能不能跑起来。\n\n**推导（简化假设）**：设 $q$、$k$ 的各分量相互独立、均值为 0、方差为 1。则单项 $q_r k_r$ 的均值为 0、方差为 $\\mathbb{E}[q_r^2]\\mathbb{E}[k_r^2] = 1$。点积是 $d_k$ 个独立项之和：\n\n$$\ns = q^\\top k = \\sum_{r=1}^{d_k} q_r k_r \\quad\\Longrightarrow\\quad \\mathrm{Var}(s) = d_k,\\qquad \\text{标准差} = \\sqrt{d_k}\n$$\n\n也就是说，**$d_k$ 越大，点积的幅度约按 $\\sqrt{d_k}$ 增长**。\n\n**不缩放会怎样**：softmax 的输入幅度过大时，$e^{s}$ 之间的差距被指数放大，输出接近 one-hot（某个位置权重≈1，其余≈0）。此时 softmax 的梯度极小，参数几乎收不到有效信号，训练停滞。反过来，输入过小则输出接近均匀分布，权重没有区分度，梯度信号同样很弱。\n\n**除以 $\\sqrt{d_k}$ 的作用**：把点积的标准差从 $\\sqrt{d_k}$ 拉回 $O(1)$，softmax 的\"温度\"适中，既不过分尖锐也不过分平坦。原始论文的表述正是：$d_k$ 较大时点积幅度变大，使 softmax 进入梯度极小的区域，因此把点积缩放 $1/\\sqrt{d_k}$。\n\n> 补充：这个推导依赖\"分量独立、方差为 1\"的假设，是解释性推导而非严格定理；实践中缩放因子取 $\\sqrt{d_k}$ 是经验上稳定有效的选择。\n\n<a id=\"sec-softmax-dim\"></a>\n## 六、softmax 到底沿哪一维做\n\n这是本节最容易被含糊带过、也最常被考到的一点。\n\n$S' = QK^\\top/\\sqrt{d_k}$ 是一个 $n \\times n$ 矩阵：**行索引 $i$ 是\"谁在提问\"（query 位置），列索引 $j$ 是\"被问的是谁\"（key 位置）**。\n\nsoftmax 沿**最后一维，也就是 key 维（列方向）**做，效果是**每一行内部归一化**：\n\n$$\nA_{ij} = \\frac{\\exp(s'_{ij})}{\\sum_{j'=1}^{n} \\exp(s'_{ij'})},\\qquad \\sum_{j=1}^{n} A_{ij} = 1 \\ \\text{对每个 } i\n$$\n\n为什么必须是这一维？因为我们要回答的问题是\"**位置 $i$ 应该把注意力怎么分配给所有位置**\"。这是一个关于 $j$ 的分布，所以要对 $j$ 求和归一化，即固定 $i$（固定一行）、扫过所有 $j$。\n\n如果反过来沿列归一化，得到的是\"所有位置对位置 $j$ 的关注度之和为 1\"，这没有对应的语义，也会让第 5 步的加权求和失去\"按比例混合\"的意义。\n\n一句话记法：**一行一个分布，行内和为 1；softmax 沿 key 维做。**\n\n<a id=\"sec-selfcheck\"></a>\n## 七、自检与小结\n\n**核心公式**：\n\n$$\n\\mathrm{Attention}(Q,K,V) = \\mathrm{softmax}\\!\\left(\\frac{QK^\\top}{\\sqrt{d_k}}\\right)V\n$$\n\n**五步流程**：线性投影得 Q/K/V → 算 $QK^\\top$ → 除以 $\\sqrt{d_k}$ → 按行（key 维）softmax → 加权求和 $V$。\n\n**三个关键结论**：\n\n1. Q 是\"我在找什么\"，K 是\"我提供什么标签\"，V 是\"被选中后取走什么\"；三者由同一个 $X$ 经三套不同参数投影得到。\n2. 除以 $\\sqrt{d_k}$ 是因为点积标准差随 $\\sqrt{d_k}$ 增长，不缩放会让 softmax 饱和、梯度消失。\n3. softmax 在 key 维（每一行）上归一化，每行是一个注意力概率分布。\n\n**自检问题**（先自己答，再回看对应章节）：\n\n1. 能否不看笔记写出完整公式，并指出 softmax 沿哪一维做？→ 第六节\n2. 若 $d_k$ 从 64 增大到 256，不缩放时点积幅度大约变成几倍？→ 第五节（约 2 倍，因为 $\\sqrt{256}/\\sqrt{64}=2$）\n3. 在第四节的小例子里，为什么第 3 个 token 的输出最接近它自己的值向量？→ 第四节（它的自匹配打分最高，权重 0.504 最大）\n4. 如果把 softmax 改成沿列归一化，第 5 步的 $AV$ 还叫\"加权求和\"吗？→ 第六节（不再对应\"某位置按比例混合所有位置\"的语义）\n\n**本节边界**：这里只讲单头自注意力的机制。多头注意力如何切分子空间、掩码如何阻止看到未来、位置编码如何补回顺序信息，属于后续节点；本节也不涉及从零实现可运行的 Transformer 训练代码。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 11.3
+      },
+      "sections": [
+        {
+          "section_id": "sec-intuition",
+          "content_sha256": "d79bc5e5724bec56e6498e14ea9f924680ad6faf4e1b189642457582de0e9f97"
+        },
+        {
+          "section_id": "sec-qkv",
+          "content_sha256": "7460b1ba831585b26c8b54ba7f81b0510b74a127bddbe12fbf0161ebb848fc19"
+        },
+        {
+          "section_id": "sec-steps",
+          "content_sha256": "c1c4ab7d510378616b20d3cddc04f4a4c73c792b80d79b2769cfdda58765fd01"
+        },
+        {
+          "section_id": "sec-worked-example",
+          "content_sha256": "fb0576ee38365f268a9bd652239cd6a10584db903b1055ea0fc3a73175636882"
+        },
+        {
+          "section_id": "sec-scaling",
+          "content_sha256": "ff59b753c5a513af554a351ce9fea9574f93f03be857300401f73eac03edf818"
+        },
+        {
+          "section_id": "sec-softmax-dim",
+          "content_sha256": "057a0c27bcc0d2dfbd45da21ed7522d1b719da5202614cc0c4ff260c806a1d52"
+        },
+        {
+          "section_id": "sec-selfcheck",
+          "content_sha256": "4437975f7b7018dc72b374d3167b8f11db8fe7c92d1609b82e2553e144689f76"
+        }
+      ],
+      "spec_digest": "c80b8c0b61320a26f8a21c5b4aecfee61a8b088d4bd5f0b70495cd9a585e6f9c",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-intuition"
+          },
+          "objective_id": "n2-self-attention:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-qkv"
+          },
+          "objective_id": "n2-self-attention:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-steps"
+          },
+          "objective_id": "n2-self-attention:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "sec-worked-example"
+          },
+          "objective_id": "n2-self-attention:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-scaling"
+          },
+          "objective_id": "n2-self-attention:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-softmax-dim"
+          },
+          "objective_id": "n2-self-attention:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-selfcheck"
+          },
+          "objective_id": "n2-self-attention:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec-qkv"
+          },
+          "explanation": "落实整课要求中\"自注意力\"这一核心机制：用表格与要点说明 Q/K/V 三个线性投影的角色与来源，并给出 Attention(Q,K,V)=softmax(QK^T/√d_k)V 的完整形式。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-steps"
+          },
+          "explanation": "把自注意力计算拆成五步并给出维度检查，说明输出序列长度不变，为后续多头注意力与编码器子层打下基础。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "teaching_context_digest": "29726f3a640932130a0b65f2bf65ecf716865740b08bf72009528c67f7a3773a"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文第二节（sec-qkv）用表格与三条要点说明 Q/K/V 三个线性投影的角色与来源，第三节（sec-steps）按“线性投影→QK^T→除以√d_k→按行softmax→加权求和V”五步给出顺序与维度检查，第五节解释缩放原因，第六节说明 softmax 沿 key 维（每行）归一化，完整覆盖本节点三项目标；未越界讲授多头、掩码、位置编码（第七节明确列为后续节点）。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "公式 Attention(Q,K,V)=softmax(QK^T/√d_k)V 正确；第四节手算可复核：QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以√2≈1.414 后第1行 softmax 得 (0.401,0.198,0.401)，第3行 (0.248,0.248,0.504)，O 第1行 0.401·(1,0)+0.198·(0,1)+0.401·(2,2)=(1.203,1.000)，与正文一致；第五节方差推导 Var(s)=d_k、标准差√d_k 正确，并注明是解释性推导；第六节指出沿列归一化无对应语义，判断合理。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第一节用“The cat sat down because it was tired.”的 it→cat 检索直觉说明 Q/K/V 分工，并加注说明这是教学直觉、投影矩阵语义由训练决定，边界诚实；第四节给出 n=3、d_k=2 的完整手算并逐行校验和为 1，与节点活动“手算 QK^T、除以√d_k、按行 softmax”对应。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为直觉例子→Q/K/V 角色→五步流程→手算推演→缩放原因→softmax 维度→自检小结，先直觉后公式再推演，符合入门深度；第七节自检题均回指具体章节（如 d_k 64→256 约 2 倍回指第五节），顺序落实在正文而非仅声称。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文关键主张与所给依据一致：Q/K/V 检索式命名与 it/cat 例子对应 ev_8d31cb8c47a018f3e14d01a8；按行 softmax 与缩放点积公式对应 ev_cf807b1a738b6c6375a3ff43 与 ev_b65c279e9d830a24a6006942；√d_k 方差推导与“softmax 进入梯度极小区域”表述对应 ev_b65c279e9d830a24a6006942 与 ev_6f83a834a32bd420dd30f8bd。正文未声称引用未提供的外部全文。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三项节点目标均有讲解与自检：Q/K/V 角色（第二、七节）、五步顺序（第三、七节）、√d_k 原因与 softmax 维度（第五、六节）；第七节明确本节边界（多头、掩码、位置编码留待后续），无重要遗漏；估算 11.3 分钟为参考值，不作为门槛。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文第二节（sec-qkv）用表格与三条要点说明 Q/K/V 三个线性投影的角色与来源，第三节（sec-steps）按“线性投影→QK^T→除以√d_k→按行softmax→加权求和V”五步给出顺序与维度检查，第五节解释缩放原因，第六节说明 softmax 沿 key 维（每行）归一化，完整覆盖本节点三项目标；未越界讲授多头、掩码、位置编码（第七节明确列为后续节点）。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "公式 Attention(Q,K,V)=softmax(QK^T/√d_k)V 正确；第四节手算可复核：QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以√2≈1.414 后第1行 softmax 得 (0.401,0.198,0.401)，第3行 (0.248,0.248,0.504)，O 第1行 0.401·(1,0)+0.198·(0,1)+0.401·(2,2)=(1.203,1.000)，与正文一致；第五节方差推导 Var(s)=d_k、标准差√d_k 正确，并注明是解释性推导；第六节指出沿列归一化无对应语义，判断合理。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第一节用“The cat sat down because it was tired.”的 it→cat 检索直觉说明 Q/K/V 分工，并加注说明这是教学直觉、投影矩阵语义由训练决定，边界诚实；第四节给出 n=3、d_k=2 的完整手算并逐行校验和为 1，与节点活动“手算 QK^T、除以√d_k、按行 softmax”对应。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为直觉例子→Q/K/V 角色→五步流程→手算推演→缩放原因→softmax 维度→自检小结，先直觉后公式再推演，符合入门深度；第七节自检题均回指具体章节（如 d_k 64→256 约 2 倍回指第五节），顺序落实在正文而非仅声称。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文关键主张与所给依据一致：Q/K/V 检索式命名与 it/cat 例子对应 ev_8d31cb8c47a018f3e14d01a8；按行 softmax 与缩放点积公式对应 ev_cf807b1a738b6c6375a3ff43 与 ev_b65c279e9d830a24a6006942；√d_k 方差推导与“softmax 进入梯度极小区域”表述对应 ev_b65c279e9d830a24a6006942 与 ev_6f83a834a32bd420dd30f8bd。正文未声称引用未提供的外部全文。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三项节点目标均有讲解与自检：Q/K/V 角色（第二、七节）、五步顺序（第三、七节）、√d_k 原因与 softmax 维度（第五、六节）；第七节明确本节边界（多头、掩码、位置编码留待后续），无重要遗漏；估算 11.3 分钟为参考值，不作为门槛。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第四节手算中第 2 行 softmax 写作 (0.198,0.401,0.401)，与第 1 行对称，可补一句“因 q_2 与 k_2、k_3 打分相同”使读者更易核对。",
+              "第六节可补一句说明：在 PyTorch 中即对最后一维 dim=-1 做 softmax，便于有编程背景的读者落地。",
+              "第五节“输入过小则输出接近均匀”可加一句“实际中更常见的是过大导致饱和”，避免读者误以为两者同等常见。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-qkv 实际用表格列出 Q/K/V 角色并给出 Q=XW_Q 等投影式与完整注意力公式，真实支持“自注意力核心机制”这一整课要求的局部贡献，未伪称整门课已满足。",
+                "locator": {
+                  "section_id": "sec-qkv"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-steps 实际按五步顺序给出计算流程与维度检查（n×n→n×d_v），并说明输出序列长度不变，确实为后续多头与编码器子层打基础。",
+                "locator": {
+                  "section_id": "sec-steps"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-intuition 用 it→cat 例子说明查询在找什么、键提供什么标签、值被取走什么，直接支持 o1 的角色说明。",
+                "locator": {
+                  "section_id": "sec-intuition"
+                },
+                "binding_id": "n2-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-qkv 表格逐项给出 Q“在找什么”、K“提供什么标签”、V“实际被取走的信息”，并强调三者同源于 X，完整支持 o1。",
+                "locator": {
+                  "section_id": "sec-qkv"
+                },
+                "binding_id": "n2-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-steps 按“线性投影→QK^T→除以√d_k→按行 softmax→加权求和 V”编号复述，顺序与 o2 要求一致。",
+                "locator": {
+                  "section_id": "sec-steps"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-worked-example 以 n=3、d_k=2 手算 QK^T、缩放、按行 softmax 并校验每行和为 1，作为 o2 的练习性落实有效。",
+                "locator": {
+                  "section_id": "sec-worked-example"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-scaling 给出 Var(s)=d_k、标准差√d_k 的推导与 softmax 饱和导致梯度极小的解释，支持 o3 的缩放原因部分。",
+                "locator": {
+                  "section_id": "sec-scaling"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-softmax-dim 明确行索引为 query、列索引为 key，softmax 沿 key 维使每行和为 1，并说明沿列归一化无对应语义，支持 o3 的维度部分。",
+                "locator": {
+                  "section_id": "sec-softmax-dim"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-selfcheck 的自检题覆盖公式书写、softmax 维度、d_k 增大时幅度约 2 倍及小例子权重，作为 o3 的检查环节有效。",
+                "locator": {
+                  "section_id": "sec-selfcheck"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "f51b1671373ff5bcb72c77a857a7e0a472921614f219580e3a3c9f89bd53f797",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第四节手算中第 2 行 softmax 写作 (0.198,0.401,0.401)，与第 1 行对称，可补一句“因 q_2 与 k_2、k_3 打分相同”使读者更易核对。",
+        "第六节可补一句说明：在 PyTorch 中即对最后一维 dim=-1 做 softmax，便于有编程背景的读者落地。",
+        "第五节“输入过小则输出接近均匀”可加一句“实际中更常见的是过大导致饱和”，避免读者误以为两者同等常见。"
+      ],
+      "content_sha256": "f51b1671373ff5bcb72c77a857a7e0a472921614f219580e3a3c9f89bd53f797",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec-qkv 实际用表格列出 Q/K/V 角色并给出 Q=XW_Q 等投影式与完整注意力公式，真实支持“自注意力核心机制”这一整课要求的局部贡献，未伪称整门课已满足。",
+          "locator": {
+            "section_id": "sec-qkv"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-steps 实际按五步顺序给出计算流程与维度检查（n×n→n×d_v），并说明输出序列长度不变，确实为后续多头与编码器子层打基础。",
+          "locator": {
+            "section_id": "sec-steps"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-intuition 用 it→cat 例子说明查询在找什么、键提供什么标签、值被取走什么，直接支持 o1 的角色说明。",
+          "locator": {
+            "section_id": "sec-intuition"
+          },
+          "binding_id": "n2-self-attention:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-qkv 表格逐项给出 Q“在找什么”、K“提供什么标签”、V“实际被取走的信息”，并强调三者同源于 X，完整支持 o1。",
+          "locator": {
+            "section_id": "sec-qkv"
+          },
+          "binding_id": "n2-self-attention:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-steps 按“线性投影→QK^T→除以√d_k→按行 softmax→加权求和 V”编号复述，顺序与 o2 要求一致。",
+          "locator": {
+            "section_id": "sec-steps"
+          },
+          "binding_id": "n2-self-attention:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-worked-example 以 n=3、d_k=2 手算 QK^T、缩放、按行 softmax 并校验每行和为 1，作为 o2 的练习性落实有效。",
+          "locator": {
+            "section_id": "sec-worked-example"
+          },
+          "binding_id": "n2-self-attention:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-scaling 给出 Var(s)=d_k、标准差√d_k 的推导与 softmax 饱和导致梯度极小的解释，支持 o3 的缩放原因部分。",
+          "locator": {
+            "section_id": "sec-scaling"
+          },
+          "binding_id": "n2-self-attention:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-softmax-dim 明确行索引为 query、列索引为 key，softmax 沿 key 维使每行和为 1，并说明沿列归一化无对应语义，支持 o3 的维度部分。",
+          "locator": {
+            "section_id": "sec-softmax-dim"
+          },
+          "binding_id": "n2-self-attention:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-selfcheck 的自检题覆盖公式书写、softmax 维度、d_k 增大时幅度约 2 倍及小例子权重，作为 o3 的检查环节有效。",
+          "locator": {
+            "section_id": "sec-selfcheck"
+          },
+          "binding_id": "n2-self-attention:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "47357c4d00a52e12aa63d2d7488e97ba35833a9349042d0e595c78ecc6373eb3"
+    }
+  }
+}

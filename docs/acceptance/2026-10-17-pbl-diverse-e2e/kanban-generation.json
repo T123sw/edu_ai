@@ -1,0 +1,132 @@
+{
+  "case": "kanban",
+  "topic": "用 React 做本地任务看板，分待办、进行中、已完成三列。添加任务时标题去首尾空格，空白不能添加；每项可以用按钮前进或后退一个状态，首列无后退、末列无前进。可以删除任务。每列显示数量，总任务数不随移动变化。两条同名任务应能独立移动和删除。无需拖拽、后端或保存到服务器。拆成合理增量步骤。",
+  "exerciseId": "pbl_dca0a6ad32bd81416b04f7670b37d7ff",
+  "generationPassed": false,
+  "job": {
+    "schema_version": 2,
+    "version": 13,
+    "edu_job_id": "pbl_dca0a6ad32bd81416b04f7670b37d7ff",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_kanban",
+    "owner": "matrix_kanban",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_dca0a6ad32bd81416b04f7670b37d7ff",
+    "input_summary": {
+      "title": "用 React 做本地任务看板，分待办、进行中、已完成三列。添加任务时标题去首尾空格，空白不能添加；每项可以用按钮前进或后退一个状态，首列无后退、末列无前进。可以删除任务。每列显示数量，总任务数不随移动变化。两条同名任务应能独立移动和删除。无需拖拽、后端或保存到服务器。拆成合理增量步骤。",
+      "topic": "用 React 做本地任务看板，分待办、进行中、已完成三列。添加任务时标题去首尾空格，空白不能添加；每项可以用按钮前进或后退一个状态，首列无后退、末列无前进。可以删除任务。每列显示数量，总任务数不随移动变化。两条同名任务应能独立移动和删除。无需拖拽、后端或保存到服务器。拆成合理增量步骤。",
+      "exercise_id": "pbl_dca0a6ad32bd81416b04f7670b37d7ff"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error_code": "PBL_VALIDATION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:20:54.590099+00:00",
+    "started_at": "2026-10-17T09:25:17.686893+00:00",
+    "finished_at": "2026-10-17T09:26:20.559755+00:00",
+    "updated_at": "2026-10-17T09:26:20.559755+00:00"
+  },
+  "events": [
+    {
+      "seconds": 4.51,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 266.31,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 276.62,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：添加任务并分三列展示"
+      ]
+    },
+    {
+      "seconds": 282.79,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：添加任务并分三列展示"
+      ]
+    },
+    {
+      "seconds": 297.17,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：前进与后退移动任务"
+      ]
+    },
+    {
+      "seconds": 303.35,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：前进与后退移动任务"
+      ]
+    },
+    {
+      "seconds": 307.46,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：前进与后退移动任务"
+      ]
+    },
+    {
+      "seconds": 313.64,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：前进与后退移动任务"
+      ]
+    },
+    {
+      "seconds": 317.78,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：前进与后退移动任务"
+      ]
+    },
+    {
+      "seconds": 323.96,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：前进与后退移动任务"
+      ]
+    },
+    {
+      "seconds": 330.14,
+      "state": [
+        "failed",
+        "failed",
+        "任务执行失败"
+      ]
+    }
+  ],
+  "seconds": 330.15,
+  "idempotentCreate": true
+}

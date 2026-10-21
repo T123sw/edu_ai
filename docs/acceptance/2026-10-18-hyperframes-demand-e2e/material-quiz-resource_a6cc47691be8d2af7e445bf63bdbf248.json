@@ -1,0 +1,1308 @@
+{
+  "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+  "status": "ready",
+  "content": {
+    "title": "截距 b 让直线上下平移：两道检查练习",
+    "questions": [
+      {
+        "id": "q1_yintercept",
+        "stem": "已知两条直线 y=2x+5 和 y=2x−3。请分别写出它们与 y 轴的交点坐标，并说明哪一条直线在另一条的上方。",
+        "type": "short_answer",
+        "answer": "y=2x+5 与 y 轴交于 (0,5)；y=2x−3 与 y 轴交于 (0,−3)。y=2x+5 在 y=2x−3 的上方（竖直方向高 8 格）。",
+        "difficulty": "easy",
+        "explanation": "与 y 轴相交时 x=0。把 x=0 代入 y=2x+b，得 y=b，所以交点坐标是 (0,b)。对 y=2x+5，b=5，交点为 (0,5)；对 y=2x−3，b=−3，交点为 (0,−3)。两条直线的斜率都是 2，所以它们平行，竖直方向的距离处处相同：5−(−3)=8，即 y=2x+5 始终在 y=2x−3 上方 8 格。常见错误是把 b 当成 x 轴交点，或把 −3 写成 (0,3)，忘记负号表示在原点下方。"
+      },
+      {
+        "id": "q2_shift_and_slope",
+        "stem": "把直线 y=2x 改成 y=2x−2 后，下列说法正确的是：",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "直线整体向下平移 2 格，斜率仍然是 2",
+          "直线整体向上平移 2 格，斜率仍然是 2",
+          "直线整体向下平移 2 格，斜率变成 −2",
+          "直线整体向下平移 2 格，斜率变成 0"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：b 从 0 变成 −2，b 减小了 2，直线整体向下平移 2 格；与 y 轴交点从 (0,0) 变为 (0,−2)。斜率由 x 的系数决定，这里始终是 2，所以斜率不变。B 错误：b 变小是向下平移，不是向上；若改成 y=2x+2 才是向上平移 2 格。C 错误：−2 是常数项 b，不是斜率；斜率仍是 x 前面的系数 2，把 b 的符号当成斜率符号是常见混淆。D 错误：斜率变成 0 意味着直线水平，而 y=2x−2 中 x 每增加 1，y 仍增加 2，直线仍然上升，斜率不是 0。"
+      },
+      {
+        "id": "q3_parallel_check",
+        "stem": "关于 y=2x、y=2x+2、y=2x−2 这三条直线，下列说法正确的有（可多选）：",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "三条直线互相平行",
+          "三条直线的斜率都是 2",
+          "三条直线与 y 轴的交点分别是 (0,0)、(0,2)、(0,−2)",
+          "三条直线会在某一点相交"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：三条直线的斜率相同（都是 2）、截距不同，斜率相同的直线互相平行，永不相交。B 正确：三条式子中 x 的系数都是 2，b 只改变常数项，不改变斜率。C 正确：令 x=0，y 分别等于 0、2、−2，交点就是 (0,0)、(0,2)、(0,−2)。D 错误：三条直线平行，没有公共点；它们只是竖直方向相差 2 格和 4 格，看起来“靠得近”但不会相交。"
+      }
+    ]
+  },
+  "version": 1,
+  "scope_id": "node_intercept_shift",
+  "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+  "questions": [
+    {
+      "id": "q1_yintercept",
+      "stem": "已知两条直线 y=2x+5 和 y=2x−3。请分别写出它们与 y 轴的交点坐标，并说明哪一条直线在另一条的上方。",
+      "type": "short_answer",
+      "answer": "y=2x+5 与 y 轴交于 (0,5)；y=2x−3 与 y 轴交于 (0,−3)。y=2x+5 在 y=2x−3 的上方（竖直方向高 8 格）。",
+      "difficulty": "easy",
+      "explanation": "与 y 轴相交时 x=0。把 x=0 代入 y=2x+b，得 y=b，所以交点坐标是 (0,b)。对 y=2x+5，b=5，交点为 (0,5)；对 y=2x−3，b=−3，交点为 (0,−3)。两条直线的斜率都是 2，所以它们平行，竖直方向的距离处处相同：5−(−3)=8，即 y=2x+5 始终在 y=2x−3 上方 8 格。常见错误是把 b 当成 x 轴交点，或把 −3 写成 (0,3)，忘记负号表示在原点下方。"
+    },
+    {
+      "id": "q2_shift_and_slope",
+      "stem": "把直线 y=2x 改成 y=2x−2 后，下列说法正确的是：",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "直线整体向下平移 2 格，斜率仍然是 2",
+        "直线整体向上平移 2 格，斜率仍然是 2",
+        "直线整体向下平移 2 格，斜率变成 −2",
+        "直线整体向下平移 2 格，斜率变成 0"
+      ],
+      "difficulty": "medium",
+      "explanation": "A 正确：b 从 0 变成 −2，b 减小了 2，直线整体向下平移 2 格；与 y 轴交点从 (0,0) 变为 (0,−2)。斜率由 x 的系数决定，这里始终是 2，所以斜率不变。B 错误：b 变小是向下平移，不是向上；若改成 y=2x+2 才是向上平移 2 格。C 错误：−2 是常数项 b，不是斜率；斜率仍是 x 前面的系数 2，把 b 的符号当成斜率符号是常见混淆。D 错误：斜率变成 0 意味着直线水平，而 y=2x−2 中 x 每增加 1，y 仍增加 2，直线仍然上升，斜率不是 0。"
+    },
+    {
+      "id": "q3_parallel_check",
+      "stem": "关于 y=2x、y=2x+2、y=2x−2 这三条直线，下列说法正确的有（可多选）：",
+      "type": "multiple_choice",
+      "answer": "A,B,C",
+      "options": [
+        "三条直线互相平行",
+        "三条直线的斜率都是 2",
+        "三条直线与 y 轴的交点分别是 (0,0)、(0,2)、(0,−2)",
+        "三条直线会在某一点相交"
+      ],
+      "difficulty": "medium",
+      "explanation": "A 正确：三条直线的斜率相同（都是 2）、截距不同，斜率相同的直线互相平行，永不相交。B 正确：三条式子中 x 的系数都是 2，b 只改变常数项，不改变斜率。C 正确：令 x=0，y 分别等于 0、2、−2，交点就是 (0,0)、(0,2)、(0,−2)。D 错误：三条直线平行，没有公共点；它们只是竖直方向相差 2 格和 4 格，看起来“靠得近”但不会相交。"
+    }
+  ],
+  "created_at": "2026-10-18T06:13:11.625220+00:00",
+  "created_by": "hf_e2e_20261017160234",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-10-18T06:13:11.625220+00:00",
+  "visibility": "private",
+  "material_id": "resource_a6cc47691be8d2af7e445bf63bdbf248",
+  "origin_type": "personal",
+  "content_hash": "61ba1a2ac35165e1a6a2b42c23efb1557dea92913a97a5b8bd62facd92907f0c",
+  "material_type": "quiz",
+  "owner_user_id": "hf_e2e_20261017160234",
+  "preparation_id": "prep_f490a8326a334d33a472aa13e1f6c1c9",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 3.93
+      },
+      "spec_digest": "0c74576f0b4e867aca0aff7ec58a003ef3372c5ff7aec56999b67bfafe7758bb",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1_yintercept"
+          },
+          "objective_id": "node_intercept_shift:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q2_shift_and_slope"
+          },
+          "objective_id": "node_intercept_shift:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q3_parallel_check"
+          },
+          "objective_id": "node_intercept_shift:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q1_yintercept"
+          },
+          "objective_id": "node_intercept_shift:o4"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q2_shift_and_slope"
+          },
+          "objective_id": "node_intercept_shift:o4"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q1_yintercept"
+          },
+          "explanation": "第 1 题对应方案中的检查练习一：由 b 写出与 y 轴交点坐标并比较上下位置。",
+          "requirement_id": "req_two_exercises"
+        },
+        {
+          "locator": {
+            "question_id": "q2_shift_and_slope"
+          },
+          "explanation": "第 2 题对应方案中的检查练习二：判断 b 变化后直线如何移动、斜率是否改变。",
+          "requirement_id": "req_two_exercises"
+        },
+        {
+          "locator": {
+            "question_id": "q2_shift_and_slope"
+          },
+          "explanation": "通过判断 b 从 0 变为 −2 时直线整体下移 2 格，检查对“截距让直线上下平移”这一唯一知识点的理解。",
+          "requirement_id": "req_intercept_shift"
+        },
+        {
+          "locator": {
+            "question_id": "q1_yintercept"
+          },
+          "explanation": "要求分别写出 (0,5) 与 (0,−3)，检查“x=0 时 y=b，交点为 (0,b)”的掌握。",
+          "requirement_id": "req_yaxis_intersection"
+        },
+        {
+          "locator": {
+            "question_id": "q3_parallel_check"
+          },
+          "explanation": "通过多选判断三条直线平行、斜率都是 2，检查“b 只改常数项不改斜率”的理解。",
+          "requirement_id": "req_slope_constant"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需两次代入 x=0 得到 (0,5) 与 (0,−3)，再依据斜率相同、竖直距离 8 格判断哪条在上方，并组织文字作答。",
+          "question_id": "q1_yintercept",
+          "thinking_seconds": 60
+        },
+        {
+          "reason": "需比较 b 从 0 到 −2 的变化方向与格数，再确认斜率由 x 的系数决定仍为 2，并逐一排除把 b 当斜率或把斜率当 0 的干扰项。",
+          "question_id": "q2_shift_and_slope",
+          "thinking_seconds": 35
+        },
+        {
+          "reason": "需分别核对三条直线的斜率、y 轴交点，并判断平行直线是否相交，逐项确认多选答案集合完整。",
+          "question_id": "q3_parallel_check",
+          "thinking_seconds": 45
+        }
+      ],
+      "teaching_context_digest": "8452d26eeebe1ac32df81c9753c8917452689c961ca7599d492b155ce2b457bb"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "本资源为习题，承担 req_two_exercises（q1、q2 两题）、req_intercept_shift（q2 判断 b 由 0 变 −2 时整体下移 2 格）、req_yaxis_intersection（q1 求 (0,5)、(0,−3)）、req_slope_constant（q3 判断三条线斜率均为 2 且平行）的节点分工；动画、语音、讲义、保存课程属其他资源，不要求本资源包含。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "三题数学均正确：x=0 时 y=b，故 y=2x+5 交 (0,5)、y=2x−3 交 (0,−3)，竖直距离 8；y=2x−2 相对 y=2x 下移 2 格、斜率仍为 2；y=2x、y=2x+2、y=2x−2 斜率同为 2、截距不同，互相平行且无公共点。解析中的推导与结论一致，无事实或计算错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "q1 为简答，需两次代入 x=0 并比较上下位置；q2 四个干扰项分别对应“方向搞反”“把 b 当斜率”“斜率变 0”三类真实误区；q3 多选答案集合 A,B,C 完整，D 为平行不相交的反例。逐题独立求解与参考答案一致。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序由“由 b 写交点”到“判断平移与斜率”再到“综合判断平行与交点”，与节点目标 o1→o2→o3 递进一致；语言为中文，难度 easy/medium/medium 适合初中入门，未涉及象限、x 轴交点等排除内容。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "题目内容与 research_context 中百度百科“x=0 时交点为 (0,b)”“向上平移 n 格解析式为 y=kx+b+n”“平行直线斜率相等”及 Illustrative Mathematics 的竖直截距表述一致，未出现来源未支持的断言。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "每题均含 id、type、stem、answer、explanation、difficulty；选择题有 options 且答案用大写字母、多选用逗号分隔；简答题省略 options 符合契约；题干自足、未泄露答案，解析逐步求解并说明错误选项。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本资源为习题，承担 req_two_exercises（q1、q2 两题）、req_intercept_shift（q2 判断 b 由 0 变 −2 时整体下移 2 格）、req_yaxis_intersection（q1 求 (0,5)、(0,−3)）、req_slope_constant（q3 判断三条线斜率均为 2 且平行）的节点分工；动画、语音、讲义、保存课程属其他资源，不要求本资源包含。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "三题数学均正确：x=0 时 y=b，故 y=2x+5 交 (0,5)、y=2x−3 交 (0,−3)，竖直距离 8；y=2x−2 相对 y=2x 下移 2 格、斜率仍为 2；y=2x、y=2x+2、y=2x−2 斜率同为 2、截距不同，互相平行且无公共点。解析中的推导与结论一致，无事实或计算错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q1 为简答，需两次代入 x=0 并比较上下位置；q2 四个干扰项分别对应“方向搞反”“把 b 当斜率”“斜率变 0”三类真实误区；q3 多选答案集合 A,B,C 完整，D 为平行不相交的反例。逐题独立求解与参考答案一致。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序由“由 b 写交点”到“判断平移与斜率”再到“综合判断平行与交点”，与节点目标 o1→o2→o3 递进一致；语言为中文，难度 easy/medium/medium 适合初中入门，未涉及象限、x 轴交点等排除内容。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "题目内容与 research_context 中百度百科“x=0 时交点为 (0,b)”“向上平移 n 格解析式为 y=kx+b+n”“平行直线斜率相等”及 Illustrative Mathematics 的竖直截距表述一致，未出现来源未支持的断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "每题均含 id、type、stem、answer、explanation、difficulty；选择题有 options 且答案用大写字母、多选用逗号分隔；简答题省略 options 符合契约；题干自足、未泄露答案，解析逐步求解并说明错误选项。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q2 的正确答案位于 A，q3 的正确集合也以 A 开头，可考虑调整选项顺序，避免正确项长期落在同一位置。",
+              "q1 为简答且需文字作答，在 3 分钟共享预算下可提示“只写交点坐标与上下关系即可”，降低书写负担。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1_yintercept",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "independent_solution": "与 y 轴相交时 x=0。y=2x+5 代入得 y=5，交点 (0,5)；y=2x−3 代入得 y=−3，交点 (0,−3)。两直线斜率同为 2，竖直方向恒差 5−(−3)=8，故 y=2x+5 在 y=2x−3 上方 8 格。"
+              },
+              {
+                "question_id": "q2_shift_and_slope",
+                "option_checks": [
+                  {
+                    "reasoning": "b 由 0 变为 −2，减小 2，直线整体下移 2 格；x 的系数仍为 2，斜率不变，该选项完全正确。",
+                    "option_text": "直线整体向下平移 2 格，斜率仍然是 2",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：b 从 0 变成 −2，b 减小了 2，直线整体向下平移 2 格；与 y 轴交点从 (0,0) 变为 (0,−2)。斜率由 x 的系数决定，这里始终是 2，所以斜率不变。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0—2 段指出 b 减小 2 导致下移 2 格、交点由 (0,0) 变 (0,−2)、斜率由 x 的系数决定仍为 2，与独立求解一致，无错误批评。"
+                  },
+                  {
+                    "reasoning": "b 变小对应向下平移，说“向上平移 2 格”方向错误，故该选项错误。",
+                    "option_text": "直线整体向上平移 2 格，斜率仍然是 2",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：b 变小是向下平移，不是向上；若改成 y=2x+2 才是向上平移 2 格。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3—4 段正确指出 b 变小是向下平移，并给出 y=2x+2 才是上移 2 格的反例，批评成立。"
+                  },
+                  {
+                    "reasoning": "平移方向判断正确，但 −2 是常数项 b，斜率仍是 x 的系数 2，说“斜率变成 −2”错误。",
+                    "option_text": "直线整体向下平移 2 格，斜率变成 −2",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：−2 是常数项 b，不是斜率；斜率仍是 x 前面的系数 2，把 b 的符号当成斜率符号是常见混淆。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 5—6 段准确区分常数项 b 与斜率，指出把 b 的符号当斜率符号是常见混淆，理由成立。"
+                  },
+                  {
+                    "reasoning": "斜率变为 0 意味着水平直线，而 y=2x−2 中 x 每增 1、y 增 2，仍上升，故该选项错误。",
+                    "option_text": "直线整体向下平移 2 格，斜率变成 0",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：斜率变成 0 意味着直线水平，而 y=2x−2 中 x 每增加 1，y 仍增加 2，直线仍然上升，斜率不是 0。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 7 段用“x 每增加 1，y 仍增加 2”说明斜率不是 0，推理正确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "independent_solution": "y=2x 的 b=0，y=2x−2 的 b=−2，b 减少 2，直线整体向下平移 2 格，与 y 轴交点由 (0,0) 变为 (0,−2)；x 的系数仍为 2，斜率不变。故只有 A 正确。"
+              },
+              {
+                "question_id": "q3_parallel_check",
+                "option_checks": [
+                  {
+                    "reasoning": "三线斜率同为 2、截距不同，互相平行且永不相交，该选项正确。",
+                    "option_text": "三条直线互相平行",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：三条直线的斜率相同（都是 2）、截距不同，斜率相同的直线互相平行，永不相交。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段以“斜率相同、截距不同”推出平行且不相交，与独立求解一致。"
+                  },
+                  {
+                    "reasoning": "三个式子中 x 的系数都是 2，b 只改常数项，斜率均为 2，该选项正确。",
+                    "option_text": "三条直线的斜率都是 2",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：三条式子中 x 的系数都是 2，b 只改变常数项，不改变斜率。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 1 段说明 x 的系数都是 2、b 只改变常数项，判断准确。"
+                  },
+                  {
+                    "reasoning": "令 x=0，y 分别等于 0、2、−2，交点正是 (0,0)、(0,2)、(0,−2)，该选项正确。",
+                    "option_text": "三条直线与 y 轴的交点分别是 (0,0)、(0,2)、(0,−2)",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：令 x=0，y 分别等于 0、2、−2，交点就是 (0,0)、(0,2)、(0,−2)。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 2 段代入 x=0 得到三个交点坐标，与独立计算一致。"
+                  },
+                  {
+                    "reasoning": "三线平行无公共点，说“会在某一点相交”错误。",
+                    "option_text": "三条直线会在某一点相交",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：三条直线平行，没有公共点；它们只是竖直方向相差 2 格和 4 格，看起来“靠得近”但不会相交。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3—4 段指出平行直线没有公共点，并说明竖直相差 2 格与 4 格不等于相交，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "independent_solution": "三条直线 x 的系数都是 2，斜率均为 2；令 x=0 得 y 分别为 0、2、−2，交点 (0,0)、(0,2)、(0,−2)。斜率相同、截距不同，三线互相平行、无公共点。故正确项为 A、B、C。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 确为方案中的检查练习一：分别写出 y=2x+5 与 y=2x−3 的 y 轴交点并比较上下位置，与 req_two_exercises 的“两道练习”分工相符。",
+                "locator": {
+                  "question_id": "q1_yintercept"
+                },
+                "binding_id": "req_two_exercises",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 为方案中的检查练习二：判断 y=2x 改为 y=2x−2 后直线如何移动、斜率是否改变，真实支持该要求。",
+                "locator": {
+                  "question_id": "q2_shift_and_slope"
+                },
+                "binding_id": "req_two_exercises",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 正确选项要求判断 b 由 0 变 −2 时整体下移 2 格，直接检验“截距让直线上下平移”这一唯一知识点。",
+                "locator": {
+                  "question_id": "q2_shift_and_slope"
+                },
+                "binding_id": "req_intercept_shift",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 参考答案明确给出 (0,5) 与 (0,−3)，并解释 x=0 时 y=b，真实检验“交点为 (0,b)”。",
+                "locator": {
+                  "question_id": "q1_yintercept"
+                },
+                "binding_id": "req_yaxis_intersection",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 多选要求确认三线斜率都是 2 且互相平行，检验“b 只改常数项不改斜率”的理解。",
+                "locator": {
+                  "question_id": "q3_parallel_check"
+                },
+                "binding_id": "req_slope_constant",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 通过代入 x=0 求交点，直接检查目标 o1（b=0、2、−2 对应交点及 (0,b) 结论）。",
+                "locator": {
+                  "question_id": "q1_yintercept"
+                },
+                "binding_id": "node_intercept_shift:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 检查 b 减小 2 时直线下移 2 格，对应目标 o2 的平移方向与格数。",
+                "locator": {
+                  "question_id": "q2_shift_and_slope"
+                },
+                "binding_id": "node_intercept_shift:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 要求判断三线平行、斜率均为 2，对应目标 o3 的“b 变化不改变斜率”。",
+                "locator": {
+                  "question_id": "q3_parallel_check"
+                },
+                "binding_id": "node_intercept_shift:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o4 的练习，落实“由 b 写出 y 轴交点坐标”这一练习要求。",
+                "locator": {
+                  "question_id": "q1_yintercept"
+                },
+                "binding_id": "node_intercept_shift:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o4 的练习，落实“判断 b 变化后直线位置如何变化、斜率是否改变”这一练习要求。",
+                "locator": {
+                  "question_id": "q2_shift_and_slope"
+                },
+                "binding_id": "node_intercept_shift:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "0121c8868fa11597a80e480eafc3e8b7e7de13417c42d062c3add9bbc7ce437d"
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "suggestions": [
+        "q2 的正确答案位于 A，q3 的正确集合也以 A 开头，可考虑调整选项顺序，避免正确项长期落在同一位置。",
+        "q1 为简答且需文字作答，在 3 分钟共享预算下可提示“只写交点坐标与上下关系即可”，降低书写负担。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "0121c8868fa11597a80e480eafc3e8b7e7de13417c42d062c3add9bbc7ce437d",
+      "question_checks": [
+        {
+          "question_id": "q1_yintercept",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "independent_solution": "与 y 轴相交时 x=0。y=2x+5 代入得 y=5，交点 (0,5)；y=2x−3 代入得 y=−3，交点 (0,−3)。两直线斜率同为 2，竖直方向恒差 5−(−3)=8，故 y=2x+5 在 y=2x−3 上方 8 格。"
+        },
+        {
+          "question_id": "q2_shift_and_slope",
+          "option_checks": [
+            {
+              "reasoning": "b 由 0 变为 −2，减小 2，直线整体下移 2 格；x 的系数仍为 2，斜率不变，该选项完全正确。",
+              "option_text": "直线整体向下平移 2 格，斜率仍然是 2",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：b 从 0 变成 −2，b 减小了 2，直线整体向下平移 2 格；与 y 轴交点从 (0,0) 变为 (0,−2)。斜率由 x 的系数决定，这里始终是 2，所以斜率不变。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 0—2 段指出 b 减小 2 导致下移 2 格、交点由 (0,0) 变 (0,−2)、斜率由 x 的系数决定仍为 2，与独立求解一致，无错误批评。"
+            },
+            {
+              "reasoning": "b 变小对应向下平移，说“向上平移 2 格”方向错误，故该选项错误。",
+              "option_text": "直线整体向上平移 2 格，斜率仍然是 2",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：b 变小是向下平移，不是向上；若改成 y=2x+2 才是向上平移 2 格。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 3—4 段正确指出 b 变小是向下平移，并给出 y=2x+2 才是上移 2 格的反例，批评成立。"
+            },
+            {
+              "reasoning": "平移方向判断正确，但 −2 是常数项 b，斜率仍是 x 的系数 2，说“斜率变成 −2”错误。",
+              "option_text": "直线整体向下平移 2 格，斜率变成 −2",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：−2 是常数项 b，不是斜率；斜率仍是 x 前面的系数 2，把 b 的符号当成斜率符号是常见混淆。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 5—6 段准确区分常数项 b 与斜率，指出把 b 的符号当斜率符号是常见混淆，理由成立。"
+            },
+            {
+              "reasoning": "斜率变为 0 意味着水平直线，而 y=2x−2 中 x 每增 1、y 增 2，仍上升，故该选项错误。",
+              "option_text": "直线整体向下平移 2 格，斜率变成 0",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：斜率变成 0 意味着直线水平，而 y=2x−2 中 x 每增加 1，y 仍增加 2，直线仍然上升，斜率不是 0。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 7 段用“x 每增加 1，y 仍增加 2”说明斜率不是 0，推理正确。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "independent_solution": "y=2x 的 b=0，y=2x−2 的 b=−2，b 减少 2，直线整体向下平移 2 格，与 y 轴交点由 (0,0) 变为 (0,−2)；x 的系数仍为 2，斜率不变。故只有 A 正确。"
+        },
+        {
+          "question_id": "q3_parallel_check",
+          "option_checks": [
+            {
+              "reasoning": "三线斜率同为 2、截距不同，互相平行且永不相交，该选项正确。",
+              "option_text": "三条直线互相平行",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：三条直线的斜率相同（都是 2）、截距不同，斜率相同的直线互相平行，永不相交。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 0 段以“斜率相同、截距不同”推出平行且不相交，与独立求解一致。"
+            },
+            {
+              "reasoning": "三个式子中 x 的系数都是 2，b 只改常数项，斜率均为 2，该选项正确。",
+              "option_text": "三条直线的斜率都是 2",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：三条式子中 x 的系数都是 2，b 只改变常数项，不改变斜率。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 1 段说明 x 的系数都是 2、b 只改变常数项，判断准确。"
+            },
+            {
+              "reasoning": "令 x=0，y 分别等于 0、2、−2，交点正是 (0,0)、(0,2)、(0,−2)，该选项正确。",
+              "option_text": "三条直线与 y 轴的交点分别是 (0,0)、(0,2)、(0,−2)",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 正确：令 x=0，y 分别等于 0、2、−2，交点就是 (0,0)、(0,2)、(0,−2)。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 2 段代入 x=0 得到三个交点坐标，与独立计算一致。"
+            },
+            {
+              "reasoning": "三线平行无公共点，说“会在某一点相交”错误。",
+              "option_text": "三条直线会在某一点相交",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：三条直线平行，没有公共点；它们只是竖直方向相差 2 格和 4 格，看起来“靠得近”但不会相交。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 3—4 段指出平行直线没有公共点，并说明竖直相差 2 格与 4 格不等于相交，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "independent_solution": "三条直线 x 的系数都是 2，斜率均为 2；令 x=0 得 y 分别为 0、2、−2，交点 (0,0)、(0,2)、(0,−2)。斜率相同、截距不同，三线互相平行、无公共点。故正确项为 A、B、C。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q1 确为方案中的检查练习一：分别写出 y=2x+5 与 y=2x−3 的 y 轴交点并比较上下位置，与 req_two_exercises 的“两道练习”分工相符。",
+          "locator": {
+            "question_id": "q1_yintercept"
+          },
+          "binding_id": "req_two_exercises",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 为方案中的检查练习二：判断 y=2x 改为 y=2x−2 后直线如何移动、斜率是否改变，真实支持该要求。",
+          "locator": {
+            "question_id": "q2_shift_and_slope"
+          },
+          "binding_id": "req_two_exercises",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 正确选项要求判断 b 由 0 变 −2 时整体下移 2 格，直接检验“截距让直线上下平移”这一唯一知识点。",
+          "locator": {
+            "question_id": "q2_shift_and_slope"
+          },
+          "binding_id": "req_intercept_shift",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 参考答案明确给出 (0,5) 与 (0,−3)，并解释 x=0 时 y=b，真实检验“交点为 (0,b)”。",
+          "locator": {
+            "question_id": "q1_yintercept"
+          },
+          "binding_id": "req_yaxis_intersection",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 多选要求确认三线斜率都是 2 且互相平行，检验“b 只改常数项不改斜率”的理解。",
+          "locator": {
+            "question_id": "q3_parallel_check"
+          },
+          "binding_id": "req_slope_constant",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 通过代入 x=0 求交点，直接检查目标 o1（b=0、2、−2 对应交点及 (0,b) 结论）。",
+          "locator": {
+            "question_id": "q1_yintercept"
+          },
+          "binding_id": "node_intercept_shift:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 检查 b 减小 2 时直线下移 2 格，对应目标 o2 的平移方向与格数。",
+          "locator": {
+            "question_id": "q2_shift_and_slope"
+          },
+          "binding_id": "node_intercept_shift:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 要求判断三线平行、斜率均为 2，对应目标 o3 的“b 变化不改变斜率”。",
+          "locator": {
+            "question_id": "q3_parallel_check"
+          },
+          "binding_id": "node_intercept_shift:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 作为 o4 的练习，落实“由 b 写出 y 轴交点坐标”这一练习要求。",
+          "locator": {
+            "question_id": "q1_yintercept"
+          },
+          "binding_id": "node_intercept_shift:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 作为 o4 的练习，落实“判断 b 变化后直线位置如何变化、斜率是否改变”这一练习要求。",
+          "locator": {
+            "question_id": "q2_shift_and_slope"
+          },
+          "binding_id": "node_intercept_shift:o4",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "3c6e9ae2b703b9f14d6135ccb60ee53d6f6f2ffde9d24e1dc90854a3f273c6ab",
+      "option_binding_version": 1
+    }
+  },
+  "preparation_artifact": {
+    "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+    "content": {
+      "title": "截距 b 让直线上下平移：两道检查练习",
+      "questions": [
+        {
+          "id": "q1_yintercept",
+          "stem": "已知两条直线 y=2x+5 和 y=2x−3。请分别写出它们与 y 轴的交点坐标，并说明哪一条直线在另一条的上方。",
+          "type": "short_answer",
+          "answer": "y=2x+5 与 y 轴交于 (0,5)；y=2x−3 与 y 轴交于 (0,−3)。y=2x+5 在 y=2x−3 的上方（竖直方向高 8 格）。",
+          "difficulty": "easy",
+          "explanation": "与 y 轴相交时 x=0。把 x=0 代入 y=2x+b，得 y=b，所以交点坐标是 (0,b)。对 y=2x+5，b=5，交点为 (0,5)；对 y=2x−3，b=−3，交点为 (0,−3)。两条直线的斜率都是 2，所以它们平行，竖直方向的距离处处相同：5−(−3)=8，即 y=2x+5 始终在 y=2x−3 上方 8 格。常见错误是把 b 当成 x 轴交点，或把 −3 写成 (0,3)，忘记负号表示在原点下方。"
+        },
+        {
+          "id": "q2_shift_and_slope",
+          "stem": "把直线 y=2x 改成 y=2x−2 后，下列说法正确的是：",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "直线整体向下平移 2 格，斜率仍然是 2",
+            "直线整体向上平移 2 格，斜率仍然是 2",
+            "直线整体向下平移 2 格，斜率变成 −2",
+            "直线整体向下平移 2 格，斜率变成 0"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：b 从 0 变成 −2，b 减小了 2，直线整体向下平移 2 格；与 y 轴交点从 (0,0) 变为 (0,−2)。斜率由 x 的系数决定，这里始终是 2，所以斜率不变。B 错误：b 变小是向下平移，不是向上；若改成 y=2x+2 才是向上平移 2 格。C 错误：−2 是常数项 b，不是斜率；斜率仍是 x 前面的系数 2，把 b 的符号当成斜率符号是常见混淆。D 错误：斜率变成 0 意味着直线水平，而 y=2x−2 中 x 每增加 1，y 仍增加 2，直线仍然上升，斜率不是 0。"
+        },
+        {
+          "id": "q3_parallel_check",
+          "stem": "关于 y=2x、y=2x+2、y=2x−2 这三条直线，下列说法正确的有（可多选）：",
+          "type": "multiple_choice",
+          "answer": "A,B,C",
+          "options": [
+            "三条直线互相平行",
+            "三条直线的斜率都是 2",
+            "三条直线与 y 轴的交点分别是 (0,0)、(0,2)、(0,−2)",
+            "三条直线会在某一点相交"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：三条直线的斜率相同（都是 2）、截距不同，斜率相同的直线互相平行，永不相交。B 正确：三条式子中 x 的系数都是 2，b 只改变常数项，不改变斜率。C 正确：令 x=0，y 分别等于 0、2、−2，交点就是 (0,0)、(0,2)、(0,−2)。D 错误：三条直线平行，没有公共点；它们只是竖直方向相差 2 格和 4 格，看起来“靠得近”但不会相交。"
+        }
+      ]
+    },
+    "artifact_type": "quiz",
+    "generation_state": {
+      "preparation": {
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 3.93
+        },
+        "spec_digest": "0c74576f0b4e867aca0aff7ec58a003ef3372c5ff7aec56999b67bfafe7758bb",
+        "schema_version": 1,
+        "objective_bindings": [
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q1_yintercept"
+            },
+            "objective_id": "node_intercept_shift:o1"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q2_shift_and_slope"
+            },
+            "objective_id": "node_intercept_shift:o2"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q3_parallel_check"
+            },
+            "objective_id": "node_intercept_shift:o3"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q1_yintercept"
+            },
+            "objective_id": "node_intercept_shift:o4"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q2_shift_and_slope"
+            },
+            "objective_id": "node_intercept_shift:o4"
+          }
+        ],
+        "applied_requirements": [
+          {
+            "locator": {
+              "question_id": "q1_yintercept"
+            },
+            "explanation": "第 1 题对应方案中的检查练习一：由 b 写出与 y 轴交点坐标并比较上下位置。",
+            "requirement_id": "req_two_exercises"
+          },
+          {
+            "locator": {
+              "question_id": "q2_shift_and_slope"
+            },
+            "explanation": "第 2 题对应方案中的检查练习二：判断 b 变化后直线如何移动、斜率是否改变。",
+            "requirement_id": "req_two_exercises"
+          },
+          {
+            "locator": {
+              "question_id": "q2_shift_and_slope"
+            },
+            "explanation": "通过判断 b 从 0 变为 −2 时直线整体下移 2 格，检查对“截距让直线上下平移”这一唯一知识点的理解。",
+            "requirement_id": "req_intercept_shift"
+          },
+          {
+            "locator": {
+              "question_id": "q1_yintercept"
+            },
+            "explanation": "要求分别写出 (0,5) 与 (0,−3)，检查“x=0 时 y=b，交点为 (0,b)”的掌握。",
+            "requirement_id": "req_yaxis_intersection"
+          },
+          {
+            "locator": {
+              "question_id": "q3_parallel_check"
+            },
+            "explanation": "通过多选判断三条直线平行、斜率都是 2，检查“b 只改常数项不改斜率”的理解。",
+            "requirement_id": "req_slope_constant"
+          }
+        ],
+        "question_time_estimates": [
+          {
+            "reason": "需两次代入 x=0 得到 (0,5) 与 (0,−3)，再依据斜率相同、竖直距离 8 格判断哪条在上方，并组织文字作答。",
+            "question_id": "q1_yintercept",
+            "thinking_seconds": 60
+          },
+          {
+            "reason": "需比较 b 从 0 到 −2 的变化方向与格数，再确认斜率由 x 的系数决定仍为 2，并逐一排除把 b 当斜率或把斜率当 0 的干扰项。",
+            "question_id": "q2_shift_and_slope",
+            "thinking_seconds": 35
+          },
+          {
+            "reason": "需分别核对三条直线的斜率、y 轴交点，并判断平行直线是否相交，逐项确认多选答案集合完整。",
+            "question_id": "q3_parallel_check",
+            "thinking_seconds": 45
+          }
+        ],
+        "teaching_context_digest": "8452d26eeebe1ac32df81c9753c8917452689c961ca7599d492b155ce2b457bb"
+      },
+      "resource_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "本资源为习题，承担 req_two_exercises（q1、q2 两题）、req_intercept_shift（q2 判断 b 由 0 变 −2 时整体下移 2 格）、req_yaxis_intersection（q1 求 (0,5)、(0,−3)）、req_slope_constant（q3 判断三条线斜率均为 2 且平行）的节点分工；动画、语音、讲义、保存课程属其他资源，不要求本资源包含。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "三题数学均正确：x=0 时 y=b，故 y=2x+5 交 (0,5)、y=2x−3 交 (0,−3)，竖直距离 8；y=2x−2 相对 y=2x 下移 2 格、斜率仍为 2；y=2x、y=2x+2、y=2x−2 斜率同为 2、截距不同，互相平行且无公共点。解析中的推导与结论一致，无事实或计算错误。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "q1 为简答，需两次代入 x=0 并比较上下位置；q2 四个干扰项分别对应“方向搞反”“把 b 当斜率”“斜率变 0”三类真实误区；q3 多选答案集合 A,B,C 完整，D 为平行不相交的反例。逐题独立求解与参考答案一致。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "题目顺序由“由 b 写交点”到“判断平移与斜率”再到“综合判断平行与交点”，与节点目标 o1→o2→o3 递进一致；语言为中文，难度 easy/medium/medium 适合初中入门，未涉及象限、x 轴交点等排除内容。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "题目内容与 research_context 中百度百科“x=0 时交点为 (0,b)”“向上平移 n 格解析式为 y=kx+b+n”“平行直线斜率相等”及 Illustrative Mathematics 的竖直截距表述一致，未出现来源未支持的断言。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "每题均含 id、type、stem、answer、explanation、difficulty；选择题有 options 且答案用大写字母、多选用逗号分隔；简答题省略 options 符合契约；题干自足、未泄露答案，解析逐步求解并说明错误选项。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "本资源为习题，承担 req_two_exercises（q1、q2 两题）、req_intercept_shift（q2 判断 b 由 0 变 −2 时整体下移 2 格）、req_yaxis_intersection（q1 求 (0,5)、(0,−3)）、req_slope_constant（q3 判断三条线斜率均为 2 且平行）的节点分工；动画、语音、讲义、保存课程属其他资源，不要求本资源包含。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "三题数学均正确：x=0 时 y=b，故 y=2x+5 交 (0,5)、y=2x−3 交 (0,−3)，竖直距离 8；y=2x−2 相对 y=2x 下移 2 格、斜率仍为 2；y=2x、y=2x+2、y=2x−2 斜率同为 2、截距不同，互相平行且无公共点。解析中的推导与结论一致，无事实或计算错误。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "q1 为简答，需两次代入 x=0 并比较上下位置；q2 四个干扰项分别对应“方向搞反”“把 b 当斜率”“斜率变 0”三类真实误区；q3 多选答案集合 A,B,C 完整，D 为平行不相交的反例。逐题独立求解与参考答案一致。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "题目顺序由“由 b 写交点”到“判断平移与斜率”再到“综合判断平行与交点”，与节点目标 o1→o2→o3 递进一致；语言为中文，难度 easy/medium/medium 适合初中入门，未涉及象限、x 轴交点等排除内容。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "题目内容与 research_context 中百度百科“x=0 时交点为 (0,b)”“向上平移 n 格解析式为 y=kx+b+n”“平行直线斜率相等”及 Illustrative Mathematics 的竖直截距表述一致，未出现来源未支持的断言。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "每题均含 id、type、stem、answer、explanation、difficulty；选择题有 options 且答案用大写字母、多选用逗号分隔；简答题省略 options 符合契约；题干自足、未泄露答案，解析逐步求解并说明错误选项。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "q2 的正确答案位于 A，q3 的正确集合也以 A 开头，可考虑调整选项顺序，避免正确项长期落在同一位置。",
+                "q1 为简答且需文字作答，在 3 分钟共享预算下可提示“只写交点坐标与上下关系即可”，降低书写负担。"
+              ],
+              "blocking_issues": [],
+              "question_checks": [
+                {
+                  "question_id": "q1_yintercept",
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 0,
+                  "explanation_valid": true,
+                  "independent_solution": "与 y 轴相交时 x=0。y=2x+5 代入得 y=5，交点 (0,5)；y=2x−3 代入得 y=−3，交点 (0,−3)。两直线斜率同为 2，竖直方向恒差 5−(−3)=8，故 y=2x+5 在 y=2x−3 上方 8 格。"
+                },
+                {
+                  "question_id": "q2_shift_and_slope",
+                  "option_checks": [
+                    {
+                      "reasoning": "b 由 0 变为 −2，减小 2，直线整体下移 2 格；x 的系数仍为 2，斜率不变，该选项完全正确。",
+                      "option_text": "直线整体向下平移 2 格，斜率仍然是 2",
+                      "option_index": 0,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "A 正确：b 从 0 变成 −2，b 减小了 2，直线整体向下平移 2 格；与 y 轴交点从 (0,0) 变为 (0,−2)。斜率由 x 的系数决定，这里始终是 2，所以斜率不变。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "解析第 0—2 段指出 b 减小 2 导致下移 2 格、交点由 (0,0) 变 (0,−2)、斜率由 x 的系数决定仍为 2，与独立求解一致，无错误批评。"
+                    },
+                    {
+                      "reasoning": "b 变小对应向下平移，说“向上平移 2 格”方向错误，故该选项错误。",
+                      "option_text": "直线整体向上平移 2 格，斜率仍然是 2",
+                      "option_index": 1,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "B 错误：b 变小是向下平移，不是向上；若改成 y=2x+2 才是向上平移 2 格。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "解析第 3—4 段正确指出 b 变小是向下平移，并给出 y=2x+2 才是上移 2 格的反例，批评成立。"
+                    },
+                    {
+                      "reasoning": "平移方向判断正确，但 −2 是常数项 b，斜率仍是 x 的系数 2，说“斜率变成 −2”错误。",
+                      "option_text": "直线整体向下平移 2 格，斜率变成 −2",
+                      "option_index": 2,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "C 错误：−2 是常数项 b，不是斜率；斜率仍是 x 前面的系数 2，把 b 的符号当成斜率符号是常见混淆。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "解析第 5—6 段准确区分常数项 b 与斜率，指出把 b 的符号当斜率符号是常见混淆，理由成立。"
+                    },
+                    {
+                      "reasoning": "斜率变为 0 意味着水平直线，而 y=2x−2 中 x 每增 1、y 增 2，仍上升，故该选项错误。",
+                      "option_text": "直线整体向下平移 2 格，斜率变成 0",
+                      "option_index": 3,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "D 错误：斜率变成 0 意味着直线水平，而 y=2x−2 中 x 每增加 1，y 仍增加 2，直线仍然上升，斜率不是 0。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "解析第 7 段用“x 每增加 1，y 仍增加 2”说明斜率不是 0，推理正确。"
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 1,
+                  "explanation_valid": true,
+                  "independent_solution": "y=2x 的 b=0，y=2x−2 的 b=−2，b 减少 2，直线整体向下平移 2 格，与 y 轴交点由 (0,0) 变为 (0,−2)；x 的系数仍为 2，斜率不变。故只有 A 正确。"
+                },
+                {
+                  "question_id": "q3_parallel_check",
+                  "option_checks": [
+                    {
+                      "reasoning": "三线斜率同为 2、截距不同，互相平行且永不相交，该选项正确。",
+                      "option_text": "三条直线互相平行",
+                      "option_index": 0,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "A 正确：三条直线的斜率相同（都是 2）、截距不同，斜率相同的直线互相平行，永不相交。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "解析第 0 段以“斜率相同、截距不同”推出平行且不相交，与独立求解一致。"
+                    },
+                    {
+                      "reasoning": "三个式子中 x 的系数都是 2，b 只改常数项，斜率均为 2，该选项正确。",
+                      "option_text": "三条直线的斜率都是 2",
+                      "option_index": 1,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "B 正确：三条式子中 x 的系数都是 2，b 只改变常数项，不改变斜率。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "解析第 1 段说明 x 的系数都是 2、b 只改变常数项，判断准确。"
+                    },
+                    {
+                      "reasoning": "令 x=0，y 分别等于 0、2、−2，交点正是 (0,0)、(0,2)、(0,−2)，该选项正确。",
+                      "option_text": "三条直线与 y 轴的交点分别是 (0,0)、(0,2)、(0,−2)",
+                      "option_index": 2,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "C 正确：令 x=0，y 分别等于 0、2、−2，交点就是 (0,0)、(0,2)、(0,−2)。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "解析第 2 段代入 x=0 得到三个交点坐标，与独立计算一致。"
+                    },
+                    {
+                      "reasoning": "三线平行无公共点，说“会在某一点相交”错误。",
+                      "option_text": "三条直线会在某一点相交",
+                      "option_index": 3,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "D 错误：三条直线平行，没有公共点；它们只是竖直方向相差 2 格和 4 格，看起来“靠得近”但不会相交。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "解析第 3—4 段指出平行直线没有公共点，并说明竖直相差 2 格与 4 格不等于相交，批评成立。"
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 2,
+                  "explanation_valid": true,
+                  "independent_solution": "三条直线 x 的系数都是 2，斜率均为 2；令 x=0 得 y 分别为 0、2、−2，交点 (0,0)、(0,2)、(0,−2)。斜率相同、截距不同，三线互相平行、无公共点。故正确项为 A、B、C。"
+                }
+              ],
+              "preparation_checks": [
+                {
+                  "passed": true,
+                  "reason": "q1 确为方案中的检查练习一：分别写出 y=2x+5 与 y=2x−3 的 y 轴交点并比较上下位置，与 req_two_exercises 的“两道练习”分工相符。",
+                  "locator": {
+                    "question_id": "q1_yintercept"
+                  },
+                  "binding_id": "req_two_exercises",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q2 为方案中的检查练习二：判断 y=2x 改为 y=2x−2 后直线如何移动、斜率是否改变，真实支持该要求。",
+                  "locator": {
+                    "question_id": "q2_shift_and_slope"
+                  },
+                  "binding_id": "req_two_exercises",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q2 正确选项要求判断 b 由 0 变 −2 时整体下移 2 格，直接检验“截距让直线上下平移”这一唯一知识点。",
+                  "locator": {
+                    "question_id": "q2_shift_and_slope"
+                  },
+                  "binding_id": "req_intercept_shift",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q1 参考答案明确给出 (0,5) 与 (0,−3)，并解释 x=0 时 y=b，真实检验“交点为 (0,b)”。",
+                  "locator": {
+                    "question_id": "q1_yintercept"
+                  },
+                  "binding_id": "req_yaxis_intersection",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q3 多选要求确认三线斜率都是 2 且互相平行，检验“b 只改常数项不改斜率”的理解。",
+                  "locator": {
+                    "question_id": "q3_parallel_check"
+                  },
+                  "binding_id": "req_slope_constant",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q1 通过代入 x=0 求交点，直接检查目标 o1（b=0、2、−2 对应交点及 (0,b) 结论）。",
+                  "locator": {
+                    "question_id": "q1_yintercept"
+                  },
+                  "binding_id": "node_intercept_shift:o1",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q2 检查 b 减小 2 时直线下移 2 格，对应目标 o2 的平移方向与格数。",
+                  "locator": {
+                    "question_id": "q2_shift_and_slope"
+                  },
+                  "binding_id": "node_intercept_shift:o2",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q3 要求判断三线平行、斜率均为 2，对应目标 o3 的“b 变化不改变斜率”。",
+                  "locator": {
+                    "question_id": "q3_parallel_check"
+                  },
+                  "binding_id": "node_intercept_shift:o3",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q1 作为 o4 的练习，落实“由 b 写出 y 轴交点坐标”这一练习要求。",
+                  "locator": {
+                    "question_id": "q1_yintercept"
+                  },
+                  "binding_id": "node_intercept_shift:o4",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q2 作为 o4 的练习，落实“判断 b 变化后直线位置如何变化、斜率是否改变”这一练习要求。",
+                  "locator": {
+                    "question_id": "q2_shift_and_slope"
+                  },
+                  "binding_id": "node_intercept_shift:o4",
+                  "binding_type": "objective_id"
+                }
+              ]
+            },
+            "version": 1,
+            "decision": "pass",
+            "content_sha256": "0121c8868fa11597a80e480eafc3e8b7e7de13417c42d062c3add9bbc7ce437d"
+          }
+        ],
+        "version": 1,
+        "decision": "pass",
+        "suggestions": [
+          "q2 的正确答案位于 A，q3 的正确集合也以 A 开头，可考虑调整选项顺序，避免正确项长期落在同一位置。",
+          "q1 为简答且需文字作答，在 3 分钟共享预算下可提示“只写交点坐标与上下关系即可”，降低书写负担。"
+        ],
+        "resource_type": "quiz",
+        "content_sha256": "0121c8868fa11597a80e480eafc3e8b7e7de13417c42d062c3add9bbc7ce437d",
+        "question_checks": [
+          {
+            "question_id": "q1_yintercept",
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 0,
+            "explanation_valid": true,
+            "independent_solution": "与 y 轴相交时 x=0。y=2x+5 代入得 y=5，交点 (0,5)；y=2x−3 代入得 y=−3，交点 (0,−3)。两直线斜率同为 2，竖直方向恒差 5−(−3)=8，故 y=2x+5 在 y=2x−3 上方 8 格。"
+          },
+          {
+            "question_id": "q2_shift_and_slope",
+            "option_checks": [
+              {
+                "reasoning": "b 由 0 变为 −2，减小 2，直线整体下移 2 格；x 的系数仍为 2，斜率不变，该选项完全正确。",
+                "option_text": "直线整体向下平移 2 格，斜率仍然是 2",
+                "option_index": 0,
+                "explanation_valid": true,
+                "explanation_excerpt": "A 正确：b 从 0 变成 −2，b 减小了 2，直线整体向下平移 2 格；与 y 轴交点从 (0,0) 变为 (0,−2)。斜率由 x 的系数决定，这里始终是 2，所以斜率不变。",
+                "independent_correct": true,
+                "explanation_reasoning": "解析第 0—2 段指出 b 减小 2 导致下移 2 格、交点由 (0,0) 变 (0,−2)、斜率由 x 的系数决定仍为 2，与独立求解一致，无错误批评。"
+              },
+              {
+                "reasoning": "b 变小对应向下平移，说“向上平移 2 格”方向错误，故该选项错误。",
+                "option_text": "直线整体向上平移 2 格，斜率仍然是 2",
+                "option_index": 1,
+                "explanation_valid": true,
+                "explanation_excerpt": "B 错误：b 变小是向下平移，不是向上；若改成 y=2x+2 才是向上平移 2 格。",
+                "independent_correct": false,
+                "explanation_reasoning": "解析第 3—4 段正确指出 b 变小是向下平移，并给出 y=2x+2 才是上移 2 格的反例，批评成立。"
+              },
+              {
+                "reasoning": "平移方向判断正确，但 −2 是常数项 b，斜率仍是 x 的系数 2，说“斜率变成 −2”错误。",
+                "option_text": "直线整体向下平移 2 格，斜率变成 −2",
+                "option_index": 2,
+                "explanation_valid": true,
+                "explanation_excerpt": "C 错误：−2 是常数项 b，不是斜率；斜率仍是 x 前面的系数 2，把 b 的符号当成斜率符号是常见混淆。",
+                "independent_correct": false,
+                "explanation_reasoning": "解析第 5—6 段准确区分常数项 b 与斜率，指出把 b 的符号当斜率符号是常见混淆，理由成立。"
+              },
+              {
+                "reasoning": "斜率变为 0 意味着水平直线，而 y=2x−2 中 x 每增 1、y 增 2，仍上升，故该选项错误。",
+                "option_text": "直线整体向下平移 2 格，斜率变成 0",
+                "option_index": 3,
+                "explanation_valid": true,
+                "explanation_excerpt": "D 错误：斜率变成 0 意味着直线水平，而 y=2x−2 中 x 每增加 1，y 仍增加 2，直线仍然上升，斜率不是 0。",
+                "independent_correct": false,
+                "explanation_reasoning": "解析第 7 段用“x 每增加 1，y 仍增加 2”说明斜率不是 0，推理正确。"
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 1,
+            "explanation_valid": true,
+            "independent_solution": "y=2x 的 b=0，y=2x−2 的 b=−2，b 减少 2，直线整体向下平移 2 格，与 y 轴交点由 (0,0) 变为 (0,−2)；x 的系数仍为 2，斜率不变。故只有 A 正确。"
+          },
+          {
+            "question_id": "q3_parallel_check",
+            "option_checks": [
+              {
+                "reasoning": "三线斜率同为 2、截距不同，互相平行且永不相交，该选项正确。",
+                "option_text": "三条直线互相平行",
+                "option_index": 0,
+                "explanation_valid": true,
+                "explanation_excerpt": "A 正确：三条直线的斜率相同（都是 2）、截距不同，斜率相同的直线互相平行，永不相交。",
+                "independent_correct": true,
+                "explanation_reasoning": "解析第 0 段以“斜率相同、截距不同”推出平行且不相交，与独立求解一致。"
+              },
+              {
+                "reasoning": "三个式子中 x 的系数都是 2，b 只改常数项，斜率均为 2，该选项正确。",
+                "option_text": "三条直线的斜率都是 2",
+                "option_index": 1,
+                "explanation_valid": true,
+                "explanation_excerpt": "B 正确：三条式子中 x 的系数都是 2，b 只改变常数项，不改变斜率。",
+                "independent_correct": true,
+                "explanation_reasoning": "解析第 1 段说明 x 的系数都是 2、b 只改变常数项，判断准确。"
+              },
+              {
+                "reasoning": "令 x=0，y 分别等于 0、2、−2，交点正是 (0,0)、(0,2)、(0,−2)，该选项正确。",
+                "option_text": "三条直线与 y 轴的交点分别是 (0,0)、(0,2)、(0,−2)",
+                "option_index": 2,
+                "explanation_valid": true,
+                "explanation_excerpt": "C 正确：令 x=0，y 分别等于 0、2、−2，交点就是 (0,0)、(0,2)、(0,−2)。",
+                "independent_correct": true,
+                "explanation_reasoning": "解析第 2 段代入 x=0 得到三个交点坐标，与独立计算一致。"
+              },
+              {
+                "reasoning": "三线平行无公共点，说“会在某一点相交”错误。",
+                "option_text": "三条直线会在某一点相交",
+                "option_index": 3,
+                "explanation_valid": true,
+                "explanation_excerpt": "D 错误：三条直线平行，没有公共点；它们只是竖直方向相差 2 格和 4 格，看起来“靠得近”但不会相交。",
+                "independent_correct": false,
+                "explanation_reasoning": "解析第 3—4 段指出平行直线没有公共点，并说明竖直相差 2 格与 4 格不等于相交，批评成立。"
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 2,
+            "explanation_valid": true,
+            "independent_solution": "三条直线 x 的系数都是 2，斜率均为 2；令 x=0 得 y 分别为 0、2、−2，交点 (0,0)、(0,2)、(0,−2)。斜率相同、截距不同，三线互相平行、无公共点。故正确项为 A、B、C。"
+          }
+        ],
+        "preparation_checks": [
+          {
+            "passed": true,
+            "reason": "q1 确为方案中的检查练习一：分别写出 y=2x+5 与 y=2x−3 的 y 轴交点并比较上下位置，与 req_two_exercises 的“两道练习”分工相符。",
+            "locator": {
+              "question_id": "q1_yintercept"
+            },
+            "binding_id": "req_two_exercises",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "q2 为方案中的检查练习二：判断 y=2x 改为 y=2x−2 后直线如何移动、斜率是否改变，真实支持该要求。",
+            "locator": {
+              "question_id": "q2_shift_and_slope"
+            },
+            "binding_id": "req_two_exercises",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "q2 正确选项要求判断 b 由 0 变 −2 时整体下移 2 格，直接检验“截距让直线上下平移”这一唯一知识点。",
+            "locator": {
+              "question_id": "q2_shift_and_slope"
+            },
+            "binding_id": "req_intercept_shift",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "q1 参考答案明确给出 (0,5) 与 (0,−3)，并解释 x=0 时 y=b，真实检验“交点为 (0,b)”。",
+            "locator": {
+              "question_id": "q1_yintercept"
+            },
+            "binding_id": "req_yaxis_intersection",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "q3 多选要求确认三线斜率都是 2 且互相平行，检验“b 只改常数项不改斜率”的理解。",
+            "locator": {
+              "question_id": "q3_parallel_check"
+            },
+            "binding_id": "req_slope_constant",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "q1 通过代入 x=0 求交点，直接检查目标 o1（b=0、2、−2 对应交点及 (0,b) 结论）。",
+            "locator": {
+              "question_id": "q1_yintercept"
+            },
+            "binding_id": "node_intercept_shift:o1",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q2 检查 b 减小 2 时直线下移 2 格，对应目标 o2 的平移方向与格数。",
+            "locator": {
+              "question_id": "q2_shift_and_slope"
+            },
+            "binding_id": "node_intercept_shift:o2",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q3 要求判断三线平行、斜率均为 2，对应目标 o3 的“b 变化不改变斜率”。",
+            "locator": {
+              "question_id": "q3_parallel_check"
+            },
+            "binding_id": "node_intercept_shift:o3",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q1 作为 o4 的练习，落实“由 b 写出 y 轴交点坐标”这一练习要求。",
+            "locator": {
+              "question_id": "q1_yintercept"
+            },
+            "binding_id": "node_intercept_shift:o4",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q2 作为 o4 的练习，落实“判断 b 变化后直线位置如何变化、斜率是否改变”这一练习要求。",
+            "locator": {
+              "question_id": "q2_shift_and_slope"
+            },
+            "binding_id": "node_intercept_shift:o4",
+            "binding_type": "objective_id"
+          }
+        ],
+        "preparation_sha256": "3c6e9ae2b703b9f14d6135ccb60ee53d6f6f2ffde9d24e1dc90854a3f273c6ab",
+        "option_binding_version": 1
+      }
+    }
+  },
+  "learning_course_resource": true,
+  "standard_kind": null,
+  "generation_batch_id": null,
+  "current_review_status": "not_required",
+  "approved_version": null,
+  "approved_by": null,
+  "approved_at": null,
+  "source_job_id": null,
+  "is_pinned": false,
+  "pinned_at": null
+}

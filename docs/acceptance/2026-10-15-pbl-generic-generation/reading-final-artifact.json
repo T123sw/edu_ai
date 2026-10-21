@@ -1,0 +1,435 @@
+{
+  "artifact": {
+    "schemaVersion": 2,
+    "runtimeKind": "react_app",
+    "templateVersion": "react-app-v1",
+    "exerciseId": "pbl_79af54af9a45defcc5dbf9c85200c380",
+    "artifactVersion": 1,
+    "topic": "做一个长文章阅读页，只需一个界面步骤。页面有文章标题“认识森林”、简介和八个小节，每节有标题及至少一段正文；内容允许正常纵向滚动。请自定文章内容并在题面说明必要文字。页面主标题应位于简介上方，按桌面窗口验收。无需按钮、表单或其他交互，不需要手机专项验收。",
+    "title": "长文章阅读页：认识森林",
+    "summary": "构建一个可纵向滚动的长文章阅读页面，包含主标题“认识森林”、简介段落，以及八个各有标题和至少一段正文的小节；主标题位于简介上方，按桌面窗口验收。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "长文章阅读页：认识森林",
+      "goal": "构建一个可纵向滚动的长文章阅读页面，包含主标题“认识森林”、简介段落，以及八个各有标题和至少一段正文的小节；主标题位于简介上方，按桌面窗口验收。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "main-title",
+          "description": "页面显示主标题“认识森林”，且位于简介上方。"
+        },
+        {
+          "id": "intro",
+          "description": "主标题下方有一段文章简介文字。"
+        },
+        {
+          "id": "sections",
+          "description": "页面包含八个小节，每节有各自的小节标题。"
+        },
+        {
+          "id": "section-body",
+          "description": "每个小节标题下至少有一段正文。"
+        },
+        {
+          "id": "scrollable",
+          "description": "内容较长时页面可正常纵向滚动，末尾小节可滚动到达。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "article-page",
+          "title": "搭建长文章阅读页",
+          "objective": "在 React 页面中实现主标题、简介与八个带正文的小节，形成可纵向滚动的长文章。",
+          "dependsOn": [],
+          "entryCondition": "已有可运行的 React 初始工程（/src/App.jsx 与 /src/styles.css）。",
+          "deliverable": "一个长文章阅读页面：顶部主标题“认识森林”，其下为简介段落，随后依次排列八个小节，每节含小节标题和至少一段正文；内容超出视口时可纵向滚动。",
+          "requirementIds": [
+            "main-title",
+            "intro",
+            "sections",
+            "section-body",
+            "scrollable"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "title-visible",
+            "title-above-intro",
+            "intro-visible",
+            "section-count",
+            "section-headings",
+            "section-paragraphs",
+            "scroll-to-last"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "title-visible",
+          "stepId": "article-page",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "main-title"
+          ],
+          "setup": "打开页面，处于初始状态。",
+          "actions": [
+            "定位主标题元素（role=heading, level=1）"
+          ],
+          "expected": [
+            "主标题文字为“认识森林”"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": "desktop"
+        },
+        {
+          "id": "title-above-intro",
+          "stepId": "article-page",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "main-title",
+            "intro"
+          ],
+          "setup": "打开页面，处于初始状态。",
+          "actions": [
+            "定位主标题元素（role=heading, level=1）",
+            "定位简介段落（data-testid=intro）"
+          ],
+          "expected": [
+            "主标题的底边不低于简介段落的顶边"
+          ],
+          "requiredAssertions": [
+            "above"
+          ],
+          "viewport": "desktop"
+        },
+        {
+          "id": "intro-visible",
+          "stepId": "article-page",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "intro"
+          ],
+          "setup": "打开页面，处于初始状态。",
+          "actions": [
+            "定位简介段落（data-testid=intro）"
+          ],
+          "expected": [
+            "简介段落可见且文字非空"
+          ],
+          "requiredAssertions": [
+            "visible"
+          ],
+          "viewport": "desktop"
+        },
+        {
+          "id": "section-count",
+          "stepId": "article-page",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "sections"
+          ],
+          "setup": "打开页面，处于初始状态。",
+          "actions": [
+            "统计小节容器数量（data-testid=section）"
+          ],
+          "expected": [
+            "小节数量为 8"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": "desktop"
+        },
+        {
+          "id": "section-headings",
+          "stepId": "article-page",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "sections"
+          ],
+          "setup": "打开页面，处于初始状态。",
+          "actions": [
+            "统计小节标题数量（role=heading, level=2）"
+          ],
+          "expected": [
+            "小节标题数量为 8"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": "desktop"
+        },
+        {
+          "id": "section-paragraphs",
+          "stepId": "article-page",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "section-body"
+          ],
+          "setup": "打开页面，处于初始状态。",
+          "actions": [
+            "统计小节正文段落数量（data-testid=section-body）"
+          ],
+          "expected": [
+            "正文段落数量至少为 8"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": "desktop"
+        },
+        {
+          "id": "scroll-to-last",
+          "stepId": "article-page",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "scrollable"
+          ],
+          "setup": "打开页面，处于初始状态。",
+          "actions": [
+            "按 End 键滚动到页面底部",
+            "定位最后一个小节标题（data-testid=last-section-heading）"
+          ],
+          "expected": [
+            "滚动后最后一个小节标题完整位于桌面视口内"
+          ],
+          "requiredAssertions": [
+            "within_viewport"
+          ],
+          "viewport": "desktop"
+        }
+      ]
+    },
+    "starterFiles": {
+      "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+      "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+    },
+    "tasks": [
+      {
+        "stepId": "article-page",
+        "title": "搭建长文章阅读页",
+        "objective": "在 React 页面中实现主标题、简介与八个带正文的小节，形成可纵向滚动的长文章。",
+        "instructionsMarkdown": "本步要做出一个长文章阅读页：打开页面后，最上方是文章主标题“认识森林”，标题下面是一段文章简介，再往下依次排列八个小节。每个小节都有自己的小节标题，标题下面至少有一段正文。整篇文章内容较长，超出窗口时可以正常向下滚动，一直滚到页面底部能看到最后一个小节。\n\n页面不需要按钮、表单或其他交互，只要把文章内容按上面的顺序排好即可。\n\n文章内容由你自己编写，但必须满足以下文字要求：\n\n- 主标题文字为“认识森林”。\n- 简介是一段说明这篇文章讲什么的文字，内容自定。\n- 八个小节各有一个小节标题，标题文字自定，但八个小节标题要互不相同。\n- 每个小节标题下至少写一段正文，正文内容自定。\n\n完成效果：页面从上到下依次是主标题、简介、八个小节；每个小节都有标题和正文；内容较长时可以纵向滚动到页面末尾。\n\n代码约定（仅用于系统识别，不会改变页面外观）：\n\n- 简介段落加上 `data-testid=\"intro\"`。\n- 每个小节的容器加上 `data-testid=\"section\"`，共 8 个。\n- 每个小节的正文段落加上 `data-testid=\"section-body\"`。\n- 最后一个小节的小节标题加上 `data-testid=\"last-section-heading\"`。\n- 主标题使用一级标题（`<h1>`），每个小节标题使用二级标题（`<h2>`）。",
+        "explanationMarkdown": "这个页面本质上是一份结构化的长文档。React 组件返回的 JSX 会按书写顺序从上到下渲染，所以只要把主标题、简介、八个小节依次写在组件里，页面顺序就自然正确。\n\n八个小节结构相同，适合用数组保存小节数据（标题和正文），再用 `map` 渲染，这样既避免重复代码，也方便保证小节数量正好是八个。\n\n纵向滚动是浏览器的默认行为：只要内容高度超过视口，页面就能滚动，不需要额外写滚动逻辑。注意不要给外层容器设置固定高度加 `overflow: hidden`，否则内容会被裁掉而无法滚动。\n\n样式方面，给正文设置合适的行高和段落间距会让长文章更易读，但这不是本步的验收重点。",
+        "hints": [
+          "先把主标题和简介写好，确认页面能正常显示，再补八个小节。",
+          "八个小节可以用一个数组加 `map` 渲染，数组里放八个对象，每个对象包含标题和正文。",
+          "小节标题用 `<h2>`，主标题用 `<h1>`，这样标题层级清晰，也符合检查约定。",
+          "如果页面滚不到底部，检查外层容器是否被设置了固定高度或 `overflow: hidden`。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "title-visible",
+          "title-above-intro",
+          "intro-visible",
+          "section-count",
+          "section-headings",
+          "section-paragraphs",
+          "scroll-to-last"
+        ],
+        "id": "article-page",
+        "cumulativeCheckIds": [
+          "title-visible",
+          "title-above-intro",
+          "intro-visible",
+          "section-count",
+          "section-headings",
+          "section-paragraphs",
+          "scroll-to-last"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "title-visible",
+        "label": "页面显示主标题“认识森林”",
+        "actions": [
+          {
+            "type": "assert",
+            "target": {
+              "role": "heading",
+              "name": "认识森林",
+              "testId": null
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": "heading",
+              "name": "认识森林",
+              "testId": null
+            },
+            "value": null,
+            "assertion": "text",
+            "expected": "认识森林",
+            "relativeTo": null
+          }
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "title-above-intro",
+        "label": "主标题位于简介上方",
+        "actions": [
+          {
+            "type": "assert",
+            "target": {
+              "role": "heading",
+              "name": "认识森林",
+              "testId": null
+            },
+            "value": null,
+            "assertion": "above",
+            "expected": null,
+            "relativeTo": {
+              "role": null,
+              "name": null,
+              "testId": "intro"
+            }
+          }
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "intro-visible",
+        "label": "简介段落可见且文字非空",
+        "actions": [
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "intro"
+            },
+            "value": null,
+            "assertion": "visible",
+            "expected": null,
+            "relativeTo": null
+          }
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "section-count",
+        "label": "页面包含 8 个小节",
+        "actions": [
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "section"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 8,
+            "relativeTo": null
+          }
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "section-headings",
+        "label": "页面包含 8 个小节标题",
+        "actions": [
+          {
+            "type": "assert",
+            "target": {
+              "role": "heading",
+              "name": "认识森林",
+              "testId": null
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 1,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "section"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 8,
+            "relativeTo": null
+          }
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "section-paragraphs",
+        "label": "每个小节至少有一段正文，共至少 8 段",
+        "actions": [
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "section-body"
+            },
+            "value": null,
+            "assertion": "count",
+            "expected": 8,
+            "relativeTo": null
+          }
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "scroll-to-last",
+        "label": "滚动到底部后最后一个小节标题完整可见",
+        "actions": [
+          {
+            "type": "press",
+            "target": {
+              "role": "heading",
+              "name": "认识森林",
+              "testId": null
+            },
+            "value": "End",
+            "assertion": null,
+            "expected": null,
+            "relativeTo": null
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": null,
+              "name": null,
+              "testId": "last-section-heading"
+            },
+            "value": null,
+            "assertion": "within_viewport",
+            "expected": null,
+            "relativeTo": null
+          }
+        ],
+        "viewport": "desktop"
+      }
+    ],
+    "validationSummary": {
+      "passed": true,
+      "templateVersion": "react-app-v1",
+      "validatedSteps": 1
+    }
+  }
+}

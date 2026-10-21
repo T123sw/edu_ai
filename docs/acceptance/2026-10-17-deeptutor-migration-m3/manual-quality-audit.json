@@ -1,0 +1,44 @@
+{
+  "quality_accepted": false,
+  "scope": "Manual reading of all 15 synthetic questions plus selected deterministic calculations; not a proof of all other answers.",
+  "objective_failures": [
+    {
+      "question_number": 1,
+      "finding": "Answer B is compatible with partitioning, but explanation gives the wrong pivot index and counts.",
+      "computed_partition": [
+        7,
+        2,
+        4,
+        6,
+        1,
+        8,
+        9
+      ],
+      "computed_pivot_index": 5,
+      "smaller_count": 5,
+      "greater_count": 1,
+      "generated_explanation": "A partition step only rearranges elements so that everything less than the pivot is on one side and everything greater is on the other; the pivot lands in its final sorted position, but the two sides are not themselves sorted. Here the pivot 8 ends at the last index (index 6), with the six smaller elements (7, 2, 4, 6, 1) to its left — not a fully sorted array, not at index 0, and the sides are unequal in size (6 vs 0)."
+    },
+    {
+      "question_number": 3,
+      "finding": "The claimed initial max-heap violates the heap property, so the deletion problem has an invalid premise.",
+      "heap_violations": [
+        {
+          "parent_index": 3,
+          "parent": 10,
+          "child_index": 8,
+          "child": 20
+        }
+      ],
+      "generated_question": "A max-heap is stored in the array `[50, 30, 40, 10, 25, 35, 38, 5, 20, 22, 24]` (indices 0–10, 0-based, children of index `i` at `2i+1` and `2i+2`). A delete-max operation is performed once. Which sequence is the resulting array after the operation completes?"
+    }
+  ],
+  "novelty_concern": {
+    "question_number": 11,
+    "finding": "Still asks the same merge-sort complexity formula; the specified size is not needed for the requested symbolic answer."
+  },
+  "selected_correct_calculations": {
+    "question_14": 700000,
+    "question_15": 16
+  }
+}

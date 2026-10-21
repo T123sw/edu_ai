@@ -1,0 +1,23 @@
+[
+  {
+    "name": "shop_b",
+    "skipped": true,
+    "reason": "generation failed"
+  },
+  {
+    "name": "score",
+    "passed": true
+  },
+  {
+    "name": "form",
+    "passed": true
+  },
+  {
+    "name": "shop_a",
+    "passed": true
+  },
+  {
+    "name": "layout",
+    "passed": true
+  }
+]

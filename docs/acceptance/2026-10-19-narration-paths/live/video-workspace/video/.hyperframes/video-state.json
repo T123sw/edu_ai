@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "historyId": "5f44659e-b3ec-4e7c-ac21-dba3b5ab80c3",
+  "currentRevision": null,
+  "pendingChanges": false,
+  "files": {
+    "SCRIPT.md": {
+      "hash": "ea872ddc946a3480b620f5934335c4808d26cf3c90d2e1d2a1c5d75a1421bbb1",
+      "content": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-19-narration-paths/live/video-workspace/video/.hyperframes/history/5f44659e-b3ec-4e7c-ac21-dba3b5ab80c3/blobs/ea/ea872ddc946a3480b620f5934335c4808d26cf3c90d2e1d2a1c5d75a1421bbb1"
+    },
+    "STORYBOARD.md": {
+      "hash": "a07967c66433b5d65ab1f1333e22c2a4eb1192f4c52a58344796c52e5db39c9f",
+      "content": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-19-narration-paths/live/video-workspace/video/.hyperframes/history/5f44659e-b3ec-4e7c-ac21-dba3b5ab80c3/blobs/a0/a07967c66433b5d65ab1f1333e22c2a4eb1192f4c52a58344796c52e5db39c9f"
+    },
+    "assets/audio/483f68bcf13fcc86b8b803d7f87cfd92697493b70e3d1a0dc94d78d19bfd18f8.mp3": {
+      "hash": "6d098c79b568e9514b8267aa59e91b32ac417c222063a2118d036387fc268919",
+      "content": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-19-narration-paths/live/video-workspace/video/.hyperframes/history/5f44659e-b3ec-4e7c-ac21-dba3b5ab80c3/blobs/6d/6d098c79b568e9514b8267aa59e91b32ac417c222063a2118d036387fc268919"
+    },
+    "assets/gsap.min.js": {
+      "hash": "c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280",
+      "content": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-19-narration-paths/live/video-workspace/video/.hyperframes/history/5f44659e-b3ec-4e7c-ac21-dba3b5ab80c3/blobs/c1/c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280"
+    },
+    "audio_engine_meta.json": {
+      "hash": "7fcb32c93a89866f5abecd242839fab6e93ebe3e16e952afff4bae22cea35073",
+      "content": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-19-narration-paths/live/video-workspace/video/.hyperframes/history/5f44659e-b3ec-4e7c-ac21-dba3b5ab80c3/blobs/7f/7fcb32c93a89866f5abecd242839fab6e93ebe3e16e952afff4bae22cea35073"
+    },
+    "audio_meta.json": {
+      "hash": "b207c2c9eed7df00c55b1c38c6efa5be49a1949b984ff9639b29f0dc1ddfb535",
+      "content": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-19-narration-paths/live/video-workspace/video/.hyperframes/history/5f44659e-b3ec-4e7c-ac21-dba3b5ab80c3/blobs/b2/b207c2c9eed7df00c55b1c38c6efa5be49a1949b984ff9639b29f0dc1ddfb535"
+    },
+    "audio_request.json": {
+      "hash": "dc31538e03c0b1c60ff614df170232cae2984aec8596ee77185904ec69cc6c13",
+      "content": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-19-narration-paths/live/video-workspace/video/.hyperframes/history/5f44659e-b3ec-4e7c-ac21-dba3b5ab80c3/blobs/dc/dc31538e03c0b1c60ff614df170232cae2984aec8596ee77185904ec69cc6c13"
+    },
+    "index.html": {
+      "hash": "bb5c07ba8ea01ef197f46ec06aa200668ecdda70f825dfac3bc093d2ec1e0476",
+      "content": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-19-narration-paths/live/video-workspace/video/.hyperframes/history/5f44659e-b3ec-4e7c-ac21-dba3b5ab80c3/blobs/bb/bb5c07ba8ea01ef197f46ec06aa200668ecdda70f825dfac3bc093d2ec1e0476"
+    }
+  },
+  "revisions": {},
+  "checks": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "snapshots": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "renders": {
+    "latest": {
+      "id": "d7155ce6-710b-4f83-8164-fc8aaf515528",
+      "completedAt": 1792388170720,
+      "output": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-19-narration-paths/live/video-workspace/video/verification.mp4",
+      "status": "completed",
+      "revision": null
+    },
+    "retainedRevisions": []
+  },
+  "pendingArtifactCleanup": []
+}

@@ -1,0 +1,178 @@
+{
+  "scope": [
+    "quicksort",
+    "friction"
+  ],
+  "backendTestsPassed": 20,
+  "modelTestsPassed": 6,
+  "guidedBrowserTestsPassed": 3,
+  "legacyBrowserTestsPassed": 5,
+  "legacyBrowserTestsSkipped": 1,
+  "typecheck": "passed (tsconfig.self-learning.json, includes LiveApp imports)",
+  "lint": "passed (src/practice)",
+  "build": "passed (isolated production baseline plus practice files)",
+  "realApiBrowser": [
+    {
+      "kind": "quicksort",
+      "width": 1440,
+      "allStepsComplete": true,
+      "serverReplay": true,
+      "reloadPreserved": true,
+      "observationSaved": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "kind": "quicksort",
+      "width": 390,
+      "allStepsComplete": true,
+      "serverReplay": true,
+      "reloadPreserved": true,
+      "observationSaved": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "kind": "friction",
+      "width": 1440,
+      "allStepsComplete": true,
+      "serverReplay": true,
+      "reloadPreserved": true,
+      "observationSaved": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "kind": "friction",
+      "width": 390,
+      "allStepsComplete": true,
+      "serverReplay": true,
+      "reloadPreserved": true,
+      "observationSaved": true,
+      "overflow": false,
+      "errors": []
+    }
+  ],
+  "postgres": {
+    "concurrentWrites": [
+      "saved",
+      "conflict"
+    ],
+    "retryIdempotent": true,
+    "eventRows": 1,
+    "isolatedSchemaRemoved": true,
+    "migrationUpgradeAndDowngrade": true
+  },
+  "native": {
+    "quicksort": {
+      "source": {
+        "project": "THU-MAIC/MAIC-UI",
+        "revision": "aad58ddcc2103058b4c2deffc48a3c13e2c64dd6",
+        "integration": "native-heavy-generator",
+        "modules": [
+          "ScientificEngine",
+          "HeavyGenerator",
+          "PostProcessor"
+        ]
+      },
+      "calls": [
+        {
+          "stage": "science",
+          "prompt_sha256": "748ccd194508f3474261b943c61c60f0596ae218af9ceeb1ef8400d99409860e"
+        },
+        {
+          "stage": "interaction",
+          "prompt_sha256": "6beec4c2fc5309a4ec15075cfed1f0ff6600b1018f27cfd277d08fc2a26ff858"
+        },
+        {
+          "stage": "polish",
+          "prompt_sha256": "11df88e1de50ef1d358d47861121e310693d3f373c5d35b7e6e8cb51c99cdfd6"
+        },
+        {
+          "stage": "polish",
+          "prompt_sha256": "11df88e1de50ef1d358d47861121e310693d3f373c5d35b7e6e8cb51c99cdfd6"
+        },
+        {
+          "stage": "polish",
+          "prompt_sha256": "11df88e1de50ef1d358d47861121e310693d3f373c5d35b7e6e8cb51c99cdfd6"
+        },
+        {
+          "stage": "metadata",
+          "prompt_sha256": "327cb20f07d127d10bc11f3a6a29ac1b1d928fbe6d6ba3945d5b343073800a47"
+        }
+      ],
+      "passed": true,
+      "issues": [],
+      "checks": [
+        "step-permissions",
+        "incorrect-feedback",
+        "all-steps",
+        "free-exploration",
+        "canvas-change",
+        "hidpi",
+        "responsive"
+      ],
+      "revision": "59caf4701d50166c7367fde508ac7d4d58da7e0b950162a225ea40669e71474b",
+      "htmlSha256": "707348f00fb61a47cf2288c46c71e94111baedc3752a3dc8eb842cddb9dc580b",
+      "sampleVisualRepairs": [
+        "Native display repair for zero-inclusive axis",
+        "Pointer labels raised to 13px and kept within canvas"
+      ]
+    },
+    "friction": {
+      "source": {
+        "project": "THU-MAIC/MAIC-UI",
+        "revision": "aad58ddcc2103058b4c2deffc48a3c13e2c64dd6",
+        "integration": "native-heavy-generator",
+        "modules": [
+          "ScientificEngine",
+          "HeavyGenerator",
+          "PostProcessor"
+        ]
+      },
+      "calls": [
+        {
+          "stage": "science",
+          "prompt_sha256": "1aa1f5323a4d198fc71e8b4949ac8eb1a971c24cb10b72f39b2776f15d2f2e94"
+        },
+        {
+          "stage": "interaction",
+          "prompt_sha256": "cc4ce8467af38ca393e6180576e2cafab1b7a32a0e90121238e4caeeac2f5a28"
+        },
+        {
+          "stage": "polish",
+          "prompt_sha256": "c1efe6207d033c63683a80eeb6ed1b7a7c3f9d344c270390d1978bd7d9b1b292"
+        },
+        {
+          "stage": "metadata",
+          "prompt_sha256": "02b1973577eb91d2f8168baa6d5f968d8278db183956cb9e2292db54d3ebe5e7"
+        }
+      ],
+      "passed": true,
+      "issues": [],
+      "checks": [
+        "step-permissions",
+        "incorrect-feedback",
+        "all-steps",
+        "free-exploration",
+        "canvas-change",
+        "hidpi",
+        "responsive"
+      ],
+      "revision": "e8c9d1f0c261b7cd00b7925e75e20c48b73b2b7d449ae8c45a82f25ef9f5efd8",
+      "htmlSha256": "751bcfc6c63a4a8503e83e5c711a1b85d98dac2be38b35709694c93d677d4ae8",
+      "sampleVisualRepairs": [
+        "Baseline caption moved below parameters; stopping-distance caption moved above car and arrows"
+      ]
+    }
+  },
+  "limits": [
+    "Real API acceptance uses actual router/repository/replay and isolated SQLite; authentication and tutor model responses are mocked.",
+    "Actual PostgreSQL migration, concurrency and idempotency checked in a disposable schema.",
+    "Both native examples used real MAIC-UI model generation. Quicksort polish retried after upstream failure. Visual defects needed model repair and targeted sample corrections; validation is not a guarantee for arbitrary future drawings.",
+    "Initial production-build test failures were test route-prefix mismatch; HTTP test teardown awaited an in-flight save; legacy test was rerun with the matching native fixture. Final recorded runs pass.",
+    "Other experiment domains and historical artifacts keep their previous behavior; regenerate supported experiments for guided mode.",
+    "Production migration applied, but backend service reload and frontend index activation remain pending. No production learner session or journal rows were written."
+  ],
+  "validatorRegressionTestsPassed": 7
+}

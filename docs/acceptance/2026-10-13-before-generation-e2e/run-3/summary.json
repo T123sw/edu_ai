@@ -1,0 +1,122 @@
+{
+  "preparation_id": "prep_2afafafbdcbb413aa6c4777da255babd",
+  "action_counts": {
+    "model_completion": 9,
+    "search": 2,
+    "extract": 2
+  },
+  "model_phases": {
+    "intent": {
+      "calls": 1,
+      "total_tokens": 5008,
+      "prompt_tokens": 4580,
+      "completion_tokens": 428,
+      "max_input_bytes_upper_bound": 20359,
+      "tools": {
+        "mcp__preparation__save_preparation_brief": 1
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "understand-learning-request"
+      ]
+    },
+    "learning_path": {
+      "calls": 8,
+      "total_tokens": 163016,
+      "prompt_tokens": 158392,
+      "completion_tokens": 4624,
+      "max_input_bytes_upper_bound": 117678,
+      "tools": {
+        "skill": 1,
+        "mcp__preparation__search_sources": 2,
+        "mcp__preparation__fetch_source": 5,
+        "mcp__preparation__record_evidence_finding": 14,
+        "mcp__preparation__finalize_research_summary": 1
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "build-learning-path"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "stage": "normalize",
+      "started_at": 1791914871.091315,
+      "seconds": 4.381678819656372,
+      "next_stage": "research_scope",
+      "error": null
+    },
+    {
+      "stage": "research_scope",
+      "started_at": 1791914876.4051428,
+      "seconds": 69.55133628845215,
+      "next_stage": null,
+      "error": {
+        "code": "AGENT_NO_PROGRESS",
+        "message": "AGENT_NO_PROGRESS: coverage 必须逐项且不重复覆盖全部需求 ID：req-1"
+      }
+    }
+  ],
+  "nodes": 0,
+  "findings": 0,
+  "sources": 5,
+  "resource_spec_count": 0,
+  "resources_generated": {
+    "preparation_artifacts": 0,
+    "prepared_manifest_versions": 0
+  },
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 13,
+      "tokens": 168024,
+      "cost_micro_usd": 1680240
+    },
+    "deadline": "2026-10-13 19:07:50.551662+00:00"
+  },
+  "status": {
+    "preparation_id": "prep_2afafafbdcbb413aa6c4777da255babd",
+    "attempt_no": 1,
+    "status": "failed",
+    "stage": "research_scope",
+    "revision": 72,
+    "error_code": "AGENT_NO_PROGRESS",
+    "result_ref": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 13,
+        "tokens": 168024,
+        "cost_micro_usd": 1680240
+      },
+      "deadline": "2026-10-13T19:07:50.551662+00:00"
+    }
+  },
+  "context_restarts": 0,
+  "node_research_repairs": 0
+}

@@ -1,0 +1,122 @@
+{
+  "scope": "Structured session error/retry/timeout event types; model reasoning text excluded",
+  "events": [
+    {
+      "node": "n2-overall-architecture",
+      "session": "hyperframes-810d7968772d46ccacf197bacabd0702.jsonl",
+      "event": {
+        "type": "llm/retry",
+        "seq": 58,
+        "time": 1792478910250,
+        "data": {
+          "retryId": "9e558ecd-1f40-4cb1-96c4-7a73589d15ae",
+          "turn": 1,
+          "step": 4,
+          "provider": "deepseek-official",
+          "mode": "normal",
+          "policyKey": "[\"normal\",5,[\"EMPTY_RESPONSE\",\"RATE_LIMIT\",\"SERVER\",\"TIMEOUT\",\"TRANSPORT\"],500,10000,0.1]",
+          "retry": 1,
+          "maxRetries": 5,
+          "delayMs": 542.8697825483921,
+          "failure": {
+            "message": "DeepSeek API request to http://127.0.0.1:35123/v1 failed",
+            "code": "TRANSPORT"
+          }
+        }
+      }
+    },
+    {
+      "node": "n2-overall-architecture",
+      "session": "hyperframes-810d7968772d46ccacf197bacabd0702.jsonl",
+      "event": {
+        "type": "llm/retry-started",
+        "seq": 59,
+        "time": 1792478910793,
+        "data": {
+          "retryId": "9e558ecd-1f40-4cb1-96c4-7a73589d15ae",
+          "turn": 1,
+          "step": 4,
+          "retry": 1
+        }
+      }
+    },
+    {
+      "node": "n2-overall-architecture",
+      "session": "hyperframes-810d7968772d46ccacf197bacabd0702.jsonl",
+      "event": {
+        "type": "llm/retry",
+        "seq": 61,
+        "time": 1792479211536,
+        "data": {
+          "retryId": "9e558ecd-1f40-4cb1-96c4-7a73589d15ae",
+          "turn": 1,
+          "step": 4,
+          "provider": "deepseek-official",
+          "mode": "normal",
+          "policyKey": "[\"normal\",5,[\"EMPTY_RESPONSE\",\"RATE_LIMIT\",\"SERVER\",\"TIMEOUT\",\"TRANSPORT\"],500,10000,0.1]",
+          "retry": 2,
+          "maxRetries": 5,
+          "delayMs": 945.9283226357968,
+          "failure": {
+            "message": "DeepSeek API request to http://127.0.0.1:35123/v1 failed",
+            "code": "TRANSPORT"
+          }
+        }
+      }
+    },
+    {
+      "node": "n2-overall-architecture",
+      "session": "hyperframes-810d7968772d46ccacf197bacabd0702.jsonl",
+      "event": {
+        "type": "llm/retry-started",
+        "seq": 62,
+        "time": 1792479212482,
+        "data": {
+          "retryId": "9e558ecd-1f40-4cb1-96c4-7a73589d15ae",
+          "turn": 1,
+          "step": 4,
+          "retry": 2
+        }
+      }
+    },
+    {
+      "node": "n4-multihead-and-sublayers",
+      "session": "hyperframes-e67f514ae9c94b9985103f8bf367bb7f.jsonl",
+      "event": {
+        "type": "llm/retry",
+        "seq": 97,
+        "time": 1792478665274,
+        "data": {
+          "retryId": "3a0b1c5c-ccbd-4678-b972-6afa42fae005",
+          "turn": 1,
+          "step": 7,
+          "provider": "deepseek-official",
+          "mode": "normal",
+          "policyKey": "[\"normal\",5,[\"EMPTY_RESPONSE\",\"RATE_LIMIT\",\"SERVER\",\"TIMEOUT\",\"TRANSPORT\"],500,10000,0.1]",
+          "retry": 1,
+          "maxRetries": 5,
+          "delayMs": 450.3413742967541,
+          "failure": {
+            "message": "DeepSeek API request to http://127.0.0.1:40813/v1 failed",
+            "code": "TRANSPORT"
+          }
+        }
+      }
+    },
+    {
+      "node": "n4-multihead-and-sublayers",
+      "session": "hyperframes-e67f514ae9c94b9985103f8bf367bb7f.jsonl",
+      "event": {
+        "type": "llm/retry-started",
+        "seq": 98,
+        "time": 1792478665725,
+        "data": {
+          "retryId": "3a0b1c5c-ccbd-4678-b972-6afa42fae005",
+          "turn": 1,
+          "step": 7,
+          "retry": 1
+        }
+      }
+    }
+  ]
+}

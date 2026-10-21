@@ -1,0 +1,445 @@
+{
+  "title": "多头注意力与编码器/解码器各子层职责",
+  "content": "# 多头注意力与编码器/解码器各子层职责\n\n本节点承接上一节的自注意力：你已经知道注意力函数把查询与一组键值对映射为输出的加权和，矩阵形式是 softmax(QK^T/√dk)V。这一节要回答的是：Transformer 为什么要把注意力拆成\"多头\"，三种注意力用法分别从哪里取 Q/K/V，以及每个子层里除了注意力还有什么。先修内容不再重复推导，只在新语境里调用。\n\n<a id=\"multi-head\"></a>\n## 一、多头注意力：投影—并行—拼接—再投影\n\n### 1. 单头注意力的局限\n\n单头注意力对每个位置只产生一组注意力权重。这意味着模型在同一个位置上，只能用一套\"相容性打分\"去决定该看谁。但语言里同一个词往往需要同时从多个角度被理解：一个位置可能既需要关注语法上的主语，又需要关注语义上相关的实体，还需要关注邻近的词。单头注意力把这些需求压进同一组权重里，只能取一个折中。\n\n论文对此的表述很直接：多头注意力让模型能在不同位置联合关注来自不同表示子空间的信息，而\"单头情况下，平均会抑制这一点\"（With a single attention head, averaging inhibits this）。\n\n### 2. 计算流程\n\n多头注意力把 Q、K、V 分别用 h 组不同的、可学习的线性投影映射到 dk、dk、dv 维，然后并行地做 h 次注意力，最后拼接并再投影一次：\n\n```\nhead_i = Attention(Q·W_i^Q, K·W_i^K, V·W_i^V)\nMultiHead(Q, K, V) = Concat(head_1, ..., head_h) · W^O\n```\n\n其中 W_i^Q ∈ R^(dmodel×dk)、W_i^K ∈ R^(dmodel×dk)、W_i^V ∈ R^(dmodel×dv)、W^O ∈ R^(h·dv×dmodel)。\n\n按顺序拆成四步：\n\n1. **投影**：用 h 组互不相同的参数矩阵，把同一份 Q、K、V 投影成 h 份低维版本。注意\"不同\"是关键——如果 h 组投影相同，h 个头算出来的结果就完全一样，拼接毫无意义。\n2. **并行计算**：每个头在自己的低维空间里独立执行缩放点积注意力，得到 dv 维输出。h 个头之间没有信息交换，可以同时算。\n3. **拼接**：把 h 个 dv 维输出首尾相接，得到 h·dv 维向量。\n4. **再投影**：用 W^O 把拼接结果映射回 dmodel 维，使输出维度与子层输入一致，便于接残差连接。\n\n### 3. 为什么计算成本没有爆炸\n\n原论文取 h = 8，dk = dv = dmodel/h = 64（dmodel = 512）。每个头的维度被压到原来的 1/8，所以 8 个头加起来的总计算量与\"全维度的单头注意力\"相近。也就是说，多头不是把成本乘以 8，而是把同样的预算切成 8 份，分别在不同子空间里花。\n\n### 4. 一个具体例子\n\n设 dmodel = 4、h = 2、dk = dv = 2，某个位置的查询向量 q = [1, 0, 1, 0]。\n\n- 头 1 的投影矩阵 W_1^Q 把 q 映射为 q_1 = [1, 1]；头 2 的 W_2^Q 把同一个 q 映射为 q_2 = [0, 2]。\n- 头 1 用 q_1 与它自己的 K_1 做点积、除以 √2、softmax，得到一组权重，对 V_1 加权求和，得 o_1 = [0.8, 0.2]。\n- 头 2 用 q_2 与 K_2 做同样的流程，得 o_2 = [0.1, 0.9]。\n- 拼接：[0.8, 0.2, 0.1, 0.9]，再用 W^O 投影回 4 维。\n\n可以看到，同一个 q 在两个头里被\"问\"了不同的问题：头 1 的投影保留了第 1、3 维的信息，头 2 的投影则把注意力引向第 2、4 维。这就是\"不同表示子空间\"的具体含义。若只有一个头，这两组偏好只能被平均成一个折中的权重。\n\n<a id=\"three-attentions\"></a>\n## 二、三种注意力用法：Q/K/V 从哪里来\n\n多头注意力本身只是一个算子。Transformer 在三个位置调用它，区别全在于 Q、K、V 的来源和是否加掩码。\n\n| 用法 | Q 来自 | K、V 来自 | 可见范围 |\n| --- | --- | --- | --- |\n| 编码器自注意力 | 上一层编码器输出 | 上一层编码器输出 | 上一层所有位置 |\n| 解码器掩码自注意力 | 上一层解码器输出 | 上一层解码器输出 | 当前位置及之前 |\n| 编码器-解码器注意力 | 上一层解码器输出 | 编码器堆栈的输出 | 输入序列所有位置 |\n\n### 1. 编码器自注意力\n\nQ、K、V 全部来自同一处——上一层编码器的输出。编码器的每个位置都可以关注上一层编码器的所有位置，没有方向限制。这与你上一节学的自注意力完全一致，作用是让每个位置在编码阶段汇总整句的上下文。\n\n### 2. 解码器掩码自注意力\n\n解码器是自回归的：生成第 i 个位置时，只能依赖位置小于 i 的已知输出。如果允许它看到后面的词，训练时模型就能直接抄答案，推理时又拿不到这些词，行为不一致。\n\n实现方式是在缩放点积注意力内部，把 softmax 输入中所有\"非法连接\"对应的值置为 −∞。softmax 对 −∞ 的输出是 0，于是这些位置的权重被彻底清零。论文强调，这个掩码与\"输出嵌入整体右移一位\"配合，保证位置 i 的预测只依赖位置小于 i 的已知输出。\n\n### 3. 编码器-解码器注意力\n\n这一层里 Q 来自上一层解码器，K 和 V 来自编码器堆栈的输出。它让解码器的每个位置都能关注输入序列的所有位置——这正是传统序列到序列模型里编码器-解码器注意力的做法。可以理解为：解码器在问\"我现在要生成这个词，输入句子里哪些部分相关\"，而编码器已经把输入句子整理成了可被查询的键值对。\n\n<a id=\"mask-demo\"></a>\n## 三、课堂演示：4 词序列的掩码矩阵\n\n取一个 4 词序列，位置编号 1–4。解码器自注意力的打分矩阵是 4×4，行是查询位置，列是被关注的位置。合法连接是\"列号 ≤ 行号\"，其余位置在 softmax 之前置为 −∞：\n\n```\n        列1    列2    列3    列4\n行1     s11   -∞     -∞     -∞\n行2     s21   s22    -∞     -∞\n行3     s31   s32    s33    -∞\n行4     s41   s42    s43    s44\n```\n\n逐行看：\n\n- 行 1（生成第 1 个词）只能看列 1，其余三格为 −∞，softmax 后权重全落在自己身上。\n- 行 2 可以看列 1、2，列 3、4 被屏蔽。\n- 行 3 可以看列 1、2、3。\n- 行 4 可以看全部四列。\n\n被置为 −∞ 的位置就是\"未来\"的位置。为什么必须这样做：若行 2 能看到列 3，模型在训练时就会学到\"第 2 个词由第 3 个词决定\"，而推理时第 3 个词尚未生成，模型立刻失效。掩码把这种信息泄漏从结构上堵死，而不是靠训练技巧去规避。\n\n注意掩码只作用于解码器自注意力。编码器自注意力和编码器-解码器注意力都不加这个掩码——前者本来就该看全句，后者本来就该看整个输入。\n\n<a id=\"ffn-addnorm\"></a>\n## 四、逐位置前馈网络与 Add & Norm\n\n### 1. FFN：对每个位置独立同等地作用\n\n编码器和解码器的每一层，除了注意力子层，还有一个全连接前馈网络：\n\n```\nFFN(x) = max(0, x·W1 + b1)·W2 + b2\n```\n\n它是两次线性变换，中间夹一个 ReLU。三个要点：\n\n- **逐位置**：对序列中每个位置的向量分别施加，位置之间不交互。位置 1 的计算与位置 3 的计算互不影响，也不共享中间结果。\n- **同等**：同一层内所有位置共用同一组 W1、b1、W2、b2。换个说法，这等价于两个核大小为 1 的卷积。\n- **层间不同**：不同层使用不同的参数。\n\n原论文中 dmodel = 512，内层维度 dff = 2048，即先升维再降回。注意力负责在位置之间搬运信息，FFN 负责在每个位置上做非线性变换——两者分工明确。\n\n### 2. 残差连接 + 层归一化\n\n每个子层的输出不是 Sublayer(x)，而是：\n\n```\nLayerNorm(x + Sublayer(x))\n```\n\n- **残差连接 x + Sublayer(x)**：把子层输入原样加到子层输出上。这样梯度可以沿恒等路径直接回传，深层堆叠时不容易退化；同时子层只需学习\"在原有表示上做多大修正\"，而不是从零重建整个表示。\n- **层归一化 LayerNorm**：对每个位置的向量在特征维度上做归一化，把数值拉回稳定范围，缓解内部协变量偏移，让训练更稳。\n\n为了让残差相加成立，所有子层以及嵌入层的输出维度都必须是 dmodel = 512。\n\n<a id=\"layer-count\"></a>\n## 五、编码器 2 个子层 vs 解码器 3 个子层\n\n原论文中编码器和解码器都由 N = 6 个相同的层堆叠而成。差别在每层内部：\n\n**编码器每层 2 个子层：**\n1. 多头自注意力（Q/K/V 同源，无掩码）\n2. 逐位置前馈网络\n\n**解码器每层 3 个子层：**\n1. 多头掩码自注意力（Q/K/V 同源，加掩码）\n2. 编码器-解码器注意力（Q 来自解码器，K/V 来自编码器）\n3. 逐位置前馈网络\n\n每个子层外面都套一层 LayerNorm(x + Sublayer(x))，所以解码器每层比编码器多一次 Add & Norm。\n\n多出来的第 2 个子层正是解码器与编码器的本质区别：编码器只处理输入，解码器既要处理已生成的输出，又要把输入序列的信息取过来。第 1 个子层负责前者（且必须掩码），第 2 个子层负责后者（不加掩码，因为输入序列是完整已知的）。\n\n<a id=\"self-check\"></a>\n## 六、自检清单\n\n对照以下几条检查自己是否掌握，答不上来就回到对应章节：\n\n1. 能否说出多头注意力的四步流程，并解释为什么 h 组投影必须互不相同？（见第一节）\n2. 能否说明多头相比单头的优势，以及为什么单头\"平均会抑制\"这种优势？（见第一节第 1、4 小节）\n3. 能否不看表格，写出三种注意力各自的 Q/K/V 来源？（见第二节）\n4. 能否解释解码器掩码为什么必要，以及它作用在哪一步？（见第二、三节）\n5. 能否写出 FFN 和 Add & Norm 的表达式，并分别说明它们解决什么问题？（见第四节）\n6. 能否说出编码器每层 2 个子层、解码器每层 3 个子层，并指出多出来的是哪一个？（见第五节）\n\n## 说明与边界\n\n本节内容依据公开论文《Attention Is All You Need》（Vaswani 等，2017）。文中 N = 6、dmodel = 512、h = 8、dff = 2048 均为该论文 base 模型的设定，后续变体（如不同的层数、头数、归一化位置）并不遵循这些数值。本节只讲原理，不涉及从零实现可运行的 Transformer 代码，也不涉及训练与调参。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 8.2
+      },
+      "sections": [
+        {
+          "section_id": "multi-head",
+          "content_sha256": "22a8ffbc60c98d703ded699c17a02bafaba4c5c48ee725870008143dbc04dcce"
+        },
+        {
+          "section_id": "three-attentions",
+          "content_sha256": "6179a11b3cc6d440bd02bb6caacc91386dda240ea2b56e6fd5b3d3f944018504"
+        },
+        {
+          "section_id": "mask-demo",
+          "content_sha256": "c5c230fb7c26caf21a3e2f2e293d340d514a95507ebb4a2e68a61b1914f94a50"
+        },
+        {
+          "section_id": "ffn-addnorm",
+          "content_sha256": "1641b90a42b1ff6b688d95bcfe16827fda8d5620fcd54da1d1b595a2631b120b"
+        },
+        {
+          "section_id": "layer-count",
+          "content_sha256": "34cc3ca374afdf0f8fc73a1d3db2b83a8417312514a61ef42135dc4765e9b8cb"
+        },
+        {
+          "section_id": "self-check",
+          "content_sha256": "1cd27025078e137a6e2b4a59bd6a1f2477188208d471bddab244c9e1982bd5ef"
+        }
+      ],
+      "spec_digest": "47c9256ee2d549427506687b6cb4cb699330381d3f6d8309514385734919905c",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "multi-head"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "three-attentions"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "ffn-addnorm"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "layer-count"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o4"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "mask-demo"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n4-multihead-and-sublayers:o4"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "multi-head"
+          },
+          "explanation": "从多头注意力的投影-并行-拼接-再投影机制切入，讲清 Transformer 核心子层的计算原理，落实“讲授核心概念与架构原理”的要求。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "three-attentions"
+          },
+          "explanation": "用同一套注意力函数解释编码器自注意力、解码器掩码自注意力、编码器-解码器注意力三种用法及其 Q/K/V 来源，说明模型工作机制。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "ffn-addnorm"
+          },
+          "explanation": "给出 FFN 与 LayerNorm(x+Sublayer(x)) 的表达式与作用，补全子层内部原理。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "layer-count"
+          },
+          "explanation": "对比编码器每层 2 个子层与解码器每层 3 个子层，给出整体架构的层间组织方式。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "teaching_context_digest": "5653cfb8b1081430dd9a47cbd758c8b1a416128303da253f86d1e3fe8866424d"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文按节点分工覆盖 req-goal-transformer：第一节讲多头注意力的投影-并行-拼接-再投影与成本，第二节用表格区分三种注意力的 Q/K/V 来源，第四节给出 FFN 与 LayerNorm(x+Sublayer(x))，第五节对比编码器 2 子层与解码器 3 子层，均直接支撑“讲授核心概念与架构原理”。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "公式与论文一致：head_i=Attention(QW_i^Q,KW_i^K,VW_i^V)、MultiHead=Concat(...)W^O，W^O∈R^(h·dv×dmodel)；h=8、dk=dv=64、dmodel=512、dff=2048、N=6 均标注为 base 模型设定；掩码置 −∞ 后 softmax 权重为 0、只作用于解码器自注意力的表述正确；FFN 逐位置独立同等、层间参数不同、等价于核为 1 的卷积均无误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第一节第 4 小节给出 dmodel=4、h=2、dk=dv=2 的具体数值例子，q=[1,0,1,0] 经两个投影得 q_1=[1,1]、q_2=[0,2]，拼接 [0.8,0.2,0.1,0.9] 再投影回 4 维，维度自洽；第三节 4 词掩码矩阵逐行说明合法连接为“列号≤行号”，并解释信息泄漏后果，与课堂演示活动对应。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：多头注意力→三种注意力用法→掩码演示→FFN 与 Add&Norm→子层数量对比→自检，先算子后用法再子层组装，符合从局部到整体的教学顺序；开头明确承接上一节自注意力且不重复推导，结尾自检清单逐条回指章节。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文“说明与边界”标注依据《Attention Is All You Need》(Vaswani 等, 2017)，与提供的 NeurIPS 论文来源一致；引用的“With a single attention head, averaging inhibits this”“setting to −∞”“LayerNorm(x + Sublayer(x))”等表述均可在所给证据原文中找到，未虚构外部来源。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "四个节点目标均有对应章节：o1 见第一节、o2 见第二节与第三节、o3 见第四节、o4 见第五节；自检清单覆盖多头优势、三种 Q/K/V 来源、掩码必要性、Add&Norm 表达式与子层数量，与 self_check 要求一致；语言为中文、深度为入门级，未越界到实现与训练调参。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文按节点分工覆盖 req-goal-transformer：第一节讲多头注意力的投影-并行-拼接-再投影与成本，第二节用表格区分三种注意力的 Q/K/V 来源，第四节给出 FFN 与 LayerNorm(x+Sublayer(x))，第五节对比编码器 2 子层与解码器 3 子层，均直接支撑“讲授核心概念与架构原理”。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "公式与论文一致：head_i=Attention(QW_i^Q,KW_i^K,VW_i^V)、MultiHead=Concat(...)W^O，W^O∈R^(h·dv×dmodel)；h=8、dk=dv=64、dmodel=512、dff=2048、N=6 均标注为 base 模型设定；掩码置 −∞ 后 softmax 权重为 0、只作用于解码器自注意力的表述正确；FFN 逐位置独立同等、层间参数不同、等价于核为 1 的卷积均无误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第一节第 4 小节给出 dmodel=4、h=2、dk=dv=2 的具体数值例子，q=[1,0,1,0] 经两个投影得 q_1=[1,1]、q_2=[0,2]，拼接 [0.8,0.2,0.1,0.9] 再投影回 4 维，维度自洽；第三节 4 词掩码矩阵逐行说明合法连接为“列号≤行号”，并解释信息泄漏后果，与课堂演示活动对应。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：多头注意力→三种注意力用法→掩码演示→FFN 与 Add&Norm→子层数量对比→自检，先算子后用法再子层组装，符合从局部到整体的教学顺序；开头明确承接上一节自注意力且不重复推导，结尾自检清单逐条回指章节。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文“说明与边界”标注依据《Attention Is All You Need》(Vaswani 等, 2017)，与提供的 NeurIPS 论文来源一致；引用的“With a single attention head, averaging inhibits this”“setting to −∞”“LayerNorm(x + Sublayer(x))”等表述均可在所给证据原文中找到，未虚构外部来源。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个节点目标均有对应章节：o1 见第一节、o2 见第二节与第三节、o3 见第四节、o4 见第五节；自检清单覆盖多头优势、三种 Q/K/V 来源、掩码必要性、Add&Norm 表达式与子层数量，与 self_check 要求一致；语言为中文、深度为入门级，未越界到实现与训练调参。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第一节第 4 小节的数值例子中，o_1=[0.8,0.2]、o_2=[0.1,0.9] 未给出 K/V 与权重，读者无法复算；可补一行权重或注明“示意数值”。",
+              "第四节提到“缓解内部协变量偏移”，该说法在原始论文中并非对 LayerNorm 的直接论证，可改为更稳妥的“稳定各层输入分布、改善优化”。",
+              "第二节表格可加一列“是否加掩码”，与第三节“掩码只作用于解码器自注意力”的结论形成呼应。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "multi-head 节确实讲清投影 h 次、并行注意力、拼接与 W^O 再投影及成本不变，真实支持“讲授核心概念与架构原理”的贡献。",
+                "locator": {
+                  "section_id": "multi-head"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "three-attentions 节用表格与三小节分别说明编码器自注意力、解码器掩码自注意力、编码器-解码器注意力的 Q/K/V 来源与可见范围，支持所述贡献。",
+                "locator": {
+                  "section_id": "three-attentions"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "ffn-addnorm 节给出 FFN(x)=max(0,xW1+b1)W2+b2 与 LayerNorm(x+Sublayer(x))，并解释逐位置、残差与归一化作用，与定位一致。",
+                "locator": {
+                  "section_id": "ffn-addnorm"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "layer-count 节明确列出编码器每层 2 个子层、解码器每层 3 个子层并指出多出的是编码器-解码器注意力，支持层间组织说明。",
+                "locator": {
+                  "section_id": "layer-count"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "multi-head 节完整覆盖 o1：h 次线性投影、并行计算、拼接再投影，以及“不同表示子空间、单头平均会抑制”的说明。",
+                "locator": {
+                  "section_id": "multi-head"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "three-attentions 节逐项区分三种用法，明确解码器掩码阻止向左信息流、编码器-解码器注意力 Q 来自解码器而 K/V 来自编码器，覆盖 o2。",
+                "locator": {
+                  "section_id": "three-attentions"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "ffn-addnorm 节说明 FFN 对每个位置独立同等作用，并解释残差连接与层归一化 LayerNorm(x+Sublayer(x)) 的作用，覆盖 o3。",
+                "locator": {
+                  "section_id": "ffn-addnorm"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "layer-count 节以清单形式列出编码器 2 子层与解码器 3 子层差异，并说明解码器每层多一次 Add & Norm，覆盖 o4。",
+                "locator": {
+                  "section_id": "layer-count"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "mask-demo 节给出 4 词序列 4×4 掩码矩阵，逐行标出置 −∞ 的位置并解释原因，作为 o2 的练习定位真实有效。",
+                "locator": {
+                  "section_id": "mask-demo"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 1、2 条要求复述四步流程、h 组投影互不相同及多头相对单头的优势，对应 o1 的检查。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 5 条要求写出 FFN 与 Add & Norm 表达式并说明各自解决的问题，对应 o3 的检查。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 6 条要求说出编码器 2 子层、解码器 3 子层并指出多出的一项，对应 o4 的检查。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n4-multihead-and-sublayers:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "e3c31c22bfebdd09415c5fd5dfb22da1d17d943e0ccc38f1ef66b976be9d809f",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第一节第 4 小节的数值例子中，o_1=[0.8,0.2]、o_2=[0.1,0.9] 未给出 K/V 与权重，读者无法复算；可补一行权重或注明“示意数值”。",
+        "第四节提到“缓解内部协变量偏移”，该说法在原始论文中并非对 LayerNorm 的直接论证，可改为更稳妥的“稳定各层输入分布、改善优化”。",
+        "第二节表格可加一列“是否加掩码”，与第三节“掩码只作用于解码器自注意力”的结论形成呼应。"
+      ],
+      "content_sha256": "e3c31c22bfebdd09415c5fd5dfb22da1d17d943e0ccc38f1ef66b976be9d809f",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "multi-head 节确实讲清投影 h 次、并行注意力、拼接与 W^O 再投影及成本不变，真实支持“讲授核心概念与架构原理”的贡献。",
+          "locator": {
+            "section_id": "multi-head"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "three-attentions 节用表格与三小节分别说明编码器自注意力、解码器掩码自注意力、编码器-解码器注意力的 Q/K/V 来源与可见范围，支持所述贡献。",
+          "locator": {
+            "section_id": "three-attentions"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "ffn-addnorm 节给出 FFN(x)=max(0,xW1+b1)W2+b2 与 LayerNorm(x+Sublayer(x))，并解释逐位置、残差与归一化作用，与定位一致。",
+          "locator": {
+            "section_id": "ffn-addnorm"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "layer-count 节明确列出编码器每层 2 个子层、解码器每层 3 个子层并指出多出的是编码器-解码器注意力，支持层间组织说明。",
+          "locator": {
+            "section_id": "layer-count"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "multi-head 节完整覆盖 o1：h 次线性投影、并行计算、拼接再投影，以及“不同表示子空间、单头平均会抑制”的说明。",
+          "locator": {
+            "section_id": "multi-head"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "three-attentions 节逐项区分三种用法，明确解码器掩码阻止向左信息流、编码器-解码器注意力 Q 来自解码器而 K/V 来自编码器，覆盖 o2。",
+          "locator": {
+            "section_id": "three-attentions"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "ffn-addnorm 节说明 FFN 对每个位置独立同等作用，并解释残差连接与层归一化 LayerNorm(x+Sublayer(x)) 的作用，覆盖 o3。",
+          "locator": {
+            "section_id": "ffn-addnorm"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "layer-count 节以清单形式列出编码器 2 子层与解码器 3 子层差异，并说明解码器每层多一次 Add & Norm，覆盖 o4。",
+          "locator": {
+            "section_id": "layer-count"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "mask-demo 节给出 4 词序列 4×4 掩码矩阵，逐行标出置 −∞ 的位置并解释原因，作为 o2 的练习定位真实有效。",
+          "locator": {
+            "section_id": "mask-demo"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 1、2 条要求复述四步流程、h 组投影互不相同及多头相对单头的优势，对应 o1 的检查。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 5 条要求写出 FFN 与 Add & Norm 表达式并说明各自解决的问题，对应 o3 的检查。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 6 条要求说出编码器 2 子层、解码器 3 子层并指出多出的一项，对应 o4 的检查。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n4-multihead-and-sublayers:o4",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "727672c0c16648a527fa0689118bf0559c19ab1c9b359c81899cb9b9cc8dcdcc"
+    }
+  }
+}

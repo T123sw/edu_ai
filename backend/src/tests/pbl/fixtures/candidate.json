@@ -1,0 +1,144 @@
+{
+  "title": "实现快速排序",
+  "summary": "通过编写和测试快速排序，理解分区与递归。",
+  "contract": {
+    "exportName": "quickSort",
+    "parameterName": "array",
+    "inputType": "finite_number_array",
+    "outputType": "ascending_number_array",
+    "mutatesInput": false,
+    "returnsNewArray": true
+  },
+  "tasks": [
+    {
+      "id": "implement-sort",
+      "title": "实现并验证快速排序",
+      "objective": "正确处理乱序、重复元素和边界输入。",
+      "instructionsMarkdown": "实现 quickSort(array)。返回升序新数组，并保持原数组不变。",
+      "explanationMarkdown": "选择一个基准，将剩余元素分组，再递归处理子数组。先考虑递归何时结束。",
+      "hints": [
+        {
+          "id": "base-case",
+          "title": "何时停止递归",
+          "body": "数组长度不超过 1 时，返回它的副本。"
+        },
+        {
+          "id": "duplicates",
+          "title": "不要丢掉重复元素",
+          "body": "分组时明确等于基准值的元素放在哪里。"
+        }
+      ],
+      "examples": [
+        {
+          "input": [
+            3,
+            1,
+            2
+          ],
+          "expected": [
+            1,
+            2,
+            3
+          ],
+          "explanation": "输出按数值升序排列。"
+        }
+      ]
+    }
+  ],
+  "starterCode": "export function quickSort(array) {\n  // 请在这里实现快速排序\n  throw new Error('NOT_IMPLEMENTED');\n}\n",
+  "testCases": [
+    {
+      "id": "mixed",
+      "label": "普通乱序",
+      "input": [
+        4,
+        1,
+        3,
+        2
+      ],
+      "expected": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "duplicates",
+      "label": "重复元素",
+      "input": [
+        3,
+        1,
+        3,
+        2
+      ],
+      "expected": [
+        1,
+        2,
+        3,
+        3
+      ]
+    },
+    {
+      "id": "negative",
+      "label": "负数与零",
+      "input": [
+        0,
+        -2,
+        5,
+        -1
+      ],
+      "expected": [
+        -2,
+        -1,
+        0,
+        5
+      ]
+    },
+    {
+      "id": "empty",
+      "label": "空数组",
+      "input": [],
+      "expected": []
+    },
+    {
+      "id": "single",
+      "label": "单元素",
+      "input": [
+        7
+      ],
+      "expected": [
+        7
+      ]
+    },
+    {
+      "id": "sorted",
+      "label": "已排序",
+      "input": [
+        1,
+        2,
+        3
+      ],
+      "expected": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "reversed",
+      "label": "逆序",
+      "input": [
+        3,
+        2,
+        1
+      ],
+      "expected": [
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "referenceSolution": "export function quickSort(array) {\n  if (array.length <= 1) return array.slice();\n  const [pivot, ...rest] = array;\n  const left = rest.filter(value => value < pivot);\n  const right = rest.filter(value => value >= pivot);\n  return [...quickSort(left), pivot, ...quickSort(right)];\n}\n"
+}

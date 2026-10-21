@@ -1,0 +1,18 @@
+{
+  "testsPassed": 72,
+  "sourceManifest": {
+    "backend/src/app/exam_generation/titles.py": "a33f18891613c843a24226c57af4f600c3be2599e2b46bc7bbfaf18ac1416a9e",
+    "backend/src/app/exam_generation/repository.py": "8949a19cda818697d11e5be283e6da6b681cb6fc05f7546cadfd79d1847dc961",
+    "backend/src/app/api/exam_generations.py": "55ab4fbb26b0cd0e9faa650a37621999638049dd239a0f7a83d602f6358b4b93",
+    "backend/src/app/exam_practice/paper.py": "293bdc5a6bdfd0093de739f8f72f6099e5e0de4f70f164108db25b24e71cd627",
+    "backend/src/app/exam_practice/service.py": "fa7ccc0b832bfe2bf2de5b4c860b49d14034d3e4fa4b88139017f9abffc34ebe",
+    "backend/src/tests/exam_generation/test_titles.py": "ed6774ea12762614ecce0aae33c6b135bdeb798606aea229d3e58b1e12d4c4e5"
+  },
+  "requestAndFrozenQuestionsUnchanged": true,
+  "legacyPracticeSnapshotCovered": true,
+  "restartAttempt": {
+    "status": "denied",
+    "reason": "Interactive authentication required",
+    "userAction": "sudo systemctl restart edu-ai-backend.service"
+  }
+}

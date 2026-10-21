@@ -1,0 +1,1883 @@
+[
+  {
+    "at": 1792428891.9416814,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005154167301952839,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/.host/BRIEF.md",
+    "sha256": "a57fda8732b735d5b18e65e111e89d0d3f667d381ced23b1d6f88cd43e5b06ee"
+  },
+  {
+    "at": 1792428892.7671351,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0009416681714355946,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/SKILL.md",
+    "sha256": "dd67af24e6ca148769f191abd68e670bade17c4b8c847d1ff9aa847fbd7ffe23"
+  },
+  {
+    "at": 1792428901.33082,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0026852567680180073,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/REQUEST.json",
+    "sha256": "03e6b73c3506cb8d94564947b869cf0116d38bf2160c572b842b6899efb2f9b9"
+  },
+  {
+    "at": 1792428904.2749736,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0006433366797864437,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/.host/teaching-brief.json",
+    "sha256": "635feab3f05320d1c1f966f6cc857c6396fbbf9fbcdbfc1792092f848b099ab0"
+  },
+  {
+    "at": 1792428914.4668295,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.23504829965531826,
+    "command": "ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/ ; echo \"--- videos ---\"; ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/ 2>/dev/null; echo \"--- skills ---\"; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/",
+    "exit_code": 0,
+    "command_id": "9e189d81ac434e618a3f6b6141044e74"
+  },
+  {
+    "at": 1792428923.8799336,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22441276721656322,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video && ls -R | head -60 && echo \"=== SKILL.md ===\" && cat SKILL.md",
+    "exit_code": 0,
+    "command_id": "6805757c0dd045149c3570088332a030"
+  },
+  {
+    "at": 1792428930.5757182,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21462525613605976,
+    "command": "pwd; ls; which hyperframes; hyperframes --version",
+    "exit_code": null,
+    "command_id": "f9a64514e1cc4e6cbbf093b90cd48193"
+  },
+  {
+    "at": 1792428935.0241795,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20316207502037287,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b && npx hyperframes init \"videos/transformer-vs-rnn-parallelism\" --non-interactive --example=blank --skill=general-video 2>&1 | tail -40",
+    "exit_code": null,
+    "command_id": "5b2ba3a6beee4887bc1cae1ce382c1a9"
+  },
+  {
+    "at": 1792428940.7629519,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.8756461008451879,
+    "exit_code": 0,
+    "command_id": "5b2ba3a6beee4887bc1cae1ce382c1a9"
+  },
+  {
+    "at": 1792428944.9129412,
+    "tool": "prepare_project",
+    "ok": true,
+    "elapsed": 0.3569793193601072,
+    "exit_code": null,
+    "command_id": "1c3c11f9228d49e89f1a0ca456a61e04"
+  },
+  {
+    "at": 1792428948.0366368,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.12495347019284964,
+    "exit_code": 0,
+    "command_id": "1c3c11f9228d49e89f1a0ca456a61e04"
+  },
+  {
+    "at": 1792428951.41979,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2077099857851863,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && ls hyperframes-core/references hyperframes-creative/references hyperframes/references hyperframes-animation/references 2>/dev/null",
+    "exit_code": 0,
+    "command_id": "75e957b6ba3a4f8f973d59c8fc51be6f"
+  },
+  {
+    "at": 1792428960.580429,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22004888579249382,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && ls -R hyperframes-animation | head -80; echo \"=== core SKILL ===\"; wc -l hyperframes-core/SKILL.md hyperframes-creative/SKILL.md hyperframes-animation/SKILL.md hyperframes/references/*.md hyperframes-core/references/*.md hyperframes-creative/references/*.md",
+    "exit_code": 0,
+    "command_id": "23e9fa5248214c41b92ce33f6455b30d"
+  },
+  {
+    "at": 1792428970.895081,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22491426207125187,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && cat hyperframes-core/SKILL.md hyperframes-core/references/determinism-rules.md hyperframes-core/references/data-attributes.md hyperframes-core/references/minimal-composition.md",
+    "exit_code": 0,
+    "command_id": "89032117a85e4a1ab991c3f2c9e0e6ee"
+  },
+  {
+    "at": 1792428977.2959626,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22526465076953173,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && cat hyperframes-core/references/composition-patterns.md hyperframes-core/references/sub-compositions.md hyperframes/references/production-loop.md",
+    "exit_code": 0,
+    "command_id": "8ed851d2a1854555b6fdd0666edc0d66"
+  },
+  {
+    "at": 1792428983.485948,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20647532492876053,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && ls -R media-use | head -60; echo ===; cat hyperframes/references/storyboard-format.md",
+    "exit_code": 0,
+    "command_id": "5e66f662d1fe4c8ca0837c237349df67"
+  },
+  {
+    "at": 1792428988.322648,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.25313923275098205,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/media-use && ls references scripts; echo === ; sed -n 1,200p references/audio.md 2>/dev/null",
+    "exit_code": 0,
+    "command_id": "13007dfdf0774a05a98f86274640382e"
+  },
+  {
+    "at": 1792429003.5950959,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20390502316877246,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && cat hyperframes-creative/references/house-style.md hyperframes-creative/references/video-composition.md hyperframes-creative/references/narration.md",
+    "exit_code": 0,
+    "command_id": "86a0a03a1d504f89910defaccbf23719"
+  },
+  {
+    "at": 1792429007.2437017,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21891435235738754,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation && sed -n 1,160p rules-index.md; echo \"=== BLUEPRINTS ===\"; sed -n 1,120p blueprints-index.md",
+    "exit_code": 0,
+    "command_id": "a53a4ebae8954b17ad1dc36aa801916a"
+  },
+  {
+    "at": 1792429015.7420242,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.26082648104056716,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && ls -la; echo === ; cat hyperframes.json package.json; echo === ; ls assets; echo === ; head -40 index.html",
+    "exit_code": 0,
+    "command_id": "8d5a66e58cdd4514b089136cbaea4eeb"
+  },
+  {
+    "at": 1792429039.4651415,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20331775723025203,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && ls hyperframes-animation/scripts hyperframes-animation/transitions | head -40; echo === ; cat hyperframes/references/capability-menu.md; echo === ; cat hyperframes/references/frame-worker-core.md",
+    "exit_code": 0,
+    "command_id": "d419e21d25a7496489c56a47a96977b9"
+  },
+  {
+    "at": 1792429044.2122412,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2230143970809877,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video && cat sub-agents/frame-worker.md; echo \"=== packets help ===\"; node scripts/frame-packets.mjs --help 2>&1 | head -40",
+    "exit_code": null,
+    "command_id": "fa2c800d9282452f81f047ab70932f1e"
+  },
+  {
+    "at": 1792429069.8175967,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0075485859997570515,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/frame.md"
+  },
+  {
+    "at": 1792429081.308252,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0016545993275940418,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/SCRIPT.md"
+  },
+  {
+    "at": 1792429095.1154335,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0018062619492411613,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/audio_request.json"
+  },
+  {
+    "at": 1792429167.5846741,
+    "tool": "prepare_narration",
+    "ok": true,
+    "elapsed": 0.2331385351717472
+  },
+  {
+    "at": 1792429254.4611533,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 11.455885929986835,
+    "exit_code": 0,
+    "command_id": "b28d4004390f4daf96f95a1d624434b0"
+  },
+  {
+    "at": 1792429257.7029634,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22148889815434813,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && cat audio_meta.json | head -80; echo ===; ls -la .media/audio/voice 2>/dev/null | head",
+    "exit_code": 0,
+    "command_id": "953ce762677d469a949cbb6d3e5ab5d8"
+  },
+  {
+    "at": 1792429287.4687114,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20324890781193972,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts && sed -n 1,120p frame-packets.mjs; echo \"=== CORE ===\"; grep -n \"blueprint\\|rules\\|scene\\|focal\\|roles\\|sfx\\|## \\|packet\" lib/frame-packets-core.mjs | head -80",
+    "exit_code": 0,
+    "command_id": "16db9d67ac334272b7f09ee559fc9d42"
+  },
+  {
+    "at": 1792429290.6016173,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2149275499396026,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts && sed -n 1,75p lib/frame-packets-core.mjs; sed -n 120,175p lib/frame-packets-core.mjs",
+    "exit_code": 0,
+    "command_id": "aca6181e6d6f4635a0f333cee4b075b6"
+  },
+  {
+    "at": 1792429295.795492,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21595701994374394,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/rules && ls | sed 's/.md$//' | tr '\\n' ' '; echo; echo === ; head -30 blueprints/dataviz-countup.md 2>/dev/null; head -20 ../blueprints/dataviz-countup.md",
+    "exit_code": 0,
+    "command_id": "57afecc9077944038fea46ce2d357dad"
+  },
+  {
+    "at": 1792429330.155458,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0024628201499581337,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/STORYBOARD.md"
+  },
+  {
+    "at": 1792429339.2967331,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.003832829650491476,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/frame.md"
+  },
+  {
+    "at": 1792429343.6724734,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21197191905230284,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && python3 - <<'EOF'\nimport re\np='STORYBOARD.md'\ns=open(p).read()\nsubs = [\n (\"面板几何严格按 frame.md「Table panel」：x140–1780、y268–858\", \"面板几何严格按 frame.md「Table panel」：x140–1780、y268–794\"),\n (\"对比表面板与表头同时出现（与 Frame 1 相同几何：x140–1780, y268–858；\", \"对比表面板与表头同时出现（与 Frame 1 相同几何：x140–1780, y268–794；\"),\n (\"右下 y 830 出现 `序列多长，就要等多少步`\", \"y 822 右对齐出现 `序列多长，就要等多少步`\"),\n (\"右下 y 830 出现 `路径越短，长依赖越好学`\", \"y 822 右对齐出现 `路径越短，长依赖越好学`\"),\n (\"右下 y 830 一行 `n 小于 d 时，自注意力更快`（32px/600 #38fafc→#f8fafc）淡入\", \"y 822 一行 `n 小于 d 时，自注意力更快`（32px/600 #f8fafc，左对齐 x140）淡入\"),\n (\"绘图卡片（x 360–1560, y 300–820，panel 填充、2px 边框、圆角 22）淡入\", \"绘图卡片（x 300–1500, y 310–790，panel 填充、2px 边框、圆角 22）淡入\"),\n (\"右上角一行 `平方项吃掉优势`（32px/700 #fbbf24）淡入\", \"y 822 右对齐一行 `平方项吃掉优势`（32px/700 #fbbf24）淡入\"),\n]\nfor a,b in subs:\n    assert a in s, a\n    s=s.replace(a,b)\nopen(p,'w').write(s)\nprint(\"ok\")\nEOF",
+    "exit_code": null,
+    "command_id": "686785f689e94c4fb15dce86453dd05d"
+  },
+  {
+    "at": 1792429346.7878046,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2136890566907823,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts/frame-packets.mjs --project \"$PWD\" --storyboard \"$PWD/STORYBOARD.md\"",
+    "exit_code": null,
+    "command_id": "b5c6cccdd6c142488daa67bac9c893c2"
+  },
+  {
+    "at": 1792429349.5161192,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.11941713700070977,
+    "exit_code": 0,
+    "command_id": "b5c6cccdd6c142488daa67bac9c893c2"
+  },
+  {
+    "at": 1792429353.095205,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.26599295111373067,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && ls -la assets assets/fonts; ls .hyperframes/frame-packets | head",
+    "exit_code": 0,
+    "command_id": "73bfeec461af427d9833eaef034aeef6"
+  },
+  {
+    "at": 1792429356.4909935,
+    "tool": "dispatch_frames",
+    "ok": false,
+    "elapsed": 0.0005550594069063663,
+    "workers": []
+  },
+  {
+    "at": 1792429371.9918566,
+    "tool": "run_workers",
+    "ok": true,
+    "elapsed": 1.3061429280787706,
+    "workers": [
+      {
+        "worker_id": "9220113b78244004b1c4eb59ce364786",
+        "status": "queued",
+        "submitted_at": 1792429370.861015,
+        "prompt_sha256": "ea2cf3dc89edb5a089c4e654398879e65ad7c8f463c48d0d75d8222aa06b5e54"
+      },
+      {
+        "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+        "status": "queued",
+        "submitted_at": 1792429371.1297371,
+        "prompt_sha256": "51916c5c18020b053e8ffb20c42fd66d9b1e7a654fe06fd635bfbbd748a4fa0d"
+      },
+      {
+        "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+        "status": "queued",
+        "submitted_at": 1792429371.4129467,
+        "prompt_sha256": "b1cd66d859b6378c273eb3e3d3e3800577fef74536e88cb5e221e1ff01aa7c98"
+      },
+      {
+        "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+        "status": "queued",
+        "submitted_at": 1792429371.9873574,
+        "prompt_sha256": "80d8fdecf171f9859bffefa68db04c488e462e7b43fe37733701a3775058ee1d"
+      }
+    ]
+  },
+  {
+    "at": 1792429376.9215283,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0030683609656989574,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/frame.md",
+    "worker_id": "9220113b78244004b1c4eb59ce364786",
+    "sha256": "11851487f7e0d8683915a87591e466458e612fd295c43f49dd6fe48c240f5a8b"
+  },
+  {
+    "at": 1792429377.1689973,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0008716252632439137,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f01-hook.md",
+    "worker_id": "9220113b78244004b1c4eb59ce364786",
+    "sha256": "d4a42181319248b008e096ef933a530538c0ca88206f610c14b23d5202281853"
+  },
+  {
+    "at": 1792429378.0860353,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0015732767060399055,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/frame.md",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "sha256": "11851487f7e0d8683915a87591e466458e612fd295c43f49dd6fe48c240f5a8b"
+  },
+  {
+    "at": 1792429378.3550222,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.003220201935619116,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/frame.md",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "sha256": "11851487f7e0d8683915a87591e466458e612fd295c43f49dd6fe48c240f5a8b"
+  },
+  {
+    "at": 1792429378.5110695,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.006464793812483549,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f04-improve.md",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "sha256": "4e556db7b1e3757425706fc3d705c01912ad9fe8c30bd11ff53320eb62c1c65b"
+  },
+  {
+    "at": 1792429378.6785774,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0021354351192712784,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/frame.md",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "sha256": "11851487f7e0d8683915a87591e466458e612fd295c43f49dd6fe48c240f5a8b"
+  },
+  {
+    "at": 1792429378.7960641,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.003242709208279848,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f10-complexity.md",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "sha256": "21b1486aca8e5f6c9d6beb09407dcac436ace9f826b30a1ab35885df0c4a73df"
+  },
+  {
+    "at": 1792429379.0696638,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0019075563177466393,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f07-path-attention.md",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "sha256": "45fba6cbeeaaa60da53d9d2b87dc1919a8fe6565724ba65c3cd36495e6121fef"
+  },
+  {
+    "at": 1792429379.9509735,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20688402093946934,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer && ls scripts 2>/dev/null | head -30; ls references 2>/dev/null | head",
+    "exit_code": 0,
+    "command_id": "d63b50be2afc4ae284f7f200f7ec01bd"
+  },
+  {
+    "at": 1792429381.5036395,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0026338123716413975,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f02-rnn-seq.md",
+    "worker_id": "9220113b78244004b1c4eb59ce364786",
+    "sha256": "64390ef9f8ee8af98e991d5ade2bceb45f9c2d1d17d59419a21c4c31e88133ac"
+  },
+  {
+    "at": 1792429381.8961523,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0025408477522432804,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f03-seq-cost.md",
+    "worker_id": "9220113b78244004b1c4eb59ce364786",
+    "sha256": "1b11720561a86975210b4348d650c161be4f2090eb9558a813075da8fc0dc90d"
+  },
+  {
+    "at": 1792429382.8887186,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.003443215973675251,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f05-attention-parallel.md",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "sha256": "d94a3747074fb1151eff8cd3cad0dae9c3daef9af22945be9a474d399a64d7d6"
+  },
+  {
+    "at": 1792429383.641657,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00790362199768424,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f06-table-parallel.md",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "sha256": "6a4c7b65b0ba2b0b9d67afe5fc2f249abbfb128a98999f20168bb6db9a705e4d"
+  },
+  {
+    "at": 1792429383.8824122,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.02719889208674431,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f11-table-cost.md",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "sha256": "589e4bd978df9ac657f82865611853030a8b9721e68e4f3552ed57f23e2f3793"
+  },
+  {
+    "at": 1792429384.4794574,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0025595719926059246,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f12-close.md",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "sha256": "72cdf08d34332839e0db0118e824b7f06842279f08f826d226e6c75e139e33ca"
+  },
+  {
+    "at": 1792429384.7640755,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.008164944127202034,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f08-path-rnn.md",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "sha256": "fcb36d649d33f2081cc009bb5c312aa9a48b9453d283ef7df8f10f4f14532abb"
+  },
+  {
+    "at": 1792429385.3121731,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002658379729837179,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/frame-packets/f09-table-path.md",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "sha256": "6e600c36a2c5b4e4a590481eb08ac47b40a0555f48d5194714177fe80ed021f8"
+  },
+  {
+    "at": 1792429385.4155061,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2225548243150115,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && sed -n 1,60p assemble-index.mjs; echo \"=== TRANSITIONS ===\"; sed -n 1,50p transitions.mjs",
+    "exit_code": 0,
+    "command_id": "3a6c438114424d69bdd3c6102f31e42c"
+  },
+  {
+    "at": 1792429388.317771,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21651301393285394,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && ls -la compositions/frames/ 2>/dev/null; ls assets/ assets/fonts/",
+    "exit_code": 0,
+    "command_id": "c4ba326993e340a4b5d669d821bac915"
+  },
+  {
+    "at": 1792429390.569446,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21761707495898008,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && ls -la && ls -la compositions/frames/ 2>/dev/null && ls assets assets/fonts 2>/dev/null",
+    "exit_code": 2,
+    "command_id": "57f3998b327144078031a8f577b8f1fd"
+  },
+  {
+    "at": 1792429390.7921574,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.23646094696596265,
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && ls -la compositions/frames/ 2>/dev/null && ls assets/ assets/fonts/ 2>/dev/null",
+    "exit_code": 2,
+    "command_id": "df6fff182e7146a9bfcab766b6acaaad"
+  },
+  {
+    "at": 1792429391.8812668,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2723608869127929,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && sed -n 60,240p assemble-index.mjs",
+    "exit_code": 0,
+    "command_id": "5fe0adef2a13454e9c3a49c8b4debb44"
+  },
+  {
+    "at": 1792429393.8402128,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2067549186758697,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && find assets -maxdepth 2 -type f | head -30 && cat hyperframes.json",
+    "exit_code": 0,
+    "command_id": "2a308f45e8824952be05d45fe3ca1343"
+  },
+  {
+    "at": 1792429394.5774283,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21090636122971773,
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && ls -la; echo ---; ls -la compositions 2>/dev/null; echo ---; ls -la assets 2>/dev/null; echo ---; ls -la assets/fonts 2>/dev/null",
+    "exit_code": 0,
+    "command_id": "e2f2c4ad15bc470bab4cc342d94ee0f1"
+  },
+  {
+    "at": 1792429395.815308,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2128624706529081,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && grep -n \"voices\\|audio\\|frameIndex\\|data-start\\|storyboard.frames\\|captions\" assemble-index.mjs | sed -n 1,80p",
+    "exit_code": 0,
+    "command_id": "bde1fe29f5a8418eb9acb11e14f78b47"
+  },
+  {
+    "at": 1792429399.3501003,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20921099511906505,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && sed -n 300,420p assemble-index.mjs",
+    "exit_code": 0,
+    "command_id": "d774aaef08ef4ce79b2231e6d6c43932"
+  },
+  {
+    "at": 1792429404.8130856,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.25719957798719406,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && sed -n 255,300p assemble-index.mjs; echo === ; sed -n 520,620p assemble-index.mjs",
+    "exit_code": 0,
+    "command_id": "f2e1a07be00640408c3fc613db86fb24"
+  },
+  {
+    "at": 1792429454.9873295,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 45.35689576808363,
+    "workers": [
+      {
+        "worker_id": "9220113b78244004b1c4eb59ce364786",
+        "status": "running",
+        "submitted_at": 1792429370.861015,
+        "prompt_sha256": "ea2cf3dc89edb5a089c4e654398879e65ad7c8f463c48d0d75d8222aa06b5e54",
+        "started_at": 1792429371.2857478
+      },
+      {
+        "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+        "status": "running",
+        "submitted_at": 1792429371.1297371,
+        "prompt_sha256": "51916c5c18020b053e8ffb20c42fd66d9b1e7a654fe06fd635bfbbd748a4fa0d",
+        "started_at": 1792429372.135353
+      },
+      {
+        "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+        "status": "running",
+        "submitted_at": 1792429371.4129467,
+        "prompt_sha256": "b1cd66d859b6378c273eb3e3d3e3800577fef74536e88cb5e221e1ff01aa7c98",
+        "started_at": 1792429372.2715254
+      },
+      {
+        "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+        "status": "running",
+        "submitted_at": 1792429371.9873574,
+        "prompt_sha256": "80d8fdecf171f9859bffefa68db04c488e462e7b43fe37733701a3775058ee1d",
+        "started_at": 1792429373.161891
+      }
+    ]
+  },
+  {
+    "at": 1792429461.748532,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2034682990051806,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes && sed -n '1,120p' skills/hyperframes-core/references/sub-compositions.md",
+    "exit_code": 0,
+    "command_id": "96fa364b6e974adf834cd6f119c267c5"
+  },
+  {
+    "at": 1792429464.7072544,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20379380602389574,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes && sed -n '120,240p' skills/hyperframes-core/references/sub-compositions.md",
+    "exit_code": 0,
+    "command_id": "370bfcf344de48c2ad474c9f0f3a88c7"
+  },
+  {
+    "at": 1792429502.338214,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 45.51787057612091,
+    "workers": [
+      {
+        "worker_id": "9220113b78244004b1c4eb59ce364786",
+        "status": "running",
+        "submitted_at": 1792429370.861015,
+        "prompt_sha256": "ea2cf3dc89edb5a089c4e654398879e65ad7c8f463c48d0d75d8222aa06b5e54",
+        "started_at": 1792429371.2857478
+      },
+      {
+        "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+        "status": "running",
+        "submitted_at": 1792429371.1297371,
+        "prompt_sha256": "51916c5c18020b053e8ffb20c42fd66d9b1e7a654fe06fd635bfbbd748a4fa0d",
+        "started_at": 1792429372.135353
+      },
+      {
+        "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+        "status": "running",
+        "submitted_at": 1792429371.4129467,
+        "prompt_sha256": "b1cd66d859b6378c273eb3e3d3e3800577fef74536e88cb5e221e1ff01aa7c98",
+        "started_at": 1792429372.2715254
+      },
+      {
+        "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+        "status": "running",
+        "submitted_at": 1792429371.9873574,
+        "prompt_sha256": "80d8fdecf171f9859bffefa68db04c488e462e7b43fe37733701a3775058ee1d",
+        "started_at": 1792429373.161891
+      }
+    ]
+  },
+  {
+    "at": 1792429505.9774263,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.23985015181824565,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && python3 - <<'EOF'\nimport json\nmeta=json.load(open('audio_meta.json'))\nids=[\"f01-hook\",\"f02-rnn-seq\",\"f03-seq-cost\",\"f04-improve\",\"f05-attention-parallel\",\"f06-table-parallel\",\"f07-path-attention\",\"f08-path-rnn\",\"f09-table-path\",\"f10-complexity\",\"f11-table-cost\",\"f12-close\"]\nbyid={v['id']:v for v in meta['voices']}\nvoices=[]\nfor i,fid in enumerate(ids,1):\n    v=byid[fid]\n    voices.append({\"frame\":i,\"path\":v[\"path\"],\"duration_s\":v[\"duration_s\"]})\nout={\"bgm\":None,\"voices\":voices,\"sfx\":[]}\njson.dump(out,open('audio_meta.assembly.json','w'),ensure_ascii=False,indent=2)\nprint(sum(v['duration_s'] for v in voices))\nEOF",
+    "exit_code": 0,
+    "command_id": "6b2bfd5bf5d8451b9fcbb1ea541381ed"
+  },
+  {
+    "at": 1792429513.1973064,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20570641895756125,
+    "worker_id": "9220113b78244004b1c4eb59ce364786",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && ls -l assets/gsap.min.js assets/fonts/NotoSansSC-Variable.ttf && ls compositions/frames/",
+    "exit_code": 2,
+    "command_id": "fb3181185224411eb65c603ddf07d134"
+  },
+  {
+    "at": 1792429526.3156412,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.007246971130371094,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f01-hook.html",
+    "worker_id": "9220113b78244004b1c4eb59ce364786"
+  },
+  {
+    "at": 1792429528.12912,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.004208297934383154,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f04-improve.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429531.2548752,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.005086592864245176,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f04-improve.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429531.89863,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.006574809085577726,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f01-hook.motion.json",
+    "worker_id": "9220113b78244004b1c4eb59ce364786"
+  },
+  {
+    "at": 1792429534.64667,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.005219676997512579,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f10-complexity.html",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429536.3364499,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.00343328807502985,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f04-improve.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429539.0043788,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.008249709382653236,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f07-path-attention.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429539.3330271,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.010435492731630802,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f10-complexity.html",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429542.7001183,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.004442631732672453,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f04-improve.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429544.3374248,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.008826366160064936,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f10-complexity.motion.json",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429545.9514453,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.012623505666851997,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f04-improve.motion.json",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429551.7233577,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.09392086789011955,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f02-rnn-seq.html",
+    "worker_id": "9220113b78244004b1c4eb59ce364786"
+  },
+  {
+    "at": 1792429554.037371,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 45.55864030588418,
+    "workers": [
+      {
+        "worker_id": "9220113b78244004b1c4eb59ce364786",
+        "status": "running",
+        "submitted_at": 1792429370.861015,
+        "prompt_sha256": "ea2cf3dc89edb5a089c4e654398879e65ad7c8f463c48d0d75d8222aa06b5e54",
+        "started_at": 1792429371.2857478
+      },
+      {
+        "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+        "status": "running",
+        "submitted_at": 1792429371.1297371,
+        "prompt_sha256": "51916c5c18020b053e8ffb20c42fd66d9b1e7a654fe06fd635bfbbd748a4fa0d",
+        "started_at": 1792429372.135353
+      },
+      {
+        "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+        "status": "running",
+        "submitted_at": 1792429371.4129467,
+        "prompt_sha256": "b1cd66d859b6378c273eb3e3d3e3800577fef74536e88cb5e221e1ff01aa7c98",
+        "started_at": 1792429372.2715254
+      },
+      {
+        "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+        "status": "running",
+        "submitted_at": 1792429371.9873574,
+        "prompt_sha256": "80d8fdecf171f9859bffefa68db04c488e462e7b43fe37733701a3775058ee1d",
+        "started_at": 1792429373.161891
+      }
+    ]
+  },
+  {
+    "at": 1792429557.9318192,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.008580164983868599,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f08-path-rnn.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429561.4837112,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.012702833861112595,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f02-rnn-seq.html",
+    "worker_id": "9220113b78244004b1c4eb59ce364786"
+  },
+  {
+    "at": 1792429561.6917915,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.008574952371418476,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f05-attention-parallel.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429565.7448912,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.00802713306620717,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f02-rnn-seq.motion.json",
+    "worker_id": "9220113b78244004b1c4eb59ce364786"
+  },
+  {
+    "at": 1792429567.7015812,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.03625039476901293,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f05-attention-parallel.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429572.6651247,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.006711314897984266,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f05-attention-parallel.motion.json",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429582.36174,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0036889431066811085,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f11-table-cost.html",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429590.6531255,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.00497581297531724,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f03-seq-cost.html",
+    "worker_id": "9220113b78244004b1c4eb59ce364786"
+  },
+  {
+    "at": 1792429593.4099855,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.003681743983179331,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f09-table-path.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429595.0844758,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.002669244073331356,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f06-table-parallel.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429598.1013436,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.010618939995765686,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f03-seq-cost.html",
+    "worker_id": "9220113b78244004b1c4eb59ce364786"
+  },
+  {
+    "at": 1792429601.9945917,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 45.49804429709911,
+    "workers": [
+      {
+        "worker_id": "9220113b78244004b1c4eb59ce364786",
+        "status": "running",
+        "submitted_at": 1792429370.861015,
+        "prompt_sha256": "ea2cf3dc89edb5a089c4e654398879e65ad7c8f463c48d0d75d8222aa06b5e54",
+        "started_at": 1792429371.2857478
+      },
+      {
+        "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+        "status": "running",
+        "submitted_at": 1792429371.1297371,
+        "prompt_sha256": "51916c5c18020b053e8ffb20c42fd66d9b1e7a654fe06fd635bfbbd748a4fa0d",
+        "started_at": 1792429372.135353
+      },
+      {
+        "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+        "status": "running",
+        "submitted_at": 1792429371.4129467,
+        "prompt_sha256": "b1cd66d859b6378c273eb3e3d3e3800577fef74536e88cb5e221e1ff01aa7c98",
+        "started_at": 1792429372.2715254
+      },
+      {
+        "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+        "status": "running",
+        "submitted_at": 1792429371.9873574,
+        "prompt_sha256": "80d8fdecf171f9859bffefa68db04c488e462e7b43fe37733701a3775058ee1d",
+        "started_at": 1792429373.161891
+      }
+    ]
+  },
+  {
+    "at": 1792429602.5318124,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0019204369746148586,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f03-seq-cost.motion.json",
+    "worker_id": "9220113b78244004b1c4eb59ce364786"
+  },
+  {
+    "at": 1792429604.1352525,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20360213704407215,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && for f in f04-improve.html f05-attention-parallel.html f06-table-parallel.html; do echo \"=== $f\"; head -c 40 \"$f\"; echo; echo \"--- last:\"; tail -c 40 \"$f\"; echo; echo \"--- counts: template=$(grep -c '<template' $f) /template=$(grep -c '</template' $f) timeline=$(grep -c 'gsap.timeline' $f) reg=$(grep -c '__timelines' $f) clip=$(grep -c 'class=\"clip' $f) audio=$(grep -c '<audio' $f)\"; grep -n 'repeat\\|yoyo\\|transition:\\|Date.now\\|Math.random' \"$f\" | head; grep -n 'style=.*transform' \"$f\" | head; grep -o 'data-composition-id=\"[^\"]*\"' \"$f\"; done",
+    "exit_code": null,
+    "command_id": "94c4919d37fd4f6fa97a0b997b18b896"
+  },
+  {
+    "at": 1792429606.8834722,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21472749672830105,
+    "worker_id": "9220113b78244004b1c4eb59ce364786",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && for f in f01-hook f02-rnn-seq f03-seq-cost; do echo \"=== $f ===\"; echo \"-- head/tail:\"; head -c 24 $f.html; echo; tail -c 24 $f.html; echo; echo \"-- checks:\"; grep -c 'data-composition-id' $f.html; grep -o 'window.__timelines\\[\"[a-z0-9-]*\"\\]' $f.html; grep -c 'class=\"clip' $f.html; grep -c 'data-track-index' $f.html; grep -n '<audio\\|<video\\|transition:\\|repeat: *-1\\|repeat:-1\\|Math.random\\|Date.now\\|document.write\\|<!doctype\\|<html' $f.html; grep -c '@font-face' $f.html; grep -o 'gsap.timeline({ paused: true })' $f.html; echo \"-- json:\"; node -e \"JSON.parse(require('fs').readFileSync('$f.motion.json','utf8')); console.log('json ok')\"; done",
+    "exit_code": null,
+    "command_id": "c17304a331f24ec0b8437d202005e74e"
+  },
+  {
+    "at": 1792429609.2480652,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.8832631823606789,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "exit_code": 0,
+    "command_id": "94c4919d37fd4f6fa97a0b997b18b896"
+  },
+  {
+    "at": 1792429609.4026427,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.01548035629093647,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f12-close.html",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429610.9651604,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.011635477188974619,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f07-path-attention.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429611.704455,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.010113843716681004,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f08-path-rnn.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429613.6797264,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.495332645252347,
+    "worker_id": "9220113b78244004b1c4eb59ce364786",
+    "exit_code": 0,
+    "command_id": "c17304a331f24ec0b8437d202005e74e"
+  },
+  {
+    "at": 1792429617.1147583,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.011589315254241228,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f07-path-attention.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429617.6140144,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.002185378223657608,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f11-table-cost.motion.json",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429617.7448366,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.007134699262678623,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f08-path-rnn.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429618.0193665,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.005496624857187271,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f12-close.motion.json",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429618.1597865,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.007648463360965252,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f09-table-path.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429618.4450357,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.013069832231849432,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f09-table-path.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429621.7758188,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.007066130172461271,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f09-table-path.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429624.1219513,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20637533627450466,
+    "worker_id": "9220113b78244004b1c4eb59ce364786",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && sed -n '/\\.f02-chip {/,/^    }/p' f02-rnn-seq.html && echo '--- f03 mtag ---' && sed -n '/\\.f03-mtag {/,/^    }/p' f03-seq-cost.html && echo '--- files ---' && ls -1",
+    "exit_code": 0,
+    "command_id": "774fbcda730245e88a5bc06af366f4d3"
+  },
+  {
+    "at": 1792429625.8979678,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21277720108628273,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && node -e '\nconst fs=require(\"fs\");\nfor (const f of [\"f04-improve.html\",\"f05-attention-parallel.html\",\"f06-table-parallel.html\"]) {\n  const s=fs.readFileSync(f,\"utf8\");\n  const m=[...s.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)];\n  const code=m.map(x=>x[1]).join(\"\\n\");\n  fs.writeFileSync(\"/tmp/chk_\"+f+\".js\", code);\n  try { new Function(code); console.log(f, \"JS OK\", code.length); } catch(e) { console.log(f, \"JS ERROR\", e.message); }\n  // quick tag balance for divs\n  const open=(s.match(/<div\\b/g)||[]).length, close=(s.match(/<\\/div>/g)||[]).length;\n  console.log(\"   divs\", open, close);\n  console.log(\"   fontface\", (s.match(/@font-face/g)||[]).length, \"gsap tag\", /assets\\/gsap\\.min\\.js/.test(s));\n}'",
+    "exit_code": null,
+    "command_id": "428c37b7199b4915bdb5f77f80178d10"
+  },
+  {
+    "at": 1792429626.056583,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.005168711766600609,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f09-table-path.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "sha256": "38479032391bcb6db19a65f6404973663f96a5894770558a2413c774086413a7"
+  },
+  {
+    "at": 1792429629.2125335,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.42125118523836136,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "exit_code": 0,
+    "command_id": "428c37b7199b4915bdb5f77f80178d10"
+  },
+  {
+    "at": 1792429632.2599084,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 1.4002900570631027e-05,
+    "worker_id": "9220113b78244004b1c4eb59ce364786"
+  },
+  {
+    "at": 1792429635.7450945,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0007751267403364182,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f06-table-parallel.motion.json",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429637.3879516,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0053256116807460785,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f09-table-path.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429637.6238174,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.00666041299700737,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f07-path-attention.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429639.6584377,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21224128268659115,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && for f in f10-complexity f11-table-cost f12-close; do echo \"== $f\"; head -c 40 $f.html; echo; tail -c 40 $f.html; echo; grep -c \"<template>\" $f.html; grep -c \"</template>\" $f.html; grep -c \"data-composition-id\" $f.html; grep -o 'window.__timelines\\[\"[^\"]*\"\\]' $f.html; grep -c \"gsap.timeline({ paused: true })\" $f.html; python3 -c \"import json,sys; json.load(open('$f.motion.json')); print('json ok')\"; done",
+    "exit_code": null,
+    "command_id": "53cce17d146047e0b804d9105a7658a4"
+  },
+  {
+    "at": 1792429639.8471143,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.24145293608307838,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && ls -la && node -e 'for (const f of [\"f04-improve.motion.json\",\"f05-attention-parallel.motion.json\",\"f06-table-parallel.motion.json\"]) { const o=JSON.parse(require(\"fs\").readFileSync(f,\"utf8\")); console.log(f, o.scene, o.duration_s, o.rules.join(\",\"), o.exit.still_moving, o.entry.from_rest); }'",
+    "exit_code": null,
+    "command_id": "f49b70d28c79451c8feb5e878dce3e97"
+  },
+  {
+    "at": 1792429641.4143493,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.006035009864717722,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f08-path-rnn.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "sha256": "a924264c7b9cb035049c1dbfd3ad989d825aae29d710edcc22fa090318803bfe"
+  },
+  {
+    "at": 1792429644.004597,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.5791731718927622,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "exit_code": 0,
+    "command_id": "53cce17d146047e0b804d9105a7658a4"
+  },
+  {
+    "at": 1792429646.6666667,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.40537665924057364,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "exit_code": 0,
+    "command_id": "f49b70d28c79451c8feb5e878dce3e97"
+  },
+  {
+    "at": 1792429648.7406502,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0020925779826939106,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f07-path-attention.html",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "sha256": "f77ef5347f2a45d4e1cf992f5803dff403749f89bf30c16652fe0b30bff77052"
+  },
+  {
+    "at": 1792429649.273394,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2257252959534526,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && python3 - <<'EOF'\nimport re\nfor f in [\"f10-complexity\",\"f11-table-cost\",\"f12-close\"]:\n    s=open(f+\".html\").read()\n    blocks=re.findall(r'<script>(.*?)</script>', s, re.S)\n    print(f, \"script blocks:\", len(blocks), \"src include:\", \"../../assets/gsap.min.js\" in s)\n    open(\"/tmp/\"+f+\".js\",\"w\").write(blocks[-1])\nEOF\nfor f in f10-complexity f11-table-cost f12-close; do node --check /tmp/$f.js && echo \"$f js syntax OK\"; done",
+    "exit_code": null,
+    "command_id": "b8e2bce35cf94eeea8705a9ff799506d"
+  },
+  {
+    "at": 1792429651.4715598,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.13398760324344,
+    "workers": [
+      {
+        "worker_id": "9220113b78244004b1c4eb59ce364786",
+        "status": "succeeded",
+        "submitted_at": 1792429370.861015,
+        "prompt_sha256": "ea2cf3dc89edb5a089c4e654398879e65ad7c8f463c48d0d75d8222aa06b5e54",
+        "started_at": 1792429371.2857478,
+        "finished_at": 1792429633.682131,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/.host/workers/9220113b78244004b1c4eb59ce364786.json"
+      },
+      {
+        "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+        "status": "running",
+        "submitted_at": 1792429371.1297371,
+        "prompt_sha256": "51916c5c18020b053e8ffb20c42fd66d9b1e7a654fe06fd635bfbbd748a4fa0d",
+        "started_at": 1792429372.135353
+      },
+      {
+        "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+        "status": "running",
+        "submitted_at": 1792429371.4129467,
+        "prompt_sha256": "b1cd66d859b6378c273eb3e3d3e3800577fef74536e88cb5e221e1ff01aa7c98",
+        "started_at": 1792429372.2715254
+      },
+      {
+        "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+        "status": "running",
+        "submitted_at": 1792429371.9873574,
+        "prompt_sha256": "80d8fdecf171f9859bffefa68db04c488e462e7b43fe37733701a3775058ee1d",
+        "started_at": 1792429373.161891
+      }
+    ]
+  },
+  {
+    "at": 1792429651.4785607,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2589230500161648,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && grep -n -E \"panel|hcell|rule|rowlabel|cell|header\" f09-table-path.html | head -80",
+    "exit_code": 0,
+    "command_id": "90f5a21b2b3141269737d422d5385006"
+  },
+  {
+    "at": 1792429653.6133702,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.6776731326244771,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "exit_code": 0,
+    "command_id": "b8e2bce35cf94eeea8705a9ff799506d"
+  },
+  {
+    "at": 1792429655.4747107,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0024314867332577705,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f09-table-path.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "sha256": "e08398469beab7585fc1d9b6e4193c566b6f095bd58735f4dbe4ae32a5be7147"
+  },
+  {
+    "at": 1792429656.4346962,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21398491598665714,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && ls -la compositions/frames/ 2>/dev/null; head -c 500 compositions/frames/f01-hook.html 2>/dev/null",
+    "exit_code": 0,
+    "command_id": "a18a38d241544191b611f2564868701e"
+  },
+  {
+    "at": 1792429657.4848952,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.004523889627307653,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f10-complexity.html",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429660.21351,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0076860589906573296,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f07-path-attention.motion.json",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429661.1333766,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.011458084918558598,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f08-path-rnn.motion.json",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429661.9045298,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.005453614052385092,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f09-table-path.motion.json",
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429662.0949512,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.006971987895667553,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f10-complexity.html",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429662.936294,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.007109653204679489,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f10-complexity.html",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429663.4670436,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2379840170033276,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && grep -n -E \"left: |top: |width: |height: \" f11-table-cost.html | head -60",
+    "exit_code": 0,
+    "command_id": "2c44b53556e9445d851d98c2e4e33091"
+  },
+  {
+    "at": 1792429666.9188256,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2237465432845056,
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && for f in f07-path-attention f08-path-rnn f09-table-path; do node -e \"JSON.parse(require('fs').readFileSync('$f.motion.json','utf8')); console.log('$f json ok')\"; head -c 11 $f.html; echo \" <- $f.html head\"; tail -c 13 $f.html; echo \" <- $f.html tail\"; done",
+    "exit_code": null,
+    "command_id": "cf4d534dba744e0a95ac5a50a3d44518"
+  },
+  {
+    "at": 1792429670.1201417,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.29242271138355136,
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+    "exit_code": 0,
+    "command_id": "cf4d534dba744e0a95ac5a50a3d44518"
+  },
+  {
+    "at": 1792429675.9629838,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 1.2905336916446686e-05,
+    "worker_id": "190332aeb67f45c8a1c87fd1087efcf9"
+  },
+  {
+    "at": 1792429678.4768655,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0038421591743826866,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f11-table-cost.html",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "sha256": "996834c027029ea2d82b0e24d11d6c5b58e700cf5723e2e201e75e71f0a11e80"
+  },
+  {
+    "at": 1792429679.6932356,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.011425734031945467,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f06-table-parallel.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429684.0108352,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.007975803222507238,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f06-table-parallel.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429690.7052467,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.004499633330851793,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f06-table-parallel.html",
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429691.731628,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20605109259486198,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && ls -la && echo \"--- keep-out scan (px tops > 900 in authored text blocks) ---\" && grep -n \"top: 9[0-9][0-9]px\\|top: [1-9][0-9][0-9][0-9]px\" *.html | head && echo \"--- css transition / repeat scan ---\" && grep -n \"transition:\\|repeat:\\|yoyo\\|Date.now\\|Math.random\" *.html | head && echo \"--- css transform scan ---\" && grep -n \"transform:\" *.html | head",
+    "exit_code": 0,
+    "command_id": "1bc7e292434449fdad4c999795063cc6"
+  },
+  {
+    "at": 1792429695.1080291,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2489848742261529,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && node -e '\nconst fs=require(\"fs\");\nconst s=fs.readFileSync(\"f06-table-parallel.html\",\"utf8\");\nconst m=[...s.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)];\ntry{new Function(m.map(x=>x[1]).join(\"\\n\"));console.log(\"JS OK\")}catch(e){console.log(\"JS ERR\",e.message)}\nconst open=(s.match(/<div\\b/g)||[]).length, close=(s.match(/<\\/div>/g)||[]).length;\nconsole.log(\"divs\",open,close,\"template\",(s.match(/<template>/g)||[]).length,(s.match(/<\\/template>/g)||[]).length);\nconsole.log(\"cells:\", (s.match(/f06-table-parallel-cell/g)||[]).length);\nconst body=s.slice(s.indexOf(\"<div id=\\\"root\\\"\"));\nconsole.log(body.slice(0, 2200));\n'",
+    "exit_code": null,
+    "command_id": "41e6e87199834b5da20ba1f5ae1711a1"
+  },
+  {
+    "at": 1792429695.9237657,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21442372305318713,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && grep -n -A6 \"f09-table {\\|f09-table{\" f09-table-path.html | head -30 && grep -n \"grid-template-columns\\|grid-template-rows\\|row--head\\|row--body\" f09-table-path.html | head -20 && grep -n \"f06-table {\" -A8 f06-table-parallel.html | head -20",
+    "exit_code": 0,
+    "command_id": "14a2514c5e3e4b09b419327211343805"
+  },
+  {
+    "at": 1792429698.5500984,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.25894863065332174,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+    "exit_code": 0,
+    "command_id": "41e6e87199834b5da20ba1f5ae1711a1"
+  },
+  {
+    "at": 1792429699.7942219,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21950747026130557,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && grep -n \"table\\|Table\" f09-table-path.html | head -25",
+    "exit_code": 0,
+    "command_id": "9214f0fd89fa4aa4b7bafaea9d063741"
+  },
+  {
+    "at": 1792429703.6015189,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21536029502749443,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && sed -n '94,200p' f09-table-path.html",
+    "exit_code": 0,
+    "command_id": "85119aa4b6024c39a744b504d09d2eea"
+  },
+  {
+    "at": 1792429704.7645159,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 7.612165063619614e-06,
+    "worker_id": "b79af26dc8134bcf9608866c2596b21e"
+  },
+  {
+    "at": 1792429706.8009312,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.136909414082766,
+    "workers": [
+      {
+        "worker_id": "b79af26dc8134bcf9608866c2596b21e",
+        "status": "succeeded",
+        "submitted_at": 1792429371.1297371,
+        "prompt_sha256": "51916c5c18020b053e8ffb20c42fd66d9b1e7a654fe06fd635bfbbd748a4fa0d",
+        "started_at": 1792429372.135353,
+        "finished_at": 1792429705.772563,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/.host/workers/b79af26dc8134bcf9608866c2596b21e.json"
+      },
+      {
+        "worker_id": "190332aeb67f45c8a1c87fd1087efcf9",
+        "status": "succeeded",
+        "submitted_at": 1792429371.4129467,
+        "prompt_sha256": "b1cd66d859b6378c273eb3e3d3e3800577fef74536e88cb5e221e1ff01aa7c98",
+        "started_at": 1792429372.2715254,
+        "finished_at": 1792429677.1371787,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/.host/workers/190332aeb67f45c8a1c87fd1087efcf9.json"
+      },
+      {
+        "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+        "status": "running",
+        "submitted_at": 1792429371.9873574,
+        "prompt_sha256": "80d8fdecf171f9859bffefa68db04c488e462e7b43fe37733701a3775058ee1d",
+        "started_at": 1792429373.161891
+      }
+    ]
+  },
+  {
+    "at": 1792429710.5046074,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20750336023047566,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && sed -n '200,300p' f09-table-path.html && echo \"=== f06 table ===\" && grep -n \"panel\\|cell\\|rule\" f06-table-parallel.html | sed -n '1,40p'",
+    "exit_code": 0,
+    "command_id": "bad8d81180e14b139c008dd612a2648c"
+  },
+  {
+    "at": 1792429744.1606207,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.005406366195529699,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f11-table-cost.html",
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429749.4372797,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 40.38202430680394,
+    "workers": [
+      {
+        "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+        "status": "running",
+        "submitted_at": 1792429371.9873574,
+        "prompt_sha256": "80d8fdecf171f9859bffefa68db04c488e462e7b43fe37733701a3775058ee1d",
+        "started_at": 1792429373.161891
+      }
+    ]
+  },
+  {
+    "at": 1792429751.041341,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20423773117363453,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && python3 - <<'EOF'\nimport re\ns=open(\"f11-table-cost.html\").read()\nprint(\"template tags:\", s.count(\"<template>\"), s.count(\"</template>\"))\nprint(\"starts:\", s[:11].replace(\"\\n\",\"\\\\n\"), \"ends:\", repr(s[-13:]))\nprint(\"comp id:\", re.findall(r'data-composition-id=\"([^\"]+)\"', s))\nprint(\"timeline:\", re.findall(r'window.__timelines\\[\"([^\"]+)\"\\]', s))\nprint(\"clip attrs:\", re.findall(r'class=\"clip[^\"]*\"[^>]*', s))\nblocks=re.findall(r'<script>(.*?)</script>', s, re.S)\nopen(\"/tmp/f11.js\",\"w\").write(blocks[-1])\nprint(\"gsap include:\", '<script src=\"../../assets/gsap.min.js\"></script>' in s)\nprint(\"fontface:\", '@font-face' in s, \"font file:\", '../../assets/fonts/NotoSansSC-Variable.ttf' in s)\nprint(\"css transform:\", re.findall(r'transform:', s))\nprint(\"transition/repeat:\", re.findall(r'transition:|repeat:|yoyo', s))\nEOF\nnode --check /tmp/f11.js && echo \"f11 js OK\"",
+    "exit_code": null,
+    "command_id": "ea617a1ba69f4652880ec04be4866c80"
+  },
+  {
+    "at": 1792429754.1115985,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.2916985140182078,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "exit_code": 0,
+    "command_id": "ea617a1ba69f4652880ec04be4866c80"
+  },
+  {
+    "at": 1792429758.8723402,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21128437528386712,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && python3 - <<'EOF'\nimport re\nfor f in [\"f10-complexity\",\"f12-close\"]:\n    s=open(f+\".html\").read()\n    print(f, \"templates:\", s.count(\"<template>\"), s.count(\"</template>\"), \"| starts\", repr(s[:11]), \"| ends\", repr(s[-13:]))\n    print(\"  comp id:\", re.findall(r'data-composition-id=\"([^\"]+)\"', s))\n    print(\"  timeline:\", re.findall(r'window.__timelines\\[\"([^\"]+)\"\\]', s))\n    print(\"  clip:\", re.findall(r'class=\"clip[^\"]*\"[^>]*', s))\n    print(\"  gsap incl:\", '<script src=\"../../assets/gsap.min.js\"></script>' in s, \"| fontface:\", '@font-face' in s)\n    print(\"  css transform:\", re.findall(r'transform:', s), \"| repeat/yoyo:\", re.findall(r'repeat:|yoyo|Date.now|Math.random', s))\n    print(\"  ids not prefixed:\", [i for i in re.findall(r'id=\"([^\"]+)\"', s) if not i.startswith(f[:3]) and i != \"root\"])\nEOF",
+    "exit_code": 0,
+    "command_id": "6cbf6bb2d7354d87b687193894518b6a"
+  },
+  {
+    "at": 1792429766.1318514,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 7.809139788150787e-06,
+    "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12"
+  },
+  {
+    "at": 1792429767.748307,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 15.52237180666998,
+    "workers": [
+      {
+        "worker_id": "8141c2cbe77d4ff2a4f0d96461ab3e12",
+        "status": "succeeded",
+        "submitted_at": 1792429371.9873574,
+        "prompt_sha256": "80d8fdecf171f9859bffefa68db04c488e462e7b43fe37733701a3775058ee1d",
+        "started_at": 1792429373.161891,
+        "finished_at": 1792429767.6232624,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/.host/workers/8141c2cbe77d4ff2a4f0d96461ab3e12.json"
+      }
+    ]
+  },
+  {
+    "at": 1792429772.5536537,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22922580782324076,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && python3 - <<'EOF'\nimport os,re,json\nd='compositions/frames'\nids=[\"f01-hook\",\"f02-rnn-seq\",\"f03-seq-cost\",\"f04-improve\",\"f05-attention-parallel\",\"f06-table-parallel\",\"f07-path-attention\",\"f08-path-rnn\",\"f09-table-path\",\"f10-complexity\",\"f11-table-cost\",\"f12-close\"]\nfor i in ids:\n    p=f'{d}/{i}.html'; m=f'{d}/{i}.motion.json'\n    h=open(p).read() if os.path.exists(p) else ''\n    probs=[]\n    if not os.path.exists(p): probs.append('MISSING html')\n    if not os.path.exists(m): probs.append('MISSING motion.json')\n    if not h.strip().startswith('<template'): probs.append('no template start')\n    if not h.strip().endswith('</template>'): probs.append('no template end')\n    if f'data-composition-id=\"{i}\"' not in h: probs.append('comp-id mismatch')\n    if f'window.__timelines[\"{i}\"]' not in h and f\"window.__timelines['{i}']\" not in h: probs.append('timeline key missing')\n    if '@font-face' not in h: probs.append('no font-face')\n    if 'NotoSansSC-Variable.ttf' not in h: probs.append('font path?')\n    if 'cdn.jsdelivr' in h or 'http://' in h or 'https://' in h: probs.append('remote url')\n    if 'data-composition-id=\"main\"' in h: probs.append('main id?')\n    if '<audio' in h: probs.append('audio in frame')\n    if 'gsap.min.js' not in h: probs.append('no gsap include')\n    # check y<900 hints: look for top/inset values > 900\n    for m2 in re.finditer(r'(top|inset-top|bottom)\\s*:\\s*(\\d+)px', h):\n        pass\n    if 'data-width' not in h: probs.append('no width')\n    print(i, os.path.getsize(p) if h else 0, 'OK' if not probs else probs)\nEOF",
+    "exit_code": null,
+    "command_id": "8d80b3aaf3c745cbb69f525049513cca"
+  },
+  {
+    "at": 1792429776.6541402,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2388696540147066,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames && grep -n \"http\" f02-rnn-seq.html f05-attention-parallel.html f10-complexity.html | head; echo \"=== timelines ===\"; grep -n \"__timelines\" f07-path-attention.html f08-path-rnn.html f09-table-path.html; echo \"=== tail f07 ===\"; tail -20 f07-path-attention.html",
+    "exit_code": 0,
+    "command_id": "0a15f81b448441cfab297b7128fbeb76"
+  },
+  {
+    "at": 1792429779.8322399,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.25059599801898,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && sed -i 's/^- status: outline$/- status: animated/' STORYBOARD.md && grep -c \"status: animated\" STORYBOARD.md && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/assemble-index.mjs --storyboard \"$PWD/STORYBOARD.md\" --hyperframes \"$PWD\" --audio-meta \"$PWD/audio_meta.assembly.json\" 2>&1 | tail -30",
+    "exit_code": null,
+    "command_id": "582819cc3a3846eebecd42b90b0e4945"
+  },
+  {
+    "at": 1792429782.309774,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.1369139407761395,
+    "exit_code": 0,
+    "command_id": "582819cc3a3846eebecd42b90b0e4945"
+  },
+  {
+    "at": 1792429785.4202025,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21406537108123302,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/transitions.mjs inject --storyboard \"$PWD/STORYBOARD.md\" --hyperframes \"$PWD\" 2>&1 | tail -20",
+    "exit_code": null,
+    "command_id": "9392e4d7fef54bfc98634fb3798fd759"
+  },
+  {
+    "at": 1792429789.193782,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.35546781914308667,
+    "exit_code": 0,
+    "command_id": "9392e4d7fef54bfc98634fb3798fd759"
+  },
+  {
+    "at": 1792429792.111876,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20714394003152847,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/transitions.mjs verify --storyboard \"$PWD/STORYBOARD.md\" --index \"$PWD/index.html\" 2>&1 | tail -10",
+    "exit_code": null,
+    "command_id": "d4765cfc18914323a1446f1f1472d707"
+  },
+  {
+    "at": 1792429794.3538842,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.21652432857081294,
+    "exit_code": 0,
+    "command_id": "d4765cfc18914323a1446f1f1472d707"
+  },
+  {
+    "at": 1792429797.2937145,
+    "tool": "prepare_project",
+    "ok": true,
+    "elapsed": 0.20671529229730368,
+    "exit_code": null,
+    "command_id": "89fa064c48814d7da05e6218cb483bc1"
+  },
+  {
+    "at": 1792429800.0566356,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.20176846208050847,
+    "exit_code": 0,
+    "command_id": "89fa064c48814d7da05e6218cb483bc1"
+  },
+  {
+    "at": 1792429803.4862952,
+    "tool": "check_project",
+    "ok": true,
+    "elapsed": 0.20774901704862714,
+    "exit_code": null,
+    "command_id": "89aa9083603644719e6201ab50074d29"
+  },
+  {
+    "at": 1792429806.8541024,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.376377590931952,
+    "exit_code": 2,
+    "command_id": "89aa9083603644719e6201ab50074d29"
+  },
+  {
+    "at": 1792429810.0736852,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2049573133699596,
+    "command": "cat /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/.host/89aa9083603644719e6201ab50074d29.log | tail -60",
+    "exit_code": 0,
+    "command_id": "5eb2329dc1af43d28089b92e01d65405"
+  },
+  {
+    "at": 1792429813.075567,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20756481308490038,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && npx --yes hyperframes@0.8.168 check 2>&1 | tail -80",
+    "exit_code": null,
+    "command_id": "7e58cbbfc91b489a9385589d230870c3"
+  },
+  {
+    "at": 1792429833.2468257,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 17.82855410221964,
+    "exit_code": 0,
+    "command_id": "7e58cbbfc91b489a9385589d230870c3"
+  },
+  {
+    "at": 1792429837.3817034,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21100531099364161,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && grep -n \"fontSize\\|lineB\" compositions/frames/f01-hook.html | head -40",
+    "exit_code": 0,
+    "command_id": "0550957911914056b36fda99e800c6b1"
+  },
+  {
+    "at": 1792429841.10358,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20647548977285624,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && sed -n 60,120p compositions/frames/f01-hook.html; echo \"...\"; sed -n 170,215p compositions/frames/f01-hook.html; echo \"=== tl ===\"; sed -n 255,300p compositions/frames/f01-hook.html",
+    "exit_code": 0,
+    "command_id": "01cbe5d4341c4ec685a2ee1fade5c9f4"
+  },
+  {
+    "at": 1792429845.1340466,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.006750071886926889,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f01-hook.html"
+  },
+  {
+    "at": 1792429847.480299,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.003451178316026926,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f01-hook.html"
+  },
+  {
+    "at": 1792429850.6589482,
+    "tool": "check_project",
+    "ok": true,
+    "elapsed": 0.2407686449587345,
+    "exit_code": null,
+    "command_id": "03055db6cc2f4b6ead53380acb1a41e9"
+  },
+  {
+    "at": 1792429866.8071017,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 12.956859824247658,
+    "exit_code": 0,
+    "command_id": "03055db6cc2f4b6ead53380acb1a41e9"
+  },
+  {
+    "at": 1792429870.3804321,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20770656690001488,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism && npx --yes hyperframes@0.8.168 snapshot --at \"10.75,33.5,57.5,79.75,102.25,124,145.25,168.5,190.25,215.5,246.5,273.25\" 2>&1 | tail -20",
+    "exit_code": null,
+    "command_id": "12b60358aa564ef3a4fa4684446e6053"
+  },
+  {
+    "at": 1792429885.6153245,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 12.325898253824562,
+    "exit_code": 0,
+    "command_id": "12b60358aa564ef3a4fa4684446e6053"
+  },
+  {
+    "at": 1792429888.967877,
+    "tool": "render_project",
+    "ok": true,
+    "elapsed": 0.20766239194199443,
+    "exit_code": null,
+    "command_id": "6fa8f41a325f44179b08d987ee9b4da2"
+  },
+  {
+    "at": 1792429936.8502505,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.34756539110094,
+    "exit_code": null,
+    "command_id": "6fa8f41a325f44179b08d987ee9b4da2"
+  },
+  {
+    "at": 1792429985.3218899,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.16316470177844,
+    "exit_code": null,
+    "command_id": "6fa8f41a325f44179b08d987ee9b4da2"
+  },
+  {
+    "at": 1792430034.2045937,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.41577628208324,
+    "exit_code": null,
+    "command_id": "6fa8f41a325f44179b08d987ee9b4da2"
+  },
+  {
+    "at": 1792430082.031582,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.32350941374898,
+    "exit_code": null,
+    "command_id": "6fa8f41a325f44179b08d987ee9b4da2"
+  },
+  {
+    "at": 1792430130.196206,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.290557282045484,
+    "exit_code": null,
+    "command_id": "6fa8f41a325f44179b08d987ee9b4da2"
+  },
+  {
+    "at": 1792430178.429446,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.315498931799084,
+    "exit_code": null,
+    "command_id": "6fa8f41a325f44179b08d987ee9b4da2"
+  },
+  {
+    "at": 1792430226.9220355,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.604843913111836,
+    "exit_code": null,
+    "command_id": "6fa8f41a325f44179b08d987ee9b4da2"
+  },
+  {
+    "at": 1792430274.8930686,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.13729798281565,
+    "exit_code": null,
+    "command_id": "6fa8f41a325f44179b08d987ee9b4da2"
+  },
+  {
+    "at": 1792430284.38131,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 6.997587793041021,
+    "exit_code": 0,
+    "command_id": "6fa8f41a325f44179b08d987ee9b4da2"
+  },
+  {
+    "at": 1792430287.691205,
+    "tool": "complete_project",
+    "ok": true,
+    "elapsed": 0.25055568013340235
+  }
+]

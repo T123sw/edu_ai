@@ -1,0 +1,44 @@
+{
+  "data": "synthetic; no learning records written",
+  "initial_six_scenarios": [
+    {
+      "case": "课堂普通提问",
+      "answer": "{\"answer_markdown\":\"因为冒泡排序的目标是让较大的数逐步“浮”到右边。相邻两个数如果顺序反了（左边比右边大），就说明它们的位置不对，交换一下，较大的那个就向右挪了一位。\\n\\n比如 `[3, 5]` 不用换，`[5, 3]` 就要换成 `[3, 5]`。这样一轮从左到右比较下来，当前最大的数就会被一路“推”到最右端，下一轮就不用再管它了。\",\"citation_ids\":[\"ctx_01\"],\"suggested_action_ids\":[],\"observation\":null}"
+    },
+    {
+      "case": "课堂明确问位置",
+      "answer": "{\"answer_markdown\":\"你提问时视频播放到约 82 秒，对应「冒泡排序」这一段。\",\"citation_ids\":[\"ctx_01\"],\"suggested_action_ids\":[],\"observation\":null}"
+    },
+    {
+      "case": "实验阶段不外露",
+      "answer": "因为 5 比 2 大，而这一轮要把较大的数往右移。交换前是 `[5, 2, 3]`，比较相邻的 5 和 2 时发现顺序不对，交换后变成 `[2, 5, 3]`，5 就向右移动了一位。\n\n接下来 5 还会和右边的 3 比较；按同样的规则，较大的数会继续往右“冒”到它该在的位置。"
+    },
+    {
+      "case": "项目代码辅导",
+      "answer": "你的 `add` 函数里写的是 `return a-b;`，所以 `add(2,3)` 实际执行的是 `2 - 3`，结果自然是 `-1`。\n\n问题出在 `/src/main.js` 这一行：\n\n```js\nfunction add(a,b){ return a-b; }\n```\n\n加法函数应该把两个参数相加，把减号改成加号即可：\n\n```js\nfunction add(a,b){ return a+b; }\n```\n\n改完后 `add(2,3)` 会得到 `5`。目前这次提交还没有对应的检查结果，修改后请实际运行检查确认。"
+    },
+    {
+      "case": "习题只给提示",
+      "answer": "{\"answer_markdown\":\"第一步：把含 x 的项留在等号左边，把常数项 3 移到右边。移项时符号要改变，所以右边变成 11 减 3。先写出这一步，再继续往下算。\",\"citation_ids\":[\"ctx_01\"],\"suggested_action_ids\":[],\"observation\":null}"
+    },
+    {
+      "case": "资料正常推导",
+      "answer": "{\"answer_markdown\":\"用速度公式：\\n\\n\\\\[v = v_0 + at\\\\]\\n\\n代入 \\\\(v_0 = 2\\\\ \\\\text{m/s}\\\\)，\\\\(a = 3\\\\ \\\\text{m/s}^2\\\\)，\\\\(t = 2\\\\ \\\\text{s}\\\\)：\\n\\n\\\\[v = 2 + 3 \\\\times 2 = 2 + 6 = 8\\\\ \\\\text{m/s}\\\\]\\n\\n所以 2 秒后速度是 **8 m/s**。\\n\\n其中 \\\\(at = 3 \\\\times 2 = 6\\\\ \\\\text{m/s}\\\\) 就是这 2 秒内速度的变化量，与初速度相加得到末速度。\",\"citation_ids\":[\"ctx_01\"],\"suggested_action_ids\":[],\"observation\":null}"
+    }
+  ],
+  "final_pbl_recheck": [
+    {
+      "case": "add(2,3)为什么得到-1？",
+      "answer": "你的 `add` 函数写成了减法：\n\n```js\nfunction add(a,b){ return a-b; }\n```\n\n调用 `add(2,3)` 时，`a=2`、`b=3`，返回的是 `2 - 3 = -1`，所以结果不是预期的 5。\n\n把运算符改成加法即可：\n\n```js\nfunction add(a,b){ return a + b; }\n```\n\n改完后建议实际运行一次或提交检查，确认 `add(2,3)` 返回 5。"
+    },
+    {
+      "case": "我这份代码已经通过检查了吗？",
+      "answer": "暂无检查结果，无法确认是否通过。\n\n另外，从代码本身看，`add` 函数返回的是 `a - b`，而函数名和参数暗示的应该是加法。如果检查要求实现加法，这里会失败。建议把 `return a - b;` 改成 `return a + b;`，然后实际运行检查确认。"
+    }
+  ],
+  "notes": [
+    "Initial PBL response unnecessarily mentioned absent checks; final prompt makes this conditional.",
+    "Explicit playback-position questions still answer with the provided seconds.",
+    "These samples verify behavior, not a guarantee for every future response."
+  ]
+}

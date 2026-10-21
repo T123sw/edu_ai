@@ -1,3 +1,5 @@
+> AI 课堂现使用完整保留的 HyperFrames 原生创作工作流、工程、播放器和渲染器。安装与迁移见 [运行说明](docs/deployment/hyperframes.md)，实施范围见 [替换计划](docs/superpowers/plans/2026-10-17-hyperframes-classroom.md)。
+
 # Edu-AI
 
 Edu-AI 是由 React/Vite 前端、FastAPI 后端和 OpenMAIC sidecar 组成的 AI 教学平台。当前结构与模块状态见 [`项目总览地图.md`](项目总览地图.md)。
@@ -19,6 +21,8 @@ Edu_AI/
 普通 PPT/HTML2PPT、EduAgent、旧数据采集管道、数字人和 WebRTC 不再属于支持范围。
 
 ## 安装环境
+
+克隆时使用 `git clone --recurse-submodules https://github.com/T123sw/edu_ai.git`；已有克隆执行 `git submodule update --init --depth 1 -- vendor/hyperframes`，取得固定版本的 HyperFrames 原始源码。大型上游回归测试媒体使用 Git LFS，教学运行环境无需这些媒体，详见 [源码来源与安装](hyperframes-runtime/PROVENANCE.md)。
 
 项目只使用根目录 `environment.yml`。安装 Miniforge 后，在 Linux 执行：
 
@@ -77,6 +81,6 @@ OpenMAIC sidecar 位于仓库根目录 `openmaic-sidecar/`，默认端口 3000�
 - [部署入口](docs/deployment/README.md)
 - [依赖与运行基线](DEPENDENCIES.md)
 
-Linux 正式上线按 [部署入口](docs/deployment/README.md) 执行。生产端口为 FastAPI `8001`、OpenMAIC `3000`、PostgreSQL `5432`，三者都只监听本机，由 Nginx 提供公开入口。
+Linux 正式上线按 [部署入口](docs/deployment/README.md) 执行。生产端口为 FastAPI `8001`、PostgreSQL `5432`，只监听本机；HyperFrames 无需独立课堂服务，由 Nginx 提供公开入口。
 
 真实 `.env`、运行数据、依赖目录、构建产物和日志不得提交。

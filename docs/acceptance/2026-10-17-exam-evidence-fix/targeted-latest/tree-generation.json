@@ -1,0 +1,47 @@
+[
+  {
+    "ordinal": 15,
+    "passed": true,
+    "issues": [],
+    "seconds": 5.04
+  },
+  {
+    "ordinal": 19,
+    "passed": true,
+    "issues": [],
+    "seconds": 8.75
+  },
+  {
+    "ordinal": 12,
+    "passed": true,
+    "issues": [],
+    "seconds": 25.43
+  },
+  {
+    "ordinal": 27,
+    "passed": true,
+    "issues": [],
+    "seconds": 24.19
+  },
+  {
+    "ordinal": 26,
+    "passed": false,
+    "issues": [
+      "candidate_tree_claim_false",
+      "calculation_unverified: facts['target_is_leaf']==true: unknown variable: true",
+      "calculation_mismatch: tx_count==1 = False, claimed True",
+      "calculation_mismatch: tx_nodes==[1499] = False, claimed True",
+      "tree_answer_unverified: q_8b9ac018b987840ee562",
+      "tree_answer_unverified: q_6f07f9dc0a2e8d47c1be",
+      "tree_answer_unverified: q_1547df775d7cc57ea1d9",
+      "Executed comparisons to candidate answers: [{\"expression\": \"complete_tree_facts(1500,1499,0)\", \"actual\": {\"node_count\": 1500, \"index_base\": 0, \"target\": 1499, \"path\": [0, 1, 4, 10, 22, 45, 92, 186, 374, 749, 1499], \"top_subtree_root\": 1, \"top_subtree_side\": \"left\", \"top_subtree_count\": 988, \"top_subtree_height\": 10, \"top_subtree_max_label\": 1499, \"target_is_leaf\": true, \"leaves_before_by_label\": 493, \"leaves_to_left\": 476, \"top_subtree_leaf_count\": 494}, \"matches\": null, \"name\": \"facts\"}, {\"expression\": \"facts['top_subtree_root']\", \"actual\": 1, \"matches\": null, \"name\": \"tl_root\"}, {\"expression\": \"facts['top_subtree_side']\", \"actual\": \"left\", \"matches\": null, \"name\": \"side\"}, {\"expression\": \"facts['top_subtree_count']\", \"actual\": 988, \"matches\": null, \"name\": \"tl_count\"}, {\"expression\": \"facts['top_subtree_height']\", \"actual\": 10, \"matches\": null, \"name\": \"tl_height\"}, {\"expression\": \"facts['top_subtree_max_label']\", \"actual\": 1499, \"matches\": null, \"name\": \"tl_max\"}, {\"expression\": \"facts['leaves_to_left']\", \"actual\": 476, \"matches\": null, \"name\": \"leaves_left\"}, {\"expression\": \"facts['leaves_before_by_label']\", \"actual\": 493, \"matches\": null, \"name\": \"leaves_before\"}, {\"expression\": \"facts['top_subtree_leaf_count']\", \"actual\": 494, \"matches\": null, \"name\": \"tl_leaves\"}, {\"expression\": \"facts['path']==[0,1,4,10,22,45,92,186,374,749,1499]\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"side=='left'\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tl_root==1\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tl_count==988\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tl_height==10\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tl_max==1499\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tl_leaves==494\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"leaves_before==493\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"leaves_left==476\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"complete_tree_subtree(1500,374)\", \"actual\": [374, 749, 750, 1499], \"matches\": null, \"name\": \"tx_nodes\"}, {\"expression\": \"len(tx_nodes)\", \"actual\": 4, \"matches\": null, \"name\": \"tx_count\"}, {\"expression\": \"tx_nodes==[374,749,750,1499]\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tx_count==4\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tx_nodes[0]==374\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tx_nodes[1]==749\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tx_nodes[2]==750\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tx_nodes[3]==1499\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"tx_count==1\", \"actual\": false, \"expected\": true, \"matches\": false}, {\"expression\": \"tx_nodes==[1499]\", \"actual\": false, \"expected\": true, \"matches\": false}, {\"expression\": \"complete_tree_subtree(1500,1499)==[1499]\", \"actual\": true, \"expected\": true, \"matches\": true}]"
+    ],
+    "seconds": 37.25
+  },
+  {
+    "ordinal": 30,
+    "passed": true,
+    "issues": [],
+    "seconds": 22.79
+  }
+]

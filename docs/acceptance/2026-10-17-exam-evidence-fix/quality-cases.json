@@ -1,0 +1,115 @@
+[
+  {
+    "case": "old_binary",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "computed_choice_answer_mismatch: unique computed correct option is A"
+    ],
+    "seconds": 2.95
+  },
+  {
+    "case": "old_partition",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_calculation_failed",
+      "single_choice_not_unique: computed correct options []",
+      "independent_solution_unverified: recheck the claimed contradiction against ONLY explicit conditions",
+      "Solver statement (must be checked, not blindly copied): 题目要求以第一个元素 47 为枢轴，用两端向中间扫描的双指针法划分。但“划分时用两个指针分别从两端向中间扫描”存在两种常见实现，且它们给出不同结果：\n\n1) 交换式（partition_swap）：先右指针找小元素与左指针处交换，再左指针找大元素与右指针处交换，交替进行。对 (47,23,68,35,56,19,74,31) 执行 partition_swap 得到 (19,23,31,35,47,56,74,68)。\n2) 挖坑式（partition_hole）：把枢轴取出成“坑”，右指针找小元素填左坑，左指针找大元素填右坑。执行 partition_hole 得到 (31,23,19,35,47,56,74,68)。\n\n题面只说“把小于枢轴的元素换到左边、大于枢轴的元素换到右边，最终把枢轴放到其最终位置”，并未明确采用哪一种扫描/交换细节，因此第一趟结果不唯一。\n\n逐一核对选项（以两种权威计算结果为准）：\nA = (31,23,35,19) 47 (56,68,74)：与两种结果均不符。\nB = (31,23,35,19) 47 (56,74,68)：与两种结果均不符。\nC = (19,23,35,31) 47 (74,56,68)：与两种结果均不符。\nD = (23,31,35,19) 47 (56,68,74)：与两种结果均不符。\n\n四个选项均不等于任一标准双指针划分结果，故没有唯一正确选项，题目在给定选项下不适定（well_posed=false）。",
+      "Executed calculator evidence: [{\"expression\": \"partition_swap([47,23,68,35,56,19,74,31])\", \"actual\": [19, 23, 31, 35, 47, 56, 74, 68], \"matches\": null, \"name\": \"swap_result\"}, {\"expression\": \"partition_hole([47,23,68,35,56,19,74,31])\", \"actual\": [31, 23, 19, 35, 47, 56, 74, 68], \"matches\": null, \"name\": \"hole_result\"}, {\"expression\": \"swap_result == [31,23,35,19,47,56,68,74]\", \"actual\": false, \"matches\": null, \"name\": \"A_swap\"}, {\"expression\": \"hole_result == [31,23,35,19,47,56,68,74]\", \"actual\": false, \"matches\": null, \"name\": \"A_hole\"}, {\"expression\": \"swap_result == [31,23,35,19,47,56,74,68]\", \"actual\": false, \"matches\": null, \"name\": \"B_swap\"}, {\"expression\": \"hole_result == [31,23,35,19,47,56,74,68]\", \"actual\": false, \"matches\": null, \"name\": \"B_hole\"}, {\"expression\": \"swap_result == [19,23,35,31,47,74,56,68]\", \"actual\": false, \"matches\": null, \"name\": \"C_swap\"}, {\"expression\": \"hole_result == [19,23,35,31,47,74,56,68]\", \"actual\": false, \"matches\": null, \"name\": \"C_hole\"}, {\"expression\": \"swap_result == [23,31,35,19,47,56,68,74]\", \"actual\": false, \"matches\": null, \"name\": \"D_swap\"}, {\"expression\": \"hole_result == [23,31,35,19,47,56,68,74]\", \"actual\": false, \"matches\": null, \"name\": \"D_hole\"}]"
+    ],
+    "seconds": 9.42
+  },
+  {
+    "case": "new_arithmetic",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2328-2000 = 328, not 276",
+      "arithmetic_claim_invalid: 276 / 82 = 3.3658536585365852, not 4"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "new_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2**(11) = 2048, not 2047"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "correct_binary",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 4.48
+  },
+  {
+    "case": "correct_partition",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 5.03
+  },
+  {
+    "case": "old_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "tree_answer_unverified",
+      "calculation_mismatch: facts['top_subtree_side'] = left, claimed right",
+      "calculation_mismatch: facts['top_subtree_root'] = 1, claimed 2",
+      "calculation_mismatch: facts['path'] = [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1024], claimed [0, 2, 6, 14, 30, 62, 126, 254, 510, 1022, 2046]",
+      "calculation_mismatch: facts['leaves_before_by_label'] = 18, claimed 0",
+      "calculation_mismatch: facts['leaves_to_left'] = 1, claimed 0",
+      "calculation_mismatch: len(sub2) = 511, claimed 15",
+      "tree_answer_unverified: q_8b9ac018b987840ee562",
+      "tree_answer_unverified: q_6f07f9dc0a2e8d47c1be",
+      "tree_answer_unverified: q_1547df775d7cc57ea1d9",
+      "Executed comparisons to candidate answers: [{\"expression\": \"complete_tree_facts(1500, 1024, 0)\", \"actual\": {\"node_count\": 1500, \"index_base\": 0, \"target\": 1024, \"path\": [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1024], \"top_subtree_root\": 1, \"top_subtree_side\": \"left\", \"top_subtree_count\": 988, \"top_subtree_height\": 10, \"top_subtree_max_label\": 1499, \"target_is_leaf\": true, \"leaves_before_by_label\": 18, \"leaves_to_left\": 1, \"top_subtree_leaf_count\": 494}, \"matches\": null, \"name\": \"facts\"}, {\"expression\": \"facts['top_subtree_side']\", \"actual\": \"left\", \"expected\": \"right\", \"matches\": false, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['top_subtree_root']\", \"actual\": 1, \"expected\": 2, \"matches\": false, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['path']\", \"actual\": [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1024], \"expected\": [0, 2, 6, 14, 30, 62, 126, 254, 510, 1022, 2046], \"matches\": false, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['leaves_before_by_label']\", \"actual\": 18, \"expected\": 0, \"matches\": false, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"facts['leaves_to_left']\", \"actual\": 1, \"expected\": 0, \"matches\": false, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"facts['target_is_leaf']\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"complete_tree_subtree(1500, 2, 0)\", \"actual\": [2, 5, 6, 11, 12, 13, 14, 23, 24, 25, 26, 27, 28, 29, 30, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 767, 768, 769, 770, 771, 772, 773, 774, 775, 776, 777, 778, 779, 780, 781, 782, 783, 784, 785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797, 798, 799, 800, 801, 802, 803, 804, 805, 806, 807, 808, 809, 810, 811, 812, 813, 814, 815, 816, 817, 818, 819, 820, 821, 822, 823, 824, 825, 826, 827, 828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 839, 840, 841, 842, 843, 844, 845, 846, 847, 848, 849, 850, 851, 852, 853, 854, 855, 856, 857, 858, 859, 860, 861, 862, 863, 864, 865, 866, 867, 868, 869, 870, 871, 872, 873, 874, 875, 876, 877, 878, 879, 880, 881, 882, 883, 884, 885, 886, 887, 888, 889, 890, 891, 892, 893, 894, 895, 896, 897, 898, 899, 900, 901, 902, 903, 904, 905, 906, 907, 908, 909, 910, 911, 912, 913, 914, 915, 916, 917, 918, 919, 920, 921, 922, 923, 924, 925, 926, 927, 928, 929, 930, 931, 932, 933, 934, 935, 936, 937, 938, 939, 940, 941, 942, 943, 944, 945, 946, 947, 948, 949, 950, 951, 952, 953, 954, 955, 956, 957, 958, 959, 960, 961, 962, 963, 964, 965, 966, 967, 968, 969, 970, 971, 972, 973, 974, 975, 976, 977, 978, 979, 980, 981, 982, 983, 984, 985, 986, 987, 988, 989, 990, 991, 992, 993, 994, 995, 996, 997, 998, 999, 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022], \"matches\": null, \"name\": \"sub2\"}, {\"expression\": \"sub2[:15]\", \"actual\": [2, 5, 6, 11, 12, 13, 14, 23, 24, 25, 26, 27, 28, 29, 30], \"expected\": [2, 5, 6, 11, 12, 13, 14, 23, 24, 25, 26, 27, 28, 29, 30], \"matches\": true, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"len(sub2)\", \"actual\": 511, \"expected\": 15, \"matches\": false, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"all(2*i+1 in sub2 and 2*i+2 in sub2 for i in [2,5,6,11,12,13,14])\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_1547df775d7cc57ea1d9\"}]"
+    ],
+    "seconds": 20.67
+  },
+  {
+    "case": "fresh_heap_multiple_answers",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_calculation_failed",
+      "single_choice_not_unique: computed correct options ['A', 'D']",
+      "independent_solution_unverified: recheck the claimed contradiction against ONLY explicit conditions",
+      "Solver statement (must be checked, not blindly copied): 按最小堆定义（0 基下标，任意非叶结点 i 的值不大于其孩子 2i+1、2i+2 的值）逐项检查：\nA：序列 15,45,25,60,50,30,40,70。下标 1 的 45 有孩子 50、30，均≥45；下标 2 的 25 有孩子 30、40，均≥25；下标 0 的 15 有孩子 45、25，均≥15。全部成立，A 是最小堆。\nB：下标 2 的 18 有孩子 15、25，其中 15<18，违反最小堆性质，B 不是。\nC：下标 2 的 16 有孩子 20、12，其中 12<16，违反最小堆性质，C 不是。\nD：序列 9,27,18,45,36,24,30,54。下标 1 的 27 有孩子 36、24，均≥27；下标 2 的 18 有孩子 24、30，均≥18；下标 0 的 9 有孩子 27、18，均≥9。全部成立，D 也是最小堆。\n因此 A 和 D 都满足最小堆条件，但本题为单选题，正确选项不唯一，题目存在矛盾，well_posed=false。",
+      "Executed calculator evidence: [{\"expression\": \"is_heap([15,45,25,60,50,30,40,70])\", \"actual\": true, \"matches\": null, \"name\": \"A_heap\"}, {\"expression\": \"is_heap([12,20,18,35,40,15,25,30])\", \"actual\": false, \"matches\": null, \"name\": \"B_heap\"}, {\"expression\": \"is_heap([8,24,16,40,32,20,12,48])\", \"actual\": false, \"matches\": null, \"name\": \"C_heap\"}, {\"expression\": \"is_heap([9,27,18,45,36,24,30,54])\", \"actual\": true, \"matches\": null, \"name\": \"D_heap\"}]"
+    ],
+    "seconds": 4.73
+  },
+  {
+    "case": "fresh_tree_false_acceptance",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "candidate_tree_claim_false",
+      "calculation_mismatch: leaves_left==249 = False, claimed True",
+      "tree_answer_unverified: q_6f07f9dc0a2e8d47c1be",
+      "Executed comparisons to candidate answers: [{\"expression\": \"complete_tree_facts(1000,999,0)\", \"actual\": {\"node_count\": 1000, \"index_base\": 0, \"target\": 999, \"path\": [0, 2, 6, 14, 30, 61, 124, 249, 499, 999], \"top_subtree_root\": 2, \"top_subtree_side\": \"right\", \"top_subtree_count\": 488, \"top_subtree_height\": 9, \"top_subtree_max_label\": 999, \"target_is_leaf\": true, \"leaves_before_by_label\": 243, \"leaves_to_left\": 232, \"top_subtree_leaf_count\": 244}, \"matches\": null, \"name\": \"facts\"}, {\"expression\": \"facts['top_subtree_side']\", \"actual\": \"right\", \"matches\": null, \"name\": \"side\"}, {\"expression\": \"side=='right'\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['path']==[0,2,6,14,30,61,124,249,499,999]\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['leaves_to_left']\", \"actual\": 232, \"matches\": null, \"name\": \"leaves_left\"}, {\"expression\": \"leaves_left==249\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"facts['leaves_before_by_label']==243\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"facts['top_subtree_leaf_count']==244\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"facts['top_subtree_height']\", \"actual\": 9, \"matches\": null, \"name\": \"height\"}, {\"expression\": \"height==9\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"facts['top_subtree_count']==488\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"facts['top_subtree_max_label']==999\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"facts['top_subtree_root']==2\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_1547df775d7cc57ea1d9\"}]"
+    ],
+    "seconds": 4.85
+  },
+  {
+    "case": "correct_tree_variant",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 7.36
+  },
+  {
+    "case": "correct_matrix_boundary",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 6.5
+  }
+]

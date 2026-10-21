@@ -1,0 +1,18 @@
+{
+  "browserTests": 7,
+  "widths": [
+    1440,
+    390
+  ],
+  "covered": [
+    "single choice, multiple choice, true/false and short answer inputs",
+    "saved answer reload and draft references",
+    "previously skipped questions become answerable",
+    "prior automatic coaching disabled before submission",
+    "failed model evaluation preserves answer and retries evaluation only",
+    "hint and explanation reference the correct saved attempt",
+    "removed controls absent",
+    "code, math and legacy resource preview"
+  ],
+  "limits": "Business APIs mocked; model grading implementation inspected, no new real model calls or production answer submissions."
+}

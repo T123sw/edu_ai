@@ -1,0 +1,2382 @@
+{
+  "title": "自注意力与缩放点积：Q、K、V 如何算出加权和（习题数值纠错）",
+  "status": "ready",
+  "content": {
+    "title": "自注意力与缩放点积：Q、K、V 如何算出加权和（习题）",
+    "questions": [
+      {
+        "id": "q1-qkv-roles",
+        "stem": "在自注意力中，某个 token 的 Query、Key、Value 三个向量分别承担什么角色？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "Query 表示“我想找什么”，Key 表示“我是什么”，Value 表示“我的内容”",
+          "Query 表示“我的内容”，Key 表示“我想找什么”，Value 表示“我是什么”",
+          "Query 表示“我是什么”，Key 表示“我的内容”，Value 表示“我想找什么”",
+          "三者是同一个向量的三个副本，只是名字不同，数值完全一致"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：Query 是当前位置的查询意图，用来与其他位置的 Key 匹配；Key 是每个位置的特征标识，用来被检索；Value 是实际被加权求和传递出去的信息。B 把三者角色整体错位：Value 不是“我是什么”而是“我的内容”，Query 也不是“我的内容”。C 是另一种错位，把 Key 当成内容、Value 当成查询意图，与“Key 被 Query 检索、Value 被加权求和”的分工不符。D 错误：三个向量由三组不同的线性变换生成，数值一般不同；若完全相同，就无法分别学习“该关注谁”和“关注后取什么信息”。"
+      },
+      {
+        "id": "q2-decoupling",
+        "stem": "“相似度计算与信息传递解耦”在自注意力里具体指什么？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "注意力权重由 Q 与 K 的点积决定，而被加权求和的内容来自 V，两组参数可以分别学习",
+          "先算完所有相似度，再统一决定用哪一组 V，因此 V 不参与权重计算",
+          "Q、K、V 必须由同一个权重矩阵生成，所以解耦只是概念上的说法",
+          "解耦意味着注意力权重一旦算出就固定不变，不再随输入变化"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：权重来自 Q·K 的相容性，输出是 V 的加权和，因此“该关注谁”和“关注后取什么信息”由不同的投影参数承担，可以分别学习。B 前半句“V 不参与权重计算”是对的，但“先算完相似度再统一决定用哪一组 V”不是解耦的含义，V 的投影是固定的线性变换，不存在事后挑选。C 错误：Q、K、V 由三组不同的线性变换生成，这正是解耦能成立的前提。D 错误：权重是输入的函数，输入变了权重就变；解耦说的是两件事由不同参数负责，不是权重固定。"
+      },
+      {
+        "id": "q3-formula-steps",
+        "stem": "关于 Attention(Q,K,V)=softmax(QK^T/√dk)V，下列哪些说法正确？",
+        "type": "multiple_choice",
+        "answer": "A,B,C,D",
+        "options": [
+          "QK^T 得到每个查询与所有键的点积，构成相似度打分矩阵",
+          "除以 √dk 是为了在 softmax 之前把打分幅值压小",
+          "softmax 按行把打分变成非负且每行和为 1 的权重",
+          "最后与 V 相乘，是用权重对 Value 做加权求和",
+          "公式中的 V 必须先经过 softmax 才能参与加权求和"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：Q 的每一行与 K^T 的每一列做点积，得到“查询×键”的打分矩阵。B 正确：缩放发生在 softmax 之前，作用是把点积幅值压小。C 正确：softmax 沿每一行（同一个查询对所有键）归一化，输出非负且行和为 1。D 正确：权重矩阵乘 V 就是每个查询位置上对 Value 的加权求和。E 错误：softmax 只作用在打分上，V 是原始内容向量，直接参与加权求和；对 V 再做 softmax 会破坏“加权和”的含义。"
+      },
+      {
+        "id": "q4-scaling-reason",
+        "stem": "为什么缩放点积注意力要除以 √dk，而不是直接除以 dk 或干脆不除？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "dk 较大时点积幅值变大，softmax 会被推入梯度极小的区域，除以 √dk 可把幅值拉回合适范围",
+          "除以 √dk 是为了让注意力权重之和恰好等于 √dk，便于后续归一化",
+          "不除也能训练，只是数值上更慢，除以 √dk 纯粹是工程习惯，没有数学理由",
+          "除以 √dk 是为了保证 Q 与 K 的点积恒为非负数，避免出现负权重"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：论文指出 dk 大时点积幅值变大，会把 softmax 推到梯度极小的区域，因此用 1/√dk 缩放。B 错误：softmax 之后每行权重和恒为 1，与 √dk 无关。C 错误：缩放有明确动机（控制 softmax 输入幅值、避免梯度极小），不是无理由的习惯。D 错误：点积本身可正可负，缩放不改变符号；权重非负来自 softmax 的指数运算，而不是缩放。"
+      },
+      {
+        "id": "q5-no-scaling-dk64",
+        "stem": "假设各分量独立、均值 0、方差 1，某个查询与某个键的点积在 dk=64 时的典型幅值（标准差）约为多少？若去掉 √dk 缩放，打分矩阵会怎样？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "约 8；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+          "约 64；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+          "约 1；打分幅值不变，softmax 行为与缩放后完全相同",
+          "约 8；打分幅值变小，softmax 输出更平滑，梯度变大"
+        ],
+        "difficulty": "hard",
+        "explanation": "点积是 dk 个乘积之和，每个乘积的方差为 1×1=1，故点积方差约为 dk=64，标准差约为 √64=8。A 正确：幅值约 8，远大于 1，softmax 的输入差距被放大，输出接近 one-hot，此时 softmax 的梯度极小，训练困难。B 的 64 是方差而非标准差，混淆了两者。C 的“约 1”对应的是缩放后的幅值（8/√64=1），但题干问的是不缩放时的幅值，且“行为完全相同”与事实相反。D 数值对但方向错：不缩放是幅值变大而非变小，softmax 会更尖锐而不是更平滑。"
+      },
+      {
+        "id": "q6-hand-calc-weights",
+        "stem": "3 个 token，dk=2，Q 与 K 如下（每行一个 token）：\nQ = [[1, 0], [0, 1], [1, 1]]\nK = [[1, 0], [0, 1], [1, 1]]\n请写出缩放后的打分矩阵 S = QK^T/√dk（保留两位小数），以及逐行 softmax 后的注意力权重矩阵（保留三位小数），并核对每行之和。",
+        "type": "short_answer",
+        "answer": "S = [[0.71, 0.00, 0.71], [0.00, 0.71, 0.71], [0.71, 0.71, 1.41]]；权重 A = [[0.401, 0.198, 0.401], [0.198, 0.401, 0.401], [0.248, 0.248, 0.503]]。完整精度下每行之和均为 1；按三位小数显示时，第 3 行显示值之和为 0.999，这是舍入误差，不是概率算错。",
+        "difficulty": "hard",
+        "explanation": "第一步打分：未缩放点积 QK^T 的第 1 行 [1,0] 与三个键得 1、0、1；第 2 行 [0,1] 得 0、1、1；第 3 行 [1,1] 得 1、1、2。第二步缩放：√dk=√2≈1.41421356，逐项除以它，得 S 第 1 行 0.70710678、0、0.70710678；第 2 行 0、0.70710678、0.70710678；第 3 行 0.70710678、0.70710678、1.41421356，保留两位即 [[0.71, 0.00, 0.71], [0.00, 0.71, 0.71], [0.71, 0.71, 1.41]]。第三步逐行 softmax（全程用完整精度，最后才舍入）：第 1 行 e^0.70710678=2.02811383、e^0=1、e^0.70710678=2.02811383，和 5.05622766，权重 0.40110905、0.19778190、0.40110905，保留三位为 0.401、0.198、0.401。第 2 行对称，得 0.198、0.401、0.401。第 3 行 e^0.70710678=2.02811383、e^0.70710678=2.02811383、e^1.41421356=4.11325038，和 8.16947804，权重为 0.2482550782577231、0.2482550782577231、0.5034898434845538，保留三位是 0.248、0.248、0.503。这里要特别注意舍入规则：0.5034898434845538 直接保留三位是 0.503，不能先把中间结果舍入成 0.5035 再二次舍入成 0.504，那样会引入二次舍入误差。第 3 行完整精度之和为 1，但三个三位显示值 0.248+0.248+0.503=0.999，差 0.001 完全来自舍入，不能为了凑 1 把某个概率改成 0.504。关键检查点：每行权重非负、完整精度行和为 1；第 3 个 token 的查询与自己的键最相似（缩放后打分 1.41421356 最大），因此自权重最大。对照说明：若漏掉除以 √2，直接对未缩放打分 [1,0,1] 做 softmax，得到的是 [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]，保留三位为 [0.422, 0.155, 0.422]（不是 [0.422, 0.207, 0.371]），那是未缩放打分的权重，与本题要求的 S 不符。"
+      },
+      {
+        "id": "q7-hand-calc-output",
+        "stem": "沿用上一题的 Q、K，并取 V = [[1, 0], [0, 1], [1, 1]]。用你算出的注意力权重对 V 加权求和，写出 3 个 token 的输出向量（保留两位小数），并说明第 1 个 token 的输出为什么更接近 V1 而不是 V2。",
+        "type": "short_answer",
+        "answer": "用上一题缩放后的权重计算：输出 1 = 0.401×[1,0] + 0.198×[0,1] + 0.401×[1,1] = [0.80, 0.60]；输出 2 = 0.198×[1,0] + 0.401×[0,1] + 0.401×[1,1] = [0.60, 0.80]；输出 3 = 0.248×[1,0] + 0.248×[0,1] + 0.503×[1,1] = [0.75, 0.75]。",
+        "difficulty": "hard",
+        "explanation": "加权求和是逐分量做：输出第 1 维 = Σ 权重×V 的第 1 维，第 2 维同理。以输出 1 为例，第 1 维 = 0.40110905×1 + 0.19778190×0 + 0.40110905×1 = 0.8022241853595718；第 2 维 = 0.40110905×0 + 0.19778190×1 + 0.40110905×1 = 0.5988879073202141，保留两位即 [0.80, 0.60]。输出 2 对称，得 [0.60, 0.80]。输出 3 第 1 维 = 0.2482550782577231×1 + 0.2482550782577231×0 + 0.5034898434845538×1 = 0.7517449217422769，第 2 维 = 0.2482550782577231×0 + 0.2482550782577231×1 + 0.5034898434845538×1 = 0.7517449217422769，即约 [0.75, 0.75]。第 1 个 token 的查询 [1,0] 与键 1 [1,0] 的点积为 1，与键 2 [0,1] 的点积为 0，缩放后分别是 0.70710678 与 0，所以权重 0.40110905 大于 0.19778190，输出自然更靠近 V1=[1,0]。注意输出不是 V1 本身，因为其他 token 的 Value 也按权重混入。对照说明：若漏掉除以 √2 而用未缩放打分的权重 [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]，输出 1 的第 1 维 = 0.4223187982515182×1 + 0.15536240349696362×0 + 0.4223187982515182×1 = 0.8446375965030364，第 2 维 = 0.4223187982515182×0 + 0.15536240349696362×1 + 0.4223187982515182×1 = 0.5776812017484818，保留两位是 [0.84, 0.58]（不是 [0.79, 0.58]）；这组数字只用于说明漏掉缩放会得到不同结果，与本题要求的缩放点积流程不一致。"
+      },
+      {
+        "id": "q8-true-false-weights",
+        "stem": "判断：在自注意力中，某个 token 对另一个 token 的注意力权重是人工按语法规则设定的，例如代词一定被规定要关注它前面最近的名词。",
+        "type": "true_false",
+        "answer": "错误",
+        "difficulty": "easy",
+        "explanation": "权重由 Q 与 K 的点积经缩放和 softmax 计算得到，而 Q、K 的投影参数是从数据中学习出来的，不是人工写死的规则。中文教程里“他”把大部分注意力投向“小明”的百分比只是教学示意，用来说明权重反映学到的相关性，并非人工规定，也不是原论文的实验数据。"
+      },
+      {
+        "id": "q9-true-false-rowsum",
+        "stem": "判断：对打分矩阵逐行做 softmax 后，每一行的权重之和为 1，因此同一个查询对所有键的注意力权重构成一个概率分布。",
+        "type": "true_false",
+        "answer": "正确",
+        "difficulty": "easy",
+        "explanation": "softmax 沿每一行（同一个查询对所有键的打分）做指数归一化，输出非负且行和为 1，所以每一行可以看作该查询在键上的一个概率分布。注意是“逐行”而不是“逐列”或“整个矩阵之和为 1”；整个矩阵所有元素之和等于行数。"
+      }
+    ]
+  },
+  "version": 2,
+  "scope_id": "n2-self-attention",
+  "course_id": "learn-65488c25779346448e1dcbe0b809d73e",
+  "questions": [
+    {
+      "id": "q1-qkv-roles",
+      "stem": "在自注意力中，某个 token 的 Query、Key、Value 三个向量分别承担什么角色？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "Query 表示“我想找什么”，Key 表示“我是什么”，Value 表示“我的内容”",
+        "Query 表示“我的内容”，Key 表示“我想找什么”，Value 表示“我是什么”",
+        "Query 表示“我是什么”，Key 表示“我的内容”，Value 表示“我想找什么”",
+        "三者是同一个向量的三个副本，只是名字不同，数值完全一致"
+      ],
+      "difficulty": "easy",
+      "explanation": "A 正确：Query 是当前位置的查询意图，用来与其他位置的 Key 匹配；Key 是每个位置的特征标识，用来被检索；Value 是实际被加权求和传递出去的信息。B 把三者角色整体错位：Value 不是“我是什么”而是“我的内容”，Query 也不是“我的内容”。C 是另一种错位，把 Key 当成内容、Value 当成查询意图，与“Key 被 Query 检索、Value 被加权求和”的分工不符。D 错误：三个向量由三组不同的线性变换生成，数值一般不同；若完全相同，就无法分别学习“该关注谁”和“关注后取什么信息”。"
+    },
+    {
+      "id": "q2-decoupling",
+      "stem": "“相似度计算与信息传递解耦”在自注意力里具体指什么？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "注意力权重由 Q 与 K 的点积决定，而被加权求和的内容来自 V，两组参数可以分别学习",
+        "先算完所有相似度，再统一决定用哪一组 V，因此 V 不参与权重计算",
+        "Q、K、V 必须由同一个权重矩阵生成，所以解耦只是概念上的说法",
+        "解耦意味着注意力权重一旦算出就固定不变，不再随输入变化"
+      ],
+      "difficulty": "medium",
+      "explanation": "A 正确：权重来自 Q·K 的相容性，输出是 V 的加权和，因此“该关注谁”和“关注后取什么信息”由不同的投影参数承担，可以分别学习。B 前半句“V 不参与权重计算”是对的，但“先算完相似度再统一决定用哪一组 V”不是解耦的含义，V 的投影是固定的线性变换，不存在事后挑选。C 错误：Q、K、V 由三组不同的线性变换生成，这正是解耦能成立的前提。D 错误：权重是输入的函数，输入变了权重就变；解耦说的是两件事由不同参数负责，不是权重固定。"
+    },
+    {
+      "id": "q3-formula-steps",
+      "stem": "关于 Attention(Q,K,V)=softmax(QK^T/√dk)V，下列哪些说法正确？",
+      "type": "multiple_choice",
+      "answer": "A,B,C,D",
+      "options": [
+        "QK^T 得到每个查询与所有键的点积，构成相似度打分矩阵",
+        "除以 √dk 是为了在 softmax 之前把打分幅值压小",
+        "softmax 按行把打分变成非负且每行和为 1 的权重",
+        "最后与 V 相乘，是用权重对 Value 做加权求和",
+        "公式中的 V 必须先经过 softmax 才能参与加权求和"
+      ],
+      "difficulty": "medium",
+      "explanation": "A 正确：Q 的每一行与 K^T 的每一列做点积，得到“查询×键”的打分矩阵。B 正确：缩放发生在 softmax 之前，作用是把点积幅值压小。C 正确：softmax 沿每一行（同一个查询对所有键）归一化，输出非负且行和为 1。D 正确：权重矩阵乘 V 就是每个查询位置上对 Value 的加权求和。E 错误：softmax 只作用在打分上，V 是原始内容向量，直接参与加权求和；对 V 再做 softmax 会破坏“加权和”的含义。"
+    },
+    {
+      "id": "q4-scaling-reason",
+      "stem": "为什么缩放点积注意力要除以 √dk，而不是直接除以 dk 或干脆不除？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "dk 较大时点积幅值变大，softmax 会被推入梯度极小的区域，除以 √dk 可把幅值拉回合适范围",
+        "除以 √dk 是为了让注意力权重之和恰好等于 √dk，便于后续归一化",
+        "不除也能训练，只是数值上更慢，除以 √dk 纯粹是工程习惯，没有数学理由",
+        "除以 √dk 是为了保证 Q 与 K 的点积恒为非负数，避免出现负权重"
+      ],
+      "difficulty": "medium",
+      "explanation": "A 正确：论文指出 dk 大时点积幅值变大，会把 softmax 推到梯度极小的区域，因此用 1/√dk 缩放。B 错误：softmax 之后每行权重和恒为 1，与 √dk 无关。C 错误：缩放有明确动机（控制 softmax 输入幅值、避免梯度极小），不是无理由的习惯。D 错误：点积本身可正可负，缩放不改变符号；权重非负来自 softmax 的指数运算，而不是缩放。"
+    },
+    {
+      "id": "q5-no-scaling-dk64",
+      "stem": "假设各分量独立、均值 0、方差 1，某个查询与某个键的点积在 dk=64 时的典型幅值（标准差）约为多少？若去掉 √dk 缩放，打分矩阵会怎样？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "约 8；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+        "约 64；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+        "约 1；打分幅值不变，softmax 行为与缩放后完全相同",
+        "约 8；打分幅值变小，softmax 输出更平滑，梯度变大"
+      ],
+      "difficulty": "hard",
+      "explanation": "点积是 dk 个乘积之和，每个乘积的方差为 1×1=1，故点积方差约为 dk=64，标准差约为 √64=8。A 正确：幅值约 8，远大于 1，softmax 的输入差距被放大，输出接近 one-hot，此时 softmax 的梯度极小，训练困难。B 的 64 是方差而非标准差，混淆了两者。C 的“约 1”对应的是缩放后的幅值（8/√64=1），但题干问的是不缩放时的幅值，且“行为完全相同”与事实相反。D 数值对但方向错：不缩放是幅值变大而非变小，softmax 会更尖锐而不是更平滑。"
+    },
+    {
+      "id": "q6-hand-calc-weights",
+      "stem": "3 个 token，dk=2，Q 与 K 如下（每行一个 token）：\nQ = [[1, 0], [0, 1], [1, 1]]\nK = [[1, 0], [0, 1], [1, 1]]\n请写出缩放后的打分矩阵 S = QK^T/√dk（保留两位小数），以及逐行 softmax 后的注意力权重矩阵（保留三位小数），并核对每行之和。",
+      "type": "short_answer",
+      "answer": "S = [[0.71, 0.00, 0.71], [0.00, 0.71, 0.71], [0.71, 0.71, 1.41]]；权重 A = [[0.401, 0.198, 0.401], [0.198, 0.401, 0.401], [0.248, 0.248, 0.503]]。完整精度下每行之和均为 1；按三位小数显示时，第 3 行显示值之和为 0.999，这是舍入误差，不是概率算错。",
+      "difficulty": "hard",
+      "explanation": "第一步打分：未缩放点积 QK^T 的第 1 行 [1,0] 与三个键得 1、0、1；第 2 行 [0,1] 得 0、1、1；第 3 行 [1,1] 得 1、1、2。第二步缩放：√dk=√2≈1.41421356，逐项除以它，得 S 第 1 行 0.70710678、0、0.70710678；第 2 行 0、0.70710678、0.70710678；第 3 行 0.70710678、0.70710678、1.41421356，保留两位即 [[0.71, 0.00, 0.71], [0.00, 0.71, 0.71], [0.71, 0.71, 1.41]]。第三步逐行 softmax（全程用完整精度，最后才舍入）：第 1 行 e^0.70710678=2.02811383、e^0=1、e^0.70710678=2.02811383，和 5.05622766，权重 0.40110905、0.19778190、0.40110905，保留三位为 0.401、0.198、0.401。第 2 行对称，得 0.198、0.401、0.401。第 3 行 e^0.70710678=2.02811383、e^0.70710678=2.02811383、e^1.41421356=4.11325038，和 8.16947804，权重为 0.2482550782577231、0.2482550782577231、0.5034898434845538，保留三位是 0.248、0.248、0.503。这里要特别注意舍入规则：0.5034898434845538 直接保留三位是 0.503，不能先把中间结果舍入成 0.5035 再二次舍入成 0.504，那样会引入二次舍入误差。第 3 行完整精度之和为 1，但三个三位显示值 0.248+0.248+0.503=0.999，差 0.001 完全来自舍入，不能为了凑 1 把某个概率改成 0.504。关键检查点：每行权重非负、完整精度行和为 1；第 3 个 token 的查询与自己的键最相似（缩放后打分 1.41421356 最大），因此自权重最大。对照说明：若漏掉除以 √2，直接对未缩放打分 [1,0,1] 做 softmax，得到的是 [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]，保留三位为 [0.422, 0.155, 0.422]（不是 [0.422, 0.207, 0.371]），那是未缩放打分的权重，与本题要求的 S 不符。"
+    },
+    {
+      "id": "q7-hand-calc-output",
+      "stem": "沿用上一题的 Q、K，并取 V = [[1, 0], [0, 1], [1, 1]]。用你算出的注意力权重对 V 加权求和，写出 3 个 token 的输出向量（保留两位小数），并说明第 1 个 token 的输出为什么更接近 V1 而不是 V2。",
+      "type": "short_answer",
+      "answer": "用上一题缩放后的权重计算：输出 1 = 0.401×[1,0] + 0.198×[0,1] + 0.401×[1,1] = [0.80, 0.60]；输出 2 = 0.198×[1,0] + 0.401×[0,1] + 0.401×[1,1] = [0.60, 0.80]；输出 3 = 0.248×[1,0] + 0.248×[0,1] + 0.503×[1,1] = [0.75, 0.75]。",
+      "difficulty": "hard",
+      "explanation": "加权求和是逐分量做：输出第 1 维 = Σ 权重×V 的第 1 维，第 2 维同理。以输出 1 为例，第 1 维 = 0.40110905×1 + 0.19778190×0 + 0.40110905×1 = 0.8022241853595718；第 2 维 = 0.40110905×0 + 0.19778190×1 + 0.40110905×1 = 0.5988879073202141，保留两位即 [0.80, 0.60]。输出 2 对称，得 [0.60, 0.80]。输出 3 第 1 维 = 0.2482550782577231×1 + 0.2482550782577231×0 + 0.5034898434845538×1 = 0.7517449217422769，第 2 维 = 0.2482550782577231×0 + 0.2482550782577231×1 + 0.5034898434845538×1 = 0.7517449217422769，即约 [0.75, 0.75]。第 1 个 token 的查询 [1,0] 与键 1 [1,0] 的点积为 1，与键 2 [0,1] 的点积为 0，缩放后分别是 0.70710678 与 0，所以权重 0.40110905 大于 0.19778190，输出自然更靠近 V1=[1,0]。注意输出不是 V1 本身，因为其他 token 的 Value 也按权重混入。对照说明：若漏掉除以 √2 而用未缩放打分的权重 [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]，输出 1 的第 1 维 = 0.4223187982515182×1 + 0.15536240349696362×0 + 0.4223187982515182×1 = 0.8446375965030364，第 2 维 = 0.4223187982515182×0 + 0.15536240349696362×1 + 0.4223187982515182×1 = 0.5776812017484818，保留两位是 [0.84, 0.58]（不是 [0.79, 0.58]）；这组数字只用于说明漏掉缩放会得到不同结果，与本题要求的缩放点积流程不一致。"
+    },
+    {
+      "id": "q8-true-false-weights",
+      "stem": "判断：在自注意力中，某个 token 对另一个 token 的注意力权重是人工按语法规则设定的，例如代词一定被规定要关注它前面最近的名词。",
+      "type": "true_false",
+      "answer": "错误",
+      "difficulty": "easy",
+      "explanation": "权重由 Q 与 K 的点积经缩放和 softmax 计算得到，而 Q、K 的投影参数是从数据中学习出来的，不是人工写死的规则。中文教程里“他”把大部分注意力投向“小明”的百分比只是教学示意，用来说明权重反映学到的相关性，并非人工规定，也不是原论文的实验数据。"
+    },
+    {
+      "id": "q9-true-false-rowsum",
+      "stem": "判断：对打分矩阵逐行做 softmax 后，每一行的权重之和为 1，因此同一个查询对所有键的注意力权重构成一个概率分布。",
+      "type": "true_false",
+      "answer": "正确",
+      "difficulty": "easy",
+      "explanation": "softmax 沿每一行（同一个查询对所有键的打分）做指数归一化，输出非负且行和为 1，所以每一行可以看作该查询在键上的一个概率分布。注意是“逐行”而不是“逐列”或“整个矩阵之和为 1”；整个矩阵所有元素之和等于行数。"
+    }
+  ],
+  "created_at": "2026-10-19T15:08:53.217765+00:00",
+  "created_by": "teacher",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-10-19T15:08:53.217765+00:00",
+  "visibility": "private",
+  "material_id": "resource_471ae3cd827344574d74384701f842c1",
+  "origin_type": "personal",
+  "content_hash": "dff5bec175cefe7bb1efaed5d51d7d361011be9ba3044565d81b590e918832c0",
+  "material_type": "quiz",
+  "owner_user_id": "teacher",
+  "preparation_id": "prep_5e8b684bdbfe43f589be3d453662a718",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 22.05
+      },
+      "spec_digest": "5fb7237238054b2bb5200459ba2a8258c3abc6a2d2180df6e39e9cf038108def",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1-qkv-roles"
+          },
+          "objective_id": "n2-self-attention:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q2-decoupling"
+          },
+          "objective_id": "n2-self-attention:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q3-formula-steps"
+          },
+          "objective_id": "n2-self-attention:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q4-scaling-reason"
+          },
+          "objective_id": "n2-self-attention:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q5-no-scaling-dk64"
+          },
+          "objective_id": "n2-self-attention:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q6-hand-calc-weights"
+          },
+          "objective_id": "n2-self-attention:o4"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q7-hand-calc-output"
+          },
+          "objective_id": "n2-self-attention:o4"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q9-true-false-rowsum"
+          },
+          "objective_id": "n2-self-attention:o2"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q6-hand-calc-weights"
+          },
+          "explanation": "q6 解析末尾的对照说明改为：未缩放 softmax([1,0,1]) = [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]，保留三位 [0.422, 0.155, 0.422]，并明确删除错误的 [0.422, 0.207, 0.371]。",
+          "requirement_id": "req-fix-q6-unscaled-softmax"
+        },
+        {
+          "locator": {
+            "question_id": "q7-hand-calc-output"
+          },
+          "explanation": "q7 解析的对照说明改为：未缩放权重对 V 加权第一行 = [0.8446375965030364, 0.5776812017484818]，保留两位 [0.84, 0.58]，并明确删除错误的 [0.79, 0.58]。",
+          "requirement_id": "req-fix-q7-unscaled-output"
+        },
+        {
+          "locator": {
+            "question_id": "q6-hand-calc-weights"
+          },
+          "explanation": "q6 答案与解析把缩放后第三行权重改为 [0.248, 0.248, 0.503]（完整精度 0.2482550782577231、0.2482550782577231、0.5034898434845538），并说明完整精度行和为 1、三位显示值之和 0.999 属舍入误差，不得为凑 1 调整某个概率。",
+          "requirement_id": "req-fix-scaled-third-row"
+        },
+        {
+          "locator": {
+            "question_id": "q6-hand-calc-weights"
+          },
+          "explanation": "q6 解析声明全程用完整精度计算、最后才舍入，并指出不能先舍入成 0.5035 再二次舍入成 0.504；q7 解析保留缩放输出第一行 [0.80, 0.60]（0.8022241853595718、0.5988879073202141）与第三行 [0.75, 0.75]（0.7517449217422769、0.7517449217422769）的两位结果。",
+          "requirement_id": "req-rounding-from-full-precision"
+        },
+        {
+          "locator": {
+            "question_id": "q1-qkv-roles"
+          },
+          "explanation": "题目总数仍为 9 题，q1–q5、q8、q9 的题干、选项、答案与解析逐字保留，q6/q7 的 id、题型、题干与顺序不变，仅修正受影响的答案与解析；未新增视频或报告。",
+          "requirement_id": "req-local-fix-scope"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "回忆 Q/K/V 三个角色分工，并逐一排除三种错位说法与“同一向量副本”说法。",
+          "question_id": "q1-qkv-roles",
+          "thinking_seconds": 25
+        },
+        {
+          "reason": "需要区分“权重来自 Q·K”与“内容来自 V”两条路径，并判断 B 中“V 不参与权重计算”这半句正确但整体结论错误。",
+          "question_id": "q2-decoupling",
+          "thinking_seconds": 45
+        },
+        {
+          "reason": "逐项核对公式四步与一个错误项，需判断 softmax 只作用于打分而非 V。",
+          "question_id": "q3-formula-steps",
+          "thinking_seconds": 50
+        },
+        {
+          "reason": "回忆缩放动机（softmax 饱和与梯度极小），并排除“行和为 √dk”“点积恒非负”等错误理由。",
+          "question_id": "q4-scaling-reason",
+          "thinking_seconds": 40
+        },
+        {
+          "reason": "由方差 dk 推出标准差 √64=8，再判断不缩放时 softmax 接近 one-hot、梯度变小，需区分方差与标准差。",
+          "question_id": "q5-no-scaling-dk64",
+          "thinking_seconds": 60
+        },
+        {
+          "reason": "手算 3×3 点积矩阵、逐项除以 √2、三行各做一次指数归一化，并按完整精度舍入到三位，同时核对行和与 0.999 的舍入解释。",
+          "question_id": "q6-hand-calc-weights",
+          "thinking_seconds": 300
+        },
+        {
+          "reason": "用上一题权重对 3×2 的 V 做两次加权求和，保留两位，并解释输出为何偏向 V1 而非 V1 本身。",
+          "question_id": "q7-hand-calc-output",
+          "thinking_seconds": 240
+        },
+        {
+          "reason": "判断权重来源是学习得到的 Q/K 投影而非人工语法规则。",
+          "question_id": "q8-true-false-weights",
+          "thinking_seconds": 20
+        },
+        {
+          "reason": "回忆 softmax 逐行归一的性质，并注意“逐行”与“整个矩阵和为 1”的区别。",
+          "question_id": "q9-true-false-rowsum",
+          "thinking_seconds": 20
+        }
+      ],
+      "teaching_context_digest": "f42c0df9bcca862c6674cec19fbaf70b982e2bc56e1ebded373c628d17634c2d"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "req-fix-q6-unscaled-softmax：q6 解析末段给出未缩放 softmax([1,0,1])=[0.4223187982515182,0.15536240349696362,0.4223187982515182]，三位 [0.422,0.155,0.422]，并明确排除 [0.422,0.207,0.371]；req-fix-q7-unscaled-output：q7 解析给出 [0.8446375965030364,0.5776812017484818]→[0.84,0.58] 并排除 [0.79,0.58]；req-fix-scaled-third-row：q6 答案与解析第三行改为 [0.248,0.248,0.503] 并解释 0.999 为舍入误差；req-rounding-from-full-precision：q6 解析明确禁止先舍入 0.5035 再二次舍入 0.504，q7 保留 [0.80,0.60] 与 [0.75,0.75]；req-local-fix-scope：仍为 9 题，q1–q5、q8、q9 内容与 q6/q7 的 id、题型、顺序未变，未新增视频或报告。五项要求均落实。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "独立复算：QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；第 1 行 softmax 得 0.4011/0.1978/0.4011，第 3 行得 0.24826/0.24826/0.50349，与正文一致；未缩放 softmax([1,0,1]) 复算为 0.42232/0.15536/0.42232，正确；未缩放权重对 V 加权第一行 0.84464/0.57768，正确；缩放输出三行 0.80222/0.59889、0.59889/0.80222、0.75174/0.75174 均正确。q5 中 dk=64 标准差 √64=8 的推导正确。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "q6/q7 为手算例题，逐题独立求解后与答案、解析一致：q6 打分矩阵、缩放矩阵、三行权重及行和说明均正确；q7 三行输出与“输出更接近 V1 而非 V1 本身”的解释成立；q1–q5、q8、q9 的选项与解析逐项核对无事实错误（如 q2 对 B 半句正确的处理、q5 对 64 是方差的辨析）。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序按 o1（Q/K/V 角色、解耦）→o2（公式四步）→o3（缩放原因、dk=64 幅值）→o4（手算权重与输出）递进，q6 先算权重、q7 沿用其权重算输出，符合 learning_activities 中“对照四步流程逐行核对”的顺序；难度 easy→medium→hard 分布合理，题干自足，未泄露答案。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "公式四步、softmax 逐行归一、除以 √dk 的方差与梯度动机均与所引 LLM Internals 2.2 节及 ApX softmax 章节一致；q6/q7 的具体数值来源已声明为本次独立复算，未伪称来自资料，符合 limitations 说明。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "9 题覆盖 o1–o4 全部目标，q6/q7 对应 o4 的手算要求；每题均有 answer、difficulty 与逐步解析，选择题选项数正确（q3 为多选 5 项、答案 A,B,C,D），判断题与简答题按契约省略 options；无缺题、无重复考点。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "req-fix-q6-unscaled-softmax：q6 解析末段给出未缩放 softmax([1,0,1])=[0.4223187982515182,0.15536240349696362,0.4223187982515182]，三位 [0.422,0.155,0.422]，并明确排除 [0.422,0.207,0.371]；req-fix-q7-unscaled-output：q7 解析给出 [0.8446375965030364,0.5776812017484818]→[0.84,0.58] 并排除 [0.79,0.58]；req-fix-scaled-third-row：q6 答案与解析第三行改为 [0.248,0.248,0.503] 并解释 0.999 为舍入误差；req-rounding-from-full-precision：q6 解析明确禁止先舍入 0.5035 再二次舍入 0.504，q7 保留 [0.80,0.60] 与 [0.75,0.75]；req-local-fix-scope：仍为 9 题，q1–q5、q8、q9 内容与 q6/q7 的 id、题型、顺序未变，未新增视频或报告。五项要求均落实。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "独立复算：QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；第 1 行 softmax 得 0.4011/0.1978/0.4011，第 3 行得 0.24826/0.24826/0.50349，与正文一致；未缩放 softmax([1,0,1]) 复算为 0.42232/0.15536/0.42232，正确；未缩放权重对 V 加权第一行 0.84464/0.57768，正确；缩放输出三行 0.80222/0.59889、0.59889/0.80222、0.75174/0.75174 均正确。q5 中 dk=64 标准差 √64=8 的推导正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q6/q7 为手算例题，逐题独立求解后与答案、解析一致：q6 打分矩阵、缩放矩阵、三行权重及行和说明均正确；q7 三行输出与“输出更接近 V1 而非 V1 本身”的解释成立；q1–q5、q8、q9 的选项与解析逐项核对无事实错误（如 q2 对 B 半句正确的处理、q5 对 64 是方差的辨析）。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序按 o1（Q/K/V 角色、解耦）→o2（公式四步）→o3（缩放原因、dk=64 幅值）→o4（手算权重与输出）递进，q6 先算权重、q7 沿用其权重算输出，符合 learning_activities 中“对照四步流程逐行核对”的顺序；难度 easy→medium→hard 分布合理，题干自足，未泄露答案。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "公式四步、softmax 逐行归一、除以 √dk 的方差与梯度动机均与所引 LLM Internals 2.2 节及 ApX softmax 章节一致；q6/q7 的具体数值来源已声明为本次独立复算，未伪称来自资料，符合 limitations 说明。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "9 题覆盖 o1–o4 全部目标，q6/q7 对应 o4 的手算要求；每题均有 answer、difficulty 与逐步解析，选择题选项数正确（q3 为多选 5 项、答案 A,B,C,D），判断题与简答题按契约省略 options；无缺题、无重复考点。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q6 解析中“第 3 行完整精度之和为 1”可补一句“第 1、2 行同理”，使行和自查更完整。",
+              "q7 答案中输出 3 的算式写作 0.248×[1,0]+0.248×[0,1]+0.503×[1,1]，可注明这是三位显示值，与解析中的完整精度算式对应，避免读者误以为用显示值计算。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1-qkv-roles",
+                "option_checks": [
+                  {
+                    "reasoning": "准确对应 Q/K/V 的角色分工，是唯一正确项。",
+                    "option_text": "Query 表示“我想找什么”，Key 表示“我是什么”，Value 表示“我的内容”",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：Query 是当前位置的查询意图，用来与其他位置的 Key 匹配；Key 是每个位置的特征标识，用来被检索；Value 是实际被加权求和传递出去的信息。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0–2 段分别说明 Query 用于匹配、Key 用于被检索、Value 被加权求和传递，与选项 A 表述一致。"
+                  },
+                  {
+                    "reasoning": "把三者角色整体错位：Query 不是“我的内容”，Value 不是“我是什么”。",
+                    "option_text": "Query 表示“我的内容”，Key 表示“我想找什么”，Value 表示“我是什么”",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 把三者角色整体错位：Value 不是“我是什么”而是“我的内容”，Query 也不是“我的内容”。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3 段指出 B 把角色整体错位，并具体说明 Value 应为“我的内容”、Query 不是“我的内容”，批评成立。"
+                  },
+                  {
+                    "reasoning": "把 Key 说成内容、Value 说成查询意图，与“Key 被检索、Value 被加权求和”的分工相反。",
+                    "option_text": "Query 表示“我是什么”，Key 表示“我的内容”，Value 表示“我想找什么”",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 是另一种错位，把 Key 当成内容、Value 当成查询意图，与“Key 被 Query 检索、Value 被加权求和”的分工不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 4 段准确指出 C 的错位方向，理由与选项文字相符。"
+                  },
+                  {
+                    "reasoning": "Q/K/V 由三组不同投影生成，数值一般不同，不是同一向量的副本。",
+                    "option_text": "三者是同一个向量的三个副本，只是名字不同，数值完全一致",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：三个向量由三组不同的线性变换生成，数值一般不同；若完全相同，就无法分别学习“该关注谁”和“关注后取什么信息”。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 5–6 段说明三组线性变换生成、数值不同，并给出“若相同则无法分别学习关注谁与取什么信息”的理由，成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "independent_solution": "自注意力中 Q 是查询意图（我想找什么），K 是被检索的特征标识（我是什么），V 是实际被加权求和传递的内容（我的内容），三者由三组不同线性变换生成。故 A 正确。"
+              },
+              {
+                "question_id": "q2-decoupling",
+                "option_checks": [
+                  {
+                    "reasoning": "准确描述权重来源与内容来源分离、参数可分别学习。",
+                    "option_text": "注意力权重由 Q 与 K 的点积决定，而被加权求和的内容来自 V，两组参数可以分别学习",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：权重来自 Q·K 的相容性，输出是 V 的加权和，因此“该关注谁”和“关注后取什么信息”由不同的投影参数承担，可以分别学习。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0 段说明权重来自 Q·K、输出是 V 的加权和，由不同投影参数承担，与 A 一致。"
+                  },
+                  {
+                    "reasoning": "前半句“V 不参与权重计算”正确，但“先算完相似度再统一决定用哪一组 V”错误，V 的投影是固定线性变换。",
+                    "option_text": "先算完所有相似度，再统一决定用哪一组 V，因此 V 不参与权重计算",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 前半句“V 不参与权重计算”是对的，但“先算完相似度再统一决定用哪一组 V”不是解耦的含义，V 的投影是固定的线性变换，不存在事后挑选。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 1 段先承认前半句正确，再指出后半句不是解耦含义、不存在事后挑选，对选项的部分真部分假处理准确。"
+                  },
+                  {
+                    "reasoning": "Q/K/V 由三组不同线性变换生成，并非同一权重矩阵，故 C 错。",
+                    "option_text": "Q、K、V 必须由同一个权重矩阵生成，所以解耦只是概念上的说法",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：Q、K、V 由三组不同的线性变换生成，这正是解耦能成立的前提。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 2 段指出三组不同线性变换正是解耦前提，直接否定 C 的前提。"
+                  },
+                  {
+                    "reasoning": "权重是输入的函数，输入变则权重变；解耦指不同参数负责不同事，不是权重固定。",
+                    "option_text": "解耦意味着注意力权重一旦算出就固定不变，不再随输入变化",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：权重是输入的函数，输入变了权重就变；解耦说的是两件事由不同参数负责，不是权重固定。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3–4 段说明权重随输入变化、解耦不等于权重固定，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "independent_solution": "解耦指权重由 Q·K 决定、被加权的内容来自 V，两组投影参数分别学习，故 A 正确；B 中“V 不参与权重计算”虽对，但“事后统一决定用哪组 V”不是解耦含义；C、D 均错。"
+              },
+              {
+                "question_id": "q3-formula-steps",
+                "option_checks": [
+                  {
+                    "reasoning": "QK^T 得到查询×键的打分矩阵，正确。",
+                    "option_text": "QK^T 得到每个查询与所有键的点积，构成相似度打分矩阵",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：Q 的每一行与 K^T 的每一列做点积，得到“查询×键”的打分矩阵。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0 段说明 Q 行与 K^T 列做点积得打分矩阵，与选项一致。"
+                  },
+                  {
+                    "reasoning": "缩放发生在 softmax 之前，把点积幅值压小，正确。",
+                    "option_text": "除以 √dk 是为了在 softmax 之前把打分幅值压小",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：缩放发生在 softmax 之前，作用是把点积幅值压小。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 1 段指出缩放位于 softmax 之前、作用是压小幅值，准确。"
+                  },
+                  {
+                    "reasoning": "softmax 沿每行归一，输出非负且行和为 1，正确。",
+                    "option_text": "softmax 按行把打分变成非负且每行和为 1 的权重",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：softmax 沿每一行（同一个查询对所有键）归一化，输出非负且行和为 1。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 2 段说明沿同一查询对所有键归一、非负且行和为 1，成立。"
+                  },
+                  {
+                    "reasoning": "权重矩阵乘 V 即对 Value 加权求和，正确。",
+                    "option_text": "最后与 V 相乘，是用权重对 Value 做加权求和",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：权重矩阵乘 V 就是每个查询位置上对 Value 的加权求和。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 3 段说明权重乘 V 是每个查询位置对 Value 的加权求和，准确。"
+                  },
+                  {
+                    "reasoning": "V 是原始内容向量，直接参与加权求和，不需要先 softmax。",
+                    "option_text": "公式中的 V 必须先经过 softmax 才能参与加权求和",
+                    "option_index": 4,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "E 错误：softmax 只作用在打分上，V 是原始内容向量，直接参与加权求和；对 V 再做 softmax 会破坏“加权和”的含义。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 4–5 段指出 softmax 只作用于打分、对 V 再做 softmax 会破坏加权和含义，理由成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "independent_solution": "公式四步：QK^T 打分、除以 √dk 缩放、逐行 softmax 归一、乘 V 加权求和，A–D 均正确；E 错，softmax 只作用于打分，V 直接参与加权求和。答案 A,B,C,D。"
+              },
+              {
+                "question_id": "q4-scaling-reason",
+                "option_checks": [
+                  {
+                    "reasoning": "准确给出缩放动机：控制 softmax 输入幅值、避免梯度极小。",
+                    "option_text": "dk 较大时点积幅值变大，softmax 会被推入梯度极小的区域，除以 √dk 可把幅值拉回合适范围",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文指出 dk 大时点积幅值变大，会把 softmax 推到梯度极小的区域，因此用 1/√dk 缩放。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0 段复述论文理由，与选项 A 一致。"
+                  },
+                  {
+                    "reasoning": "softmax 后每行权重和恒为 1，与 √dk 无关，B 错。",
+                    "option_text": "除以 √dk 是为了让注意力权重之和恰好等于 √dk，便于后续归一化",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：softmax 之后每行权重和恒为 1，与 √dk 无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 1 段指出行和恒为 1 与 √dk 无关，直接否定 B。"
+                  },
+                  {
+                    "reasoning": "缩放有明确数学动机，不是无理由的工程习惯，C 错。",
+                    "option_text": "不除也能训练，只是数值上更慢，除以 √dk 纯粹是工程习惯，没有数学理由",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：缩放有明确动机（控制 softmax 输入幅值、避免梯度极小），不是无理由的习惯。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 2 段说明缩放动机明确，否定“没有数学理由”的说法。"
+                  },
+                  {
+                    "reasoning": "点积可正可负，缩放不改变符号；权重非负来自指数运算，D 错。",
+                    "option_text": "除以 √dk 是为了保证 Q 与 K 的点积恒为非负数，避免出现负权重",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：点积本身可正可负，缩放不改变符号；权重非负来自 softmax 的指数运算，而不是缩放。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3–4 段分别说明缩放不改变符号、非负来自 softmax 指数，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "independent_solution": "dk 大时点积方差为 dk、幅值变大，softmax 趋于 one-hot、梯度极小，除以 √dk 把幅值拉回合适范围，故 A 正确；B、C、D 均错。"
+              },
+              {
+                "question_id": "q5-no-scaling-dk64",
+                "option_checks": [
+                  {
+                    "reasoning": "标准差 8、softmax 接近 one-hot、梯度变小，全部正确。",
+                    "option_text": "约 8；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "点积是 dk 个乘积之和，每个乘积的方差为 1×1=1，故点积方差约为 dk=64，标准差约为 √64=8。A 正确：幅值约 8，远大于 1，softmax 的输入差距被放大，输出接近 one-hot，此时 softmax 的梯度极小，训练困难。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "第 0 段推导方差 64、标准差 8，第 1 段说明幅值远大于 1 导致 one-hot 与梯度极小，与 A 一致。"
+                  },
+                  {
+                    "reasoning": "64 是方差而非标准差，B 错。",
+                    "option_text": "约 64；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 的 64 是方差而非标准差，混淆了两者。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 2 段准确指出 B 把方差当标准差。"
+                  },
+                  {
+                    "reasoning": "约 1 是缩放后的幅值，且“行为完全相同”与事实相反，C 错。",
+                    "option_text": "约 1；打分幅值不变，softmax 行为与缩放后完全相同",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 的“约 1”对应的是缩放后的幅值（8/√64=1），但题干问的是不缩放时的幅值，且“行为完全相同”与事实相反。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 3 段说明 1 对应缩放后幅值、题干问的是不缩放情形，并否定“行为相同”，成立。"
+                  },
+                  {
+                    "reasoning": "数值 8 对，但方向错：不缩放是幅值变大、softmax 更尖锐。",
+                    "option_text": "约 8；打分幅值变小，softmax 输出更平滑，梯度变大",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 数值对但方向错：不缩放是幅值变大而非变小，softmax 会更尖锐而不是更平滑。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 4 段承认数值对但指出方向错误，对部分正确的选项处理准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "independent_solution": "点积方差为 dk=64，标准差 √64=8；不缩放时幅值约 8 远大于 1，softmax 接近 one-hot、梯度很小，故 A 正确；B 混淆方差与标准差，C、D 错。"
+              },
+              {
+                "question_id": "q6-hand-calc-weights",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "independent_solution": "QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；逐行 softmax：第 1 行 0.4011/0.1978/0.4011，第 2 行 0.1978/0.4011/0.4011，第 3 行 0.24826/0.24826/0.50349，三位为 0.248/0.248/0.503，显示值之和 0.999 属舍入误差。与参考答案一致。"
+              },
+              {
+                "question_id": "q7-hand-calc-output",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "independent_solution": "用缩放后权重对 V=[[1,0],[0,1],[1,1]] 加权：输出 1 = 0.4011×[1,0]+0.1978×[0,1]+0.4011×[1,1] = [0.8022,0.5989]→[0.80,0.60]；输出 2 = [0.5989,0.8022]→[0.60,0.80]；输出 3 = [0.7517,0.7517]→[0.75,0.75]。与参考答案一致。"
+              },
+              {
+                "question_id": "q8-true-false-weights",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "independent_solution": "注意力权重由 Q·K 经缩放与 softmax 得到，Q/K 投影参数从数据学习，不是人工语法规则，故命题错误。"
+              },
+              {
+                "question_id": "q9-true-false-rowsum",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 8,
+                "explanation_valid": true,
+                "independent_solution": "softmax 沿每行归一，输出非负且行和为 1，每行构成概率分布；整个矩阵元素之和等于行数，故命题正确。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q6 解析末段确实给出未缩放 softmax([1,0,1]) 的完整精度值与三位值 [0.422,0.155,0.422]，并明确排除 [0.422,0.207,0.371]，与 req-fix-q6-unscaled-softmax 一致。",
+                "locator": {
+                  "question_id": "q6-hand-calc-weights"
+                },
+                "binding_id": "req-fix-q6-unscaled-softmax",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 解析末段给出未缩放权重加权第一行 0.8446375965030364、0.5776812017484818，两位 [0.84,0.58]，并排除 [0.79,0.58]，与 req-fix-q7-unscaled-output 一致。",
+                "locator": {
+                  "question_id": "q7-hand-calc-output"
+                },
+                "binding_id": "req-fix-q7-unscaled-output",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 答案与解析第 3 行权重为 [0.248,0.248,0.503]（完整精度 0.2482550782577231、0.2482550782577231、0.5034898434845538），并说明 0.999 为舍入误差、不得为凑 1 调整概率。",
+                "locator": {
+                  "question_id": "q6-hand-calc-weights"
+                },
+                "binding_id": "req-fix-scaled-third-row",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 解析明确“全程用完整精度、最后才舍入”并禁止先舍入 0.5035 再二次舍入 0.504；q7 保留缩放输出第一行 [0.80,0.60]（0.8022241853595718、0.5988879073202141）与第三行 [0.75,0.75]（0.7517449217422769、0.7517449217422769）。",
+                "locator": {
+                  "question_id": "q6-hand-calc-weights"
+                },
+                "binding_id": "req-rounding-from-full-precision",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "题目仍为 9 题，q1–q5、q8、q9 题干、选项、答案与解析未改动，q6/q7 的 id、题型、题干与顺序不变，仅修正答案与解析，未新增视频或报告。",
+                "locator": {
+                  "question_id": "q1-qkv-roles"
+                },
+                "binding_id": "req-local-fix-scope",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 直接考查 Q/K/V 三角色分工，支持 o1。",
+                "locator": {
+                  "question_id": "q1-qkv-roles"
+                },
+                "binding_id": "n2-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 考查相似度计算与信息传递解耦，支持 o1 中“为何解耦”的部分。",
+                "locator": {
+                  "question_id": "q2-decoupling"
+                },
+                "binding_id": "n2-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 逐项核对公式四步，支持 o2。",
+                "locator": {
+                  "question_id": "q3-formula-steps"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 考查除以 √dk 的原因与 softmax 梯度极小，支持 o3。",
+                "locator": {
+                  "question_id": "q4-scaling-reason"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 由 dk=64 推出标准差 8 并判断不缩放后果，支持 o3。",
+                "locator": {
+                  "question_id": "q5-no-scaling-dk64"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 要求手算打分、缩放与逐行 softmax 权重，正是 o4 的练习。",
+                "locator": {
+                  "question_id": "q6-hand-calc-weights"
+                },
+                "binding_id": "n2-self-attention:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 要求用权重对 V 加权求和并解释输出偏向，支持 o4。",
+                "locator": {
+                  "question_id": "q7-hand-calc-output"
+                },
+                "binding_id": "n2-self-attention:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q9 考查 softmax 逐行归一与行和为 1，支持 o2 中 softmax 步骤的理解。",
+                "locator": {
+                  "question_id": "q9-true-false-rowsum"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "87c72f8c3577546b43a132f08ad135d871ace3291d4bc324e8b6d0e1c2bd0e26"
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "suggestions": [
+        "q6 解析中“第 3 行完整精度之和为 1”可补一句“第 1、2 行同理”，使行和自查更完整。",
+        "q7 答案中输出 3 的算式写作 0.248×[1,0]+0.248×[0,1]+0.503×[1,1]，可注明这是三位显示值，与解析中的完整精度算式对应，避免读者误以为用显示值计算。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "87c72f8c3577546b43a132f08ad135d871ace3291d4bc324e8b6d0e1c2bd0e26",
+      "question_checks": [
+        {
+          "question_id": "q1-qkv-roles",
+          "option_checks": [
+            {
+              "reasoning": "准确对应 Q/K/V 的角色分工，是唯一正确项。",
+              "option_text": "Query 表示“我想找什么”，Key 表示“我是什么”，Value 表示“我的内容”",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：Query 是当前位置的查询意图，用来与其他位置的 Key 匹配；Key 是每个位置的特征标识，用来被检索；Value 是实际被加权求和传递出去的信息。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 0–2 段分别说明 Query 用于匹配、Key 用于被检索、Value 被加权求和传递，与选项 A 表述一致。"
+            },
+            {
+              "reasoning": "把三者角色整体错位：Query 不是“我的内容”，Value 不是“我是什么”。",
+              "option_text": "Query 表示“我的内容”，Key 表示“我想找什么”，Value 表示“我是什么”",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 把三者角色整体错位：Value 不是“我是什么”而是“我的内容”，Query 也不是“我的内容”。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 3 段指出 B 把角色整体错位，并具体说明 Value 应为“我的内容”、Query 不是“我的内容”，批评成立。"
+            },
+            {
+              "reasoning": "把 Key 说成内容、Value 说成查询意图，与“Key 被检索、Value 被加权求和”的分工相反。",
+              "option_text": "Query 表示“我是什么”，Key 表示“我的内容”，Value 表示“我想找什么”",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 是另一种错位，把 Key 当成内容、Value 当成查询意图，与“Key 被 Query 检索、Value 被加权求和”的分工不符。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 4 段准确指出 C 的错位方向，理由与选项文字相符。"
+            },
+            {
+              "reasoning": "Q/K/V 由三组不同投影生成，数值一般不同，不是同一向量的副本。",
+              "option_text": "三者是同一个向量的三个副本，只是名字不同，数值完全一致",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：三个向量由三组不同的线性变换生成，数值一般不同；若完全相同，就无法分别学习“该关注谁”和“关注后取什么信息”。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 5–6 段说明三组线性变换生成、数值不同，并给出“若相同则无法分别学习关注谁与取什么信息”的理由，成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "independent_solution": "自注意力中 Q 是查询意图（我想找什么），K 是被检索的特征标识（我是什么），V 是实际被加权求和传递的内容（我的内容），三者由三组不同线性变换生成。故 A 正确。"
+        },
+        {
+          "question_id": "q2-decoupling",
+          "option_checks": [
+            {
+              "reasoning": "准确描述权重来源与内容来源分离、参数可分别学习。",
+              "option_text": "注意力权重由 Q 与 K 的点积决定，而被加权求和的内容来自 V，两组参数可以分别学习",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：权重来自 Q·K 的相容性，输出是 V 的加权和，因此“该关注谁”和“关注后取什么信息”由不同的投影参数承担，可以分别学习。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 0 段说明权重来自 Q·K、输出是 V 的加权和，由不同投影参数承担，与 A 一致。"
+            },
+            {
+              "reasoning": "前半句“V 不参与权重计算”正确，但“先算完相似度再统一决定用哪一组 V”错误，V 的投影是固定线性变换。",
+              "option_text": "先算完所有相似度，再统一决定用哪一组 V，因此 V 不参与权重计算",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 前半句“V 不参与权重计算”是对的，但“先算完相似度再统一决定用哪一组 V”不是解耦的含义，V 的投影是固定的线性变换，不存在事后挑选。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 1 段先承认前半句正确，再指出后半句不是解耦含义、不存在事后挑选，对选项的部分真部分假处理准确。"
+            },
+            {
+              "reasoning": "Q/K/V 由三组不同线性变换生成，并非同一权重矩阵，故 C 错。",
+              "option_text": "Q、K、V 必须由同一个权重矩阵生成，所以解耦只是概念上的说法",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：Q、K、V 由三组不同的线性变换生成，这正是解耦能成立的前提。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 2 段指出三组不同线性变换正是解耦前提，直接否定 C 的前提。"
+            },
+            {
+              "reasoning": "权重是输入的函数，输入变则权重变；解耦指不同参数负责不同事，不是权重固定。",
+              "option_text": "解耦意味着注意力权重一旦算出就固定不变，不再随输入变化",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：权重是输入的函数，输入变了权重就变；解耦说的是两件事由不同参数负责，不是权重固定。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 3–4 段说明权重随输入变化、解耦不等于权重固定，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "independent_solution": "解耦指权重由 Q·K 决定、被加权的内容来自 V，两组投影参数分别学习，故 A 正确；B 中“V 不参与权重计算”虽对，但“事后统一决定用哪组 V”不是解耦含义；C、D 均错。"
+        },
+        {
+          "question_id": "q3-formula-steps",
+          "option_checks": [
+            {
+              "reasoning": "QK^T 得到查询×键的打分矩阵，正确。",
+              "option_text": "QK^T 得到每个查询与所有键的点积，构成相似度打分矩阵",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：Q 的每一行与 K^T 的每一列做点积，得到“查询×键”的打分矩阵。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 0 段说明 Q 行与 K^T 列做点积得打分矩阵，与选项一致。"
+            },
+            {
+              "reasoning": "缩放发生在 softmax 之前，把点积幅值压小，正确。",
+              "option_text": "除以 √dk 是为了在 softmax 之前把打分幅值压小",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：缩放发生在 softmax 之前，作用是把点积幅值压小。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 1 段指出缩放位于 softmax 之前、作用是压小幅值，准确。"
+            },
+            {
+              "reasoning": "softmax 沿每行归一，输出非负且行和为 1，正确。",
+              "option_text": "softmax 按行把打分变成非负且每行和为 1 的权重",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 正确：softmax 沿每一行（同一个查询对所有键）归一化，输出非负且行和为 1。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 2 段说明沿同一查询对所有键归一、非负且行和为 1，成立。"
+            },
+            {
+              "reasoning": "权重矩阵乘 V 即对 Value 加权求和，正确。",
+              "option_text": "最后与 V 相乘，是用权重对 Value 做加权求和",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 正确：权重矩阵乘 V 就是每个查询位置上对 Value 的加权求和。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 3 段说明权重乘 V 是每个查询位置对 Value 的加权求和，准确。"
+            },
+            {
+              "reasoning": "V 是原始内容向量，直接参与加权求和，不需要先 softmax。",
+              "option_text": "公式中的 V 必须先经过 softmax 才能参与加权求和",
+              "option_index": 4,
+              "explanation_valid": true,
+              "explanation_excerpt": "E 错误：softmax 只作用在打分上，V 是原始内容向量，直接参与加权求和；对 V 再做 softmax 会破坏“加权和”的含义。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 4–5 段指出 softmax 只作用于打分、对 V 再做 softmax 会破坏加权和含义，理由成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "independent_solution": "公式四步：QK^T 打分、除以 √dk 缩放、逐行 softmax 归一、乘 V 加权求和，A–D 均正确；E 错，softmax 只作用于打分，V 直接参与加权求和。答案 A,B,C,D。"
+        },
+        {
+          "question_id": "q4-scaling-reason",
+          "option_checks": [
+            {
+              "reasoning": "准确给出缩放动机：控制 softmax 输入幅值、避免梯度极小。",
+              "option_text": "dk 较大时点积幅值变大，softmax 会被推入梯度极小的区域，除以 √dk 可把幅值拉回合适范围",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：论文指出 dk 大时点积幅值变大，会把 softmax 推到梯度极小的区域，因此用 1/√dk 缩放。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 0 段复述论文理由，与选项 A 一致。"
+            },
+            {
+              "reasoning": "softmax 后每行权重和恒为 1，与 √dk 无关，B 错。",
+              "option_text": "除以 √dk 是为了让注意力权重之和恰好等于 √dk，便于后续归一化",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：softmax 之后每行权重和恒为 1，与 √dk 无关。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 1 段指出行和恒为 1 与 √dk 无关，直接否定 B。"
+            },
+            {
+              "reasoning": "缩放有明确数学动机，不是无理由的工程习惯，C 错。",
+              "option_text": "不除也能训练，只是数值上更慢，除以 √dk 纯粹是工程习惯，没有数学理由",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：缩放有明确动机（控制 softmax 输入幅值、避免梯度极小），不是无理由的习惯。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 2 段说明缩放动机明确，否定“没有数学理由”的说法。"
+            },
+            {
+              "reasoning": "点积可正可负，缩放不改变符号；权重非负来自指数运算，D 错。",
+              "option_text": "除以 √dk 是为了保证 Q 与 K 的点积恒为非负数，避免出现负权重",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：点积本身可正可负，缩放不改变符号；权重非负来自 softmax 的指数运算，而不是缩放。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 3–4 段分别说明缩放不改变符号、非负来自 softmax 指数，批评准确。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "independent_solution": "dk 大时点积方差为 dk、幅值变大，softmax 趋于 one-hot、梯度极小，除以 √dk 把幅值拉回合适范围，故 A 正确；B、C、D 均错。"
+        },
+        {
+          "question_id": "q5-no-scaling-dk64",
+          "option_checks": [
+            {
+              "reasoning": "标准差 8、softmax 接近 one-hot、梯度变小，全部正确。",
+              "option_text": "约 8；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "点积是 dk 个乘积之和，每个乘积的方差为 1×1=1，故点积方差约为 dk=64，标准差约为 √64=8。A 正确：幅值约 8，远大于 1，softmax 的输入差距被放大，输出接近 one-hot，此时 softmax 的梯度极小，训练困难。",
+              "independent_correct": true,
+              "explanation_reasoning": "第 0 段推导方差 64、标准差 8，第 1 段说明幅值远大于 1 导致 one-hot 与梯度极小，与 A 一致。"
+            },
+            {
+              "reasoning": "64 是方差而非标准差，B 错。",
+              "option_text": "约 64；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 的 64 是方差而非标准差，混淆了两者。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 2 段准确指出 B 把方差当标准差。"
+            },
+            {
+              "reasoning": "约 1 是缩放后的幅值，且“行为完全相同”与事实相反，C 错。",
+              "option_text": "约 1；打分幅值不变，softmax 行为与缩放后完全相同",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 的“约 1”对应的是缩放后的幅值（8/√64=1），但题干问的是不缩放时的幅值，且“行为完全相同”与事实相反。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 3 段说明 1 对应缩放后幅值、题干问的是不缩放情形，并否定“行为相同”，成立。"
+            },
+            {
+              "reasoning": "数值 8 对，但方向错：不缩放是幅值变大、softmax 更尖锐。",
+              "option_text": "约 8；打分幅值变小，softmax 输出更平滑，梯度变大",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 数值对但方向错：不缩放是幅值变大而非变小，softmax 会更尖锐而不是更平滑。",
+              "independent_correct": false,
+              "explanation_reasoning": "第 4 段承认数值对但指出方向错误，对部分正确的选项处理准确。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "independent_solution": "点积方差为 dk=64，标准差 √64=8；不缩放时幅值约 8 远大于 1，softmax 接近 one-hot、梯度很小，故 A 正确；B 混淆方差与标准差，C、D 错。"
+        },
+        {
+          "question_id": "q6-hand-calc-weights",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "independent_solution": "QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；逐行 softmax：第 1 行 0.4011/0.1978/0.4011，第 2 行 0.1978/0.4011/0.4011，第 3 行 0.24826/0.24826/0.50349，三位为 0.248/0.248/0.503，显示值之和 0.999 属舍入误差。与参考答案一致。"
+        },
+        {
+          "question_id": "q7-hand-calc-output",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "independent_solution": "用缩放后权重对 V=[[1,0],[0,1],[1,1]] 加权：输出 1 = 0.4011×[1,0]+0.1978×[0,1]+0.4011×[1,1] = [0.8022,0.5989]→[0.80,0.60]；输出 2 = [0.5989,0.8022]→[0.60,0.80]；输出 3 = [0.7517,0.7517]→[0.75,0.75]。与参考答案一致。"
+        },
+        {
+          "question_id": "q8-true-false-weights",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "independent_solution": "注意力权重由 Q·K 经缩放与 softmax 得到，Q/K 投影参数从数据学习，不是人工语法规则，故命题错误。"
+        },
+        {
+          "question_id": "q9-true-false-rowsum",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 8,
+          "explanation_valid": true,
+          "independent_solution": "softmax 沿每行归一，输出非负且行和为 1，每行构成概率分布；整个矩阵元素之和等于行数，故命题正确。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q6 解析末段确实给出未缩放 softmax([1,0,1]) 的完整精度值与三位值 [0.422,0.155,0.422]，并明确排除 [0.422,0.207,0.371]，与 req-fix-q6-unscaled-softmax 一致。",
+          "locator": {
+            "question_id": "q6-hand-calc-weights"
+          },
+          "binding_id": "req-fix-q6-unscaled-softmax",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 解析末段给出未缩放权重加权第一行 0.8446375965030364、0.5776812017484818，两位 [0.84,0.58]，并排除 [0.79,0.58]，与 req-fix-q7-unscaled-output 一致。",
+          "locator": {
+            "question_id": "q7-hand-calc-output"
+          },
+          "binding_id": "req-fix-q7-unscaled-output",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 答案与解析第 3 行权重为 [0.248,0.248,0.503]（完整精度 0.2482550782577231、0.2482550782577231、0.5034898434845538），并说明 0.999 为舍入误差、不得为凑 1 调整概率。",
+          "locator": {
+            "question_id": "q6-hand-calc-weights"
+          },
+          "binding_id": "req-fix-scaled-third-row",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 解析明确“全程用完整精度、最后才舍入”并禁止先舍入 0.5035 再二次舍入 0.504；q7 保留缩放输出第一行 [0.80,0.60]（0.8022241853595718、0.5988879073202141）与第三行 [0.75,0.75]（0.7517449217422769、0.7517449217422769）。",
+          "locator": {
+            "question_id": "q6-hand-calc-weights"
+          },
+          "binding_id": "req-rounding-from-full-precision",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "题目仍为 9 题，q1–q5、q8、q9 题干、选项、答案与解析未改动，q6/q7 的 id、题型、题干与顺序不变，仅修正答案与解析，未新增视频或报告。",
+          "locator": {
+            "question_id": "q1-qkv-roles"
+          },
+          "binding_id": "req-local-fix-scope",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 直接考查 Q/K/V 三角色分工，支持 o1。",
+          "locator": {
+            "question_id": "q1-qkv-roles"
+          },
+          "binding_id": "n2-self-attention:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 考查相似度计算与信息传递解耦，支持 o1 中“为何解耦”的部分。",
+          "locator": {
+            "question_id": "q2-decoupling"
+          },
+          "binding_id": "n2-self-attention:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 逐项核对公式四步，支持 o2。",
+          "locator": {
+            "question_id": "q3-formula-steps"
+          },
+          "binding_id": "n2-self-attention:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 考查除以 √dk 的原因与 softmax 梯度极小，支持 o3。",
+          "locator": {
+            "question_id": "q4-scaling-reason"
+          },
+          "binding_id": "n2-self-attention:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 由 dk=64 推出标准差 8 并判断不缩放后果，支持 o3。",
+          "locator": {
+            "question_id": "q5-no-scaling-dk64"
+          },
+          "binding_id": "n2-self-attention:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 要求手算打分、缩放与逐行 softmax 权重，正是 o4 的练习。",
+          "locator": {
+            "question_id": "q6-hand-calc-weights"
+          },
+          "binding_id": "n2-self-attention:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 要求用权重对 V 加权求和并解释输出偏向，支持 o4。",
+          "locator": {
+            "question_id": "q7-hand-calc-output"
+          },
+          "binding_id": "n2-self-attention:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q9 考查 softmax 逐行归一与行和为 1，支持 o2 中 softmax 步骤的理解。",
+          "locator": {
+            "question_id": "q9-true-false-rowsum"
+          },
+          "binding_id": "n2-self-attention:o2",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "3792540f298ff5f8622a69b23042f3e37efdafa2ccd1e774376f3b477dd903ca",
+      "option_binding_version": 1
+    }
+  },
+  "preparation_artifact": {
+    "title": "自注意力与缩放点积：Q、K、V 如何算出加权和（习题数值纠错）",
+    "content": {
+      "title": "自注意力与缩放点积：Q、K、V 如何算出加权和（习题）",
+      "questions": [
+        {
+          "id": "q1-qkv-roles",
+          "stem": "在自注意力中，某个 token 的 Query、Key、Value 三个向量分别承担什么角色？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "Query 表示“我想找什么”，Key 表示“我是什么”，Value 表示“我的内容”",
+            "Query 表示“我的内容”，Key 表示“我想找什么”，Value 表示“我是什么”",
+            "Query 表示“我是什么”，Key 表示“我的内容”，Value 表示“我想找什么”",
+            "三者是同一个向量的三个副本，只是名字不同，数值完全一致"
+          ],
+          "difficulty": "easy",
+          "explanation": "A 正确：Query 是当前位置的查询意图，用来与其他位置的 Key 匹配；Key 是每个位置的特征标识，用来被检索；Value 是实际被加权求和传递出去的信息。B 把三者角色整体错位：Value 不是“我是什么”而是“我的内容”，Query 也不是“我的内容”。C 是另一种错位，把 Key 当成内容、Value 当成查询意图，与“Key 被 Query 检索、Value 被加权求和”的分工不符。D 错误：三个向量由三组不同的线性变换生成，数值一般不同；若完全相同，就无法分别学习“该关注谁”和“关注后取什么信息”。"
+        },
+        {
+          "id": "q2-decoupling",
+          "stem": "“相似度计算与信息传递解耦”在自注意力里具体指什么？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "注意力权重由 Q 与 K 的点积决定，而被加权求和的内容来自 V，两组参数可以分别学习",
+            "先算完所有相似度，再统一决定用哪一组 V，因此 V 不参与权重计算",
+            "Q、K、V 必须由同一个权重矩阵生成，所以解耦只是概念上的说法",
+            "解耦意味着注意力权重一旦算出就固定不变，不再随输入变化"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：权重来自 Q·K 的相容性，输出是 V 的加权和，因此“该关注谁”和“关注后取什么信息”由不同的投影参数承担，可以分别学习。B 前半句“V 不参与权重计算”是对的，但“先算完相似度再统一决定用哪一组 V”不是解耦的含义，V 的投影是固定的线性变换，不存在事后挑选。C 错误：Q、K、V 由三组不同的线性变换生成，这正是解耦能成立的前提。D 错误：权重是输入的函数，输入变了权重就变；解耦说的是两件事由不同参数负责，不是权重固定。"
+        },
+        {
+          "id": "q3-formula-steps",
+          "stem": "关于 Attention(Q,K,V)=softmax(QK^T/√dk)V，下列哪些说法正确？",
+          "type": "multiple_choice",
+          "answer": "A,B,C,D",
+          "options": [
+            "QK^T 得到每个查询与所有键的点积，构成相似度打分矩阵",
+            "除以 √dk 是为了在 softmax 之前把打分幅值压小",
+            "softmax 按行把打分变成非负且每行和为 1 的权重",
+            "最后与 V 相乘，是用权重对 Value 做加权求和",
+            "公式中的 V 必须先经过 softmax 才能参与加权求和"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：Q 的每一行与 K^T 的每一列做点积，得到“查询×键”的打分矩阵。B 正确：缩放发生在 softmax 之前，作用是把点积幅值压小。C 正确：softmax 沿每一行（同一个查询对所有键）归一化，输出非负且行和为 1。D 正确：权重矩阵乘 V 就是每个查询位置上对 Value 的加权求和。E 错误：softmax 只作用在打分上，V 是原始内容向量，直接参与加权求和；对 V 再做 softmax 会破坏“加权和”的含义。"
+        },
+        {
+          "id": "q4-scaling-reason",
+          "stem": "为什么缩放点积注意力要除以 √dk，而不是直接除以 dk 或干脆不除？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "dk 较大时点积幅值变大，softmax 会被推入梯度极小的区域，除以 √dk 可把幅值拉回合适范围",
+            "除以 √dk 是为了让注意力权重之和恰好等于 √dk，便于后续归一化",
+            "不除也能训练，只是数值上更慢，除以 √dk 纯粹是工程习惯，没有数学理由",
+            "除以 √dk 是为了保证 Q 与 K 的点积恒为非负数，避免出现负权重"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：论文指出 dk 大时点积幅值变大，会把 softmax 推到梯度极小的区域，因此用 1/√dk 缩放。B 错误：softmax 之后每行权重和恒为 1，与 √dk 无关。C 错误：缩放有明确动机（控制 softmax 输入幅值、避免梯度极小），不是无理由的习惯。D 错误：点积本身可正可负，缩放不改变符号；权重非负来自 softmax 的指数运算，而不是缩放。"
+        },
+        {
+          "id": "q5-no-scaling-dk64",
+          "stem": "假设各分量独立、均值 0、方差 1，某个查询与某个键的点积在 dk=64 时的典型幅值（标准差）约为多少？若去掉 √dk 缩放，打分矩阵会怎样？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "约 8；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+            "约 64；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+            "约 1；打分幅值不变，softmax 行为与缩放后完全相同",
+            "约 8；打分幅值变小，softmax 输出更平滑，梯度变大"
+          ],
+          "difficulty": "hard",
+          "explanation": "点积是 dk 个乘积之和，每个乘积的方差为 1×1=1，故点积方差约为 dk=64，标准差约为 √64=8。A 正确：幅值约 8，远大于 1，softmax 的输入差距被放大，输出接近 one-hot，此时 softmax 的梯度极小，训练困难。B 的 64 是方差而非标准差，混淆了两者。C 的“约 1”对应的是缩放后的幅值（8/√64=1），但题干问的是不缩放时的幅值，且“行为完全相同”与事实相反。D 数值对但方向错：不缩放是幅值变大而非变小，softmax 会更尖锐而不是更平滑。"
+        },
+        {
+          "id": "q6-hand-calc-weights",
+          "stem": "3 个 token，dk=2，Q 与 K 如下（每行一个 token）：\nQ = [[1, 0], [0, 1], [1, 1]]\nK = [[1, 0], [0, 1], [1, 1]]\n请写出缩放后的打分矩阵 S = QK^T/√dk（保留两位小数），以及逐行 softmax 后的注意力权重矩阵（保留三位小数），并核对每行之和。",
+          "type": "short_answer",
+          "answer": "S = [[0.71, 0.00, 0.71], [0.00, 0.71, 0.71], [0.71, 0.71, 1.41]]；权重 A = [[0.401, 0.198, 0.401], [0.198, 0.401, 0.401], [0.248, 0.248, 0.503]]。完整精度下每行之和均为 1；按三位小数显示时，第 3 行显示值之和为 0.999，这是舍入误差，不是概率算错。",
+          "difficulty": "hard",
+          "explanation": "第一步打分：未缩放点积 QK^T 的第 1 行 [1,0] 与三个键得 1、0、1；第 2 行 [0,1] 得 0、1、1；第 3 行 [1,1] 得 1、1、2。第二步缩放：√dk=√2≈1.41421356，逐项除以它，得 S 第 1 行 0.70710678、0、0.70710678；第 2 行 0、0.70710678、0.70710678；第 3 行 0.70710678、0.70710678、1.41421356，保留两位即 [[0.71, 0.00, 0.71], [0.00, 0.71, 0.71], [0.71, 0.71, 1.41]]。第三步逐行 softmax（全程用完整精度，最后才舍入）：第 1 行 e^0.70710678=2.02811383、e^0=1、e^0.70710678=2.02811383，和 5.05622766，权重 0.40110905、0.19778190、0.40110905，保留三位为 0.401、0.198、0.401。第 2 行对称，得 0.198、0.401、0.401。第 3 行 e^0.70710678=2.02811383、e^0.70710678=2.02811383、e^1.41421356=4.11325038，和 8.16947804，权重为 0.2482550782577231、0.2482550782577231、0.5034898434845538，保留三位是 0.248、0.248、0.503。这里要特别注意舍入规则：0.5034898434845538 直接保留三位是 0.503，不能先把中间结果舍入成 0.5035 再二次舍入成 0.504，那样会引入二次舍入误差。第 3 行完整精度之和为 1，但三个三位显示值 0.248+0.248+0.503=0.999，差 0.001 完全来自舍入，不能为了凑 1 把某个概率改成 0.504。关键检查点：每行权重非负、完整精度行和为 1；第 3 个 token 的查询与自己的键最相似（缩放后打分 1.41421356 最大），因此自权重最大。对照说明：若漏掉除以 √2，直接对未缩放打分 [1,0,1] 做 softmax，得到的是 [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]，保留三位为 [0.422, 0.155, 0.422]（不是 [0.422, 0.207, 0.371]），那是未缩放打分的权重，与本题要求的 S 不符。"
+        },
+        {
+          "id": "q7-hand-calc-output",
+          "stem": "沿用上一题的 Q、K，并取 V = [[1, 0], [0, 1], [1, 1]]。用你算出的注意力权重对 V 加权求和，写出 3 个 token 的输出向量（保留两位小数），并说明第 1 个 token 的输出为什么更接近 V1 而不是 V2。",
+          "type": "short_answer",
+          "answer": "用上一题缩放后的权重计算：输出 1 = 0.401×[1,0] + 0.198×[0,1] + 0.401×[1,1] = [0.80, 0.60]；输出 2 = 0.198×[1,0] + 0.401×[0,1] + 0.401×[1,1] = [0.60, 0.80]；输出 3 = 0.248×[1,0] + 0.248×[0,1] + 0.503×[1,1] = [0.75, 0.75]。",
+          "difficulty": "hard",
+          "explanation": "加权求和是逐分量做：输出第 1 维 = Σ 权重×V 的第 1 维，第 2 维同理。以输出 1 为例，第 1 维 = 0.40110905×1 + 0.19778190×0 + 0.40110905×1 = 0.8022241853595718；第 2 维 = 0.40110905×0 + 0.19778190×1 + 0.40110905×1 = 0.5988879073202141，保留两位即 [0.80, 0.60]。输出 2 对称，得 [0.60, 0.80]。输出 3 第 1 维 = 0.2482550782577231×1 + 0.2482550782577231×0 + 0.5034898434845538×1 = 0.7517449217422769，第 2 维 = 0.2482550782577231×0 + 0.2482550782577231×1 + 0.5034898434845538×1 = 0.7517449217422769，即约 [0.75, 0.75]。第 1 个 token 的查询 [1,0] 与键 1 [1,0] 的点积为 1，与键 2 [0,1] 的点积为 0，缩放后分别是 0.70710678 与 0，所以权重 0.40110905 大于 0.19778190，输出自然更靠近 V1=[1,0]。注意输出不是 V1 本身，因为其他 token 的 Value 也按权重混入。对照说明：若漏掉除以 √2 而用未缩放打分的权重 [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]，输出 1 的第 1 维 = 0.4223187982515182×1 + 0.15536240349696362×0 + 0.4223187982515182×1 = 0.8446375965030364，第 2 维 = 0.4223187982515182×0 + 0.15536240349696362×1 + 0.4223187982515182×1 = 0.5776812017484818，保留两位是 [0.84, 0.58]（不是 [0.79, 0.58]）；这组数字只用于说明漏掉缩放会得到不同结果，与本题要求的缩放点积流程不一致。"
+        },
+        {
+          "id": "q8-true-false-weights",
+          "stem": "判断：在自注意力中，某个 token 对另一个 token 的注意力权重是人工按语法规则设定的，例如代词一定被规定要关注它前面最近的名词。",
+          "type": "true_false",
+          "answer": "错误",
+          "difficulty": "easy",
+          "explanation": "权重由 Q 与 K 的点积经缩放和 softmax 计算得到，而 Q、K 的投影参数是从数据中学习出来的，不是人工写死的规则。中文教程里“他”把大部分注意力投向“小明”的百分比只是教学示意，用来说明权重反映学到的相关性，并非人工规定，也不是原论文的实验数据。"
+        },
+        {
+          "id": "q9-true-false-rowsum",
+          "stem": "判断：对打分矩阵逐行做 softmax 后，每一行的权重之和为 1，因此同一个查询对所有键的注意力权重构成一个概率分布。",
+          "type": "true_false",
+          "answer": "正确",
+          "difficulty": "easy",
+          "explanation": "softmax 沿每一行（同一个查询对所有键的打分）做指数归一化，输出非负且行和为 1，所以每一行可以看作该查询在键上的一个概率分布。注意是“逐行”而不是“逐列”或“整个矩阵之和为 1”；整个矩阵所有元素之和等于行数。"
+        }
+      ]
+    },
+    "artifact_type": "quiz",
+    "generation_state": {
+      "preparation": {
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 22.05
+        },
+        "spec_digest": "5fb7237238054b2bb5200459ba2a8258c3abc6a2d2180df6e39e9cf038108def",
+        "schema_version": 1,
+        "objective_bindings": [
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q1-qkv-roles"
+            },
+            "objective_id": "n2-self-attention:o1"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q2-decoupling"
+            },
+            "objective_id": "n2-self-attention:o1"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q3-formula-steps"
+            },
+            "objective_id": "n2-self-attention:o2"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q4-scaling-reason"
+            },
+            "objective_id": "n2-self-attention:o3"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q5-no-scaling-dk64"
+            },
+            "objective_id": "n2-self-attention:o3"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q6-hand-calc-weights"
+            },
+            "objective_id": "n2-self-attention:o4"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q7-hand-calc-output"
+            },
+            "objective_id": "n2-self-attention:o4"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q9-true-false-rowsum"
+            },
+            "objective_id": "n2-self-attention:o2"
+          }
+        ],
+        "applied_requirements": [
+          {
+            "locator": {
+              "question_id": "q6-hand-calc-weights"
+            },
+            "explanation": "q6 解析末尾的对照说明改为：未缩放 softmax([1,0,1]) = [0.4223187982515182, 0.15536240349696362, 0.4223187982515182]，保留三位 [0.422, 0.155, 0.422]，并明确删除错误的 [0.422, 0.207, 0.371]。",
+            "requirement_id": "req-fix-q6-unscaled-softmax"
+          },
+          {
+            "locator": {
+              "question_id": "q7-hand-calc-output"
+            },
+            "explanation": "q7 解析的对照说明改为：未缩放权重对 V 加权第一行 = [0.8446375965030364, 0.5776812017484818]，保留两位 [0.84, 0.58]，并明确删除错误的 [0.79, 0.58]。",
+            "requirement_id": "req-fix-q7-unscaled-output"
+          },
+          {
+            "locator": {
+              "question_id": "q6-hand-calc-weights"
+            },
+            "explanation": "q6 答案与解析把缩放后第三行权重改为 [0.248, 0.248, 0.503]（完整精度 0.2482550782577231、0.2482550782577231、0.5034898434845538），并说明完整精度行和为 1、三位显示值之和 0.999 属舍入误差，不得为凑 1 调整某个概率。",
+            "requirement_id": "req-fix-scaled-third-row"
+          },
+          {
+            "locator": {
+              "question_id": "q6-hand-calc-weights"
+            },
+            "explanation": "q6 解析声明全程用完整精度计算、最后才舍入，并指出不能先舍入成 0.5035 再二次舍入成 0.504；q7 解析保留缩放输出第一行 [0.80, 0.60]（0.8022241853595718、0.5988879073202141）与第三行 [0.75, 0.75]（0.7517449217422769、0.7517449217422769）的两位结果。",
+            "requirement_id": "req-rounding-from-full-precision"
+          },
+          {
+            "locator": {
+              "question_id": "q1-qkv-roles"
+            },
+            "explanation": "题目总数仍为 9 题，q1–q5、q8、q9 的题干、选项、答案与解析逐字保留，q6/q7 的 id、题型、题干与顺序不变，仅修正受影响的答案与解析；未新增视频或报告。",
+            "requirement_id": "req-local-fix-scope"
+          }
+        ],
+        "question_time_estimates": [
+          {
+            "reason": "回忆 Q/K/V 三个角色分工，并逐一排除三种错位说法与“同一向量副本”说法。",
+            "question_id": "q1-qkv-roles",
+            "thinking_seconds": 25
+          },
+          {
+            "reason": "需要区分“权重来自 Q·K”与“内容来自 V”两条路径，并判断 B 中“V 不参与权重计算”这半句正确但整体结论错误。",
+            "question_id": "q2-decoupling",
+            "thinking_seconds": 45
+          },
+          {
+            "reason": "逐项核对公式四步与一个错误项，需判断 softmax 只作用于打分而非 V。",
+            "question_id": "q3-formula-steps",
+            "thinking_seconds": 50
+          },
+          {
+            "reason": "回忆缩放动机（softmax 饱和与梯度极小），并排除“行和为 √dk”“点积恒非负”等错误理由。",
+            "question_id": "q4-scaling-reason",
+            "thinking_seconds": 40
+          },
+          {
+            "reason": "由方差 dk 推出标准差 √64=8，再判断不缩放时 softmax 接近 one-hot、梯度变小，需区分方差与标准差。",
+            "question_id": "q5-no-scaling-dk64",
+            "thinking_seconds": 60
+          },
+          {
+            "reason": "手算 3×3 点积矩阵、逐项除以 √2、三行各做一次指数归一化，并按完整精度舍入到三位，同时核对行和与 0.999 的舍入解释。",
+            "question_id": "q6-hand-calc-weights",
+            "thinking_seconds": 300
+          },
+          {
+            "reason": "用上一题权重对 3×2 的 V 做两次加权求和，保留两位，并解释输出为何偏向 V1 而非 V1 本身。",
+            "question_id": "q7-hand-calc-output",
+            "thinking_seconds": 240
+          },
+          {
+            "reason": "判断权重来源是学习得到的 Q/K 投影而非人工语法规则。",
+            "question_id": "q8-true-false-weights",
+            "thinking_seconds": 20
+          },
+          {
+            "reason": "回忆 softmax 逐行归一的性质，并注意“逐行”与“整个矩阵和为 1”的区别。",
+            "question_id": "q9-true-false-rowsum",
+            "thinking_seconds": 20
+          }
+        ],
+        "teaching_context_digest": "f42c0df9bcca862c6674cec19fbaf70b982e2bc56e1ebded373c628d17634c2d"
+      },
+      "resource_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "req-fix-q6-unscaled-softmax：q6 解析末段给出未缩放 softmax([1,0,1])=[0.4223187982515182,0.15536240349696362,0.4223187982515182]，三位 [0.422,0.155,0.422]，并明确排除 [0.422,0.207,0.371]；req-fix-q7-unscaled-output：q7 解析给出 [0.8446375965030364,0.5776812017484818]→[0.84,0.58] 并排除 [0.79,0.58]；req-fix-scaled-third-row：q6 答案与解析第三行改为 [0.248,0.248,0.503] 并解释 0.999 为舍入误差；req-rounding-from-full-precision：q6 解析明确禁止先舍入 0.5035 再二次舍入 0.504，q7 保留 [0.80,0.60] 与 [0.75,0.75]；req-local-fix-scope：仍为 9 题，q1–q5、q8、q9 内容与 q6/q7 的 id、题型、顺序未变，未新增视频或报告。五项要求均落实。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "独立复算：QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；第 1 行 softmax 得 0.4011/0.1978/0.4011，第 3 行得 0.24826/0.24826/0.50349，与正文一致；未缩放 softmax([1,0,1]) 复算为 0.42232/0.15536/0.42232，正确；未缩放权重对 V 加权第一行 0.84464/0.57768，正确；缩放输出三行 0.80222/0.59889、0.59889/0.80222、0.75174/0.75174 均正确。q5 中 dk=64 标准差 √64=8 的推导正确。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "q6/q7 为手算例题，逐题独立求解后与答案、解析一致：q6 打分矩阵、缩放矩阵、三行权重及行和说明均正确；q7 三行输出与“输出更接近 V1 而非 V1 本身”的解释成立；q1–q5、q8、q9 的选项与解析逐项核对无事实错误（如 q2 对 B 半句正确的处理、q5 对 64 是方差的辨析）。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "题目顺序按 o1（Q/K/V 角色、解耦）→o2（公式四步）→o3（缩放原因、dk=64 幅值）→o4（手算权重与输出）递进，q6 先算权重、q7 沿用其权重算输出，符合 learning_activities 中“对照四步流程逐行核对”的顺序；难度 easy→medium→hard 分布合理，题干自足，未泄露答案。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "公式四步、softmax 逐行归一、除以 √dk 的方差与梯度动机均与所引 LLM Internals 2.2 节及 ApX softmax 章节一致；q6/q7 的具体数值来源已声明为本次独立复算，未伪称来自资料，符合 limitations 说明。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "9 题覆盖 o1–o4 全部目标，q6/q7 对应 o4 的手算要求；每题均有 answer、difficulty 与逐步解析，选择题选项数正确（q3 为多选 5 项、答案 A,B,C,D），判断题与简答题按契约省略 options；无缺题、无重复考点。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "req-fix-q6-unscaled-softmax：q6 解析末段给出未缩放 softmax([1,0,1])=[0.4223187982515182,0.15536240349696362,0.4223187982515182]，三位 [0.422,0.155,0.422]，并明确排除 [0.422,0.207,0.371]；req-fix-q7-unscaled-output：q7 解析给出 [0.8446375965030364,0.5776812017484818]→[0.84,0.58] 并排除 [0.79,0.58]；req-fix-scaled-third-row：q6 答案与解析第三行改为 [0.248,0.248,0.503] 并解释 0.999 为舍入误差；req-rounding-from-full-precision：q6 解析明确禁止先舍入 0.5035 再二次舍入 0.504，q7 保留 [0.80,0.60] 与 [0.75,0.75]；req-local-fix-scope：仍为 9 题，q1–q5、q8、q9 内容与 q6/q7 的 id、题型、顺序未变，未新增视频或报告。五项要求均落实。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "独立复算：QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；第 1 行 softmax 得 0.4011/0.1978/0.4011，第 3 行得 0.24826/0.24826/0.50349，与正文一致；未缩放 softmax([1,0,1]) 复算为 0.42232/0.15536/0.42232，正确；未缩放权重对 V 加权第一行 0.84464/0.57768，正确；缩放输出三行 0.80222/0.59889、0.59889/0.80222、0.75174/0.75174 均正确。q5 中 dk=64 标准差 √64=8 的推导正确。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "q6/q7 为手算例题，逐题独立求解后与答案、解析一致：q6 打分矩阵、缩放矩阵、三行权重及行和说明均正确；q7 三行输出与“输出更接近 V1 而非 V1 本身”的解释成立；q1–q5、q8、q9 的选项与解析逐项核对无事实错误（如 q2 对 B 半句正确的处理、q5 对 64 是方差的辨析）。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "题目顺序按 o1（Q/K/V 角色、解耦）→o2（公式四步）→o3（缩放原因、dk=64 幅值）→o4（手算权重与输出）递进，q6 先算权重、q7 沿用其权重算输出，符合 learning_activities 中“对照四步流程逐行核对”的顺序；难度 easy→medium→hard 分布合理，题干自足，未泄露答案。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "公式四步、softmax 逐行归一、除以 √dk 的方差与梯度动机均与所引 LLM Internals 2.2 节及 ApX softmax 章节一致；q6/q7 的具体数值来源已声明为本次独立复算，未伪称来自资料，符合 limitations 说明。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "9 题覆盖 o1–o4 全部目标，q6/q7 对应 o4 的手算要求；每题均有 answer、difficulty 与逐步解析，选择题选项数正确（q3 为多选 5 项、答案 A,B,C,D），判断题与简答题按契约省略 options；无缺题、无重复考点。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "q6 解析中“第 3 行完整精度之和为 1”可补一句“第 1、2 行同理”，使行和自查更完整。",
+                "q7 答案中输出 3 的算式写作 0.248×[1,0]+0.248×[0,1]+0.503×[1,1]，可注明这是三位显示值，与解析中的完整精度算式对应，避免读者误以为用显示值计算。"
+              ],
+              "blocking_issues": [],
+              "question_checks": [
+                {
+                  "question_id": "q1-qkv-roles",
+                  "option_checks": [
+                    {
+                      "reasoning": "准确对应 Q/K/V 的角色分工，是唯一正确项。",
+                      "option_text": "Query 表示“我想找什么”，Key 表示“我是什么”，Value 表示“我的内容”",
+                      "option_index": 0,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "A 正确：Query 是当前位置的查询意图，用来与其他位置的 Key 匹配；Key 是每个位置的特征标识，用来被检索；Value 是实际被加权求和传递出去的信息。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "解析第 0–2 段分别说明 Query 用于匹配、Key 用于被检索、Value 被加权求和传递，与选项 A 表述一致。"
+                    },
+                    {
+                      "reasoning": "把三者角色整体错位：Query 不是“我的内容”，Value 不是“我是什么”。",
+                      "option_text": "Query 表示“我的内容”，Key 表示“我想找什么”，Value 表示“我是什么”",
+                      "option_index": 1,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "B 把三者角色整体错位：Value 不是“我是什么”而是“我的内容”，Query 也不是“我的内容”。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 3 段指出 B 把角色整体错位，并具体说明 Value 应为“我的内容”、Query 不是“我的内容”，批评成立。"
+                    },
+                    {
+                      "reasoning": "把 Key 说成内容、Value 说成查询意图，与“Key 被检索、Value 被加权求和”的分工相反。",
+                      "option_text": "Query 表示“我是什么”，Key 表示“我的内容”，Value 表示“我想找什么”",
+                      "option_index": 2,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "C 是另一种错位，把 Key 当成内容、Value 当成查询意图，与“Key 被 Query 检索、Value 被加权求和”的分工不符。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 4 段准确指出 C 的错位方向，理由与选项文字相符。"
+                    },
+                    {
+                      "reasoning": "Q/K/V 由三组不同投影生成，数值一般不同，不是同一向量的副本。",
+                      "option_text": "三者是同一个向量的三个副本，只是名字不同，数值完全一致",
+                      "option_index": 3,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "D 错误：三个向量由三组不同的线性变换生成，数值一般不同；若完全相同，就无法分别学习“该关注谁”和“关注后取什么信息”。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 5–6 段说明三组线性变换生成、数值不同，并给出“若相同则无法分别学习关注谁与取什么信息”的理由，成立。"
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 0,
+                  "explanation_valid": true,
+                  "independent_solution": "自注意力中 Q 是查询意图（我想找什么），K 是被检索的特征标识（我是什么），V 是实际被加权求和传递的内容（我的内容），三者由三组不同线性变换生成。故 A 正确。"
+                },
+                {
+                  "question_id": "q2-decoupling",
+                  "option_checks": [
+                    {
+                      "reasoning": "准确描述权重来源与内容来源分离、参数可分别学习。",
+                      "option_text": "注意力权重由 Q 与 K 的点积决定，而被加权求和的内容来自 V，两组参数可以分别学习",
+                      "option_index": 0,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "A 正确：权重来自 Q·K 的相容性，输出是 V 的加权和，因此“该关注谁”和“关注后取什么信息”由不同的投影参数承担，可以分别学习。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "第 0 段说明权重来自 Q·K、输出是 V 的加权和，由不同投影参数承担，与 A 一致。"
+                    },
+                    {
+                      "reasoning": "前半句“V 不参与权重计算”正确，但“先算完相似度再统一决定用哪一组 V”错误，V 的投影是固定线性变换。",
+                      "option_text": "先算完所有相似度，再统一决定用哪一组 V，因此 V 不参与权重计算",
+                      "option_index": 1,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "B 前半句“V 不参与权重计算”是对的，但“先算完相似度再统一决定用哪一组 V”不是解耦的含义，V 的投影是固定的线性变换，不存在事后挑选。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 1 段先承认前半句正确，再指出后半句不是解耦含义、不存在事后挑选，对选项的部分真部分假处理准确。"
+                    },
+                    {
+                      "reasoning": "Q/K/V 由三组不同线性变换生成，并非同一权重矩阵，故 C 错。",
+                      "option_text": "Q、K、V 必须由同一个权重矩阵生成，所以解耦只是概念上的说法",
+                      "option_index": 2,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "C 错误：Q、K、V 由三组不同的线性变换生成，这正是解耦能成立的前提。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 2 段指出三组不同线性变换正是解耦前提，直接否定 C 的前提。"
+                    },
+                    {
+                      "reasoning": "权重是输入的函数，输入变则权重变；解耦指不同参数负责不同事，不是权重固定。",
+                      "option_text": "解耦意味着注意力权重一旦算出就固定不变，不再随输入变化",
+                      "option_index": 3,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "D 错误：权重是输入的函数，输入变了权重就变；解耦说的是两件事由不同参数负责，不是权重固定。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 3–4 段说明权重随输入变化、解耦不等于权重固定，批评成立。"
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 1,
+                  "explanation_valid": true,
+                  "independent_solution": "解耦指权重由 Q·K 决定、被加权的内容来自 V，两组投影参数分别学习，故 A 正确；B 中“V 不参与权重计算”虽对，但“事后统一决定用哪组 V”不是解耦含义；C、D 均错。"
+                },
+                {
+                  "question_id": "q3-formula-steps",
+                  "option_checks": [
+                    {
+                      "reasoning": "QK^T 得到查询×键的打分矩阵，正确。",
+                      "option_text": "QK^T 得到每个查询与所有键的点积，构成相似度打分矩阵",
+                      "option_index": 0,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "A 正确：Q 的每一行与 K^T 的每一列做点积，得到“查询×键”的打分矩阵。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "第 0 段说明 Q 行与 K^T 列做点积得打分矩阵，与选项一致。"
+                    },
+                    {
+                      "reasoning": "缩放发生在 softmax 之前，把点积幅值压小，正确。",
+                      "option_text": "除以 √dk 是为了在 softmax 之前把打分幅值压小",
+                      "option_index": 1,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "B 正确：缩放发生在 softmax 之前，作用是把点积幅值压小。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "第 1 段指出缩放位于 softmax 之前、作用是压小幅值，准确。"
+                    },
+                    {
+                      "reasoning": "softmax 沿每行归一，输出非负且行和为 1，正确。",
+                      "option_text": "softmax 按行把打分变成非负且每行和为 1 的权重",
+                      "option_index": 2,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "C 正确：softmax 沿每一行（同一个查询对所有键）归一化，输出非负且行和为 1。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "第 2 段说明沿同一查询对所有键归一、非负且行和为 1，成立。"
+                    },
+                    {
+                      "reasoning": "权重矩阵乘 V 即对 Value 加权求和，正确。",
+                      "option_text": "最后与 V 相乘，是用权重对 Value 做加权求和",
+                      "option_index": 3,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "D 正确：权重矩阵乘 V 就是每个查询位置上对 Value 的加权求和。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "第 3 段说明权重乘 V 是每个查询位置对 Value 的加权求和，准确。"
+                    },
+                    {
+                      "reasoning": "V 是原始内容向量，直接参与加权求和，不需要先 softmax。",
+                      "option_text": "公式中的 V 必须先经过 softmax 才能参与加权求和",
+                      "option_index": 4,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "E 错误：softmax 只作用在打分上，V 是原始内容向量，直接参与加权求和；对 V 再做 softmax 会破坏“加权和”的含义。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 4–5 段指出 softmax 只作用于打分、对 V 再做 softmax 会破坏加权和含义，理由成立。"
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 2,
+                  "explanation_valid": true,
+                  "independent_solution": "公式四步：QK^T 打分、除以 √dk 缩放、逐行 softmax 归一、乘 V 加权求和，A–D 均正确；E 错，softmax 只作用于打分，V 直接参与加权求和。答案 A,B,C,D。"
+                },
+                {
+                  "question_id": "q4-scaling-reason",
+                  "option_checks": [
+                    {
+                      "reasoning": "准确给出缩放动机：控制 softmax 输入幅值、避免梯度极小。",
+                      "option_text": "dk 较大时点积幅值变大，softmax 会被推入梯度极小的区域，除以 √dk 可把幅值拉回合适范围",
+                      "option_index": 0,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "A 正确：论文指出 dk 大时点积幅值变大，会把 softmax 推到梯度极小的区域，因此用 1/√dk 缩放。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "第 0 段复述论文理由，与选项 A 一致。"
+                    },
+                    {
+                      "reasoning": "softmax 后每行权重和恒为 1，与 √dk 无关，B 错。",
+                      "option_text": "除以 √dk 是为了让注意力权重之和恰好等于 √dk，便于后续归一化",
+                      "option_index": 1,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "B 错误：softmax 之后每行权重和恒为 1，与 √dk 无关。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 1 段指出行和恒为 1 与 √dk 无关，直接否定 B。"
+                    },
+                    {
+                      "reasoning": "缩放有明确数学动机，不是无理由的工程习惯，C 错。",
+                      "option_text": "不除也能训练，只是数值上更慢，除以 √dk 纯粹是工程习惯，没有数学理由",
+                      "option_index": 2,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "C 错误：缩放有明确动机（控制 softmax 输入幅值、避免梯度极小），不是无理由的习惯。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 2 段说明缩放动机明确，否定“没有数学理由”的说法。"
+                    },
+                    {
+                      "reasoning": "点积可正可负，缩放不改变符号；权重非负来自指数运算，D 错。",
+                      "option_text": "除以 √dk 是为了保证 Q 与 K 的点积恒为非负数，避免出现负权重",
+                      "option_index": 3,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "D 错误：点积本身可正可负，缩放不改变符号；权重非负来自 softmax 的指数运算，而不是缩放。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 3–4 段分别说明缩放不改变符号、非负来自 softmax 指数，批评准确。"
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 3,
+                  "explanation_valid": true,
+                  "independent_solution": "dk 大时点积方差为 dk、幅值变大，softmax 趋于 one-hot、梯度极小，除以 √dk 把幅值拉回合适范围，故 A 正确；B、C、D 均错。"
+                },
+                {
+                  "question_id": "q5-no-scaling-dk64",
+                  "option_checks": [
+                    {
+                      "reasoning": "标准差 8、softmax 接近 one-hot、梯度变小，全部正确。",
+                      "option_text": "约 8；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+                      "option_index": 0,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "点积是 dk 个乘积之和，每个乘积的方差为 1×1=1，故点积方差约为 dk=64，标准差约为 √64=8。A 正确：幅值约 8，远大于 1，softmax 的输入差距被放大，输出接近 one-hot，此时 softmax 的梯度极小，训练困难。",
+                      "independent_correct": true,
+                      "explanation_reasoning": "第 0 段推导方差 64、标准差 8，第 1 段说明幅值远大于 1 导致 one-hot 与梯度极小，与 A 一致。"
+                    },
+                    {
+                      "reasoning": "64 是方差而非标准差，B 错。",
+                      "option_text": "约 64；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+                      "option_index": 1,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "B 的 64 是方差而非标准差，混淆了两者。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 2 段准确指出 B 把方差当标准差。"
+                    },
+                    {
+                      "reasoning": "约 1 是缩放后的幅值，且“行为完全相同”与事实相反，C 错。",
+                      "option_text": "约 1；打分幅值不变，softmax 行为与缩放后完全相同",
+                      "option_index": 2,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "C 的“约 1”对应的是缩放后的幅值（8/√64=1），但题干问的是不缩放时的幅值，且“行为完全相同”与事实相反。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 3 段说明 1 对应缩放后幅值、题干问的是不缩放情形，并否定“行为相同”，成立。"
+                    },
+                    {
+                      "reasoning": "数值 8 对，但方向错：不缩放是幅值变大、softmax 更尖锐。",
+                      "option_text": "约 8；打分幅值变小，softmax 输出更平滑，梯度变大",
+                      "option_index": 3,
+                      "explanation_valid": true,
+                      "explanation_excerpt": "D 数值对但方向错：不缩放是幅值变大而非变小，softmax 会更尖锐而不是更平滑。",
+                      "independent_correct": false,
+                      "explanation_reasoning": "第 4 段承认数值对但指出方向错误，对部分正确的选项处理准确。"
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 4,
+                  "explanation_valid": true,
+                  "independent_solution": "点积方差为 dk=64，标准差 √64=8；不缩放时幅值约 8 远大于 1，softmax 接近 one-hot、梯度很小，故 A 正确；B 混淆方差与标准差，C、D 错。"
+                },
+                {
+                  "question_id": "q6-hand-calc-weights",
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 5,
+                  "explanation_valid": true,
+                  "independent_solution": "QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；逐行 softmax：第 1 行 0.4011/0.1978/0.4011，第 2 行 0.1978/0.4011/0.4011，第 3 行 0.24826/0.24826/0.50349，三位为 0.248/0.248/0.503，显示值之和 0.999 属舍入误差。与参考答案一致。"
+                },
+                {
+                  "question_id": "q7-hand-calc-output",
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 6,
+                  "explanation_valid": true,
+                  "independent_solution": "用缩放后权重对 V=[[1,0],[0,1],[1,1]] 加权：输出 1 = 0.4011×[1,0]+0.1978×[0,1]+0.4011×[1,1] = [0.8022,0.5989]→[0.80,0.60]；输出 2 = [0.5989,0.8022]→[0.60,0.80]；输出 3 = [0.7517,0.7517]→[0.75,0.75]。与参考答案一致。"
+                },
+                {
+                  "question_id": "q8-true-false-weights",
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 7,
+                  "explanation_valid": true,
+                  "independent_solution": "注意力权重由 Q·K 经缩放与 softmax 得到，Q/K 投影参数从数据学习，不是人工语法规则，故命题错误。"
+                },
+                {
+                  "question_id": "q9-true-false-rowsum",
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 8,
+                  "explanation_valid": true,
+                  "independent_solution": "softmax 沿每行归一，输出非负且行和为 1，每行构成概率分布；整个矩阵元素之和等于行数，故命题正确。"
+                }
+              ],
+              "preparation_checks": [
+                {
+                  "passed": true,
+                  "reason": "q6 解析末段确实给出未缩放 softmax([1,0,1]) 的完整精度值与三位值 [0.422,0.155,0.422]，并明确排除 [0.422,0.207,0.371]，与 req-fix-q6-unscaled-softmax 一致。",
+                  "locator": {
+                    "question_id": "q6-hand-calc-weights"
+                  },
+                  "binding_id": "req-fix-q6-unscaled-softmax",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q7 解析末段给出未缩放权重加权第一行 0.8446375965030364、0.5776812017484818，两位 [0.84,0.58]，并排除 [0.79,0.58]，与 req-fix-q7-unscaled-output 一致。",
+                  "locator": {
+                    "question_id": "q7-hand-calc-output"
+                  },
+                  "binding_id": "req-fix-q7-unscaled-output",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q6 答案与解析第 3 行权重为 [0.248,0.248,0.503]（完整精度 0.2482550782577231、0.2482550782577231、0.5034898434845538），并说明 0.999 为舍入误差、不得为凑 1 调整概率。",
+                  "locator": {
+                    "question_id": "q6-hand-calc-weights"
+                  },
+                  "binding_id": "req-fix-scaled-third-row",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q6 解析明确“全程用完整精度、最后才舍入”并禁止先舍入 0.5035 再二次舍入 0.504；q7 保留缩放输出第一行 [0.80,0.60]（0.8022241853595718、0.5988879073202141）与第三行 [0.75,0.75]（0.7517449217422769、0.7517449217422769）。",
+                  "locator": {
+                    "question_id": "q6-hand-calc-weights"
+                  },
+                  "binding_id": "req-rounding-from-full-precision",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "题目仍为 9 题，q1–q5、q8、q9 题干、选项、答案与解析未改动，q6/q7 的 id、题型、题干与顺序不变，仅修正答案与解析，未新增视频或报告。",
+                  "locator": {
+                    "question_id": "q1-qkv-roles"
+                  },
+                  "binding_id": "req-local-fix-scope",
+                  "binding_type": "requirement_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q1 直接考查 Q/K/V 三角色分工，支持 o1。",
+                  "locator": {
+                    "question_id": "q1-qkv-roles"
+                  },
+                  "binding_id": "n2-self-attention:o1",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q2 考查相似度计算与信息传递解耦，支持 o1 中“为何解耦”的部分。",
+                  "locator": {
+                    "question_id": "q2-decoupling"
+                  },
+                  "binding_id": "n2-self-attention:o1",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q3 逐项核对公式四步，支持 o2。",
+                  "locator": {
+                    "question_id": "q3-formula-steps"
+                  },
+                  "binding_id": "n2-self-attention:o2",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q4 考查除以 √dk 的原因与 softmax 梯度极小，支持 o3。",
+                  "locator": {
+                    "question_id": "q4-scaling-reason"
+                  },
+                  "binding_id": "n2-self-attention:o3",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q5 由 dk=64 推出标准差 8 并判断不缩放后果，支持 o3。",
+                  "locator": {
+                    "question_id": "q5-no-scaling-dk64"
+                  },
+                  "binding_id": "n2-self-attention:o3",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q6 要求手算打分、缩放与逐行 softmax 权重，正是 o4 的练习。",
+                  "locator": {
+                    "question_id": "q6-hand-calc-weights"
+                  },
+                  "binding_id": "n2-self-attention:o4",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q7 要求用权重对 V 加权求和并解释输出偏向，支持 o4。",
+                  "locator": {
+                    "question_id": "q7-hand-calc-output"
+                  },
+                  "binding_id": "n2-self-attention:o4",
+                  "binding_type": "objective_id"
+                },
+                {
+                  "passed": true,
+                  "reason": "q9 考查 softmax 逐行归一与行和为 1，支持 o2 中 softmax 步骤的理解。",
+                  "locator": {
+                    "question_id": "q9-true-false-rowsum"
+                  },
+                  "binding_id": "n2-self-attention:o2",
+                  "binding_type": "objective_id"
+                }
+              ]
+            },
+            "version": 1,
+            "decision": "pass",
+            "content_sha256": "87c72f8c3577546b43a132f08ad135d871ace3291d4bc324e8b6d0e1c2bd0e26"
+          }
+        ],
+        "version": 1,
+        "decision": "pass",
+        "suggestions": [
+          "q6 解析中“第 3 行完整精度之和为 1”可补一句“第 1、2 行同理”，使行和自查更完整。",
+          "q7 答案中输出 3 的算式写作 0.248×[1,0]+0.248×[0,1]+0.503×[1,1]，可注明这是三位显示值，与解析中的完整精度算式对应，避免读者误以为用显示值计算。"
+        ],
+        "resource_type": "quiz",
+        "content_sha256": "87c72f8c3577546b43a132f08ad135d871ace3291d4bc324e8b6d0e1c2bd0e26",
+        "question_checks": [
+          {
+            "question_id": "q1-qkv-roles",
+            "option_checks": [
+              {
+                "reasoning": "准确对应 Q/K/V 的角色分工，是唯一正确项。",
+                "option_text": "Query 表示“我想找什么”，Key 表示“我是什么”，Value 表示“我的内容”",
+                "option_index": 0,
+                "explanation_valid": true,
+                "explanation_excerpt": "A 正确：Query 是当前位置的查询意图，用来与其他位置的 Key 匹配；Key 是每个位置的特征标识，用来被检索；Value 是实际被加权求和传递出去的信息。",
+                "independent_correct": true,
+                "explanation_reasoning": "解析第 0–2 段分别说明 Query 用于匹配、Key 用于被检索、Value 被加权求和传递，与选项 A 表述一致。"
+              },
+              {
+                "reasoning": "把三者角色整体错位：Query 不是“我的内容”，Value 不是“我是什么”。",
+                "option_text": "Query 表示“我的内容”，Key 表示“我想找什么”，Value 表示“我是什么”",
+                "option_index": 1,
+                "explanation_valid": true,
+                "explanation_excerpt": "B 把三者角色整体错位：Value 不是“我是什么”而是“我的内容”，Query 也不是“我的内容”。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 3 段指出 B 把角色整体错位，并具体说明 Value 应为“我的内容”、Query 不是“我的内容”，批评成立。"
+              },
+              {
+                "reasoning": "把 Key 说成内容、Value 说成查询意图，与“Key 被检索、Value 被加权求和”的分工相反。",
+                "option_text": "Query 表示“我是什么”，Key 表示“我的内容”，Value 表示“我想找什么”",
+                "option_index": 2,
+                "explanation_valid": true,
+                "explanation_excerpt": "C 是另一种错位，把 Key 当成内容、Value 当成查询意图，与“Key 被 Query 检索、Value 被加权求和”的分工不符。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 4 段准确指出 C 的错位方向，理由与选项文字相符。"
+              },
+              {
+                "reasoning": "Q/K/V 由三组不同投影生成，数值一般不同，不是同一向量的副本。",
+                "option_text": "三者是同一个向量的三个副本，只是名字不同，数值完全一致",
+                "option_index": 3,
+                "explanation_valid": true,
+                "explanation_excerpt": "D 错误：三个向量由三组不同的线性变换生成，数值一般不同；若完全相同，就无法分别学习“该关注谁”和“关注后取什么信息”。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 5–6 段说明三组线性变换生成、数值不同，并给出“若相同则无法分别学习关注谁与取什么信息”的理由，成立。"
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 0,
+            "explanation_valid": true,
+            "independent_solution": "自注意力中 Q 是查询意图（我想找什么），K 是被检索的特征标识（我是什么），V 是实际被加权求和传递的内容（我的内容），三者由三组不同线性变换生成。故 A 正确。"
+          },
+          {
+            "question_id": "q2-decoupling",
+            "option_checks": [
+              {
+                "reasoning": "准确描述权重来源与内容来源分离、参数可分别学习。",
+                "option_text": "注意力权重由 Q 与 K 的点积决定，而被加权求和的内容来自 V，两组参数可以分别学习",
+                "option_index": 0,
+                "explanation_valid": true,
+                "explanation_excerpt": "A 正确：权重来自 Q·K 的相容性，输出是 V 的加权和，因此“该关注谁”和“关注后取什么信息”由不同的投影参数承担，可以分别学习。",
+                "independent_correct": true,
+                "explanation_reasoning": "第 0 段说明权重来自 Q·K、输出是 V 的加权和，由不同投影参数承担，与 A 一致。"
+              },
+              {
+                "reasoning": "前半句“V 不参与权重计算”正确，但“先算完相似度再统一决定用哪一组 V”错误，V 的投影是固定线性变换。",
+                "option_text": "先算完所有相似度，再统一决定用哪一组 V，因此 V 不参与权重计算",
+                "option_index": 1,
+                "explanation_valid": true,
+                "explanation_excerpt": "B 前半句“V 不参与权重计算”是对的，但“先算完相似度再统一决定用哪一组 V”不是解耦的含义，V 的投影是固定的线性变换，不存在事后挑选。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 1 段先承认前半句正确，再指出后半句不是解耦含义、不存在事后挑选，对选项的部分真部分假处理准确。"
+              },
+              {
+                "reasoning": "Q/K/V 由三组不同线性变换生成，并非同一权重矩阵，故 C 错。",
+                "option_text": "Q、K、V 必须由同一个权重矩阵生成，所以解耦只是概念上的说法",
+                "option_index": 2,
+                "explanation_valid": true,
+                "explanation_excerpt": "C 错误：Q、K、V 由三组不同的线性变换生成，这正是解耦能成立的前提。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 2 段指出三组不同线性变换正是解耦前提，直接否定 C 的前提。"
+              },
+              {
+                "reasoning": "权重是输入的函数，输入变则权重变；解耦指不同参数负责不同事，不是权重固定。",
+                "option_text": "解耦意味着注意力权重一旦算出就固定不变，不再随输入变化",
+                "option_index": 3,
+                "explanation_valid": true,
+                "explanation_excerpt": "D 错误：权重是输入的函数，输入变了权重就变；解耦说的是两件事由不同参数负责，不是权重固定。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 3–4 段说明权重随输入变化、解耦不等于权重固定，批评成立。"
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 1,
+            "explanation_valid": true,
+            "independent_solution": "解耦指权重由 Q·K 决定、被加权的内容来自 V，两组投影参数分别学习，故 A 正确；B 中“V 不参与权重计算”虽对，但“事后统一决定用哪组 V”不是解耦含义；C、D 均错。"
+          },
+          {
+            "question_id": "q3-formula-steps",
+            "option_checks": [
+              {
+                "reasoning": "QK^T 得到查询×键的打分矩阵，正确。",
+                "option_text": "QK^T 得到每个查询与所有键的点积，构成相似度打分矩阵",
+                "option_index": 0,
+                "explanation_valid": true,
+                "explanation_excerpt": "A 正确：Q 的每一行与 K^T 的每一列做点积，得到“查询×键”的打分矩阵。",
+                "independent_correct": true,
+                "explanation_reasoning": "第 0 段说明 Q 行与 K^T 列做点积得打分矩阵，与选项一致。"
+              },
+              {
+                "reasoning": "缩放发生在 softmax 之前，把点积幅值压小，正确。",
+                "option_text": "除以 √dk 是为了在 softmax 之前把打分幅值压小",
+                "option_index": 1,
+                "explanation_valid": true,
+                "explanation_excerpt": "B 正确：缩放发生在 softmax 之前，作用是把点积幅值压小。",
+                "independent_correct": true,
+                "explanation_reasoning": "第 1 段指出缩放位于 softmax 之前、作用是压小幅值，准确。"
+              },
+              {
+                "reasoning": "softmax 沿每行归一，输出非负且行和为 1，正确。",
+                "option_text": "softmax 按行把打分变成非负且每行和为 1 的权重",
+                "option_index": 2,
+                "explanation_valid": true,
+                "explanation_excerpt": "C 正确：softmax 沿每一行（同一个查询对所有键）归一化，输出非负且行和为 1。",
+                "independent_correct": true,
+                "explanation_reasoning": "第 2 段说明沿同一查询对所有键归一、非负且行和为 1，成立。"
+              },
+              {
+                "reasoning": "权重矩阵乘 V 即对 Value 加权求和，正确。",
+                "option_text": "最后与 V 相乘，是用权重对 Value 做加权求和",
+                "option_index": 3,
+                "explanation_valid": true,
+                "explanation_excerpt": "D 正确：权重矩阵乘 V 就是每个查询位置上对 Value 的加权求和。",
+                "independent_correct": true,
+                "explanation_reasoning": "第 3 段说明权重乘 V 是每个查询位置对 Value 的加权求和，准确。"
+              },
+              {
+                "reasoning": "V 是原始内容向量，直接参与加权求和，不需要先 softmax。",
+                "option_text": "公式中的 V 必须先经过 softmax 才能参与加权求和",
+                "option_index": 4,
+                "explanation_valid": true,
+                "explanation_excerpt": "E 错误：softmax 只作用在打分上，V 是原始内容向量，直接参与加权求和；对 V 再做 softmax 会破坏“加权和”的含义。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 4–5 段指出 softmax 只作用于打分、对 V 再做 softmax 会破坏加权和含义，理由成立。"
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 2,
+            "explanation_valid": true,
+            "independent_solution": "公式四步：QK^T 打分、除以 √dk 缩放、逐行 softmax 归一、乘 V 加权求和，A–D 均正确；E 错，softmax 只作用于打分，V 直接参与加权求和。答案 A,B,C,D。"
+          },
+          {
+            "question_id": "q4-scaling-reason",
+            "option_checks": [
+              {
+                "reasoning": "准确给出缩放动机：控制 softmax 输入幅值、避免梯度极小。",
+                "option_text": "dk 较大时点积幅值变大，softmax 会被推入梯度极小的区域，除以 √dk 可把幅值拉回合适范围",
+                "option_index": 0,
+                "explanation_valid": true,
+                "explanation_excerpt": "A 正确：论文指出 dk 大时点积幅值变大，会把 softmax 推到梯度极小的区域，因此用 1/√dk 缩放。",
+                "independent_correct": true,
+                "explanation_reasoning": "第 0 段复述论文理由，与选项 A 一致。"
+              },
+              {
+                "reasoning": "softmax 后每行权重和恒为 1，与 √dk 无关，B 错。",
+                "option_text": "除以 √dk 是为了让注意力权重之和恰好等于 √dk，便于后续归一化",
+                "option_index": 1,
+                "explanation_valid": true,
+                "explanation_excerpt": "B 错误：softmax 之后每行权重和恒为 1，与 √dk 无关。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 1 段指出行和恒为 1 与 √dk 无关，直接否定 B。"
+              },
+              {
+                "reasoning": "缩放有明确数学动机，不是无理由的工程习惯，C 错。",
+                "option_text": "不除也能训练，只是数值上更慢，除以 √dk 纯粹是工程习惯，没有数学理由",
+                "option_index": 2,
+                "explanation_valid": true,
+                "explanation_excerpt": "C 错误：缩放有明确动机（控制 softmax 输入幅值、避免梯度极小），不是无理由的习惯。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 2 段说明缩放动机明确，否定“没有数学理由”的说法。"
+              },
+              {
+                "reasoning": "点积可正可负，缩放不改变符号；权重非负来自指数运算，D 错。",
+                "option_text": "除以 √dk 是为了保证 Q 与 K 的点积恒为非负数，避免出现负权重",
+                "option_index": 3,
+                "explanation_valid": true,
+                "explanation_excerpt": "D 错误：点积本身可正可负，缩放不改变符号；权重非负来自 softmax 的指数运算，而不是缩放。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 3–4 段分别说明缩放不改变符号、非负来自 softmax 指数，批评准确。"
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 3,
+            "explanation_valid": true,
+            "independent_solution": "dk 大时点积方差为 dk、幅值变大，softmax 趋于 one-hot、梯度极小，除以 √dk 把幅值拉回合适范围，故 A 正确；B、C、D 均错。"
+          },
+          {
+            "question_id": "q5-no-scaling-dk64",
+            "option_checks": [
+              {
+                "reasoning": "标准差 8、softmax 接近 one-hot、梯度变小，全部正确。",
+                "option_text": "约 8；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+                "option_index": 0,
+                "explanation_valid": true,
+                "explanation_excerpt": "点积是 dk 个乘积之和，每个乘积的方差为 1×1=1，故点积方差约为 dk=64，标准差约为 √64=8。A 正确：幅值约 8，远大于 1，softmax 的输入差距被放大，输出接近 one-hot，此时 softmax 的梯度极小，训练困难。",
+                "independent_correct": true,
+                "explanation_reasoning": "第 0 段推导方差 64、标准差 8，第 1 段说明幅值远大于 1 导致 one-hot 与梯度极小，与 A 一致。"
+              },
+              {
+                "reasoning": "64 是方差而非标准差，B 错。",
+                "option_text": "约 64；打分幅值远大于 1，softmax 输出接近 one-hot，梯度变得很小",
+                "option_index": 1,
+                "explanation_valid": true,
+                "explanation_excerpt": "B 的 64 是方差而非标准差，混淆了两者。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 2 段准确指出 B 把方差当标准差。"
+              },
+              {
+                "reasoning": "约 1 是缩放后的幅值，且“行为完全相同”与事实相反，C 错。",
+                "option_text": "约 1；打分幅值不变，softmax 行为与缩放后完全相同",
+                "option_index": 2,
+                "explanation_valid": true,
+                "explanation_excerpt": "C 的“约 1”对应的是缩放后的幅值（8/√64=1），但题干问的是不缩放时的幅值，且“行为完全相同”与事实相反。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 3 段说明 1 对应缩放后幅值、题干问的是不缩放情形，并否定“行为相同”，成立。"
+              },
+              {
+                "reasoning": "数值 8 对，但方向错：不缩放是幅值变大、softmax 更尖锐。",
+                "option_text": "约 8；打分幅值变小，softmax 输出更平滑，梯度变大",
+                "option_index": 3,
+                "explanation_valid": true,
+                "explanation_excerpt": "D 数值对但方向错：不缩放是幅值变大而非变小，softmax 会更尖锐而不是更平滑。",
+                "independent_correct": false,
+                "explanation_reasoning": "第 4 段承认数值对但指出方向错误，对部分正确的选项处理准确。"
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 4,
+            "explanation_valid": true,
+            "independent_solution": "点积方差为 dk=64，标准差 √64=8；不缩放时幅值约 8 远大于 1，softmax 接近 one-hot、梯度很小，故 A 正确；B 混淆方差与标准差，C、D 错。"
+          },
+          {
+            "question_id": "q6-hand-calc-weights",
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 5,
+            "explanation_valid": true,
+            "independent_solution": "QK^T=[[1,0,1],[0,1,1],[1,1,2]]，除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；逐行 softmax：第 1 行 0.4011/0.1978/0.4011，第 2 行 0.1978/0.4011/0.4011，第 3 行 0.24826/0.24826/0.50349，三位为 0.248/0.248/0.503，显示值之和 0.999 属舍入误差。与参考答案一致。"
+          },
+          {
+            "question_id": "q7-hand-calc-output",
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 6,
+            "explanation_valid": true,
+            "independent_solution": "用缩放后权重对 V=[[1,0],[0,1],[1,1]] 加权：输出 1 = 0.4011×[1,0]+0.1978×[0,1]+0.4011×[1,1] = [0.8022,0.5989]→[0.80,0.60]；输出 2 = [0.5989,0.8022]→[0.60,0.80]；输出 3 = [0.7517,0.7517]→[0.75,0.75]。与参考答案一致。"
+          },
+          {
+            "question_id": "q8-true-false-weights",
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 7,
+            "explanation_valid": true,
+            "independent_solution": "注意力权重由 Q·K 经缩放与 softmax 得到，Q/K 投影参数从数据学习，不是人工语法规则，故命题错误。"
+          },
+          {
+            "question_id": "q9-true-false-rowsum",
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 8,
+            "explanation_valid": true,
+            "independent_solution": "softmax 沿每行归一，输出非负且行和为 1，每行构成概率分布；整个矩阵元素之和等于行数，故命题正确。"
+          }
+        ],
+        "preparation_checks": [
+          {
+            "passed": true,
+            "reason": "q6 解析末段确实给出未缩放 softmax([1,0,1]) 的完整精度值与三位值 [0.422,0.155,0.422]，并明确排除 [0.422,0.207,0.371]，与 req-fix-q6-unscaled-softmax 一致。",
+            "locator": {
+              "question_id": "q6-hand-calc-weights"
+            },
+            "binding_id": "req-fix-q6-unscaled-softmax",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "q7 解析末段给出未缩放权重加权第一行 0.8446375965030364、0.5776812017484818，两位 [0.84,0.58]，并排除 [0.79,0.58]，与 req-fix-q7-unscaled-output 一致。",
+            "locator": {
+              "question_id": "q7-hand-calc-output"
+            },
+            "binding_id": "req-fix-q7-unscaled-output",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "q6 答案与解析第 3 行权重为 [0.248,0.248,0.503]（完整精度 0.2482550782577231、0.2482550782577231、0.5034898434845538），并说明 0.999 为舍入误差、不得为凑 1 调整概率。",
+            "locator": {
+              "question_id": "q6-hand-calc-weights"
+            },
+            "binding_id": "req-fix-scaled-third-row",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "q6 解析明确“全程用完整精度、最后才舍入”并禁止先舍入 0.5035 再二次舍入 0.504；q7 保留缩放输出第一行 [0.80,0.60]（0.8022241853595718、0.5988879073202141）与第三行 [0.75,0.75]（0.7517449217422769、0.7517449217422769）。",
+            "locator": {
+              "question_id": "q6-hand-calc-weights"
+            },
+            "binding_id": "req-rounding-from-full-precision",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "题目仍为 9 题，q1–q5、q8、q9 题干、选项、答案与解析未改动，q6/q7 的 id、题型、题干与顺序不变，仅修正答案与解析，未新增视频或报告。",
+            "locator": {
+              "question_id": "q1-qkv-roles"
+            },
+            "binding_id": "req-local-fix-scope",
+            "binding_type": "requirement_id"
+          },
+          {
+            "passed": true,
+            "reason": "q1 直接考查 Q/K/V 三角色分工，支持 o1。",
+            "locator": {
+              "question_id": "q1-qkv-roles"
+            },
+            "binding_id": "n2-self-attention:o1",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q2 考查相似度计算与信息传递解耦，支持 o1 中“为何解耦”的部分。",
+            "locator": {
+              "question_id": "q2-decoupling"
+            },
+            "binding_id": "n2-self-attention:o1",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q3 逐项核对公式四步，支持 o2。",
+            "locator": {
+              "question_id": "q3-formula-steps"
+            },
+            "binding_id": "n2-self-attention:o2",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q4 考查除以 √dk 的原因与 softmax 梯度极小，支持 o3。",
+            "locator": {
+              "question_id": "q4-scaling-reason"
+            },
+            "binding_id": "n2-self-attention:o3",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q5 由 dk=64 推出标准差 8 并判断不缩放后果，支持 o3。",
+            "locator": {
+              "question_id": "q5-no-scaling-dk64"
+            },
+            "binding_id": "n2-self-attention:o3",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q6 要求手算打分、缩放与逐行 softmax 权重，正是 o4 的练习。",
+            "locator": {
+              "question_id": "q6-hand-calc-weights"
+            },
+            "binding_id": "n2-self-attention:o4",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q7 要求用权重对 V 加权求和并解释输出偏向，支持 o4。",
+            "locator": {
+              "question_id": "q7-hand-calc-output"
+            },
+            "binding_id": "n2-self-attention:o4",
+            "binding_type": "objective_id"
+          },
+          {
+            "passed": true,
+            "reason": "q9 考查 softmax 逐行归一与行和为 1，支持 o2 中 softmax 步骤的理解。",
+            "locator": {
+              "question_id": "q9-true-false-rowsum"
+            },
+            "binding_id": "n2-self-attention:o2",
+            "binding_type": "objective_id"
+          }
+        ],
+        "preparation_sha256": "3792540f298ff5f8622a69b23042f3e37efdafa2ccd1e774376f3b477dd903ca",
+        "option_binding_version": 1
+      }
+    }
+  },
+  "learning_course_resource": true
+}

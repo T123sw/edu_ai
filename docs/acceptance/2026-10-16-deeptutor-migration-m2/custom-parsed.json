@@ -1,0 +1,12 @@
+[
+  {
+    "document_id": "context",
+    "role": "context",
+    "filename": "sorting.md",
+    "source_hash": "1696aedadd826c9eeb2b8a3388e688b05f9a91d56c8fa5e6488ccb446529c17a",
+    "parser": "utf8-text-v1",
+    "content": "Quick sort chooses a pivot and partitions the sequence, then recursively sorts the partitions. Its average time complexity is O(n log n), while worst case is O(n squared). Merge sort divides the sequence and merges sorted halves. It is stable and uses O(n) auxiliary space.",
+    "content_list": [],
+    "images": {}
+  }
+]

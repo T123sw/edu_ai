@@ -1,0 +1,15 @@
+{
+  "backend/src/app/pbl/project_service.py": "218f8a86a393fce75954a0361ead69935fe035b43ed591af45369c81eea1ab0b",
+  "backend/src/app/pbl/project_generator.py": "67618f94ea055dcf6194ebeaf1ca5fda3c621ff02b2ae60ea387f05ce54c904b",
+  "backend/src/app/pbl/project_workflow.py": "c85064c2b09d015148b7d8d92e58051f64e6828d8449027ef53b4b8aa38e116b",
+  "backend/src/tests/pbl/test_previous_regression.py": "b62756d8af4e54a1961fbebd1d174568a9b4185b9a4730ea28c643f5b7806c77",
+  "backend/src/tests/pbl/test_project_workflow.py": "8bed22e963a8024f244516d71bf85e2af5fc7ca2ddcfaac6609d011354ae1e34",
+  "backend/src/tests/pbl/test_split_acceptance.py": "5de9b0516e973ae7a1899ce8cf2d2518dcacb59ed02b736d3c40b675e3ac303a",
+  "backend/src/tests/pbl/test_statement_generation.py": "c91cd8fc98611fd49ed31496fd6c8eab9f4d7ce5b194c2d2e364f48c9230a7cd",
+  "backend/src/app/pbl/skills/build-pbl-project-v2/SKILL.md": "b829387d133f504eec81b779a0653b0a6da751179e019cc8ed0d1215b32697d2",
+  "backend/src/app/pbl/skills/build-pbl-project-v2/references/step-unit.md": "4d9005d7420b355e0caee42073d769ce717d0107d34e48bde3cfde09b74fb0c2",
+  "backend/src/app/pbl/skills/build-pbl-project-v2/references/planning.md": "98f536867ddfb0f6756122000b42143d6edb69d9e12c6dd24d4a2007c1f6c36a",
+  "backend/src/app/pbl/skills/build-pbl-project-v2/references/verification.md": "1c3ffec91fe1c2240b661a202615af61a125e3770935cb909841968fb7b4f1cb",
+  "backend/src/app/pbl/skills/build-pbl-project-v2/references/integration.md": "be011061f0bf7b31b62eee1b47b77acd262c25434b582e05fceaf592605a0894",
+  "backend/src/app/pbl/skills/build-pbl-project-v2/references/acceptance.md": "d3a5561eeb3e2002b110afc60bcccc22ec0ea5bf167ab6ad9a110922986c065d"
+}

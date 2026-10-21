@@ -1,0 +1,9 @@
+{
+  "phase": "plan",
+  "data": {
+    "topic": "用 Node.js Express 做商品库存 API 后端，不需要前端。GET /products，POST /products，POST /products/:id/stock 调整库存；不能出现负库存，未知商品404，非法数量400。用JSON文件持久化，实际启动服务并用HTTP调用验收，不要改成React页面或模拟接口。",
+    "issues": [],
+    "priorPlan": null
+  },
+  "startedAt": 1792229082.1549869
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "width": 1440,
+    "columns": 8,
+    "align": [
+      "left",
+      "center",
+      "right"
+    ],
+    "lastCell": "完整末列",
+    "canScroll": false,
+    "scrolled": false,
+    "overflow": false,
+    "boldWeight": "700",
+    "code": "print(42)",
+    "quoteBorder": "3px"
+  },
+  {
+    "width": 390,
+    "columns": 8,
+    "align": [
+      "left",
+      "center",
+      "right"
+    ],
+    "lastCell": "完整末列",
+    "canScroll": true,
+    "scrolled": true,
+    "overflow": false,
+    "boldWeight": "700",
+    "code": "print(42)",
+    "quoteBorder": "3px"
+  }
+]

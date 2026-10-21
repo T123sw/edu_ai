@@ -1,0 +1,334 @@
+{
+  "generationRules": "All unpublished topics use one model-planned local React pipeline; no topic keyword routing, preset project controls, step count or mandatory viewport pair.",
+  "legacyCompatibility": "Existing published v1 artifacts retain their runtime, checks and workspaces; retired quicksort generation is removed.",
+  "runtimeBoundary": "Local React App.jsx/styles.css; no backend, external APIs or extra dependencies. Unsupported delivery formats must be rejected rather than silently substituted.",
+  "modelCallBaseline": "One plan + one existing plan review + one build per step. Existing bounded repair calls only; no new review phase.",
+  "repairChanges": [
+    "Reject missing requirement coverage with explicit IDs",
+    "Pass rejected complete candidates and current check contracts to repairs",
+    "Preserve schema-invalid model output privately for repair",
+    "Support standard browser ARIA roles, including lists and tables"
+  ],
+  "realModelAttempts": {
+    "form": {
+      "passed": true,
+      "stepCount": 1,
+      "steps": [
+        "完成活动报名表单的提交与反馈"
+      ],
+      "evidence": [
+        {
+          "stepId": "signup-form",
+          "reference": {
+            "passed": true,
+            "caseStatuses": {
+              "input-and-button-present": "passed",
+              "empty-name-shows-error": "passed",
+              "valid-name-shows-success": "passed",
+              "trimmed-name-in-success": "passed"
+            }
+          },
+          "previous": {
+            "passed": false,
+            "caseStatuses": {
+              "input-and-button-present": "failed",
+              "empty-name-shows-error": "failed",
+              "valid-name-shows-success": "failed",
+              "trimmed-name-in-success": "failed"
+            }
+          },
+          "faulty": {
+            "passed": false,
+            "caseStatuses": {
+              "trimmed-name-in-success": "failed"
+            }
+          }
+        }
+      ],
+      "topic": "做一个活动报名表，只在当前网页演示，不联网、不保存。填写姓名后提交，空白姓名提示“请输入姓名”，填写后提交显示“报名成功：”加去掉首尾空格的姓名。只做一个完整的交互步骤，我已经会页面布局。",
+      "modelCalls": [
+        "plan",
+        "review_plan",
+        "build_step"
+      ],
+      "elapsedSeconds": 29.17,
+      "productionDataModified": false
+    },
+    "form-release": {
+      "passed": true,
+      "stepCount": 1,
+      "steps": [
+        "完成报名表单的提交与反馈"
+      ],
+      "evidence": [
+        {
+          "stepId": "signup-form",
+          "reference": {
+            "passed": true,
+            "caseStatuses": {
+              "input-visible": "passed",
+              "submit-visible": "passed",
+              "empty-name-error": "passed",
+              "success-message": "passed"
+            }
+          },
+          "previous": {
+            "passed": false,
+            "caseStatuses": {
+              "input-visible": "failed",
+              "submit-visible": "failed",
+              "empty-name-error": "failed",
+              "success-message": "failed"
+            }
+          },
+          "faulty": {
+            "passed": false,
+            "caseStatuses": {
+              "success-message": "failed"
+            }
+          }
+        }
+      ],
+      "topic": "做一个活动报名表，只在当前网页演示，不联网、不保存。填写姓名后提交，空白姓名提示“请输入姓名”，填写后提交显示“报名成功：”加去掉首尾空格的姓名。只做一个完整的交互步骤，我已经会页面布局。",
+      "modelCalls": [
+        "plan",
+        "review_plan",
+        "build_step"
+      ],
+      "elapsedSeconds": 27.42,
+      "productionDataModified": false
+    },
+    "reading": {
+      "passed": false,
+      "errorType": "DurableTaskExecutionError",
+      "error": "项目计划经过修复仍未通过检查",
+      "topic": "做一个长文章阅读页，只需一个界面步骤。页面有文章标题“认识森林”、简介和八个小节，每节有标题及至少一段正文；内容允许正常纵向滚动。请自定文章内容并在题面说明必要文字。页面主标题应位于简介上方，按桌面窗口验收。无需按钮、表单或其他交互，不需要手机专项验收。",
+      "modelCalls": [
+        "plan",
+        "plan",
+        "plan"
+      ],
+      "elapsedSeconds": 10.5,
+      "productionDataModified": false
+    },
+    "reading-final": {
+      "passed": true,
+      "stepCount": 1,
+      "steps": [
+        "搭建长文章阅读页"
+      ],
+      "evidence": [
+        {
+          "stepId": "article-page",
+          "reference": {
+            "passed": true,
+            "caseStatuses": {
+              "title-visible": "passed",
+              "title-above-intro": "passed",
+              "intro-visible": "passed",
+              "section-count": "passed",
+              "section-headings": "passed",
+              "section-paragraphs": "passed",
+              "scroll-to-last": "passed"
+            }
+          },
+          "previous": {
+            "passed": false,
+            "caseStatuses": {
+              "title-visible": "failed",
+              "title-above-intro": "failed",
+              "intro-visible": "failed",
+              "section-count": "failed",
+              "section-headings": "failed",
+              "section-paragraphs": "failed",
+              "scroll-to-last": "failed"
+            }
+          },
+          "faulty": {
+            "passed": false,
+            "caseStatuses": {
+              "section-count": "failed"
+            }
+          }
+        }
+      ],
+      "topic": "做一个长文章阅读页，只需一个界面步骤。页面有文章标题“认识森林”、简介和八个小节，每节有标题及至少一段正文；内容允许正常纵向滚动。请自定文章内容并在题面说明必要文字。页面主标题应位于简介上方，按桌面窗口验收。无需按钮、表单或其他交互，不需要手机专项验收。",
+      "modelCalls": [
+        "plan",
+        "review_plan",
+        "build_step",
+        "repair_step"
+      ],
+      "elapsedSeconds": 72.19,
+      "productionDataModified": false
+    },
+    "reading-retry": {
+      "passed": false,
+      "errorType": "DurableTaskExecutionError",
+      "error": "项目计划经过修复仍未通过检查",
+      "topic": "做一个长文章阅读页，只需一个界面步骤。页面有文章标题“认识森林”、简介和八个小节，每节有标题及至少一段正文；内容允许正常纵向滚动。请自定文章内容并在题面说明必要文字。页面主标题应位于简介上方，按桌面窗口验收。无需按钮、表单或其他交互，不需要手机专项验收。",
+      "modelCalls": [
+        "plan",
+        "plan",
+        "plan"
+      ],
+      "elapsedSeconds": 10.51,
+      "productionDataModified": false
+    },
+    "reading-verified": {
+      "passed": true,
+      "stepCount": 1,
+      "steps": [
+        "搭建长文章阅读页"
+      ],
+      "evidence": [
+        {
+          "stepId": "article-page",
+          "reference": {
+            "passed": true,
+            "caseStatuses": {
+              "title-visible": "passed",
+              "intro-visible": "passed",
+              "title-above-intro": "passed",
+              "section-count": "passed",
+              "scroll-to-last-section": "passed"
+            }
+          },
+          "previous": {
+            "passed": false,
+            "caseStatuses": {
+              "title-visible": "failed",
+              "intro-visible": "failed",
+              "title-above-intro": "failed",
+              "section-count": "failed",
+              "scroll-to-last-section": "failed"
+            }
+          },
+          "faulty": {
+            "passed": false,
+            "caseStatuses": {
+              "title-above-intro": "failed"
+            }
+          }
+        }
+      ],
+      "topic": "做一个长文章阅读页，只需一个界面步骤。页面有文章标题“认识森林”、简介和八个小节，每节有标题及至少一段正文；内容允许正常纵向滚动。请自定文章内容并在题面说明必要文字。页面主标题应位于简介上方，按桌面窗口验收。无需按钮、表单或其他交互，不需要手机专项验收。",
+      "modelCalls": [
+        "plan",
+        "review_plan",
+        "plan",
+        "plan",
+        "review_plan",
+        "build_step"
+      ],
+      "elapsedSeconds": 43.53,
+      "productionDataModified": false
+    },
+    "todo": {
+      "passed": false,
+      "errorType": "DurableTaskExecutionError",
+      "error": "项目步骤经过修复仍未通过运行检查，请重试",
+      "topic": "做一个本地待办清单，练习 React 状态：可以输入事项并添加到列表，勾选完成后文字显示“已完成”，可以删除事项；空白输入不允许添加。不要后端、持久化、分类或统计。我已经会基本 JSX，希望按合理的功能增量学习。",
+      "modelCalls": [
+        "plan",
+        "review_plan",
+        "plan",
+        "plan",
+        "review_plan",
+        "build_step",
+        "build_step",
+        "build_step",
+        "build_step",
+        "repair_step",
+        "repair_step"
+      ],
+      "elapsedSeconds": 108.33,
+      "productionDataModified": false
+    },
+    "todo-current": {
+      "passed": false,
+      "errorType": "DurableTaskExecutionError",
+      "error": "项目步骤经过修复仍未通过运行检查，请重试",
+      "topic": "做一个本地待办清单，练习 React 状态：可以输入事项并添加到列表，勾选完成后文字显示“已完成”，可以删除事项；空白输入不允许添加。不要后端、持久化、分类或统计。我已经会基本 JSX，希望按合理的功能增量学习。",
+      "modelCalls": [
+        "plan",
+        "review_plan",
+        "build_step",
+        "repair_step",
+        "repair_step"
+      ],
+      "elapsedSeconds": 25.65,
+      "productionDataModified": false
+    },
+    "todo-final": {
+      "passed": false,
+      "errorType": "DurableTaskExecutionError",
+      "error": "项目步骤经过修复仍未通过运行检查，请重试",
+      "topic": "做一个本地待办清单，练习 React 状态：可以输入事项并添加到列表，勾选完成后文字显示“已完成”，可以删除事项；空白输入不允许添加。不要后端、持久化、分类或统计。我已经会基本 JSX，希望按合理的功能增量学习。",
+      "modelCalls": [
+        "plan",
+        "review_plan",
+        "build_step",
+        "repair_step",
+        "repair_step"
+      ],
+      "elapsedSeconds": 26.54,
+      "productionDataModified": false
+    },
+    "todo-release": {
+      "passed": false,
+      "errorType": "DurableTaskExecutionError",
+      "error": "项目计划经过修复仍未通过检查",
+      "topic": "做一个本地待办清单，练习 React 状态：可以输入事项并添加到列表，勾选完成后文字显示“已完成”，可以删除事项；空白输入不允许添加。不要后端、持久化、分类或统计。我已经会基本 JSX，希望按合理的功能增量学习。",
+      "modelCalls": [
+        "plan",
+        "review_plan",
+        "plan",
+        "plan",
+        "review_plan"
+      ],
+      "elapsedSeconds": 22.59,
+      "productionDataModified": false
+    },
+    "todo-roles": {
+      "passed": false,
+      "errorType": "DurableTaskExecutionError",
+      "error": "项目步骤经过修复仍未通过运行检查，请重试",
+      "topic": "做一个本地待办清单，练习 React 状态：可以输入事项并添加到列表，勾选完成后文字显示“已完成”，可以删除事项；空白输入不允许添加。不要后端、持久化、分类或统计。我已经会基本 JSX，希望按合理的功能增量学习。",
+      "modelCalls": [
+        "plan",
+        "review_plan",
+        "build_step",
+        "repair_step",
+        "repair_step"
+      ],
+      "elapsedSeconds": 54.04,
+      "productionDataModified": false
+    },
+    "todo-verified": {
+      "passed": false,
+      "errorType": "DurableTaskExecutionError",
+      "error": "项目步骤经过修复仍未通过运行检查，请重试",
+      "topic": "做一个本地待办清单，练习 React 状态：可以输入事项并添加到列表，勾选完成后文字显示“已完成”，可以删除事项；空白输入不允许添加。不要后端、持久化、分类或统计。我已经会基本 JSX，希望按合理的功能增量学习。",
+      "modelCalls": [
+        "plan",
+        "review_plan",
+        "build_step",
+        "build_step",
+        "build_step",
+        "build_step",
+        "repair_step",
+        "repair_step"
+      ],
+      "elapsedSeconds": 112.51,
+      "productionDataModified": false
+    }
+  },
+  "knownLimitations": [
+    "Successful runtime checks prove the generated checks pass, not that every label faithfully captures every natural-language requirement.",
+    "Reading examples exposed weak semantic coverage: group totals do not prove every section has content; a visible element does not prove nonempty text. Generic prompt guidance was tightened, but this does not constitute a semantic correctness guarantee.",
+    "The multi-step todo example repeatedly failed plan or cumulative execution validation. No failed candidate was published. Latest attempt confused the list container count with the list item count; no todo-specific rule was introduced."
+  ],
+  "productionDataModified": false,
+  "privateEvidenceRoot": "/tmp/edu-pbl-generic-real"
+}

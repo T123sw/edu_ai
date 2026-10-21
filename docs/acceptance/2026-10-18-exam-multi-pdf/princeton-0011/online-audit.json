@@ -1,0 +1,178 @@
+{
+  "observed_at": 1792302935.8747883,
+  "tag": "多PDF验收 princeton-0011 1792301266178",
+  "generations": [
+    {
+      "generation_id": "examgen_6422602b0fbfb736dba9385287ecc8e1",
+      "job_id": "examgen_6422602b0fbfb736dba9385287ecc8e1",
+      "turn": {
+        "id": "turn_1792301349858_0f0b3c1e20",
+        "status": "cancelled",
+        "failure_code": "",
+        "created_at": 1792301350.0924215,
+        "updated_at": 1792301814.2775517
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 13780,
+          "layout_blocks": 175,
+          "images": 49
+        }
+      ],
+      "blueprint_count": 9,
+      "local_events": 54317,
+      "upstream_events": 54315,
+      "done_received": true,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 43,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 26,
+          "deepseek-v4-flash": 17
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_23c5f8dde8291646878a023d8d7e238f",
+      "job_id": "job_6e568749d707445f",
+      "turn": {
+        "id": "turn_1792301939772_a79b087eb5",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792301939.88909,
+        "updated_at": 1792302549.4400039
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 13780,
+          "layout_blocks": 175,
+          "images": 49
+        }
+      ],
+      "blueprint_count": 9,
+      "local_events": 68968,
+      "upstream_events": 68968,
+      "done_received": true,
+      "summary": {
+        "failed": 6,
+        "success": false,
+        "completed": 3,
+        "requested": 9,
+        "template_count": 9
+      },
+      "failed_questions": [
+        {
+          "ordinal": 1,
+          "issues": [
+            "missing_question",
+            "missing_correct_answer",
+            "missing_explanation",
+            "subquestion_count_mismatch"
+          ]
+        },
+        {
+          "ordinal": 4,
+          "issues": [
+            "independent_calculation_failed",
+            "calculation_unverified: (4*n)*(4*n-1)/2: unknown variable: n",
+            "calculation_unverified: n + (2*n*n + n*(2*n+1)) + n: unknown variable: n",
+            "calculation_unverified: 4*n + 2*n: unknown variable: n",
+            "Solver statement (must be checked, not blindly copied): 数组长度为 4n，结构为 B^n A^{2n} B^n，n 为 2 的幂。以下按教科书标准实现分析。\n\n(a) q_546430adafa1877ee9b3：选择排序对任意输入都恰好进行 (4n)(4n-1)/2 = 8n^2 - 2n 次比较，约为 8n^2。选 E。\n\n(b) q_08384b366910eef68ef4：标准插入排序中，前 n 个 B 已有序，每个只需 1 次比较，共 n 次。随后 2n 个 A 依次要越过前面所有 B：第 k 个 A 需要与 n 个 B 比较并再比较一次以确认到达开头，比较次数为 n+1, n+2, …, n+2n，合计 2n·n + (1+2+…+2n) = 2n^2 + n(2n+1) = 4n^2 + n。最后 n 个 B 每个只需与紧邻的 A 比较 1 次，共 n 次。总计 4n^2 + 2n，约为 4n^2。选 D。\n\n(c) q_01ff9a1ce3b098df96eb：3 路快速排序以首元素 B 为枢轴。第一轮扫描 4n 个元素，分成 B（n 个）、A（2n 个）、B（n 个），比较约 4n 次；随后只递归处理 A 段（2n 个相同元素），比较约 2n 次；之后各段至多 1 个元素。总比较次数约为 6n。选 B。",
+            "Executed calculator evidence: []"
+          ]
+        },
+        {
+          "ordinal": 5,
+          "issues": [
+            "q_90bc0b3ec28f713bc343:choice_option_keys_mismatch",
+            "q_5a8db87dea26265ce0a1:choice_option_keys_mismatch",
+            "q_d4d5a5b99824e2fd201a:choice_option_keys_mismatch",
+            "q_0b50345dedbfb20df2a1:choice_option_keys_mismatch"
+          ]
+        },
+        {
+          "ordinal": 6,
+          "issues": [
+            "answer_valid",
+            "requirements_met",
+            "子题(a)红黑树查找的最小比较次数应为 Θ(1)（命中根节点），候选填 C（~log₂ n）错误。",
+            "子题(c)2–3 树插入最坏情况每层 2 次比较、高度 ~log₃ n，应为 ~2log₃ n（选项 D），候选填 E（~2log₂ n）与选项集合不符。",
+            "候选解释中称 2–3 树最坏“按选项中最接近的上界 ~2log₂ n 对应 E”，属于用错误选项迁就结论，推导不成立。",
+            "候选对红黑树高度下界引用 log₂(n+1) ≤ h+1，但据此不能推出查找最小值为 Θ(log n)；最佳情况命中根仅 1 次比较。",
+            "Independent solution to check against the question: 本题为概念性复杂度分析，无固定输入规模，不需要代入具体 n 计算。逐项分析如下。\n\n(a) q_26efa1c5c60f1aa9ce49：红黑树高度为 O(log n)，且任何含 n 个键的合法红黑树高度至少为 Θ(log n)。查找沿根到叶路径逐层比较，最少情况（命中根或近根）为 Θ(1)，对应 A；最坏情况为 Θ(log n)，对应 C（~log_2 n）。故填 A，C。\n\n(b) q_a2242a25ee00a04eae1b：标准 BST 插入从根开始沿一条路径比较。最佳形态为平衡树，比较次数 Θ(log n)，对应 C；最坏形态为链，比较次数 Θ(n)，对应 G。故填 C，G。\n\n(c) q_c159644558b40959c237：2–3 树所有叶在同一层，高度为 Θ(log n)。插入时沿路径下降，每层在 2-节点比较 1 次、3-节点比较 2 次。最佳情况路径上全为 2-节点，比较次数 ~log_3 n，对应 B；最坏情况路径上全为 3-节点，比较次数 ~2log_3 n，对应 D。故填 B，D。\n\n(d) q_dcdfd315bcddaea0e93c：最大堆删除最大键后，把末尾元素移到根并下沉。每层先比较两个孩子取较大者（2 次比较），再把较大孩子与当前元素比较（1 次），共每层 3 次比较。最佳情况无需下沉或下沉很少，为 Θ(1)，对应 A；最坏情况沿高度 Θ(log n) 下沉，比较次数 ~3log_2 n，对应 F。故填 A，F。\n\n综上：(a) A,C；(b) C,G；(c) B,D；(d) A,F。"
+          ]
+        },
+        {
+          "ordinal": 8,
+          "issues": [
+            "missing_question",
+            "missing_correct_answer",
+            "missing_explanation",
+            "subquestion_count_mismatch"
+          ]
+        },
+        {
+          "ordinal": 9,
+          "issues": [
+            "independent_solution_unverified",
+            "Independent solver did not provide an answer"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 47,
+        "models": {
+          "deepseek-v4-flash": 29,
+          "deepseek-v4-flash-vision-exp": 18
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_5e1bce1f44e36fbbf10cf456df1d3084",
+      "job_id": "job_99ef1f0317ce4b00",
+      "turn": {
+        "id": "turn_1792302609542_ad029d73ec",
+        "status": "cancelled",
+        "failure_code": "",
+        "created_at": 1792302609.676515,
+        "updated_at": 1792302888.8662717
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 13780,
+          "layout_blocks": 175,
+          "images": 49
+        }
+      ],
+      "blueprint_count": 9,
+      "local_events": 33665,
+      "upstream_events": 33665,
+      "done_received": true,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 19,
+        "models": {
+          "deepseek-v4-flash": 11,
+          "deepseek-v4-flash-vision-exp": 8
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 0,
+    "unchanged_in_latest": 0
+  },
+  "hotfix_preservation": {
+    "compared_generation_id": "examgen_23c5f8dde8291646878a023d8d7e238f",
+    "accepted_before": 2,
+    "unchanged_in_latest": 2,
+    "missing_or_changed_ids": []
+  }
+}

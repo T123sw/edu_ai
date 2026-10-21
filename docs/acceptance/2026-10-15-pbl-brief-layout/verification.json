@@ -1,0 +1,39 @@
+{
+  "scope": "PBL 题目区域布局与工作区状态位置",
+  "changes": [
+    "删除题目顶部检查状态和进入工作区按钮",
+    "按 Markdown 章节内容分配成果、起点、代码约定与任务要求、验收两栏",
+    "栏目按实际内容出现，按内容长度调整列宽，900px 以下上下排列",
+    "保留原文、嵌套标题、代码块及跨栏引用，只列当前步骤检查",
+    "检查状态放在工作区操作栏，保留滚动与打开工作区入口"
+  ],
+  "topicSpecificRules": false,
+  "additionalModelCalls": 0,
+  "typecheckPassed": true,
+  "eslintPassed": true,
+  "unitTestsPassed": 3,
+  "productionBuildPassed": true,
+  "previewBrowserPassed": 7,
+  "optionalBrowserSkipped": 1,
+  "skipReason": "保存的真实练习没有 mobile 几何检查，不适用该可选用例",
+  "viewportWidths": [
+    1920,
+    1440,
+    1024,
+    768,
+    390,
+    320
+  ],
+  "realArtifactReadOnly": "pbl_f68a8c30ed541638347f1ee9dd701055",
+  "realArtifactStepsVerified": 3,
+  "businessApisMocked": true,
+  "externalSandpackAborted": true,
+  "validationBoundary": "验证发布资源上的题面、工作区滚动和状态布局；不代表本轮重新执行模型生成或用户代码验收。",
+  "screenshots": [
+    "calculator-1440.png",
+    "calculator-390.png",
+    "adaptive-1440.png",
+    "adaptive-390.png"
+  ],
+  "onlineBrowserPassed": 7
+}

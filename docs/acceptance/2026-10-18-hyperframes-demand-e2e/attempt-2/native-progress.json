@@ -1,0 +1,49 @@
+{
+  "status": "running",
+  "segments": [
+    {
+      "id": "seg_intro_question",
+      "title": "开场：同一条斜率，为什么位置不同？",
+      "characters": 110,
+      "duration": 27.504
+    },
+    {
+      "id": "seg_y_intercept",
+      "title": "关键一步：令 x=0，交点就是 (0,b)",
+      "characters": 174,
+      "duration": 36.456
+    },
+    {
+      "id": "seg_translate",
+      "title": "整体平移：b 变多少，线就移多少格",
+      "characters": 187,
+      "duration": 39.408
+    },
+    {
+      "id": "seg_slope_constant",
+      "title": "为什么斜率始终是 2：三条线为什么一样陡",
+      "characters": 145,
+      "duration": 30.384
+    },
+    {
+      "id": "seg_misconception",
+      "title": "常见误解：b 变大不等于线变陡",
+      "characters": 94,
+      "duration": 19.728
+    },
+    {
+      "id": "seg_practice",
+      "title": "两道检查练习",
+      "characters": 223,
+      "duration": null
+    },
+    {
+      "id": "seg_summary",
+      "title": "收束：一句话记住 b 的作用",
+      "characters": 112,
+      "duration": null
+    }
+  ],
+  "code_ready": false,
+  "checks": null
+}

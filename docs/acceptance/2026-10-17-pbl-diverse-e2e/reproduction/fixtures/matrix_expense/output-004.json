@@ -1,0 +1,28 @@
+{
+  "unit": {
+    "stepId": "add-and-list",
+    "title": "添加支出并显示列表",
+    "objective": "搭出记账页面骨架，能输入备注、金额、选择分类并添加记录，记录显示在列表中。",
+    "instructionsMarkdown": "这一步先做出记账页面的基本骨架：一个能填写并添加支出的表单，以及一个显示已添加记录的列表。\n\n页面上需要有这些部件：\n\n- 一个备注输入框，用来填写这笔支出的说明，比如“午餐”。\n- 一个金额输入框，用来填写金额，比如“12.50”。\n- 一个分类选择，只有“餐饮”和“交通”两个选项，默认选中“餐饮”。\n- 一个“添加”按钮。\n- 一个支出列表区域，初始为空。\n\n填写备注和金额、选好分类后点击“添加”，列表里应出现一条记录，能看到这笔支出的备注、金额和分类。例如备注填“午餐”、金额填“12.50”、分类选“餐饮”，点击添加后列表出现一条“午餐 / 12.50 / 餐饮”的记录；备注填“地铁”、金额填“3”、分类选“交通”，列表出现一条“地铁 / 3.00 / 交通”的记录。\n\n这一步先不处理输入校验、表单清空、删除、筛选和统计，后面步骤会逐步加上。金额在列表里按两位小数显示，比如填“3”显示为“3.00”。\n\n**代码约定**\n\n为了让系统能识别页面部件，请给以下元素加上对应的 `data-testid`（标记本身不会改变外观）：\n\n- 备注输入框：`data-testid=\"note-input\"`\n- 金额输入框：`data-testid=\"amount-input\"`\n- 分类选择：`data-testid=\"category-select\"`，选项文字分别为“餐饮”和“交通”\n- 添加按钮：`data-testid=\"add-button\"`，按钮文字为“添加”\n- 支出列表容器：`data-testid=\"expense-list\"`\n- 每条记录：`data-testid=\"expense-item\"`，记录内需能看到备注、金额（两位小数）和分类文字",
+    "explanationMarkdown": "这一页的核心是“表单状态 + 记录列表状态”。用 React 的 `useState` 保存备注、金额、分类三个输入值，再用一个数组保存已添加的记录。点击添加时，把当前输入组装成一条记录追加到数组里，React 会自动重新渲染列表。\n\n金额在列表里要显示两位小数，可以用 `Number(amount).toFixed(2)` 格式化。每条记录最好带一个唯一 id（例如用递增计数或 `Date.now()`），方便后续步骤做删除。\n\n布局上用简单的纵向排列即可，注意输入框和按钮在窄屏下不要溢出。",
+    "hints": [
+      "用三个 `useState` 分别保存备注、金额和分类，再用一个 `useState` 保存记录数组。",
+      "分类选择用 `<select>`，两个 `<option>` 的 value 可以是“餐饮”和“交通”。",
+      "点击添加时用 `setExpenses([...expenses, newRecord])` 追加记录。",
+      "金额显示用 `Number(amount).toFixed(2)` 得到两位小数。",
+      "给每条记录一个唯一 id，后面删除时会用到。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "add-food-record",
+      "add-transport-record"
+    ]
+  },
+  "referenceFiles": {
+    "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nlet nextId = 1;\n\nexport default function App() {\n  const [note, setNote] = useState('');\n  const [amount, setAmount] = useState('');\n  const [category, setCategory] = useState('餐饮');\n  const [expenses, setExpenses] = useState([]);\n\n  function handleAdd() {\n    const record = {\n      id: nextId++,\n      note: note.trim(),\n      amount: Number(amount),\n      category,\n    };\n    setExpenses([...expenses, record]);\n  }\n\n  return (\n    <main className=\"app\">\n      <h1>本地记账表</h1>\n      <div className=\"form\">\n        <label className=\"field\">\n          <span>备注</span>\n          <input\n            data-testid=\"note-input\"\n            value={note}\n            onChange={(e) => setNote(e.target.value)}\n            placeholder=\"例如：午餐\"\n          />\n        </label>\n        <label className=\"field\">\n          <span>金额</span>\n          <input\n            data-testid=\"amount-input\"\n            value={amount}\n            onChange={(e) => setAmount(e.target.value)}\n            placeholder=\"例如：12.50\"\n          />\n        </label>\n        <label className=\"field\">\n          <span>分类</span>\n          <select\n            data-testid=\"category-select\"\n            value={category}\n            onChange={(e) => setCategory(e.target.value)}\n          >\n            <option value=\"餐饮\">餐饮</option>\n            <option value=\"交通\">交通</option>\n          </select>\n        </label>\n        <button data-testid=\"add-button\" onClick={handleAdd}>添加</button>\n      </div>\n\n      <ul className=\"expense-list\" data-testid=\"expense-list\">\n        {expenses.map((item) => (\n          <li key={item.id} className=\"expense-item\" data-testid=\"expense-item\">\n            <span className=\"item-note\">{item.note}</span>\n            <span className=\"item-amount\">{item.amount.toFixed(2)}</span>\n            <span className=\"item-category\">{item.category}</span>\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+    "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\n.app { padding: 16px; max-width: 100%; }\nh1 { font-size: 20px; }\n.form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }\n.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }\n.field input, .field select { padding: 6px; font-size: 14px; width: 100%; }\nbutton { padding: 8px 12px; font-size: 14px; cursor: pointer; }\n.expense-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }\n.expense-item { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px; border: 1px solid #ddd; border-radius: 6px; }\n.item-note { flex: 1 1 auto; min-width: 0; }\n.item-amount { font-variant-numeric: tabular-nums; }\n.item-category { color: #666; }\n"
+  }
+}

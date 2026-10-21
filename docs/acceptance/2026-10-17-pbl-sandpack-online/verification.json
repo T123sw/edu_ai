@@ -1,0 +1,21 @@
+{
+  "verifiedAt": "2026-10-17T13:59:10.838675+00:00",
+  "frontendPublished": true,
+  "backendRestartVerified": true,
+  "productionRealModelProjects": 2,
+  "steps": 4,
+  "nativeChecks": 16,
+  "productionFlowsPassed": 2,
+  "independentPreviewScenarios": 8,
+  "mutationRejections": 5,
+  "mobileNativeTestsPassed": true,
+  "legacyRunnerTestsPassed": 14,
+  "adapterTestsPassed": 2,
+  "typecheck": true,
+  "build": true,
+  "httpAssetsVerified": 481,
+  "testSourceHashes": {
+    "frontend/tests/live-learning/pbl-native-live.spec.ts": "b2ea67bb3585ec8e0f584b0c4d5994aa6d400ee8563a1bd047d464e56612f561",
+    "frontend/tests/live-learning/pblWorkbench.ts": "49bbe558376d81f61798e19b01940c59fa09d092663ee0161d81a907e5732035"
+  }
+}

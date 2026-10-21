@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "allowImportingTsExtensions": true },
+  "include": ["src/hyperframes/**/*.ts", "src/hyperframes/**/*.tsx", "src/liveLearning/readingContext.ts", "src/liveLearning/citationNavigation.ts", "src/stitch/classroomQa/useClassroomInterruption.ts", "src/stitch/course/classroomCatalog/ClassroomPlaybackSurface.tsx", "src/vite-env.d.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}

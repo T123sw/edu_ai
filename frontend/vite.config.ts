@@ -2,17 +2,7 @@ import path from 'node:path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 
-// @openmaic/dsl and @openmaic/renderer are npm `file:` deps pointing into
-// openmaic-sidecar/packages/@openmaic/* (see docs/spec/patches/002). npm
-// creates a symlink there, and that sidecar checkout has its own
-// node_modules/react (v19) and node_modules/motion (v12) for its own
-// Next.js app. `resolve.dedupe` alone wasn't enough to stop Vite resolving
-// those bare specifiers relative to the symlink's real path — explicit
-// aliases force every `react`/`motion` import in the module graph to this
-// project's own copies, regardless of which package does the importing.
-// Without this, renderer's motion/react usage (AnimatePresence in
-// SpotlightOverlay etc.) loads a second React instance and crashes with
-// "Invalid hook call".
+// Resolve shared UI libraries from this frontend installation.
 function dep(name: string) {
   return path.resolve(process.cwd(), 'node_modules', name);
 }
@@ -51,6 +41,7 @@ export default defineConfig(({ command, mode }) => ({
   optimizeDeps: {
     noDiscovery: true,
     include: [
+      '@codesandbox/sandpack-react',
       'react',
       'react-dom',
       'react-dom/client',
@@ -112,8 +103,6 @@ export default defineConfig(({ command, mode }) => ({
       react: dep('react'),
       'motion/react': dep('motion/react'),
       motion: dep('motion'),
-      // The renderer's published bundle imports these optional peers from its
-      // real file-linked path. Resolve them to the frontend's declared copies.
       'echarts/core': dep('echarts/core'),
       'echarts/charts': dep('echarts/charts'),
       'echarts/components': dep('echarts/components'),

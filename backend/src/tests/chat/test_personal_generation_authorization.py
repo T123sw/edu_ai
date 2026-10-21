@@ -35,6 +35,12 @@ class FakeCourseAccessService:
 
 @pytest.fixture()
 def authorization_client(monkeypatch):
+    # Supply a real resolvable course/node to the workspace validator.
+    from core import course_storage
+    monkeypatch.setattr(course_storage, "storage_manager", SimpleNamespace(
+        get_course_info=lambda course: {"title": "数学"} if course == "c1" else None,
+        get_knowledge_graph=lambda course: {"root": {"id": "root", "label": "数学", "children": [{"id": "functions", "label": "函数"}]}},
+    ))
     active_user = {"username": "user-a", "role": "student"}
     access_service = FakeCourseAccessService()
     app = FastAPI()
@@ -83,17 +89,16 @@ def authorization_client(monkeypatch):
         ),
     ],
 )
-def test_student_cannot_call_teacher_only_direct_tools(
+def test_retired_text_tools_reject_new_generation(
     authorization_client,
     path,
     payload,
 ):
     client, _, _ = authorization_client
 
-    response = client.post(path, json=payload)
+    response = client.post(path, json={**payload, "scope_type": "knowledge_point", "scope_id": "functions"})
 
     assert response.status_code == 403
-    assert response.json()["detail"]["code"] == "PERSONAL_TOOL_ACCESS_DENIED"
 
 
 @pytest.mark.parametrize(
@@ -121,7 +126,7 @@ def test_student_cannot_call_teacher_only_direct_tools(
         ),
     ],
 )
-def test_teacher_cannot_call_student_only_direct_tools(
+def test_legacy_teacher_can_call_practice_tools(
     authorization_client,
     path,
     payload,
@@ -129,10 +134,9 @@ def test_teacher_cannot_call_student_only_direct_tools(
     client, active_user, _ = authorization_client
     active_user["role"] = "teacher"
 
-    response = client.post(path, json=payload)
+    response = client.post(path, json={**payload, "scope_type": "knowledge_point", "scope_id": "functions"})
 
-    assert response.status_code == 403
-    assert response.json()["detail"]["code"] == "PERSONAL_TOOL_ACCESS_DENIED"
+    assert response.status_code == 202, response.text
 
 
 def test_allowed_student_direct_tool_uses_course_read_not_generate(
@@ -154,3 +158,15 @@ def test_allowed_student_direct_tool_uses_course_read_not_generate(
     assert response.status_code == 202
     assert access_service.calls == [("c1", "read")]
 
+
+@pytest.mark.parametrize("role", ["student", "teacher", "admin", "user", ""])
+def test_unified_tools_still_require_course_access(authorization_client, role):
+    client, user, access = authorization_client
+    user["role"] = role
+    access.allow_read = False
+    response = client.post("/api/chat/v2/quiz/direct", json={
+        "course_id": "c1", "quiz_config": {"topic": "函数"},
+        "idempotency_key": "denied", "source_mode": "none", "selected_doc_ids": [],
+    })
+    assert response.status_code == 403
+    assert access.calls == [("c1", "read")]

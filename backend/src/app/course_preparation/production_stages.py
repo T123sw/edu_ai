@@ -9,17 +9,24 @@ from .resource_selection import course_resource_types
 
 
 class ProductionStages:
-    def __init__(self,repository,generation,memory,*,concurrency=2):
+    def __init__(self,repository,generation,memory,*,concurrency=None):
         self.repository,self.generation,self.memory=repository,generation,memory
-        self.concurrency=max(1,min(concurrency,4))
+        from core.config import Config
+        self.concurrency=max(1,min(Config.COURSE_PREPARATION_RESOURCE_CONCURRENCY if concurrency is None else concurrency,32))
+        self.video_concurrency = min(self.concurrency, Config.COURSE_PREPARATION_VIDEO_CONCURRENCY)
+        self.publisher=None
 
-    def produce(self,context):
+    def prepare_specifications(self,context):
+        """Build generator inputs without submitting any resource jobs."""
         checkpoint=dict(context.checkpoint)
         self.memory.validate(context,checkpoint)
         request=self.repository.get(owner_user_id=context.owner_user_id,preparation_id=context.preparation_id).request
         specifications=checkpoint.get('resource_specs')
         if specifications is None:
             kinds=course_resource_types(request, checkpoint['brief'].get('required_resource_types', []))
+            # Queue the opening node's teaching video first, then its other
+            # resources; later nodes still use the remaining parallel slots.
+            kinds=sorted(kinds, key=lambda kind: kind != 'classroom')
             if any(k not in ('report','quiz','classroom') for k in kinds):
                 raise ResearchError('RESOURCE_TYPE_UNAVAILABLE','当前完整准备链路支持报告、习题和课堂')
             target = checkpoint.get('target_snapshot')
@@ -61,25 +68,58 @@ class ProductionStages:
                     specifications.append(spec.model_dump(mode='json'))
             checkpoint['resource_specs']=specifications
             checkpoint['retained_node_ids']=retained
+        return checkpoint
+
+    def produce(self,context):
+        checkpoint=self.prepare_specifications(context)
+        specifications=checkpoint['resource_specs']
         valid_keys={digest(s) for s in specifications}
         receipts={k:v for k,v in checkpoint.get('generation_receipts',{}).items() if k in valid_keys}
         results={k:v for k,v in checkpoint.get('artifact_results',{}).items() if k in valid_keys}
         active=0
+        active_videos=0
+        kinds_by_key = {digest(spec): spec['resource_type'] for spec in specifications}
+        if self.publisher:
+            self.publisher.publish(context,checkpoint)
         for key,receipt in receipts.items():
             result=self.generation.read_result(context.owner_user_id,receipt)
             results[key]=result
-            if result['status'] in ('pending','running'): active+=1
-        for spec in specifications:
+            if result['status'] in ('pending','running'):
+                active+=1
+                if kinds_by_key[key] == 'classroom': active_videos+=1
+        eligible = [s for s in specifications if not checkpoint.get('retry_node_id')
+                    or s['node_id'] == checkpoint['retry_node_id']]
+        unfinished_light = sum(s['resource_type'] != 'classroom'
+            and results.get(digest(s), {}).get('status') not in ('draft', 'failed') for s in eligible)
+        # Keep the first video responsive, then prioritize short resources. Once
+        # they finish, every course slot may be used by video work.
+        opening = next((digest(s) for s in eligible if s['resource_type'] == 'classroom'), None)
+        ordered = sorted(eligible, key=lambda s: 0 if digest(s) == opening else
+                         (1 if s['resource_type'] != 'classroom' else 2))
+        reserved = min(2, unfinished_light, max(0, self.concurrency - 1))
+        video_limit = min(self.video_concurrency, self.concurrency - reserved)
+        for spec in ordered:
             key=digest(spec)
             if key in receipts: continue
+            if checkpoint.get('retry_node_id') and spec['node_id'] != checkpoint['retry_node_id']:
+                continue
             if active>=self.concurrency: break
+            if spec['resource_type'] == 'classroom' and active_videos >= video_limit: continue
             action=self.repository.begin_action(context,'generation:'+key,'generate_resource',spec,BudgetCost(calls=1))
             if action['status']=='completed': receipt=action['receipt']
             else:
                 receipt=self.generation.reconcile(context,spec,action['action_id']) if action['replay'] else self.generation.submit(context,spec,action['action_id'])
                 self.repository.finish_action(context,action['action_id'],receipt)
             receipts[key]=receipt; active+=1
+            if spec['resource_type'] == 'classroom': active_videos+=1
         checkpoint.update(generation_receipts=receipts,artifact_results=results)
+        if checkpoint.get('retry_node_id'):
+            selected = [digest(s) for s in specifications if s['node_id'] == checkpoint['retry_node_id']]
+            if all(results.get(k, {}).get('status') in ('draft', 'failed') for k in selected):
+                if len(results) != len(specifications) or any(r['status'] != 'draft' for r in results.values()):
+                    # Successful resources were already published above. A scoped
+                    # retry must not enter global repair and regenerate siblings.
+                    raise ResearchError('RESOURCE_GENERATION_FAILED', '本次知识点重试已结束，其他未完成内容仍可单独重试，已完成内容继续可用')
         if len(results)==len(specifications) and all(r['status'] in ('draft','failed') for r in results.values()):
             checkpoint['artifacts']=list(results.values())
             return StepResult(checkpoint,'review')

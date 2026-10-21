@@ -1,0 +1,204 @@
+{
+  "protocol": "edu-experiment/1",
+  "title": "随机采样与频率",
+  "subject": "概率统计",
+  "overview": "使用可复现的伪随机样本观察硬币频率，不要求一次结果恰好为 0.5。",
+  "objectives": [
+    "生成至少 20 次抛硬币样本，观察频率"
+  ],
+  "scientific_model": {
+    "assumptions": [
+      "浏览器内理想化模型"
+    ],
+    "rules": [
+      "有限次采样频率不必等于理论概率，不能因为频率偏离 0.5 就判错。"
+    ],
+    "limitations": [
+      "只验证当前模型条件，不替代真实实验"
+    ]
+  },
+  "state_fields": [
+    {
+      "path": [
+        "samples"
+      ],
+      "label": "samples",
+      "description": "当前实验的samples",
+      "unit": ""
+    },
+    {
+      "path": [
+        "count"
+      ],
+      "label": "count",
+      "description": "当前实验的count",
+      "unit": ""
+    },
+    {
+      "path": [
+        "frequency"
+      ],
+      "label": "frequency",
+      "description": "当前实验的frequency",
+      "unit": ""
+    },
+    {
+      "path": [
+        "seed"
+      ],
+      "label": "seed",
+      "description": "当前实验的seed",
+      "unit": ""
+    }
+  ],
+  "actions": [
+    {
+      "id": "sample",
+      "label": "执行操作",
+      "description": "生成至少 20 次抛硬币样本，观察频率",
+      "phases": [
+        "demonstrate",
+        "guided",
+        "explore"
+      ],
+      "parameters": [
+        {
+          "name": "count",
+          "label": "采样次数",
+          "type": "integer",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 1000,
+          "options": []
+        }
+      ]
+    }
+  ],
+  "checkpoints": {
+    "start": {
+      "samples": [],
+      "count": 0,
+      "frequency": null,
+      "seed": 7
+    }
+  },
+  "demo_checkpoint": "start",
+  "demo_steps": [
+    {
+      "id": "demo",
+      "title": "观察一次关键操作",
+      "before": "使用可复现的伪随机样本观察硬币频率，不要求一次结果恰好为 0.5。",
+      "after": "已完成所要求的采样；频率可能偏离 0.5。",
+      "commands": [
+        {
+          "action": "sample",
+          "input": {
+            "count": 20
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "path": [
+            "after",
+            "count"
+          ],
+          "op": "gte",
+          "value": 20
+        }
+      ]
+    }
+  ],
+  "guided_checkpoint": "start",
+  "tasks": [
+    {
+      "id": "practice",
+      "title": "亲手试一次",
+      "objective": "生成至少 20 次抛硬币样本，观察频率",
+      "prompt": "生成至少 20 次抛硬币样本，观察频率",
+      "checkpoint": "start",
+      "allowed_actions": [
+        "sample"
+      ],
+      "submission": "on_action",
+      "submit_action": "sample",
+      "assessment": "deterministic",
+      "checks": [
+        {
+          "path": [
+            "after",
+            "count"
+          ],
+          "op": "gte",
+          "value": 20
+        }
+      ],
+      "rubric": [],
+      "success": "已完成所要求的采样；频率可能偏离 0.5。",
+      "retry": "请根据本任务说明重新尝试。",
+      "recovery": "rollback",
+      "hints": [
+        "有限次采样频率不必等于理论概率，不能因为频率偏离 0.5 就判错。"
+      ]
+    }
+  ],
+  "explore_checkpoint": "start",
+  "exploration_prompts": [
+    "比较 20、100 和 1000 个样本的频率；一次比较不能证明收敛规律。"
+  ],
+  "teaching_context": {
+    "background": "使用可复现的伪随机样本观察硬币频率，不要求一次结果恰好为 0.5。",
+    "misconceptions": [
+      "完成一次任务不表示整个实验目标都已掌握"
+    ]
+  },
+  "validation_cases": [
+    {
+      "id": "correct",
+      "task_id": "practice",
+      "commands": [
+        {
+          "action": "sample",
+          "input": {
+            "count": 20
+          }
+        }
+      ],
+      "expected": "pass",
+      "assertions": [
+        {
+          "path": [
+            "after",
+            "count"
+          ],
+          "op": "gte",
+          "value": 20
+        }
+      ]
+    },
+    {
+      "id": "incorrect",
+      "task_id": "practice",
+      "commands": [
+        {
+          "action": "sample",
+          "input": {
+            "count": 5
+          }
+        }
+      ],
+      "expected": "fail",
+      "assertions": [
+        {
+          "path": [
+            "after",
+            "count"
+          ],
+          "op": "eq",
+          "value": 5,
+          "tolerance": 0
+        }
+      ]
+    }
+  ]
+}

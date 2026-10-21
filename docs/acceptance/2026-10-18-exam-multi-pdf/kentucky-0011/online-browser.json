@@ -1,0 +1,189 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "多PDF验收 kentucky-0011 1792301264966",
+  "startedAt": "2026-10-18T05:27:44.966Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/examgen_20f6f23bbb59719829643d6921310392/retry",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/job_57c933d1f9ac44f0/retry",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-18T05:27:52.125Z",
+      "attempt": 0,
+      "generation_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "job_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:28:32.016Z",
+      "attempt": 0,
+      "generation_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "job_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:28:42.540Z",
+      "attempt": 0,
+      "generation_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "job_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:31:09.534Z",
+      "attempt": 0,
+      "generation_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "job_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "status": "queued",
+      "progress": 0,
+      "message": "后台服务暂不可用，任务将自动重试",
+      "exam_ready": false,
+      "error_code": "EXAM_TRANSPORT_INTERRUPTED"
+    },
+    {
+      "at": "2026-10-18T05:32:28.399Z",
+      "attempt": 0,
+      "generation_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "job_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "status": "running",
+      "progress": 1,
+      "message": "任务已由后台工作器接管",
+      "exam_ready": false,
+      "error_code": "EXAM_TRANSPORT_INTERRUPTED"
+    },
+    {
+      "at": "2026-10-18T05:32:33.975Z",
+      "attempt": 0,
+      "generation_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "job_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "status": "queued",
+      "progress": 0,
+      "message": "后台服务暂不可用，任务将自动重试",
+      "exam_ready": false,
+      "error_code": "EXAM_TRANSPORT_INTERRUPTED"
+    },
+    {
+      "at": "2026-10-18T05:32:39.376Z",
+      "attempt": 0,
+      "generation_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "job_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "status": "running",
+      "progress": 1,
+      "message": "任务已由后台工作器接管",
+      "exam_ready": false,
+      "error_code": "EXAM_TRANSPORT_INTERRUPTED"
+    },
+    {
+      "at": "2026-10-18T05:32:51.073Z",
+      "attempt": 0,
+      "generation_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "job_id": "examgen_20f6f23bbb59719829643d6921310392",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务超过最大自动尝试次数",
+      "exam_ready": false,
+      "error_code": "MAX_ATTEMPTS_EXCEEDED"
+    },
+    {
+      "at": "2026-10-18T05:32:55.364Z",
+      "attempt": 1,
+      "generation_id": "examgen_ccdd0a2021d8baa6c0eb139a27712419",
+      "job_id": "job_57c933d1f9ac44f0",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:33:13.418Z",
+      "attempt": 1,
+      "generation_id": "examgen_ccdd0a2021d8baa6c0eb139a27712419",
+      "job_id": "job_57c933d1f9ac44f0",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:34:58.605Z",
+      "attempt": 1,
+      "generation_id": "examgen_ccdd0a2021d8baa6c0eb139a27712419",
+      "job_id": "job_57c933d1f9ac44f0",
+      "status": "queued",
+      "progress": 0,
+      "message": "后台服务暂不可用，任务将自动重试",
+      "exam_ready": false,
+      "error_code": "EXAM_TRANSPORT_INTERRUPTED"
+    },
+    {
+      "at": "2026-10-18T05:36:04.512Z",
+      "attempt": 1,
+      "generation_id": "examgen_ccdd0a2021d8baa6c0eb139a27712419",
+      "job_id": "job_57c933d1f9ac44f0",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务超过最大自动尝试次数",
+      "exam_ready": false,
+      "error_code": "MAX_ATTEMPTS_EXCEEDED"
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_20f6f23bbb59719829643d6921310392",
+    "examgen_ccdd0a2021d8baa6c0eb139a27712419"
+  ],
+  "retries": 2,
+  "refresh_recovery": true,
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "expected_questions": 4,
+  "source": "kentucky",
+  "finishedAt": "2026-10-18T05:36:08.985Z",
+  "controlled_hotfix_interruption": true,
+  "interruption_reason": "Bridge NDJSON task-context regression; source patch remains 0011 and accepted checkpoints are preserved.",
+  "resume_startedAt": "2026-10-18T05:37:47.313Z",
+  "failure": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(found)\n",
+  "queued_retry_job": "job_721bca3394054c28",
+  "harness_queue_timeout_seconds": 60,
+  "queue_note": "Retry accepted (202), but no worker assigned within the harness 60-second lookup; this is not evidence that enqueue failed.",
+  "queued_retry_cancel_http": 200
+}

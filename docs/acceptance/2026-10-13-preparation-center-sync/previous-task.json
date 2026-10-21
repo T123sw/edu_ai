@@ -1,0 +1,14 @@
+{
+  "preparation_id": "prep_df8b78a35f494676b89492dabb786cb8",
+  "status": "failed",
+  "stage": "review",
+  "error_code": "STEP_FAILED",
+  "failed_at_utc": "2026-10-13 12:47:39.580263+00:00",
+  "delivered": false,
+  "draft_count": 12,
+  "node_count": 4,
+  "invalid_review_artifact_ids": [
+    "artifact_f8987f13585ca7b8ac7c13fc9bc78d"
+  ],
+  "failure_analysis": "Persisted review response references nonexistent artifact id; quality.py rejects it with UNKNOWN_REPAIR_TARGET, runner exposes STEP_FAILED. No retry or data mutation performed."
+}

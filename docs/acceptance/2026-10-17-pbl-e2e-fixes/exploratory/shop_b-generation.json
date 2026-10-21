@@ -1,0 +1,156 @@
+{
+  "case": "shop_b",
+  "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+  "exerciseId": "pbl_b45059126858306aea9ad4f7caa10aca",
+  "generationPassed": false,
+  "job": {
+    "schema_version": 2,
+    "version": 16,
+    "edu_job_id": "pbl_b45059126858306aea9ad4f7caa10aca",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_shop_b",
+    "owner": "matrix_shop_b",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_b45059126858306aea9ad4f7caa10aca",
+    "input_summary": {
+      "title": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+      "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+      "exercise_id": "pbl_b45059126858306aea9ad4f7caa10aca"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error_code": "PBL_VALIDATION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T07:52:03.183606+00:00",
+    "started_at": "2026-10-17T07:52:03.797774+00:00",
+    "finished_at": "2026-10-17T07:53:17.538320+00:00",
+    "updated_at": "2026-10-17T07:53:17.538320+00:00"
+  },
+  "events": [
+    {
+      "seconds": 1.95,
+      "state": [
+        "running",
+        "running",
+        "任务已由后台工作器接管"
+      ]
+    },
+    {
+      "seconds": 4.02,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 12.57,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：第 1 步：添加商品并显示清单"
+      ]
+    },
+    {
+      "seconds": 18.97,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：第 1 步：添加商品并显示清单"
+      ]
+    },
+    {
+      "seconds": 29.61,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：第 2 步：拦截空白名称并提示"
+      ]
+    },
+    {
+      "seconds": 33.92,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：第 2 步：拦截空白名称并提示"
+      ]
+    },
+    {
+      "seconds": 38.08,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：第 2 步：拦截空白名称并提示"
+      ]
+    },
+    {
+      "seconds": 48.55,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：第 2 步：拦截空白名称并提示"
+      ]
+    },
+    {
+      "seconds": 52.78,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：第 2 步：拦截空白名称并提示"
+      ]
+    },
+    {
+      "seconds": 54.87,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：第 2 步：拦截空白名称并提示"
+      ]
+    },
+    {
+      "seconds": 67.51,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：第 2 步：拦截空白名称并提示"
+      ]
+    },
+    {
+      "seconds": 69.62,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：第 2 步：拦截空白名称并提示"
+      ]
+    },
+    {
+      "seconds": 73.84,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：第 2 步：拦截空白名称并提示"
+      ]
+    },
+    {
+      "seconds": 75.97,
+      "state": [
+        "failed",
+        "failed",
+        "任务执行失败"
+      ]
+    }
+  ],
+  "seconds": 75.99,
+  "idempotentCreate": true
+}

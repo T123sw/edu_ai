@@ -1,0 +1,40 @@
+{
+  "base": "http://127.0.0.1:5313",
+  "mockedBusinessApi": true,
+  "results": [
+    {
+      "role": "teacher",
+      "width": 1440,
+      "memoryPanelRemoved": true,
+      "historyAndChatPassed": true
+    },
+    {
+      "role": "student",
+      "width": 1440,
+      "memoryPanelRemoved": true,
+      "historyAndChatPassed": true
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "memoryPanelRemoved": true,
+      "historyAndChatPassed": true
+    },
+    {
+      "role": "student",
+      "width": 390,
+      "memoryPanelRemoved": true,
+      "historyAndChatPassed": true
+    },
+    {
+      "review": true,
+      "width": 1440,
+      "memoryPanelRemoved": true
+    },
+    {
+      "review": true,
+      "width": 390,
+      "memoryPanelRemoved": true
+    }
+  ]
+}

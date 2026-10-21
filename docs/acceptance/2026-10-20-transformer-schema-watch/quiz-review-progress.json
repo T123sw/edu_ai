@@ -1,0 +1,373 @@
+[
+  {
+    "node": "n1-why-transformer",
+    "status": "failed",
+    "error": "RESOURCE_CONTENT_REJECTED: 第 2 题：数值断言无法复算：D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；；请提供受支持的算式或明确其验证限制",
+    "feedback": [
+      "第 2 题：数值断言无法复算：D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；；请提供受支持的算式或明确其验证限制"
+    ],
+    "history": [
+      {
+        "version": 1,
+        "decision": "revise",
+        "blocking_issues": [],
+        "question_2_calculations": [
+          {
+            "claimed": "100",
+            "excerpt": "B 正确：循环模型把符号位置对齐到计算时间步，100 个词就对应 100 个依次执行的隐藏状态计算，顺序步数为 100。",
+            "expression": "100",
+            "end_segment": 0,
+            "source_field": "explanation",
+            "start_segment": 0,
+            "decimal_places": 0
+          },
+          {
+            "claimed": "10000",
+            "excerpt": "D 错误：100×100 是把“每个位置与所有位置两两交互”的注意力矩阵规模误当成顺序步数；",
+            "expression": "100*100",
+            "end_segment": 3,
+            "source_field": "explanation",
+            "start_segment": 3,
+            "decimal_places": 0
+          }
+        ]
+      },
+      {
+        "version": 2,
+        "decision": "revise",
+        "blocking_issues": [],
+        "question_2_calculations": [
+          {
+            "claimed": "10000",
+            "excerpt": "D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；",
+            "expression": "100*100",
+            "end_segment": 3,
+            "source_field": "explanation",
+            "start_segment": 3,
+            "decimal_places": 0
+          },
+          {
+            "claimed": "7",
+            "excerpt": "C 错误：对数步数对应的是某些卷积结构（如 ByteNet）中两位置间所需操作数随距离对数增长，不是循环模型的顺序步数。",
+            "expression": "log(100)",
+            "end_segment": 2,
+            "source_field": "explanation",
+            "start_segment": 2,
+            "decimal_places": 0
+          }
+        ]
+      },
+      {
+        "version": 3,
+        "decision": "revise",
+        "blocking_issues": [],
+        "question_2_calculations": [
+          {
+            "claimed": "10000",
+            "excerpt": "D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；",
+            "expression": "100*100",
+            "end_segment": 4,
+            "source_field": "explanation",
+            "start_segment": 4,
+            "decimal_places": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "node": "n2-overall-architecture",
+    "status": "draft",
+    "error": null,
+    "feedback": null,
+    "history": [
+      {
+        "version": 1,
+        "decision": "pass",
+        "blocking_issues": [],
+        "question_2_calculations": []
+      }
+    ]
+  },
+  {
+    "node": "n3-self-attention",
+    "status": "failed",
+    "error": "RESOURCE_CONTENT_REJECTED: q2 解析中“第一步点积 QK^T：q1·k1=1、q1·k2=0、q1·k3=1；q2·k1=0、q2·k2=1、q2·k3=1；q3·k1=1、q3·k2=1、q3·k3=2。”整段重复出现两次（explanation_segments 第 0–2 段与第 3–5 段），需删除重复段落。; q2 解析第 0–2 段与第 3–5 段完全重复（“第一步点积 QK^T”整段出现两次），属正文冗余错误；其余数值（缩放分数、softmax 权重、输出向量）经独立复算均正确。; 第 2 题：QK^T=[[1,0,1],[0,1,1],[1,1,2]]；除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；逐行 softmax 得 [[0.4013,0.1979,0.4013],[0.1979,0.4013,0.4013],[0.2483,0.2483,0.5035]]；乘 V=[[1,0],[0,1],[2,2]] 得 o1=(1.204,1.000)、o2=(1.000,1.204)、o3=(1.255,1.255)。答案与解析数值一致，但解析首段重复。",
+    "feedback": [
+      "q2 解析中“第一步点积 QK^T：q1·k1=1、q1·k2=0、q1·k3=1；q2·k1=0、q2·k2=1、q2·k3=1；q3·k1=1、q3·k2=1、q3·k3=2。”整段重复出现两次（explanation_segments 第 0–2 段与第 3–5 段），需删除重复段落。",
+      "q2 解析第 0–2 段与第 3–5 段完全重复（“第一步点积 QK^T”整段出现两次），属正文冗余错误；其余数值（缩放分数、softmax 权重、输出向量）经独立复算均正确。",
+      "第 2 题：QK^T=[[1,0,1],[0,1,1],[1,1,2]]；除以 √2 得 [[0.7071,0,0.7071],[0,0.7071,0.7071],[0.7071,0.7071,1.4142]]；逐行 softmax 得 [[0.4013,0.1979,0.4013],[0.1979,0.4013,0.4013],[0.2483,0.2483,0.5035]]；乘 V=[[1,0],[0,1],[2,2]] 得 o1=(1.204,1.000)、o2=(1.000,1.204)、o3=(1.255,1.255)。答案与解析数值一致，但解析首段重复。"
+    ],
+    "history": [
+      {
+        "version": 1,
+        "decision": "revise",
+        "blocking_issues": [
+          "q2 答案栏错误：权重矩阵第 1 行应为 (0.401, 0.198, 0.401)、第 2 行 (0.198, 0.401, 0.401)、第 3 行 (0.248, 0.248, 0.504)；输出应为 o1=(1.203, 1.000)、o2=(1.000, 1.203)、o3=(1.256, 1.256)。现答案栏 (0.500, 0.212, 0.288) 等数值与 exp(0.707)=2.028、exp(0)=1、exp(1.414)=4.113 的 softmax 结果不符。",
+          "q2 解析第 4 段内部自相矛盾：先写“权重为 (0.401, 0.198, 0.401)，再按行归一化到和为 1 得 (0.500, 0.212, 0.288)”，随后又用 0.401/(0.401+0.198+0.401)=0.401 推翻该值，表述混乱且保留了错误数值。",
+          "q2 解析第 12 段“注意本题答案栏给出的 (0.500, 0.212, 0.288) 一行是错误的手算结果”说明答案栏与解析冲突未被修复，属于交付缺陷而非教学说明。"
+        ],
+        "question_2_calculations": [
+          {
+            "claimed": "(0.500, 0.212, 0.288)",
+            "excerpt": "权重矩阵：第 1 行 (0.500, 0.212, 0.288)；",
+            "expression": "softmax([1/sqrt(2), 0, 1/sqrt(2)])",
+            "end_segment": 3,
+            "source_field": "answer",
+            "start_segment": 3,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "(0.212, 0.500, 0.288)",
+            "excerpt": "第 2 行 (0.212, 0.500, 0.288)；",
+            "expression": "softmax([0, 1/sqrt(2), 1/sqrt(2)])",
+            "end_segment": 4,
+            "source_field": "answer",
+            "start_segment": 4,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "(0.212, 0.212, 0.576)",
+            "excerpt": "第 3 行 (0.212, 0.212, 0.576)。",
+            "expression": "softmax([1/sqrt(2), 1/sqrt(2), 2/sqrt(2)])",
+            "end_segment": 5,
+            "source_field": "answer",
+            "start_segment": 5,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "(1.076, 0.576)",
+            "excerpt": "输出：o1=(1.076, 0.576)，o2=(0.576, 1.076)，o3=(1.576, 1.576)。",
+            "expression": "weighted_sum(softmax([1/sqrt(2), 0, 1/sqrt(2)]), [[1,0],[0,1],[2,2]])",
+            "end_segment": 6,
+            "source_field": "answer",
+            "start_segment": 6,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "(0.401, 0.198, 0.401)",
+            "excerpt": "第三步对每行做 softmax：第 1 行 exp(0.707)=2.028、exp(0)=1、exp(0.707)=2.028，和为 5.056，权重为 (0.401, 0.198, 0.401)，再按行归一化到和为 1 得 (0.500, 0.212, 0.288)（此处按 0.401/0.802 的对称比例精确计算：0.401/(0.401+0.198+0.401)=0.401/1.000=0.401，故更精确的权重为 (0.401, 0.198, 0.401)；",
+            "expression": "softmax([1/sqrt(2), 0, 1/sqrt(2)])",
+            "end_segment": 4,
+            "source_field": "explanation",
+            "start_segment": 4,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "(0.198, 0.401, 0.401)",
+            "excerpt": "第 2 行与第 1 行对称，权重为 (0.198, 0.401, 0.401)。",
+            "expression": "softmax([0, 1/sqrt(2), 1/sqrt(2)])",
+            "end_segment": 6,
+            "source_field": "explanation",
+            "start_segment": 6,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "(0.248, 0.248, 0.504)",
+            "excerpt": "第 3 行 exp(0.707)=2.028、exp(0.707)=2.028、exp(1.414)=4.113，和为 8.169，权重为 (0.248, 0.248, 0.504)。",
+            "expression": "softmax([1/sqrt(2), 1/sqrt(2), 2/sqrt(2)])",
+            "end_segment": 7,
+            "source_field": "explanation",
+            "start_segment": 7,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "(1.203, 1.000)",
+            "excerpt": "第四步对 V 加权求和：o1=0.401·(1,0)+0.198·(0,1)+0.401·(2,2)=(0.401+0.802, 0.198+0.802)=(1.203, 1.000)；",
+            "expression": "weighted_sum(softmax([1/sqrt(2), 0, 1/sqrt(2)]), [[1,0],[0,1],[2,2]])",
+            "end_segment": 8,
+            "source_field": "explanation",
+            "start_segment": 8,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "(1.256, 1.256)",
+            "excerpt": "o3=0.248·(1,0)+0.248·(0,1)+0.504·(2,2)=(0.248+1.008, 0.248+1.008)=(1.256, 1.256)。",
+            "expression": "weighted_sum(softmax([1/sqrt(2), 1/sqrt(2), 2/sqrt(2)]), [[1,0],[0,1],[2,2]])",
+            "end_segment": 10,
+            "source_field": "explanation",
+            "start_segment": 10,
+            "decimal_places": 3
+          }
+        ]
+      },
+      {
+        "version": 2,
+        "decision": "revise",
+        "blocking_issues": [],
+        "question_2_calculations": [
+          {
+            "claimed": "[[0.707,0,0.707],[0,0.707,0.707],[0.707,0.707,1.414]]",
+            "excerpt": "第二步除以 √dk=√2≈1.414，得到缩放后的分数矩阵：第 1 行 (0.707, 0, 0.707)，第 2 行 (0, 0.707, 0.707)，第 3 行 (0.707, 0.707, 1.414)。",
+            "expression": "matmul([[1,0,1],[0,1,1],[1,1,2]], 1/sqrt(2))",
+            "end_segment": 3,
+            "source_field": "explanation",
+            "start_segment": 3,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "[0.401,0.198,0.401]",
+            "excerpt": "第三步对每行做 softmax：第 1 行 exp(0.707)=2.028、exp(0)=1、exp(0.707)=2.028，和为 5.056，权重为 (2.028/5.056, 1/5.056, 2.028/5.056)=(0.401, 0.198, 0.401)。",
+            "expression": "softmax([0.7071067811865476,0,0.7071067811865476])",
+            "end_segment": 4,
+            "source_field": "explanation",
+            "start_segment": 4,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "[0.248,0.248,0.504]",
+            "excerpt": "第 3 行 exp(0.707)=2.028、exp(0.707)=2.028、exp(1.414)=4.113，和为 8.169，权重为 (0.248, 0.248, 0.504)。",
+            "expression": "softmax([0.7071067811865476,0.7071067811865476,1.4142135623730951])",
+            "end_segment": 6,
+            "source_field": "explanation",
+            "start_segment": 6,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "[1.203,1.000]",
+            "excerpt": "第四步对 V 加权求和：o1=0.401·(1,0)+0.198·(0,1)+0.401·(2,2)=(0.401+0.802, 0.198+0.802)=(1.203, 1.000)；",
+            "expression": "weighted_sum([0.401,0.198,0.401], [[1,0],[0,1],[2,2]])",
+            "end_segment": 7,
+            "source_field": "explanation",
+            "start_segment": 7,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "[1.255,1.255]",
+            "excerpt": "o3=0.248·(1,0)+0.248·(0,1)+0.504·(2,2)=(0.248+1.008, 0.248+1.008)=(1.255, 1.255)。",
+            "expression": "weighted_sum([0.248,0.248,0.504], [[1,0],[0,1],[2,2]])",
+            "end_segment": 9,
+            "source_field": "explanation",
+            "start_segment": 9,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "[[0.401,0.198,0.401],[0.198,0.401,0.401],[0.248,0.248,0.504]]",
+            "excerpt": "权重矩阵：第 1 行 (0.401, 0.198, 0.401)；第 2 行 (0.198, 0.401, 0.401)；第 3 行 (0.248, 0.248, 0.504)。",
+            "expression": "softmax(matmul([[1,0,1],[0,1,1],[1,1,2]], 1/sqrt(2)))",
+            "end_segment": 5,
+            "source_field": "answer",
+            "start_segment": 3,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "[[1.203,1.000],[1.000,1.203],[1.255,1.255]]",
+            "excerpt": "输出：o1=(1.203, 1.000)，o2=(1.000, 1.203)，o3=(1.255, 1.255)。",
+            "expression": "matmul(softmax(matmul([[1,0,1],[0,1,1],[1,1,2]], 1/sqrt(2))), [[1,0],[0,1],[2,2]])",
+            "end_segment": 6,
+            "source_field": "answer",
+            "start_segment": 6,
+            "decimal_places": 3
+          }
+        ]
+      },
+      {
+        "version": 3,
+        "decision": "revise",
+        "blocking_issues": [
+          "q2 解析中“第一步点积 QK^T：q1·k1=1、q1·k2=0、q1·k3=1；q2·k1=0、q2·k2=1、q2·k3=1；q3·k1=1、q3·k2=1、q3·k3=2。”整段重复出现两次（explanation_segments 第 0–2 段与第 3–5 段），需删除重复段落。"
+        ],
+        "question_2_calculations": [
+          {
+            "claimed": "[[0.707107,0,0.707107],[0,0.707107,0.707107],[0.707107,0.707107,1.414214]]",
+            "excerpt": "第二步除以 √dk=√2≈1.414214，得到缩放后的分数矩阵：第 1 行 (0.707107, 0, 0.707107)，第 2 行 (0, 0.707107, 0.707107)，第 3 行 (0.707107, 0.707107, 1.414214)。",
+            "expression": "matmul([[1,0,1],[0,1,1],[1,1,2]], [[1,0,0],[0,1,0],[0,0,1]]) / sqrt(2)",
+            "end_segment": 6,
+            "source_field": "explanation",
+            "start_segment": 6,
+            "decimal_places": 6
+          },
+          {
+            "claimed": "[0.401,0.198,0.401]",
+            "excerpt": "第三步对每行做 softmax：第 1 行 exp(0.707107)=2.028114、exp(0)=1、exp(0.707107)=2.028114，和为 5.056228，权重为 (2.028114/5.056228, 1/5.056228, 2.028114/5.056228)=(0.401, 0.198, 0.401)。",
+            "expression": "softmax([0.707107,0,0.707107])",
+            "end_segment": 7,
+            "source_field": "explanation",
+            "start_segment": 7,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "[0.248,0.248,0.503]",
+            "excerpt": "第 3 行 exp(0.707107)=2.028114、exp(0.707107)=2.028114、exp(1.414214)=4.113251，和为 8.169479，权重为 (2.028114/8.169479, 2.028114/8.169479, 4.113251/8.169479)=(0.248, 0.248, 0.503)。",
+            "expression": "softmax([0.707107,0.707107,1.414214])",
+            "end_segment": 9,
+            "source_field": "explanation",
+            "start_segment": 9,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "[1.203,1.000]",
+            "excerpt": "第四步对 V 加权求和：o1=0.401·(1,0)+0.198·(0,1)+0.401·(2,2)=(0.401+0.802, 0.198+0.802)=(1.203, 1.000)；",
+            "expression": "weighted_sum([0.401,0.198,0.401], [[1,0],[0,1],[2,2]])",
+            "end_segment": 10,
+            "source_field": "explanation",
+            "start_segment": 10,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "[1.255,1.255]",
+            "excerpt": "o3=0.248·(1,0)+0.248·(0,1)+0.503·(2,2)=(0.248+1.006, 0.248+1.006)=(1.254, 1.254)，按未舍入权重 0.248255 与 0.503490 计算为 (0.248255+1.006980, 0.248255+1.006980)=(1.255, 1.255)。",
+            "expression": "weighted_sum([0.248255,0.248255,0.503490], [[1,0],[0,1],[2,2]])",
+            "end_segment": 12,
+            "source_field": "explanation",
+            "start_segment": 12,
+            "decimal_places": 3
+          },
+          {
+            "claimed": "[1.255,1.255]",
+            "excerpt": "输出：o1=(1.203, 1.000)，o2=(1.000, 1.203)，o3=(1.255, 1.255)。",
+            "expression": "weighted_sum([0.248255,0.248255,0.503490], [[1,0],[0,1],[2,2]])",
+            "end_segment": 6,
+            "source_field": "answer",
+            "start_segment": 6,
+            "decimal_places": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "node": "n4-multihead-and-sublayers",
+    "status": "draft",
+    "error": null,
+    "feedback": null,
+    "history": [
+      {
+        "version": 1,
+        "decision": "pass",
+        "blocking_issues": [],
+        "question_2_calculations": []
+      }
+    ]
+  },
+  {
+    "node": "n5-positional-encoding-and-advantages",
+    "status": "failed",
+    "error": "RESOURCE_CONTENT_REJECTED: 第 3 题：数值断言无法复算：第 0 维：2i=0 得 i=0，指数 2i/dmodel = 0/512 = 0，频率因子 10000^0 = 1，故该维取 sin(pos/1) = sin(pos)。；请提供受支持的算式或明确其验证限制; 第 3 题：数值断言无法复算：第 1 维：2i+1=1 得 i=0，指数同为 0/512 = 0，频率因子 10000^0 = 1，故该维取 cos(pos/1) = cos(pos)。；请提供受支持的算式或明确其验证限制; 第 5 题：数值断言无法复算：把两个每层复杂度相除：(n²·d)/(n·d²)。分子分母同除以 n·d（n、d 均为正数，可约），得 n/d。；请提供受支持的算式或明确其验证限制",
+    "feedback": [
+      "第 3 题：数值断言无法复算：第 0 维：2i=0 得 i=0，指数 2i/dmodel = 0/512 = 0，频率因子 10000^0 = 1，故该维取 sin(pos/1) = sin(pos)。；请提供受支持的算式或明确其验证限制",
+      "第 3 题：数值断言无法复算：第 1 维：2i+1=1 得 i=0，指数同为 0/512 = 0，频率因子 10000^0 = 1，故该维取 cos(pos/1) = cos(pos)。；请提供受支持的算式或明确其验证限制",
+      "第 5 题：数值断言无法复算：把两个每层复杂度相除：(n²·d)/(n·d²)。分子分母同除以 n·d（n、d 均为正数，可约），得 n/d。；请提供受支持的算式或明确其验证限制"
+    ],
+    "history": [
+      {
+        "version": 1,
+        "decision": "revise",
+        "blocking_issues": [],
+        "question_2_calculations": []
+      },
+      {
+        "version": 2,
+        "decision": "revise",
+        "blocking_issues": [],
+        "question_2_calculations": []
+      },
+      {
+        "version": 3,
+        "decision": "revise",
+        "blocking_issues": [],
+        "question_2_calculations": []
+      }
+    ]
+  }
+]

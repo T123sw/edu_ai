@@ -1,0 +1,12 @@
+{
+  "published_at_utc": "2026-10-13T19:01:16.471644+00:00",
+  "frontend_root": "/home/zxqs_ep/Edu_AI/frontend/dist",
+  "backup": "/home/zxqs_ep/preparation-validation-before-generation-20261013/frontend-before-retry-fix",
+  "previous_index_sha256": "59d289ab16a4cefdbb316a7d24d1e6d74d0a4493e179311245dbcd444c9f89b1",
+  "new_index_sha256": "df671d941a197346bedaa2456ad46f0c2c60460f55d762ca18393ca210d1d19f",
+  "copied_files": 61,
+  "old_hashed_assets_retained": true,
+  "backend_restart": "blocked: Interactive authentication required",
+  "backend_current_pid": 3317359,
+  "backend_current_fixes_loaded": false
+}

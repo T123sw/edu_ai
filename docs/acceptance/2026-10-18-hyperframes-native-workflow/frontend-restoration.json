@@ -1,0 +1,6 @@
+{
+  "restored_release": "/tmp/edu-exam-preview-fix-release",
+  "served_index_sha256": "09f36a3adcba461b39cdbf15088cca4ec1eec1d5bd4bb2378731a6c38423fcbe",
+  "candidate_build": "/tmp/edu-hf-native-workflow-build",
+  "reason": "Default Vite build output was live; restored latest published release and its preceding assets."
+}

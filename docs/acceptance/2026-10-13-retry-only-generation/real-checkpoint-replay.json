@@ -1,0 +1,40 @@
+{
+  "source_task": "prep_95f2f8fee55d43538396f4e5035661af",
+  "source_attempt": 1,
+  "new_isolated_attempt": 2,
+  "prior_error": "CONTEXT_BUDGET_EXCEEDED",
+  "resumed_stage": "produce",
+  "old_deadline": "2026-10-13T19:49:00.314723+00:00",
+  "new_deadline": null,
+  "consumed_reserved_preserved": true,
+  "retry_only_policy": true,
+  "completed_native_candidate_preserved": true,
+  "native_delivery_resumed_without_rewriting_8_pages": true,
+  "source_evidence_preserved": true,
+  "completed_drafts_preserved": 4,
+  "resource_specs": 12,
+  "restarted_artifacts": [
+    "artifact_adc00d6271ff73a3328b0f46615096f6",
+    "artifact_9a10aaa0b2faf779b9d36c4c942dc39d",
+    "artifact_374bb8d6f1c463b5b2861e5f76bac4b8",
+    "artifact_372b237112496413e9d37120ed03539f",
+    "artifact_d13a6e319d661a8bd0d14ae740308d18",
+    "artifact_bcb43906040ef207f83eebedd6b8b819",
+    "artifact_b501b244611ff94103734c09cb696359"
+  ],
+  "new_jobs_prepared_without_execution": [
+    {
+      "id": "generate_artifact_c3eb00314868ac0d6815b97f973a4b02",
+      "deadline_at": null,
+      "status": "pending"
+    },
+    {
+      "id": "generate_artifact_3e49c603b6bb9812e0e486c12c172b45",
+      "deadline_at": null,
+      "status": "pending"
+    }
+  ],
+  "model_calls": 0,
+  "production_mutations": 0,
+  "scope": "Exact production task rows copied into a temporary isolated PostgreSQL schema. Normal retry, claim, draft readback, scheduling and real queue enqueue exercised. No generation worker or model executed. Memory validation not exercised in this replay."
+}

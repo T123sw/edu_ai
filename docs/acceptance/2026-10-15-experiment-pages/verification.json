@@ -1,0 +1,106 @@
+{
+  "status": "implemented-validated-not-deployed",
+  "createdAt": "2026-10-15T10:06:07.057985+00:00",
+  "protocol": "edu-experiment/2",
+  "backendTestsPassed": 54,
+  "previewBrowserTestsPassed": 4,
+  "realGeneratedBrowserTestsPassed": 2,
+  "typeCheckPassed": true,
+  "targetedLintPassed": true,
+  "buildPassed": true,
+  "skillValidationPassed": true,
+  "productionWrites": false,
+  "frontendPublished": false,
+  "backendRestarted": false,
+  "backendPid": 366382,
+  "realGeneration": {
+    "ok": true,
+    "seconds": 59.81,
+    "validation": {
+      "ok": true,
+      "scope": "basic-page-runtime",
+      "pages": {
+        "explore": {
+          "ok": true,
+          "issues": [],
+          "checks": [
+            "registered-and-initialized",
+            "reset",
+            "visible-content"
+          ],
+          "scope": "basic-page-runtime",
+          "scientific_certification": false,
+          "diagnostics": {
+            "evidence_id": "166b2964-495a-425f-8fc3-97f0f54e6a1c"
+          }
+        },
+        "demonstrate": {
+          "ok": true,
+          "issues": [],
+          "checks": [
+            "registered-and-initialized",
+            "demo-steps-and-replay",
+            "reset",
+            "visible-content"
+          ],
+          "scope": "basic-page-runtime",
+          "scientific_certification": false,
+          "diagnostics": {
+            "evidence_id": "61c72d67-f589-40bf-8da5-8421aad66d7e"
+          }
+        },
+        "guided": {
+          "ok": true,
+          "issues": [],
+          "checks": [
+            "registered-and-initialized",
+            "reset",
+            "visible-content"
+          ],
+          "scope": "basic-page-runtime",
+          "scientific_certification": false,
+          "diagnostics": {
+            "evidence_id": "1061078d-7b69-4669-97cd-bcb155485aa3"
+          }
+        }
+      },
+      "scientific_certification": false
+    },
+    "revision": "2ba3e912a1497ffd8be777498a0caabea5d6e320865d17f6ebaf9cb1562e096b",
+    "calls": [
+      {
+        "stage": "demonstrate",
+        "prompt_sha256": "0814020efb0d4b882cb4c775c23b52eeac0180ceb0a06bdeae680f704acc57fd"
+      },
+      {
+        "stage": "guided",
+        "prompt_sha256": "9f5e95f66f1723370e0a6742b5e0e49acd596be9acbb3b350522c49af606bdc4"
+      }
+    ]
+  },
+  "limitations": [
+    "Basic runtime checks do not certify scientific correctness.",
+    "Real sample task 2 has boundary/count explanation inconsistency; only task 1 verdict branches were verified.",
+    "Animation fallback observations are sampled every 300ms.",
+    "Separate teaching agent remains reserved."
+  ],
+  "sourceManifest": {
+    "backend/src/app/practice/pages/contracts.py": "94afa727c9675688b0d0c62c7dc006395859d867694382925d300584259e7040",
+    "backend/src/app/practice/pages/generation.py": "9030ab0dce96155e476681b2625e182d702cdc0d146028af98c5d57817fa3889",
+    "backend/src/app/practice/pages/bundle.py": "eab8fe3b3055e21ed8f6eb24e329003ef1d1c09262a324f2f59665d99d7cd92b",
+    "backend/src/app/practice/native.py": "6bf353dedbe45d126c8312e38ca002fab9c29eed99503732947dd58b8c742fae",
+    "backend/src/app/practice/native_runtime.py": "2109491692fe36e31b2daf1e147fe94a25212e8956057e4c899a8bfa9c2d5c3b",
+    "backend/src/app/practice/service.py": "41686af36bdf3a78ee9081ad2851c13d438a1620bc5e6dadb841cfdad7c0bef5",
+    "backend/src/app/api/practice.py": "8cbb893a2c168e1619becf7c95c1745c40ce113a6886c65448eb0617bdb41e7f",
+    "backend/src/app/practice/experiment/repository.py": "1257f6ffb54a622f62bb87b944964ba6b888091adab7dc1b9dc50c11ee23ddbe",
+    "backend/src/app/practice/experiment/design.py": "d759503dd658c2823ee314e5e64c657e05fc1230440aa09012ffc934e90b0411",
+    "backend/src/app/practice/skills/design-experiment/SKILL.md": "f2d026b89b905f3e5018e4039b1f899354f925d844f8b4dfc1cbbdf96b934234",
+    "backend/src/app/practice/skills/design-experiment/references/pages-runtime.md": "5762333899b547592235af753baa6b7ad2d514ef8c625f00da7b372c67a1fbad",
+    "backend/src/app/practice/skills/design-experiment/references/legacy-design.md": "ac8ed167cb521cce22479906032120e7566d547a7be4ebf0e66cf454bd6176e1",
+    "frontend/src/practice/experiment/Experiment.tsx": "a1b02948f370a6bfd941c08eda1214da3b0619b4a70ecb16b26159c9c6721af4",
+    "frontend/src/practice/experiment/pagesRuntime.ts": "e0a8d0dbeb4f9d0b57d7a6fd873e5d3f8d111f0ab05c6f6a7b2232790235ed16",
+    "frontend/src/practice/experiment/pagesModel.ts": "ed749c0432bb62b9f36daf0e3d82d8dc13036f5f7b3879bc773ac768f10213a5",
+    "frontend/scripts/pages-validation.mjs": "0e35d1875314bb0411414808aaaa33bc639d543befaf4792db97b5ec015a8452",
+    "frontend/scripts/validate-practice.mjs": "64c6e354053f4f84fb2dfee54cad62f915d2739f99b84d9ff58cea873ec823f8"
+  }
+}

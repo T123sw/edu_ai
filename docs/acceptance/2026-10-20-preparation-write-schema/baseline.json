@@ -1,0 +1,5 @@
+{
+  "backend/src/app/chat/harness/reviewed_resource.py": "87b4c3ab3b4f0b83a5f5cbfa677944df3d3e7e7d9f4eaf89d75ef358af4f70fa",
+  "backend/src/app/chat/harness/reviewed_report.py": "394bb271085e647abcc6d48ca4921c67c033a48a1d176512c4054fd028e58bc0",
+  "backend/src/app/course_preparation/harness_generation.py": "bee37ba94fe88eab5f1f042b7ec08d96c349eb4626601f2adb596965b70528c0"
+}

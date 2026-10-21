@@ -1,0 +1,121 @@
+{
+  "checked_at": "2026-10-19T07:11:42.972838+00:00",
+  "preparation_id": "prep_a9c1d026075f47b3aaa7fbc0862a7692",
+  "artifacts": [
+    {
+      "node": "n1-principle",
+      "type": "quiz",
+      "status": "draft",
+      "error": null,
+      "failure_detail": null
+    },
+    {
+      "node": "n1-principle",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "failure_detail": null
+    },
+    {
+      "node": "n2-trace",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "failure_detail": null
+    },
+    {
+      "node": "n2-trace",
+      "type": "quiz",
+      "status": "failed",
+      "error": "RESOURCE_CONTENT_REJECTED",
+      "failure_detail": {
+        "code": "RESOURCE_CONTENT_REJECTED",
+        "phase": "resource_review",
+        "message": "q6 选项 A“共需三趟，按每趟缩小比较范围的写法，第一趟比较 4 次，第二趟比较 3 次，第三趟比较 2 次”是正确陈述（4+3+2 与缩小范围写法完全吻合），却被排除在答案 B,C 之外，解析以“并非三趟各 4 次”判其错误，属于把正确项判错，答案集合不完整。; q6 解析第 1 段“若按不缩范围的写法，三趟才各比较 4 次，但那样与 q4、q7 的答案口径不一致”以追踪口径不同作为判错理由，逻辑不成立；选项 A 已明确限定“按每趟缩小比较范围的写法”，不存在口径歧义。; q4 解析末段“若按‘每趟都从最左端比较到最右端’的写法追踪，第二、三趟各会比较 4 对”与 q6 解析“三趟才各比较 4 次”表述不一致，需统一为同一口径描述，避免学员混淆。; q6 选项 A 的表述“共需三趟，按每趟缩小比较范围的写法，第一趟比较 4 次，第二趟比较 3 次，第三趟比较 2 次”本身完全正确，但答案只给 B,C，解析以“并非三趟各 4 次”为由判 A 错，属于把正确陈述判为错误；同时 q4 解析末段称“若按每趟都从最左端比较到最右端，第二、三趟各会比较 4 对”，而第三趟按不缩范围写法应为 4 对、第二趟也是 4 对，该句本身成立但与 q6 解析“三趟才各比较 4 次”口径冲突，且 q6 解析第 1 段“那样与 q4、q7 的答案口径不一致”把口径差异当作判错理由，逻辑不成立。; q1、q3、q4、q7 的逐对追踪与序列结果经独立核算均正确（如 q7 第一趟 3 8 1 5→3 1 5 8，第二趟→1 3 5 8，第三趟 1 对无交换），但 q6 的选项 A 作为正确陈述被列为错误项，导致该多选题的答案集合不完整，示例/选项层面的求解结论有误。; 第 4 题：缩小范围写法：第二趟在前 4 个元素 1 4 2 5 内比较 (1,4) 不换、(4,2) 交换→1 2 4 5 8、(4,5) 不换，共 3 次，已排序区间 [5,8]；第三趟在前 3 个元素 1 2 4 内比较 (1,2)、(2,4) 均不换，共 2 次，无交换确认完成。; 第 6 题：A：缩小范围写法下比较次数为 4、3、2，共三趟，正确；B：每趟末尾有序区间扩大一个元素，正确；C：第三趟作用是通过整趟无交换确认有序，正确；D：第二趟后已排序区间为末尾 2 个元素 [5,8]，不是 3 个，错误。故正确答案应为 A,B,C，而卷面答案为 B,C。; 第 6 题选项 1 的解析：解析称“并非三趟各 4 次”，但选项从未说三趟各 4 次，而是明确给出 4、3、2，批评针对的是选项没有的表述；第 1 段又以“与 q4、q7 口径不一致”作为判错理由，而选项已自行限定口径，该理由不成立，故解析错误。",
+        "category": "content",
+        "artifact_id": null,
+        "retry_scope": "content",
+        "budget_metric": null,
+        "content_digest": "6d5f8b88b9d5f1b36594a84342d053d3278eff6b19edec5af644c1d6b89138a8"
+      }
+    },
+    {
+      "node": "n3-code",
+      "type": "report",
+      "status": "failed",
+      "error": "PREPARATION_CONTENT_CONTRACT",
+      "failure_detail": {
+        "code": "PREPARATION_CONTENT_CONTRACT",
+        "phase": "resource_write",
+        "message": "'edits'",
+        "category": "contract",
+        "artifact_id": null,
+        "retry_scope": "none",
+        "budget_metric": null,
+        "content_digest": null
+      }
+    },
+    {
+      "node": "n3-code",
+      "type": "quiz",
+      "status": "draft",
+      "error": null,
+      "failure_detail": null
+    },
+    {
+      "node": "n1-principle",
+      "type": "classroom",
+      "status": "running",
+      "error": null,
+      "failure_detail": null,
+      "scene_workers": {
+        "queued": 3,
+        "succeeded": 2,
+        "running": 3
+      }
+    },
+    {
+      "node": "n2-trace",
+      "type": "classroom",
+      "status": "running",
+      "error": null,
+      "failure_detail": null,
+      "scene_workers": {
+        "succeeded": 4,
+        "queued": 2,
+        "running": 3
+      }
+    },
+    {
+      "node": "n4-complexity",
+      "type": "classroom",
+      "status": "running",
+      "error": null,
+      "failure_detail": null,
+      "scene_workers": {
+        "queued": 4,
+        "succeeded": 3,
+        "running": 1
+      }
+    },
+    {
+      "node": "n3-code",
+      "type": "classroom",
+      "status": "running",
+      "error": null,
+      "failure_detail": null,
+      "scene_workers": {
+        "queued": 6,
+        "succeeded": 1,
+        "running": 2
+      }
+    }
+  ],
+  "planned": 12,
+  "counts": {
+    "draft": 4,
+    "failed": 2,
+    "running": 4
+  },
+  "not_submitted": 2
+}

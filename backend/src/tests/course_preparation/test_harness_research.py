@@ -179,3 +179,45 @@ def test_action_budget_stops_before_external_call():
     result = tools.call('fetch_source', {'candidate_id':tools.state.candidates[0].candidate_id})
     assert not result['ok'] and result['error']=='BUDGET_EXHAUSTED'
     assert not tools.agent.sources.reads and saved[-1].calls==1
+
+
+def test_research_schema_pins_actual_requirement_ids_and_requires_coverage():
+    tools, _ = setup_tools()
+    for name in ('finalize_research_summary', 'report_research_blocker'):
+        schema = tools.tools[name]['parameters']
+        assert schema['$defs']['RequirementCoverage']['properties']['requirement_id']['enum'] == ['req1']
+        assert schema['properties']['coverage']['minItems'] == schema['properties']['coverage']['maxItems'] == 1
+        assert 'coverage' in schema['required']
+    assert tools.tools['save_course_plan']['parameters']['$defs']['PathNode']['properties']['requirement_ids']['items']['enum'] == ['req1']
+
+
+def test_findings_beyond_twelve_are_saved_without_spending_correction_retries():
+    tools, saved = setup_tools()
+    tools.agent.max_calls = 60
+    research(tools)
+    for i in range(2, 13):
+        receipt = tools.call('record_evidence_finding', {'finding_id': f'f{i}',
+            'claim': '递归需要终止条件', 'citation_refs': ['q1_1']})
+        assert receipt['ok']
+    assert receipt['finding_budget']['remaining_finding_slots'] is None
+    for i in (13, 14):
+        assert tools.call('record_evidence_finding', {'finding_id':f'f{i}',
+            'claim':'递归需要终止条件','citation_refs':['q1_1']})['ok']
+    invalid = tools.call('finalize_research_summary', {'overview':'递归终止','finding_ids':['f1'],
+        'coverage': [*coverage(), {**coverage()[0], 'requirement_id': 'invented-outcome'}]})
+    assert not invalid['ok'] and tools.fatal is None
+    assert invalid['required_requirement_ids'] == ['req1']
+    assert len(invalid['saved_finding_ids']) == 14
+    assert tools.call('finalize_research_summary', {'overview':'递归终止','finding_ids':['f1'],
+        'coverage':coverage()})['ok']
+    assert tools.state.errors == 0 and tools.state.last_error is None
+
+
+def test_repeated_invalid_tool_still_stops_and_persists_final_error():
+    tools, saved = setup_tools()
+    for _ in range(3):
+        result = tools.call('record_evidence_finding', {'finding_id':'bad','claim':'fake','citation_refs':['q99_1']})
+    assert not result['ok'] and result['error'] == 'AGENT_NO_PROGRESS'
+    assert tools.fatal is not None
+    assert saved[-1].last_error['attempted_tool'] == 'record_evidence_finding'
+    assert saved[-1].last_error['validation_attempts']['record_evidence_finding'] == 3

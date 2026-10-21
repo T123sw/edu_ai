@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 15.487712383270264,
+  "decisions": {
+    "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null，显式配置为空），故采用 defaults 的 target_minutes=5，按约 300s 安排；节点 node_budget_minutes=5 是含阅读与练习的学习预算，不作为成片时长依据。配音：defaults.narration=true 且用户未要求静音，故开启中文配音。画幅取 defaults 的 16:9（1920×1080），与课程视觉契约一致。交付类型为约 5 分钟的普通教学解释视频，按原生路由走 general-video，flow=automation、storyboard=no。缺失信息假设：学习者背景未知，按零基础入门深度组织；无用户素材，图示全部自绘；不深入现代变体、不写可运行代码，遵循 limitations。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792428866.1519198,
+  "brief_sha256": "a57fda8732b735d5b18e65e111e89d0d3f667d381ced23b1d6f88cd43e5b06ee",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"Transformer 用注意力换掉循环：并行更快、任意两位置路径更短，代价是 O(n²) 的计算量\"\ndestination: course-video\naspect: 1920x1080\nlanguage: zh\nlength: 300s\nangle: concept\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知，按零基础入门处理）\"\n---\n\n## Intent\n\n这是入门课程《Transformer 与循环网络：并行计算与长距离依赖》中的一个节点视频，面向想系统学习 Transformer 的初学者（用户原话：“我想学习一下transformer”）。学习者已看过整体结构（编码器-解码器）与自注意力 QKV 计算，本节点要回答“为什么非要抛弃 RNN”。语气是清晰、克制的课堂讲解，重对比、重直觉，不堆公式。\n\n视频必须让学习者能同时说出两件事：Transformer 在并行化与长距离依赖上的优势，以及它在长序列上的计算代价。\n\n## Assets\n\n- 无用户提供的素材文件；所有图示（RNN 顺序展开图、路径长度对比图、复杂度曲线）由视频自行绘制。\n\n## Customizations\n\n- 用一张三行对比表贯穿全片：能否并行 / 任意两位置路径长度 / 每层计算复杂度，逐行揭示而不是一次铺满。\n- 复杂度对比用一条 O(n) 与一条 O(n²) 的曲线示意，标出 n 较小时自注意力更快的区间。\n\n## Notes\n\n必须讲清的内容与演示深度：\n\n1. 循环模型沿输入/输出序列的符号位置顺序计算：h_t 是 h_{t-1} 与位置 t 输入的函数；这种固有顺序性排除了训练样本内的并行化，序列越长越关键，因为内存限制会限制跨样本批处理。因式分解技巧与条件计算改善了效率，但顺序计算的基本约束仍在。\n2. Transformer 摒弃循环，完全依赖注意力建立输入与输出之间的全局依赖，因此允许更多并行化（论文中在 8 块 P100 上训练 12 小时即达到新的翻译质量水平——可作为一句佐证，不必展开实验细节）。\n3. 路径长度：自注意力层用恒定数量的顺序操作连接所有位置，循环层需要 O(n) 个顺序操作；任意两个位置之间的路径越短，越容易学习长距离依赖。\n4. 代价：自注意力每层计算复杂度随序列长度呈 O(n²) 增长；当序列长度 n 小于表示维度 d 时自注意力比循环层更快（机器翻译中的子词/字节对表示通常如此）；对超长序列可限制为大小 r 的邻域，最大路径长度变为 O(n/r)。\n5. 收尾要落到自测问题：能否同时说出优势与代价。\n\n来源与依据：原始论文《Attention Is All You Need》第 1 节与第 4 节“Why Self-Attention”的中文逐段解读（developer.volcengine.com 文章）、中文技术博客（kangshitao.github.io 的 Transformer 总结）、CS336 学习笔记（github.com/bcefghj/learn-cs336 的多头注意力与 RoPE 笔记，仅取复杂度与 QKV 角色相关表述）。未直接引用 arXiv 英文原文；公式细节以原始论文表述为准。\n\n排除项：\n\n- 不深入 RoPE、GQA/MQA、FlashAttention 等现代变体，仅在复杂度处一句带过。\n- 不写可运行代码，不涉及从零实现训练。\n- 不规划其他节点内容（整体结构、QKV 细节、位置编码、残差与层归一化由其他节点负责，本片只在必要时一句回指）。\n- 视频内不设题目；对比表练习与 3 分钟口述自测留给习题与报告，视频只把自测问题作为收尾提示。\n\n语音与画幅：中文配音讲解（默认开启），16:9、1920×1080。视觉沿用课程默认：背景 #0f172a、前景 #f8fafc、强调色 #38bdf8，字体 Noto Sans SC，正文不小于 32px、图示标签不小于 28px、标题不小于 48px；密集图示分步揭示，不缩小字号。\n\n时长：用户未指定视频时长，按默认约 5 分钟（300s）安排充分解释与示例；节点 5 分钟学习预算包含阅读与练习，不等同成片时长。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

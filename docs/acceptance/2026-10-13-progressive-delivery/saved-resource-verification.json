@@ -1,0 +1,104 @@
+{
+  "preparation_id": "prep_f13e2b0434204729a7835fff8298595e",
+  "backend_pid": "3431776",
+  "available_resources": 11,
+  "planned_resources": 12,
+  "resources": [
+    {
+      "type": "report",
+      "node": "n1-overview",
+      "title": "快速排序是什么：分治思想与整体流程",
+      "status": "draft",
+      "readback_verified": true
+    },
+    {
+      "type": "classroom",
+      "node": "n1-overview",
+      "title": "快速排序是什么：分治思想与整体流程",
+      "status": "draft",
+      "readback_verified": true
+    },
+    {
+      "type": "report",
+      "node": "n2-partition",
+      "title": "划分过程：基准值选取与一趟划分的跟踪",
+      "status": "draft",
+      "readback_verified": true
+    },
+    {
+      "type": "quiz",
+      "node": "n1-overview",
+      "title": "快速排序是什么：分治思想与整体流程",
+      "status": "draft",
+      "readback_verified": true
+    },
+    {
+      "type": "report",
+      "node": "n3-implementation",
+      "title": "读懂并运行快速排序代码",
+      "status": "draft",
+      "readback_verified": true
+    },
+    {
+      "type": "classroom",
+      "node": "n2-partition",
+      "title": "划分过程：基准值选取与一趟划分的跟踪",
+      "status": "draft",
+      "readback_verified": true
+    },
+    {
+      "type": "quiz",
+      "node": "n3-implementation",
+      "title": "读懂并运行快速排序代码",
+      "status": "draft",
+      "readback_verified": true
+    },
+    {
+      "type": "classroom",
+      "node": "n3-implementation",
+      "title": "读懂并运行快速排序代码",
+      "status": "draft",
+      "readback_verified": true
+    },
+    {
+      "type": "quiz",
+      "node": "n4-complexity",
+      "title": "性能与边界：复杂度、稳定性与退化情形",
+      "status": "draft",
+      "readback_verified": true
+    },
+    {
+      "type": "quiz",
+      "node": "n2-partition",
+      "title": "划分过程：基准值选取与一趟划分的跟踪",
+      "status": "failed",
+      "error_code": "PREPARATION_CONTENT_CONTRACT"
+    },
+    {
+      "type": "report",
+      "node": "n4-complexity",
+      "title": "性能与边界：复杂度、稳定性与退化情形",
+      "status": "draft",
+      "readback_verified": true
+    },
+    {
+      "type": "classroom",
+      "node": "n4-complexity",
+      "title": "性能与边界：复杂度、稳定性与退化情形",
+      "status": "draft",
+      "readback_verified": true
+    }
+  ],
+  "course_id": "learn-f13e2b0434204729a7835fff8298595e",
+  "manifest_state": "partial",
+  "pending": [
+    {
+      "node": "划分过程：基准值选取与一趟划分的跟踪",
+      "types": [
+        "quiz"
+      ]
+    }
+  ],
+  "production_mutations": 0,
+  "provider_calls": 0
+}

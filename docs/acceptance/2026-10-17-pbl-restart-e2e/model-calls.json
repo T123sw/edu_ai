@@ -1,0 +1,106 @@
+[
+  {
+    "case": "shop_a",
+    "calls": 11,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks"
+    ],
+    "errors": []
+  },
+  {
+    "case": "shop_b",
+    "calls": 9,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks"
+    ],
+    "errors": []
+  },
+  {
+    "case": "form",
+    "calls": 3,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks"
+    ],
+    "errors": []
+  },
+  {
+    "case": "layout",
+    "calls": 5,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "repair_step",
+      "repair_checks"
+    ],
+    "errors": []
+  },
+  {
+    "case": "score",
+    "calls": 15,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "repair_step",
+      "repair_checks"
+    ],
+    "errors": [
+      {
+        "type": "InvalidProjectOutput",
+        "message": "Expecting ',' delimiter: line 1 column 2958 (char 2957)"
+      }
+    ]
+  },
+  {
+    "case": "recovery",
+    "calls": 5,
+    "phases": [
+      "plan",
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_checks"
+    ],
+    "errors": []
+  },
+  {
+    "case": "retry",
+    "calls": 2,
+    "phases": [
+      "repair_step",
+      "repair_checks"
+    ],
+    "errors": []
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "directory": "/tmp/edu-pool-pg-lshn2np1",
+  "database_url": "postgresql+psycopg://zxqs_ep@/postgres?host=/tmp/edu-pool-pg-lshn2np1/socket&port=55439",
+  "production_database_used": false,
+  "stopped": true
+}

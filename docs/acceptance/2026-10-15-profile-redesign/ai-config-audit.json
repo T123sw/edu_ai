@@ -1,0 +1,71 @@
+{
+  "method": "Local source tracing plus isolated tests; no production credentials or settings changed and no external model completion performed.",
+  "configurationFlow": "draft -> verified -> active; personal active configuration takes priority over system active configuration, then deployment defaults. Existing revision snapshots can retain old settings.",
+  "verificationBoundary": "LLM/embedding tests request GET /models; PDF requests API root; classroom requests /api/health. These do not prove generation, embeddings or parsing succeeds. Web search tests POST /v1/web-search.",
+  "providers": [
+    {
+      "provider": "llm",
+      "status": "connected, not a global override",
+      "consumers": [
+        "backend/src/app/self_learning/agent_runtime.py",
+        "backend/src/app/self_learning/service.py",
+        "backend/src/app/course_preparation/research_dependencies.py",
+        "backend/src/app/pbl/generator.py",
+        "backend/src/app/chat/agents/report_generation.py"
+      ],
+      "limits": "Address/key/model are consumed by integrated paths. Independent classroom service models and some per-task timeout policies are separate."
+    },
+    {
+      "provider": "embedding",
+      "status": "connected",
+      "consumers": [
+        "backend/src/modules/rag_v2/rag_main/system.py"
+      ],
+      "limits": "Runtime values are read on client construction; backend protocol still comes from deployment. Existing vector indexes are not automatically rebuilt."
+    },
+    {
+      "provider": "tts",
+      "status": "deployment-managed; saved runtime revisions ignored",
+      "consumers": [
+        "backend/src/app/services/runtime_config_resolver.py",
+        "backend/src/app/services/openmaic_tts_service.py"
+      ],
+      "uiChange": "Read-only deployment notice; test/apply forms removed to avoid misleading success."
+    },
+    {
+      "provider": "web_search",
+      "status": "partial",
+      "consumers": [
+        "backend/src/app/services/deepsearch_service.py"
+      ],
+      "limits": "Bocha search/re-ranking reads runtime settings; course preparation ResearchSources and Tavily use deployment environment."
+    },
+    {
+      "provider": "pdf_parser",
+      "status": "connected for address/key/model",
+      "consumers": [
+        "backend/src/app/integrations/pdf/__init__.py"
+      ],
+      "limits": "timeout_seconds only used for connectivity verification, not passed to MinerUCloudProvider."
+    },
+    {
+      "provider": "classroom",
+      "status": "connected for address/key/timeout",
+      "consumers": [
+        "backend/src/app/integrations/openmaic/__init__.py"
+      ],
+      "limits": "model is not passed into OpenMaicConfig; actual model lives in classroom service. Removed unused model input from UI."
+    }
+  ],
+  "backendTests": {
+    "passed": 78,
+    "files": [
+      "test_runtime_config_store.py",
+      "test_runtime_config_api.py",
+      "test_local_tts_routing.py",
+      "test_qwen_remote_tts.py",
+      "test_openmaic_client.py"
+    ],
+    "isolation": "dotenv loading disabled, no DATABASE_URL, temporary JSON stores; no business data writes."
+  }
+}

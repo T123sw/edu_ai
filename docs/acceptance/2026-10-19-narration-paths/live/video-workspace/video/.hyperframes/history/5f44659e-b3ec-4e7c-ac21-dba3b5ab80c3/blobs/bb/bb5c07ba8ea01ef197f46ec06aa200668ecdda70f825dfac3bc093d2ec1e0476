@@ -1,0 +1,8 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=640,height=360"><script src="assets/gsap.min.js"></script>
+<style>*{box-sizing:border-box;margin:0}html,body{width:640px;height:360px;overflow:hidden;background:#14223a;color:white;font-family:sans-serif}#root{width:640px;height:360px;padding:40px;display:flex;flex-direction:column;justify-content:center;gap:20px}h1{font-size:32px}p{font-size:20px;line-height:1.8;color:#c7defa}</style></head><body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="46.464" data-width="640" data-height="360">
+<h1 id="title" class="clip" data-start="0" data-duration="46.464" data-track-index="0">快速排序：一趟划分</h1>
+<p class="clip" data-start="0" data-duration="46.464" data-track-index="1">完整场景讲稿 · 单次配音<br>选择基准 → 划分区间 → 递归处理</p>
+<audio src="assets/audio/483f68bcf13fcc86b8b803d7f87cfd92697493b70e3d1a0dc94d78d19bfd18f8.mp3" class="clip" data-start="0" data-duration="46.464" data-track-index="2"></audio></div>
+<script>window.__timelines=window.__timelines||{};const tl=gsap.timeline({paused:true});tl.fromTo('#title',{opacity:0},{opacity:1,duration:.6},0);tl.to({}, {duration:46.464-.6});window.__timelines.main=tl;tl.seek(0);</script></body></html>

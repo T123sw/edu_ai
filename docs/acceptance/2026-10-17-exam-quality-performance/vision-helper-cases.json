@@ -1,0 +1,80 @@
+[
+  {
+    "case": "old_binary",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "候选答案B（4次）错误：按给定二分查找过程，第3次mid=11时A[11]=83即查找成功，共3次比较，正确选项为A。",
+      "解析中第3步把A[11]误写为75（实际A[11]=83），并继续执行第4次比较，导致比较次数多算1次。",
+      "解析与独立求解结果不一致，且错误源于对输入数据的错误读取，不能接受。"
+    ],
+    "seconds": 5.3
+  },
+  {
+    "case": "old_partition",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "answer_valid",
+      "候选答案标为 B，但按题干所述交换式双指针划分，正确结果应为 (19,23,31,35) 47 (56,74,68)，即选项 C。",
+      "解析中先算出 (19,23,31,35,47,56,74,68)，却声称左侧最终为 (31,23,35,19)、右侧为 (56,74,68)，与自身计算矛盾，且错误地判定 B 正确。",
+      "选项 B 的左侧 (31,23,35,19) 并非该划分过程结束时的实际排列，最终答案与推导不一致。"
+    ],
+    "seconds": 9.31
+  },
+  {
+    "case": "new_arithmetic",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2328-2000 = 328, not 276",
+      "arithmetic_claim_invalid: 276 / 82 = 3.3658536585365852, not 4"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "new_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2**(11) = 2048, not 2047"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "correct_binary",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 4.86
+  },
+  {
+    "case": "old_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "候选答案第(1)问判断S在右子树T_R上错误：1024+1=1025=(10000000001)_2，去掉最高位后首位为0，应位于左子树T_L。",
+      "候选答案第(2)问基于错误的子树判断，得出0个叶子结点；正确应为T_L中排在S之前的叶子结点共137个。",
+      "候选答案第(3)问基于T_R给出编号序列2,5,6,...，正确应为T_L的序列1,3,4,7,8,9,10,15,16,17,18,19,20,21,22。",
+      "候选解释中称1025去掉最高位后首位是1，实际为0，推导与二进制事实矛盾。"
+    ],
+    "seconds": 9.84
+  },
+  {
+    "case": "correct_partition",
+    "expected_accept": true,
+    "accepted": false,
+    "issues": [
+      "independent_calculation_failed",
+      "calculation_mismatch: sum(1 for x in ['mb','xd','ae','kf','th','bp','wj'] if x <= 'qc') = 4, claimed 3",
+      "calculation_unverified: only numeric binary operations allowed",
+      "calculation_mismatch: all(x >= 'qc' for x in ['kf','th','xd','wj']) = False, claimed True",
+      "calculation_mismatch: all(x <= 'qc' for x in ['bp','mb','kf','ae']) = True, claimed False"
+    ],
+    "seconds": 5.73
+  }
+]

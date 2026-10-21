@@ -1,0 +1,12 @@
+{
+  "versions": {
+    "torch": "2.13.0",
+    "transformers": "4.57.3",
+    "qwen-tts": "0.1.1"
+  },
+  "gpu": "index, name, memory.total [MiB], memory.used [MiB], utilization.gpu [%]\n0, NVIDIA GeForce RTX 3090, 24576 MiB, 10581 MiB, 17 %\n1, NVIDIA GeForce RTX 3090, 24576 MiB, 13715 MiB, 0 %\n",
+  "tts_service": "MainPID=2525319\nNRestarts=0\nActiveEnterTimestamp=Mon 2026-10-19 06:48:21 UTC\n",
+  "serving_process_load_messages": 1,
+  "serving_process_loaded_messages": 1,
+  "serving_process_batch_count": 11
+}

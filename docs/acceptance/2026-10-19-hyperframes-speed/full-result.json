@@ -1,0 +1,37 @@
+{
+  "status": "succeeded",
+  "elapsed_seconds": 600.78,
+  "duration_seconds": 50.833333,
+  "scenes": 6,
+  "video": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/projects/hf_speed_validation_20261019/72f4ac25fcd633d6334b982b3d12a775f9c9d400d697ccddb11cda6359b9dea0/files/exports/lesson.mp4",
+  "project": {
+    "id": "hf_speed_validation_20261019",
+    "digest": "72f4ac25fcd633d6334b982b3d12a775f9c9d400d697ccddb11cda6359b9dea0",
+    "entry": "index.html"
+  },
+  "decoded": true,
+  "scope": "same brief, fresh model generation; cloud TTS and isolated load differ from historical run, not a controlled total-speed comparison",
+  "scene_workers": {
+    "count": 6,
+    "peak_concurrent": 4,
+    "wall_seconds": 270.95,
+    "max_queue_seconds": 140.21
+  },
+  "tools": {
+    "read_file": 17,
+    "run_command": 46,
+    "poll_command": 17,
+    "prepare_project": 2,
+    "write_file": 12,
+    "prepare_scene_assets": 2,
+    "dispatch_frames": 1,
+    "poll_workers": 6,
+    "finish_work": 6,
+    "edit_file": 5,
+    "check_project": 1,
+    "render_project": 1,
+    "complete_project": 1
+  },
+  "native_check_count": 1,
+  "native_check_passed": true
+}

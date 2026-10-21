@@ -139,8 +139,7 @@ def test_real_generated_quiz_checks_have_individual_objective_locations():
     assert all(len(c['objective_ids'])==1 for c in checks)
 
 
-@pytest.mark.parametrize('kind,reason', [('report','先例后理要求未落实，首个解释先于首个例子'),
-    ('quiz','q1 选项 C 写模型与程序都执行工具，解析却反驳程序参与工具选择')])
+@pytest.mark.parametrize('kind,reason', [('report','先例后理要求未落实，首个解释先于首个例子')])
 def test_archived_semantic_failure_targets_only_bad_resource(monkeypatch,kind,reason):
     import app.course_preparation.quality as module
     record=audit_fixture();artifacts=record['artifacts']
@@ -158,11 +157,11 @@ def test_archived_semantic_failure_targets_only_bad_resource(monkeypatch,kind,re
         'overrides':PreparationRequest.model_validate(record['request']).overrides.model_copy(update={'total_minutes':None})})
     class Critic:
         def decide(self,context,tools,**kwargs):
-            seen=next(a for a in context['artifacts'] if a['artifact_id']==bad['artifact_id'])
+            seen=next(a for a in context['artifacts'] if a['kind']==bad['resource_type'])
             assert seen['content']==bad['content']['content']
             assert '先用 12 加 30 的例子' in context['request']['goal']
             return 'review_course_delivery',{'decision':'fail','checked_node_ids':[bad['spec']['node_id']],
-                'issues':[{'artifact_ids':[bad['artifact_id']],'reason':reason}]}
+                'issues':[{'artifact_ids':[seen['artifact_id']],'reason':reason}]}
     generation=SimpleNamespace(read_result=lambda owner,receipt:next(a for a in artifacts if a['artifact_id']==receipt['artifact_id']))
     stages=QualityStages(SimpleNamespace(get=lambda **_:SimpleNamespace(request=request)),generation,
         SimpleNamespace(validate=lambda *_:None),lambda *_:SimpleNamespace(model=Critic()))

@@ -1,0 +1,28 @@
+{
+  "deployed_at": "2026-10-13T13:24:51.097131+00:00",
+  "backup": "/tmp/edu-ai-before-center-sync-20261013T132450Z",
+  "index_sha256": "b1a8bb2c228b538e5bb5f8ca6be391a28b9d2191600b9cac95b1215c19e43b22",
+  "checks": {
+    "browser_regression": 12,
+    "completion_scope_recheck": 2,
+    "unit_tests": 16,
+    "typecheck": "passed",
+    "lint": "passed"
+  },
+  "api_mode": "mocked browser lifecycle; original task status read from production database",
+  "production_smoke": {
+    "passed": 4,
+    "viewports": [
+      1440,
+      390
+    ],
+    "surfaces": [
+      "home",
+      "workbench"
+    ],
+    "nginx_matches_build": true,
+    "backend_health": "ok",
+    "tts_service": "active",
+    "api_mode": "mocked"
+  }
+}

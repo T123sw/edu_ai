@@ -33,15 +33,25 @@ run_in_env() {
   conda run --no-capture-output --name edu-ai "$@"
 }
 
-echo "==> Install OpenMAIC dependencies"
-run_in_env pnpm --dir "$REPO_ROOT/openmaic-sidecar" install --frozen-lockfile
+if ! command -v bwrap >/dev/null 2>&1; then
+  echo "Install the Linux isolation dependency first: sudo apt install bubblewrap" >&2
+  exit 1
+fi
+
+echo "==> Install native HyperFrames dependencies"
+git submodule update --init --depth 1 -- vendor/hyperframes
+run_in_env npm --prefix "$REPO_ROOT/hyperframes-runtime" ci
+run_in_env python "$REPO_ROOT/scripts/prepare-hyperframes-runtime.py"
 
 echo "==> Install frontend dependencies"
 run_in_env pnpm --dir "$REPO_ROOT/frontend" install --frozen-lockfile
 
+echo "==> Install pinned MAIC-UI native repository"
+run_in_env python "$REPO_ROOT/scripts/install-maic-ui.py"
+
 if [[ "$SKIP_BROWSERS" -eq 0 ]]; then
   echo "==> Install Playwright Chromium binaries"
-  run_in_env pnpm --dir "$REPO_ROOT/openmaic-sidecar" exec playwright install chromium
+  run_in_env npm --prefix "$REPO_ROOT/hyperframes-runtime" exec -- hyperframes browser ensure
   run_in_env pnpm --dir "$REPO_ROOT/frontend" exec playwright install chromium
 fi
 

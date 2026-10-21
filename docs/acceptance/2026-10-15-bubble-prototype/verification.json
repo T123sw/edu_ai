@@ -1,0 +1,57 @@
+{
+  "scope": "Phase-one review prototype: demonstration and manual practice only",
+  "unitTestsPassed": 7,
+  "browserTestsPassed": 7,
+  "typecheck": "passed (tsconfig.bubble.json)",
+  "lint": "passed (src/practice/teaching)",
+  "build": "passed (isolated Vite entry)",
+  "viewportWidths": [
+    320,
+    390,
+    768,
+    1024,
+    1440
+  ],
+  "covered": [
+    "comparison separated from swap",
+    "manual pair selection",
+    "invalid adjacency and sequence rejected",
+    "incorrect decision leaves algorithm unchanged",
+    "early round declaration rejected",
+    "two rounds: 9 comparisons and 6 swaps",
+    "no next-step or automatic-round control",
+    "progress restored on refresh",
+    "independent stage retry",
+    "keyboard selection",
+    "progressive hints",
+    "corrupt browser draft recovery",
+    "feedback visible in short viewports"
+  ],
+  "previewUrl": "http://127.0.0.1:5250/bubble-preview.html",
+  "productionChanged": false,
+  "backendChanged": false,
+  "modelCalls": 0,
+  "storage": "sessionStorage event replay, per tab, prototype-only",
+  "pending": [
+    "performance testing",
+    "free exploration",
+    "Agent conversation",
+    "server persistence and production integration",
+    "physics adaptation"
+  ],
+  "sourceManifest": {
+    "frontend/src/practice/teaching/bubblePrototype.css": "f63972800c39050c2835f3c01bad4b080bb17de64ced1d0baa77cf7410d63f2d",
+    "frontend/src/practice/teaching/BubbleSortPrototype.tsx": "09f8369a8768ed7fc4a6f4a7f7141e579141e9e87391fac77d82bc754230f8fb",
+    "frontend/src/practice/teaching/prototypeStorage.ts": "8bd7ef4b86f0e7f90b92a602205d56d116b4c05ca418a42db9431db1d6403111",
+    "frontend/src/practice/teaching/prototypeEntry.tsx": "a3e49d8ccab5e135c6bc8692bd3c52322822fb55b7aa8aada7ad61d1aa83eaa4",
+    "frontend/src/practice/teaching/domains/bubbleSort.ts": "9c185f70168b192cc034a7ab925f13fcc1ed51ce1a40079972b79cc2973ec2a7",
+    "frontend/src/practice/teaching/domains/bubbleSort.test.ts": "b5c860173d01bab3a767a50f037a6f32e468166a94f490a7459ef3ab5188d0d8",
+    "frontend/bubble-preview.html": "e27c76d64bd31664d8789b81357ce2b606b88879a0225ac0dc05045e986d66da",
+    "frontend/vite.bubble.config.ts": "83447f035fa08ec21fce0d1b2df382eb8550169930fee660e7203a5de226a40a",
+    "frontend/tsconfig.bubble.json": "00e08aa56eb86b839aef1b59ec88214cb77f3ceebdfb4491df2fc4db8c80f067",
+    "frontend/playwright.bubble.config.ts": "7968192ab019b1c2865a264303cd43294ab0199dc592d8814cd2ac8f76edf628",
+    "frontend/tests/bubble-prototype/bubble.spec.ts": "bcf4bce9c9aeeed5d4f2f7147620799252fd13d90bcabd8fd03be3b47667512d",
+    "frontend/scripts/build-bubble-prototype.mjs": "057035a78fcf442be1a6979be3e9e0b46953f3dd8a2c83b1925f4d31a41af492"
+  },
+  "artifactSha256": "69402c9e03da5a6748127b150ca1bf4eb252f68bed253dd259db8f8616af9b1d"
+}

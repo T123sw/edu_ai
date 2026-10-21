@@ -1,0 +1,6 @@
+node,status,start_after_task_start_seconds,execution_seconds,brief_seconds,native_preparation_including_brief_seconds,scene_span_including_queue_seconds,assembly_and_check_seconds,post_render_seconds,video_seconds,scenes,narrated_scenes,render_seconds_including_admission_and_poll,render_admission_seconds
+n1-why-transformer,draft,95.201,1445.14,14.164729833602905,346.13,487.511,94.653,16.76,288.033333,9,9,500.09,0.0
+n2-overall-architecture,draft,138.491,3182.6,13.22565221786499,362.81,1414.193,99.958,10.33,327.5,12,12,1295.312,0.0
+n3-self-attention,draft,146.561,1422.75,14.043644666671753,304.82,517.511,118.413,12.991,310.2,11,11,469.02,0.0
+n4-multihead-and-sublayers,draft,183.346,1832.68,14.035312175750732,303.42,861.26,84.735,11.28,337.1,10,10,571.985,0.001
+n5-positional-encoding-and-advantages,draft,202.121,1345.03,15.892204999923706,285.519,495.908,68.641,16.462,292.5,11,11,478.502,0.0

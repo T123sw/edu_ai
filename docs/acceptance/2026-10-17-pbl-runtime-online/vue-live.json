@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "runtime": {
+    "template": "vue",
+    "entry": "/src/main.js",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  },
+  "steps": [
+    {
+      "id": "disable-empty-name",
+      "checks": 4,
+      "native": 0
+    },
+    {
+      "id": "submit-and-reset",
+      "checks": 7,
+      "native": 0
+    }
+  ],
+  "runs": 5,
+  "files": [
+    "/src/main.js",
+    "/src/App.vue",
+    "/src/styles.css",
+    "/public/index.html"
+  ]
+}

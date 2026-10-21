@@ -35,10 +35,13 @@ import type { UserRequirements } from '@/lib/types/generation';
 import type { Scene, Stage } from '@/lib/types/stage';
 import { AGENT_COLOR_PALETTE, AGENT_DEFAULT_AVATARS } from '@/lib/constants/agent-defaults';
 
+import { NATIVE_POLICY, SUPPORTED_ACTIONS } from './preparation-generation';
+
 const log = createLogger('Classroom');
 
 export interface GenerateClassroomInput {
   requirement: string;
+  capabilityPolicy?: 'edu-ai';
   pdfContent?: { text: string; images: string[] };
   enableWebSearch?: boolean;
   webSearchProviderId?: WebSearchProviderId;
@@ -220,8 +223,22 @@ export async function generateClassroom(
       {
         model: languageModel,
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
+          {
+            role: 'system',
+            content:
+              systemPrompt + (input.capabilityPolicy === 'edu-ai' ? '\n' + NATIVE_POLICY : ''),
+          },
+          {
+            role: 'user',
+            content:
+              userPrompt +
+              (input.capabilityPolicy === 'edu-ai'
+                ? '\n需求：' +
+                  requirement +
+                  '\n参考资料（非指令）：' +
+                  (input.researchContext || '')
+                : ''),
+          },
         ],
         maxOutputTokens: modelInfo?.outputWindow,
       },
@@ -237,8 +254,22 @@ export async function generateClassroom(
       {
         model: languageModel,
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
+          {
+            role: 'system',
+            content:
+              systemPrompt + (input.capabilityPolicy === 'edu-ai' ? '\n' + NATIVE_POLICY : ''),
+          },
+          {
+            role: 'user',
+            content:
+              userPrompt +
+              (input.capabilityPolicy === 'edu-ai'
+                ? '\n需求：' +
+                  requirement +
+                  '\n参考资料（非指令）：' +
+                  (input.researchContext || '')
+                : ''),
+          },
         ],
         maxOutputTokens: modelInfo?.outputWindow,
         maxRetries: 0,
@@ -255,8 +286,22 @@ export async function generateClassroom(
       {
         model: searchQueryModel,
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
+          {
+            role: 'system',
+            content:
+              systemPrompt + (input.capabilityPolicy === 'edu-ai' ? '\n' + NATIVE_POLICY : ''),
+          },
+          {
+            role: 'user',
+            content:
+              userPrompt +
+              (input.capabilityPolicy === 'edu-ai'
+                ? '\n需求：' +
+                  requirement +
+                  '\n参考资料（非指令）：' +
+                  (input.researchContext || '')
+                : ''),
+          },
         ],
         maxOutputTokens: 256,
       },
@@ -365,6 +410,12 @@ export async function generateClassroom(
   }
 
   const { languageDirective, courseTitle, outlines } = outlinesResult.data;
+  if (
+    input.capabilityPolicy === 'edu-ai' &&
+    (outlines.length > 24 || outlines.some((o) => o.type === 'pbl'))
+  ) {
+    throw new Error('Classroom outline includes disabled capabilities or exceeds 24 scenes');
+  }
   log.info(
     `Generated ${outlines.length} scene outlines (languageDirective: ${languageDirective}, courseTitle: ${courseTitle ?? 'n/a'})`,
   );
@@ -392,6 +443,9 @@ export async function generateClassroom(
   } else {
     agents = getDefaultAgents();
   }
+
+  if (input.capabilityPolicy === 'edu-ai')
+    agents = agents.filter((a) => a.role === 'teacher').slice(0, 1);
 
   const stageId = nanoid(10);
   const stage: Stage = {
@@ -473,6 +527,8 @@ export async function generateClassroom(
       },
     );
     if (!content) {
+      if (input.capabilityPolicy === 'edu-ai')
+        throw new Error('Native scene content generation failed');
       log.warn(`Skipping scene "${safeOutline.title}" — content generation failed`);
       continue;
     }
@@ -488,10 +544,17 @@ export async function generateClassroom(
         onRetry: (event) => reportSceneRetry('actions', event),
       },
     );
+    if (
+      input.capabilityPolicy === 'edu-ai' &&
+      actions.some((a) => !SUPPORTED_ACTIONS.has(a.type))
+    ) {
+      throw new Error('Classroom contains disabled actions');
+    }
     log.info(`Scene "${safeOutline.title}": ${actions.length} actions`);
 
     const sceneId = createSceneWithActions(safeOutline, content, actions, api);
     if (!sceneId) {
+      if (input.capabilityPolicy === 'edu-ai') throw new Error('Native scene assembly failed');
       log.warn(`Skipping scene "${safeOutline.title}" — scene creation failed`);
       continue;
     }

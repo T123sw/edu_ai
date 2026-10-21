@@ -1,0 +1,96 @@
+{
+  "changes": [
+    "删除题面两侧卡片底色、边框、圆角与分块横线，继承页面背景，仅保留两栏间细竖线",
+    "成果、代码约定优先靠左，要求、起点、效果及验收靠右，完整保留段落与代码块",
+    "按实际渲染高度在可读列宽内选择接近等高的比例，步骤变化、窗口缩放、字体及图片加载后重新调整",
+    "1100px 及以下改为单栏，隐藏竖线"
+  ],
+  "topicSpecificRules": false,
+  "modelCallsAdded": 0,
+  "typecheckPassed": true,
+  "eslintPassed": true,
+  "unitTestsPassed": 3,
+  "buildPassed": true,
+  "previewBrowserPassed": 7,
+  "optionalBrowserSkipped": 1,
+  "skipReason": "当前真实练习不含手机窗口几何检查，该可选用例不适用",
+  "viewportWidths": [
+    1920,
+    1440,
+    1200,
+    1024,
+    768,
+    390,
+    320
+  ],
+  "realArtifactReadOnly": "pbl_f68a8c30ed541638347f1ee9dd701055",
+  "heightMeasurements": [
+    {
+      "step": "step-display",
+      "width": 1920,
+      "leftHeight": 386.875,
+      "rightHeight": 426.90625,
+      "difference": 40.03
+    },
+    {
+      "step": "step-display",
+      "width": 1440,
+      "leftHeight": 386.875,
+      "rightHeight": 426.90625,
+      "difference": 40.03
+    },
+    {
+      "step": "step-display",
+      "width": 1200,
+      "leftHeight": 412.0625,
+      "rightHeight": 426.90625,
+      "difference": 14.84
+    },
+    {
+      "step": "step-operators",
+      "width": 1920,
+      "leftHeight": 452.25,
+      "rightHeight": 433.46875,
+      "difference": 18.78
+    },
+    {
+      "step": "step-operators",
+      "width": 1440,
+      "leftHeight": 452.25,
+      "rightHeight": 433.46875,
+      "difference": 18.78
+    },
+    {
+      "step": "step-operators",
+      "width": 1200,
+      "leftHeight": 452.25,
+      "rightHeight": 458.65625,
+      "difference": 6.41
+    },
+    {
+      "step": "step-clear-and-error",
+      "width": 1920,
+      "leftHeight": 477.4375,
+      "rightHeight": 487.28125,
+      "difference": 9.84
+    },
+    {
+      "step": "step-clear-and-error",
+      "width": 1440,
+      "leftHeight": 477.4375,
+      "rightHeight": 487.28125,
+      "difference": 9.84
+    },
+    {
+      "step": "step-clear-and-error",
+      "width": 1200,
+      "leftHeight": 502.625,
+      "rightHeight": 512.46875,
+      "difference": 9.84
+    }
+  ],
+  "businessApisMocked": true,
+  "externalSandpackAborted": true,
+  "validationBoundary": "本次验证题面布局、正文保留、切步和工作区滚动；不重新生成教材，不修改用户工程，不代表重跑用户代码验收。",
+  "onlineBrowserPassed": 7
+}

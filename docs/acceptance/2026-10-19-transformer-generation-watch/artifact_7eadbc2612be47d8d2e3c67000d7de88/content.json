@@ -1,0 +1,188 @@
+{
+  "title": "位置编码、残差与层归一化、前馈网络：让注意力真正可用",
+  "content": {
+    "title": "位置编码、残差与层归一化、前馈网络：让注意力真正可用",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_7eadbc2612be47d8d2e3c67000d7de88",
+      "entry": "index.html",
+      "digest": "d1b11b555ee534a0c794f6443d5c9139a3106bcf70566db6f09f5bab76a150ad"
+    },
+    "timeline": {
+      "duration": 100.3,
+      "segments": [
+        {
+          "id": "01-order-swap",
+          "end": 7.656,
+          "start": 0.0,
+          "title": "顺序一换，意思就反了",
+          "events": [],
+          "narration": "词一样，顺序一换，意思就反了：我爱你，你爱我。自注意力却把句子当成一堆词。",
+          "audio_path": "assets/audio/5fecb7ac827e1489d8d4d351bd6e8f6a7c185f46962186e18a8a0672d4921a49.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "「我爱你」三个字在原位对调成「你爱我」，下方抽成无序号的词块集合"
+        },
+        {
+          "id": "02-order-blind",
+          "end": 16.68,
+          "start": 7.656,
+          "title": "打乱座位，分数一模一样",
+          "events": [],
+          "narration": "它只算词与词之间的相关性；把位置整体打乱，注意力分数一模一样。所以位置，必须自己注进去。",
+          "audio_path": "assets/audio/8df1b3e916da02105170e13d90b16cde7e2a293e0d759adb350213da9fce3ba1.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "词块之间的相关性连线汇成一张 3×3 分数矩阵，行列整体打乱后每格高度不变"
+        },
+        {
+          "id": "03-add-embedding-pe",
+          "end": 25.224,
+          "start": 16.68,
+          "title": "直接相加，维度必须一样",
+          "events": [],
+          "narration": "做法很直接：给每个位置造一个向量，再加到词嵌入上。两者维度都是 512，才能逐位相加。",
+          "audio_path": "assets/audio/a82eeaf6dc687b3166838eda72d9d703d34a2079de88069deac747187615b5fc.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "词嵌入横条与位置向量横条逐格对齐后合成第三条，右侧标出同为 512"
+        },
+        {
+          "id": "04-sinusoidal-formula",
+          "end": 35.112,
+          "start": 25.224,
+          "title": "正弦余弦与等比波长",
+          "events": [],
+          "narration": "原论文用正弦和余弦：偶数维取 sin，奇数维取 cos；一万的幂把波长从 2π 逐级拉到一万倍的 2π。",
+          "audio_path": "assets/audio/bdc4affb13efe75854ad9a93cd591c6c79ab9eaa2a6e4dd506a81586d56e7840.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "两行 sin / cos 公式填入空槽，下方六根波长柱按等比级数依次升高"
+        },
+        {
+          "id": "05-relative-linear",
+          "end": 50.616,
+          "start": 35.112,
+          "title": "为什么是正弦：一个固定矩阵",
+          "events": [],
+          "narration": "为什么是正弦？平移 k 个位置，编码总能由一个固定矩阵线性变换得到，相对距离就成了模型好学的东西。实验里可学习版本结果几乎一样，选正弦，是看中外推更长序列。",
+          "audio_path": "assets/audio/991e8b343931744f00b84da81977e53ba8d73e639c58ec5fae35bdc8a019345b.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "PE(pos) 经过一个 k×k 固定矩阵变成 PE(pos+k)，下方是对照两栏\"可学习 / 正弦\""
+        },
+        {
+          "id": "06-residual-layernorm",
+          "end": 64.752,
+          "start": 50.616,
+          "title": "加回来，再归一化",
+          "events": [],
+          "narration": "每个子层外面都套同一件事：先把输入加回来，再做层归一化。残差留出一条直通路径，梯度不必穿过所有变换；层归一化把每个位置的向量拉回稳定尺度。",
+          "audio_path": "assets/audio/f437049985c6299a78224c37eceac4d22d059fac78518874bb9d8087a4153b84.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "两张对开卡片\"残差 / 层归一化\"并排入场，最后由一行 LayerNorm(x + Sublayer(x)) 收束"
+        },
+        {
+          "id": "07-position-wise-ffn",
+          "end": 77.68799999999999,
+          "start": 64.752,
+          "title": "每个位置过同一个小网络",
+          "events": [],
+          "narration": "每个位置还要过一个前馈网络：先升到 2048，ReLU 截掉负值，再压回 512。位置之间共享参数，层与层不共享——它相当于两个 1×1 卷积。",
+          "audio_path": "assets/audio/1dcae3b73b921e1936f2304782635cf2a3b09cffc9b8eeb212371ebf28a920a0.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三条互不相连的位置轨道穿过同一枚 FFN 关口，关口先变宽到 2048 再压回 512"
+        },
+        {
+          "id": "08-encoder-block",
+          "end": 90.93599999999999,
+          "start": 77.68799999999999,
+          "title": "一层的分工",
+          "events": [],
+          "narration": "于是分工清楚了：注意力混合位置之间的信息，前馈网络在每个位置上加工，残差和归一化让堆叠的六层训得动，位置编码把顺序还给它。",
+          "audio_path": "assets/audio/1e0d6bb1194e519df21804cfef26a040bdb2c8fcc562d85be0dcd98d74f6accb.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "四个部件依次落入空框，拼成一块编码器层，右上角弹入 ×6"
+        },
+        {
+          "id": "09-landing",
+          "end": 100.27199999999999,
+          "start": 90.93599999999999,
+          "title": "落地",
+          "events": [],
+          "narration": "让注意力真正可用的，从来不是注意力本身。后来的 RoPE 和 ALiBi，也只是把位置换了个更聪明的写法。",
+          "audio_path": "assets/audio/44660a5c1635fd9891bf11af7b4d8f867c2224393bc5d17aec61cd0704e4551c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "满幅纸张上两行结语先后滑入，右下角一枚小 QR 作为收尾标点"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 100.3
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 1.6716666666666666
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "2621796bc267eb000ae73ea908ffd9d9394ceae370e542fb7c8ca7de423e4412",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 100.3
+      },
+      "content_digest": "fdbab5a9a9d5d4ea887979b25ef9920474c4faf569ed582923b0656f8226690f",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 1.6716666666666666
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "38ed4a0527c574a51fa4960fbb9bb156230b3418d6c660f878af4778d121dd47"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "57cc99425bfdf381b1a517d90a5f59bf1d542198bd6f6899a1d73e3071a7bf65",
+      "preparation_sha256": "78e19e16c3f896ae379ddfe8176877450962d31993bde4fb3a27a2fccc664f50"
+    }
+  }
+}

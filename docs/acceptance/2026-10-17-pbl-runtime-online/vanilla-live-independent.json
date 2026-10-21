@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "cases": 8,
+  "runtime": {
+    "template": "vanilla",
+    "entry": "/index.js",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  }
+}

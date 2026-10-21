@@ -1,0 +1,67 @@
+{
+  "phase": "online",
+  "startedAt": "2026-10-18T07:59:41.013Z",
+  "boundary": "Read-only browser replay of three existing real-model papers; no new generation",
+  "papers": [
+    {
+      "label": "kentucky-0013",
+      "questions": 4,
+      "children": 17,
+      "viewports": [
+        {
+          "width": 1440,
+          "overflow": false
+        },
+        {
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "width": 320,
+          "overflow": false
+        }
+      ]
+    },
+    {
+      "label": "kentucky-0014",
+      "questions": 4,
+      "children": 17,
+      "viewports": [
+        {
+          "width": 1440,
+          "overflow": false
+        },
+        {
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "width": 320,
+          "overflow": false
+        }
+      ]
+    },
+    {
+      "label": "kentucky-0014-repeat",
+      "questions": 4,
+      "children": 17,
+      "viewports": [
+        {
+          "width": 1440,
+          "overflow": false
+        },
+        {
+          "width": 390,
+          "overflow": false
+        },
+        {
+          "width": 320,
+          "overflow": false
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "passed": true,
+  "finishedAt": "2026-10-18T07:59:45.839Z"
+}

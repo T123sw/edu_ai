@@ -1,6 +1,7 @@
 """Small, testable conversation policies independent of tool execution."""
 from __future__ import annotations
 
+from app.services.tutoring_response_policy import TUTORING_RESPONSE_POLICY
 from dataclasses import dataclass
 from typing import Literal
 
@@ -24,14 +25,14 @@ class PersonaPolicy:
                 "必要时自然补充原理、实现思路、适用场景和关键注意点。"
                 "不要把教师当学生教学，不要连续反问，不要给出无关的延伸学习任务，"
                 "也不要展示内部推理。仅在一个会显著改变结果的关键信息缺失时追问一次。"
-            )
+            ) + '\n\n' + TUTORING_RESPONSE_POLICY
         return (
             "你是学生的引导式教学助手，目标是帮助学生真正理解并完成当前学习任务。"
             "解释概念时先给清晰的思路、提示或小例子，再给结论；学生明确要求完整答案时不要故意隐瞒答案。"
             "根据学生当前问题控制难度，把复杂任务拆成可执行的小步，并指出关键依据和常见误区。"
             "每个知识点最多提出一个有价值的理解检查问题，不要连续反问，不要把对话变成测验，"
             "也不要展示内部推理。缺少非关键参数时采用合理默认值；只有一个会显著改变结果的关键信息缺失时追问一次。"
-        )
+        ) + '\n\n' + TUTORING_RESPONSE_POLICY
 
 
 TEACHER_PERSONA = PersonaPolicy(

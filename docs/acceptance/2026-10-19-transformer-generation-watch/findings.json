@@ -1,0 +1,50 @@
+{
+  "scope": "Read-only observation of prep_65488c25779346448e1dcbe0b809d73e; no intervention in production",
+  "issues": [
+    {
+      "kind": "mixed_worker_versions",
+      "impact": "n1/n2/n5 adopted teaching-brief-v2, default 5 minutes and 4 render workers; n3/n4 used legacy briefs of 80/110 seconds and 2 render workers",
+      "resolved": false
+    },
+    {
+      "kind": "cloud_tts_rate_limit",
+      "node": "n4-position-ffn-norm",
+      "error": "HTTP 429",
+      "resolution": "native host audio preparation retried and produced complete narration",
+      "resolved": true
+    },
+    {
+      "kind": "invalid_css_id_selectors",
+      "node": "n5-encoder-decoder",
+      "errors": 53,
+      "files": [
+        "07-output-softmax.html",
+        "08-training.html"
+      ],
+      "resolution": "generator prefixed numeric IDs and their references with f; subsequent browser check passed with no blockers",
+      "resolved": true
+    },
+    {
+      "kind": "quiz_numeric_error",
+      "node": "n2-self-attention",
+      "questions": [
+        "q6-hand-calc-weights",
+        "q7-hand-calc-output"
+      ],
+      "detail": "Unscaled softmax([1,0,1]) explanation uses [0.422,0.207,0.371]; correct values are approximately [0.422,0.155,0.422]. Scaled third-row rounding also differs.",
+      "resolved": false,
+      "evidence": "numeric-spotcheck.json"
+    },
+    {
+      "kind": "recoverable_tool_calls",
+      "detail": "Wrong reference paths, an initial project-directory preparation/copy failure, and one edit_file text match failure; generation continued. Nonzero ls/grep probes were not counted as production failures."
+    }
+  ],
+  "visual_observations": [
+    "n1: dark diagram style; sequence dependence, complexity and path-length comparison are visible.",
+    "n2: Q/K/V flows and the scaled matrix example are visible; first output (0.80,0.60) matches narration. Formula emphasis boxes are dense.",
+    "n3/n4: lighter blue schematic style with small technical labels; the short durations compress several concepts.",
+    "n5: dark architecture diagrams, causal mask, cross attention, training/inference and on-screen captions.",
+    "Review covers saved native contact sheets and a small numeric spot check, not every frame or spoken word."
+  ]
+}

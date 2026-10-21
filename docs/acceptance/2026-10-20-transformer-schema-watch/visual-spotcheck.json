@@ -1,0 +1,27 @@
+{
+  "method": "人工查看生成器已有 contact sheet；不重新截图或渲染；不能覆盖动画全过程及最终播放",
+  "reviewed_nodes": [
+    "n1-why-transformer",
+    "n3-self-attention",
+    "n4-multihead-and-sublayers",
+    "n2-overall-architecture"
+  ],
+  "findings": [
+    {
+      "node": "n1-why-transformer",
+      "finding": "RNN 链式依赖、注意力连接、百词比较和整体结构可见；部分图注偏小。"
+    },
+    {
+      "node": "n3-self-attention",
+      "finding": "Q/K/V、打分、缩放、softmax、加权输出的分步画面可见；矩阵下标与图注较小。视频采用的 Q 与习题不同，已按视频自身示例抽查权重。"
+    },
+    {
+      "node": "n4-multihead-and-sublayers",
+      "finding": "多头、掩码、FFN、残差归一化均有画面；投影标题“把512维切成h份”容易误导为直接分片，实际应强调各头独立可学习线性投影；图片中有 h 组不同投影标注。"
+    },
+    {
+      "node": "n2-overall-architecture",
+      "finding": "编码器、解码器、自回归、词嵌入与位置编码、子层和掩码已有对应画面。部分图注偏小；联系表包含动画中途模糊/未展开状态，不能据此认定最终场景缺失。"
+    }
+  ]
+}

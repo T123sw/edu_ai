@@ -1,0 +1,396 @@
+[
+  {
+    "case": "kanban",
+    "kind": "frontend",
+    "generationPassed": false,
+    "completedSteps": 1,
+    "errorCode": "PBL_VALIDATION_FAILED",
+    "errorMessage": "项目步骤经过修复仍未通过运行检查，请重试",
+    "calls": 6,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "repair_step",
+      "repair_step"
+    ],
+    "repairs": {
+      "move-tasks": 3
+    },
+    "issues": [
+      "本步代码未通过前序验收，尚未设计本步验收；对照 previousFiles、priorCandidate.referenceFiles 和 previousCheckReport 修复本步代码，保留前序检查及本步目标：[{\"caseId\": \"add-task-appears-in-todo\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"title-input\\\" 输入 \\\"  写周报  \\\"\\n✓ 2. 点击 \\\"add-button\\\"\\n× 3. 检查 \\\"column-todo\\\" 的显示文字\\n预期：\\\"待办写周报\\\"\\n实际：\\\"待办写周报前进\\\"\"}, {\"caseId\": \"three-columns-visible\", \"status\": \"failed\", \"message\": \"✓ 1. 检查 \\\"column-todo\\\" 的可见状态\\n   实际：true\\n✓ 2. 检查 \\\"column-progress\\\" 的可见状态\\n   实际：true\\n✓ 3. 检查 \\\"column-done\\\" 的可见状态\\n   实际：true\\n✓ 4. 在 \\\"title-input\\\" 输入 \\\"写周报\\\"\\n✓ 5. 点击 \\\"add-button\\\"\\n× 6. 检查 \\\"column-todo\\\" 的显示文字\\n预期：\\\"待办写周报\\\"\\n实际：\\\"待办写周报前进\\\"\"}]"
+    ],
+    "artifactChecks": null,
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 0,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      }
+    ]
+  },
+  {
+    "case": "quiz",
+    "kind": "frontend",
+    "generationPassed": false,
+    "completedSteps": 1,
+    "errorCode": "PBL_VALIDATION_FAILED",
+    "errorMessage": "项目步骤经过修复仍未通过运行检查，请重试",
+    "calls": 9,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "repair_step",
+      "repair_checks",
+      "repair_step",
+      "repair_checks"
+    ],
+    "repairs": {
+      "submit-and-feedback": 3
+    },
+    "issues": [
+      "参考实现未通过累计检查（先核对需求、本步检查和代码；本步验收可修复，前序检查保留）: [{\"caseId\": \"submit-disabled-without-selection\", \"status\": \"failed\", \"message\": \"× 1. 检查 \\\"submit\\\" 的可操作状态\\n预期：true\\n实际：false\"}, {\"caseId\": \"locked-after-submit\", \"status\": \"failed\", \"message\": \"✓ 1. 点击 第 1 个 \\\"option\\\"\\n✓ 2. 点击 \\\"submit\\\"\\n✓ 3. 检查 \\\"feedback\\\" 的显示文字\\n   实际：\\\"回答错误\\\"\\n✓ 4. 检查 \\\"correct-answer\\\" 的显示文字\\n   实际：\\\"正确答案：5\\\"\\n✓ 5. 点击 第 2 个 \\\"option\\\"\\n✓ 6. 检查 第 1 个 \\\"option\\\" 的显示文字\\n   实际：\\\"4\\\"\\n✓ 7. 检查 第 2 个 \\\"option\\\" 的显示文字\\n   实际：\\\"5\\\"\\n× 8. 检查 \\\"submit\\\" 的可操作状态\\n预期：true\\n实际：false\"}]"
+    ],
+    "artifactChecks": null,
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 0,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 2,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 2,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 2,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      }
+    ]
+  },
+  {
+    "case": "expense",
+    "kind": "frontend",
+    "generationPassed": false,
+    "completedSteps": 1,
+    "errorCode": "PBL_VALIDATION_FAILED",
+    "errorMessage": "项目步骤经过修复仍未通过运行检查，请重试",
+    "calls": 11,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "repair_step",
+      "repair_checks",
+      "build_step",
+      "build_checks",
+      "repair_step",
+      "repair_checks",
+      "repair_step",
+      "repair_checks"
+    ],
+    "repairs": {
+      "add-and-list": 1,
+      "validate-input": 3
+    },
+    "issues": [
+      "reject-zero-amount 的实际断言 ['count', 'visible'] 与计划要求 ['count', 'text', 'visible'] 不一致"
+    ],
+    "artifactChecks": null,
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 0,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 0,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 2,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 2,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 2,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      }
+    ]
+  },
+  {
+    "case": "csv",
+    "kind": "frontend",
+    "generationPassed": true,
+    "completedSteps": 3,
+    "errorCode": null,
+    "errorMessage": null,
+    "calls": 7,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks"
+    ],
+    "repairs": {},
+    "issues": [],
+    "artifactChecks": 7,
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 0,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 2,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 5,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      }
+    ]
+  },
+  {
+    "case": "seats",
+    "kind": "frontend",
+    "generationPassed": false,
+    "completedSteps": 0,
+    "errorCode": "PBL_VALIDATION_FAILED",
+    "errorMessage": "项目步骤经过修复仍未通过运行检查，请重试",
+    "calls": 7,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "repair_step",
+      "repair_checks",
+      "repair_step",
+      "repair_checks"
+    ],
+    "repairs": {
+      "seat-board": 3
+    },
+    "issues": [
+      "参考实现未通过累计检查（先核对需求、本步检查和代码；本步验收可修复，前序检查保留）: [{\"caseId\": \"grid-a2-sold\", \"status\": \"failed\", \"message\": \"✓ 1. 检查 \\\"seat-A2\\\" 的显示文字\\n   实际：\\\"A2已售\\\"\\n× 2. 点击 \\\"seat-A2\\\"\\n操作未完成：目标控件缺失、重复、不可见或无法操作。\"}]"
+    ],
+    "artifactChecks": null,
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 0,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 0,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 0,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      }
+    ]
+  },
+  {
+    "case": "wizard",
+    "kind": "frontend",
+    "generationPassed": false,
+    "completedSteps": 1,
+    "errorCode": "PBL_VALIDATION_FAILED",
+    "errorMessage": "项目步骤经过修复仍未通过运行检查，请重试",
+    "calls": 9,
+    "phases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_step",
+      "build_checks",
+      "repair_step",
+      "repair_checks",
+      "repair_step",
+      "repair_checks"
+    ],
+    "repairs": {
+      "step2-submit": 3
+    },
+    "issues": [
+      "参考实现未通过累计检查（先核对需求、本步检查和代码；本步验收可修复，前序检查保留）: [{\"caseId\": \"check-step2-blocked-without-consent\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"name-input\\\" 输入 \\\"张三\\\"\\n✓ 2. 在 \\\"age-input\\\" 输入 \\\"30\\\"\\n✓ 3. 点击 \\\"next-button\\\"\\n✓ 4. 点击 \\\"线上\\\"\\n✓ 5. 点击 \\\"submit-button\\\"\\n✓ 6. 检查 \\\"result-panel\\\" 的数量\\n   实际：0\\n✓ 7. 点击 \\\"同意条款\\\"\\n✓ 8. 点击 \\\"线上\\\"\\n✓ 9. 点击 \\\"submit-button\\\"\\n× 10. 检查 \\\"result-panel\\\" 的数量\\n预期：0\\n实际：1\"}]"
+    ],
+    "artifactChecks": null,
+    "acceptanceContexts": [
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 0,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "build_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 6,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 6,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      },
+      {
+        "phase": "repair_checks",
+        "hasCurrentCode": true,
+        "previousCheckCount": 6,
+        "hasPreviousCode": true,
+        "hasPreviousReport": true
+      }
+    ]
+  },
+  {
+    "case": "fastapi",
+    "kind": "backend",
+    "generationPassed": false,
+    "completedSteps": 0,
+    "errorCode": "PBL_PLAN_INVALID",
+    "errorMessage": "项目计划经过修复仍未通过检查",
+    "calls": 3,
+    "phases": [
+      "plan",
+      "plan",
+      "plan"
+    ],
+    "repairs": {
+      "plan": 3
+    },
+    "issues": [
+      "create-returns-201 与声明的运行类型不匹配"
+    ],
+    "artifactChecks": null,
+    "acceptanceContexts": []
+  },
+  {
+    "case": "express",
+    "kind": "backend",
+    "generationPassed": false,
+    "completedSteps": 0,
+    "errorCode": "PBL_PLAN_INVALID",
+    "errorMessage": "项目计划经过修复仍未通过检查",
+    "calls": 3,
+    "phases": [
+      "plan",
+      "plan",
+      "plan"
+    ],
+    "repairs": {
+      "plan": 3
+    },
+    "issues": [
+      "当前项目运行环境仅支持 React 本地页面及 App.jsx/styles.css"
+    ],
+    "artifactChecks": null,
+    "acceptanceContexts": []
+  },
+  {
+    "case": "cli",
+    "kind": "cli",
+    "generationPassed": false,
+    "completedSteps": 0,
+    "errorCode": "PBL_PLAN_INVALID",
+    "errorMessage": "项目计划经过修复仍未通过检查",
+    "calls": 3,
+    "phases": [
+      "plan",
+      "plan",
+      "plan"
+    ],
+    "repairs": {
+      "plan": 3
+    },
+    "issues": [
+      "当前项目运行环境仅支持 React 本地页面及 App.jsx/styles.css"
+    ],
+    "artifactChecks": null,
+    "acceptanceContexts": []
+  },
+  {
+    "case": "fullstack",
+    "kind": "fullstack",
+    "generationPassed": false,
+    "completedSteps": 0,
+    "errorCode": "PBL_PLAN_INVALID",
+    "errorMessage": "项目计划经过修复仍未通过检查",
+    "calls": 3,
+    "phases": [
+      "plan",
+      "plan",
+      "plan"
+    ],
+    "repairs": {
+      "plan": 3
+    },
+    "issues": [
+      "check-backend-get-empty 与声明的运行类型不匹配"
+    ],
+    "artifactChecks": null,
+    "acceptanceContexts": []
+  }
+]

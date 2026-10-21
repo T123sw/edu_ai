@@ -1,0 +1,100 @@
+{
+  "updated_at": "2026-10-20T06:14:04.258833+00:00",
+  "status": "deployed_restart_verified_pending_new_course_validation",
+  "root_cause": "审阅已有明确 schema，但写作与修订只约束外层 value 为任意对象。缺失 content 等问题在会话结束后才发现，消耗内容修订版本。",
+  "implementation": [
+    "调用模型前为报告和习题的完整生成、局部修订分别构建封闭工具参数 schema；直接提交顶层字段，无 value 包装或二次 JSON 编码。",
+    "固定字段、题型、答案格式、目标与需求 ID 范围；按既有正文枚举可修改路径。题量、正文内容和教学组织仍由需求与模型决定。",
+    "提交前纯校验跨字段引用、稳定身份、选项答案范围、逐题估算覆盖、报告章节定位和 before 精确匹配。",
+    "原生协议最多两次纠正，仍计量且受取消与会话时限控制；未执行的非法提交不耗内容审阅版本。",
+    "保留独立审阅与原有数值复算；格式正确不自动获得通过回执。",
+    "长题干发生 oneOf 错误时返回具体字段错误，避免整题回显截断掉真正的问题。"
+  ],
+  "tests": [
+    {
+      "file": "tests.xml",
+      "passed": 180,
+      "skipped": 30,
+      "seconds": 90.596
+    },
+    {
+      "file": "final-contract-tests.xml",
+      "passed": 41,
+      "skipped": 0,
+      "seconds": 53.448
+    },
+    {
+      "file": "live-tests.xml",
+      "passed": 2,
+      "skipped": 0,
+      "seconds": 77.223
+    }
+  ],
+  "test_count_note": "回归套件与最终 41 项专项重叠，不直接相加；最后提示文字仅澄清逐题估算适用于习题。",
+  "skipped_note": "23 项需要隔离 PostgreSQL 或行锁竞争；7 项为默认关闭的真实模型实验，其中两项已单独启用执行。",
+  "real_generation": [
+    {
+      "file": "native-quiz-example_first.json",
+      "model": "deepseek-v4-pro",
+      "calls_by_phase": [
+        "resource_write",
+        "resource_write",
+        "resource_review"
+      ],
+      "decision": "pass",
+      "content_versions": 1,
+      "question_count": 2
+    },
+    {
+      "file": "native-report-example_first.json",
+      "model": "deepseek-v4-pro",
+      "calls_by_phase": [
+        "resource_write",
+        "resource_review"
+      ],
+      "decision": "pass",
+      "content_versions": 1,
+      "question_count": null
+    }
+  ],
+  "real_recovery": {
+    "file": "live-replay.json",
+    "status": "recovered",
+    "seconds": 9.86502480134368,
+    "injected_response_count": 1,
+    "real_provider_calls": 1,
+    "protocol_recovery_attempts": [
+      0,
+      1
+    ]
+  },
+  "deployment": {
+    "service_restart_performed": false,
+    "deployed": true,
+    "previous_task_retried": false,
+    "production_artifacts_modified": false,
+    "subsequent_restart_verified": {
+      "edu-ai-backend": {
+        "MainPID": "2834406",
+        "ExecMainStartTimestamp": "Tue 2026-10-20 06:16:40 UTC",
+        "ActiveState": "active",
+        "cwd": "/home/zxqs_ep/Edu_AI/backend/src"
+      },
+      "edu-ai-durable-workers": {
+        "MainPID": "2837489",
+        "ExecMainStartTimestamp": "Tue 2026-10-20 06:25:10 UTC",
+        "ActiveState": "active",
+        "cwd": "/home/zxqs_ep/Edu_AI/backend/src"
+      }
+    },
+    "cleanup_record": "../2026-10-20-course-cleanup/result.json"
+  },
+  "limits": [
+    "本轮覆盖课程准备的报告与习题写作/修订；其他工作台入口保留原契约。",
+    "这是预声明工具 schema 加提交前校验，不声称上游采用受约束解码，也不保证永远没有协议错误。",
+    "独立小样本及故障回放通过，未重新生成整门 Transformer 课程。",
+    "本轮未修改已有数值复算器支持的表达式范围，数学和视频内容问题不视为已全部解决。"
+  ],
+  "files_manifest": "manifest.json",
+  "exact_change": "change.patch"
+}

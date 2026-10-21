@@ -1,0 +1,724 @@
+[
+  {
+    "at": "2026-10-20 06:37:46.132194+00:00",
+    "id": "paction_65236945aa9043209b9998521a206043",
+    "usage": {
+      "total_tokens": 79099,
+      "prompt_tokens": 39279,
+      "completion_tokens": 39820,
+      "prompt_tokens_details": {
+        "cached_tokens": 38528
+      },
+      "prompt_cache_hit_tokens": 38528,
+      "prompt_cache_miss_tokens": 751,
+      "completion_tokens_details": {
+        "reasoning_tokens": 36203
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 10298,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/2a08290042a4035df9db68ef1cd6b5f555dc31f3271c834a817166e774c8f361/videos/why-transformer/compositions/frames/frame01-hook.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:37:54.612730+00:00",
+    "id": "paction_6cba3bdba69340b4b95caa24e317b16b",
+    "usage": {
+      "total_tokens": 71961,
+      "prompt_tokens": 42497,
+      "completion_tokens": 29464,
+      "prompt_tokens_details": {
+        "cached_tokens": 39040
+      },
+      "prompt_cache_hit_tokens": 39040,
+      "prompt_cache_miss_tokens": 3457,
+      "completion_tokens_details": {
+        "reasoning_tokens": 24598
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 14981,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/2a08290042a4035df9db68ef1cd6b5f555dc31f3271c834a817166e774c8f361/videos/why-transformer/compositions/frames/frame07-hundred.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:37:55.013880+00:00",
+    "id": "paction_eb9acd39e83845948df43601a1afecc3",
+    "usage": {
+      "total_tokens": 72174,
+      "prompt_tokens": 36743,
+      "completion_tokens": 35431,
+      "prompt_tokens_details": {
+        "cached_tokens": 33280
+      },
+      "prompt_cache_hit_tokens": 33280,
+      "prompt_cache_miss_tokens": 3463,
+      "completion_tokens_details": {
+        "reasoning_tokens": 30542
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 13398,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/2a08290042a4035df9db68ef1cd6b5f555dc31f3271c834a817166e774c8f361/videos/why-transformer/compositions/frames/frame04-constraint.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:38:31.428475+00:00",
+    "id": "paction_c297d73e2e3747058837bd03917a111f",
+    "usage": {
+      "total_tokens": 71531,
+      "prompt_tokens": 31929,
+      "completion_tokens": 39602,
+      "prompt_tokens_details": {
+        "cached_tokens": 30848
+      },
+      "prompt_cache_hit_tokens": 30848,
+      "prompt_cache_miss_tokens": 1081,
+      "completion_tokens_details": {
+        "reasoning_tokens": 34148
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 14499,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/b7a21eba44a74afa5a0671cd67bb915da01675978e16d6ea912e23ab8e500cce/videos/self-attention-qkv/compositions/frames/f07-hand-softmax.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:38:36.890468+00:00",
+    "id": "paction_4404c3a122374f0e8ec20e91cbea6dcb",
+    "usage": {
+      "total_tokens": 51096,
+      "prompt_tokens": 30023,
+      "completion_tokens": 21073,
+      "prompt_tokens_details": {
+        "cached_tokens": 29184
+      },
+      "prompt_cache_hit_tokens": 29184,
+      "prompt_cache_miss_tokens": 839,
+      "completion_tokens_details": {
+        "reasoning_tokens": 16871
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 11024,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/b7a21eba44a74afa5a0671cd67bb915da01675978e16d6ea912e23ab8e500cce/videos/self-attention-qkv/compositions/frames/f04-four-steps.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:38:52.894420+00:00",
+    "id": "paction_0c0f25f53a834d3c8f2bcb2ee6e92e20",
+    "usage": {
+      "total_tokens": 49920,
+      "prompt_tokens": 28052,
+      "completion_tokens": 21868,
+      "prompt_tokens_details": {
+        "cached_tokens": 27520
+      },
+      "prompt_cache_hit_tokens": 27520,
+      "prompt_cache_miss_tokens": 532,
+      "completion_tokens_details": {
+        "reasoning_tokens": 17043
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 12587,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/b7a21eba44a74afa5a0671cd67bb915da01675978e16d6ea912e23ab8e500cce/videos/self-attention-qkv/compositions/frames/f10-why-scale.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:39:05.134453+00:00",
+    "id": "paction_45fb6271975b4c62bcb4a0293711ed42",
+    "usage": {
+      "total_tokens": 78764,
+      "prompt_tokens": 42249,
+      "completion_tokens": 36515,
+      "prompt_tokens_details": {
+        "cached_tokens": 31872
+      },
+      "prompt_cache_hit_tokens": 31872,
+      "prompt_cache_miss_tokens": 10377,
+      "completion_tokens_details": {
+        "reasoning_tokens": 36337
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__run_command",
+        "argument_chars": 402,
+        "path": null,
+        "keys": [
+          "command"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:39:12.531323+00:00",
+    "id": "paction_696875028a1f495ba8381e7b9cf95186",
+    "usage": {
+      "total_tokens": 61739,
+      "prompt_tokens": 35546,
+      "completion_tokens": 26193,
+      "prompt_tokens_details": {
+        "cached_tokens": 32512
+      },
+      "prompt_cache_hit_tokens": 32512,
+      "prompt_cache_miss_tokens": 3034,
+      "completion_tokens_details": {
+        "reasoning_tokens": 26121
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__read_file",
+        "argument_chars": 106,
+        "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/sub-compositions.md",
+        "keys": [
+          "path"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:39:14.599154+00:00",
+    "id": "paction_a9904b253c8d46b0ad277331fb125cb5",
+    "usage": {
+      "total_tokens": 79182,
+      "prompt_tokens": 35485,
+      "completion_tokens": 43697,
+      "prompt_tokens_details": {
+        "cached_tokens": 35200
+      },
+      "prompt_cache_hit_tokens": 35200,
+      "prompt_cache_miss_tokens": 285,
+      "completion_tokens_details": {
+        "reasoning_tokens": 38247
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 14389,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/8422e061f5d5fed31fae44fe841f4aa0c15c1f791f35324f5be0113948181831/videos/positional-encoding-and-loop-free-advantages/compositions/frames/f04-sum.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:39:16.804381+00:00",
+    "id": "paction_1d83f2e2f20841cfb2eb62ffcacfe134",
+    "usage": {
+      "total_tokens": 70353,
+      "prompt_tokens": 37038,
+      "completion_tokens": 33315,
+      "prompt_tokens_details": {
+        "cached_tokens": 36352
+      },
+      "prompt_cache_hit_tokens": 36352,
+      "prompt_cache_miss_tokens": 686,
+      "completion_tokens_details": {
+        "reasoning_tokens": 26225
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 21465,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/8422e061f5d5fed31fae44fe841f4aa0c15c1f791f35324f5be0113948181831/videos/positional-encoding-and-loop-free-advantages/compositions/frames/f10-parallelism.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:39:24.207630+00:00",
+    "id": "paction_a382030a707d4cb6bf56fe34f4f957ad",
+    "usage": {
+      "total_tokens": 64306,
+      "prompt_tokens": 41508,
+      "completion_tokens": 22798,
+      "prompt_tokens_details": {
+        "cached_tokens": 40704
+      },
+      "prompt_cache_hit_tokens": 40704,
+      "prompt_cache_miss_tokens": 804,
+      "completion_tokens_details": {
+        "reasoning_tokens": 17110
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 16129,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/8422e061f5d5fed31fae44fe841f4aa0c15c1f791f35324f5be0113948181831/videos/positional-encoding-and-loop-free-advantages/compositions/frames/f07-why-sinusoid.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:39:24.993001+00:00",
+    "id": "paction_c456748b663249cab8fc788e4f5b7e69",
+    "usage": {
+      "total_tokens": 60364,
+      "prompt_tokens": 37055,
+      "completion_tokens": 23309,
+      "prompt_tokens_details": {
+        "cached_tokens": 36224
+      },
+      "prompt_cache_hit_tokens": 36224,
+      "prompt_cache_miss_tokens": 831,
+      "completion_tokens_details": {
+        "reasoning_tokens": 16428
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 20112,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/e236e801a484a756543a26c670d1881377f0e2bc324832d7e2a238d3dd5caf33/videos/transformer-encoder-decoder-dataflow/compositions/frames/01-skeleton.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:39:27.920960+00:00",
+    "id": "paction_c55b643528b241ceb8a97e19bef54f48",
+    "usage": {
+      "total_tokens": 118869,
+      "prompt_tokens": 46883,
+      "completion_tokens": 71986,
+      "prompt_tokens_details": {
+        "cached_tokens": 44544
+      },
+      "prompt_cache_hit_tokens": 44544,
+      "prompt_cache_miss_tokens": 2339,
+      "completion_tokens_details": {
+        "reasoning_tokens": 67042
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 14395,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4ff025441f82e0503d83e4bda74b8bb424f0e4aceb8fa0302ede8847db94fe79/videos/transformer-multihead-sublayers/compositions/frames/01-overview.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:39:31.974008+00:00",
+    "id": "paction_e67e28d548814666ab2d30bc1ceb5c67",
+    "usage": {
+      "total_tokens": 85222,
+      "prompt_tokens": 46683,
+      "completion_tokens": 38539,
+      "prompt_tokens_details": {
+        "cached_tokens": 44416
+      },
+      "prompt_cache_hit_tokens": 44416,
+      "prompt_cache_miss_tokens": 2267,
+      "completion_tokens_details": {
+        "reasoning_tokens": 35858
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 7071,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/8422e061f5d5fed31fae44fe841f4aa0c15c1f791f35324f5be0113948181831/videos/positional-encoding-and-loop-free-advantages/compositions/frames/f01-opening.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:40:22.601365+00:00",
+    "id": "paction_c38df8cf87154063972479e2df8c99a9",
+    "usage": {
+      "total_tokens": 82426,
+      "prompt_tokens": 54900,
+      "completion_tokens": 27526,
+      "prompt_tokens_details": {
+        "cached_tokens": 52608
+      },
+      "prompt_cache_hit_tokens": 52608,
+      "prompt_cache_miss_tokens": 2292,
+      "completion_tokens_details": {
+        "reasoning_tokens": 19408
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 21391,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4ff025441f82e0503d83e4bda74b8bb424f0e4aceb8fa0302ede8847db94fe79/videos/transformer-multihead-sublayers/compositions/frames/06-three-usages.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:41:08.561169+00:00",
+    "id": "paction_d57801eb384f43979fd835a18e4d384f",
+    "usage": {
+      "total_tokens": 86383,
+      "prompt_tokens": 62955,
+      "completion_tokens": 23428,
+      "prompt_tokens_details": {
+        "cached_tokens": 60672
+      },
+      "prompt_cache_hit_tokens": 60672,
+      "prompt_cache_miss_tokens": 2283,
+      "completion_tokens_details": {
+        "reasoning_tokens": 16273
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 20995,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/e236e801a484a756543a26c670d1881377f0e2bc324832d7e2a238d3dd5caf33/videos/transformer-encoder-decoder-dataflow/compositions/frames/02-encoder.html",
+        "keys": [
+          "content",
+          "path"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:42:13.130192+00:00",
+    "id": "paction_47b1a9dc46ed4983b03c140daa2e23f0",
+    "usage": {
+      "total_tokens": 105122,
+      "prompt_tokens": 82527,
+      "completion_tokens": 22595,
+      "prompt_tokens_details": {
+        "cached_tokens": 82304
+      },
+      "prompt_cache_hit_tokens": 82304,
+      "prompt_cache_miss_tokens": 223,
+      "completion_tokens_details": {
+        "reasoning_tokens": 15702
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 18373,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4ff025441f82e0503d83e4bda74b8bb424f0e4aceb8fa0302ede8847db94fe79/videos/transformer-multihead-sublayers/compositions/frames/07-mask.html",
+        "keys": [
+          "content",
+          "path"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:42:19.119345+00:00",
+    "id": "paction_7b8169aadd6f4f62a5cabaf97da315f2",
+    "usage": {
+      "total_tokens": 107668,
+      "prompt_tokens": 84989,
+      "completion_tokens": 22679,
+      "prompt_tokens_details": {
+        "cached_tokens": 82688
+      },
+      "prompt_cache_hit_tokens": 82688,
+      "prompt_cache_miss_tokens": 2301,
+      "completion_tokens_details": {
+        "reasoning_tokens": 16557
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 18648,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4ff025441f82e0503d83e4bda74b8bb424f0e4aceb8fa0302ede8847db94fe79/videos/transformer-multihead-sublayers/compositions/frames/08-ffn.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:42:57.969711+00:00",
+    "id": "paction_cd320dd3c1044c04b7623bc4503a3450",
+    "usage": {
+      "total_tokens": 86201,
+      "prompt_tokens": 37236,
+      "completion_tokens": 48965,
+      "prompt_tokens_details": {
+        "cached_tokens": 17280
+      },
+      "prompt_cache_hit_tokens": 17280,
+      "prompt_cache_miss_tokens": 19956,
+      "completion_tokens_details": {
+        "reasoning_tokens": 42139
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 21024,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/e236e801a484a756543a26c670d1881377f0e2bc324832d7e2a238d3dd5caf33/videos/transformer-encoder-decoder-dataflow/compositions/frames/10-linear-softmax.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:20.959768+00:00",
+    "id": "paction_9c0e05ac6b7b4d43b6ed67723e4f3152",
+    "usage": {
+      "total_tokens": 90166,
+      "prompt_tokens": 27606,
+      "completion_tokens": 62560,
+      "prompt_tokens_details": {
+        "cached_tokens": 16640
+      },
+      "prompt_cache_hit_tokens": 16640,
+      "prompt_cache_miss_tokens": 10966,
+      "completion_tokens_details": {
+        "reasoning_tokens": 56231
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 17383,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/e236e801a484a756543a26c670d1881377f0e2bc324832d7e2a238d3dd5caf33/videos/transformer-encoder-decoder-dataflow/compositions/frames/04-autoregressive.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:30.988327+00:00",
+    "id": "paction_6c8990ff3fa843ecba43401a3e4164c9",
+    "usage": {
+      "total_tokens": 106572,
+      "prompt_tokens": 31730,
+      "completion_tokens": 74842,
+      "prompt_tokens_details": {
+        "cached_tokens": 31360
+      },
+      "prompt_cache_hit_tokens": 31360,
+      "prompt_cache_miss_tokens": 370,
+      "completion_tokens_details": {
+        "reasoning_tokens": 63438
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 30898,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/e236e801a484a756543a26c670d1881377f0e2bc324832d7e2a238d3dd5caf33/videos/transformer-encoder-decoder-dataflow/compositions/frames/07-embed-position.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:44:33.992866+00:00",
+    "id": "paction_d2fba61c9f444b1bb9000d8b84e30e88",
+    "usage": {
+      "total_tokens": 98330,
+      "prompt_tokens": 46883,
+      "completion_tokens": 51447,
+      "prompt_tokens_details": {
+        "cached_tokens": 46720
+      },
+      "prompt_cache_hit_tokens": 46720,
+      "prompt_cache_miss_tokens": 163,
+      "completion_tokens_details": {
+        "reasoning_tokens": 46683
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 13524,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4ff025441f82e0503d83e4bda74b8bb424f0e4aceb8fa0302ede8847db94fe79/videos/transformer-multihead-sublayers/compositions/frames/01-overview.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:48:15.554676+00:00",
+    "id": "paction_1b1ca49208a94828829aa0f27ecd8b3f",
+    "usage": {
+      "total_tokens": 99798,
+      "prompt_tokens": 98548,
+      "completion_tokens": 1250,
+      "prompt_tokens_details": {
+        "cached_tokens": 98304
+      },
+      "prompt_cache_hit_tokens": 98304,
+      "prompt_cache_miss_tokens": 244,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1089
+      }
+    },
+    "recovery": 1,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__run_command",
+        "argument_chars": 331,
+        "path": null,
+        "keys": [
+          "command"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:48:43.430030+00:00",
+    "id": "paction_f87d4ac4b76c41fb8b58d0570b638812",
+    "usage": {
+      "total_tokens": 105322,
+      "prompt_tokens": 31730,
+      "completion_tokens": 73592,
+      "prompt_tokens_details": {
+        "cached_tokens": 31488
+      },
+      "prompt_cache_hit_tokens": 31488,
+      "prompt_cache_miss_tokens": 242,
+      "completion_tokens_details": {
+        "reasoning_tokens": 64336
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 26756,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/e236e801a484a756543a26c670d1881377f0e2bc324832d7e2a238d3dd5caf33/videos/transformer-encoder-decoder-dataflow/compositions/frames/07-embed-position.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  },
+  {
+    "at": "2026-10-20 06:53:49.205425+00:00",
+    "id": "paction_972c9e7894db4463a7fb4c02e610c848",
+    "usage": {
+      "total_tokens": 91823,
+      "prompt_tokens": 31730,
+      "completion_tokens": 60093,
+      "prompt_tokens_details": {
+        "cached_tokens": 31488
+      },
+      "prompt_cache_hit_tokens": 31488,
+      "prompt_cache_miss_tokens": 242,
+      "completion_tokens_details": {
+        "reasoning_tokens": 47391
+      }
+    },
+    "recovery": 0,
+    "tools": [
+      {
+        "tool": "mcp__hyperframes__write_file",
+        "argument_chars": 38209,
+        "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/e236e801a484a756543a26c670d1881377f0e2bc324832d7e2a238d3dd5caf33/videos/transformer-encoder-decoder-dataflow/compositions/frames/07-embed-position.html",
+        "keys": [
+          "path",
+          "content"
+        ]
+      }
+    ]
+  }
+]

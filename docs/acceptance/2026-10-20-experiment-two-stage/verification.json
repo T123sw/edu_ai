@@ -1,0 +1,761 @@
+{
+  "change": "原理演示直接进入自由探索；移除新生成中的独立引导实践",
+  "generationOrder": [
+    "science",
+    "complete-explore-html",
+    "demonstration-plan",
+    "demonstration-html",
+    "executed-trace",
+    "narration",
+    "assembled-package"
+  ],
+  "backendTests": {
+    "existingSuite": 122,
+    "newContractTests": 2,
+    "status": "passed"
+  },
+  "realModel": {
+    "storage": "isolated local files; no production experiment writes",
+    "topic": "水平面小车，声明采用滑动摩擦模型",
+    "pages": [
+      "explore",
+      "demonstrate"
+    ],
+    "demoSteps": 3,
+    "tasks": 0,
+    "explorationPrompts": [
+      "把动摩擦因数 μ 改为 0.10 或 0.60 后重新运行，保持初速度、质量和 g 不变，比较速度下降的快慢与总滑行距离 s_stop。",
+      "保持 μ 和初速度不变，只改变质量 m，观察摩擦力 f 与加速度 a、总滑行距离 s_stop 各自是否变化。",
+      "用“单步”逐步推进并在中途“暂停”，观察速度箭头与摩擦力箭头方向相反，以及停止后速度是否保持为零。"
+    ],
+    "runtimeChecks": {
+      "ok": true,
+      "scope": "assembled-page-runtime",
+      "pages": {
+        "explore": {
+          "ok": true,
+          "issues": [],
+          "checks": [
+            "registered-and-initialized",
+            "reset",
+            "saved-state-restore",
+            "visible-content"
+          ],
+          "trace": [],
+          "action_catalog": [],
+          "scope": "basic-page-runtime",
+          "scientific_certification": false,
+          "diagnostics": {
+            "evidence_id": "37450322-f875-48f5-9e0a-22c45f7db81d"
+          }
+        },
+        "demonstrate": {
+          "ok": true,
+          "issues": [],
+          "checks": [
+            "registered-and-initialized",
+            "demo-steps-and-replay",
+            "reset",
+            "saved-state-restore",
+            "visible-content"
+          ],
+          "trace": [
+            {
+              "id": "demo-1",
+              "action_id": "start-motion",
+              "done": false,
+              "facts": {
+                "mu": 0.2,
+                "v0": 6,
+                "m": 2,
+                "g": 9.8,
+                "friction": 3.9200000000000004,
+                "accel": 1.9600000000000002,
+                "t": 0.5,
+                "v": 5.02,
+                "s": 2.755
+              },
+              "before": {
+                "mu": 0.2,
+                "v0": 6,
+                "m": 2,
+                "g": 9.8,
+                "t": 0,
+                "s": 0,
+                "v": 6,
+                "finished": false,
+                "started": false,
+                "phase": 0,
+                "transitionSequence": 0,
+                "lastTransition": null,
+                "completionEvidence": null,
+                "_teaching": {
+                  "version": "edu-state-evidence/1",
+                  "fields": [
+                    {
+                      "path": [
+                        "t"
+                      ],
+                      "meaning": "自本次运行开始经过的时间（s），到达 t_stop 后不再增加",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "s"
+                      ],
+                      "meaning": "自起点滑行的距离（m），停止后保持不变",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "v"
+                      ],
+                      "meaning": "当前速度（m/s），停止后为 0 且不反向",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 v0"
+                    },
+                    {
+                      "path": [
+                        "phase"
+                      ],
+                      "meaning": "演示阶段：0=未开始，1=已开始，2=中间观察，3=停止",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "finished"
+                      ],
+                      "meaning": "小车是否已停止（v = 0）",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 false"
+                    }
+                  ],
+                  "transition": null,
+                  "completion": null
+                }
+              },
+              "after": {
+                "mu": 0.2,
+                "v0": 6,
+                "m": 2,
+                "g": 9.8,
+                "t": 0.5,
+                "s": 2.755,
+                "v": 5.02,
+                "finished": false,
+                "started": true,
+                "phase": 1,
+                "transitionSequence": 1,
+                "lastTransition": {
+                  "id": "1",
+                  "kind": "start",
+                  "observations": {
+                    "beforeT": 0,
+                    "beforeV": 6,
+                    "beforeS": 0,
+                    "afterT": 0.5,
+                    "afterV": 5.02,
+                    "afterS": 2.755,
+                    "mu": 0.2,
+                    "v0": 6,
+                    "m": 2,
+                    "g": 9.8,
+                    "friction": 3.9200000000000004,
+                    "accel": 1.9600000000000002
+                  },
+                  "resets": []
+                },
+                "completionEvidence": {
+                  "status": "in_progress",
+                  "code": "decelerating",
+                  "reason": "小车已出发，进入匀减速滑行阶段",
+                  "basis": {
+                    "t": 0.5,
+                    "v": 5.02,
+                    "s": 2.755
+                  }
+                },
+                "_teaching": {
+                  "version": "edu-state-evidence/1",
+                  "fields": [
+                    {
+                      "path": [
+                        "t"
+                      ],
+                      "meaning": "自本次运行开始经过的时间（s），到达 t_stop 后不再增加",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "s"
+                      ],
+                      "meaning": "自起点滑行的距离（m），停止后保持不变",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "v"
+                      ],
+                      "meaning": "当前速度（m/s），停止后为 0 且不反向",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 v0"
+                    },
+                    {
+                      "path": [
+                        "phase"
+                      ],
+                      "meaning": "演示阶段：0=未开始，1=已开始，2=中间观察，3=停止",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "finished"
+                      ],
+                      "meaning": "小车是否已停止（v = 0）",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 false"
+                    }
+                  ],
+                  "transition": {
+                    "id": "1",
+                    "kind": "start",
+                    "observations": {
+                      "beforeT": 0,
+                      "beforeV": 6,
+                      "beforeS": 0,
+                      "afterT": 0.5,
+                      "afterV": 5.02,
+                      "afterS": 2.755,
+                      "mu": 0.2,
+                      "v0": 6,
+                      "m": 2,
+                      "g": 9.8,
+                      "friction": 3.9200000000000004,
+                      "accel": 1.9600000000000002
+                    },
+                    "resets": []
+                  },
+                  "completion": {
+                    "status": "in_progress",
+                    "code": "decelerating",
+                    "reason": "小车已出发，进入匀减速滑行阶段",
+                    "basis": {
+                      "t": 0.5,
+                      "v": 5.02,
+                      "s": 2.755
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "demo-2",
+              "action_id": "mid-observation",
+              "done": false,
+              "facts": {
+                "t": 1.5,
+                "v": 3.0599999999999996,
+                "s": 6.795,
+                "friction": 3.9200000000000004,
+                "accel": 1.9600000000000002
+              },
+              "before": {
+                "mu": 0.2,
+                "v0": 6,
+                "m": 2,
+                "g": 9.8,
+                "t": 0.5,
+                "s": 2.755,
+                "v": 5.02,
+                "finished": false,
+                "started": true,
+                "phase": 1,
+                "transitionSequence": 1,
+                "lastTransition": {
+                  "id": "1",
+                  "kind": "start",
+                  "observations": {
+                    "beforeT": 0,
+                    "beforeV": 6,
+                    "beforeS": 0,
+                    "afterT": 0.5,
+                    "afterV": 5.02,
+                    "afterS": 2.755,
+                    "mu": 0.2,
+                    "v0": 6,
+                    "m": 2,
+                    "g": 9.8,
+                    "friction": 3.9200000000000004,
+                    "accel": 1.9600000000000002
+                  },
+                  "resets": []
+                },
+                "completionEvidence": {
+                  "status": "in_progress",
+                  "code": "decelerating",
+                  "reason": "小车已出发，进入匀减速滑行阶段",
+                  "basis": {
+                    "t": 0.5,
+                    "v": 5.02,
+                    "s": 2.755
+                  }
+                },
+                "_teaching": {
+                  "version": "edu-state-evidence/1",
+                  "fields": [
+                    {
+                      "path": [
+                        "t"
+                      ],
+                      "meaning": "自本次运行开始经过的时间（s），到达 t_stop 后不再增加",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "s"
+                      ],
+                      "meaning": "自起点滑行的距离（m），停止后保持不变",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "v"
+                      ],
+                      "meaning": "当前速度（m/s），停止后为 0 且不反向",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 v0"
+                    },
+                    {
+                      "path": [
+                        "phase"
+                      ],
+                      "meaning": "演示阶段：0=未开始，1=已开始，2=中间观察，3=停止",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "finished"
+                      ],
+                      "meaning": "小车是否已停止（v = 0）",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 false"
+                    }
+                  ],
+                  "transition": {
+                    "id": "1",
+                    "kind": "start",
+                    "observations": {
+                      "beforeT": 0,
+                      "beforeV": 6,
+                      "beforeS": 0,
+                      "afterT": 0.5,
+                      "afterV": 5.02,
+                      "afterS": 2.755,
+                      "mu": 0.2,
+                      "v0": 6,
+                      "m": 2,
+                      "g": 9.8,
+                      "friction": 3.9200000000000004,
+                      "accel": 1.9600000000000002
+                    },
+                    "resets": []
+                  },
+                  "completion": {
+                    "status": "in_progress",
+                    "code": "decelerating",
+                    "reason": "小车已出发，进入匀减速滑行阶段",
+                    "basis": {
+                      "t": 0.5,
+                      "v": 5.02,
+                      "s": 2.755
+                    }
+                  }
+                }
+              },
+              "after": {
+                "mu": 0.2,
+                "v0": 6,
+                "m": 2,
+                "g": 9.8,
+                "t": 1.5,
+                "s": 6.795,
+                "v": 3.0599999999999996,
+                "finished": false,
+                "started": true,
+                "phase": 2,
+                "transitionSequence": 2,
+                "lastTransition": {
+                  "id": "2",
+                  "kind": "mid",
+                  "observations": {
+                    "beforeT": 0.5,
+                    "beforeV": 5.02,
+                    "beforeS": 2.755,
+                    "afterT": 1.5,
+                    "afterV": 3.0599999999999996,
+                    "afterS": 6.795,
+                    "friction": 3.9200000000000004,
+                    "accel": 1.9600000000000002
+                  },
+                  "resets": []
+                },
+                "completionEvidence": {
+                  "status": "in_progress",
+                  "code": "decelerating",
+                  "reason": "仍在匀减速滑行",
+                  "basis": {
+                    "t": 1.5,
+                    "v": 3.0599999999999996,
+                    "s": 6.795
+                  }
+                },
+                "_teaching": {
+                  "version": "edu-state-evidence/1",
+                  "fields": [
+                    {
+                      "path": [
+                        "t"
+                      ],
+                      "meaning": "自本次运行开始经过的时间（s），到达 t_stop 后不再增加",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "s"
+                      ],
+                      "meaning": "自起点滑行的距离（m），停止后保持不变",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "v"
+                      ],
+                      "meaning": "当前速度（m/s），停止后为 0 且不反向",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 v0"
+                    },
+                    {
+                      "path": [
+                        "phase"
+                      ],
+                      "meaning": "演示阶段：0=未开始，1=已开始，2=中间观察，3=停止",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "finished"
+                      ],
+                      "meaning": "小车是否已停止（v = 0）",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 false"
+                    }
+                  ],
+                  "transition": {
+                    "id": "2",
+                    "kind": "mid",
+                    "observations": {
+                      "beforeT": 0.5,
+                      "beforeV": 5.02,
+                      "beforeS": 2.755,
+                      "afterT": 1.5,
+                      "afterV": 3.0599999999999996,
+                      "afterS": 6.795,
+                      "friction": 3.9200000000000004,
+                      "accel": 1.9600000000000002
+                    },
+                    "resets": []
+                  },
+                  "completion": {
+                    "status": "in_progress",
+                    "code": "decelerating",
+                    "reason": "仍在匀减速滑行",
+                    "basis": {
+                      "t": 1.5,
+                      "v": 3.0599999999999996,
+                      "s": 6.795
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "demo-3",
+              "action_id": "stop",
+              "done": true,
+              "facts": {
+                "t": 3.061224489795918,
+                "v": 0,
+                "s": 9.183673469387754,
+                "stopTime": 3.061224489795918,
+                "stopDistance": 9.183673469387754
+              },
+              "before": {
+                "mu": 0.2,
+                "v0": 6,
+                "m": 2,
+                "g": 9.8,
+                "t": 1.5,
+                "s": 6.795,
+                "v": 3.0599999999999996,
+                "finished": false,
+                "started": true,
+                "phase": 2,
+                "transitionSequence": 2,
+                "lastTransition": {
+                  "id": "2",
+                  "kind": "mid",
+                  "observations": {
+                    "beforeT": 0.5,
+                    "beforeV": 5.02,
+                    "beforeS": 2.755,
+                    "afterT": 1.5,
+                    "afterV": 3.0599999999999996,
+                    "afterS": 6.795,
+                    "friction": 3.9200000000000004,
+                    "accel": 1.9600000000000002
+                  },
+                  "resets": []
+                },
+                "completionEvidence": {
+                  "status": "in_progress",
+                  "code": "decelerating",
+                  "reason": "仍在匀减速滑行",
+                  "basis": {
+                    "t": 1.5,
+                    "v": 3.0599999999999996,
+                    "s": 6.795
+                  }
+                },
+                "_teaching": {
+                  "version": "edu-state-evidence/1",
+                  "fields": [
+                    {
+                      "path": [
+                        "t"
+                      ],
+                      "meaning": "自本次运行开始经过的时间（s），到达 t_stop 后不再增加",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "s"
+                      ],
+                      "meaning": "自起点滑行的距离（m），停止后保持不变",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "v"
+                      ],
+                      "meaning": "当前速度（m/s），停止后为 0 且不反向",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 v0"
+                    },
+                    {
+                      "path": [
+                        "phase"
+                      ],
+                      "meaning": "演示阶段：0=未开始，1=已开始，2=中间观察，3=停止",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "finished"
+                      ],
+                      "meaning": "小车是否已停止（v = 0）",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 false"
+                    }
+                  ],
+                  "transition": {
+                    "id": "2",
+                    "kind": "mid",
+                    "observations": {
+                      "beforeT": 0.5,
+                      "beforeV": 5.02,
+                      "beforeS": 2.755,
+                      "afterT": 1.5,
+                      "afterV": 3.0599999999999996,
+                      "afterS": 6.795,
+                      "friction": 3.9200000000000004,
+                      "accel": 1.9600000000000002
+                    },
+                    "resets": []
+                  },
+                  "completion": {
+                    "status": "in_progress",
+                    "code": "decelerating",
+                    "reason": "仍在匀减速滑行",
+                    "basis": {
+                      "t": 1.5,
+                      "v": 3.0599999999999996,
+                      "s": 6.795
+                    }
+                  }
+                }
+              },
+              "after": {
+                "mu": 0.2,
+                "v0": 6,
+                "m": 2,
+                "g": 9.8,
+                "t": 3.061224489795918,
+                "s": 9.183673469387754,
+                "v": 0,
+                "finished": true,
+                "started": true,
+                "phase": 3,
+                "transitionSequence": 3,
+                "lastTransition": {
+                  "id": "3",
+                  "kind": "stop",
+                  "observations": {
+                    "beforeT": 1.5,
+                    "beforeV": 3.0599999999999996,
+                    "beforeS": 6.795,
+                    "afterT": 3.061224489795918,
+                    "afterV": 0,
+                    "afterS": 9.183673469387754,
+                    "stopTime": 3.061224489795918,
+                    "stopDistance": 9.183673469387754
+                  },
+                  "resets": []
+                },
+                "completionEvidence": {
+                  "status": "complete",
+                  "code": "stopped",
+                  "reason": "速度降为 0，小车停止（滑动摩擦使其匀减速至静止，不反向）",
+                  "basis": {
+                    "t": 3.061224489795918,
+                    "s": 9.183673469387754,
+                    "v0": 6,
+                    "mu": 0.2,
+                    "g": 9.8
+                  }
+                },
+                "_teaching": {
+                  "version": "edu-state-evidence/1",
+                  "fields": [
+                    {
+                      "path": [
+                        "t"
+                      ],
+                      "meaning": "自本次运行开始经过的时间（s），到达 t_stop 后不再增加",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "s"
+                      ],
+                      "meaning": "自起点滑行的距离（m），停止后保持不变",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "v"
+                      ],
+                      "meaning": "当前速度（m/s），停止后为 0 且不反向",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 v0"
+                    },
+                    {
+                      "path": [
+                        "phase"
+                      ],
+                      "meaning": "演示阶段：0=未开始，1=已开始，2=中间观察，3=停止",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 0"
+                    },
+                    {
+                      "path": [
+                        "finished"
+                      ],
+                      "meaning": "小车是否已停止（v = 0）",
+                      "scope": "当前一次运行",
+                      "reset_when": "初始化或重置时设为 false"
+                    }
+                  ],
+                  "transition": {
+                    "id": "3",
+                    "kind": "stop",
+                    "observations": {
+                      "beforeT": 1.5,
+                      "beforeV": 3.0599999999999996,
+                      "beforeS": 6.795,
+                      "afterT": 3.061224489795918,
+                      "afterV": 0,
+                      "afterS": 9.183673469387754,
+                      "stopTime": 3.061224489795918,
+                      "stopDistance": 9.183673469387754
+                    },
+                    "resets": []
+                  },
+                  "completion": {
+                    "status": "complete",
+                    "code": "stopped",
+                    "reason": "速度降为 0，小车停止（滑动摩擦使其匀减速至静止，不反向）",
+                    "basis": {
+                      "t": 3.061224489795918,
+                      "s": 9.183673469387754,
+                      "v0": 6,
+                      "mu": 0.2,
+                      "g": 9.8
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "action_catalog": [],
+          "scope": "basic-page-runtime",
+          "scientific_certification": false,
+          "diagnostics": {
+            "evidence_id": "c09237f7-b888-4250-b73a-b442db43d862"
+          }
+        }
+      },
+      "scientific_certification": false
+    },
+    "limitations": [
+      "首次物理动作计划误按模拟微时间步展开并比较多组参数；已完善一次演示与连续观察点指令，复用科学模型及探索页后重新生成演示和讲解。",
+      "提示初稿引用了页面未绘制的曲线；已加强实际可见观察项要求并重新生成讲解。",
+      "测试样本经过运行及交互验证，不代表通用科学正确性认证。"
+    ]
+  },
+  "compatibility": "历史 guided 通过原运行时追加阶段切换事件进入 explore，保留原事件与快照",
+  "backendActivation": {
+    "main": "restart blocked by systemd interactive authentication; current MainPID 2943045 started 08:20:23 UTC",
+    "supplementaryWorker": "graceful restart queued; waiting for existing leased work to finish; do not force terminate",
+    "requiredAdminCommand": "sudo systemctl restart edu-ai-backend.service"
+  },
+  "browserTests": {
+    "onlinePassed": 14,
+    "viewportWidths": [
+      1440,
+      900,
+      390,
+      320
+    ],
+    "denseRows": 150,
+    "savedLegacyHistoryPreserved": true,
+    "frictionInteraction": "μ from 0.2 to 0.6; actual stopping distance divided by 3; reload restored parameters and result; page reset keeps applied μ; host restore returns initial defaults",
+    "testCorrection": "Host reset assertion now waits for persisted parameter value, rather than an already-zero time value."
+  }
+}

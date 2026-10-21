@@ -1,0 +1,11 @@
+
+Running 3 tests using 1 worker
+
+(node:3097231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  1 tests/live-learning/video-chat.spec.ts:92:5 › native video can resume after focus, answers and repeated questions without reload (5.4s)
+  ✓  2 tests/live-learning/video-chat.spec.ts:123:5 › mobile question and directory panels pause hidden video and leave playback usable on return (3.1s)
+  ✓  3 tests/live-learning/video-chat.spec.ts:143:5 › course agent retains the sent video context while playback continues during an answer or after failure (7.5s)
+
+  3 passed (19.3s)

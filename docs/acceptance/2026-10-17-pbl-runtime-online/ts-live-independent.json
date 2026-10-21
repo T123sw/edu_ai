@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "cases": 5,
+  "runtime": {
+    "template": "react-ts",
+    "entry": "/index.tsx",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  }
+}

@@ -55,7 +55,7 @@ class TurnService:
             from .service import gateway
             from app.services.runtime_config_resolver import runtime_config_resolver
             snapshot = runtime_config_resolver.capture_snapshot(owner) if self.learning.model_factory is gateway else {}
-            return self.public(self.repository.accept(owner, session['session_id'], request, {k: v for k, v in snapshot.items() if k == 'llm'}))
+            return self.public(self.repository.accept(owner, session['session_id'], request, {k: v for k, v in snapshot.items() if k == 'llm'}, topic_id=topic))
         except SessionConflict as exc:
             raise HTTPException(409, str(exc)) from exc
 

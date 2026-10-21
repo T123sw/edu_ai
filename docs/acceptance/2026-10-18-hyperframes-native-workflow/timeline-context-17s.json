@@ -1,0 +1,78 @@
+{
+  "format": "hyperframes/v1",
+  "seconds": 17,
+  "duration": 43.633333,
+  "location_quality": "exact",
+  "position_source": "client_playback_snapshot",
+  "visual_evidence": "authored_metadata_not_observed_screenshot",
+  "narration_alignment": "segment_audio_duration",
+  "current_segment": {
+    "id": "03-b-two-shift",
+    "title": "b=2：整条线上移",
+    "start": 13.8,
+    "end": 21.768,
+    "narration": "把 b 换成 2，y 等于 2x 加 2：整条直线，向上平移两个单位。",
+    "visual_description": "一条幽灵线从 y=2x 的位置整体滑上去，落成 y=2x+2，两条线平行",
+    "objective_ids": [],
+    "source_ids": []
+  },
+  "active_visual_events": [],
+  "previous_segment": {
+    "id": "02-b-zero-line",
+    "title": "b=0：从原点出发",
+    "start": 5.904,
+    "end": 13.8,
+    "narration": "先看 b 等于 0：y 等于 2x，从原点出发，向右一格，向上两格。",
+    "visual_description": "坐标纸上一格一格搭出坐标轴、斜率三角和 y=2x，右栏立起 b=0",
+    "objective_ids": [],
+    "source_ids": []
+  },
+  "next_segment": {
+    "id": "04-check-fixed-x",
+    "title": "固定 x 检验",
+    "start": 21.768,
+    "end": 32.232,
+    "narration": "固定 x 检验：x 等于 1，2 变成 4；x 等于 2，4 变成 6。每个点都高了 2。",
+    "visual_description": "x=1 与 x=2 两条竖直虚线切过两条线，右栏账本逐行跳出 \"2→4\"\"4→6\"",
+    "objective_ids": [],
+    "source_ids": []
+  },
+  "directory": [
+    {
+      "id": "01-two-formulas",
+      "title": "只差一个加 2",
+      "start": 0.0,
+      "end": 5.904
+    },
+    {
+      "id": "02-b-zero-line",
+      "title": "b=0：从原点出发",
+      "start": 5.904,
+      "end": 13.8
+    },
+    {
+      "id": "03-b-two-shift",
+      "title": "b=2：整条线上移",
+      "start": 13.8,
+      "end": 21.768
+    },
+    {
+      "id": "04-check-fixed-x",
+      "title": "固定 x 检验",
+      "start": 21.768,
+      "end": 32.232
+    },
+    {
+      "id": "05-intercept-b",
+      "title": "这个 2 就是 b",
+      "start": 32.232,
+      "end": 39.096
+    },
+    {
+      "id": "06-takeaway",
+      "title": "记住这一句",
+      "start": 39.096,
+      "end": 43.632
+    }
+  ]
+}

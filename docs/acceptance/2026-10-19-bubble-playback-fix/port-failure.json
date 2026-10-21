@@ -1,0 +1,16 @@
+{
+  "state": {
+    "ready": false,
+    "time": 0,
+    "duration": 0
+  },
+  "errors": [
+    "Loading the script 'http://127.0.0.1:18081/backend/api/hyperframes/projects/[ticket]/assets/hyperframe.runtime.iife.js' violates the following Content Security Policy directive: \"script-src http://127.0.0.1/api/hyperframes/projects/[ticket]//127.0.0.1/backend/api/hyperframes/projects/ 'unsafe-inline' 'unsafe-eval'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+    "Loading the script 'http://127.0.0.1:18081/backend/api/hyperframes/projects/[ticket]/assets/gsap.min.js' violates the following Content Security Policy directive: \"script-src http://127.0.0.1/api/hyperframes/projects/[ticket]//127.0.0.1/backend/api/hyperframes/projects/ 'unsafe-inline' 'unsafe-eval'\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The action has been blocked.",
+    "Loading media from  'http://127.0.0.1:18081/backend/api/hyperframes/projects/[ticket]/assets/audio/77b3664ed927e2cf2580859994e9a6fe3c1b587be4cb4e1dbdee28a42a9796b7.mp3' violates the following Content Security Policy directive: \"media-src http://127.0.0.1/api/hyperframes/projects/[ticket]//127.0.0.1/backend/api/hyperframes/projects/ blob:\". The action has been blocked.",
+    "Loading media from  'http://127.0.0.1:18081/backend/api/hyperframes/projects/[ticket]/assets/audio/a6e51667f3ddbc8ab908338be40203d6db4e7a3b945d365ae28676fbfd29ecbc.mp3' violates the following Content Security Policy directive: \"media-src http://127.0.0.1/api/hyperframes/projects/[ticket]//127.0.0.1/backend/api/hyperframes/projects/ blob:\". The action has been blocked.",
+    "Loading media from  'http://127.0.0.1:18081/backend/api/hyperframes/projects/[ticket]/assets/audio/1e0fee1a0f08d7300e1160ad1101df26b823459bff3621a2ddd74bf6dd0df1a4.mp3' violates the following Content Security Policy directive: \"media-src http://127.0.0.1/api/hyperframes/projects/[ticket]//127.0.0.1/backend/api/hyperframes/projects/ blob:\". The action has been blocked.",
+    "Loading media from  'http://127.0.0.1:18081/backend/api/hyperframes/projects/[ticket]/assets/audio/a8e10ca23b2bb727a8f2b2ae237b82503192058a57588054bcb3ddcb89e43d14.mp3' violates the following Content Security Policy directive: \"media-src http://127.0.0.1/api/hyperframes/projects/[ticket]//127.0.0.1/backend/api/hyperframes/projects/ blob:\". The action has been blocked.",
+    "Loading media from  'http://127.0.0.1:18081/backend/api/hyperframes/projects/[ticket]/assets/audio/7b550fc963931f361516b1f974081b0405fc9d16051f69188e19b264405cc668.mp3' violates the following Content Security Policy directive: \"media-src http://127.0.0.1/api/hyperframes/projects/[ticket]//127.0.0.1/backend/api/hyperframes/projects/ blob:\". The action has been blocked."
+  ]
+}

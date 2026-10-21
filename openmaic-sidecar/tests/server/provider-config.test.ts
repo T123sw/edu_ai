@@ -92,6 +92,26 @@ describe('provider-config', () => {
   });
 
   describe('resolveApiKey', () => {
+    it('leaves media placeholders disabled until credentials are supplied', async () => {
+      vi.stubEnv('IMAGE_QWEN_IMAGE_MODELS', 'qwen-image-3.0');
+      vi.stubEnv('IMAGE_QWEN_IMAGE_BASE_URL', 'https://dashscope.aliyuncs.com');
+      vi.stubEnv('VIDEO_SEEDANCE_BASE_URL', 'https://ark.cn-beijing.volces.com');
+      const config = await import('@/lib/server/provider-config');
+      expect(config.getServerImageProviders()['qwen-image']).toBeUndefined();
+      expect(config.getServerVideoProviders().seedance).toBeUndefined();
+    });
+
+    it('resolves automatic media models from operator environment configuration', async () => {
+      vi.stubEnv('IMAGE_QWEN_IMAGE_API_KEY', 'test-image-key');
+      vi.stubEnv('IMAGE_QWEN_IMAGE_MODELS', ' qwen-image-3.0, qwen-image-2.0');
+      vi.stubEnv('VIDEO_SEEDANCE_API_KEY', 'test-video-key');
+      vi.stubEnv('VIDEO_SEEDANCE_MODELS', 'operator-selected-video');
+      const config = await import('@/lib/server/provider-config');
+      expect(config.resolveImageModel('qwen-image')).toBe('qwen-image-3.0');
+      expect(config.resolveVideoModel('seedance')).toBe('operator-selected-video');
+      expect(config.resolveVideoModel('kling')).toBeUndefined();
+    });
+
     it('returns client key when provided', async () => {
       const { resolveApiKey } = await import('@/lib/server/provider-config');
       expect(resolveApiKey('openai', 'sk-client')).toBe('sk-client');

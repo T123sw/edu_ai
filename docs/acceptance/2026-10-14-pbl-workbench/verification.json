@@ -1,0 +1,27 @@
+{
+  "implemented": [
+    "Top project title, step selector, concise task and expanded instructions",
+    "Resizable code editor and persistent preview/checks/tutor panes",
+    "Manual interactions stay intact across checks, tutor and task switching",
+    "Per-step and cumulative browser checks show actual action sequence, expected/actual differences",
+    "Failed-check question draft for the tutor; explicit send remains required",
+    "Code changes invalidate previous acceptance; save/reload and offline recovery retained",
+    "Mobile code/result switch and fixed check action"
+  ],
+  "validation": {
+    "typescript": "passed: tsconfig.self-learning.json",
+    "eslint": "passed: four modified TSX components",
+    "build": "passed; existing bundle-size warning remains",
+    "serverCheckerTests": 5,
+    "isolatedBackendIntegrationTests": 18,
+    "browserCases": 7,
+    "browserNote": "Six cases passed in the full release run. The evidence case hit the external Sandpack TIME_OUT screen; unchanged case passed alone on retry. Includes real hosted preview, actual checker subprocess, mocked business/auth/storage APIs."
+  },
+  "runtimeFix": "Use visibility-triggered initialization to avoid duplicate asynchronous clients in development StrictMode; queue edits until compilation completes. Explicit restart refreshes the existing client.",
+  "sourceReconciliation": "All non-PBL application source and public files match latest report-readability deployed snapshot; no unrelated application changes were published.",
+  "deferred": [
+    "Backend runtime and endpoint preview; existing project model is React-only",
+    "Screenshot/image-based visual grading; this release verifies published DOM interaction checks"
+  ],
+  "dataSafety": "No learner code, production progress or artifacts modified by acceptance checks."
+}

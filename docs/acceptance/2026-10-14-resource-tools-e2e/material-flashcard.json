@@ -1,0 +1,100 @@
+{
+  "title": "验收·闪卡·Python 变量绑定与列表浅拷贝",
+  "source": {
+    "documents_used": [
+      "Agent research evidence"
+    ],
+    "selected_doc_ids": [],
+    "research_bundle_id": "",
+    "research_context_used": true
+  },
+  "status": "ready",
+  "content": {
+    "cards": [
+      {
+        "id": "card-1",
+        "back": "b 与 a 引用同一个列表对象，b 是 a 的别名，而不是新列表。",
+        "front": "在 Python 中，a=[1,2]; b=a 后，a 与 b 是什么关系？",
+        "category": "核心概念",
+        "source_doc_id": null
+      },
+      {
+        "id": "card-2",
+        "back": "a 和 b 都看到 [1,2,3]，因为 b 与 a 引用同一列表，修改 b 也会改变 a 所见内容。",
+        "front": "若 a=[1,2]; b=a; b.append(3)，a 和 b 看到的内容分别是什么？",
+        "category": "核心概念",
+        "source_doc_id": null
+      },
+      {
+        "id": "card-3",
+        "back": "b=a.copy() 创建浅拷贝；对于嵌套列表等对象，a 与 b 仍会共享它们。",
+        "front": "b=a.copy() 创建的是什么样的拷贝？嵌套列表会怎样？",
+        "category": "核心概念",
+        "source_doc_id": null
+      }
+    ],
+    "count": 3,
+    "title": "验收·闪卡·Python 变量绑定与列表浅拷贝",
+    "difficulty": "medium",
+    "show_sources": true
+  },
+  "version": 3,
+  "scope_id": null,
+  "course_id": "resource-e2e-b25c130f",
+  "is_pinned": false,
+  "pinned_at": null,
+  "created_at": "2026-10-14T09:03:44.116991+00:00",
+  "created_by": "resource_e2e_b25c130f",
+  "scope_type": "course",
+  "updated_at": "2026-10-14T09:03:44.212591+00:00",
+  "visibility": "private",
+  "approved_at": null,
+  "approved_by": null,
+  "material_id": "studio_0fd656f39f2bf84c190a77503fcb",
+  "origin_type": "personal",
+  "studio_mode": "generate",
+  "content_hash": "0767b755d7cec0a63932ce81c8754e211a07c99a4f49e6fc99c8c6afd0227242",
+  "studio_title": "验收·闪卡·Python 变量绑定与列表浅拷贝",
+  "material_type": "flashcard",
+  "owner_user_id": "resource_e2e_b25c130f",
+  "source_job_id": "studio_0fd656f39f2bf84c190a77503fcb",
+  "standard_kind": null,
+  "schema_version": 2,
+  "config_snapshot": {
+    "title": "验收·闪卡·Python 变量绑定与列表浅拷贝",
+    "flashcard_config": {
+      "count": 3,
+      "title": "验收·闪卡·Python 变量绑定与列表浅拷贝",
+      "category": "核心概念",
+      "difficulty": "medium",
+      "show_sources": true
+    },
+    "research_context": "课程：资源生成端到端验证 · Python 变量与列表\n\n学习目标：仅用于资源生成验收。知识范围：Python 变量绑定对象；整数不可变；a=[1,2]; b=a 时 a 与 b 引用同一列表，b.append(3) 也改变 a 所见内容；b=a.copy() 创建浅拷贝，嵌套列表仍共享；判断别名与重新赋值的区别。面向入门学习者，使用中文。\n\n当前知识点：Python 变量绑定、列表别名与浅拷贝\n\n当前知识点暂无可读取正文；以课程目标和知识点为范围，不得声称引用了课程原文。"
+  },
+  "source_snapshot": {
+    "mode": "none",
+    "documents": [],
+    "resolved_at": "2026-10-14T09:03:38.194145+00:00",
+    "requested_document_ids": []
+  },
+  "studio_complete": true,
+  "approved_version": null,
+  "generation_state": {
+    "mode": "knowledge_base_direct",
+    "status": "completed",
+    "generated_count": 3,
+    "requested_count": 3,
+    "research_bundle_id": "",
+    "research_context_used": true
+  },
+  "studio_course_id": "resource-e2e-b25c130f",
+  "studio_chapter_id": "resource-e2e-b25c130f-variables",
+  "config_snapshot_id": null,
+  "studio_source_refs": [],
+  "generation_batch_id": null,
+  "studio_course_title": "资源生成端到端验证 · Python 变量与列表",
+  "studio_chapter_title": "Python 变量绑定、列表别名与浅拷贝",
+  "current_review_status": "not_required",
+  "artifact_paths": [],
+  "personal_resource": true
+}

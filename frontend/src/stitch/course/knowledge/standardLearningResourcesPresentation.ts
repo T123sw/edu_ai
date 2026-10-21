@@ -4,7 +4,7 @@ import type {
   StandardResourceLeaf,
   StandardResourceSlot,
 } from "../../api/types";
-import { buildClassroomPlayerHash } from "../../../openmaic/classroomGenerationFlow";
+import { buildClassroomPlayerHash } from "../../../classroom/classroomGenerationFlow";
 
 export type StandardResourceLeafGroup = {
   chapterId: string;

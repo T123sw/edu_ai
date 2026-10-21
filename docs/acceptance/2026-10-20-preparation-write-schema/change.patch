@@ -1,0 +1,607 @@
+--- a/backend/src/app/chat/harness/preparation_content.py
++++ b/backend/src/app/chat/harness/preparation_content.py
+@@ -53,9 +53,11 @@
+ 优先满足学习目标与内容正确性，避免重复；估算超出或未知不要求返工，也不能据此拒绝交付。
+ 各资源合计覆盖节点，不能各自扩写成一套完整课程。保留真实估算，不为贴合目标而改小数字。
+ rejected_draft 是上一轮未通过内容或结构校验的输出，仅供纠错，不是已通过正文。
+-本次写作直接返回 JSON {"content":原生正文,"applied_requirements":[{"requirement_id":"真实ID",
++初次写作提交对象为 {"content":原生正文,"applied_requirements":[{"requirement_id":"真实ID",
+ "locator":定位对象,"explanation":"该位置如何落实要求"}],"objective_bindings":[{"objective_id":"真实ID",
+-"locator":定位对象,"role":"explanation|practice|check"}]}，不要增加规划调用。
++"locator":定位对象,"role":"explanation|practice|check"}]}。局部修订用 edits 替代 content，
++同时提交完整映射，习题还需提交逐题时长估算。以本轮提交工具的 schema 为准，直接填写工具参数，
++不要把整个对象编码为字符串或再套 value 字段，不要增加规划调用。
+ 报告 content 为 Markdown，每个二级章节前放 <a id="稳定ID"></a>，locator 为 {"section_id":"该ID"}。
+ 习题 content 使用原生 quiz JSON，题目 id 为稳定 question_id，locator 为 {"question_id":"题目id"}。
+ 习题中对应真实作答题目的目标角色用 practice 或 check；解析属于该题反馈，不把整道题标为 explanation。
+--- a/backend/src/app/chat/harness/reviewed_report.py
++++ b/backend/src/app/chat/harness/reviewed_report.py
+@@ -9,6 +9,7 @@
+     parse_envelope, phase_gateway, preparation_metadata, report_sections, teaching_context,
+     validate_preparation_review, value_digest, duration_constraint, ResourceDurationExceeded)
+ from .preparation_review_transport import IndexedPreparationCheck, indexed_preparation, restore_preparation_checks
++from .preparation_write_contract import bind_write_contract
+ 
+ CRITERIA = {'requirements', 'correctness', 'examples', 'teaching_structure', 'sources', 'completeness'}
+ 
+@@ -113,6 +114,8 @@
+             patch_revision = repairing and not full_revision
+             repair_format = ('本轮是局部修复，仅返回 JSON {\"edits\":[{\"path\":[],\"before\":\"逐字唯一原片段\",\"after\":\"修正片段\"}],\"applied_requirements\":[...],\"objective_bindings\":[...]}。保留正确正文和稳定ID。只有映射错误时 edits=[]，只修映射。' if patch_revision else ('本轮返回修正后的完整内容封装，保留原有章节ID、相对顺序与未涉及的正确内容，并修复 feedback。' if repairing else ''))
+             writer = phase_gateway(gateway, payload, 'resource_repair' if body else 'resource_write')
++            writer = bind_write_contract(writer, 'report', context, spec_digest,
++                                         previous=body or None, patch=patch_revision)
+             raw = writer.chat([
+                 {'role':'system','content': '撰写完整教学报告正文。' +
+                  (CONTENT_INSTRUCTIONS if context is not None else '输出 Markdown；严格保留确认大纲各章标题和顺序，标题使用 ##。') +
+--- a/backend/src/app/chat/harness/reviewed_resource.py
++++ b/backend/src/app/chat/harness/reviewed_resource.py
+@@ -16,6 +16,7 @@
+     validate_preparation_review, value_digest, duration_constraint, ResourceDurationExceeded)
+ from .resource_profiles import resource_contract
+ from .preparation_review_transport import IndexedPreparationCheck, indexed_preparation, restore_preparation_checks
++from .preparation_write_contract import bind_write_contract
+ 
+ FORMATS = {
+     'lesson_plan': 'Markdown 教案：目标、重难点、准备、按时间展开的师生活动、评价与作业。',
+@@ -523,7 +524,7 @@
+                 for key in ('resource_target_minutes', 'resource_repair_target_minutes'))
+             revision_format = ('仅返回 JSON 对象 {"edits":[{"path":[],"before":"原文唯一片段","after":"修正片段"}]}。'
+                 '逐项修复 feedback，核对正文、表格、附录中关联的同一任务。before 必须逐字唯一匹配 previous_draft；'
+-                '保持其余正确内容不变，不重新输出全文。若 previous_preparation 存在，同时返回 applied_requirements、objective_bindings；仅映射有错时 edits=[] 并修复映射。语义和具体修改由你决定。' if patch_revision else (CONTENT_INSTRUCTIONS + '\ncontent 字段内的原生格式：' + output_format if context is not None else output_format))
++                '保持其余正确内容不变，不重新输出全文。若 previous_preparation 存在，同时返回 applied_requirements、objective_bindings，习题还需完整 question_time_estimates；仅映射有错时 edits=[] 并修复映射。语义和具体修改由你决定。' if patch_revision else ('content 字段内的原生格式：' + output_format if context is not None else output_format))
+             if patch_revision and timed_quiz:
+                 revision_format += ('时长修订可删除冗余题：edits 使用 {"op":"delete","path":["questions",原下标],'
+                     '"before":完整原题对象,"after":null}，多个删除按下标从大到小。保留题目的ID和相对顺序，'
+@@ -539,6 +540,8 @@
+                 from copy import deepcopy
+                 previous_valid, metadata_valid = deepcopy(previous), deepcopy(metadata)
+                 writer = phase_gateway(self.gateway, payload, 'resource_repair' if previous is not None else 'resource_write')
++                writer = bind_write_contract(writer, kind, context, spec_digest, previous=previous_valid,
++                                             patch=patch_revision, allow_delete=timed_quiz)
+                 raw = writer.chat([
+                     {'role': 'system', 'content': ('本任务依据课程准备自动策略，输入方案不是用户确认大纲，无需请求确认。' if getattr(payload, 'preparation_policy', None) else '') + '生成完整可使用的教学资源，严格遵守已确认方案、用户数量和内容要求、受众与语言。'
+                      '以 harness_execution_context 的当前生成阶段为准。结合内容组织和证据展开，不重复交付大纲。'
+--- a/backend/src/app/course_preparation/harness_generation.py
++++ b/backend/src/app/course_preparation/harness_generation.py
+@@ -27,10 +27,11 @@
+     terminal_on_result = True
+     content_submission = True
+ 
+-    def __init__(self, guard, *, structured=False, response_schema=None):
++    def __init__(self, guard, *, structured=False, response_schema=None, response_validator=None):
+         self.guard = guard
+         self.structured = structured
+         self.response_schema = deepcopy(response_schema)
++        self.response_validator = response_validator
+         self.lock = threading.RLock()
+         self.result = None
+         self.invalid = False
+@@ -42,14 +43,14 @@
+                            'required': ['text'], 'additionalProperties': False},
+         }}
+         if structured:
+-            # Known review contracts are the tool arguments themselves. Avoid a
++            # Known phase contracts are the tool arguments themselves. Avoid a
+             # second, conflicting wrapper around the schema shown in messages.
+             parameters = deepcopy(response_schema) if response_schema is not None else {
+                 'type': 'object', 'properties': {'value': {'type': 'object', 'additionalProperties': True}},
+                 'required': ['value'], 'additionalProperties': False}
+             self.tools = {'submit_resource_json': {
+                 'name': 'submit_resource_json',
+-                'description': ('直接按工具 schema 提交完整审阅对象，字段放在参数顶层，不增加 value 包装。'
++                'description': ('直接按工具 schema 提交本轮完整结果对象，字段放在参数顶层，不增加 value 包装。'
+                     if response_schema is not None else '提交本轮结构化结果对象；value 直接放 JSON 对象，不要再次编码为字符串。'),
+                 'parameters': parameters,
+             }}
+@@ -66,8 +67,19 @@
+         parameters = self.tools[name]['parameters']
+         error = next(Draft202012Validator(parameters).iter_errors(arguments), None)
+         if error is not None:
+-            path = '.'.join(map(str, error.absolute_path)) or '$'
+-            raise ContentSchemaError(f'{path}: {error.message}'[:1000])
++            # oneOf's summary echoes the whole question, which can hide the
++            # missing field behind a long stem. Return actionable leaf errors.
++            errors = error.context or [error]
++            details = []
++            for item in errors[:8]:
++                path = '.'.join(map(str, item.absolute_path)) or '$'
++                details.append(f'{path} ({item.validator}): {item.message[:180]}')
++            raise ContentSchemaError('; '.join(details)[:1000])
++        if self.response_validator is not None:
++            try:
++                self.response_validator(arguments)
++            except (ValueError, TypeError, KeyError) as exc:
++                raise ContentSchemaError('submission references or edits invalid: ' + str(exc)[:900]) from exc
+ 
+     def check(self):
+         if self.fatal is not None:
+@@ -121,6 +133,7 @@
+         self.context_tokens = capacity if context_tokens is None else context_tokens
+         self.phase = None
+         self._phase_context = {}
++        self._response_validator = None
+ 
+     def for_phase(self, phase, *, context):
+         if phase not in CONTENT_PHASE_SKILLS:
+@@ -132,8 +145,11 @@
+         view._phase_context = deepcopy(context)
+         return view
+ 
+-    def with_response_schema(self, schema):
+-        return self.for_phase(self.phase, context={**self._phase_context, 'response_schema': schema})
++    def with_response_schema(self, schema, *, validator=None):
++        view = self.for_phase(self.phase, context={**self._phase_context,
++            'response_format': 'json', 'response_schema': schema})
++        view._response_validator = validator
++        return view
+ 
+     def chat(self, messages, temperature=.2, max_tokens=12000):
+         if self.phase is None:
+@@ -168,7 +184,8 @@
+ 
+         check()
+         toolset = ContentTools(check, structured=self._phase_context.get('response_format') == 'json',
+-                               response_schema=self._phase_context.get('response_schema'))
++                               response_schema=self._phase_context.get('response_schema'),
++                               response_validator=self._response_validator)
+         adapter = HarnessPreparationAdapter(self.configured, client_factory=self.client_factory,
+             context_tokens=self.context_tokens, sdk_factory=self.sdk_factory,
+             meter=PreparationModelMeter(self.store, self.context))
+--- a/backend/src/tests/course_preparation/test_native_structured_submission.py
++++ b/backend/src/tests/course_preparation/test_native_structured_submission.py
+@@ -67,7 +67,7 @@
+             assert not validator.is_valid(missing)
+         return httpx.Response(200,json={'id':'report','object':'chat.completion','created':1,'model':body['model'],
+             'choices':[{'index':0,'message':{'role':'assistant','content':None,'tool_calls':[
+-                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps(replies[len(calls)-1] if len(calls) == len(replies) else {'value':replies[len(calls)-1]},ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
++                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps(replies[len(calls)-1],ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
+             'usage':{'prompt_tokens':50,'completion_tokens':20,'total_tokens':70}})
+     model,ledger=gateway(complete,sdk_factory=DeepSeekHarness,context={'artifact_id':'report','spec_digest':request.spec_digest})
+     body,state=generate_reviewed_report(request,model)
+@@ -82,6 +82,8 @@
+     from app.chat.harness.preparation_content import preparation_metadata
+     from app.chat.harness.reviewed_resource import ReviewedResourceGenerator, verified_resource
+     request=payload('quiz');envelope=quiz_envelope();calls=[]
++    envelope['content']['questions'][0]['difficulty']='easy'
++    envelope['question_time_estimates']=[{'question_id':'q-tools','thinking_seconds':30,'reason':'追踪调用与实际执行两个步骤'}]
+     metadata=preparation_metadata('quiz',envelope['content'],envelope,request.teaching_context,request.spec_digest)
+     review=completion_review({'preparation':metadata},'quiz')
+     review['preparation_checks']=[{'binding_index':i,'passed':c['passed'],'reason':c['reason']}
+@@ -106,7 +108,7 @@
+             assert not validator.is_valid(missing)
+         return httpx.Response(200,json={'id':'quiz','object':'chat.completion','created':1,'model':body['model'],
+             'choices':[{'index':0,'message':{'role':'assistant','content':None,'tool_calls':[
+-                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps(replies[len(calls)-1] if len(calls) == len(replies) else {'value':replies[len(calls)-1]},ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
++                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps(replies[len(calls)-1],ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
+             'usage':{'prompt_tokens':50,'completion_tokens':20,'total_tokens':70}})
+     model,ledger=gateway(complete,sdk_factory=DeepSeekHarness,context={'artifact_id':'quiz','spec_digest':request.spec_digest})
+     artifact=ReviewedResourceGenerator(model).generate(request,job_id='j',config_snapshot_id='c')['artifacts'][0]
+--- /dev/null
++++ b/backend/src/app/chat/harness/preparation_write_contract.py
+@@ -0,0 +1,161 @@
++"""Compile preparation write/repair contracts before asking the model to submit.
++
++The wire format is a tool argument object, never an untyped JSON string. Cross-
++field references are checked before acknowledgement; content correctness still
++belongs to the independent reviewer.
++"""
++from copy import deepcopy
++
++from app.artifact_revision.adapters import apply_edits, validate
++from .preparation_content import preparation_metadata, report_sections
++
++
++def obj(properties, required=None):
++    return {'type': 'object', 'properties': properties, 'additionalProperties': False,
++            'required': list(properties) if required is None else required}
++
++
++def text():
++    return {'type': 'string', 'minLength': 1, 'pattern': r'\S'}
++
++
++def array(items, **limits):
++    return {'type': 'array', 'items': items, **limits}
++
++
++def identifier(allowed=None):
++    return {**text(), **({'enum': list(allowed)} if allowed else {})}
++
++
++def quiz_schema():
++    variants = []
++    for kind in ('single_choice', 'multiple_choice', 'true_false', 'short_answer'):
++        fields = {'id': text(), 'type': {'const': kind}, 'stem': text(),
++                  'answer': text(), 'explanation': text(),
++                  'difficulty': {'type': 'string', 'enum': ['easy', 'medium', 'hard']}}
++        required = list(fields)
++        if kind in ('single_choice', 'multiple_choice'):
++            fields['options'] = array(text(), minItems=2, maxItems=26, uniqueItems=True)
++            fields['answer'] = {'type': 'string', 'pattern':
++                r'^[A-Z]$' if kind == 'single_choice' else r'^[A-Z](?:,[A-Z])*$'}
++            required.append('options')
++        else:
++            # Existing native non-choice questions can serialize options=[].
++            fields['options'] = array(text(), maxItems=0)
++        variants.append(obj(fields, required))
++    return obj({'title': text(), 'questions': array({'oneOf': variants}, minItems=1)})
++
++
++def metadata_schema(kind, context, question_ids=None):
++    key = 'question_id' if kind == 'quiz' else 'section_id'
++    locator = obj({key: identifier(question_ids)})
++    requirements = [r['requirement_id'] for r in context.get('requirements', [])]
++    objectives = context['objective_ids']
++    fields = {
++        'applied_requirements': array(obj({
++            'requirement_id': identifier(requirements), 'locator': locator, 'explanation': text(),
++        }), **({} if requirements else {'maxItems': 0})),
++        'objective_bindings': array(obj({
++            'objective_id': identifier(objectives), 'locator': locator,
++            'role': {'type': 'string', 'enum': ['practice', 'check'] if kind == 'quiz'
++                     else ['explanation', 'practice', 'check']},
++        }), minItems=1),
++    }
++    if kind == 'quiz':
++        fields['question_time_estimates'] = array(obj({
++            'question_id': identifier(question_ids),
++            'thinking_seconds': {'type': 'number', 'exclusiveMinimum': 0},
++            'reason': {**text(), 'minLength': 5},
++        }), minItems=1)
++    return fields
++
++
++def edit_schema(kind, previous, allow_delete):
++    paths = []
++    if kind == 'report':
++        paths.append([])
++    else:
++        if isinstance(previous.get('title'), str):
++            paths.append(['title'])
++        for index, question in enumerate(previous['questions']):
++            for key in ('stem', 'answer', 'explanation', 'difficulty'):
++                if isinstance(question.get(key), str):
++                    paths.append(['questions', index, key])
++            paths.extend(['questions', index, 'options', option]
++                         for option in range(len(question.get('options') or [])))
++    replacement = obj({
++        'op': {'const': 'replace'}, 'path': {'enum': paths},
++        'before': text(), 'after': {'type': 'string'},
++    }, ['path', 'before', 'after'])
++    variants = [replacement]
++    if kind == 'quiz' and allow_delete:
++        variants.extend(obj({
++            'op': {'const': 'delete'}, 'path': {'const': ['questions', index]},
++            'before': {'const': question}, 'after': {'type': 'null'},
++        }) for index, question in enumerate(previous['questions']))
++    return array({'oneOf': variants}, maxItems=100)
++
++
++class PreparationWriteContract:
++    def __init__(self, kind, context, spec_digest, *, previous=None, patch=False, allow_delete=False):
++        if kind not in {'quiz', 'report'}:
++            raise ValueError('unsupported_preparation_write_contract')
++        if patch and previous is None:
++            raise ValueError('repair_requires_previous_content')
++        self.kind, self.context, self.spec_digest = kind, deepcopy(context), spec_digest
++        self.previous, self.patch, self.allow_delete = deepcopy(previous), patch, allow_delete
++        question_ids = ([q['id'] for q in previous['questions']]
++                        if kind == 'quiz' and previous is not None else None)
++        fields = metadata_schema(kind, self.context, question_ids)
++        if patch:
++            fields['edits'] = edit_schema(kind, self.previous, allow_delete)
++        else:
++            fields['content'] = quiz_schema() if kind == 'quiz' else text()
++        self.schema = obj(fields)
++        self.schema['description'] = (
++            f'{kind} {"局部修订" if patch else "完整生成"}提交契约。'
++            '字段直接置于工具参数顶层；不添加 value 包装，不返回 JSON 字符串。'
++            '只提交当前资源。结构正确后还需独立内容审阅。')
++
++    def validate_submission(self, arguments):
++        """Pure cross-field validation, called before the model session ends."""
++        content = (apply_edits(self.previous, arguments['edits'])
++                   if self.patch and arguments['edits'] else
++                   deepcopy(self.previous) if self.patch else arguments['content'])
++        validate(self.kind, content)
++        if self.kind == 'quiz':
++            from .reviewed_resource import validate_resource
++            validate_resource('quiz', content)
++            ids = [q['id'] for q in content['questions']]
++            estimates = arguments['question_time_estimates']
++            if len(estimates) != len(ids) or {e['question_id'] for e in estimates} != set(ids):
++                raise ValueError('question_time_estimates must cover each question_id exactly once')
++            for q in content['questions']:
++                if 'difficulty' in q and q['difficulty'] not in ('easy', 'medium', 'hard'):
++                    raise ValueError('difficulty must be easy, medium or hard')
++                if q['type'] in ('single_choice', 'multiple_choice'):
++                    letters = q['answer'].split(',')
++                    if len(letters) != len(set(letters)):
++                        raise ValueError('choice answer contains duplicate letters')
++            if self.previous is not None:
++                old_ids = [q['id'] for q in self.previous['questions']]
++                expected = [key for key in old_ids if key in ids] if self.allow_delete else old_ids
++                if not ids or ids != expected:
++                    raise ValueError('quiz_repair_changed_question_identity')
++        elif self.previous is not None:
++            if list(report_sections(content)) != list(report_sections(self.previous)):
++                raise ValueError('report_repair_changed_section_identity')
++        preparation_metadata(self.kind, content, arguments, self.context, self.spec_digest)
++
++
++def bind_write_contract(writer, kind, context, spec_digest, **options):
++    """Legacy workbench and test gateways retain their existing contracts."""
++    if context is None or kind not in {'quiz', 'report'}:
++        return writer
++    contract = PreparationWriteContract(kind, context, spec_digest, **options)
++    bind = getattr(writer, 'with_response_schema', None)
++    if not callable(bind):
++        if getattr(writer, 'preparation_harness', False):
++            raise RuntimeError('PREPARATION_WRITE_SCHEMA_REQUIRED')
++        return writer
++    return bind(contract.schema, validator=contract.validate_submission)
+--- /dev/null
++++ b/backend/src/tests/course_preparation/test_preparation_write_schema.py
+@@ -0,0 +1,262 @@
++"""Wire-contract regressions; provider fixtures do not prove model correctness."""
++from copy import deepcopy
++import json
++
++import httpx
++import pytest
++from deepseek_harness import DeepSeekHarness
++from jsonschema import Draft202012Validator
++
++from app.chat.harness.preparation_write_contract import PreparationWriteContract, bind_write_contract
++from app.chat.harness.preparation_content import preparation_metadata
++from app.chat.harness.reviewed_resource import ReviewedResourceGenerator, verified_resource
++from app.course_preparation.harness_generation import ContentTools
++from app.course_preparation.harness_provider import ContentSchemaError, CompletionFormatError
++from tests.course_preparation.test_generated_content_constraints import (
++    context, payload, quiz_envelope, report_envelope, completion_review,
++)
++from tests.course_preparation.test_harness_generation import gateway
++
++
++def envelope():
++    value = quiz_envelope()
++    value['content']['questions'][0]['difficulty'] = 'easy'
++    value['question_time_estimates'] = [
++        {'question_id': 'q-tools', 'thinking_seconds': 30, 'reason': '追踪模型提出请求与程序执行两个步骤'}]
++    return value
++
++
++def tools_for(contract):
++    return ContentTools(lambda: None, structured=True, response_schema=contract.schema,
++                        response_validator=contract.validate_submission)
++
++
++@pytest.mark.parametrize('kind', ['quiz', 'report'])
++def test_write_contract_is_declared_before_submission_and_preserves_values(kind):
++    value = envelope() if kind == 'quiz' else report_envelope()
++    original = deepcopy(value)
++    contract = PreparationWriteContract(kind, context(), 'spec')
++    tools = tools_for(contract)
++    schema = tools.schemas()[0]['inputSchema']
++    Draft202012Validator.check_schema(schema)
++    assert schema['additionalProperties'] is False
++    assert {'content', 'applied_requirements', 'objective_bindings'} <= set(schema['required'])
++    assert 'value' not in schema['properties']
++    tools.validate_arguments('submit_resource_json', value)
++    assert tools.call('submit_resource_json', value)['ok']
++    assert json.loads(tools.result) == original == value
++
++
++@pytest.mark.parametrize('fault', [
++    'native_body', 'string_body', 'wrapper', 'missing_answer', 'missing_options',
++    'unknown_type', 'extra_field', 'unknown_objective', 'unknown_requirement',
++    'dangling_question', 'duplicate_question', 'missing_estimate', 'duplicate_estimate',
++    'bad_estimate', 'unknown_answer', 'duplicate_answer', 'wrong_role',
++])
++def test_invalid_structure_or_references_never_acknowledged(fault):
++    value = envelope()
++    q = value['content']['questions'][0]
++    if fault == 'native_body': value = value['content']
++    elif fault == 'string_body': value['content'] = json.dumps(value['content'])
++    elif fault == 'wrapper': value = {'value': value}
++    elif fault == 'missing_answer': del q['answer']
++    elif fault == 'missing_options': del q['options']
++    elif fault == 'unknown_type': q['type'] = 'essay'
++    elif fault == 'extra_field': q['answer_is_correct'] = True
++    elif fault == 'unknown_objective': value['objective_bindings'][0]['objective_id'] = 'other-node:o1'
++    elif fault == 'unknown_requirement': value['applied_requirements'][0]['requirement_id'] = 'invented'
++    elif fault == 'dangling_question': value['objective_bindings'][0]['locator']['question_id'] = 'q-missing'
++    elif fault == 'duplicate_question': value['content']['questions'].append(deepcopy(q))
++    elif fault == 'missing_estimate': del value['question_time_estimates']
++    elif fault == 'duplicate_estimate': value['question_time_estimates'] *= 2
++    elif fault == 'bad_estimate': value['question_time_estimates'][0]['thinking_seconds'] = True
++    elif fault == 'unknown_answer': q['answer'] = 'Z'
++    elif fault == 'duplicate_answer': q.update(type='multiple_choice', answer='A,A')
++    elif fault == 'wrong_role': value['objective_bindings'][0]['role'] = 'explanation'
++    tools = tools_for(PreparationWriteContract('quiz', context(), 'spec'))
++    with pytest.raises(ContentSchemaError):
++        tools.validate_arguments('submit_resource_json', value)
++    assert tools.result is None and tools.fatal is None  # pre-dispatch correction is still possible
++    assert not tools.call('submit_resource_json', value)['ok']  # MCP cannot bypass it
++    assert tools.result is None
++
++
++@pytest.mark.parametrize('kind', ['true_false', 'short_answer'])
++def test_non_choice_questions_do_not_need_fake_options(kind):
++    value = envelope()
++    q = value['content']['questions'][0]
++    q.update(type=kind, answer='正确' if kind == 'true_false' else '程序执行')
++    del q['options']
++    tools_for(PreparationWriteContract('quiz', context(), 'spec')).validate_arguments('submit_resource_json', value)
++
++
++def test_long_question_does_not_hide_missing_field_in_correction_feedback():
++    value = envelope()
++    value['content']['questions'][0]['stem'] *= 500
++    del value['content']['questions'][0]['options']
++    tools = tools_for(PreparationWriteContract('quiz', context(), 'spec'))
++    with pytest.raises(ContentSchemaError, match="'options' is a required property") as error:
++        tools.validate_arguments('submit_resource_json', value)
++    assert 'content.questions.0' in str(error.value)
++
++
++@pytest.mark.parametrize('kind', ['quiz', 'report'])
++def test_patch_schema_uses_existing_paths_and_preserves_identity(kind):
++    value = envelope() if kind == 'quiz' else report_envelope()
++    previous = deepcopy(value['content'])
++    contract = PreparationWriteContract(kind, context(), 'spec', previous=previous, patch=True)
++    patch = {k: v for k, v in value.items() if k != 'content'}
++    before = 'A 正确' if kind == 'quiz' else '用户请求12加30'
++    # Report source repeats the example; choose the entire body for an exact match.
++    if kind == 'report': before = previous
++    patch['edits'] = [{'path': ['questions', 0, 'explanation'] if kind == 'quiz' else [],
++                       'before': before, 'after': before + '（核对后）'}]
++    tools = tools_for(contract)
++    Draft202012Validator.check_schema(contract.schema)
++    tools.validate_arguments('submit_resource_json', patch)
++    assert value['content'] == previous
++    patch['edits'][0]['path'] = ['questions', 0, 'id']
++    with pytest.raises(ContentSchemaError): tools.validate_arguments('submit_resource_json', patch)
++    patch['edits'][0]['path'] = ['questions', 0, 'explanation'] if kind == 'quiz' else []
++    patch['edits'][0]['before'] = '不存在的旧片段'
++    with pytest.raises(ContentSchemaError): tools.validate_arguments('submit_resource_json', patch)
++
++
++def indexed_review(value, request):
++    metadata = preparation_metadata('quiz', value['content'], value, request.teaching_context, request.spec_digest)
++    review = completion_review({'preparation': metadata}, 'quiz')
++    review['preparation_checks'] = [
++        {'binding_index': i, 'passed': c['passed'], 'reason': c['reason']}
++        for i, c in enumerate(review['preparation_checks'])]
++    for index, option in enumerate(review['question_checks'][0]['option_checks']):
++        option.pop('explanation_excerpt')
++        option['explanation_span'] = {'start_segment': index, 'end_segment': index}
++    return review
++
++
++def response(body, arguments):
++    name = body['tools'][0]['function']['name']
++    return httpx.Response(200, json={
++        'id': 'schema', 'object': 'chat.completion', 'created': 1, 'model': body['model'],
++        'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': None, 'tool_calls': [
++            {'id': 'c1', 'type': 'function', 'function': {
++                'name': name, 'arguments': json.dumps(arguments, ensure_ascii=False)}}]},
++            'finish_reason': 'tool_calls'}],
++        'usage': {'prompt_tokens': 50, 'completion_tokens': 20, 'total_tokens': 70}})
++
++
++def test_two_protocol_corrections_do_not_use_up_content_repair_budget(monkeypatch):
++    request = payload('quiz')
++    good = envelope()
++    bad = deepcopy(good)
++    bad['content']['questions'][0]['answer'] = 'B'  # structurally valid, factually wrong
++    rejected = indexed_review(bad, request)
++    rejected['question_checks'][0]['answer_matches'] = False
++    rejected['blocking_issues'] = ['程序执行工具，正确答案应为 A，当前 B 错误。']
++    repair = {k: v for k, v in good.items() if k != 'content'}
++    repair['edits'] = [{'path': ['questions', 0, 'answer'], 'before': 'B', 'after': 'A'}]
++    dangling = deepcopy(bad)
++    dangling['objective_bindings'][0]['locator']['question_id'] = 'missing'
++    replies = [bad['content'], dangling, bad, rejected, repair, indexed_review(good, request)]
++    requests, dispatched = [], []
++    original_call = ContentTools.call
++    def submit(self, name, arguments):
++        dispatched.append(deepcopy(arguments))
++        return original_call(self, name, arguments)
++    monkeypatch.setattr(ContentTools, 'call', submit)
++    def complete(http_request):
++        body = json.loads(http_request.content)
++        requests.append(body)
++        schema = body['tools'][0]['function']['parameters']
++        assert 'value' not in schema['properties']
++        assert schema['additionalProperties'] is False
++        if len(requests) == 5:
++            assert 'edits' in schema['required'] and 'content' not in schema['properties']
++        if len(requests) in (2, 3):
++            assert '未执行' in body['messages'][-1]['content']
++        return response(body, replies[len(requests) - 1])
++    model, ledger = gateway(complete, sdk_factory=DeepSeekHarness,
++                            context={'artifact_id': 'quiz', 'spec_digest': request.spec_digest})
++    artifact = ReviewedResourceGenerator(model).generate(request, job_id='j', config_snapshot_id='c')['artifacts'][0]
++    assert artifact['content'] == good['content']
++    assert verified_resource(artifact, 'quiz')
++    assert dispatched == replies[2:]
++    history = artifact['generation_state']['resource_review']['history']
++    assert [row['decision'] for row in history] == ['revise', 'pass']
++    assert [row['version'] for row in history] == [1, 2]
++    assert len(requests) == len(ledger.actions) == 6
++    assert [row['receipt']['model_response']['phase'] for row in ledger.actions] == [
++        'resource_write', 'resource_write', 'resource_write', 'resource_review', 'resource_repair', 'resource_review']
++
++
++def test_native_invalid_writer_stops_after_two_corrections_without_dispatch(monkeypatch):
++    calls, dispatched = [], []
++    monkeypatch.setattr(ContentTools, 'call', lambda *args: dispatched.append(args))
++    def complete(request):
++        body = json.loads(request.content); calls.append(body)
++        return response(body, envelope()['content'])
++    model, ledger = gateway(complete, sdk_factory=DeepSeekHarness)
++    writer = bind_write_contract(model.for_phase('resource_write', context={}), 'quiz', context(), 'spec')
++    with pytest.raises(CompletionFormatError):
++        writer.chat([{'role': 'user', 'content': '提交习题'}])
++    assert len(calls) == len(ledger.actions) == 3
++    assert not dispatched
++
++
++def test_contract_context_and_schema_do_not_leak_between_phase_views():
++    model, _ = gateway(lambda _: pytest.fail('no model call'))
++    teaching = context()
++    first = bind_write_contract(model.for_phase('resource_write', context={}), 'quiz', teaching, 'spec')
++    teaching['objective_ids'].append('mutated')
++    second = model.for_phase('resource_review', context={})
++    assert first._response_validator is not None and second._response_validator is None
++    assert 'mutated' not in json.dumps(first._phase_context)
++    assert 'response_schema' not in second._phase_context
++
++
++@pytest.mark.parametrize('allowed', [False, True])
++def test_question_deletion_requires_explicit_contract_and_updated_references(allowed):
++    value = envelope()
++    second = deepcopy(value['content']['questions'][0])
++    second['id'] = 'q-second'
++    value['content']['questions'].append(second)
++    value['question_time_estimates'].append({
++        'question_id': 'q-second', 'thinking_seconds': 30, 'reason': '独立追踪第二次工具调用'})
++    previous = deepcopy(value['content'])
++    patch = {k: deepcopy(v) for k, v in value.items() if k != 'content'}
++    patch['edits'] = [{'op': 'delete', 'path': ['questions', 1],
++                       'before': second, 'after': None}]
++    contract = PreparationWriteContract('quiz', context(), 'spec',
++        previous=previous, patch=True, allow_delete=allowed)
++    tools = tools_for(contract)
++    Draft202012Validator.check_schema(contract.schema)
++    # A removed question must disappear from metadata too.
++    with pytest.raises(ContentSchemaError):
++        tools.validate_arguments('submit_resource_json', patch)
++    patch['question_time_estimates'].pop()
++    if allowed:
++        tools.validate_arguments('submit_resource_json', patch)
++        patch['objective_bindings'][0]['locator']['question_id'] = 'q-second'
++        with pytest.raises(ContentSchemaError):
++            tools.validate_arguments('submit_resource_json', patch)
++    else:
++        with pytest.raises(ContentSchemaError):
++            tools.validate_arguments('submit_resource_json', patch)
++    assert previous == value['content']
++
++
++@pytest.mark.parametrize('fault', ['unanchored', 'dangling', 'changed_identity'])
++def test_report_section_contract_is_checked_before_acknowledgement(fault):
++    value = report_envelope()
++    previous = value['content']
++    if fault == 'unanchored':
++        value['content'] = '## 没有稳定定位\n报告正文'
++    elif fault == 'dangling':
++        value['objective_bindings'][0]['locator']['section_id'] = 'missing'
++    else:
++        value['content'] = value['content'].replace('id="theory"', 'id="new"')
++        value['objective_bindings'][0]['locator']['section_id'] = 'new'
++    contract = PreparationWriteContract('report', context(), 'spec',
++        previous=previous if fault == 'changed_identity' else None)
++    with pytest.raises(ContentSchemaError):
++        tools_for(contract).validate_arguments('submit_resource_json', value)

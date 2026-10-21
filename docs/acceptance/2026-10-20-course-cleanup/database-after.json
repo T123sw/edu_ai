@@ -1,0 +1,62 @@
+{
+  "counts": {
+    "users": 20,
+    "courses": 0,
+    "course_preparations": 0,
+    "preparation_artifacts": 0,
+    "prepared_manifest_versions": 0,
+    "course_memberships": 0,
+    "pbl_exercises": 17,
+    "pbl_workspaces": 11,
+    "pbl_runs": 38,
+    "knowledge_libraries": 3,
+    "materials": 26,
+    "durable_tasks": 86
+  },
+  "namespaces": [
+    [
+      "agent_runs",
+      12
+    ],
+    [
+      "crawl_batches",
+      386
+    ],
+    [
+      "exam_generation_v1",
+      36
+    ],
+    [
+      "exam_generation_v1_cursor",
+      33
+    ],
+    [
+      "exam_generation_v1_events",
+      804703
+    ],
+    [
+      "practice:1057a9604e04b274da5a4de0c8f4b4868d9b230989f8c8c6a28221143cc5a755",
+      142
+    ],
+    [
+      "practice:2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90",
+      3
+    ],
+    [
+      "practice:6f64dcbde90026d547972fb73027e9799f48cd05ac8383e6f08191057d3fb895",
+      1
+    ],
+    [
+      "practice:de7d4a4a3f5b59d51f60cf9f6922feab0af051e2db0596b60b504863709d4696",
+      1
+    ],
+    [
+      "runtime_config",
+      1
+    ],
+    [
+      "searched_images",
+      135
+    ]
+  ]
+}

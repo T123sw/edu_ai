@@ -1,0 +1,24 @@
+{
+  "typecheck": "passed",
+  "eslint": "passed",
+  "build": "passed",
+  "unitCases": 4,
+  "layoutCases": 6,
+  "runtimeCases": 2,
+  "designReference": "https://leetcode.cn/problems/two-sum/description/",
+  "scope": "Concise single-column task statement plus one real input/output example; no acceptance card, tutorial, hints or repeated objective in the question area. Existing check/tutor workspace remains available.",
+  "contentSources": {
+    "algorithm": "js-function-v1 public contract and first example, with first public test case fallback",
+    "project": "Current-step objective and required test identifiers; one current-step check supplies the action sequence and final expected result. Prefer a short interactive check when available."
+  },
+  "coverage": [
+    "One example even when multiple algorithm examples exist",
+    "UI examples use current-step actions and final assertion, preserve zero and empty-string values",
+    "Existing calculator first-step statement fits half viewport and all four steps have a relevant example",
+    "Desktop/mobile widths 1920 to 320, smooth transition and retained code/preview/drafts",
+    "Actual React preview, algorithm Worker, checks, save/reload and mobile round trips"
+  ],
+  "limits": "Business/auth/storage/tutor APIs mocked. Layout checks block external preview runtime. Missing assertions in invalid or incomplete legacy material produce no fabricated example. No model calls or production learner-data writes. Existing stored long-form teaching material is not rewritten.",
+  "productionLayoutCases": 3,
+  "productionLayoutStatus": "passed"
+}

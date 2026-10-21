@@ -1,0 +1,66 @@
+[
+  {
+    "name": "seats",
+    "generationFailed": true,
+    "terminalIssues": [
+      "参考实现未通过累计检查（先核对需求、本步检查和代码；本步验收可修复，前序检查保留）: [{\"caseId\": \"grid-a2-sold\", \"status\": \"failed\", \"message\": \"✓ 1. 检查 \\\"seat-A2\\\" 的显示文字\\n   实际：\\\"A2已售\\\"\\n× 2. 点击 \\\"seat-A2\\\"\\n操作未完成：目标控件缺失、重复、不可见或无法操作。\"}]"
+    ],
+    "scenarios": [
+      "六个座位2行3列",
+      "仅A2标记已售且不可操作",
+      "其他座位可操作"
+    ],
+    "independentCurrentStepPassed": true,
+    "directCumulativeBrowserReport": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "grid-seats-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"seat-A1\" 的可见状态\n   实际：true\n✓ 2. 检查 \"seat-A2\" 的可见状态\n   实际：true\n✓ 3. 检查 \"seat-A3\" 的可见状态\n   实际：true\n✓ 4. 检查 \"seat-B1\" 的可见状态\n   实际：true\n✓ 5. 检查 \"seat-B2\" 的可见状态\n   实际：true\n✓ 6. 检查 \"seat-B3\" 的可见状态\n   实际：true\n✓ 7. 检查 \"seat-A1\" 的显示文字\n   实际：\"A1\"\n✓ 8. 检查 \"seat-B3\" 的显示文字\n   实际：\"B3\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "grid-a2-sold",
+          "status": "failed",
+          "message": "✓ 1. 检查 \"seat-A2\" 的显示文字\n   实际：\"A2已售\"\n× 2. 点击 \"seat-A2\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+        }
+      ],
+      "durationMs": 1889.091978
+    }
+  },
+  {
+    "name": "kanban",
+    "generationFailed": true,
+    "terminalIssues": [
+      "本步代码未通过前序验收，尚未设计本步验收；对照 previousFiles、priorCandidate.referenceFiles 和 previousCheckReport 修复本步代码，保留前序检查及本步目标：[{\"caseId\": \"add-task-appears-in-todo\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"title-input\\\" 输入 \\\"  写周报  \\\"\\n✓ 2. 点击 \\\"add-button\\\"\\n× 3. 检查 \\\"column-todo\\\" 的显示文字\\n预期：\\\"待办写周报\\\"\\n实际：\\\"待办写周报前进\\\"\"}, {\"caseId\": \"three-columns-visible\", \"status\": \"failed\", \"message\": \"✓ 1. 检查 \\\"column-todo\\\" 的可见状态\\n   实际：true\\n✓ 2. 检查 \\\"column-progress\\\" 的可见状态\\n   实际：true\\n✓ 3. 检查 \\\"column-done\\\" 的可见状态\\n   实际：true\\n✓ 4. 在 \\\"title-input\\\" 输入 \\\"写周报\\\"\\n✓ 5. 点击 \\\"add-button\\\"\\n× 6. 检查 \\\"column-todo\\\" 的显示文字\\n预期：\\\"待办写周报\\\"\\n实际：\\\"待办写周报前进\\\"\"}]"
+    ],
+    "scenarios": [
+      "空白拒绝与标题去空格",
+      "同名任务独立移动",
+      "状态前进后退完整往返",
+      "首列无后退末列无前进"
+    ],
+    "independentCurrentStepPassed": true,
+    "directCumulativeBrowserReport": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "add-task-appears-in-todo",
+          "status": "failed",
+          "message": "✓ 1. 在 \"title-input\" 输入 \"  写周报  \"\n✓ 2. 点击 \"add-button\"\n× 3. 检查 \"column-todo\" 的显示文字\n预期：\"待办写周报\"\n实际：\"待办写周报前进\""
+        },
+        {
+          "caseId": "blank-title-rejected",
+          "status": "passed",
+          "message": "✓ 1. 在 \"title-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"task-item\" 的数量\n   实际：0\n✓ 4. 检查 \"column-todo\" 的显示文字\n   实际：\"待办\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "three-columns-visible",
+          "status": "failed",
+          "message": "✓ 1. 检查 \"column-todo\" 的可见状态\n   实际：true\n✓ 2. 检查 \"column-progress\" 的可见状态\n   实际：true\n✓ 3. 检查 \"column-done\" 的可见状态\n   实际：true\n✓ 4. 在 \"title-input\" 输入 \"写周报\"\n✓ 5. 点击 \"add-button\"\n× 6. 检查 \"column-todo\" 的显示文字\n预期：\"待办写周报\"\n实际：\"待办写周报前进\""
+        }
+      ],
+      "durationMs": 3511.119965000001
+    }
+  }
+]

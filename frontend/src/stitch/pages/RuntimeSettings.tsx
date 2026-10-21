@@ -44,7 +44,7 @@ const providerMeta: Record<RuntimeProvider, ProviderMeta> = {
   llm: {
     title: "对话与内容模型",
     shortTitle: "对话生成",
-    description: "统一配置教师问答、报告、教案、习题和生成工厂使用的内容模型。",
+    description: "配置已接入此设置的学习问答与内容生成模型；独立部署的服务可能使用各自的模型配置。",
     usage: "问答 · 报告 · 教案 · 习题",
     icon: <ApiOutlined />,
   },
@@ -58,28 +58,28 @@ const providerMeta: Record<RuntimeProvider, ProviderMeta> = {
   tts: {
     title: "语音服务",
     shortTitle: "语音服务",
-    description: "为 AI 课堂讲解生成并保存配音，可设置模型和默认音色。",
+    description: "为课堂讲解与音频生成提供配音。当前语音服务、模型与音色由部署配置统一管理。",
     usage: "课堂讲解 · 音频生成",
     icon: <AudioOutlined />,
   },
   web_search: {
     title: "联网搜索服务",
     shortTitle: "联网搜索",
-    description: "用于深度搜索、图片检索和课程资料补充。",
+    description: "配置深度搜索的 Bocha 检索与重排；课程准备和 Tavily 搜索仍使用部署配置。",
     usage: "深度搜索 · 资料补充",
     icon: <GlobalOutlined />,
   },
   pdf_parser: {
     title: "文档解析服务",
     shortTitle: "文档解析",
-    description: "提取教材、论文和讲义的结构化内容，供知识库继续处理。",
+    description: "服务地址、密钥与解析模型用于 PDF 内容提取。此处超时仅用于连接测试。",
     usage: "PDF · 教材 · 论文",
     icon: <FileSearchOutlined />,
   },
   classroom: {
     title: "AI 课堂服务",
     shortTitle: "AI 课堂",
-    description: "连接课堂生成与交互课件服务，支持课堂内容生产。",
+    description: "配置课堂服务的地址、密钥与请求超时；课堂生成模型由该服务独立管理。",
     usage: "课堂生成 · 交互课件",
     icon: <CloudServerOutlined />,
   },
@@ -203,7 +203,7 @@ export function RuntimeSettingsPage() {
     void load();
   }, []);
 
-  const visibleProviders = useMemo(() => overview?.providers ?? [], [overview]);
+  const visibleProviders = useMemo(() => (overview?.providers ?? []).filter(item => item.provider !== "classroom"), [overview]);
   const selectedItem = useMemo(
     () =>
       visibleProviders.find((item) => item.provider === selectedProvider) ??
@@ -216,6 +216,7 @@ export function RuntimeSettingsPage() {
       ? selectedItem.system
       : selectedItem.user
     : null;
+  const deploymentManaged = selectedItem?.provider === "tts";
   const latest = selectedRecord?.revisions[0];
   const active = selectedItem ? activeRevision(selectedItem, scope) : undefined;
   const testedForCurrent =
@@ -377,7 +378,7 @@ export function RuntimeSettingsPage() {
                 服务目录
               </p>
               <p className="mt-2 text-sm leading-6 text-[#60738f]">
-                这些服务对应系统运行时实际使用的 API。
+                查看服务连接与使用范围；语音由部署配置统一管理。
               </p>
             </div>
 
@@ -428,10 +429,10 @@ export function RuntimeSettingsPage() {
                         <span className="mt-1 flex items-center gap-1.5 text-xs text-[#7b8da7]">
                           <span
                             className={`h-1.5 w-1.5 rounded-full ${
-                              itemActive ? "bg-emerald-500" : "bg-slate-300"
+                              itemActive && item.provider !== "tts" ? "bg-emerald-500" : "bg-slate-300"
                             }`}
                           />
-                          {status ? statusMeta[status].label : "使用默认配置"}
+                          {item.provider === "tts" ? "由部署管理" : status ? statusMeta[status].label : "使用默认配置"}
                         </span>
                       </span>
                       <MaterialIcon
@@ -479,7 +480,7 @@ export function RuntimeSettingsPage() {
                         <Title level={3} className="!m-0 !text-[#17304a]">
                           {providerMeta[selectedItem.provider].title}
                         </Title>
-                        {latest ? (
+                        {deploymentManaged ? <Tag>由部署管理</Tag> : latest ? (
                           <Tag color={statusMeta[latest.status].color}>
                             {statusMeta[latest.status].label}
                           </Tag>
@@ -498,7 +499,7 @@ export function RuntimeSettingsPage() {
                   <div className="rounded-[16px] bg-[#f5f8fd] px-4 py-3 text-right">
                     <p className="text-xs font-semibold text-[#7b8da7]">当前来源</p>
                     <p className="mt-1 text-sm font-bold text-[#17304a]">
-                      {sourceLabel(
+                      {deploymentManaged ? "使用部署配置" : sourceLabel(
                         selectedItem.effective_source,
                         scope,
                         Boolean(active),
@@ -507,7 +508,9 @@ export function RuntimeSettingsPage() {
                   </div>
                 </div>
 
-                {latest?.validation_error ? (
+                {deploymentManaged ? (
+                  <Alert className="mt-5 rounded-2xl" type="info" showIcon message="语音服务由部署统一管理" description="此处保存的个人或系统语音配置不会用于实际配音。请在部署端调整服务、模型与音色。" />
+                ) : latest?.validation_error ? (
                   <Alert
                     className="mt-5 rounded-2xl"
                     type="error"
@@ -522,141 +525,145 @@ export function RuntimeSettingsPage() {
                     showIcon
                     icon={<CheckCircleFilled />}
                     message="测试通过，可以应用配置"
-                    description="点击“应用配置”后，新启动的任务会使用这一版本。"
+                    description="连接检查已通过；应用后，已接入此配置的新请求或任务将使用这一版本。连接测试不代表完整生成已验证。"
                   />
                 ) : null}
 
-                <Form
-                  form={form}
-                  layout="vertical"
-                  requiredMark={false}
-                  className="mt-7"
-                  onValuesChange={() => setTestedRevision(null)}
-                >
-                  <div className="grid gap-x-5 sm:grid-cols-2">
-                    {selectedItem.fields.map((field) => {
-                      const meta = fieldMeta[field] ?? {
-                        label: field,
-                        placeholder: "",
-                      };
-                      const fullWidth =
-                        field === "base_url" || field === "api_key";
-                      return (
-                        <Form.Item
-                          key={field}
-                          name={field}
-                          label={meta.label}
-                          tooltip={meta.hint}
-                          dependencies={field === "api_key" ? ["base_url"] : undefined}
-                          className={fullWidth ? "sm:col-span-2" : undefined}
-                          rules={[
-                            ...(field === "base_url"
-                              ? [
-                                  {
-                                    required: true,
-                                    message: `请填写${meta.label}`,
-                                  },
-                                ]
-                              : []),
-                            ...(field === "api_key"
-                              ? [
-                                  {
-                                    validator: async (_rule: unknown, value: unknown) => {
-                                      if (
-                                        String(value ?? "").trim() ||
-                                        (selectedItem.provider === "tts" &&
-                                          isLoopbackServiceUrl(
-                                            form.getFieldValue("base_url"),
-                                          ))
-                                      ) {
-                                        return;
-                                      }
-                                      throw new Error(`请填写${meta.label}`);
-                                    },
-                                  },
-                                ]
-                              : []),
-                            ...(field === "model" &&
-                            ["llm", "embedding", "tts"].includes(
-                              selectedItem.provider,
-                            )
-                              ? [
-                                  {
-                                    required: true,
-                                    message: "请填写模型或服务标识",
-                                  },
-                                ]
-                              : []),
-                          ]}
-                        >
-                          {field === "dimensions" ||
-                          field === "timeout_seconds" ? (
-                            <InputNumber
-                              className="w-full"
-                              min={1}
-                              max={
-                                field === "timeout_seconds" ? 120 : undefined
-                              }
-                              suffix={
-                                field === "timeout_seconds" ? "秒" : undefined
-                              }
-                              placeholder={meta.placeholder}
-                            />
-                          ) : meta.secret ? (
-                            <Input.Password
-                              autoComplete="new-password"
-                              visibilityToggle={false}
-                              placeholder={meta.placeholder}
-                            />
-                          ) : (
-                            <Input placeholder={meta.placeholder} />
-                          )}
-                        </Form.Item>
-                      );
-                    })}
-                  </div>
-                </Form>
+                {!deploymentManaged && (
+                  <>
+                    <Form
+                      form={form}
+                      layout="vertical"
+                      requiredMark={false}
+                      className="mt-7"
+                      onValuesChange={() => setTestedRevision(null)}
+                    >
+                      <div className="grid gap-x-5 sm:grid-cols-2">
+                        {selectedItem.fields.filter((field) => !(selectedItem.provider === "classroom" && field === "model")).map((field) => {
+                          const meta = fieldMeta[field] ?? {
+                            label: field,
+                            placeholder: "",
+                          };
+                          const fullWidth =
+                            field === "base_url" || field === "api_key";
+                          return (
+                            <Form.Item
+                              key={field}
+                              name={field}
+                              label={meta.label}
+                              tooltip={meta.hint}
+                              dependencies={field === "api_key" ? ["base_url"] : undefined}
+                              className={fullWidth ? "sm:col-span-2" : undefined}
+                              rules={[
+                                ...(field === "base_url"
+                                  ? [
+                                      {
+                                        required: true,
+                                        message: `请填写${meta.label}`,
+                                      },
+                                    ]
+                                  : []),
+                                ...(field === "api_key"
+                                  ? [
+                                      {
+                                        validator: async (_rule: unknown, value: unknown) => {
+                                          if (
+                                            String(value ?? "").trim() ||
+                                            (selectedItem.provider === "tts" &&
+                                              isLoopbackServiceUrl(
+                                                form.getFieldValue("base_url"),
+                                              ))
+                                          ) {
+                                            return;
+                                          }
+                                          throw new Error(`请填写${meta.label}`);
+                                        },
+                                      },
+                                    ]
+                                  : []),
+                                ...(field === "model" &&
+                                ["llm", "embedding", "tts"].includes(
+                                  selectedItem.provider,
+                                )
+                                  ? [
+                                      {
+                                        required: true,
+                                        message: "请填写模型或服务标识",
+                                      },
+                                    ]
+                                  : []),
+                              ]}
+                            >
+                              {field === "dimensions" ||
+                              field === "timeout_seconds" ? (
+                                <InputNumber
+                                  className="w-full"
+                                  min={1}
+                                  max={
+                                    field === "timeout_seconds" ? 120 : undefined
+                                  }
+                                  suffix={
+                                    field === "timeout_seconds" ? "秒" : undefined
+                                  }
+                                  placeholder={meta.placeholder}
+                                />
+                              ) : meta.secret ? (
+                                <Input.Password
+                                  autoComplete="new-password"
+                                  visibilityToggle={false}
+                                  placeholder={meta.placeholder}
+                                />
+                              ) : (
+                                <Input placeholder={meta.placeholder} />
+                              )}
+                            </Form.Item>
+                          );
+                        })}
+                      </div>
+                    </Form>
 
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-[#e1e8f2] pt-6">
-                  <div>
-                    {active ? (
-                      <Button
-                        type="link"
-                        danger
-                        className="!px-0"
-                        loading={
-                          busyKey === `${selectedItem.provider}:disable`
-                        }
-                        onClick={() => void restoreDefault()}
-                      >
-                        恢复部署默认配置
-                      </Button>
-                    ) : (
-                      <p className="text-xs leading-5 text-[#7b8da7]">
-                        测试不会影响当前任务；应用后仅对新任务生效。
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-3">
-                    <Button
-                      size="large"
-                      loading={busyKey === `${selectedItem.provider}:test`}
-                      disabled={Boolean(busyKey) && busyKey !== `${selectedItem.provider}:test`}
-                      onClick={() => void testConnection()}
-                    >
-                      测试连接
-                    </Button>
-                    <Button
-                      type="primary"
-                      size="large"
-                      disabled={!testedForCurrent || Boolean(busyKey)}
-                      loading={busyKey === `${selectedItem.provider}:apply`}
-                      onClick={() => void applyConfiguration()}
-                    >
-                      应用配置
-                    </Button>
-                  </div>
-                </div>
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-[#e1e8f2] pt-6">
+                      <div>
+                        {active ? (
+                          <Button
+                            type="link"
+                            danger
+                            className="!px-0"
+                            loading={
+                              busyKey === `${selectedItem.provider}:disable`
+                            }
+                            onClick={() => void restoreDefault()}
+                          >
+                            恢复部署默认配置
+                          </Button>
+                        ) : (
+                          <p className="text-xs leading-5 text-[#7b8da7]">
+                            测试仅检查服务连接；应用后用于已接入此配置的新请求或任务。
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-3">
+                        <Button
+                          size="large"
+                          loading={busyKey === `${selectedItem.provider}:test`}
+                          disabled={Boolean(busyKey) && busyKey !== `${selectedItem.provider}:test`}
+                          onClick={() => void testConnection()}
+                        >
+                          测试连接
+                        </Button>
+                        <Button
+                          type="primary"
+                          size="large"
+                          disabled={!testedForCurrent || Boolean(busyKey)}
+                          loading={busyKey === `${selectedItem.provider}:apply`}
+                          onClick={() => void applyConfiguration()}
+                        >
+                          应用配置
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </>
             )}
           </section>

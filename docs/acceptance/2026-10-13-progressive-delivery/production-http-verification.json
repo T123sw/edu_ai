@@ -1,0 +1,98 @@
+{
+  "backend_pid": 3469882,
+  "preparation_id": "prep_f13e2b0434204729a7835fff8298595e",
+  "course_id": "learn-f13e2b0434204729a7835fff8298595e",
+  "course_title": "快速排序入门：从分治思想到代码实现",
+  "task_http_status": 200,
+  "course_http_status": 200,
+  "home_lists_course": true,
+  "node_count": 4,
+  "resource_count": 11,
+  "resource_types": {
+    "report": 4,
+    "quiz": 3,
+    "classroom": 4
+  },
+  "delivery": {
+    "state": "partial",
+    "preparationId": "prep_f13e2b0434204729a7835fff8298595e",
+    "availableResources": 11,
+    "pending": [
+      {
+        "title": "划分过程：基准值选取与一趟划分的跟踪",
+        "resourceTypes": [
+          "quiz"
+        ]
+      }
+    ]
+  },
+  "reads": [
+    {
+      "type": "report",
+      "resource_id": "resource_0400938ad605fc99382ae7048fc260a4",
+      "http_status": 200,
+      "has_payload": true
+    },
+    {
+      "type": "quiz",
+      "resource_id": "resource_2bee3896ead5f9b0081b53e33f506d3c",
+      "http_status": 200,
+      "has_payload": true
+    },
+    {
+      "type": "classroom",
+      "resource_id": "resource_e430b696a7531691d58c5f10fb281c5c",
+      "http_status": 200,
+      "has_payload": true
+    },
+    {
+      "type": "classroom",
+      "resource_id": "resource_68b4bad79240a6882987faede8d99160",
+      "http_status": 200,
+      "has_payload": true
+    },
+    {
+      "type": "report",
+      "resource_id": "resource_c294924222bbb6ae6cbb7cde6a3c08c1",
+      "http_status": 200,
+      "has_payload": true
+    },
+    {
+      "type": "quiz",
+      "resource_id": "resource_02c71e2a611ac1947c9511086eb1780e",
+      "http_status": 200,
+      "has_payload": true
+    },
+    {
+      "type": "classroom",
+      "resource_id": "resource_c9f6cd1e447b80dbd4e2303e9c7af5f3",
+      "http_status": 200,
+      "has_payload": true
+    },
+    {
+      "type": "report",
+      "resource_id": "resource_fd0f096d3ffd5658c3d4d400ee95c58b",
+      "http_status": 200,
+      "has_payload": true
+    },
+    {
+      "type": "classroom",
+      "resource_id": "resource_22ad56d73f7a75d3b386609f3f5c1d3a",
+      "http_status": 200,
+      "has_payload": true
+    },
+    {
+      "type": "report",
+      "resource_id": "resource_544a74fd26d1f49095c5c0fe4e827291",
+      "http_status": 200,
+      "has_payload": true
+    },
+    {
+      "type": "quiz",
+      "resource_id": "resource_72216cdec9d154200b912d959157dfa2",
+      "http_status": 200,
+      "has_payload": true
+    }
+  ],
+  "provider_calls": 0
+}

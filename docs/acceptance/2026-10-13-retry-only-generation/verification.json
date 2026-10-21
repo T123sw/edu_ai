@@ -1,0 +1,90 @@
+{
+  "verified_at_utc": "2026-10-13T19:44:08.717859+00:00",
+  "policy": {
+    "production_default": "retry_only",
+    "old_failed_tasks": "adopt current policy on explicit user retry",
+    "removed_limits": [
+      "total model/tool calls",
+      "total tokens",
+      "estimated task cost",
+      "total task elapsed time",
+      "implicit 24 native pages",
+      "default report word count and quiz count suggestions",
+      "duration-derived word quotas",
+      "legacy 48/96 KB research projection quota under retry-only",
+      "legacy 12k writing output ceiling for known official DeepSeek models"
+    ],
+    "retained": [
+      "automatic retry limits",
+      "per-request/session timeouts",
+      "cancellation",
+      "lease fencing",
+      "owner/source authorization",
+      "model capacity and protocol checks",
+      "explicit user content requirements"
+    ],
+    "accounting": "usage and reservations remain recorded; totals are not failure conditions",
+    "database_migration_required": false
+  },
+  "classroom_mapping": {
+    "strategy": "one native page per mapping call; validate local IDs then aggregate; save each completed page mapping",
+    "extra_classroom_model_review": false,
+    "page_content_rewritten": false,
+    "live_original_scenes": 8,
+    "live_mapping_calls": 8,
+    "live_objective_bindings": 18,
+    "max_live_request_input_upper_bound": 55837
+  },
+  "model_capacity": {
+    "known_official_DeepSeek_context": 1000000,
+    "max_output": 384000,
+    "registered_key_failover_proxy_resolved": true,
+    "live_api_acceptance": true,
+    "unknown_provider": "conservative compatibility defaults; not assumed to have DeepSeek capacity",
+    "source": "https://api-docs.deepseek.com/quick_start/pricing/"
+  },
+  "tests": {
+    "preparation_and_queue_suite": {
+      "passed": 835,
+      "skipped": 16,
+      "duration_seconds": 672.06
+    },
+    "capacity_focused_after_final_capacity_changes": {
+      "passed": 56
+    },
+    "key_proxy_and_gateway_focused_after_proxy_resolution_change": {
+      "passed": 31
+    },
+    "final_retry_policy_and_queue_expiration": {
+      "passed": 10
+    },
+    "native_pipeline": {
+      "passed": 7,
+      "includes_30_page_generation": true,
+      "model_responses": "stubbed; actual native TypeScript generators executed"
+    },
+    "native_typecheck": "passed",
+    "diff_check": "passed",
+    "counts_overlap": true
+  },
+  "real_task_replay": {
+    "isolated_postgresql": true,
+    "production_read_only": true,
+    "saved_drafts_preserved": 4,
+    "native_scenes_preserved": 8,
+    "new_queue_deadline": null,
+    "usage_preserved": true
+  },
+  "deployment": {
+    "backend_restart": "blocked: sudo requires password",
+    "running_backend_pid": 3317359,
+    "loaded_in_running_backend": false,
+    "frontend_change_required": false
+  },
+  "verification_boundary": {
+    "full_course_regeneration_executed": false,
+    "production_task_retried": false,
+    "all_remaining_resources_verified": false,
+    "initial_probe_detected_proxy_capacity_misclassification": "fixed and verified against actual proxied provider"
+  }
+}

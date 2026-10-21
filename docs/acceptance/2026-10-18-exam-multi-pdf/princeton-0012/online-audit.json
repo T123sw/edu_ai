@@ -1,0 +1,90 @@
+{
+  "observed_at": 1792304167.8365743,
+  "tag": "多PDF验收 princeton-0012 1792303148554",
+  "generations": [
+    {
+      "generation_id": "examgen_35e5a3c3a60689b856c8dceed6a80463",
+      "job_id": "examgen_35e5a3c3a60689b856c8dceed6a80463",
+      "turn": {
+        "id": "turn_1792303208653_542dc0fb28",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792303209.0968177,
+        "updated_at": 1792304103.391992
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 13780,
+          "layout_blocks": 175,
+          "images": 49
+        }
+      ],
+      "blueprint_count": 9,
+      "local_events": 83362,
+      "upstream_events": 83362,
+      "done_received": true,
+      "summary": {
+        "failed": 5,
+        "success": false,
+        "completed": 4,
+        "requested": 9,
+        "template_count": 9
+      },
+      "failed_questions": [
+        {
+          "ordinal": 1,
+          "issues": [
+            "missing_question",
+            "missing_correct_answer",
+            "missing_explanation",
+            "subquestion_count_mismatch"
+          ]
+        },
+        {
+          "ordinal": 4,
+          "issues": [
+            "question_type_mismatch",
+            "subquestion_count_mismatch"
+          ]
+        },
+        {
+          "ordinal": 7,
+          "issues": [
+            "q_f6fb0569e1a3d7f44bbb:missing_correct_answer",
+            "q_f6fb0569e1a3d7f44bbb:concept_correct_answer_must_be_true_or_false",
+            "q_e51858448fcc7bf0f0df:missing_correct_answer",
+            "q_e51858448fcc7bf0f0df:concept_correct_answer_must_be_true_or_false"
+          ]
+        },
+        {
+          "ordinal": 8,
+          "issues": [
+            "missing_question",
+            "missing_correct_answer",
+            "missing_explanation",
+            "subquestion_count_mismatch"
+          ]
+        },
+        {
+          "ordinal": 9,
+          "issues": [
+            "missing_question",
+            "missing_correct_answer",
+            "missing_explanation",
+            "subquestion_count_mismatch"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 67,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 36,
+          "deepseek-v4-flash": 31
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0
+}

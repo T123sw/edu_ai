@@ -1,0 +1,68 @@
+{
+  "status": "frontend_published_backend_restart_required",
+  "changes": [
+    "Remove directory progress header",
+    "Course-wide conversation, draft, history and bounded model context for each owner/course",
+    "Keep original topic and versioned reading snapshot per answer",
+    "Merge old topic messages atomically on first idle course entry without changing message IDs",
+    "Keep migration reconciliation and source suppression valid after consolidation"
+  ],
+  "backend_sources": {
+    "postgres_repository.py": "5407ccff3b9d3dcd2f304d15d39c4c319cd234ad57432dd9457c6dc31862e72e",
+    "session_service.py": "2e9d1c11e91aa5d1b4551f48bb06027e2e5108287b395d25d8d757440c3c195f",
+    "turn_repository.py": "2a1e9dd4c9474335bde48229ee1f0bf0aa43959f26a51c6c665ed62619f46dc6",
+    "turn_service.py": "fb3e88fdd84065eba93bc8c033fc997525bfd85cd083962c0eac3b8acaf513d0",
+    "service.py": "ad07d8d3f560eb21ab4613f26fbb7e145bf0dd44100fac9994ac6f257ab2b367",
+    "context_builder.py": "f0acd99e32ac6284a338f9e4fa4edfff73c4d3b1b0c063b319f90fbdc4680000",
+    "summary_service.py": "615bf002d676a0ae39f3c57107977c2983b716c1591496061fe1af0b1950dd9b",
+    "teaching_continuity.py": "82c7ee17017959987ff591edfa59ee3b4796e1be1c9b122effc88959f2978b18",
+    "tools.py": "0d384db3565885d5364de13c5189ce271ef49fc4e65968d5ee6af5ce379dafc8",
+    "migration.py": "96afe8f2e4439ff04d2320c9bda0ebc3dcc6e90617aa266f4db16b5e3685e5fb",
+    "learning-role.md": "19ad7485a3760d0e201f8c7d0ae6416861e028c6f4f6a460240980ff4875839e"
+  },
+  "tests": {
+    "backend": {
+      "passed": 96,
+      "skipped": 1,
+      "note": "SQLite and isolated PostgreSQL; skipped SQLite-only process test"
+    },
+    "legacy_and_course": {
+      "passed": 12,
+      "skipped": 3,
+      "note": "Overlaps core suite"
+    },
+    "postgres_cross_topic_concurrency": {
+      "passed": 1
+    },
+    "migration_reconciliation": {
+      "passed": 4
+    },
+    "frontend_unit": {
+      "passed": 14
+    },
+    "browser": {
+      "passed": 3,
+      "coverage": [
+        "cross-topic shared history and draft",
+        "refresh",
+        "late answer original reference",
+        "account isolation",
+        "150-turn pagination",
+        "desktop and mobile progress removal"
+      ]
+    },
+    "typescript": "passed",
+    "lint": "passed",
+    "build": "passed",
+    "nginx_assets": "299 verified",
+    "published_ui": "passed with preview data and intercepted business APIs"
+  },
+  "deployment": "release.json",
+  "backend_restart": {
+    "status": "blocked",
+    "reason": "systemd Interactive authentication required",
+    "service": "edu-ai-backend.service"
+  },
+  "production_data_changes": "No manual course/conversation data changes during implementation; legacy merge occurs through authorized course entry after restart.",
+  "test_database": "Temporary PostgreSQL 14 UTF8 on localhost:55448 with isolated test schemas; no business database used for tests."
+}

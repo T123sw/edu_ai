@@ -1,0 +1,15 @@
+{
+  "project_digest": "375a6940a37bd3d163d2123051b267532c1247d0c668cc9dd66895f20933c5d7",
+  "duration": 40.104,
+  "native_check_passed": true,
+  "manual_video_review": "rejected",
+  "issues": [
+    "First segment blank because second timeline overwrites window.__timelines.main",
+    "Second SVG line has no stroke and is invisible"
+  ],
+  "frames": [
+    "/home/zxqs_ep/data/main-review/hyperframes-online-jsonfix/frame-8.png",
+    "/home/zxqs_ep/data/main-review/hyperframes-online-jsonfix/frame-28.png"
+  ],
+  "not_acceptance_video": true
+}

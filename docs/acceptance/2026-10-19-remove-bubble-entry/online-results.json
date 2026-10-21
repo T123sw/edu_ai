@@ -1,0 +1,22 @@
+{
+  "base": "http://127.0.0.1",
+  "api": "fixtures",
+  "results": [
+    {
+      "width": 1440,
+      "removed": true,
+      "listsVisible": true,
+      "modeSwitch": true,
+      "refresh": true,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "removed": true,
+      "listsVisible": true,
+      "modeSwitch": true,
+      "refresh": true,
+      "errors": []
+    }
+  ]
+}

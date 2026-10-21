@@ -1,0 +1,99 @@
+{
+  "scope": "Offline spot checks of saved generated content; no production mutation, not comprehensive factual review.",
+  "findings": [
+    {
+      "node": "n4-position-ffn",
+      "question": "q-pe-handcalc",
+      "published": false,
+      "outcome": "correctly rejected for actual explanatory error",
+      "calculation": {
+        "omitted_factor_frequency": 0.1,
+        "sin_of_omitted_factor_frequency": 0.09983341664682815,
+        "correct_position_1": [
+          0.8414709848078965,
+          0.5403023058681398,
+          0.009999833334166664,
+          0.9999500004166653
+        ]
+      },
+      "limitation": "Numerical review additionally reports unsupported trigonometric expression evaluations; inability to evaluate is not itself evidence of wrong values."
+    },
+    {
+      "node": "n4-position-ffn",
+      "question": "q-pe-formula",
+      "published": false,
+      "outcome": "additional error in rejected candidate",
+      "claim": "i=d_model/2−1 时波长为 10000·2π",
+      "correct": "max wavelength = 2π * 10000^(1−2/d_model), strictly below 10000·2π for finite d_model; for d_model=4 it is 200π."
+    },
+    {
+      "node": "n2-overall-architecture",
+      "question": "q4-layernorm-dimension",
+      "published": true,
+      "outcome": "residual expression and 512/8=64 dimension arithmetic consistent in this sample"
+    },
+    {
+      "node": "n3-self-attention",
+      "resource": "video script/storyboard",
+      "frames": [
+        7,
+        8,
+        9,
+        10
+      ],
+      "outcome": "QK scores and weighted output consistent; rounding/label issue in softmax table",
+      "weights_recomputed": [
+        [
+          0.451862761877606,
+          0.27406861906119695,
+          0.27406861906119695
+        ],
+        [
+          0.2326965376188986,
+          0.3836517311905507,
+          0.3836517311905507
+        ],
+        [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ]
+      ],
+      "weighted_output_recomputed": [
+        [
+          0.9999999999999999,
+          1.177794142816409,
+          0.8222058571835908,
+          0.7259313809388029
+        ],
+        [
+          1.0,
+          0.8490448064283479,
+          1.150955193571652,
+          0.6163482688094493
+        ],
+        [
+          1.0,
+          1.0,
+          1.0,
+          0.6666666666666666
+        ]
+      ],
+      "issues": [
+        "Second row displayed [0.233,0.384,0.383]; last two values mathematically equal and both round to 0.384 at 3 decimals.",
+        "Third row displayed [0.333,0.333,0.333] alongside Σ=1.000; exact values are thirds, displayed rounded sum is 0.999. Should qualify approximation."
+      ],
+      "stage": "intermediate script/storyboard, final artifact not yet checked"
+    },
+    {
+      "node": "n4-position-ffn",
+      "resource": "video",
+      "frame": "05-heatmap",
+      "outcome": "material educational visualization inconsistency",
+      "evidence_file": "artifact_f389a890295c6fa609e053a92da5f28b/project-evidence/05-heatmap.html",
+      "implementation": "lambdas=[16,12.5,9.6,7.2,5.4,4.1,3.2,2.5,2.0,1.7,1.45,1.3]; v=.5+.5*sin(2π*position/lambdas[dimension]+dimension*.62)",
+      "issue": "Rows labeled dimensions 0–11 use arbitrary decreasing wavelengths and arbitrary phase; not PE(pos,2i)=sin(pos/10000^(2i/d_model)) with paired cosine. Frequency trend contradicts increasing wavelength with dimension in adjacent formula/narration.",
+      "stage": "native preview and scene source, no intervention"
+    }
+  ]
+}

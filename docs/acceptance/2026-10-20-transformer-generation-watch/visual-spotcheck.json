@@ -1,0 +1,54 @@
+{
+  "scope": "Existing native contact-sheet previews only; no new render invoked; not full playback verification.",
+  "previews": [
+    {
+      "node": "n1-why-transformer",
+      "file": "previews/n1-why-transformer-f922b8ca-656d-4246-bd9a-3c513571b544-contact-sheet-1.jpg",
+      "observed": [
+        "Dark blue background and cyan/yellow accents are consistent across sampled scenes.",
+        "Dependencies, sequential/parallel comparison and positional information are visible.",
+        "Diagram annotations remain much smaller than main headings; contact-sheet downsampling limits legibility assessment.",
+        "Sample at 106.3s displays O(64) alongside n steps; needs distinction between a concrete step-count animation and asymptotic O(n) notation."
+      ],
+      "status": "intermediate preview"
+    },
+    {
+      "node": "n2-overall-architecture",
+      "file": "previews/n2-overall-architecture-8a489c32-3102-45a5-8be0-f52bdcdef933-contact-sheet-1.jpg",
+      "observed": [
+        "Encoder/decoder, residual bypass and causal mask with shifted target tokens are visible.",
+        "Dark blue grid, cyan/violet accents consistent with sampled other videos.",
+        "Some diagram labels are small at contact-sheet scale."
+      ],
+      "status": "intermediate preview"
+    },
+    {
+      "node": "n3-self-attention",
+      "file": "previews/n3-self-attention-316be24a-52e5-45f8-81a9-785098ef7bc5-contact-sheet-1.jpg",
+      "observed": [
+        "Q/K/V matrices, scores and softmax table are visible.",
+        "Equal second-row scores produce visually unequal rounded weights 0.384 and 0.383; confirmed saved-script issue persists in preview.",
+        "Some elements only partially revealed at chosen sample timestamps; a contact sheet cannot verify full animation."
+      ],
+      "status": "intermediate preview"
+    },
+    {
+      "node": "n4-position-ffn",
+      "file": "previews/n4-position-ffn-3f0bc1e9-1557-4c3d-85a4-f1db39177d4d-contact-sheet-1.jpg",
+      "observed": [
+        "PE formula, heatmap, learned embeddings, FFN and 512→2048→512 dimensions visible.",
+        "Heatmap does not implement the displayed positional encoding formula; see content-spotcheck and saved source."
+      ],
+      "status": "intermediate preview"
+    },
+    {
+      "node": "n5-tradeoff",
+      "file": "previews/n5-tradeoff-14fc2059-eb8d-4a25-a450-2224cdf4b16a-contact-sheet-1.jpg",
+      "observed": [
+        "Complexity comparison and training-parallel versus generation-sequential distinction visible.",
+        "Dark background/cyan accent consistent; diagram annotations smaller than headings."
+      ],
+      "status": "native preview before successful render"
+    }
+  ]
+}

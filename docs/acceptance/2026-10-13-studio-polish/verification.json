@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-13",
+  "scope": "课程内工具视觉优化；未修改后端",
+  "changes": [
+    "取消工具独立占列，使用两个悬浮按钮",
+    "居中工具卡片增加用途图示，课程上下文压缩为一行",
+    "六类工具配置统一字段、选项、进阶设置和操作区样式",
+    "深度研究重做输入框、快捷问题及结论/来源阅读界面"
+  ],
+  "checks": {
+    "typescript": "passed",
+    "eslint": "passed",
+    "vite_build": "passed; existing chunk size advisory only",
+    "form_types": [
+      "report",
+      "quiz",
+      "flashcard",
+      "mind_map",
+      "lesson_plan",
+      "blog"
+    ],
+    "form_submissions": 22,
+    "research_viewport_widths": [
+      1440,
+      1024,
+      390,
+      320
+    ],
+    "themes": [
+      "default",
+      "ocean",
+      "sunset",
+      "dark"
+    ],
+    "production_smoke": "passed: full classroom width, centered tools/config, type filters, no page errors"
+  },
+  "test_boundary": "浏览器使用模拟 API 验证交互和提交参数；本轮未调用真实模型或搜索生成。此前研究阅读与收藏接口仍待后端重启加载。",
+  "deployment": "已核对并合入并行窗口的 8 个课程准备/部分交付前端变更；保留旧静态资源，备份后原子替换入口；线上 HTTP 和浏览器检查通过。"
+}

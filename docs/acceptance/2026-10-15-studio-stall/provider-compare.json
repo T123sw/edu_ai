@@ -1,0 +1,25 @@
+[
+  {
+    "name": "primary-direct",
+    "error": "ReadTimeout",
+    "seconds": 20.36
+  },
+  {
+    "name": "backup-direct",
+    "status": 402,
+    "seconds": 0.65,
+    "response": {
+      "error": {
+        "message": "Insufficient Balance (request_id: 8fb134ae-42d0-4f84-8f2b-736a1f95a0d7)",
+        "type": "unknown_error",
+        "param": null,
+        "code": "invalid_request_error"
+      }
+    }
+  },
+  {
+    "name": "primary-env-proxy",
+    "error": "ReadTimeout",
+    "seconds": 20.41
+  }
+]

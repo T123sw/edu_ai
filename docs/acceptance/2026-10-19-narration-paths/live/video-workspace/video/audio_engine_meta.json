@@ -1,0 +1,23 @@
+{
+  "tts_provider": "host",
+  "voice_id": "vivian",
+  "bgm": null,
+  "bgm_pending": false,
+  "bgm_provider": null,
+  "bgm_pid": null,
+  "bgm_log": null,
+  "bgm_mode": null,
+  "bgm_target_duration_s": null,
+  "bgm_seed_duration_s": null,
+  "bgm_loop_count": null,
+  "voices": [
+    {
+      "id": "01",
+      "path": "assets/audio/483f68bcf13fcc86b8b803d7f87cfd92697493b70e3d1a0dc94d78d19bfd18f8.mp3",
+      "duration_s": 46.464,
+      "words": []
+    }
+  ],
+  "sfx": [],
+  "total_duration_s": 46.464
+}

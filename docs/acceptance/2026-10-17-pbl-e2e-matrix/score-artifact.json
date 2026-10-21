@@ -1,0 +1,1124 @@
+{
+  "schemaVersion": 2,
+  "runtimeKind": "react_app",
+  "templateVersion": "react-app-v1",
+  "exerciseId": "pbl_bc0c6e5445a7b30e1d5f2d1d12f5ed0c",
+  "artifactVersion": 1,
+  "topic": "用 React 做一个双人比赛记分牌。双方名称固定为“红队”和“蓝队”，分数初始都为 0。每队各有加 1 分、减 1 分按钮，分数不能低于 0；操作一队不影响另一队。另有一个“重置比赛”按钮清空双方分数。页面显示当前状态：分数相同时“平局”，否则显示“红队领先”或“蓝队领先”。我会 JSX，请按功能增量拆分步骤，先完成页面外壳再加入交互。不要计时、后端或持久化。",
+  "title": "双人比赛记分牌",
+  "summary": "用 React 构建一个红队/蓝队双人比赛记分牌页面：双方分数初始为 0，每队可加 1 分或减 1 分且分数不低于 0，操作一队不影响另一队，另有“重置比赛”按钮把双方分数清零，页面实时显示“平局”“红队领先”或“蓝队领先”。",
+  "plan": {
+    "schemaVersion": 1,
+    "title": "双人比赛记分牌",
+    "goal": "用 React 构建一个红队/蓝队双人比赛记分牌页面：双方分数初始为 0，每队可加 1 分或减 1 分且分数不低于 0，操作一队不影响另一队，另有“重置比赛”按钮把双方分数清零，页面实时显示“平局”“红队领先”或“蓝队领先”。",
+    "runtimeKind": "react_app",
+    "editableFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "requirements": [
+      {
+        "id": "scoreboard-shell",
+        "description": "页面显示标题、红队与蓝队两个队伍区域，每队显示队名与当前分数（初始均为 0），并显示当前比赛状态文字。"
+      },
+      {
+        "id": "score-controls",
+        "description": "每队各有“加 1 分”和“减 1 分”按钮，点击后该队分数相应加 1 或减 1。"
+      },
+      {
+        "id": "score-floor",
+        "description": "任何一队分数都不能低于 0；当分数为 0 时点击减 1 分，该队分数保持 0。"
+      },
+      {
+        "id": "team-independence",
+        "description": "操作一队的加减分按钮只改变该队分数，不影响另一队分数。"
+      },
+      {
+        "id": "reset-match",
+        "description": "点击“重置比赛”按钮后，红队与蓝队分数都回到 0。"
+      },
+      {
+        "id": "status-text",
+        "description": "页面状态文字随分数变化：双方分数相同时显示“平局”，红队分数高时显示“红队领先”，蓝队分数高时显示“蓝队领先”。"
+      }
+    ],
+    "steps": [
+      {
+        "id": "shell",
+        "title": "搭建记分牌页面外壳",
+        "objective": "完成包含标题、两队队名与初始分数、状态文字和全部按钮的静态页面外壳。",
+        "dependsOn": [],
+        "entryCondition": "从初始工程开始，App.jsx 中已有默认导出的 App 组件。",
+        "deliverable": "页面显示标题、红队与蓝队两个区域（各含队名与分数 0）、当前状态文字“平局”，以及每队的“加 1 分”“减 1 分”按钮和“重置比赛”按钮；此时按钮点击尚无效果。",
+        "requirementIds": [
+          "scoreboard-shell"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "newCheckIds": [
+          "shell-teams-visible",
+          "shell-scores-zero",
+          "shell-status-draw",
+          "shell-buttons-visible"
+        ]
+      },
+      {
+        "id": "score-buttons",
+        "title": "让加减分按钮生效",
+        "objective": "用状态管理让每队的加 1 分、减 1 分按钮改变本队分数，并保证分数不低于 0、互不影响。",
+        "dependsOn": [
+          "shell"
+        ],
+        "entryCondition": "页面外壳已完成，两队分数与按钮均已显示。",
+        "deliverable": "点击红队或蓝队的“加 1 分”使该队分数加 1；点击“减 1 分”使该队分数减 1，但当分数为 0 时保持 0；操作一队不影响另一队分数。",
+        "requirementIds": [
+          "score-controls",
+          "score-floor",
+          "team-independence"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "newCheckIds": [
+          "red-add-increments",
+          "blue-add-increments",
+          "red-minus-decrements",
+          "minus-at-zero-stays-zero",
+          "red-add-keeps-blue"
+        ]
+      },
+      {
+        "id": "reset-and-status",
+        "title": "加入重置比赛与领先状态",
+        "objective": "实现“重置比赛”按钮清零双方分数，并让状态文字随分数实时显示平局或领先方。",
+        "dependsOn": [
+          "score-buttons"
+        ],
+        "entryCondition": "加减分按钮已能正确改变各队分数。",
+        "deliverable": "点击“重置比赛”后双方分数都回到 0；状态文字在分数相同时显示“平局”，红队高时显示“红队领先”，蓝队高时显示“蓝队领先”，并随加减分实时更新。",
+        "requirementIds": [
+          "reset-match",
+          "status-text"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "newCheckIds": [
+          "reset-clears-both",
+          "status-red-leads",
+          "status-blue-leads",
+          "status-back-to-draw"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "shell-teams-visible",
+        "stepId": "shell",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "scoreboard-shell"
+        ],
+        "setup": "打开页面，不做任何操作。",
+        "actions": [
+          "查看页面上的队伍名称"
+        ],
+        "expected": [
+          "页面显示“红队”和“蓝队”两个队名"
+        ],
+        "requiredAssertions": [
+          "visible"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "shell-scores-zero",
+        "stepId": "shell",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "scoreboard-shell"
+        ],
+        "setup": "打开页面，不做任何操作。",
+        "actions": [
+          "查看红队分数显示",
+          "查看蓝队分数显示"
+        ],
+        "expected": [
+          "红队分数显示为 0",
+          "蓝队分数显示为 0"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "shell-status-draw",
+        "stepId": "shell",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "scoreboard-shell"
+        ],
+        "setup": "打开页面，不做任何操作。",
+        "actions": [
+          "查看状态文字"
+        ],
+        "expected": [
+          "状态文字显示“平局”"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "shell-buttons-visible",
+        "stepId": "shell",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "scoreboard-shell"
+        ],
+        "setup": "打开页面，不做任何操作。",
+        "actions": [
+          "查看红队加 1 分按钮",
+          "查看红队减 1 分按钮",
+          "查看蓝队加 1 分按钮",
+          "查看蓝队减 1 分按钮",
+          "查看重置比赛按钮"
+        ],
+        "expected": [
+          "五个按钮都可见且可用"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "enabled"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "red-add-increments",
+        "stepId": "score-buttons",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "score-controls"
+        ],
+        "setup": "打开页面，双方分数均为 0。",
+        "actions": [
+          "点击红队“加 1 分”按钮两次",
+          "查看红队分数"
+        ],
+        "expected": [
+          "红队分数显示为 2"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "blue-add-increments",
+        "stepId": "score-buttons",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "score-controls"
+        ],
+        "setup": "打开页面，双方分数均为 0。",
+        "actions": [
+          "点击蓝队“加 1 分”按钮一次",
+          "查看蓝队分数"
+        ],
+        "expected": [
+          "蓝队分数显示为 1"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "red-minus-decrements",
+        "stepId": "score-buttons",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "score-controls"
+        ],
+        "setup": "打开页面，双方分数均为 0。",
+        "actions": [
+          "点击红队“加 1 分”按钮两次",
+          "点击红队“减 1 分”按钮一次",
+          "查看红队分数"
+        ],
+        "expected": [
+          "红队分数显示为 1"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "minus-at-zero-stays-zero",
+        "stepId": "score-buttons",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "score-floor"
+        ],
+        "setup": "打开页面，双方分数均为 0。",
+        "actions": [
+          "点击蓝队“减 1 分”按钮一次",
+          "查看蓝队分数"
+        ],
+        "expected": [
+          "蓝队分数仍显示为 0"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "red-add-keeps-blue",
+        "stepId": "score-buttons",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "team-independence"
+        ],
+        "setup": "打开页面，双方分数均为 0。",
+        "actions": [
+          "点击红队“加 1 分”按钮三次",
+          "查看蓝队分数"
+        ],
+        "expected": [
+          "蓝队分数仍显示为 0"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "reset-clears-both",
+        "stepId": "reset-and-status",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "reset-match"
+        ],
+        "setup": "打开页面，双方分数均为 0。",
+        "actions": [
+          "点击红队“加 1 分”按钮两次",
+          "点击蓝队“加 1 分”按钮一次",
+          "点击“重置比赛”按钮",
+          "查看红队分数",
+          "查看蓝队分数"
+        ],
+        "expected": [
+          "红队分数显示为 0",
+          "蓝队分数显示为 0"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "status-red-leads",
+        "stepId": "reset-and-status",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "status-text"
+        ],
+        "setup": "打开页面，双方分数均为 0。",
+        "actions": [
+          "点击红队“加 1 分”按钮一次",
+          "查看状态文字"
+        ],
+        "expected": [
+          "状态文字显示“红队领先”"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "status-blue-leads",
+        "stepId": "reset-and-status",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "status-text"
+        ],
+        "setup": "打开页面，双方分数均为 0。",
+        "actions": [
+          "点击蓝队“加 1 分”按钮一次",
+          "查看状态文字"
+        ],
+        "expected": [
+          "状态文字显示“蓝队领先”"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "status-back-to-draw",
+        "stepId": "reset-and-status",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "status-text"
+        ],
+        "setup": "打开页面，双方分数均为 0。",
+        "actions": [
+          "点击红队“加 1 分”按钮一次",
+          "点击蓝队“加 1 分”按钮一次",
+          "查看状态文字"
+        ],
+        "expected": [
+          "状态文字显示“平局”"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      }
+    ]
+  },
+  "starterFiles": {
+    "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+    "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+  },
+  "tasks": [
+    {
+      "stepId": "shell",
+      "title": "搭建记分牌页面外壳",
+      "objective": "完成包含标题、两队队名与初始分数、状态文字和全部按钮的静态页面外壳。",
+      "instructionsMarkdown": "这一步先把记分牌的“样子”搭出来，按钮暂时不用有反应。\n\n完成后页面上应当能看到：\n\n- 一个页面标题，例如“比赛记分牌”。\n- 红队区域：显示队名“红队”和它的分数 `0`。\n- 蓝队区域：显示队名“蓝队”和它的分数 `0`。\n- 一行状态文字，初始显示“平局”。\n- 红队区域里有“加 1 分”和“减 1 分”两个按钮。\n- 蓝队区域里有“加 1 分”和“减 1 分”两个按钮。\n- 页面下方（或任意合适位置）有一个“重置比赛”按钮。\n\n这一阶段点击任何按钮都不会改变分数，这是正常的，交互留到下一步。\n\n**代码约定**\n\n为了让系统能识别各个部件，请给它们加上 `data-testid`（只是标记，不影响外观）：\n\n- 红队分数数字用 `data-testid=\"red-score\"`，内容为 `0`。\n- 蓝队分数数字用 `data-testid=\"blue-score\"`，内容为 `0`。\n- 状态文字用 `data-testid=\"status\"`，内容为“平局”。\n- 红队“加 1 分”按钮 `data-testid=\"red-add\"`，“减 1 分”按钮 `data-testid=\"red-minus\"`。\n- 蓝队“加 1 分”按钮 `data-testid=\"blue-add\"`，“减 1 分”按钮 `data-testid=\"blue-minus\"`。\n- “重置比赛”按钮 `data-testid=\"reset\"`。\n\n分数数字元素里只放数字本身（例如 `0`），不要把队名或“分”字塞进同一个元素。",
+      "explanationMarkdown": "React 组件就是一个返回 JSX 的函数。这一步只需要写静态结构，不需要 `useState`。\n\n建议把页面分成三块：标题、两队区域、状态与重置。每队区域里放队名、分数和两个按钮。分数先直接写死为 `0`，下一步再换成状态变量。\n\n`data-testid` 是普通 HTML 属性，React 会原样渲染到 DOM 上，浏览器不会显示它，也不影响样式。\n\n样式可以简单一点：用 flex 让两队并排，按钮之间留点间距即可。",
+      "hints": [
+        "先写 `<h1>` 标题，再写两个队伍区块。",
+        "分数用 `<span data-testid=\"red-score\">0</span>` 这样的元素单独承载。",
+        "按钮用 `<button type=\"button\">加 1 分</button>`，暂时不绑定 onClick。",
+        "状态文字单独一个元素：`<p data-testid=\"status\">平局</p>`。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "checkIds": [
+        "shell-teams-visible",
+        "shell-scores-zero",
+        "shell-status-draw",
+        "shell-buttons-visible"
+      ],
+      "id": "shell",
+      "cumulativeCheckIds": [
+        "shell-teams-visible",
+        "shell-scores-zero",
+        "shell-status-draw",
+        "shell-buttons-visible"
+      ]
+    },
+    {
+      "stepId": "score-buttons",
+      "title": "让加减分按钮生效",
+      "objective": "用状态管理让每队的加 1 分、减 1 分按钮改变本队分数，并保证分数不低于 0、互不影响。",
+      "instructionsMarkdown": "上一步已经搭好了记分牌的外壳：红队、蓝队两个区域各自显示队名和分数 0，还有“加 1 分”“减 1 分”按钮以及“重置比赛”按钮。现在让加减分按钮真正起作用。\n\n本步要完成的效果：\n\n- 点击红队的“加 1 分”，红队分数加 1；点击红队的“减 1 分”，红队分数减 1。\n- 点击蓝队的“加 1 分”，蓝队分数加 1；点击蓝队的“减 1 分”，蓝队分数减 1。\n- 任何一队分数为 0 时，再点“减 1 分”，该队分数保持 0，不会变成负数。\n- 操作一队只改变这一队的分数，另一队分数不受影响。\n\n本步暂时不用管“重置比赛”按钮和状态文字，它们保持上一步的样子即可，下一步再处理。\n\n**代码约定**\n\n为了让系统能识别页面上的各个部件，请保留上一步已有的标记：\n\n- 红队分数用 `data-testid=\"red-score\"`，蓝队分数用 `data-testid=\"blue-score\"`。\n- 红队“加 1 分”按钮用 `data-testid=\"red-add\"`，“减 1 分”按钮用 `data-testid=\"red-minus\"`。\n- 蓝队“加 1 分”按钮用 `data-testid=\"blue-add\"`，“减 1 分”按钮用 `data-testid=\"blue-minus\"`。\n\n这些标记只是供系统识别对应部件，不会改变页面外观。",
+      "explanationMarkdown": "要让按钮改变分数，需要把分数存进 React 的状态里，而不是写死在 JSX 中。\n\n可以用 `useState` 分别保存红队和蓝队的分数，初始值都是 0。点击按钮时调用对应的更新函数：加分用“当前值 + 1”，减分用“当前值 - 1”，但要保证结果不小于 0，可以用 `Math.max(0, 当前值 - 1)` 这样的写法。\n\n因为两队分数是两个独立的状态，更新红队的状态不会碰到蓝队的状态，自然就做到了互不影响。把状态值渲染到分数位置，页面就会随点击实时更新。",
+      "hints": [
+        "用 `useState` 分别保存红队和蓝队分数，初始值都为 0。",
+        "加分按钮的点击处理里把该队分数设为“当前值 + 1”。",
+        "减分时用 `Math.max(0, 当前值 - 1)`，保证不会低于 0。",
+        "把状态变量渲染到 `red-score` 和 `blue-score` 对应的位置，而不是写死 0。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "checkIds": [
+        "red-add-increments",
+        "blue-add-increments",
+        "red-minus-decrements",
+        "minus-at-zero-stays-zero",
+        "red-add-keeps-blue"
+      ],
+      "id": "score-buttons",
+      "cumulativeCheckIds": [
+        "shell-teams-visible",
+        "shell-scores-zero",
+        "shell-status-draw",
+        "shell-buttons-visible",
+        "red-add-increments",
+        "blue-add-increments",
+        "red-minus-decrements",
+        "minus-at-zero-stays-zero",
+        "red-add-keeps-blue"
+      ]
+    },
+    {
+      "stepId": "reset-and-status",
+      "title": "加入重置比赛与领先状态",
+      "objective": "实现“重置比赛”按钮清零双方分数，并让状态文字随分数实时显示平局或领先方。",
+      "instructionsMarkdown": "这一步让记分牌真正“活”起来：重置按钮生效，状态文字跟着比分变化。\n\n**起点**：上一步完成后，红队和蓝队都能各自加减分，分数不会低于 0，互不影响。页面底部有一个“重置比赛”按钮，中间有一行状态文字，目前它固定显示“平局”。\n\n**本步要完成的效果**：\n\n- 点击“重置比赛”按钮后，红队和蓝队的分数都回到 0。\n- 状态文字根据当前比分实时显示：\n  - 双方分数相同时显示“平局”；\n  - 红队分数更高时显示“红队领先”；\n  - 蓝队分数更高时显示“蓝队领先”。\n- 状态文字要随每次加减分立即更新，不需要额外点击。\n\n**边界**：只处理分数比较与清零，不加入计时、后端或保存功能。\n\n**代码约定**（仅供系统识别，不影响页面外观）：\n\n- 状态文字所在元素加上 `data-testid=\"status\"`，其文字内容应正好是“平局”“红队领先”或“蓝队领先”之一。\n- “重置比赛”按钮加上 `data-testid=\"reset\"`。\n- 红队分数元素保持 `data-testid=\"red-score\"`，蓝队分数元素保持 `data-testid=\"blue-score\"`，内容为纯数字。",
+      "explanationMarkdown": "状态文字不需要单独存一份 state，它完全由两个分数推导出来。每次渲染时比较 `redScore` 和 `blueScore` 即可：相等就是平局，红队大就是红队领先，否则蓝队领先。这样只要分数一变，文字自然跟着变，不会出现“分数改了但状态没更新”的不一致。\n\n重置按钮则把两个分数都设回 0。可以写一个处理函数，在里面分别调用两个 setter；也可以把两队分数合并成一个对象 state 统一管理，重置时整体替换。两种方式都行，关键是重置后两个分数都为 0，状态文字也随之回到“平局”。",
+      "hints": [
+        "状态文字可以用一个三元表达式根据两个分数计算，不必新增 state。",
+        "重置时记得把红队和蓝队两个分数都设回 0，只清一个会留下“领先”状态。",
+        "如果状态文字没更新，检查它是不是在渲染时直接读取了最新的分数变量，而不是写死的字符串。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "checkIds": [
+        "reset-clears-both",
+        "status-red-leads",
+        "status-blue-leads",
+        "status-back-to-draw"
+      ],
+      "id": "reset-and-status",
+      "cumulativeCheckIds": [
+        "shell-teams-visible",
+        "shell-scores-zero",
+        "shell-status-draw",
+        "shell-buttons-visible",
+        "red-add-increments",
+        "blue-add-increments",
+        "red-minus-decrements",
+        "minus-at-zero-stays-zero",
+        "red-add-keeps-blue",
+        "reset-clears-both",
+        "status-red-leads",
+        "status-blue-leads",
+        "status-back-to-draw"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "shell-teams-visible",
+      "label": "页面显示“红队”和“蓝队”两个队名",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": "heading",
+            "name": "红队",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "heading",
+            "name": "蓝队",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "shell-scores-zero",
+      "label": "红队与蓝队的分数都显示为 0",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-score"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-score"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "shell-status-draw",
+      "label": "状态文字显示“平局”",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "平局",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "shell-buttons-visible",
+      "label": "红队、蓝队的加减分按钮和“重置比赛”按钮都可见且可用",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-minus"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-minus"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-add"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-add"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-minus"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-minus"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "reset"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "reset"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "red-add-increments",
+      "label": "点击红队“加 1 分”两次后，红队分数显示为 2",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-score"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "2",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "blue-add-increments",
+      "label": "点击蓝队“加 1 分”一次后，蓝队分数显示为 1",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-score"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "red-minus-decrements",
+      "label": "红队加到 2 分后点一次“减 1 分”，红队分数显示为 1",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-minus"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-score"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "1",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "minus-at-zero-stays-zero",
+      "label": "蓝队分数为 0 时点“减 1 分”，蓝队分数仍显示为 0",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-minus"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-score"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "red-add-keeps-blue",
+      "label": "点击红队“加 1 分”三次后，蓝队分数仍显示为 0",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-score"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "reset-clears-both",
+      "label": "红队加 2 分、蓝队加 1 分后点击“重置比赛”，红队和蓝队分数都显示为 0",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "reset"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-score"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-score"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "status-red-leads",
+      "label": "红队加 1 分后，状态文字显示“红队领先”",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "红队领先",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "status-blue-leads",
+      "label": "蓝队加 1 分后，状态文字显示“蓝队领先”",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "蓝队领先",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "status-back-to-draw",
+      "label": "红队、蓝队各加 1 分后，状态文字显示“平局”",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "red-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "blue-add"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "平局",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "validationSummary": {
+    "passed": true,
+    "templateVersion": "react-app-v1",
+    "validatedSteps": 3,
+    "qualityWarnings": [
+      {
+        "stepId": "shell",
+        "message": "未提供可执行负例，负例区分度未验证"
+      },
+      {
+        "stepId": "score-buttons",
+        "message": "未提供可执行负例，负例区分度未验证"
+      },
+      {
+        "stepId": "reset-and-status",
+        "message": "未提供可执行负例，负例区分度未验证"
+      }
+    ]
+  }
+}

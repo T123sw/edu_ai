@@ -1,0 +1,14 @@
+{
+  "source_snapshot": "/tmp/edu-quiz-render/source/frontend",
+  "published_at": "20261014T001347Z",
+  "uncommitted_source_changes": true,
+  "task": "quiz-rendering-and-question-types",
+  "backend_status": "not modified; frontend-only question types and Markdown rendering fix",
+  "previous_index_sha256": "c0ceddfa311d933e3e96df4d3ca09355c242464af2b8c6e297b24445cc70e0be",
+  "backup": "/tmp/edu-quiz-render/dist-backup-20261014T001347Z",
+  "http_verified": true,
+  "assets": [
+    "/assets/index-BbNxRK2g.js",
+    "/assets/index-8vDhdg1F.css"
+  ]
+}

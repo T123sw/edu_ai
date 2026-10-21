@@ -1,0 +1,55 @@
+{
+  "scope": "Read-only spot checks of saved artifacts, not exhaustive correctness certification.",
+  "findings": [
+    {
+      "artifact_id": "artifact_65b034cdb9985f74d81c45052959cf64",
+      "node": "n5-ffn-pipeline",
+      "question": {
+        "id": "q5",
+        "stem": "编码器单层中，一个子层（例如多头注意力）的输出记为 x，该子层函数记为 Sublayer(·)。按 Add&Norm 的定义，送入下一个子层的张量是：",
+        "type": "single_choice",
+        "answer": "C",
+        "options": [
+          "Sublayer(x)",
+          "LayerNorm(x) + Sublayer(x)",
+          "LayerNorm(x + Sublayer(x))",
+          "x + LayerNorm(Sublayer(x))"
+        ],
+        "difficulty": "medium",
+        "explanation": "Add&Norm 的含义是先做残差相加 x + Sublayer(x)，再对结果做层归一化，即 LayerNorm(x + Sublayer(x))。A 漏掉了残差连接与归一化。B 把归一化只加在 x 上再与子层输出相加，顺序错误。D 先归一化子层输出再与 x 相加，同样不是原文的写法，残差路径上的 x 未经归一化就与归一化结果相加，与定义不符。"
+      },
+      "published": true,
+      "issue": "题干将 x 定义为子层输出，答案 C 却将 x 当作子层输入并再次应用 Sublayer。题干/答案语义不一致。",
+      "suggested_correction": "将题干“输出记为 x”改为“输入记为 x”。",
+      "production_modified": false
+    },
+    {
+      "artifact_id": "artifact_609a6ee4ef418c10b7140f2ae657e5d2",
+      "node": "n2-self-attention",
+      "published": false,
+      "issue": "干扰项解释存在错误，质量检查拒绝发布。审阅文字本身也有近似不准问题：softmax([2.8,0,0]) 保留两位应为 [0.89,0.05,0.05]，不是审阅文字的 [0.90,0.05,0.05]；机器复算结果正确。exp(1.4142) 与 exp(sqrt(2)) 的差值属于中间近似取值误差，不能与错误干扰项归因等同。",
+      "independent_calculations": {
+        "softmax_2_8_0_0": [
+          0.8915674545129257,
+          0.054216272743537186,
+          0.054216272743537186
+        ],
+        "softmax_sqrt2_0_0": [
+          0.672841798375977,
+          0.1635791008120115,
+          0.1635791008120115
+        ],
+        "softmax_2_0_0": [
+          0.7869860421615984,
+          0.10650697891920073,
+          0.10650697891920073
+        ],
+        "exp_1_4142": 4.113194593724947,
+        "exp_sqrt2": 4.1132503787829275
+      },
+      "revision_history_count": 3,
+      "recovery_note": "生成器已用完三轮生成/修订审阅，答案改为 D，但错误干扰项解析仍未修正；不是节点审阅 schema 修复的回归。",
+      "next_resume_version": 4
+    }
+  ]
+}

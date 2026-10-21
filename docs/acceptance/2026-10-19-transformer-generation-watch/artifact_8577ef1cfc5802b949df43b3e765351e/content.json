@@ -1,0 +1,393 @@
+{
+  "title": "多头注意力：多个子空间并行关注",
+  "content": "# 多头注意力：多个子空间并行关注\n\n<a id=\"why-multi-head\"></a>\n## 为什么一个注意力头不够\n\n先回顾上一节：自注意力用 `Attention(Q,K,V)=softmax(QK^T/√dk)V` 算出每个位置的新表示。它只有一套 Q/K/V 投影，因此每个位置只能形成**一张**注意力分布——也就是只能表达一种“该看谁”的偏好。\n\n问题在于，一句话里同时存在多种关系。以“小明把书给了小红，因为她明天要考试”为例：\n\n- 要理解“她”指谁，需要关注**指代关系**（她 → 小红）；\n- 要理解“给了”的宾语，需要关注**动宾关系**（给了 → 书）；\n- 要理解“因为”的因果，需要关注**连接词与从句**。\n\n如果只有一个头，模型必须把这三类信息压进同一张权重分布里，结果就是“平均”——每种关系都只分到一部分权重，谁都不突出。原论文对此的表述很直接：多头注意力让模型能**同时**关注不同表示子空间、不同位置的信息，而**单头注意力的平均会抑制这一点**（*Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions. With a single attention head, averaging inhibits this.*）。\n\n多头的思路因此很朴素：**与其让一个头兼顾所有关系，不如开 h 个头，每个头用自己的一套投影，各自决定关注什么，最后再把结果拼起来。**\n\n<a id=\"formula\"></a>\n## 公式：投影 → 并行注意力 → 拼接 → 输出投影\n\n原论文给出的定义是：\n\n```\nMultiHead(Q, K, V) = Concat(head_1, ..., head_h) W^O\n\n其中  head_i = Attention(Q W_i^Q,  K W_i^K,  V W_i^V)\n```\n\n参数形状（原论文脚注 4）：\n\n| 参数 | 形状 | 含义 |\n| --- | --- | --- |\n| `W_i^Q` | `d_model × d_k` | 第 i 个头把 Query 投影到 d_k 维 |\n| `W_i^K` | `d_model × d_k` | 第 i 个头把 Key 投影到 d_k 维 |\n| `W_i^V` | `d_model × d_v` | 第 i 个头把 Value 投影到 d_v 维 |\n| `W^O` | `h·d_v × d_model` | 把拼接结果融合回 d_model 维 |\n\n注意 `W_i^Q`、`W_i^K`、`W_i^V` 的下标 i：**每个头都有自己独立的一套投影矩阵**，它们都是可学习的，训练中各自朝不同方向分化。这正是“不同子空间”的来源——不是人为指定第 1 个头管指代、第 2 个头管句法，而是让模型自己学出来。\n\n数据流可以画成四步：\n\n```\n        Q, K, V  (每个 token 一个 d_model 维向量)\n           │\n   ┌───────┼────────┬─────────────┐\n   ▼       ▼        ▼             ▼\n 头1      头2      头3    ...    头h        ← 各自乘 W_i^Q / W_i^K / W_i^V\n(64维)   (64维)   (64维)         (64维)\n   │       │        │             │\n   ▼       ▼        ▼             ▼\nAttention Attention Attention  Attention   ← 并行做缩放点积注意力\n   │       │        │             │\n   └───────┴───┬────┴─────────────┘\n               ▼\n        Concat(head_1..head_h)          ← 拼接成 h·d_v 维\n               ▼\n             × W^O                     ← 融合回 d_model 维\n               ▼\n        输出 (d_model 维，与输入同形)\n```\n\n两个细节值得留意：\n\n1. **每个头内部仍然是上一节的缩放点积注意力**，`√d_k` 的缩放照旧，只是 d_k 从 d_model 变成了 d_model/h。\n2. **输出维度与输入一致**（都是 d_model），所以多头注意力可以像普通层一样堆叠，后面接残差连接和层归一化。\n\n<a id=\"dimension-walkthrough\"></a>\n## 维度推演：512 维如何被 8 个头分掉又拼回来\n\n用原论文 base 模型的配置走一遍数字，这是理解“为什么不多花钱”的关键。\n\n**已知**：`d_model = 512`，`h = 8`，`d_k = d_v = d_model / h = 64`。\n\n**第 1 步：投影。** 输入 Q、K、V 各是 `序列长度 × 512`。第 i 个头用 `W_i^Q`（512×64）把 Q 压成 `序列长度 × 64`，K、V 同理。8 个头各做一次。\n\n**第 2 步：并行注意力。** 每个头在 64 维空间里算 `softmax(Q_i K_i^T / √64) V_i`，输出 `序列长度 × 64`。8 个头互不干扰，可以并行。\n\n**第 3 步：拼接。** 8 个 `序列长度 × 64` 沿特征维拼起来：`64 × 8 = 512`，回到 `序列长度 × 512`。\n\n**第 4 步：输出投影。** 乘 `W^O`（512×512），得到最终的 `序列长度 × 512`。\n\n**验算**：`d_k × h = 64 × 8 = 512 = d_model` ✓。拼接后的维度恰好等于 d_model，`W^O` 因此是一个方阵，输出与输入同形。\n\n**为什么总计算量与全维单头相近？** 关键在注意力打分这一步。单头时，QK^T 是 `(n×512)·(512×n)`，每个位置对的计算量正比于 512。多头时，每个头是 `(n×64)·(64×n)`，正比于 64，但有 8 个头：`64 × 8 = 512`。**总乘加次数一样**，只是被切成了 8 份并行做。原论文的说法是：由于每个头的维度降低了，总计算成本与全维度的单头注意力相近（*Due to the reduced dimension of each head, the total computational cost is similar to that of single-head attention with full dimensionality.*）。\n\n换句话说，多头不是“把注意力做 8 遍”，而是“把同一个 512 维的注意力**切成 8 个 64 维的注意力**”。代价主要来自额外的投影矩阵（`W_i^Q/W_i^K/W_i^V` 共 `3 × 512 × 512` 个参数，与单头的 `3 × 512 × 512` 同量级）和最后的 `W^O`，而不是注意力本身。\n\n<a id=\"ablation\"></a>\n## 消融结论：头越多越好吗？\n\n原论文在英德翻译开发集上做了消融实验，有两条结论直接关系到多头：\n\n- **单头明显更差**：单头注意力比最佳设置低 **0.9 BLEU**。这印证了“平均会抑制多种关系”的判断——砍掉多头，模型确实学不好。\n- **头太多也会掉点**：质量随头数过多而下降。头数增加意味着每个头的 d_k 变小（在 d_model 固定时 `d_k = d_model/h`），单个头能表达的表示空间被压缩。\n- **d_k 不能太小**：论文另一行消融显示，减小注意力键维度 d_k 会损害模型质量。这与上一条是同一枚硬币的两面。\n\n所以“头越多越好”是错的。h 是一个需要权衡的超参数：太少则表达不足，太多则每个头太窄。原论文选 h=8 是在这两端之间找到的平衡点，而不是普适最优值——后续不同规模的模型会选不同的 h。\n\n> 说明：以上 BLEU 数值来自原论文 2017 年在英德翻译开发集上的实验，属于该论文的结论，不代表所有 Transformer 变体或任务。\n\n<a id=\"self-check\"></a>\n## 自检：把数据流讲给自己听\n\n合上材料，试着完成下面三件事：\n\n1. **默写公式**：写出 `MultiHead(Q,K,V)` 与 `head_i` 的完整表达式，并标出 `W_i^Q`、`W_i^K`、`W_i^V`、`W^O` 各自的形状。\n2. **画数据流图**：从 Q/K/V 出发，画出“投影 → 并行注意力 → 拼接 → 输出投影”四步，标出每一步的维度（用 d_model=512、h=8 的数字）。\n3. **回答一句话问题**：“为什么 8 个头各 64 维不比 1 个头 512 维更贵？”——如果你的答案里出现了“每个头的打分维度是 64，8 个加起来正好 512”，说明你抓住了要点。\n\n如果第 3 问卡住了，回到“维度推演”一节，把 `64 × 8 = 512` 这个等式在打分矩阵的形状上再对一遍。\n\n<a id=\"sources\"></a>\n## 依据与边界\n\n- 公式、参数形状、h=8 与 d_k=d_v=d_model/h=64 的配置、计算量相近的说明，均出自 Vaswani 等《Attention Is All You Need》(NIPS 2017) 第 3.2.2 节及脚注 4：https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf\n- 0.9 BLEU 与“头数过多质量下降”“减小 d_k 损害质量”出自同论文的消融实验（Table 3 相关讨论）。\n- 本节未涉及位置编码、残差与层归一化、前馈网络的具体机制，这些在其他节点展开；本节也不含代码实现。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 7.0
+      },
+      "sections": [
+        {
+          "section_id": "why-multi-head",
+          "content_sha256": "ca73fa8feab6b596a04589cb7262b71cacf3ec39315f27553ffe795a96c11117"
+        },
+        {
+          "section_id": "formula",
+          "content_sha256": "007685f3120b86a58cca14dd8a38781c82e5e76a2dab19128fcdd5ae5b1ce36a"
+        },
+        {
+          "section_id": "dimension-walkthrough",
+          "content_sha256": "95d151d83b87da496c232a8844ae497843da2d17b81b640bd899e531e8220cbd"
+        },
+        {
+          "section_id": "ablation",
+          "content_sha256": "7c050e82aae149461f93deba52ae304b9eb591c819a2f90a514e5d17d438d62e"
+        },
+        {
+          "section_id": "self-check",
+          "content_sha256": "18d278d63ca101e9fe81e0d4149416035435caadca73a1c7589c9a38193c28fe"
+        },
+        {
+          "section_id": "sources",
+          "content_sha256": "ca1ec04ed8c9b88701e7141a25d481fa60cdc1e63354085047f4f05db337f16a"
+        }
+      ],
+      "spec_digest": "eec691f09880a4dd680019715223c533d4cf57885e52e723da375ec7c1cbf182",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "formula"
+          },
+          "objective_id": "n3-multihead:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "why-multi-head"
+          },
+          "objective_id": "n3-multihead:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "dimension-walkthrough"
+          },
+          "objective_id": "n3-multihead:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "ablation"
+          },
+          "objective_id": "n3-multihead:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n3-multihead:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n3-multihead:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n3-multihead:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "formula"
+          },
+          "explanation": "给出 MultiHead 与 head_i 的完整公式、参数形状表与四步数据流图，落实“讲授核心概念与结构”中多头注意力这一部分。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "why-multi-head"
+          },
+          "explanation": "用指代/动宾/因果三种关系的具体例子说明单头平均为何抑制多关系表达，解释多头的作用。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "dimension-walkthrough"
+          },
+          "explanation": "以 d_model=512、h=8 逐步推演维度并解释计算量相近，落实结构理解。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "teaching_context_digest": "c3f145d5f4757a84c4e7f7446d2d39576bc44d4cd2bcd6e94a362b94001b9e57"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文在“公式”节给出 MultiHead 与 head_i 完整表达式及参数形状表，“为什么一个注意力头不够”节解释单头平均的抑制，“维度推演”节以 d_model=512、h=8 推演并解释计算量相近，真实支持本节点分工（req-goal-transformer 的多头部分），未伪称整课已满足。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "公式、W_i^Q∈R^{d_model×d_k}、W^O∈R^{h·d_v×d_model}、h=8、d_k=d_v=d_model/h=64 与原文一致；“维度推演”中 64×8=512 与打分计算量 64×8=512 的论证正确，未出现“精确减半”类错误；消融结论（0.9 BLEU、头过多下降、减小 d_k 损害质量）与 Table 3 讨论相符。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "“为什么一个注意力头不够”用“小明把书给了小红，因为她明天要考试”的指代/动宾/因果三关系作具体例子，并明确说明“不是人为指定第1个头管指代”避免误导；维度推演给出可验算的数字链（512→64→拼接512→W^O 512×512），边界（h 过多、d_k 过小）也有讨论。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为 动机（why-multi-head）→ 公式与数据流（formula）→ 维度推演（dimension-walkthrough）→ 消融（ablation）→ 自检（self-check）→ 依据与边界，与节点活动“公式讲解→维度推演→读消融结论”一致，顺序落实在正文而非仅声称；未引入面试模板。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "“依据与边界”节标注公式、参数形状、h=8 配置与计算量说明出自 Vaswani 等 NIPS 2017 第 3.2.2 节及脚注 4，并给出论文 URL；0.9 BLEU 等标注为 Table 3 消融，且注明为英德开发集结论、不代表所有变体，与提供的证据一致，未夸大外部核查。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三条节点目标均有讲解与自检对应（默写公式、画数据流图、回答“8×64 不比 1×512 更贵”）；“依据与边界”明确声明位置编码、残差/层归一化、前馈网络在其他节点展开、本节不含代码，边界清晰，无重要遗漏。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文在“公式”节给出 MultiHead 与 head_i 完整表达式及参数形状表，“为什么一个注意力头不够”节解释单头平均的抑制，“维度推演”节以 d_model=512、h=8 推演并解释计算量相近，真实支持本节点分工（req-goal-transformer 的多头部分），未伪称整课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "公式、W_i^Q∈R^{d_model×d_k}、W^O∈R^{h·d_v×d_model}、h=8、d_k=d_v=d_model/h=64 与原文一致；“维度推演”中 64×8=512 与打分计算量 64×8=512 的论证正确，未出现“精确减半”类错误；消融结论（0.9 BLEU、头过多下降、减小 d_k 损害质量）与 Table 3 讨论相符。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "“为什么一个注意力头不够”用“小明把书给了小红，因为她明天要考试”的指代/动宾/因果三关系作具体例子，并明确说明“不是人为指定第1个头管指代”避免误导；维度推演给出可验算的数字链（512→64→拼接512→W^O 512×512），边界（h 过多、d_k 过小）也有讨论。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为 动机（why-multi-head）→ 公式与数据流（formula）→ 维度推演（dimension-walkthrough）→ 消融（ablation）→ 自检（self-check）→ 依据与边界，与节点活动“公式讲解→维度推演→读消融结论”一致，顺序落实在正文而非仅声称；未引入面试模板。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "“依据与边界”节标注公式、参数形状、h=8 配置与计算量说明出自 Vaswani 等 NIPS 2017 第 3.2.2 节及脚注 4，并给出论文 URL；0.9 BLEU 等标注为 Table 3 消融，且注明为英德开发集结论、不代表所有变体，与提供的证据一致，未夸大外部核查。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三条节点目标均有讲解与自检对应（默写公式、画数据流图、回答“8×64 不比 1×512 更贵”）；“依据与边界”明确声明位置编码、残差/层归一化、前馈网络在其他节点展开、本节不含代码，边界清晰，无重要遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "“消融结论”节可补一句说明 0.9 BLEU 是相对 base 最佳设置（h=8）的差距，避免读者误以为是相对任意配置。",
+              "“维度推演”中“总乘加次数一样”可注明忽略了投影矩阵与 W^O 的额外开销，与后文“代价主要来自额外投影”表述更一致。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "formula 节确实给出 MultiHead(Q,K,V)=Concat(head_1..head_h)W^O 与 head_i=Attention(QW_i^Q,KW_i^K,VW_i^V)，并附参数形状表与四步数据流图，真实支持“讲授核心概念与结构”中的多头部分。",
+                "locator": {
+                  "section_id": "formula"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-multi-head 节以指代/动宾/因果三关系说明单头平均抑制多关系表达，并引用原文“averaging inhibits this”，真实支持多头作用的解释。",
+                "locator": {
+                  "section_id": "why-multi-head"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "dimension-walkthrough 节以 d_model=512、h=8 逐步推演投影、并行注意力、拼接、输出投影，并用 64×8=512 解释计算量相近，真实支持结构理解。",
+                "locator": {
+                  "section_id": "dimension-walkthrough"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "formula 节完整呈现 MultiHead 与 head_i 表达式及 W_i^Q/W_i^K/W_i^V/W^O 形状，直接支撑目标 o1 的“写出公式”。",
+                "locator": {
+                  "section_id": "formula"
+                },
+                "binding_id": "n3-multihead:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-multi-head 节明确说明多头可同时关注不同表示子空间与不同位置、单头平均会抑制，直接支撑目标 o2。",
+                "locator": {
+                  "section_id": "why-multi-head"
+                },
+                "binding_id": "n3-multihead:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "dimension-walkthrough 节复述 h=8、d_k=d_v=d_model/h=64，并通过打分维度 64×8=512 解释总计算量与全维单头相近，支撑目标 o3。",
+                "locator": {
+                  "section_id": "dimension-walkthrough"
+                },
+                "binding_id": "n3-multihead:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "ablation 节补充头过多质量下降、减小 d_k 损害质量，从反面解释 h 与 d_k 的权衡，与 o3 的配置理解相关且不越界。",
+                "locator": {
+                  "section_id": "ablation"
+                },
+                "binding_id": "n3-multihead:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 1 项要求默写 MultiHead 与 head_i 并标出四个投影矩阵形状，是对 o1 的有效检查。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n3-multihead:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 2 项要求画数据流图并标维度，第 3 项要求解释 8×64 与 1×512 的成本，覆盖 o2 的多头优势理解。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n3-multihead:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 3 项直接检查“为什么 8 个头各 64 维不比 1 个头 512 维更贵”，并给出卡住时的回看指引，有效检查 o3。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n3-multihead:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "b7f6a3daa91178c8a87731673c0510d7b3be9734affaa2fa81e429eaac247bf5",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "“消融结论”节可补一句说明 0.9 BLEU 是相对 base 最佳设置（h=8）的差距，避免读者误以为是相对任意配置。",
+        "“维度推演”中“总乘加次数一样”可注明忽略了投影矩阵与 W^O 的额外开销，与后文“代价主要来自额外投影”表述更一致。"
+      ],
+      "content_sha256": "b7f6a3daa91178c8a87731673c0510d7b3be9734affaa2fa81e429eaac247bf5",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "formula 节确实给出 MultiHead(Q,K,V)=Concat(head_1..head_h)W^O 与 head_i=Attention(QW_i^Q,KW_i^K,VW_i^V)，并附参数形状表与四步数据流图，真实支持“讲授核心概念与结构”中的多头部分。",
+          "locator": {
+            "section_id": "formula"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-multi-head 节以指代/动宾/因果三关系说明单头平均抑制多关系表达，并引用原文“averaging inhibits this”，真实支持多头作用的解释。",
+          "locator": {
+            "section_id": "why-multi-head"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "dimension-walkthrough 节以 d_model=512、h=8 逐步推演投影、并行注意力、拼接、输出投影，并用 64×8=512 解释计算量相近，真实支持结构理解。",
+          "locator": {
+            "section_id": "dimension-walkthrough"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "formula 节完整呈现 MultiHead 与 head_i 表达式及 W_i^Q/W_i^K/W_i^V/W^O 形状，直接支撑目标 o1 的“写出公式”。",
+          "locator": {
+            "section_id": "formula"
+          },
+          "binding_id": "n3-multihead:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-multi-head 节明确说明多头可同时关注不同表示子空间与不同位置、单头平均会抑制，直接支撑目标 o2。",
+          "locator": {
+            "section_id": "why-multi-head"
+          },
+          "binding_id": "n3-multihead:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "dimension-walkthrough 节复述 h=8、d_k=d_v=d_model/h=64，并通过打分维度 64×8=512 解释总计算量与全维单头相近，支撑目标 o3。",
+          "locator": {
+            "section_id": "dimension-walkthrough"
+          },
+          "binding_id": "n3-multihead:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "ablation 节补充头过多质量下降、减小 d_k 损害质量，从反面解释 h 与 d_k 的权衡，与 o3 的配置理解相关且不越界。",
+          "locator": {
+            "section_id": "ablation"
+          },
+          "binding_id": "n3-multihead:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 1 项要求默写 MultiHead 与 head_i 并标出四个投影矩阵形状，是对 o1 的有效检查。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n3-multihead:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 2 项要求画数据流图并标维度，第 3 项要求解释 8×64 与 1×512 的成本，覆盖 o2 的多头优势理解。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n3-multihead:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 3 项直接检查“为什么 8 个头各 64 维不比 1 个头 512 维更贵”，并给出卡住时的回看指引，有效检查 o3。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n3-multihead:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "887632ccb50c3b8d97aac73378602a46a6dedf6a9144b93f1e489b80ff83ea82"
+    }
+  }
+}

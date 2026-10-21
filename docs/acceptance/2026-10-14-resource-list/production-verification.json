@@ -1,0 +1,29 @@
+[
+  {
+    "width": 1440,
+    "rows": 18,
+    "overflow": false,
+    "filter": true,
+    "search": true,
+    "keyboardPreview": true,
+    "pageErrors": []
+  },
+  {
+    "width": 390,
+    "rows": 18,
+    "overflow": false,
+    "filter": true,
+    "search": true,
+    "keyboardPreview": true,
+    "pageErrors": []
+  },
+  {
+    "width": 320,
+    "rows": 18,
+    "overflow": false,
+    "filter": true,
+    "search": true,
+    "keyboardPreview": true,
+    "pageErrors": []
+  }
+]

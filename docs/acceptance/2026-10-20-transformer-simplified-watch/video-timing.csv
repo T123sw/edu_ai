@@ -1,0 +1,6 @@
+node,status,start_after_task_start_seconds,execution_seconds,brief_seconds,native_preparation_including_brief_seconds,scene_span_including_queue_seconds,assembly_and_check_seconds,post_render_seconds,video_seconds,scenes,narrated_scenes,render_seconds_including_admission_and_poll,render_admission_seconds
+n1-motivation,draft,115.575,1290.44,15.792185068130493,254.621,581.585,100.334,18.713,291.6,10,10,335.19,0.001
+n2-self-attention,draft,163.028,1416.21,17.50184726715088,284.574,559.858,139.471,14.36,327.5,9,9,417.949,0.0
+n3-positional-encoding,draft,164.102,1401.69,15.622442960739136,302.446,442.908,212.401,15.898,292.1,11,11,428.041,0.0
+n4-encoder,draft,164.84,1662.5,13.363787174224854,355.78,788.243,98.103,12.367,296.766667,12,12,408.003,0.0
+n5-decoder-and-flow,draft,165.742,1896.76,16.92451024055481,413.65,914.172,132.743,12.504,316.066667,14,14,423.695,0.0

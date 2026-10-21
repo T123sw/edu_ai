@@ -22,6 +22,16 @@ class PreparedCourses:
             raise HTTPException(404, '课堂不存在或无权访问')
         return user
 
+    def preparation_status(self, username, preparation_id):
+        from app.database.models import CoursePreparationRecord, CoursePreparationAttemptRecord
+        with Session(self.engine) as session:
+            user = self.identity(session, username)
+            prep = session.get(CoursePreparationRecord, preparation_id)
+            if prep is None or prep.owner_user_id != user.user_id:
+                return None
+            attempt = session.get(CoursePreparationAttemptRecord, (preparation_id, prep.current_attempt_no))
+            return attempt.status if attempt else None
+
     def lookup(self, username, course_id):
         with Session(self.engine) as session:
             user = self.identity(session, username)

@@ -1,0 +1,57 @@
+{
+  "base": "http://127.0.0.1:18091",
+  "lessons": [
+    {
+      "index": 1,
+      "duration": 38.233333,
+      "width": 1920,
+      "height": 1080,
+      "audio": {
+        "time": 2.029771,
+        "paused": false,
+        "muted": false,
+        "state": "running",
+        "rms": 0.1126088236364888
+      },
+      "seek": 25,
+      "readingSeconds": 26.202
+    },
+    {
+      "index": 2,
+      "duration": 71.666667,
+      "width": 1920,
+      "height": 1080,
+      "audio": {
+        "time": 2.247304,
+        "paused": false,
+        "muted": false,
+        "state": "running",
+        "rms": 0.17167270122173178
+      },
+      "seek": 55,
+      "readingSeconds": 56.208135
+    }
+  ],
+  "errors": [],
+  "videoResponses": [
+    {
+      "status": 206,
+      "range": "bytes=0-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=0-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=0-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=3276800-"
+    }
+  ],
+  "nativeHtmlRequests": 0,
+  "refreshedPosition": 56.208135,
+  "passed": true
+}

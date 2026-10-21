@@ -6,8 +6,8 @@ import os
 from pathlib import Path
 from uuid import uuid4
 
-from app.integrations.openmaic import OpenMaicClient
-from app.services.openmaic_tts_service import OpenMaicTtsService
+from typing import Any
+from app.services.tts_service import SpeechService
 from core.config import Config
 
 
@@ -23,13 +23,13 @@ class ClassroomQaTtsService:
     def __init__(
         self,
         *,
-        service: OpenMaicTtsService | None = None,
-        client: OpenMaicClient | None = None,
-        provider_id: str = Config.OPENMAIC_LIVE_TTS_PROVIDER,
-        voice: str = Config.OPENMAIC_LIVE_TTS_VOICE,
-        speed: float = Config.OPENMAIC_LIVE_TTS_SPEED,
+        service: SpeechService | None = None,
+        client: Any | None = None,
+        provider_id: str | None = None,
+        voice: str | None = None,
+        speed: float | None = None,
     ) -> None:
-        self.service = service or OpenMaicTtsService(
+        self.service = service or SpeechService(
             client=client,
             provider_id=provider_id,
             voice=voice,

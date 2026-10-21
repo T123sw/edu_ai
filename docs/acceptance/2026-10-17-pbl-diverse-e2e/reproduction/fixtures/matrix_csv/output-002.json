@@ -1,0 +1,27 @@
+{
+  "unit": {
+    "stepId": "input-and-parse",
+    "title": "搭建输入区并解析有效记录",
+    "objective": "做出多行输入框、分析按钮与有效记录表格，把合法行解析成表格显示。",
+    "instructionsMarkdown": "本步要做出成绩分析器的输入区和第一块结果：一个可以输入多行文本的输入框、一个“分析”按钮，以及分析后显示有效记录的表格。\n\n页面初始状态：输入框为空，页面上没有任何结果表格。\n\n输入框里每行写一条记录，格式是“姓名,分数”，例如 `张三,90`。点击“分析”后，请逐行检查：\n\n- 空行直接跳过，不进入表格。\n- 姓名去掉首尾空格后不能为空。\n- 分数必须是 0 到 100 之间的数字（含 0 和 100），可以带首尾空格。\n- 同时满足条件的行是有效记录，按输入顺序进入表格，表格每行显示姓名和分数。\n- 不满足条件的行本步先不显示，后续步骤再处理。\n\n例如输入三行 `张三,90`、`李四, 75 `、`王五,abc`，点击分析后表格里应只有两行：张三 90、李四 75。\n\n本步只要求输入框、分析按钮和有效记录表格；统计数字和无效行列表留到后面步骤。\n\n## 代码约定\n\n- 多行输入框使用 `<textarea>`，并加上 `data-testid=\"score-input\"`。\n- “分析”按钮文字为“分析”，并加上 `data-testid=\"analyze-button\"`。\n- 有效记录表格使用 `<table>`，并加上 `data-testid=\"valid-table\"`；表头行之后，每条有效记录占一个 `<tr>`，姓名和分数分别放在单元格里。\n- 这些标记只用于系统识别页面部件，不会改变外观。",
+    "explanationMarkdown": "把输入文本按换行拆成行，用 `split('\\n')` 即可。对每一行先判断是否为空（去掉首尾空格后为空就跳过）。\n\n解析一行时，可以找第一个逗号把姓名和分数分开：`const i = line.indexOf(',')`。如果找不到逗号，这行就是无效行。姓名用 `slice(0, i).trim()`，分数用 `slice(i + 1).trim()`。\n\n判断分数是否合法：先确认它不是空字符串，再用 `Number(...)` 转换，检查结果不是 `NaN` 且落在 0 到 100 之间。注意 `Number('')` 是 0，所以要先排除空字符串。\n\n把有效记录存进一个数组（例如 `{ name, score }`），点击分析时用 `setState` 更新这个数组，表格就根据数组渲染。用 `map` 生成表格行，记得给每行一个稳定的 `key`。\n\n输入框用受控组件：`value` 绑定状态，`onChange` 更新状态。",
+    "hints": [
+      "先用 `text.split('\\n')` 得到每一行，再逐行处理。",
+      "判断分数前先 `trim()`，并排除空字符串，避免 `Number('')` 变成 0。",
+      "表格用 `records.map((r, idx) => <tr key={idx}>...)` 渲染，表头单独写一行。",
+      "点击分析时把解析结果存进 state，表格只读 state，不要直接读输入框内容。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "input-controls-visible",
+      "valid-rows-table"
+    ]
+  },
+  "referenceFiles": {
+    "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nfunction parseLines(text) {\n  const lines = text.split('\\n');\n  const records = [];\n  lines.forEach((raw) => {\n    if (raw.trim() === '') return;\n    const i = raw.indexOf(',');\n    if (i === -1) return;\n    const name = raw.slice(0, i).trim();\n    const scoreText = raw.slice(i + 1).trim();\n    if (name === '') return;\n    if (scoreText === '') return;\n    const score = Number(scoreText);\n    if (Number.isNaN(score)) return;\n    if (score < 0 || score > 100) return;\n    records.push({ name, score });\n  });\n  return records;\n}\n\nexport default function App() {\n  const [text, setText] = useState('');\n  const [records, setRecords] = useState([]);\n  const [analyzed, setAnalyzed] = useState(false);\n\n  const handleAnalyze = () => {\n    setRecords(parseLines(text));\n    setAnalyzed(true);\n  };\n\n  return (\n    <main className=\"app\">\n      <h1>成绩文本分析器</h1>\n      <textarea\n        data-testid=\"score-input\"\n        className=\"score-input\"\n        value={text}\n        onChange={(e) => setText(e.target.value)}\n        placeholder=\"每行一条：姓名,分数\"\n        rows={6}\n      />\n      <div className=\"actions\">\n        <button data-testid=\"analyze-button\" type=\"button\" onClick={handleAnalyze}>\n          分析\n        </button>\n      </div>\n      {analyzed && (\n        <table data-testid=\"valid-table\" className=\"valid-table\">\n          <thead>\n            <tr>\n              <th>姓名</th>\n              <th>分数</th>\n            </tr>\n          </thead>\n          <tbody>\n            {records.map((r, idx) => (\n              <tr key={idx}>\n                <td>{r.name}</td>\n                <td>{r.score}</td>\n              </tr>\n            ))}\n          </tbody>\n        </table>\n      )}\n    </main>\n  );\n}\n",
+    "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\n.app { padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }\nh1 { font-size: 20px; margin: 0; }\n.score-input { width: 100%; max-width: 100%; padding: 8px; font-family: inherit; font-size: 14px; resize: vertical; }\n.actions { display: flex; flex-wrap: wrap; gap: 8px; }\n.actions button { padding: 6px 14px; font-size: 14px; cursor: pointer; }\n.valid-table { border-collapse: collapse; width: 100%; }\n.valid-table th, .valid-table td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; font-size: 14px; }\n"
+  }
+}

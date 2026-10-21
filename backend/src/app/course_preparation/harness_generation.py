@@ -27,10 +27,11 @@ class ContentTools:
     terminal_on_result = True
     content_submission = True
 
-    def __init__(self, guard, *, structured=False, response_schema=None):
+    def __init__(self, guard, *, structured=False, response_schema=None, response_validator=None):
         self.guard = guard
         self.structured = structured
         self.response_schema = deepcopy(response_schema)
+        self.response_validator = response_validator
         self.lock = threading.RLock()
         self.result = None
         self.invalid = False
@@ -42,14 +43,14 @@ class ContentTools:
                            'required': ['text'], 'additionalProperties': False},
         }}
         if structured:
-            # Known review contracts are the tool arguments themselves. Avoid a
+            # Known phase contracts are the tool arguments themselves. Avoid a
             # second, conflicting wrapper around the schema shown in messages.
             parameters = deepcopy(response_schema) if response_schema is not None else {
                 'type': 'object', 'properties': {'value': {'type': 'object', 'additionalProperties': True}},
                 'required': ['value'], 'additionalProperties': False}
             self.tools = {'submit_resource_json': {
                 'name': 'submit_resource_json',
-                'description': ('直接按工具 schema 提交完整审阅对象，字段放在参数顶层，不增加 value 包装。'
+                'description': ('直接按工具 schema 提交本轮完整结果对象，字段放在参数顶层，不增加 value 包装。'
                     if response_schema is not None else '提交本轮结构化结果对象；value 直接放 JSON 对象，不要再次编码为字符串。'),
                 'parameters': parameters,
             }}
@@ -66,8 +67,19 @@ class ContentTools:
         parameters = self.tools[name]['parameters']
         error = next(Draft202012Validator(parameters).iter_errors(arguments), None)
         if error is not None:
-            path = '.'.join(map(str, error.absolute_path)) or '$'
-            raise ContentSchemaError(f'{path}: {error.message}'[:1000])
+            # oneOf's summary echoes the whole question, which can hide the
+            # missing field behind a long stem. Return actionable leaf errors.
+            errors = error.context or [error]
+            details = []
+            for item in errors[:8]:
+                path = '.'.join(map(str, item.absolute_path)) or '$'
+                details.append(f'{path} ({item.validator}): {item.message[:180]}')
+            raise ContentSchemaError('; '.join(details)[:1000])
+        if self.response_validator is not None:
+            try:
+                self.response_validator(arguments)
+            except (ValueError, TypeError, KeyError) as exc:
+                raise ContentSchemaError('submission references or edits invalid: ' + str(exc)[:900]) from exc
 
     def check(self):
         if self.fatal is not None:
@@ -111,14 +123,17 @@ class PreparationHarnessGateway:
 
     def __init__(self, configured, store, context, *, deadline, canceled=lambda: False,
                  guard=lambda: None, client_factory=httpx.Client, sdk_factory=None,
-                 context_tokens=128000):
+                 context_tokens=None):
         self.configured, self.store = configured, store
         self.context = deepcopy(context)
         self.deadline, self.canceled, self.guard = deadline, canceled, guard
         self.client_factory, self.sdk_factory = client_factory, sdk_factory
-        self.context_tokens = context_tokens
+        from .model_capacity import model_capacity
+        capacity, self.model_output_limit = model_capacity(configured)
+        self.context_tokens = capacity if context_tokens is None else context_tokens
         self.phase = None
         self._phase_context = {}
+        self._response_validator = None
 
     def for_phase(self, phase, *, context):
         if phase not in CONTENT_PHASE_SKILLS:
@@ -130,18 +145,24 @@ class PreparationHarnessGateway:
         view._phase_context = deepcopy(context)
         return view
 
-    def with_response_schema(self, schema):
-        return self.for_phase(self.phase, context={**self._phase_context, 'response_schema': schema})
+    def with_response_schema(self, schema, *, validator=None):
+        view = self.for_phase(self.phase, context={**self._phase_context,
+            'response_format': 'json', 'response_schema': schema})
+        view._response_validator = validator
+        return view
 
     def chat(self, messages, temperature=.2, max_tokens=12000):
         if self.phase is None:
             raise ResearchError('HARNESS_PHASE_REQUIRED', '备课生成必须显式绑定写作、审阅或修复阶段')
-        # Preserve the existing 65k classroom review allowance without raising
-        # every writer's quota. Reservations still use the caller's exact limit.
-        ceiling = 65536 if self.phase == 'resource_review' else 12000
-        if isinstance(max_tokens, bool) or not isinstance(max_tokens, int) or not 0 < max_tokens <= ceiling:
-            raise ResearchError('OUTPUT_BUDGET_INVALID', '当前阶段输出预算不合法')
-        remaining = (datetime.fromisoformat(self.deadline) - datetime.now(timezone.utc)).total_seconds()
+        if isinstance(max_tokens, bool) or not isinstance(max_tokens, int) or max_tokens <= 0:
+            raise ValueError('OUTPUT_TOKENS_MUST_BE_POSITIVE')
+        if self.deadline is None:
+            from .model_capacity import provider_output_limit
+            max_tokens = provider_output_limit(self.configured.candidates[0])
+        # Caller hints no longer impose a phase-specific content quota. The
+        # transport applies each candidate provider's known output capacity.
+        from .runtime_contracts import remaining_seconds
+        remaining = remaining_seconds(self.deadline)
         timeout = min(120, remaining)
         started = time.monotonic()
         session_deadline = started + timeout
@@ -163,10 +184,12 @@ class PreparationHarnessGateway:
 
         check()
         toolset = ContentTools(check, structured=self._phase_context.get('response_format') == 'json',
-                               response_schema=self._phase_context.get('response_schema'))
+                               response_schema=self._phase_context.get('response_schema'),
+                               response_validator=self._response_validator)
         adapter = HarnessPreparationAdapter(self.configured, client_factory=self.client_factory,
             context_tokens=self.context_tokens, sdk_factory=self.sdk_factory,
             meter=PreparationModelMeter(self.store, self.context))
+        adapter.retry_only = self.deadline is None
         spec = self.context.get('spec', {})
         phase_context = {k: v for k, v in self._phase_context.items() if k != 'response_schema'}
         context = {**phase_context, 'phase': self.phase, 'messages': deepcopy(messages),

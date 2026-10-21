@@ -37,6 +37,12 @@
 .sl-app.in-classroom .sl-classroom { background: var(--class-paper); }
 .sl-app.in-classroom :is(.sl-directory, .sl-agent) { background: var(--class-paper); border-color: var(--sl-line); }
 .sl-app.in-classroom .sl-reader { background: var(--class-sheet); }
+.sl-node-generation { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin: -3px 14px 8px 34px; color: var(--sl-muted); font-size: 11px; }
+.sl-node-generation.is-ready { color: var(--edu-secondary, #567047); }
+.sl-node-generation.is-failed, .sl-node-retry-error { color: #a54731; }
+.sl-node-generation button { border: 1px solid var(--sl-line); border-radius: 5px; background: var(--class-paper); padding: 3px 7px; color: inherit; cursor: pointer; }
+.sl-node-generation button:disabled { opacity: .6; cursor: wait; }
+.sl-node-retry-error { padding: 0 12px; font-size: 12px; }
 .sl-app.in-classroom :is(.sl-rail-heading, .sl-reader-toolbar) { border-color: var(--sl-line); }
 .sl-app.in-classroom .sl-rail-heading h2 { color: var(--sl-ink); font-size: 14px; letter-spacing: .4px; }
 .sl-app.in-classroom .sl-rail-heading > span { color: var(--sl-muted); }
@@ -234,3 +240,12 @@
   .sl-editorial-material { padding: 18px 20px; }
   .sl-editorial-material .markdown-preview h1 { font-size: 25px; }
 }
+
+/* Quiz content keeps Markdown code, tables and options readable in the embedded reader. */
+.sl-editorial-material .sl-check-card > label:has(input) { display: flex; align-items: flex-start; gap: 10px; }
+.sl-editorial-material .sl-check-card > label > input { flex-shrink: 0; margin-top: 9px; }
+.sl-editorial-material .sl-check-card label .markdown-preview { flex: 1; min-width: 0; margin: 0; }
+.sl-editorial-material .sl-check-card .markdown-preview { overflow-wrap: anywhere; }
+.sl-editorial-material .sl-check-card .markdown-preview pre { max-width: 100%; overflow-x: auto; }
+.sl-quiz-preview-option { display: flex; align-items: baseline; gap: 10px; margin: 8px 0; }
+.sl-quiz-preview-option > .markdown-preview { flex: 1; min-width: 0; margin: 0; }

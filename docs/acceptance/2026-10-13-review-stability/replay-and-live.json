@@ -1,0 +1,56 @@
+{
+  "preparation_id": "prep_df8b78a35f494676b89492dabb786cb8",
+  "mode": "read-only snapshot replay and independent live review probes; production task unchanged",
+  "original_failure_replay": {
+    "rejected_unknown_reference": true,
+    "corrected_response_routes_to": "repair",
+    "retained_resource_count": 12
+  },
+  "live_rounds": [
+    {
+      "round": 1,
+      "passed": true,
+      "transitions": [
+        {
+          "next_stage": "repair",
+          "error": null,
+          "wait_seconds": 0
+        }
+      ],
+      "decision": "fail",
+      "provider_calls": 1,
+      "reported_tokens": 24511,
+      "issue_count": 3
+    },
+    {
+      "round": 2,
+      "passed": true,
+      "transitions": [
+        {
+          "next_stage": "repair",
+          "error": null,
+          "wait_seconds": 0
+        }
+      ],
+      "decision": "fail",
+      "provider_calls": 1,
+      "reported_tokens": 24342,
+      "issue_count": 2
+    },
+    {
+      "round": 3,
+      "passed": true,
+      "transitions": [
+        {
+          "next_stage": "repair",
+          "error": null,
+          "wait_seconds": 0
+        }
+      ],
+      "decision": "fail",
+      "provider_calls": 1,
+      "reported_tokens": 24957,
+      "issue_count": 3
+    }
+  ]
+}

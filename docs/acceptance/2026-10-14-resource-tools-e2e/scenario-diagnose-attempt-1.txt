@@ -1,0 +1,121 @@
+{
+  "title": "购物清单风波：变量绑定与浅拷贝排查",
+  "introduction": "你是社区团购小程序的后端开发实习生。用户反馈：明明只修改了“临时清单”，正式清单也跟着变了。你需要在一个简化脚本中定位问题，并决定如何修复。案例只涉及 Python 变量绑定、列表别名与浅拷贝，不涉及深拷贝或框架源码。",
+  "learning_objectives": [
+    "能区分变量绑定与对象复制：b = a 让两个变量指向同一列表对象。",
+    "能说明整数不可变对重新赋值的影响：改变变量指向不等于修改原对象。",
+    "能判断 b = a.copy() 是浅拷贝：外层列表独立，嵌套列表仍共享。",
+    "能根据业务需求选择直接赋值、浅拷贝或重新赋值，并说明适用条件与边界。"
+  ],
+  "start_id": "scene_start",
+  "scenes": [
+    {
+      "id": "scene_start",
+      "title": "第一幕：临时清单污染了正式清单",
+      "situation": "你收到一段最小复现脚本：\n\nformal = [\"牛奶\", \"面包\"]\ntemp = formal\ntemp.append(\"鸡蛋\")\nprint(formal)\n\n控制台输出 ['牛奶', '面包', '鸡蛋']。同事说：“我只是想临时加个鸡蛋，为什么正式清单也变了？”你需要先决定如何向同事解释这个现象。",
+      "choices": [
+        {
+          "id": "c_explain_alias",
+          "text": "解释：temp = formal 没有复制列表，两个变量绑定同一个列表对象，所以通过 temp 修改内容，formal 也会看到。",
+          "feedback": "这个解释符合当前脚本。直接赋值让两个变量指向同一对象，append 修改的是该对象本身，因此 formal 所见内容同步变化。",
+          "next_id": "scene_fix_choice"
+        },
+        {
+          "id": "c_explain_copy",
+          "text": "解释：temp = formal 已经复制了列表，formal 变化可能是缓存或打印顺序问题。",
+          "feedback": "这个解释与当前脚本不符。直接赋值不会创建新列表；在 CPython 中，temp 和 formal 的 id 相同，append 后 formal 也会变化。",
+          "next_id": "scene_fix_choice"
+        },
+        {
+          "id": "c_explain_int",
+          "text": "解释：因为列表里的字符串不可变，所以 formal 被意外修改。",
+          "feedback": "这个解释混淆了对象类型。字符串不可变，但列表可变；这里变化来自列表对象被 append 修改，而不是字符串不可变。",
+          "next_id": "scene_fix_choice"
+        }
+      ]
+    },
+    {
+      "id": "scene_fix_choice",
+      "title": "第二幕：选择修复方式",
+      "situation": "同事希望“临时清单”可以自由增删，但不影响正式清单。当前正式清单是 formal = [\"牛奶\", \"面包\"]。你需要在下面几种写法中选择一种作为修复方案。",
+      "choices": [
+        {
+          "id": "c_use_copy",
+          "text": "使用 temp = formal.copy()，再对 temp 做 append。",
+          "feedback": "在当前场景下，formal 只包含字符串，copy() 会创建新的外层列表，temp.append 不会影响 formal。这个选择适合“只改外层、元素本身不需要独立复制”的需求。",
+          "next_id": "scene_nested"
+        },
+        {
+          "id": "c_use_assign",
+          "text": "保持 temp = formal，但每次修改前先 print 检查。",
+          "feedback": "print 只能帮助观察，不能阻止别名共享。temp 和 formal 仍指向同一列表，append 仍会改变 formal 所见内容。",
+          "next_id": "scene_nested"
+        },
+        {
+          "id": "c_use_rebind",
+          "text": "使用 temp = formal + []，再对 temp 做 append。",
+          "feedback": "formal + [] 会创建一个新的外层列表，效果上类似浅拷贝；在当前只有字符串元素的场景下，temp.append 不会影响 formal。这个选择可行，但需要理解它仍是浅拷贝。",
+          "next_id": "scene_nested"
+        }
+      ]
+    },
+    {
+      "id": "scene_nested",
+      "title": "第三幕：嵌套清单的隐藏共享",
+      "situation": "正式清单升级为带分类的结构：\n\nformal = [[\"牛奶\", \"面包\"], [\"铅笔\"]]\ntemp = formal.copy()\ntemp[0].append(\"鸡蛋\")\nprint(formal)\n\n你发现 formal 的第一项也变成了 ['牛奶', '面包', '鸡蛋']。同事问：“不是已经 copy 了吗？”你需要判断接下来怎么处理。",
+      "choices": [
+        {
+          "id": "c_nested_explain",
+          "text": "指出 copy() 是浅拷贝：外层列表是新对象，但 temp[0] 和 formal[0] 仍指向同一个内层列表，所以修改内层列表会互相影响。",
+          "feedback": "这个判断符合当前代码。浅拷贝只复制外层容器，嵌套对象仍共享引用；因此 temp[0].append 会改变 formal[0] 所见内容。",
+          "next_id": "scene_final_decision"
+        },
+        {
+          "id": "c_nested_deep",
+          "text": "认为 copy() 已经做了深拷贝，formal 变化说明 Python 有 bug。",
+          "feedback": "这个判断不符合 Python 语义。list.copy() 是浅拷贝，不是深拷贝；嵌套列表共享是预期行为，不是 bug。",
+          "next_id": "scene_final_decision"
+        },
+        {
+          "id": "c_nested_reassign",
+          "text": "认为只要把 temp[0] 重新赋值为新列表，formal[0] 就一定会跟着变。",
+          "feedback": "这个判断需要分情况。如果执行 temp[0] = [\"牛奶\", \"面包\", \"鸡蛋\"]，只是让 temp 的第一个槽位指向新列表，formal[0] 仍指向旧列表，不会跟着变。",
+          "next_id": "scene_final_decision"
+        }
+      ]
+    },
+    {
+      "id": "scene_final_decision",
+      "title": "第四幕：交付修复方案",
+      "situation": "现在你要给同事一个最终修复方案。业务要求是：临时清单可以独立增删分类和分类内的条目，正式清单完全不受影响。你需要在下面两种方案中做最终选择。",
+      "choices": [
+        {
+          "id": "c_final_deep",
+          "text": "使用 copy.deepcopy(formal) 生成 temp，再修改 temp。",
+          "feedback": "这个选择适合当前“嵌套列表也要独立”的需求。deepcopy 会递归复制嵌套对象，temp 和 formal 不再共享内层列表，修改 temp 不会影响 formal。",
+          "next_id": "ending_deep"
+        },
+        {
+          "id": "c_final_shallow",
+          "text": "继续使用 formal.copy()，但约定只替换外层元素，不修改内层列表。",
+          "feedback": "这个选择在“只替换外层元素”的边界内可行：temp[0] = [...] 不会影响 formal[0]。但如果后续有人对 temp[0] 做 append，仍会共享内层列表，风险取决于团队约定是否被遵守。",
+          "next_id": "ending_shallow"
+        }
+      ]
+    },
+    {
+      "id": "ending_deep",
+      "title": "结局 A：独立副本方案",
+      "situation": "你选择 copy.deepcopy(formal)。同事修改 temp 中的分类和条目后，formal 保持不变。团队在代码注释中写明：当嵌套对象也需要独立修改时，使用深拷贝；当只需要独立外层时，浅拷贝更轻量。",
+      "ending": "你完成了修复，并明确了浅拷贝与深拷贝的适用边界。",
+      "takeaway": "复盘：直接赋值让变量绑定同一对象；list.copy() 是浅拷贝，外层独立但嵌套对象共享；deepcopy 递归复制，适合嵌套结构也要独立的场景。选择取决于业务对“共享”与“独立”的边界要求。"
+    },
+    {
+      "id": "ending_shallow",
+      "title": "结局 B：约定边界方案",
+      "situation": "你选择继续使用 formal.copy()，并在团队规范中写明：temp 只允许替换外层元素，不允许对内层列表做原地修改。短期内正式清单没有被污染，但新同事如果直接 temp[0].append(...)，问题会再次出现。",
+      "ending": "你完成了当前修复，但把风险转移到了团队约定上。",
+      "takeaway": "复盘：浅拷贝在“只改外层”的边界内有效；一旦修改嵌套列表，仍会共享。若无法保证调用方遵守约定，应改用深拷贝或显式复制内层列表。"
+    }
+  ]
+}

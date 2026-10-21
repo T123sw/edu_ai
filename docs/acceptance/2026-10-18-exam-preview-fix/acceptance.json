@@ -1,0 +1,36 @@
+{
+  "status": "published-and-verified",
+  "verifiedAt": "2026-10-18T08:00:22.511824+00:00",
+  "change": "Only remove whole explicitly numbered parent blocks exactly matching the corresponding structured child; preserve unique conditions, code, options and all child data.",
+  "scope": [
+    "frontend/src/exam/ExamHome.tsx",
+    "frontend/src/exam/questionPresentation.ts",
+    "frontend/src/exam/questionPresentation.test.ts"
+  ],
+  "checks": {
+    "unitTestsPassed": 6,
+    "eslint": true,
+    "typecheck": true,
+    "build": true,
+    "previewBrowser": true,
+    "productionBrowser": true,
+    "existingRealModelPapersReplayed": 3,
+    "sameSourcePDF": "Kentucky CS315 Spring 2021 Midterm",
+    "parentsPerPaper": 4,
+    "childrenPerPaper": 17,
+    "viewportWidths": [
+      1440,
+      390,
+      320
+    ]
+  },
+  "addedModelCalls": 0,
+  "generationPipelineChanged": false,
+  "freshUploadToGenerationE2EThisTurn": false,
+  "limits": [
+    "Different wording is deliberately preserved; some semantic repetition may remain.",
+    "Complex-question answer/reviewer reliability remains unresolved; no relaxed review checks.",
+    "Timed answering, submission and grading remain unavailable."
+  ],
+  "releaseIndexSha256": "09f36a3adcba461b39cdbf15088cca4ec1eec1d5bd4bb2378731a6c38423fcbe"
+}

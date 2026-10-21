@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "exerciseId": "pbl_ba82f83b651e12b8ff22463498210ecd",
+  "steps": [
+    {
+      "stepId": "step-layout",
+      "checks": 2,
+      "passed": true
+    },
+    {
+      "stepId": "step-input",
+      "checks": 5,
+      "passed": true
+    },
+    {
+      "stepId": "step-operations",
+      "checks": 9,
+      "passed": true
+    },
+    {
+      "stepId": "step-error",
+      "checks": 11,
+      "passed": true
+    }
+  ],
+  "runs": 19,
+  "checks": 11,
+  "backend": "real isolated PostgreSQL + actual model artifact + server browser checks",
+  "preview": "official hosted Sandpack React",
+  "tested": [
+    "empty starter rejection",
+    "cumulative checks per step",
+    "shared code across steps",
+    "interactive error recovery scenario",
+    "changed hash invalidation",
+    "refresh retains files and active step",
+    "later regression rejected",
+    "desktop/mobile layout"
+  ]
+}

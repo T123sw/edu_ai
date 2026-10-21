@@ -63,7 +63,7 @@ class KnowledgeBaseDirectFlashcardServiceV2:
             # Pass it as read-only evidence instead of silently dropping it.
             documents.append({
                 "doc_id": "agent-research",
-                "title": "Agent research evidence",
+                "title": "当前知识点资料",
                 "summary": research_context[:1000],
                 "content": research_context[:16000],
             })
@@ -77,6 +77,7 @@ class KnowledgeBaseDirectFlashcardServiceV2:
             count=requested_count,
             difficulty=_clean(config.get("difficulty")) or "medium",
             category=_clean(config.get("category")),
+            special_requirements=_clean(config.get("special_requirements")),
             show_sources=bool(config.get("show_sources", True)),
             selected_doc_ids=selected_doc_ids,
         )
@@ -162,6 +163,7 @@ class KnowledgeBaseDirectFlashcardServiceV2:
         category: str,
         show_sources: bool,
         selected_doc_ids: list[str],
+        special_requirements: str = "",
     ) -> list[dict[str, Any]]:
         document_blocks = []
         for index, document in enumerate(documents, start=1):
@@ -203,7 +205,8 @@ class KnowledgeBaseDirectFlashcardServiceV2:
                     "role": "user",
                     "content": (
                         f"标题：{title}\n数量：{count}\n难度：{difficulty}\n"
-                        f"分类偏好：{category or '自动分类'}\n\n"
+                        f"分类偏好：{category or '自动分类'}\n"
+                        f"补充要求：{special_requirements or '无'}\n\n"
                         + source_section
                     ),
                 },
@@ -220,6 +223,9 @@ class KnowledgeBaseDirectFlashcardServiceV2:
         cards: list[dict[str, Any]] = []
         seen: set[tuple[str, str]] = set()
         allowed_sources = set(selected_doc_ids)
+        if any(item.get("doc_id") == "agent-research" for item in documents):
+            allowed_sources.add("agent-research")
+        source_titles = {_clean(item.get("doc_id")): _clean(item.get("title")) for item in documents}
         for index, item in enumerate(raw_cards):
             if not isinstance(item, dict):
                 continue
@@ -235,6 +241,11 @@ class KnowledgeBaseDirectFlashcardServiceV2:
                     "front": front,
                     "back": back,
                     "category": _clean(item.get("category")) or category or "未分类",
+                    "source_title": (
+                        source_titles.get(source_doc_id) or source_doc_id
+                        if show_sources and source_doc_id in allowed_sources
+                        else None
+                    ),
                     "source_doc_id": (
                         source_doc_id
                         if show_sources and source_doc_id in allowed_sources

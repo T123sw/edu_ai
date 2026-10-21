@@ -1,0 +1,13 @@
+{
+  "publishedAt": "20261014T013613Z",
+  "backup": "/tmp/edu-pbl-note-backup-20261014T013613Z",
+  "indexSha256": "da1179bb635b26034fa4d5c6a6b84f6947d1bbe1643090f5ed28828ffb3c14e1",
+  "previousIndexSha256": "d979024ef265ebeec1059f7379e3b17d6a8d8b7464c2c36483afa3668aa428bc",
+  "change": "Remove PBL support notice and unused CSS",
+  "backendChanged": false,
+  "lintPassed": true,
+  "buildPassed": true,
+  "httpVerified": true,
+  "browserVerified": true,
+  "api": "mock authentication/list; actual published static assets"
+}

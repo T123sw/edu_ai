@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 15.617408990859985,
+  "decisions": {
+    "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置与有效个人偏好均为空，故采用 defaults 的约 5 分钟目标时长，围绕该时长安排充分解释与示例，不压成一分钟概述。节点学习预算 8 分钟包含阅读与练习，不作为成片时长。配音采用 defaults 的 narration=true，并在正文写明中文配音。画幅沿用 defaults 的 16:9，与课程视觉契约 1920x1080 一致。交付类型为约 5 分钟常规教学解释视频，按原生路由走 general-video，flow: automation、storyboard: no。缺失信息假设：受众具体背景未知，按入门深度组织；无附件素材，视觉全部由排版与图示生成。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792473649.777316,
+  "brief_sha256": "7de713f8c68a4460c992185ae9fb27ce60241b9b4203022223382da7b9efc36f",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力用常数步顺序操作换来 O(1) 路径长度，代价是每层 O(n²·d) 复杂度；而“完全并行”只对编码器和训练时的解码器成立\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n面向希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织），讲清一个取舍判断：为什么 Transformer 用自注意力取代循环网络，以及“完全并行”这句话到底在什么范围内成立。这是课程节点 n5-tradeoff 的教师讲解视频，承接先修节点“整体结构与数据流：编码器-解码器、子层、残差与掩码”和“自注意力与多头注意力：Q/K/V 与缩放点积计算思路”，学生此时已经知道编码器-解码器结构、掩码、以及 Attention(Q,K,V)=softmax(QK^T/√dk)V 的计算思路。语气清晰、克制、以对比和判断为主，不做营销式渲染。\n\n## Customizations\n\n- 视频必须覆盖教师演示部分：用一张三行对比表（自注意力 / 循环 / 卷积 × 每层计算复杂度、最少顺序操作数、最大路径长度）作为核心视觉，逐列讲清三个衡量角度，并标注各自适用条件。\n- 必须讲清 n < d 时自注意力比循环层更快这一条件，以及句子表示中该条件通常成立的理由（word-piece、byte-pair 表示）。\n- 必须讲清路径长度与长程依赖可学习性的关系：自注意力 O(1)、循环 O(n)、卷积 O(log_k(n))，路径越短越易学习长程依赖。\n- 必须讲清代价：自注意力每层复杂度随 n 平方增长；长序列可限制为邻域 r 的受限自注意力，复杂度降为 O(r·n·d)，但最大路径长度升为 O(n/r)。\n- 必须区分训练时并行与推理时串行：训练用教师强制，解码器输入是真实目标句右移一位，因果掩码保证位置 i 只能看到位置 1 到 i，一次前向即可同时算出所有位置的预测；推理时第 i 个词元必须等第 i−1 个选出后才能作为输入，生成 m 个词元仍需 m 次顺序前向。结论要明确落到“Transformer 消掉的是训练的顺序步数，而非生成的顺序步数”。\n- 可引用原论文的工程佐证：Transformer 在 8 块 P100 GPU 上训练 12 小时即达到新的翻译质量最优。\n- 视觉遵循本课程统一契约：1920x1080、背景 #0f172a、前景 #f8fafc、强调色 #38bdf8、字体 Noto Sans SC；正文不小于 32px，图示标签不小于 28px，标题不小于 48px。密集对比表分步呈现，不要缩小字号硬塞。\n\n## Notes\n\n- 本视频是教师讲解，不是练习：三行对比表填写、超长文档场景分析、“用两句话向同伴解释完全并行范围”这三项学习活动属于学生独立练习，留给习题，不在视频中出题或要求作答。\n- 自测标准（不看资料说出两项优势与一项代价，并准确指出“完全并行”的适用范围）只作为讲解覆盖度的检验，不在视频内设题。\n- 详细推导与延伸阅读留给报告，视频只做入门深度的解释与示例，不展开多头注意力内部细节、位置编码公式推导。\n- 来源以 2017 年原始论文《Attention Is All You Need》第 4 节 “Why Self-Attention” 与 Table 1 为主，辅以对“训练并行、生成串行”的说明材料（https://yeasy.gitbook.io/llm_internals/di-yi-bu-fen-ji-chu-pian/01_introduction/1.4_transformer_idea）。\n- 排除项：不覆盖仅编码器/仅解码器变体、各类高效注意力实现细节、旋转位置编码等后续方案；不安排特定编程框架的代码实现。\n- 用户未提供任何附件与素材，视频视觉需全部由排版、图示与动画生成，不引用不存在的素材路径。\n- 用户未指定视频时长，按默认约 5 分钟安排充分解释与示例；节点学习预算 8 分钟包含阅读与练习，不等同于成片时长。\n- 使用中文配音讲解。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

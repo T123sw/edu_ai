@@ -1,0 +1,36 @@
+{
+  "passed": false,
+  "results": [
+    {
+      "caseId": "add-item-appears",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 5. 在 \"item-name-input\" 输入 \"面包\"\n✓ 6. 点击 \"add-button\"\n✓ 7. 检查 \"item-name\" 的数量\n   实际：2\n✓ 8. 检查 第 1 个 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 9. 检查 第 2 个 \"item-name\" 的显示文字\n   实际：\"面包\"\n✓ 10. 检查 第 2 个 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "add-clears-input",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-name-input\" 输入 \"面包\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-name-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "blank-shows-hint",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"add-button\"\n✓ 2. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 3. 检查 \"item-name\" 的数量\n   实际：0\n✓ 4. 在 \"item-name-input\" 输入 \"   \"\n✓ 5. 点击 \"add-button\"\n✓ 6. 检查 \"item-name\" 的数量\n   实际：0\n✓ 7. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 8. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-name\" 的数量\n   实际：1\n✓ 11. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 12. 检查 \"blank-hint\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "quantity-increase",
+      "status": "failed",
+      "message": "✓ 1. 在 \"item-name-input\" 输入 \"苹果\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 4. 点击 \"item-increase\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"2\"\n✓ 6. 点击 \"item-increase\"\n✓ 7. 检查 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 8. 在 \"item-name-input\" 输入 \"香蕉\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-name\" 的数量\n   实际：2\n✓ 11. 检查 第 2 个 \"item-quantity\" 的显示文字\n   实际：\"1\"\n× 12. 点击 第 2 个 \"item-name\" 中的 \"item-increase\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+    },
+    {
+      "caseId": "quantity-decrease",
+      "status": "failed",
+      "message": "✓ 1. 在 \"item-name-input\" 输入 \"香蕉\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 点击 \"item-increase\"\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"2\"\n✓ 5. 点击 \"item-decrease\"\n✓ 6. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 7. 点击 \"item-increase\"\n✓ 8. 点击 \"item-increase\"\n✓ 9. 检查 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 10. 点击 \"item-decrease\"\n✓ 11. 检查 \"item-quantity\" 的显示文字\n   实际：\"2\"\n✓ 12. 在 \"item-name-input\" 输入 \"葡萄\"\n✓ 13. 点击 \"add-button\"\n✓ 14. 检查 \"item-name\" 的数量\n   实际：2\n× 15. 点击 第 2 个 \"item-name\" 中的 \"item-increase\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+    },
+    {
+      "caseId": "quantity-floor-one",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-name-input\" 输入 \"橙子\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 4. 点击 \"item-decrease\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 6. 点击 \"item-decrease\"\n✓ 7. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 8. 点击 \"item-increase\"\n✓ 9. 检查 \"item-quantity\" 的显示文字\n   实际：\"2\"\n✓ 10. 点击 \"item-decrease\"\n✓ 11. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 12. 点击 \"item-decrease\"\n✓ 13. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+    }
+  ],
+  "durationMs": 5156.025607
+}

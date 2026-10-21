@@ -1,0 +1,45 @@
+{
+  "depth": "introductory",
+  "topic": "Transformer 模型",
+  "audience": "希望入门学习 Transformer 的学习者（具体背景未知）",
+  "language": "zh",
+  "exclusions": [],
+  "node_count": null,
+  "assumptions": [
+    "用户未说明学习时长，按默认 60 分钟整课预算安排",
+    "用户未指定材料语言，按提问语言推断为中文",
+    "用户未说明已有基础，按入门深度组织内容",
+    "用户未说明具体用途（如 NLP 应用、论文阅读或工程实现），按通用原理入门处理"
+  ],
+  "requirements": [
+    {
+      "text": "讲授 Transformer 的核心概念与结构，使学习者能够理解其基本原理",
+      "source_ref": null,
+      "source_quote": "我想学习一下transformer",
+      "requirement_id": "req-goal-transformer",
+      "source_document_id": null
+    }
+  ],
+  "learning_goal": "理解 Transformer 的基本原理与核心结构，能够说明其关键组件如何协同完成序列建模。",
+  "material_gaps": [
+    "本次未上传任何资料，Transformer 的原理、公式推导与示例需由研究阶段从公开来源补充"
+  ],
+  "source_policy": {
+    "mode": "open"
+  },
+  "total_minutes": 60,
+  "prior_knowledge": "未知（用户未说明已有基础）",
+  "desired_outcomes": [
+    "能用通俗语言解释 Transformer 为什么取代/补充了循环结构，以及自注意力解决了什么问题",
+    "能说明自注意力、多头注意力、位置编码、残差与层归一化、前馈网络各自的作用",
+    "能手工追踪一个简化自注意力计算过程（Q/K/V、缩放点积、softmax 加权求和）",
+    "能描述编码器-解码器结构及训练/推理流程的基本轮廓"
+  ],
+  "node_count_quote": null,
+  "source_policy_quote": null,
+  "required_resource_types": [
+    "report",
+    "quiz",
+    "classroom"
+  ]
+}

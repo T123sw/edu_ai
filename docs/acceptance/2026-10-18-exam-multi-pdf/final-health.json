@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-10-18T06:35:51.530406+00:00",
+  "health": {
+    "status": "ok",
+    "version": "1.6.14",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "scope": "internal_bridge",
+    "exam_ready": false
+  },
+  "nginx_http": 200,
+  "source_matches_lock": true,
+  "patches": [
+    {
+      "file": "0014-scalar-answer-values.patch",
+      "sha256": "9e9aea41c18d0fa26619effe3ae65f0c49df5c21280212e872dea0480c3ffaeb"
+    }
+  ],
+  "active_upstream_turns": 0,
+  "context_cleanup_errors_since_deployment": 0,
+  "service": "MainPID=2192581\nExecMainStartTimestamp=Sun 2026-10-18 06:30:30 UTC\nActiveState=active\n"
+}

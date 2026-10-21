@@ -1,0 +1,9 @@
+{
+  "activeIsolatedTasks": 0,
+  "isolatedServerPid": 1174802,
+  "sentSignal": "SIGINT",
+  "databaseRetained": "pbl_acceptance_20261017_restart",
+  "productionTouched": false,
+  "isolatedServerStopped": true,
+  "port8027Closed": true
+}

@@ -1,0 +1,10 @@
+{
+  "status": "pending_backend_restart_and_frontend_publication",
+  "backend_pid": 2011287,
+  "backend_started_at": "2026-10-17T17:55:24Z",
+  "restart_attempt": "systemctl --no-ask-password restart edu-ai-backend.service",
+  "restart_result": "Interactive authentication required",
+  "candidate_frontend": "/tmp/edu-hf-native-ui-release",
+  "production_frontend": "restored latest published exam-preview release",
+  "recorded_at": "2026-10-18T09:05:48.292998+00:00"
+}

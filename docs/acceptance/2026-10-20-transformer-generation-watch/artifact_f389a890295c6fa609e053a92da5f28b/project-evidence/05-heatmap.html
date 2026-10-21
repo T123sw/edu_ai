@@ -1,0 +1,314 @@
+<template>
+  <style>
+    @font-face{font-family:"Noto Sans SC";font-style:normal;font-weight:100 900;font-display:block;src:url("assets/fonts/NotoSansSC-Variable.ttf") format("truetype");}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    #root{position:relative;width:100%;height:100%;overflow:hidden;font-family:"Noto Sans SC";color:#f8fafc;}
+    /* ---------------- background ---------------- */
+    .frame05-bgclip{position:absolute;inset:0;overflow:hidden;background:#0f172a;}
+    #frame05-grid{position:absolute;inset:-160px;background-image:linear-gradient(to right,#243247 2px,transparent 2px),linear-gradient(to bottom,#243247 2px,transparent 2px);background-size:60px 60px;opacity:.07;}
+    #frame05-glow{position:absolute;left:-260px;top:300px;width:1300px;height:980px;background:radial-gradient(circle at 50% 50%,rgba(56,189,248,.6),rgba(56,189,248,0) 62%);opacity:.14;}
+    #frame05-ghost{position:absolute;left:1180px;top:120px;font-size:420px;font-weight:700;line-height:1;color:#38bdf8;opacity:.045;letter-spacing:.02em;}
+    /* ---------------- content layer ---------------- */
+    .frame05-content{position:absolute;inset:0;}
+    #frame05-idx{position:absolute;left:120px;top:52px;font-size:30px;font-weight:600;letter-spacing:.1em;color:#94a3b8;font-variant-numeric:tabular-nums;}
+    #frame05-tag{position:absolute;right:120px;top:52px;font-size:30px;font-weight:600;letter-spacing:.1em;color:#38bdf8;}
+    #frame05-rule{position:absolute;left:120px;top:110px;width:1680px;height:2px;background:#243247;transform-origin:left center;}
+    #frame05-title{position:absolute;left:120px;top:136px;height:82px;font-size:76px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;}
+    .frame05-tw{display:inline-block;}
+    #frame05-meta{position:absolute;left:600px;top:170px;font-size:30px;font-weight:600;letter-spacing:.06em;color:#94a3b8;font-variant-numeric:tabular-nums;white-space:nowrap;}
+    /* matrix */
+    #frame05-matrix{position:absolute;left:190px;top:226px;width:764px;height:572px;padding:0;}
+    #frame05-matrixframe{position:absolute;left:184px;top:220px;width:776px;height:584px;border:2px solid #334155;border-radius:14px;}
+    #frame05-cells{display:flex;flex-direction:column;gap:4px;}
+    .frame05-row{display:flex;gap:4px;transform-origin:left center;}
+    .frame05-cell{width:44px;height:44px;border-radius:6px;}
+    #frame05-hi-top,#frame05-hi-bot{position:absolute;left:-8px;width:780px;height:60px;border-radius:12px;opacity:0;}
+    #frame05-hi-top{top:-8px;border:2.5px solid #fbbf24;background:rgba(251,191,36,.10);}
+    #frame05-hi-bot{top:520px;border:2.5px solid #38bdf8;background:rgba(56,189,248,.10);}
+    .frame05-rowlabel{position:absolute;left:152px;width:34px;height:36px;line-height:36px;text-align:right;font-size:28px;font-weight:500;color:#94a3b8;font-variant-numeric:tabular-nums;}
+    .frame05-collabel{position:absolute;left:160px;width:60px;text-align:center;font-size:28px;font-weight:500;color:#94a3b8;font-variant-numeric:tabular-nums;top:806px;}
+    #frame05-axis-y-name{position:absolute;left:114px;top:392px;writing-mode:vertical-rl;font-size:28px;font-weight:600;letter-spacing:.14em;color:#94a3b8;height:200px;}
+    #frame05-axis-x-name{position:absolute;left:660px;width:294px;top:844px;text-align:right;font-size:28px;font-weight:600;letter-spacing:.12em;color:#94a3b8;}
+    /* leader overlay */
+    #frame05-leaders{position:absolute;left:0;top:0;pointer-events:none;}
+    .frame05-lead{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:.85;}
+    #frame05-lead1{stroke:#fbbf24;}
+    #frame05-lead2{stroke:#38bdf8;}
+    /* right column — curves */
+    .frame05-curvelabel{position:absolute;left:1000px;width:56px;text-align:left;font-size:28px;font-weight:600;letter-spacing:.08em;color:#94a3b8;}
+    #frame05-cl1{top:194px;}
+    #frame05-cl2{top:274px;}
+    #frame05-cl3{top:354px;}
+    .frame05-curve{position:absolute;left:1050px;overflow:visible;}
+    #frame05-curve1{top:206px;}
+    #frame05-curve2{top:286px;}
+    #frame05-curve3{top:366px;}
+    .frame05-curvepath{fill:none;stroke:#fbbf24;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+    #frame05-curvepath2{stroke:#fbbf24;opacity:.88;}
+    #frame05-curvepath3{stroke:#fbbf24;opacity:.74;}
+    /* right column — zoomed waves */
+    #frame05-zlabel1{position:absolute;left:1000px;top:464px;font-size:30px;font-weight:600;letter-spacing:.03em;color:#fbbf24;white-space:nowrap;}
+    #frame05-zlabel2{position:absolute;left:1000px;top:596px;font-size:30px;font-weight:600;letter-spacing:.03em;color:#38bdf8;white-space:nowrap;}
+    .frame05-zoom{position:absolute;left:1000px;overflow:visible;}
+    #frame05-zoom1{top:512px;}
+    #frame05-zoom2{top:642px;}
+    .frame05-zoompath{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+    #frame05-zoompath1{stroke:#fbbf24;}
+    #frame05-zoompath2{stroke:#38bdf8;}
+    /* scene 4 — ruler */
+    #frame05-sentence{position:absolute;left:1000px;top:722px;width:790px;font-size:30px;font-weight:500;line-height:1.45;color:#cbd5e1;}
+    #frame05-axis{position:absolute;left:1040px;top:844px;width:722px;height:2px;background:#334155;transform-origin:left center;}
+    .frame05-tick{position:absolute;top:825px;width:3px;height:20px;border-radius:2px;transform-origin:bottom center;}
+    #frame05-tick1{left:1039px;background:#fbbf24;}
+    #frame05-tick2{left:1274px;background:#475569;}
+    #frame05-tick3{left:1524px;background:#475569;}
+    #frame05-tick4{left:1759px;background:#38bdf8;}
+    .frame05-ticklabel{position:absolute;top:856px;font-size:28px;font-weight:500;color:#94a3b8;font-variant-numeric:tabular-nums;white-space:nowrap;}
+    #frame05-tl1{left:1040px;width:140px;text-align:left;}
+    #frame05-tl2{left:1215px;width:120px;text-align:center;}
+    #frame05-tl3{left:1470px;width:110px;text-align:center;}
+    #frame05-tl4{left:1560px;width:200px;text-align:right;}
+    .frame05-badge{position:absolute;top:784px;height:36px;padding:0 18px;display:flex;align-items:center;border-radius:999px;font-size:28px;font-weight:600;letter-spacing:.03em;white-space:nowrap;}
+    #frame05-badge1{left:1040px;border:1.5px solid #fbbf24;color:#fbbf24;background:rgba(251,191,36,.08);}
+    #frame05-badge2{right:160px;border:1.5px solid #38bdf8;color:#38bdf8;background:rgba(56,189,248,.08);}
+  </style>
+
+  <div id="root" data-composition-id="05-heatmap" data-width="1920" data-height="1080" data-duration="39.09">
+    <div class="clip frame05-bgclip" id="frame05-bgclip" data-start="0" data-duration="39.09" data-track-index="0">
+      <div id="frame05-grid"></div>
+      <div id="frame05-glow"></div>
+      <div id="frame05-ghost">PE</div>
+    </div>
+
+    <div class="clip frame05-content" id="frame05-content" data-start="0" data-duration="39.09" data-track-index="2">
+      <div id="frame05-idx">05 / 09</div>
+      <div id="frame05-tag">PE HEATMAP</div>
+      <div id="frame05-rule"></div>
+      <div id="frame05-title"><span class="frame05-tw" id="frame05-tw1">位置</span><span class="frame05-tw" id="frame05-tw2"> × </span><span class="frame05-tw" id="frame05-tw3">维度</span></div>
+      <div id="frame05-meta">12 维 × 16 个位置</div>
+
+      <div id="frame05-matrixframe"></div>
+      <div id="frame05-matrix">
+        <div id="frame05-cells"></div>
+        <div id="frame05-hi-top"></div>
+        <div id="frame05-hi-bot"></div>
+      </div>
+      <div id="frame05-axis-y-name">d_model</div>
+      <div id="frame05-axis-x-name">pos →</div>
+
+      <svg id="frame05-leaders" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+        <path class="frame05-lead" id="frame05-lead1" d="M 954 248 L 968 248 L 968 548 L 1000 548"/>
+        <path class="frame05-lead" id="frame05-lead2" d="M 954 776 L 986 776 L 986 678 L 1000 678"/>
+      </svg>
+
+      <div class="frame05-curvelabel" id="frame05-cl1">长</div>
+      <div class="frame05-curvelabel" id="frame05-cl2">中</div>
+      <div class="frame05-curvelabel" id="frame05-cl3">短</div>
+      <svg class="frame05-curve" id="frame05-curve1" width="730" height="64" viewBox="0 0 730 64" xmlns="http://www.w3.org/2000/svg"><path class="frame05-curvepath" id="frame05-curvepath1" d=""/></svg>
+      <svg class="frame05-curve" id="frame05-curve2" width="730" height="64" viewBox="0 0 730 64" xmlns="http://www.w3.org/2000/svg"><path class="frame05-curvepath" id="frame05-curvepath2" d=""/></svg>
+      <svg class="frame05-curve" id="frame05-curve3" width="730" height="64" viewBox="0 0 730 64" xmlns="http://www.w3.org/2000/svg"><path class="frame05-curvepath" id="frame05-curvepath3" d=""/></svg>
+
+      <div id="frame05-zlabel1">低频：相邻位置差异小</div>
+      <div id="frame05-zlabel2">高频：相邻位置差异大</div>
+      <svg class="frame05-zoom" id="frame05-zoom1" width="760" height="72" viewBox="0 0 760 72" xmlns="http://www.w3.org/2000/svg"><path class="frame05-zoompath" id="frame05-zoompath1" d=""/></svg>
+      <svg class="frame05-zoom" id="frame05-zoom2" width="760" height="72" viewBox="0 0 760 72" xmlns="http://www.w3.org/2000/svg"><path class="frame05-zoompath" id="frame05-zoompath2" d=""/></svg>
+
+      <div id="frame05-sentence">位置每前进一格，每一维都留下可区分的模式</div>
+      <div id="frame05-axis"></div>
+      <div class="frame05-tick" id="frame05-tick1"></div>
+      <div class="frame05-tick" id="frame05-tick2"></div>
+      <div class="frame05-tick" id="frame05-tick3"></div>
+      <div class="frame05-tick" id="frame05-tick4"></div>
+      <div class="frame05-ticklabel" id="frame05-tl1">2π</div>
+      <div class="frame05-ticklabel" id="frame05-tl2">20×2π</div>
+      <div class="frame05-ticklabel" id="frame05-tl3">500×2π</div>
+      <div class="frame05-ticklabel" id="frame05-tl4">10000×2π</div>
+      <div class="frame05-badge" id="frame05-badge1">低频＝粗粒度</div>
+      <div class="frame05-badge" id="frame05-badge2">高频＝细粒度</div>
+    </div>
+  </div>
+
+  <script src="assets/gsap.min.js"></script>
+  <script>
+    (function () {
+      var D = 38.69;
+      var AMBER = ['#3a2f14', '#78350f', '#b45309', '#f59e0b', '#fbbf24'];
+      var CYAN = ['#12203a', '#164e63', '#0e7490', '#0891b2', '#38bdf8'];
+      var ROWS = 12, COLS = 16, CELL = 44, GAP = 4;
+
+      /* ---------- bake the 12 x 16 matrix (static colors, deterministic) ---------- */
+      var cellsHost = document.getElementById('frame05-cells');
+      var matrix = document.getElementById('frame05-matrix');
+      var labelsHost = document.createElement('div');
+      labelsHost.id = 'frame05-rowlabels';
+      var colHost = document.createElement('div');
+      colHost.id = 'frame05-collabels';
+
+      var lambdas = [16, 12.5, 9.6, 7.2, 5.4, 4.1, 3.2, 2.5, 2.0, 1.7, 1.45, 1.3];
+      var rowEls = [];
+      for (var r = 0; r < ROWS; r++) {
+        var row = document.createElement('div');
+        row.className = 'frame05-row';
+        var palette = r < 6 ? AMBER : CYAN;
+        for (var c = 0; c < COLS; c++) {
+          var cell = document.createElement('div');
+          cell.className = 'frame05-cell';
+          var v = 0.5 + 0.5 * Math.sin((2 * Math.PI * c) / lambdas[r] + r * 0.62);
+          var lvl = Math.floor(v * 5);
+          if (lvl < 0) { lvl = 0; }
+          if (lvl > 4) { lvl = 4; }
+          cell.style.backgroundColor = palette[lvl];
+          row.appendChild(cell);
+        }
+        cellsHost.appendChild(row);
+        rowEls.push(row);
+      }
+      for (var rr = 0; rr < ROWS; rr++) {
+        var rl = document.createElement('div');
+        rl.className = 'frame05-rowlabel';
+        rl.textContent = String(rr);
+        rl.style.top = (226 + rr * (CELL + GAP) + (CELL - 36) / 2) + 'px';
+        labelsHost.appendChild(rl);
+      }
+      for (var cc = 0; cc < COLS; cc++) {
+        var cl = document.createElement('div');
+        cl.className = 'frame05-collabel';
+        cl.textContent = String(cc);
+        cl.style.left = (190 + cc * (CELL + GAP) + CELL / 2 - 60) + 'px';
+        colHost.appendChild(cl);
+      }
+      matrix.parentNode.appendChild(labelsHost);
+      matrix.parentNode.appendChild(colHost);
+
+      /* ---------- deterministic sine paths ---------- */
+      function sinePath(w, h, cycles, amp) {
+        var cy = h / 2;
+        var steps = Math.max(24, Math.round(cycles * 30));
+        var d = '';
+        for (var i = 0; i <= steps; i++) {
+          var x = (w * i) / steps;
+          var y = cy - Math.sin((2 * Math.PI * cycles * i) / steps) * amp;
+          d += (i === 0 ? 'M ' : 'L ') + x.toFixed(2) + ' ' + y.toFixed(2) + ' ';
+        }
+        return d.replace(/\s+$/, '');
+      }
+      function prep(id, w, h, cycles, amp) {
+        var p = document.getElementById(id);
+        p.setAttribute('d', sinePath(w, h, cycles, amp));
+        var len = p.getTotalLength();
+        p.style.strokeDasharray = len;
+        p.style.strokeDashoffset = len;
+      }
+      prep('frame05-curvepath1', 730, 64, 1.5, 26);
+      prep('frame05-curvepath2', 730, 64, 4, 26);
+      prep('frame05-curvepath3', 730, 64, 9, 26);
+      prep('frame05-zoompath1', 760, 72, 1.2, 26);
+      prep('frame05-zoompath2', 760, 72, 7, 26);
+      ['frame05-lead1', 'frame05-lead2'].forEach(function (id) {
+        var p = document.getElementById(id);
+        var len = p.getTotalLength();
+        p.style.strokeDasharray = len;
+        p.style.strokeDashoffset = len;
+      });
+
+      /* ---------- timeline ---------- */
+      var tl = gsap.timeline({ paused: true });
+
+      tl.set('#frame05-idx', { opacity: 0, x: -26 }, 0);
+      tl.to('#frame05-idx', { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out' }, 0.05);
+      tl.set('#frame05-tag', { opacity: 0, x: 26 }, 0);
+      tl.to('#frame05-tag', { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out' }, 0.14);
+      tl.set('#frame05-rule', { scaleX: 0 }, 0);
+      tl.to('#frame05-rule', { scaleX: 1, duration: 0.7, ease: 'power2.inOut' }, 0.2);
+
+      [['#frame05-tw1', 0.34, 64, 0.18], ['#frame05-tw2', 0.46, 40, 0.14], ['#frame05-tw3', 0.56, 76, 0.16]].forEach(function (it) {
+        tl.set(it[0], { opacity: 0 }, 0);
+        tl.set(it[0], { opacity: 1, y: it[2] }, it[1]);
+        tl.to(it[0], { y: 0, duration: it[3], ease: 'power4.out' }, it[1]);
+      });
+
+      // Scene 1 — frame, axes
+      tl.set('#frame05-matrixframe', { opacity: 0, scale: 0.965 }, 0);
+      tl.to('#frame05-matrixframe', { opacity: 1, scale: 1, duration: 0.6, ease: 'power3.out' }, 1.6);
+      var rowLabels = document.querySelectorAll('.frame05-rowlabel');
+      tl.set(rowLabels, { opacity: 0, x: -14 }, 0);
+      tl.to(rowLabels, { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out', stagger: 0.04 }, 2.4);
+      var colLabels = document.querySelectorAll('.frame05-collabel');
+      tl.set(colLabels, { opacity: 0, y: -12 }, 0);
+      tl.to(colLabels, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', stagger: 0.03 }, 3.25);
+      tl.set('#frame05-axis-y-name', { opacity: 0, y: 22 }, 0);
+      tl.to('#frame05-axis-y-name', { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 4.2);
+      tl.set('#frame05-axis-x-name', { opacity: 0, x: 22 }, 0);
+      tl.to('#frame05-axis-x-name', { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out' }, 4.45);
+      tl.set('#frame05-meta', { opacity: 0, y: 16 }, 0);
+      tl.to('#frame05-meta', { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 5.3);
+
+      // Scene 2 — row-by-row fill (amber block, then cyan block)
+      tl.set(rowEls, { opacity: 0, scaleX: 0 }, 0);
+      tl.to(rowEls.slice(0, 6), { opacity: 1, scaleX: 1, duration: 0.5, ease: 'power2.out', stagger: 0.06 }, 6.6);
+      tl.to(rowEls.slice(6), { opacity: 1, scaleX: 1, duration: 0.5, ease: 'power2.out', stagger: 0.06 }, 9.6);
+
+      [['#frame05-curvepath1', 11.1], ['#frame05-curvepath2', 12.5], ['#frame05-curvepath3', 13.9]].forEach(function (cv) {
+        tl.to(cv[0], { strokeDashoffset: 0, duration: 0.9, ease: 'power2.out' }, cv[1]);
+      });
+      [['#frame05-cl1', 11.05], ['#frame05-cl2', 12.45], ['#frame05-cl3', 13.85]].forEach(function (l) {
+        tl.set(l[0], { opacity: 0, x: -14 }, 0);
+        tl.to(l[0], { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' }, l[1]);
+      });
+
+      // Scene 3 — reference rows, leaders, zoomed waves
+      tl.set('#frame05-hi-top', { opacity: 0, scaleX: 0.94 }, 0);
+      tl.to('#frame05-hi-top', { opacity: 1, scaleX: 1, duration: 0.5, ease: 'power3.out' }, 16.4);
+      tl.to('#frame05-lead1', { strokeDashoffset: 0, duration: 0.7, ease: 'power2.out' }, 17.0);
+      tl.set('#frame05-zlabel1', { opacity: 0, x: -18 }, 0);
+      tl.to('#frame05-zlabel1', { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out' }, 17.5);
+      tl.to('#frame05-zoompath1', { strokeDashoffset: 0, duration: 0.95, ease: 'power2.out' }, 17.9);
+
+      tl.set('#frame05-hi-bot', { opacity: 0, scaleX: 0.94 }, 0);
+      tl.to('#frame05-hi-bot', { opacity: 1, scaleX: 1, duration: 0.5, ease: 'power3.out' }, 19.8);
+      tl.to('#frame05-lead2', { strokeDashoffset: 0, duration: 0.7, ease: 'power2.out' }, 20.4);
+      tl.set('#frame05-zlabel2', { opacity: 0, x: -18 }, 0);
+      tl.to('#frame05-zlabel2', { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out' }, 20.9);
+      tl.to('#frame05-zoompath2', { strokeDashoffset: 0, duration: 0.95, ease: 'power2.out' }, 21.3);
+
+      // bounded breathe on the two zoomed waves, opposite phase
+      var zoom1 = document.getElementById('frame05-zoom1');
+      var zoom2 = document.getElementById('frame05-zoom2');
+      var phZ = { p: 0 };
+      tl.to(phZ, {
+        p: Math.PI * 2 * 3, duration: D - 22.6, ease: 'none',
+        onUpdate: function () {
+          var s = Math.sin(phZ.p);
+          zoom1.style.transform = 'translateY(' + (s * 3).toFixed(2) + 'px)';
+          zoom2.style.transform = 'translateY(' + (-s * 3).toFixed(2) + 'px)';
+        }
+      }, 22.6);
+
+      // Scene 4 — ruler with geometric spacing
+      tl.set('#frame05-sentence', { opacity: 0, y: 26 }, 0);
+      tl.to('#frame05-sentence', { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }, 26.6);
+      tl.set('#frame05-axis', { scaleX: 0 }, 0);
+      tl.to('#frame05-axis', { scaleX: 1, duration: 0.9, ease: 'power2.inOut' }, 27.1);
+
+      var TICKS = [['#frame05-tick1', '#frame05-tl1', 28.6], ['#frame05-tick2', '#frame05-tl2', 29.7], ['#frame05-tick3', '#frame05-tl3', 30.8], ['#frame05-tick4', '#frame05-tl4', 31.9]];
+      TICKS.forEach(function (t) {
+        tl.set(t[0], { scaleY: 0 }, 0);
+        tl.to(t[0], { scaleY: 1, duration: 0.45, ease: 'power3.out' }, t[2]);
+        tl.set(t[1], { opacity: 0, y: 14 }, 0);
+        tl.to(t[1], { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, t[2] + 0.12);
+      });
+
+      [['#frame05-badge1', 32.9, -20], ['#frame05-badge2', 33.7, 20]].forEach(function (b) {
+        tl.set(b[0], { opacity: 0, x: b[2], scale: 0.92 }, 0);
+        tl.to(b[0], { opacity: 1, x: 0, scale: 1, duration: 0.5, ease: 'power3.out' }, b[1]);
+      });
+
+      // ambient (bounded, deterministic)
+      tl.to('#frame05-grid', { y: -60, duration: 19.35, ease: 'none', yoyo: true, repeat: 1 }, 0);
+      tl.to('#frame05-glow', { opacity: 0.2, scale: 1.06, duration: 9.7, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 0);
+      tl.to('#frame05-ghost', { x: 44, duration: 19.35, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 0);
+
+      window.__timelines['05-heatmap'] = tl;
+    })();
+  </script>
+</template>

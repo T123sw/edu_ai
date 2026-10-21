@@ -1,0 +1,308 @@
+{
+  "brief": {
+    "depth": "introductory",
+    "topic": "一次函数 y=2x+b 中 b（截距）如何让直线上下平移",
+    "audience": "初中生（会读平面直角坐标图，尚未理解一次函数中 b 的作用）",
+    "language": "中文",
+    "exclusions": [
+      "不扩展到神经网络",
+      "不扩展到其他章节"
+    ],
+    "node_count": 1,
+    "assumptions": [],
+    "requirements": [
+      {
+        "text": "讲授唯一知识点：截距 b 如何让直线上下平移",
+        "source_ref": null,
+        "source_quote": "只安排一个知识点：截距如何让直线上下平移",
+        "requirement_id": "req_intercept_shift",
+        "source_document_id": null
+      },
+      {
+        "text": "在同一坐标系中动态展示 b=0、b=2、b=-2 三条直线",
+        "source_ref": null,
+        "source_quote": "请在同一坐标系中动态展示 b=0、b=2、b=-2",
+        "requirement_id": "req_animation_compare",
+        "source_document_id": null
+      },
+      {
+        "text": "解释与 y 轴交点怎样随 b 变化",
+        "source_ref": null,
+        "source_quote": "解释与 y 轴交点怎样变化",
+        "requirement_id": "req_yaxis_intersection",
+        "source_document_id": null
+      },
+      {
+        "text": "解释为什么斜率始终是 2",
+        "source_ref": null,
+        "source_quote": "为什么斜率始终是 2",
+        "requirement_id": "req_slope_constant",
+        "source_document_id": null
+      },
+      {
+        "text": "动画讲解约 60—90 秒，并配中文语音",
+        "source_ref": null,
+        "source_quote": "其中动画讲解约 60—90 秒，配中文语音",
+        "requirement_id": "req_animation_voice",
+        "source_document_id": null
+      },
+      {
+        "text": "最后保留一份简短讲义",
+        "source_ref": null,
+        "source_quote": "最后保留一份简短讲义",
+        "requirement_id": "req_handout",
+        "source_document_id": null
+      },
+      {
+        "text": "提供两道检查理解的练习",
+        "source_ref": null,
+        "source_quote": "两道检查理解的练习",
+        "requirement_id": "req_two_exercises",
+        "source_document_id": null
+      },
+      {
+        "text": "生成后保存课程，方便反复观看",
+        "source_ref": null,
+        "source_quote": "生成后保存课程，方便我反复观看",
+        "requirement_id": "req_save_course",
+        "source_document_id": null
+      }
+    ],
+    "learning_goal": "理解一次函数 y=2x+b 中常数 b 的作用：b 决定直线与 y 轴的交点位置，改变 b 会让直线整体上下平移，而斜率始终保持 2。",
+    "material_gaps": [],
+    "source_policy": {
+      "mode": "open"
+    },
+    "total_minutes": 3,
+    "prior_knowledge": "用户自述会读平面直角坐标图；对一次函数 y=2x+b 中 b 的作用尚不理解。",
+    "desired_outcomes": [
+      "能说出 b=0、b=2、b=-2 时直线与 y 轴的交点坐标分别是 (0,0)、(0,2)、(0,-2)",
+      "能解释改变 b 时直线整体上下平移、斜率始终为 2 的原因",
+      "能通过两道检查练习判断 b 变化对直线位置的影响"
+    ],
+    "node_count_quote": "只安排一个知识点：截距如何让直线上下平移",
+    "source_policy_quote": null,
+    "required_resource_types": [
+      "report",
+      "quiz",
+      "classroom"
+    ]
+  },
+  "input_documents": [],
+  "research_summary": {
+    "coverage": [
+      {
+        "kind": "knowledge",
+        "reason": "两处来源均说明 b 为 y 轴截距、x=0 时 y=b，并给出上下平移 n 格对应 y=kx+b±n，足以支撑单一知识点的讲授。",
+        "status": "covered",
+        "finding_ids": [
+          "f_yintercept_is_b",
+          "f_vertical_translation",
+          "f_translation_same_slope"
+        ],
+        "requirement_id": "req_intercept_shift"
+      },
+      {
+        "kind": "knowledge",
+        "reason": "教材以“同一坐标系中把原直线所有点平移”的方式对比新旧直线，并说明斜率相同、截距不同的直线平行；据此可设计在同一坐标系中依次呈现 b=0、2、-2 三条直线的动态对比。",
+        "status": "covered",
+        "finding_ids": [
+          "f_translation_same_slope",
+          "f_parallel_lines"
+        ],
+        "requirement_id": "req_animation_compare"
+      },
+      {
+        "kind": "knowledge",
+        "reason": "来源明确 x=0 时 y=b、与 y 轴交点坐标为 (0,b)，且竖直截距即直线与竖直轴的交点，可解释交点随 b 变化。",
+        "status": "covered",
+        "finding_ids": [
+          "f_yintercept_is_b",
+          "f_translation_same_slope"
+        ],
+        "requirement_id": "req_yaxis_intersection"
+      },
+      {
+        "kind": "knowledge",
+        "reason": "来源说明 k 为斜率、平行直线斜率相等，且平移只改变常数项 b，因此 b 变化时斜率始终为 2。",
+        "status": "covered",
+        "finding_ids": [
+          "f_slope_unchanged",
+          "f_parallel_lines"
+        ],
+        "requirement_id": "req_slope_constant"
+      },
+      {
+        "kind": "constraint",
+        "reason": "时长与配音是呈现约束：路径节点把 60—90 秒中文语音动画讲解安排为节点内的核心活动，并给出分镜要点（先 b=0，再 b=2、b=-2），不依赖额外知识证据。",
+        "status": "covered",
+        "finding_ids": [
+          "f_translation_same_slope"
+        ],
+        "requirement_id": "req_animation_voice"
+      },
+      {
+        "kind": "constraint",
+        "reason": "讲义是产出形式约束：节点活动要求整理一页简短讲义，内容限定为 (0,b) 交点、上下平移规则与斜率不变三条结论。",
+        "status": "covered",
+        "finding_ids": [
+          "f_yintercept_is_b",
+          "f_vertical_translation",
+          "f_slope_unchanged"
+        ],
+        "requirement_id": "req_handout"
+      },
+      {
+        "kind": "constraint",
+        "reason": "练习数量是约束：节点自测安排两道题，分别考查由 b 写出 y 轴交点坐标、判断 b 变化后直线位置与斜率，答案可由已保存结论推出。",
+        "status": "covered",
+        "finding_ids": [
+          "f_yintercept_is_b",
+          "f_vertical_translation"
+        ],
+        "requirement_id": "req_two_exercises"
+      },
+      {
+        "kind": "constraint",
+        "reason": "保存课程是产品功能约束：路径以单一节点组织全部内容，便于生成后整体保存并反复观看，不涉及额外知识依据。",
+        "status": "covered",
+        "finding_ids": [
+          "f_translation_same_slope"
+        ],
+        "requirement_id": "req_save_course"
+      }
+    ],
+    "findings": [
+      {
+        "claim": "一次函数 y=kx+b 中，当 x=0 时 y=b，所以直线与 y 轴的交点坐标恒为 (0,b)；b 就是 y 轴截距。对 y=2x+b 而言，b=0、2、-2 时与 y 轴交点分别是 (0,0)、(0,2)、(0,-2)。",
+        "citations": [
+          {
+            "quote": "当b<0时，直线必通过三、四象限。\n\n特别地，当b=0时，直线通过原点O（0，0）表示的是正比例函数的图象。\n\n这时，当k>0时，直线只通过一、三象限，不会通过二、四象限。当k<0时，直线只通过二、[四象限](https://baike.baidu.com/item/%E5%9B%9B%E8%B1%A1%E9%99%90/0?fromModule=lemma_inlink)，不会通过一、三象限。\n\n5、当x=0时，b为函数在y轴上的交点，坐标为（0，b）。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          },
+          {
+            "quote": "nk)只需知道2点，并连成直线即可。\n\n2、性质：（1）在一次函数上的任意一点P（x，y），都满足等式：y=kx+b（k≠0）。（2）一次函数与y轴交点的坐标总是（0，b），与x轴总是交于（-b/k，0）[正比例函数](https://baike.baidu.com/item/%E6%AD%A3%E6%AF%94%E4%BE%8B%E5%87%BD%E6%95%B0/0?fromModule=lemma_inlink)的图象都是过原点。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          },
+          {
+            "quote": "其中m是[斜率](https://baike.baidu.com/item/%E6%96%9C%E7%8E%87/0?fromModule=lemma_inlink)，不能为0；x表示自变量，b表示y轴截距。且m和b均为[常数](https://baike.baidu.com/item/%E5%B8%B8%E6%95%B0/2215683?fromModule=lemma_inlink)。先设出函数解析式，再根据条件确定解析式中未知的斜率，从而得出解析式。该解析式类似于直线方",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          }
+        ],
+        "finding_id": "f_yintercept_is_b"
+      },
+      {
+        "claim": "把 y=kx+b 的图象向上平移 n 格，解析式变为 y=kx+b+n；向下平移 n 格变为 y=kx+b-n。即只改变常数项 b 时，直线整体上下平移，平移量等于 b 的变化量。",
+        "citations": [
+          {
+            "quote": "\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          }
+        ],
+        "finding_id": "f_vertical_translation"
+      },
+      {
+        "claim": "k 是一次函数 y=kx+b 的斜率，k=tanθ（θ 为图象与 x 轴正方向夹角）；平面直角坐标系中两直线平行时斜率相等。因此 b 变化只让直线平行移动，斜率 k 保持不变（本题中 k=2）。",
+        "citations": [
+          {
+            "quote": "\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          },
+          {
+            "quote": "\nk<0，b>0：经过第一、二、四象限\n\nk<0，b<0：经过第二、三、四象限\n\nk<0，b=0：经过第二、四象限（经过原点）\n\n结论：k<0时，图象从左到右下降，y随x的增大而减小。\n\n7、将函数向上平移n格，函数解析式为y=kx+b+n，将函数向下平移n格，函数解析式为y=kx+b-n，将函数向左平移n格，函数解析式为y=k（x+n）+b，将函数向右平移n格，函数解析式为y=k（x-n）+b。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          }
+        ],
+        "finding_id": "f_slope_unchanged"
+      },
+      {
+        "claim": "教材（Illustrative Mathematics 八年级）用“同一坐标系中把原直线所有点向上平移”的方式得到新直线，并指出 y=mx+b 中 m 是变化率（即斜率），b 是初始量（即竖直截距）；竖直截距是直线与竖直轴相交的点。这支持“同一坐标系中对比 b=0、2、-2 三条平行直线”的动画设计。",
+        "citations": [
+          {
+            "quote": "We can graph this storm on the same axes as the first storm by taking all the points on the graph of the first storm and translating them up 5 inches.\n\nTwo hours after each storm begins, 1 inch of new snow has fallen. ",
+            "source_id": "ev_c2df18f0d2342af2e38faa6c"
+          },
+          {
+            "quote": "The equation representing the storm, $y = \\frac{1}{2} ⁢ x + 5$, is of the form $y = m ⁢ x + b$, where $m$ is the rate of change, also the slope of the graph, and $b$ is the initial amount, also the vertical intercept of the graph.\n",
+            "source_id": "ev_c2df18f0d2342af2e38faa6c"
+          },
+          {
+            "quote": "The vertical intercept is the point where the graph of a line crosses the vertical axis.\n\nThe vertical intercept of this line is $\\left(\\right. 0 , - 6 \\left.\\right)$ or just -6.\n",
+            "source_id": "ev_c2df18f0d2342af2e38faa6c"
+          }
+        ],
+        "finding_id": "f_translation_same_slope"
+      },
+      {
+        "claim": "斜率相同、截距不同的两条直线互相平行、永不相交，例如 y=2x+1 与 y=2x−4；斜率相同的直线以相同速率上升，竖直方向距离始终不变。这为“b 变化时三条直线平行、斜率始终为 2”提供直观解释。",
+        "citations": [
+          {
+            "quote": "\n8、k为一次函数y=kx+b的 斜率，k=tanθ（角θ为一次函数图像与x轴正方向夹角，θ≠90°）。\n\n9、特殊位置关系\n\n当[平面直角坐标系](https://baike.baidu.com/item/%E5%B9%B3%E9%9D%A2%E7%9B%B4%E8%A7%92%E5%9D%90%E6%A0%87%E7%B3%BB/0?fromModule=lemma_inlink)中两直线平行时，其函数斜率相等。\n",
+            "source_id": "ev_e37765b613e54e7b7f7f085b"
+          }
+        ],
+        "finding_id": "f_parallel_lines"
+      }
+    ],
+    "overview": "已取得中文百科与八年级教材两处正文依据，可支持“y=2x+b 中 b 决定与 y 轴交点 (0,b)、改变 b 使直线整体上下平移、斜率 k 不变”这一唯一知识点的讲授与两道检查练习设计。动画、中文语音、讲义与保存课程属于教学呈现与产品功能要求，由路径节点中的活动安排落实，不作为知识证据。",
+    "limitations": [
+      "来源为中文百科词条与八年级教材节选，未使用用户上传材料；未覆盖 b 对 x 轴交点、象限等其他性质，符合用户“不扩展到其他章节”的排除要求。",
+      "动画、中文语音、讲义与保存课程属于后续资源制作与产品功能，本路径只规划活动与自测，不包含已生成的视频或讲义文件。",
+      "3 分钟总时长内只做直觉层面的理解，不承诺学生能独立完成复杂平移计算。"
+    ],
+    "unresolved_gaps": []
+  },
+  "plan": {
+    "nodes": [
+      {
+        "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+        "minutes": 3,
+        "node_key": "node_intercept_shift",
+        "objectives": [
+          "能说出 y=2x+b 中当 x=0 时 y=b，因此直线与 y 轴交点坐标为 (0,b)；并写出 b=0、b=2、b=-2 时交点分别是 (0,0)、(0,2)、(0,-2)",
+          "能解释 b 增大时直线整体向上平移、b 减小时整体向下平移，平移的格数等于 b 的变化量（如从 b=0 到 b=2 上移 2 格，从 b=0 到 b=-2 下移 2 格）",
+          "能说明 b 变化只改变常数项、不改变斜率，所以三条直线互相平行、斜率始终为 2",
+          "能完成两道检查练习：由 b 写出 y 轴交点坐标；判断 b 变化后直线位置如何变化、斜率是否改变"
+        ],
+        "self_check": "不看讲义回答：y=2x+b 与 y 轴交点坐标是什么？b=0、2、-2 时分别是哪三点？从 b=0 到 b=-2 直线向哪个方向移动几格？三条直线的斜率各是多少、为什么平行？再核对两道练习：第 1 题答案 (0,5) 与 (0,-3)，y=2x+5 在上方；第 2 题直线向下平移 2 格，斜率仍为 2，三条线互相平行。",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b",
+          "ev_c2df18f0d2342af2e38faa6c"
+        ],
+        "finding_ids": [
+          "f_yintercept_is_b",
+          "f_vertical_translation",
+          "f_slope_unchanged",
+          "f_translation_same_slope",
+          "f_parallel_lines"
+        ],
+        "requirement_ids": [
+          "req_intercept_shift",
+          "req_animation_compare",
+          "req_yaxis_intersection",
+          "req_slope_constant",
+          "req_animation_voice",
+          "req_handout",
+          "req_two_exercises",
+          "req_save_course"
+        ],
+        "prerequisite_keys": [],
+        "learning_activities": [
+          "【动画讲解 60—90 秒，配中文语音】同一坐标系中先画出 y=2x（即 b=0），高亮它与 y 轴的交点 (0,0)；语音提示“x=0 时 y=b，所以交点就是 (0,b)”。",
+          "【动画讲解续】保持斜率不变，把整条直线向上平移 2 格得到 y=2x+2，交点变为 (0,2)；再向下平移 4 格得到 y=2x−2，交点变为 (0,-2)。三条直线同时留在画面上，用箭头标出竖直平移距离。",
+          "【动画讲解收尾】语音提问“三条线为什么一样陡？”引导观察：每次 x 增加 1，y 都增加 2，斜率始终是 2；b 只决定起点高度，所以三条线平行。",
+          "【简短讲义】整理一页要点：① x=0 时 y=b，与 y 轴交点为 (0,b)；② b 变大上移、变小下移，平移格数=|b 的变化量|；③ 斜率 k 不变（本题 k=2），直线平行。",
+          "【两道检查练习】第 1 题：写出 y=2x+5 与 y=2x−3 与 y 轴的交点坐标，并说明哪条在上方。第 2 题：把 y=2x 改为 y=2x−2，直线怎样移动？斜率是多少？三条线 y=2x、y=2x+2、y=2x−2 是否平行？",
+          "【保存课程】把动画、讲义与两道练习作为一个完整课程保存，便于反复观看与复习。"
+        ]
+      }
+    ],
+    "title": "一次函数 y=2x+b：截距 b 如何让直线上下平移（3 分钟微课）",
+    "summary": "面向会读平面直角坐标图、但还不理解 b 作用的初中生，用约 3 分钟只讲一个知识点：在 y=2x+b 中，b 决定直线与 y 轴的交点 (0,b)，改变 b 会让整条直线上下平移，而斜率始终是 2。节点内依次安排：60—90 秒中文语音动画（同一坐标系中依次呈现 b=0、b=2、b=-2 三条平行直线）、一页简短讲义、两道检查练习，最后整体保存课程以便反复观看。不涉及神经网络或其他章节。",
+    "limitations": [
+      "来源为中文百科词条与八年级教材节选，未使用用户上传材料；未覆盖 b 对 x 轴交点、象限等其他性质，符合用户“不扩展到其他章节”的排除要求。",
+      "动画、中文语音、讲义与保存课程属于后续资源制作与产品功能，本路径只规划活动与自测，不包含已生成的视频或讲义文件。",
+      "3 分钟总时长内只做直觉层面的理解，不承诺学生能独立完成复杂平移计算。"
+    ]
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "exerciseId": "pbl_18fa019c570001cf47cd40a1dc418073",
+  "state": "failed",
+  "createdUtc": "2026-10-16T06:39:32.449956+00:00",
+  "failedUtc": "2026-10-16T06:40:49.645642+00:00",
+  "splitWorkflowActive": true,
+  "completedSteps": [
+    "添加书籍并显示列表",
+    "空白书名提示"
+  ],
+  "failedStep": "toggle-and-delete",
+  "repairs": {
+    "toggle-and-delete": 3
+  },
+  "lastError": [
+    "Extra data: line 1 column 4517 (char 4516)"
+  ],
+  "rawLength": 4517,
+  "firstObjectEnds": 4516,
+  "trailingData": "}",
+  "firstObjectSchemaValid": true,
+  "decodedFiles": {
+    "/src/App.jsx": {
+      "actualNewlines": 75,
+      "literalBackslashN": 0,
+      "prefix": "\"import React, { useState } from 'react';\\nimport './styles.css';\\n\\nexport default function App() {\\n  const [titl\""
+    },
+    "/src/styles.css": {
+      "actualNewlines": 33,
+      "literalBackslashN": 0,
+      "prefix": "'body { margin: 0; font-family: sans-serif; }\\nmain { padding: 24px; }\\n\\n.app { max-width: 480px; }\\n\\n.add-row { d'"
+    }
+  },
+  "replayAfterRemovingTrailingBraceOnly": {
+    "passed": false,
+    "results": [
+      {
+        "caseId": "add-book-appears",
+        "status": "failed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"活着\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 检查 \"book-item\" 的可见状态\n   实际：true\n× 5. 检查 \"book-item\" 的显示文字\n预期：\"活着未读\"\n实际：\"活着未读标记已读删除\""
+      },
+      {
+        "caseId": "add-book-clears-input",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"活着\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "empty-shows-hint",
+        "status": "passed",
+        "message": "✓ 1. 点击 \"add-button\"\n✓ 2. 检查 \"empty-hint\" 的可见状态\n   实际：true\n✓ 3. 检查 \"empty-hint\" 的显示文字\n   实际：\"请输入书名\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "empty-no-add",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：0\n✓ 4. 检查 \"empty-hint\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+      }
+    ],
+    "durationMs": 2676.235103
+  },
+  "productionTaskModified": false,
+  "note": "Only last rejected candidate is persisted; earlier attempts cannot be inferred from this final output."
+}

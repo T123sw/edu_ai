@@ -1,0 +1,52 @@
+[
+  {
+    "case": "shop_a",
+    "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+    "exerciseId": "pbl_6dceeafafe176e167b8901ec971c6a3d",
+    "generationPassed": true,
+    "seconds": 392.79,
+    "idempotentCreate": true,
+    "stepCount": 5,
+    "checkCount": 15
+  },
+  {
+    "case": "shop_b",
+    "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+    "exerciseId": "pbl_805d41af6b4b874116a055337cb6385a",
+    "generationPassed": true,
+    "seconds": 192.0,
+    "idempotentCreate": true,
+    "stepCount": 4,
+    "checkCount": 17
+  },
+  {
+    "case": "form",
+    "topic": "用 React 做一个本地活动报名表，只做一个完整交互步骤。页面有姓名输入框和报名按钮。空字符串或只有空格的姓名提交后显示“请输入姓名”；合法姓名提交后显示“报名成功：”加去掉首尾空格的姓名。修改姓名时清除旧的成功或错误提示。不要联网、持久化、手机号或其他字段。",
+    "exerciseId": "pbl_c590ff382a66f9b109569d25d037b3a5",
+    "generationPassed": true,
+    "seconds": 38.14,
+    "idempotentCreate": true,
+    "stepCount": 1,
+    "checkCount": 6
+  },
+  {
+    "case": "layout",
+    "topic": "用 React 做一个个人作品展示页，只需要一个页面布局步骤。页面有标题“我的作品”、简介“记录我的学习成果”，下方展示三件作品，每件含标题和一句介绍。作品标题分别是“天气卡片”“读书笔记”“像素画”。桌面标题在简介上方，作品区域在简介下方；手机页面不横向溢出。无需按钮、输入框或交互功能，不要图片或外部资源。",
+    "exerciseId": "pbl_6ee9a1e8083fc25eafecf674ded43018",
+    "generationPassed": true,
+    "seconds": 257.95,
+    "idempotentCreate": true,
+    "stepCount": 1,
+    "checkCount": 6
+  },
+  {
+    "case": "score",
+    "topic": "用 React 做一个双人比赛记分牌。双方名称固定为“红队”和“蓝队”，分数初始都为 0。每队各有加 1 分、减 1 分按钮，分数不能低于 0；操作一队不影响另一队。另有一个“重置比赛”按钮清空双方分数。页面显示当前状态：分数相同时“平局”，否则显示“红队领先”或“蓝队领先”。我会 JSX，请按功能增量拆分步骤，先完成页面外壳再加入交互。不要计时、后端或持久化。",
+    "exerciseId": "pbl_f5e2a3d4281bc5df412ee29eef590dfd",
+    "generationPassed": true,
+    "seconds": 187.68,
+    "idempotentCreate": true,
+    "stepCount": 6,
+    "checkCount": 13
+  }
+]

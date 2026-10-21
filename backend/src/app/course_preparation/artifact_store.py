@@ -79,11 +79,19 @@ class ArtifactStore:
         prep=session.scalar(select(Prep).where(Prep.preparation_id==row.preparation_id).with_for_update().execution_options(populate_existing=True))
         attempt=session.get(Attempt,(prep.preparation_id,prep.current_attempt_no))
         budget=session.get(Budget,prep.preparation_id)
+        if self.repository.retry_only and not budget.limits.get('retry_only'):
+            budget.limits = {**budget.limits, 'retry_only': True}
         if attempt.status not in ACTIVE: raise StaleLease('PARENT_NOT_ACTIVE')
-        if aware(budget.deadline)<=self.repository.clock(): raise BudgetExceeded('DEADLINE_EXCEEDED')
+        from .runtime_contracts import budget_deadline
+        if budget_deadline(budget) and budget_deadline(budget)<=self.repository.clock(): raise BudgetExceeded('DEADLINE_EXCEEDED')
+        run = session.get(PreparationExecution, (prep.preparation_id, attempt.attempt_no))
+        superseded = {artifact_id for retry in (run.checkpoint or {}).get('manual_retry_resources', [])
+                      for artifact_id in retry['superseded_artifact_ids']}
+        if row.artifact_id in superseded:
+            raise StaleLease('RESOURCE_SUPERSEDED_BY_MANUAL_RETRY')
         user=session.get(User,prep.owner_user_id)
         if user is None or user.is_disabled: raise PermissionError('OWNER_UNAVAILABLE')
-        self.repository.authorizer.authorize(prep.owner_user_id,PreparationRequest.model_validate(prep.request_payload))
+        self.repository._authorize(session,prep.owner_user_id,PreparationRequest.model_validate(prep.request_payload))
         return prep,attempt,budget
 
     def claim(self,owner,artifact_id):
@@ -110,6 +118,11 @@ class ArtifactStore:
             raise StaleLease('STALE_ARTIFACT_LEASE')
         row.lease_until=self.repository.clock()+timedelta(seconds=180)
         return row,*parent
+
+    def heartbeat(self, context):
+        """Renew a live generation lease, retaining parent and worker fencing."""
+        with Session(self.engine) as session, session.begin():
+            self._locked(session, context)
 
     def begin_action(self,context,key,kind,payload,cost):
         with Session(self.engine) as session,session.begin():
@@ -210,4 +223,50 @@ class ArtifactStore:
             candidate.update(recovery_attempt=number,recovery_scope=scope,recovery_key=recovery_key,recovery_receipt=receipt)
             row.content=envelope;row.content_digest=digest(envelope)
             row.status='pending';row.error_code=None;row.lease_token=None;row.lease_until=None
+            return receipt
+
+    def resume_classroom_delivery(self, context, artifact_id):
+        """Adopt a saved native candidate after the explicit review-policy change.
+
+        This is not a model-review pass or a budget reset. Validate the old
+        attempt's ownership/digests, then fence the new delivery job to the
+        currently authorized parent. The ordinary worker still validates the
+        resource and generates its real locator metadata before saving it.
+        """
+        from app.chat.harness.classroom_policy import (CLASSROOM_REVIEW_POLICY,
+            can_resume_classroom_without_review)
+        from .resource_checkpoint import ArtifactResourceCheckpoint
+        key = digest([CLASSROOM_REVIEW_POLICY, context.preparation_id, artifact_id, context.attempt_no])
+        with Session(self.engine) as session, session.begin():
+            row = session.get(Artifact, artifact_id)
+            if row is None or row.owner_user_id != context.owner_user_id or row.preparation_id != context.preparation_id:
+                raise PermissionError('ARTIFACT_UNAVAILABLE')
+            self._parent(session, row)
+            prep, attempt, _, _ = self.repository._locked(session, context)
+            row = session.scalar(select(Artifact).where(Artifact.artifact_id == artifact_id)
+                .with_for_update().execution_options(populate_existing=True))
+            envelope = deepcopy(row.content or {})
+            if digest(envelope) != row.content_digest:
+                raise ValueError('ARTIFACT_CONTENT_MISMATCH')
+            completed = envelope.get('generation_state', {}).get('preparation_recovery', {})
+            if row.status == 'draft' and completed.get('recovery_key') == key:
+                return completed['recovery_receipt']
+            candidate = envelope.get('_review_candidate') or {}
+            old_attempt = session.get(Attempt, (prep.preparation_id, candidate.get('parent_attempt_no')))
+            if old_attempt is None or old_attempt.attempt_no > attempt.attempt_no:
+                raise ValueError('REVIEW_CANDIDATE_STALE')
+            ArtifactResourceCheckpoint._validate(candidate, row, prep, old_attempt)
+            if candidate.get('recovery_key') == key:
+                return candidate['recovery_receipt']
+            if row.status != 'failed' or not can_resume_classroom_without_review({**self.view(row), 'content': envelope}):
+                raise ValueError('CLASSROOM_POLICY_RECOVERY_NOT_APPLICABLE')
+            if old_attempt.attempt_no != attempt.attempt_no and old_attempt.status not in ('failed', 'canceled'):
+                raise ValueError('REVIEW_CANDIDATE_STALE')
+            receipt = {'artifact_id': artifact_id, 'job_id': f'generate_{artifact_id}_policy_{key[:20]}',
+                'retry_scope': 'review', 'policy': CLASSROOM_REVIEW_POLICY}
+            candidate.update(parent_attempt_no=attempt.attempt_no, recovery_key=key,
+                recovery_receipt=receipt, recovery_scope='review')
+            row.content = envelope
+            row.content_digest = digest(envelope)
+            row.status, row.error_code, row.lease_token, row.lease_until = 'pending', None, None, None
             return receipt

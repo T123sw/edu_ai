@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "runtime": {
+    "template": "vanilla",
+    "entry": "/index.js",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  },
+  "steps": [
+    {
+      "id": "step-convert",
+      "checks": 5,
+      "native": 1
+    },
+    {
+      "id": "step-reset",
+      "checks": 8,
+      "native": 1
+    }
+  ],
+  "runs": 6,
+  "files": [
+    "/index.html",
+    "/styles.css",
+    "/index.js",
+    "/convert.js"
+  ]
+}

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import type {
-  PagePlaybackCheckpoint,
+  InterruptionCheckpoint,
   PagePlaybackSnapshot,
-} from '../../openmaic/pagePlaybackController';
+} from '../../classroom/playbackTypes';
 import {
   fetchClassroomQaAudioBlobUrl,
   getClassroomQaSession,
@@ -29,8 +29,8 @@ export interface AnswerAudioHandle {
 }
 
 export type InterruptionPlayback = {
-  interrupt(): PagePlaybackCheckpoint | null;
-  resumeInterrupted(checkpoint: PagePlaybackCheckpoint): boolean;
+  interrupt(): InterruptionCheckpoint | null;
+  resumeInterrupted(checkpoint: InterruptionCheckpoint): boolean;
   snapshot(): PagePlaybackSnapshot;
 };
 
@@ -70,7 +70,7 @@ export class ClassroomInterruptionCoordinator
   readonly supportsPlaybackInterruption = true;
   private currentState: ClassroomQaState = { ...INITIAL_CLASSROOM_QA_STATE };
   private readonly listeners = new Set<() => void>();
-  private checkpoint: PagePlaybackCheckpoint | null = null;
+  private checkpoint: InterruptionCheckpoint | null = null;
   private ownership: ActiveOwnership | null = null;
   private answerAudio: AnswerAudioHandle | null = null;
   private objectUrl: string | null = null;
@@ -79,6 +79,9 @@ export class ClassroomInterruptionCoordinator
   private disposed = false;
 
   constructor(private readonly dependencies: InterruptionDependencies) {}
+
+  /** React StrictMode restarts effects on the same memoized coordinator. */
+  activate(): void { this.disposed = false; }
 
   get state(): ClassroomQaState {
     return this.currentState;
@@ -322,8 +325,12 @@ export class ClassroomInterruptionCoordinator
 }
 
 function toApiCheckpoint(
-  checkpoint: PagePlaybackCheckpoint,
+  checkpoint: InterruptionCheckpoint,
 ): ClassroomQaCheckpoint {
+  if ("kind" in checkpoint) {
+    const { kind, seconds, segment_id, content_hash } = checkpoint;
+    return { kind, seconds, segment_id, content_hash };
+  }
   return {
     scene_id: checkpoint.sceneId,
     scene_index: checkpoint.sceneIndex,
@@ -379,6 +386,7 @@ export function useClassroomInterruption({
     coordinator.getSnapshot,
   );
   useEffect(() => {
+    coordinator.activate();
     if (enabled) void coordinator.loadSession();
     return () => coordinator.dispose();
   }, [coordinator, enabled]);

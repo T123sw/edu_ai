@@ -1,0 +1,86 @@
+{
+  "root": {
+    "id": "root",
+    "title": "Python 变量绑定与列表浅拷贝",
+    "summary": null,
+    "children": [
+      {
+        "id": "root-1",
+        "title": "变量绑定",
+        "summary": "Python 变量绑定对象；变量名关联到对象，而不是把对象内容直接复制到变量里。",
+        "children": [
+          {
+            "id": "root-1-1",
+            "title": "绑定对象",
+            "summary": "变量名与对象建立引用关系。",
+            "children": []
+          },
+          {
+            "id": "root-1-2",
+            "title": "整数不可变",
+            "summary": "整数对象不可变；重新赋值会改变变量绑定，而不是修改原整数对象。",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "root-2",
+        "title": "列表别名",
+        "summary": "a=[1,2]; b=a 时，a 与 b 引用同一列表。",
+        "children": [
+          {
+            "id": "root-2-1",
+            "title": "引用同一列表",
+            "summary": "b=a 不会创建新列表，a 和 b 指向同一列表对象。",
+            "children": []
+          },
+          {
+            "id": "root-2-2",
+            "title": "修改相互影响",
+            "summary": "b.append(3) 也改变 a 所见内容。",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "root-3",
+        "title": "浅拷贝",
+        "summary": "b=a.copy() 创建浅拷贝；它不同于 b=a 的同一列表引用。",
+        "children": [
+          {
+            "id": "root-3-1",
+            "title": "copy()",
+            "summary": "使用 b=a.copy() 创建浅拷贝。",
+            "children": []
+          },
+          {
+            "id": "root-3-2",
+            "title": "嵌套列表仍共享",
+            "summary": "浅拷贝后，嵌套列表仍共享。",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "root-4",
+        "title": "对比与判断",
+        "summary": "判断别名与重新赋值的区别，并对比 b=a 与 b=a.copy()。",
+        "children": [
+          {
+            "id": "root-4-1",
+            "title": "别名 vs 浅拷贝",
+            "summary": "b=a 时引用同一列表；b=a.copy() 时创建浅拷贝，嵌套列表仍共享。",
+            "children": []
+          },
+          {
+            "id": "root-4-2",
+            "title": "别名 vs 重新赋值",
+            "summary": "需要判断别名操作与重新赋值的区别。",
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "max_depth": 3
+}

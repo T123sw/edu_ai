@@ -1,0 +1,224 @@
+{
+  "title": "编码器结构：两子层与 Add&Norm",
+  "content": {
+    "title": "编码器结构：两子层与 Add&Norm",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_0190d63f52071cd7b9165ac310356d0f",
+      "entry": "index.html",
+      "digest": "182f7151012889f05b0303623f3a3d6126f037ce934808bf66b0669e3ac940e2"
+    },
+    "timeline": {
+      "duration": 296.766667,
+      "segments": [
+        {
+          "id": "f01-open",
+          "end": 12.856,
+          "start": 0.0,
+          "title": "开场：编码器层的总览",
+          "events": [],
+          "narration": "这一节，我们拆开 Transformer 的编码器，看清里面的一个层。先把结论放在前面：一个编码器层，等于两个子层；每个子层后面，都跟着一次 Add and Norm。",
+          "audio_path": "assets/audio/390e815392829f6acb4532cb38074e52a4e65fdbdecdd2e02c9796c85cd03d16.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "标题卡：一个编码器层 = 两子层 + 两次 Add&Norm"
+        },
+        {
+          "id": "f02-stack",
+          "end": 36.272,
+          "start": 12.856,
+          "title": "编码器 = N 个相同的层堆叠",
+          "events": [],
+          "narration": "先看它在整体里的位置。编码器不是一层，而是 N 个完全相同的编码器层叠起来的。论文的原图只画了一个 EncoderLayer，旁边写了 N x，这个标注表示堆叠的次数，论文里 N 等于六。因为每一层结构相同、维度相同，所以我们可以只讲一层，再把它重复六次。",
+          "audio_path": "assets/audio/6faa79aced7236af89563920a387ca02b80e8db929bf87d07fe80981559cbe53.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "六层相同的 EncoderLayer 叠成塔，标 N×、N=6，其中一层被抽出单独讲"
+        },
+        {
+          "id": "f03-input",
+          "end": 57.528,
+          "start": 36.272,
+          "title": "输入：词向量 + 位置编码",
+          "events": [],
+          "narration": "每一层的输入，是词向量加上位置编码，也就是输入序列经过嵌入层之后的结果。它的张量形状有三个轴：批大小、序列长度、嵌入维度。位置编码的作用是补上词序信息，这在先修节点里已经讲过，这里我们直接使用它的结果。",
+          "audio_path": "assets/audio/59fd9c4e031728a038d9ea8d560b8a1e077840e1295afaf829cab7059cfefa98.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "词嵌入与位置编码相加，得到三维张量 [B, L, d]"
+        },
+        {
+          "id": "f04-mha",
+          "end": 91.744,
+          "start": 57.528,
+          "title": "子层一：多头自注意力（跨位置）",
+          "events": [],
+          "narration": "第一个子层，是多头自注意力。它只做一件事：让序列里每一个位置，去读取其他所有位置的信息。所以注意力是跨位置的信息交换，每个词的表示，都会按照相关性把整句话的内容融合进来。查询、键、值怎么算，属于先修内容，这里只记住它的作用：输出和输入一样长，但每个位置已经带上了上下文。多头，指的是多组不同的投影参数，在多个子空间里各看一遍，再把结果拼起来。",
+          "audio_path": "assets/audio/8216b284ffcae399e0fd9de8ed8cf6adb63b68355b79d70e7d6e8070ff4b132f.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "4 个位置互相读取信息，输出等长且已带上下文"
+        },
+        {
+          "id": "f05-residual",
+          "end": 120.848,
+          "start": 91.744,
+          "title": "Add&Norm 第一步：残差连接",
+          "events": [],
+          "narration": "注意力之后，第一个 Add and Norm 就上场了。它由两步组成。先看第一步，加法，也就是残差连接。做法很直接：把子层刚刚算出来的结果，和子层的原始输入相加，再把和送进下一步。这一加，等于给梯度留了一条直通的路，反向传播的时候，梯度可以顺着这条旁路直接流回输入端，层数很深，也不至于在层层相乘里消失。",
+          "audio_path": "assets/audio/7991ee3333e76db1d97488307f25c48269858845d87a0230618e05aab9519bba.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "子层输出与原始输入相加，琥珀旁路让梯度直通"
+        },
+        {
+          "id": "f06-norm",
+          "end": 145.05599999999998,
+          "start": 120.848,
+          "title": "Add&Norm 第二步：层归一化",
+          "events": [],
+          "narration": "第二步是归一化，也就是层归一化。它不看别的样本，也不看别的层，只对每个位置自己的那一串特征做标准化：均值压到零，方差压到一，数值范围就稳定下来了，后面的层也更容易训练。把这两步合起来写成一行的写法，就叫 Add and Norm，读法是先相加，再归一化。",
+          "audio_path": "assets/audio/d74cd31d688a580f7e64d2733fc58069ac0cda724ea5b5f44ea3fedbdf825b78.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "逐位置标准化到均值 0、方差 1，两半合成 Add&Norm"
+        },
+        {
+          "id": "f07-ffn",
+          "end": 175.36,
+          "start": 145.056,
+          "title": "子层二：逐位置前馈网络",
+          "events": [],
+          "narration": "第二个子层，是逐位置的前馈网络。结构很简单：两层线性变换，中间夹一个 ReLU 激活。第一层把维度放大，第二层再降回来。关键在“逐位置”这三个字：每个位置单独过一遍同样的小网络，位置之间不发生任何交互。所以两个子层的分工很清楚：注意力负责跨位置交换信息，前馈网络负责在单个位置上做非线性变换，把特征进一步加工。",
+          "audio_path": "assets/audio/7016744aae6e9cdf4b3204002d15866dc2d1a9f7d617328466046b71b22750c2.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "每个位置各过一层同样的小网络，位置之间不交互"
+        },
+        {
+          "id": "f08-contrast",
+          "end": 205.088,
+          "start": 175.36,
+          "title": "对比：跨位置 vs 逐位置",
+          "events": [],
+          "narration": "现在把两个子层放在一起比一比。多头自注意力是跨位置的：算某一个位置的时候，要用到整句话所有位置的信息，位置之间充分交换。前馈网络是逐位置的：每个位置各过各的小网络，参数相同，互不相干。一个负责把上下文混进来，一个负责把每个位置的特征加工得更深，两件事合在一起，才构成一个完整的编码器层。",
+          "audio_path": "assets/audio/6ff1f054b95f2378facddaae3cb614a37754a6d169f35c48ac7e12bd59fadd63.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左右两块对照：注意力全连通，前馈网络各自独立"
+        },
+        {
+          "id": "f09-flow",
+          "end": 224.976,
+          "start": 205.088,
+          "title": "第二次 Add&Norm 与整层数据流",
+          "events": [],
+          "narration": "前馈网络之后，是第二次 Add and Norm，做法和第一次完全一样：先加残差，再做层归一化。到这里，一个编码器层就走完了。把顺序串一遍：输入加位置编码，多头自注意力，Add and Norm，前馈网络，Add and Norm，输出。",
+          "audio_path": "assets/audio/ab00b67b3d9d62f1e268438744fc1ed044b3555ce441ed67826baa1d0879a233.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "前馈之后再走一次 Add&Norm，整层五个环节串成一条线"
+        },
+        {
+          "id": "f10-stackable",
+          "end": 255.352,
+          "start": 224.976,
+          "title": "为什么能堆叠 N 层",
+          "events": [],
+          "narration": "为什么这些层可以一层一层往上叠？因为层里的两个操作都保持形状不变。残差相加，要求两个张量形状一致；层归一化，是逐个位置、逐个特征做归一化，不改变维度。于是每一层的输出，都是批大小、序列长度、嵌入维度，和输入完全相同。形状不变，下一层就能直接接上，叠六层也不用改任何接口。",
+          "audio_path": "assets/audio/5a60a8e088765e03f3244a588ab36189d014b444d2081ba49b990ffed491a204.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "每层进出形状一致，所以可以直接叠六层"
+        },
+        {
+          "id": "f11-memory",
+          "end": 282.368,
+          "start": 255.352,
+          "title": "输出：memory 交给解码器",
+          "events": [],
+          "narration": "整个编码器对输入是并行处理的：所有位置同时进入，只做一次前向传播，不像循环网络那样一步一步往后推。经过六层之后，最后一个编码器层的输出，就是编码器的输出。它是对原始输入的高阶抽象表示，在代码里通常叫做 memory。这个 memory 会被送进解码器堆栈的每一个解码器层，作为交叉注意力里的键和值。",
+          "audio_path": "assets/audio/e5ba3cd4c98617a17614c485a804e1a030ba5e77d8b495b836e62eaa6cde33bf.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "并行一次前向，末层输出 memory，作为 K/V 送入每个解码器层"
+        },
+        {
+          "id": "f12-summary",
+          "end": 296.736,
+          "start": 282.368,
+          "title": "总结",
+          "events": [],
+          "narration": "最后收一句。一个编码器层，两个子层，两次 Add and Norm；残差让信息直通，归一化让数值稳定；形状不变，所以能叠 N 层；最后输出 memory，交给解码器。",
+          "audio_path": "assets/audio/36d3b4c9bb48f1c9e6d37dd19b3a6dc540c6ec1918c8937b5ed0d00b7af5dbb5.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "四句收束：两子层、两处 Add&Norm、可叠 N 层、输出 memory"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 296.766667
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.946111116666667
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "c37a3a207238a81f6e822dbf221c5858a9645ee194b9f41708162edcee8387a6",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 296.766667
+      },
+      "content_digest": "e7438b0e9eb4e7e5b9acc3b963814c30e0b14bb68ad6f9372bf162e2bad65ab7",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.946111116666667
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "257271227033907490f1248040d8c27476e6f71758f167e35d49110a6a7961bf"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "2755f3436f6a80dda17110f76f6d91175031613b0a1bfc7fb912f04a121e50d9",
+      "preparation_sha256": "9fac4187d6858deefe189193ecf83eeb6a1f284cb191efaa93c0d09a1b4d75f8"
+    }
+  }
+}

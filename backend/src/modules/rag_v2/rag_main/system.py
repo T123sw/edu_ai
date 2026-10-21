@@ -139,7 +139,7 @@ def _retrieved_display_content(doc: Dict[str, Any]) -> str:
 
 MINERU_AVAILABLE = _check_mineru_available()
 if MINERU_AVAILABLE:
-    print("[MinerU] 已启用 MinerU Cloud（直连远程 API）用于 PDF 解析")
+    print("[MinerU] 已启用配置的解析服务用于 PDF 解析")
 else:
     print("[WARNING] 未配置 MinerU Cloud API key，PDF 导入将直接失败")
 

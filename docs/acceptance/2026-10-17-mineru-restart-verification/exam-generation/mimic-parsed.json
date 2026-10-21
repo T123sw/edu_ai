@@ -1,0 +1,73 @@
+[
+  {
+    "document_id": "paper",
+    "role": "template",
+    "filename": "sample-paper.pdf",
+    "source_hash": "9b46f16642aadca0716376cfa9a6eb429b25de98fdcc0baa29267cd07dd52ba7",
+    "parser": "mineru-local",
+    "content": "Sorting practice paper\n\n1. Which statement about quick sort is correct?\n\nA. It is always stable. B. It partitions around a pivot.\n\nC. It always takes linear time. D. It needs a sorted input.\n\n2. Fill in the blank: Merge sort has worst-case time complexity",
+    "content_list": [
+      {
+        "type": "text",
+        "bbox": [
+          0.047,
+          0.039,
+          0.219,
+          0.054
+        ],
+        "content": "Sorting practice paper",
+        "page_idx": 0,
+        "text": "Sorting practice paper"
+      },
+      {
+        "type": "text",
+        "bbox": [
+          0.047,
+          0.068,
+          0.403,
+          0.082
+        ],
+        "content": "1. Which statement about quick sort is correct?",
+        "page_idx": 0,
+        "text": "1. Which statement about quick sort is correct?"
+      },
+      {
+        "type": "text",
+        "bbox": [
+          0.047,
+          0.096,
+          0.433,
+          0.11
+        ],
+        "content": "A. It is always stable. B. It partitions around a pivot.",
+        "page_idx": 0,
+        "text": "A. It is always stable. B. It partitions around a pivot."
+      },
+      {
+        "type": "text",
+        "bbox": [
+          0.047,
+          0.124,
+          0.468,
+          0.139
+        ],
+        "content": "C. It always takes linear time. D. It needs a sorted input.",
+        "page_idx": 0,
+        "text": "C. It always takes linear time. D. It needs a sorted input."
+      },
+      {
+        "type": "text",
+        "bbox": [
+          0.046,
+          0.153,
+          0.576,
+          0.168
+        ],
+        "content": "2. Fill in the blank: Merge sort has worst-case time complexity",
+        "page_idx": 0,
+        "text": "2. Fill in the blank: Merge sort has worst-case time complexity"
+      }
+    ],
+    "images": {}
+  }
+]

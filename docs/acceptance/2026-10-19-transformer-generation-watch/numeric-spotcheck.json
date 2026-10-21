@@ -1,0 +1,28 @@
+{
+  "scaled_first_row": [
+    0.4011120926797859,
+    0.1977758146404282,
+    0.4011120926797859
+  ],
+  "scaled_third_row": [
+    0.2482550782577231,
+    0.2482550782577231,
+    0.5034898434845538
+  ],
+  "unscaled_first_row": [
+    0.4223187982515182,
+    0.15536240349696362,
+    0.4223187982515182
+  ],
+  "quiz_claimed_unscaled": [
+    0.422,
+    0.207,
+    0.371
+  ],
+  "unscaled_output_with_v_10_01_11": [
+    0.8446375965030364,
+    0.5776812017484818
+  ],
+  "finding": "n2 quiz q6 and q7 explanation use incorrect unscaled softmax weights; the principal scaled first-row answer is correct. Third-row rounding is also inconsistent: 0.503489 rounds to 0.503, not 0.504.",
+  "action": "observation only; no task or content changes"
+}

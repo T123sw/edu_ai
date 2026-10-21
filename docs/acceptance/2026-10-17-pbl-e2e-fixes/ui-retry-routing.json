@@ -1,0 +1,22 @@
+{
+  "exerciseId": "pbl_0716a66b05a38397a54f708d3e384967",
+  "jobId": "pbl_0716a66b05a38397a54f708d3e384967",
+  "completedSteps": 3,
+  "repairs": {
+    "filter-and-stats": 3
+  },
+  "injectedFailure": true,
+  "retryJobId": "job_7a969b3d19b145e7",
+  "retryOfJobId": "job_2ba8e367261741f9",
+  "retryHttpStatus": 202,
+  "sameResourceAfterRetry": true,
+  "refreshFollowsRetry": true,
+  "ready": true,
+  "resourceLookup404": [],
+  "modelCalls": 2,
+  "phases": [
+    "repair_step",
+    "repair_checks"
+  ],
+  "preservedPreviousCheckCount": 10
+}

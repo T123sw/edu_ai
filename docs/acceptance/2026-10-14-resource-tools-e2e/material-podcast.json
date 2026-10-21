@@ -1,0 +1,68 @@
+{
+  "title": "Python 变量绑定与列表浅拷贝入门",
+  "source": {},
+  "status": "ready",
+  "content": {
+    "title": "Python 变量绑定与列表浅拷贝入门",
+    "summary": "面向入门学习者，用三分钟讲清 Python 变量绑定、列表别名、浅拷贝与嵌套共享的边界，并给出易错点与总结。",
+    "segments": [
+      {
+        "text": "你好，欢迎收听这期 Python 入门小课。今天我们要聊一个看似简单、但特别容易踩坑的话题：Python 里的变量绑定，以及列表的浅拷贝。很多初学者会以为变量像一个盒子，赋值就是把东西放进盒子里。但在 Python 里，更准确的理解是：变量是一个名字标签，它绑定到某个对象上。整数是不可变对象，所以当你写 a 等于 1，再把 b 等于 a，然后让 b 等于 2，a 仍然是 1。因为重新赋值只是把 b 这个标签贴到了另一个整数对象上，原来的 1 没有变。这个区别，是我们理解列表行为的基础。",
+        "title": "开场：变量不是盒子，而是名字标签"
+      },
+      {
+        "text": "现在看列表。列表是可变对象。假设我们写 a 等于方括号 1 逗号 2，然后写 b 等于 a。注意，这里没有创建新列表，而是让 b 和 a 这两个名字绑定到同一个列表对象上。所以 b 点 append 3，会直接修改这个共享的列表。此时你打印 a，会看到 1、2、3，因为 a 和 b 看到的是同一个对象。这就是别名。那什么时候不会互相影响呢？如果你写 b 等于 a 点 copy，或者 b 等于 a 的切片，就会创建一个新的列表对象。这个新列表里的元素，是从原列表复制过来的。此时 b 点 append 3，a 仍然是 1、2。这里的关键边界是：copy 只复制最外层，所以叫浅拷贝。如果列表里嵌套了另一个列表，那么浅拷贝后，外层列表是新的，但内层列表仍然被两个外层列表共享。",
+        "title": "原理：列表别名与重新赋值"
+      },
+      {
+        "text": "我们用一个具体例子走一遍。假设 a 等于方括号，里面是方括号 1 逗号 2，再逗号 3。也就是说，a 的第一个元素是一个内层列表。现在 b 等于 a 点 copy。这时 b 是一个新的外层列表，但 b 的第一个元素和 a 的第一个元素，指向同一个内层列表。如果你写 b 的方括号 0 点 append 99，那么 a 的方括号 0 也会看到 99。因为内层列表没有被复制。反过来，如果你写 b 点 append 4，这只影响 b 的外层列表，a 不会多出 4。所以判断影响范围时，要分两层看：外层列表是否重新创建，内层对象是否被共享。浅拷贝只解决外层，不解决内层。",
+        "title": "例子：浅拷贝与嵌套共享"
+      },
+      {
+        "text": "第一个易错点，是把 b 等于 a 当成复制。它不是复制，而是别名。第二个易错点，是以为 copy 能彻底隔离。对于嵌套列表，copy 之后内层仍然共享。第三个易错点，是混淆重新赋值和原地修改。b 等于一个新列表，只是让 b 指向新对象，不影响 a；但 b 点 append 或 b 方括号 0 等于某值，是原地修改，会影响所有指向同一对象的变量。那怎么判断呢？你可以用 id 函数看两个变量是否指向同一个对象，也可以用 is 运算符。如果 a is b 为真，说明它们是同一个对象。如果为假，说明至少外层不是同一个对象。但注意，is 为假不代表内部元素不共享。对于嵌套结构，要逐层检查。",
+        "title": "易错点：别名、重新赋值与判断方法"
+      },
+      {
+        "text": "最后总结一下。第一，Python 变量是名字绑定对象，不是盒子。第二，b 等于 a 让两个名字指向同一个列表，修改会互相可见。第三，b 等于 a 点 copy 创建浅拷贝，外层独立，但嵌套的可变对象仍然共享。第四，重新赋值改变的是名字指向，原地修改改变的是对象内容。判断时先问：这是重新赋值，还是原地修改？再问：复制的是外层，还是连内层也复制了？掌握这三层边界，你就能避开大多数列表别名和浅拷贝的坑。感谢收听，我们下期再见。",
+        "title": "总结：记住三层边界"
+      }
+    ],
+    "audio_url": "/api/personal-studio/resources/podcast/studio_508dd1aff00595b1387f4ea556d6/audio"
+  },
+  "version": 2,
+  "scope_id": null,
+  "course_id": "resource-e2e-b25c130f",
+  "is_pinned": false,
+  "pinned_at": null,
+  "created_at": "2026-10-14T09:03:53.894464+00:00",
+  "created_by": "resource_e2e_b25c130f",
+  "scope_type": "course",
+  "updated_at": "2026-10-14T09:04:29.518686+00:00",
+  "visibility": "private",
+  "approved_at": null,
+  "approved_by": null,
+  "material_id": "studio_508dd1aff00595b1387f4ea556d6",
+  "origin_type": "personal",
+  "studio_mode": "generate",
+  "content_hash": "2692025a1050df8cc37335837dc635c4c56efdd49063baabe85d2e9091d4db4f",
+  "studio_title": "验收·播客·Python 变量绑定与列表浅拷贝",
+  "material_type": "podcast",
+  "owner_user_id": "resource_e2e_b25c130f",
+  "source_job_id": "studio_508dd1aff00595b1387f4ea556d6",
+  "standard_kind": null,
+  "schema_version": 2,
+  "config_snapshot": {},
+  "source_snapshot": {},
+  "studio_complete": true,
+  "approved_version": null,
+  "studio_course_id": "resource-e2e-b25c130f",
+  "studio_chapter_id": "resource-e2e-b25c130f-variables",
+  "config_snapshot_id": null,
+  "studio_source_refs": [],
+  "generation_batch_id": null,
+  "studio_course_title": "资源生成端到端验证 · Python 变量与列表",
+  "studio_chapter_title": "Python 变量绑定、列表别名与浅拷贝",
+  "current_review_status": "not_required",
+  "artifact_paths": [],
+  "personal_resource": true
+}

@@ -16,62 +16,13 @@ from app.services.job_store import EduJob, JobStatus, get_job, update_job
 from core.course_storage import CourseStorageManager
 
 
-def _plan_classroom_visuals(
-    command: Mapping[str, Any],
-    resolved_source: Any,
-    *,
-    owner: str,
-    pipeline=None,
-    llm=None,
-) -> dict[str, Any]:
-    if not bool(command.get("include_visuals", False)):
-        return {}
-    if pipeline is None:
-        from app.chat.application.knowledge_base_direct_report_service_v2 import (
-            _build_default_visual_pipeline,
-        )
-
-        pipeline = _build_default_visual_pipeline()
-    if llm is None:
-        from app.chat.agents.report_generation import get_fallback_llm
-
-        llm = get_fallback_llm()
-    topic = str(command.get("topic") or command.get("requirement") or "").strip()
-    try:
-        brief = pipeline.plan_with_model(
-            llm,
-            resource_type="classroom",
-            topic=topic,
-            source_context=str(resolved_source.context_text or ""),
-        )
-        result = pipeline.run(
-            brief,
-            course_id=str(command.get("course_id") or ""),
-            owner=owner or None,
-            selected_document_ids=[
-                str(item.document_id)
-                for item in list(resolved_source.documents or [])
-            ],
-        )
-        return dict(result.to_snapshot())
-    except Exception as exc:
-        return {"selected": [], "error": str(exc)}
-
-
 def _classroom_requirement(command: Mapping[str, Any]) -> str:
     requirement = str(command.get("requirement") or "").strip()
-    settings = {
-        "audience": str(command.get("audience") or "").strip(),
-        "objectives": list(command.get("objectives") or []),
-        "scene_count": int(command.get("scene_count") or 6),
-        "duration_minutes": int(command.get("duration_minutes") or 25),
-        "teaching_style": str(command.get("teaching_style") or "guided"),
-    }
-    return (
-        requirement
-        + "\n\n【课堂生成配置，必须实际执行】\n"
-        + json.dumps(settings, ensure_ascii=False)
-    ).strip()
+    settings = {key: command[key] for key in
+                ('audience', 'objectives', 'duration_minutes', 'teaching_style', 'scene_count')
+                if command.get(key) is not None}
+    return (requirement + "\n\n【用户需求】\n" + json.dumps(settings, ensure_ascii=False)).strip()
+
 
 
 def enqueue_platform_task(
@@ -84,6 +35,12 @@ def enqueue_platform_task(
 ) -> EduJob:
     store = task_store or get_task_store()
     payload = dict(command)
+    if workflow_type == 'classroom_generate':
+        from app.integrations.hyperframes.generation_policy import generation_limits
+        payload = generation_limits(payload)
+    if workflow_type == 'personal_studio' and payload.get('resource_type') == 'podcast':
+        from app.services.podcast_generation_policy import generation_limits
+        payload = generation_limits(payload)
     if runtime_config_snapshot:
         payload["runtime_config_snapshot"] = dict(runtime_config_snapshot)
     try:
@@ -161,108 +118,19 @@ class PlatformTaskHandlers:
         command: Mapping[str, Any],
         context: DurableExecutionContext,
     ) -> dict[str, Any]:
-        from app.integrations.openmaic import get_openmaic_client
-        from app.services.classroom_job_service import (
-            run_generate_classroom_job,
-        )
-        from app.services.classroom_service import (
-            _build_research_context,
-            _make_on_sidecar_succeeded,
-        )
-
+        from app.services.hyperframes_classroom import generate_and_persist
         manager = self.course_storage_factory()
-        course_id = str(command.get("course_id") or context.course_id or "")
+        course_id = str(command.get('course_id') or context.course_id or '')
         requirement = _classroom_requirement(command)
-        job = self._require_job(context.task_id)
-        selected_doc_ids = list(command.get("selected_doc_ids") or [])
-        source_mode = str(
-            command.get("source_mode")
-            or ("selected_documents" if selected_doc_ids else "course_auto")
-        )
-        source_resolver = self.generation_source_resolver_factory(manager)
-        resolve_signature = inspect.signature(source_resolver.resolve)
-        resolve_kwargs = (
-            {"query_text": requirement}
-            if "query_text" in resolve_signature.parameters
-            else {}
-        )
-        if "owner" in resolve_signature.parameters:
-            resolve_kwargs["owner"] = context.owner_user_id
-        resolved_source = source_resolver.resolve(
-            course_id,
-            source_mode,
-            selected_doc_ids,
-            **resolve_kwargs,
-        )
-        visual_snapshot = _plan_classroom_visuals(
-            command,
-            resolved_source,
-            owner=context.owner_user_id,
-        )
-
-        async def run() -> None:
-            client = get_openmaic_client(
-                owner_user_id=context.owner_user_id,
-                use_cache=False,
-            )
-            try:
-                research_context = await _build_research_context(
-                    course_storage_manager=manager,
-                    course_id=course_id,
-                    requirement=requirement,
-                    web_research_context=command.get("web_research_context"),
-                    rag_top_k=int(command.get("rag_top_k") or 5),
-                    rag_system=None,
-                    resolved_source=resolved_source,
-                    include_knowledge_graph=not bool((command.get("material_metadata") or {}).get("harness_config")),
-                )
-                selected_visuals = list(visual_snapshot.get("selected") or [])
-                if selected_visuals:
-                    visual_context = (
-                        "【已锁定课堂配图】\n"
-                        + json.dumps(selected_visuals, ensure_ascii=False)
-                        + "\n请围绕这些真实图片组织相应课堂场景，不得伪造其他图片 URL。"
-                    )
-                    research_context = "\n\n".join(
-                        item
-                        for item in (research_context, visual_context)
-                        if item
-                    )
-                source_snapshot = resolved_source.to_snapshot()
-                if visual_snapshot:
-                    source_snapshot["visuals"] = visual_snapshot
-                callback = _make_on_sidecar_succeeded(
-                    active_client=client,
-                    course_storage_manager=manager,
-                    course_id=course_id,
-                    owner=context.owner_user_id,
-                    scope_type=str(command.get("scope_type") or "course"),
-                    scope_id=command.get("scope_id"),
-                    source_snapshot=source_snapshot,
-                    source_job_id=context.task_id,
-                    material_id=str(command.get("material_id") or "").strip()
-                    or None,
-                    material_metadata=dict(command.get("material_metadata") or {}),
-                )
-                await run_generate_classroom_job(
-                    job,
-                    requirement=requirement,
-                    research_context=research_context,
-                    pdf_content=command.get("pdf_content"),
-                    enable_web_search=bool(
-                        command.get("enable_web_search", False)
-                    ),
-                    enable_tts=bool(command.get("enable_tts", True)),
-                    client=client,
-                    on_sidecar_succeeded=callback,
-                )
-            finally:
-                close = getattr(client, "aclose", None)
-                if close is not None:
-                    await close()
-
-        context.progress(3, "research", "正在准备课程资料")
-        asyncio.run(run())
+        self._require_job(context.task_id)
+        resolver = self.generation_source_resolver_factory(manager)
+        kwargs = {}
+        parameters = inspect.signature(resolver.resolve).parameters
+        if 'query_text' in parameters: kwargs['query_text'] = requirement
+        if 'owner' in parameters: kwargs['owner'] = context.owner_user_id
+        selected = list(command.get('selected_doc_ids') or [])
+        source = resolver.resolve(course_id, command.get('source_mode') or ('selected_documents' if selected else 'course_auto'), selected, **kwargs)
+        generate_and_persist(command, context, manager, source, requirement)
         return self._completed_public_result(context.task_id)
 
     def classroom_video_export(

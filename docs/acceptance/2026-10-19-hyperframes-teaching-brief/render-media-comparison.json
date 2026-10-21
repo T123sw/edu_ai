@@ -1,0 +1,29 @@
+{
+  "samples": [
+    {
+      "workers": 2,
+      "audio_sha256": "e91f46da01f19e1a1c3dc256476a8df1e88264fac2394facd1092799baa88d0c",
+      "frame_sha256": [
+        "b0b3a86168763233fd05e78426b6373fbfee1e744ff3aeeb2c04e6544a43987e",
+        "d69220162f3e5f9ed328e85c6862765eaa33092425d75739c8e70bc36edb9ae1",
+        "e55bde61053c26313ee6c957ebe31776b62e662f5c72421eaaf158d1fa449de5"
+      ]
+    },
+    {
+      "workers": 4,
+      "audio_sha256": "e91f46da01f19e1a1c3dc256476a8df1e88264fac2394facd1092799baa88d0c",
+      "frame_sha256": [
+        "b0b3a86168763233fd05e78426b6373fbfee1e744ff3aeeb2c04e6544a43987e",
+        "d69220162f3e5f9ed328e85c6862765eaa33092425d75739c8e70bc36edb9ae1",
+        "e55bde61053c26313ee6c957ebe31776b62e662f5c72421eaaf158d1fa449de5"
+      ]
+    }
+  ],
+  "audio_identical": true,
+  "sampled_frames_identical": true,
+  "sample_seconds": [
+    5,
+    25,
+    55
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "points": [
+    {
+      "at": 1792252939.6901248,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "running",
+      "remote_seq": 0,
+      "local_seq": 5189,
+      "separate_cursor": true,
+      "emitted_questions": 8,
+      "lag_events": null,
+      "note": "Upstream journal buffers live events; no reliable running lag measurement."
+    },
+    {
+      "at": 1792252964.806889,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "running",
+      "remote_seq": 0,
+      "local_seq": 5705,
+      "separate_cursor": true,
+      "emitted_questions": 9,
+      "lag_events": null,
+      "note": "Upstream journal buffers live events; no reliable running lag measurement."
+    },
+    {
+      "at": 1792252989.9375143,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "running",
+      "remote_seq": 0,
+      "local_seq": 6941,
+      "separate_cursor": true,
+      "emitted_questions": 11,
+      "lag_events": null,
+      "note": "Upstream journal buffers live events; no reliable running lag measurement."
+    },
+    {
+      "at": 1792253015.0714233,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "running",
+      "remote_seq": 0,
+      "local_seq": 8180,
+      "separate_cursor": true,
+      "emitted_questions": 11,
+      "lag_events": null,
+      "note": "Upstream journal buffers live events; no reliable running lag measurement."
+    },
+    {
+      "at": 1792253037.7939522,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "running",
+      "remote_seq": 0,
+      "local_seq": 9844,
+      "separate_cursor": true,
+      "emitted_questions": 13,
+      "lag_events": null,
+      "note": "Upstream journal buffers live events; no reliable running lag measurement."
+    },
+    {
+      "at": 1792253063.1331263,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "running",
+      "remote_seq": 0,
+      "local_seq": 10405,
+      "separate_cursor": true,
+      "emitted_questions": 15,
+      "lag_events": null,
+      "note": "Upstream journal buffers live events; no reliable running lag measurement."
+    },
+    {
+      "at": 1792253088.2746348,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "running",
+      "remote_seq": 0,
+      "local_seq": 10594,
+      "separate_cursor": true,
+      "emitted_questions": 19,
+      "lag_events": null,
+      "note": "Upstream journal buffers live events; no reliable running lag measurement."
+    },
+    {
+      "at": 1792253113.4285033,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "running",
+      "remote_seq": 0,
+      "local_seq": 13337,
+      "separate_cursor": true,
+      "emitted_questions": 20,
+      "lag_events": null,
+      "note": "Upstream journal buffers live events; no reliable running lag measurement."
+    },
+    {
+      "at": 1792253138.5606968,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "running",
+      "remote_seq": 0,
+      "local_seq": 14872,
+      "separate_cursor": true,
+      "emitted_questions": 20,
+      "lag_events": null,
+      "note": "Upstream journal buffers live events; no reliable running lag measurement."
+    },
+    {
+      "at": 1792253163.9406104,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "running",
+      "remote_seq": 0,
+      "local_seq": 15308,
+      "separate_cursor": true,
+      "emitted_questions": 22,
+      "lag_events": null,
+      "note": "Upstream journal buffers live events; no reliable running lag measurement."
+    },
+    {
+      "at": 1792253189.080822,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "failed",
+      "remote_seq": 16125,
+      "local_seq": 16125,
+      "separate_cursor": true,
+      "emitted_questions": 24,
+      "lag_events": 0
+    },
+    {
+      "at": 1792253214.2755532,
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "remote_status": "failed",
+      "remote_seq": 16125,
+      "local_seq": 16125,
+      "separate_cursor": true,
+      "emitted_questions": 24,
+      "lag_events": 0
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "scope": "Read-only account-scoped records and authenticated bridge status; not network-wide embedding trace."
+}

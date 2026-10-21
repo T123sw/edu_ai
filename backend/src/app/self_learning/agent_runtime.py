@@ -69,7 +69,19 @@ class LearningAgentRuntime:
         # metadata and 8 KB reserved for tool results / the final prompt.
         context_limit = 48000 if is_classroom else 64000
         context_budget = max(1000, context_limit - schemas_size - 8000)
-        state = copy.deepcopy(claim['checkpoint']) or {'packet': builder.build(claim, budget=context_budget), 'rounds': 0, 'tools': 0, 'pending': [], 'repair_used': False}
+        def build_context():
+            nonlocal context_budget
+            try:
+                return builder.build(claim, budget=context_budget)
+            except AgentFailure as exc:
+                if exc.code != 'CONTEXT_BUDGET_EXCEEDED': raise
+                # Reclaim optional tool-result reserve before rejecting a public
+                # selection. Use the same policy after durable resume or a
+                # preference change; the total payload limit remains unchanged.
+                context_budget = max(1000, context_limit - schemas_size - 1024)
+                return builder.build(claim, budget=context_budget)
+        state = copy.deepcopy(claim['checkpoint']) or {
+            'packet': build_context(), 'rounds': 0, 'tools': 0, 'pending': [], 'repair_used': False}
         packet = state['packet']
         tools = LearningTools(self.learning, claim, packet)
         if self.model_factory:
@@ -105,7 +117,7 @@ class LearningAgentRuntime:
                     self.repository.save(claim, state, 'reading_resources', intent)
                     result = await self.call_tool(tools, packet, call, deadline)
                     if call['function']['name'] == 'update_learning_preference' and result.get('ok') and result['data'].get('changed'):
-                        fresh = builder.build(claim, budget=context_budget)
+                        fresh = build_context()
                         if fresh['memory_epoch'] != result['data']['memory_epoch']:
                             raise AgentFailure('MEMORY_CONTEXT_CHANGED')
                         # Rebuild after an explicit change; don't continue to

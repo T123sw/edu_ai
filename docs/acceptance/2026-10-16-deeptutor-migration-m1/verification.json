@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-16",
+  "milestone": "M1",
+  "status": "complete",
+  "deployed": false,
+  "exam_ready": false,
+  "upstream": {
+    "repository": "https://github.com/HKUDS/DeepTutor.git",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "version": "1.6.14",
+    "license": "Apache-2.0",
+    "patches": [
+      {
+        "file": "0001-exam-foundation.patch",
+        "sha256": "424d88d55cbd39078b9937917c14366d9b0ac648a1ce0e9dfacbb7e3f69fc358"
+      }
+    ]
+  },
+  "python": "3.12.14",
+  "isolated_environment": true,
+  "include_system_site_packages": false,
+  "upstream_full_source_preserved": true,
+  "upstream_default_dependencies_installed": true,
+  "optional_extensions_verified": false,
+  "requirements_lock_sha256": "f28a4470733f732ce0a973aa77f598c845533d6495183a01034f30aa4f766616",
+  "tests": {
+    "upstream": {
+      "passed": 218,
+      "seconds": 78.71
+    },
+    "bridge_and_patches": {
+      "passed": 18,
+      "seconds": 8.77
+    },
+    "backend_client": {
+      "passed": 6,
+      "seconds": 0.12
+    },
+    "total_passed": 242
+  },
+  "bootstrap_rerun": "passed",
+  "pip_check": "No broken requirements found.",
+  "source_preparation_idempotence": "passed",
+  "http_smoke": {
+    "health": {
+      "status": "ok",
+      "version": "1.6.14",
+      "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+      "scope": "internal_bridge",
+      "exam_ready": false
+    },
+    "unauthenticated_status": 401,
+    "owner_scoped_missing_turn_status": 404,
+    "cold_owner_read_seconds": 2.928,
+    "real_model_calls": 0,
+    "service_stopped": true
+  },
+  "real_model_calls": 0,
+  "real_pdf_parsing_verified": false,
+  "pending_milestones": [
+    "M2",
+    "M3",
+    "M4",
+    "M5"
+  ]
+}

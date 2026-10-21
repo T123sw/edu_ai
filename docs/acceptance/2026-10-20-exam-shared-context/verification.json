@@ -1,0 +1,113 @@
+{
+  "status": "fixed-deployed-and-original-task-retry-succeeded",
+  "originalGeneration": "examgen_dde1537611adccf6e9843ffb48ec90ba",
+  "originalTurn": "turn_1792496798487_2ec7669d13",
+  "failure": {
+    "stage": "reference-extraction",
+    "message": "Exam extraction has unresolved partial or missing questions: lines [141]",
+    "line141": "Shared graph preamble for questions 41–45; not a standalone missing question",
+    "reconciliationBug": "Window ended before first dependent question",
+    "secondaryBug": "Different numbered questions sharing a source start were collapsed in source-anchor map"
+  },
+  "fixes": [
+    "Include following complete question in boundary reread",
+    "Preserve common source and image in first dependent span and dependent stems",
+    "Reject and structurally correct duplicate start anchors for different numbered questions before merging"
+  ],
+  "testsPassed": 159,
+  "realExtraction": {
+    "questions": 45,
+    "numbers": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39",
+      "40",
+      "41",
+      "42",
+      "43",
+      "44",
+      "45"
+    ],
+    "modelCalls": 6,
+    "seconds": 51.28,
+    "productionBusinessWrites": false
+  },
+  "deployment": {
+    "service": "edu-ai-deeptutor",
+    "previousPid": 2192581,
+    "pid": 3354910,
+    "startedAt": "2026-10-20T11:57:13Z",
+    "activeUpstreamTurnsBeforeRestart": 0,
+    "cumulativePatch": "0016-shared-source-boundary.patch",
+    "structureOnlyGenerationNowActive": true,
+    "mainBackendChanged": false
+  },
+  "retry": {
+    "edu_job_id": "job_2b08dfb1245e426e",
+    "id": null,
+    "status": "queued",
+    "message": "",
+    "retry_of_job_id": "examgen_dde1537611adccf6e9843ffb48ec90ba"
+  },
+  "updatedAt": "2026-10-20T12:03:58.207971+00:00",
+  "delivery": {
+    "status": "succeeded",
+    "generationId": "examgen_a605d9dd7ab2ce174085d8ce556e9b32",
+    "jobId": "job_2b08dfb1245e426e",
+    "questionCount": 45,
+    "completeResult": true,
+    "allQuestionsStructureOnly": true,
+    "authenticatedPaperHTTP": 200,
+    "publicQuestionCount": 45,
+    "originalFailureRetained": true,
+    "verifiedAt": "2026-10-20T12:03:16.409508+00:00"
+  },
+  "publicJobs": [
+    {
+      "edu_job_id": "examgen_dde1537611adccf6e9843ffb48ec90ba",
+      "status": "failed",
+      "progress": 100
+    },
+    {
+      "edu_job_id": "job_2b08dfb1245e426e",
+      "status": "succeeded",
+      "progress": 100
+    }
+  ]
+}

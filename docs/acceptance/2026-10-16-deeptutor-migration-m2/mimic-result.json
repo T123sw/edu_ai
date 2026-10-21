@@ -1,0 +1,154 @@
+{
+  "type": "result",
+  "source": "deep_question",
+  "stage": "",
+  "content": "",
+  "metadata": {
+    "response": "### Question 1\n\nWhich statement about quick sort is correct?\n- A. It is always a stable sort.\n- B. It repeatedly splits the array around a chosen pivot.\n- C. It always finishes in linear time.\n- D. It only works when the input is already sorted.\n\n**Answer:** B\n\n**Explanation:** Quick sort works by choosing a pivot element and partitioning the array so that elements smaller than the pivot go to one side and larger elements go to the other, then recursively sorting each side. It is not stable in its standard form (A is false), its average time is O(n log n) with a worst case of O(n²) rather than linear (C is false), and it does not require sorted input (D is false).\n\n### Question 2\n\nFill in the blank: Merge sort has worst-case time complexity ______.\n\n**Answer:** O(n log n)\n\n**Explanation:** Merge sort repeatedly splits the array in half (about log n levels of splitting) and merges the pieces back together, doing O(n) work at each level. Multiplying the O(n) merge work by the O(log n) levels gives a worst-case time complexity of O(n log n), which holds regardless of the input order.",
+    "summary": {
+      "success": true,
+      "source": "exam",
+      "requested": 2,
+      "template_count": 2,
+      "completed": 2,
+      "failed": 0,
+      "templates": [
+        {
+          "question_id": "q_1",
+          "topic": "Which statement about quick sort is correct? A. It is always stable. B. It partitions around a pivot. C. It always takes linear time. D. It needs a sorted input.",
+          "question_type": "choice",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "Which statement about quick sort is correct? A. It is always stable. B. It partitions around a pivot. C. It always takes linear time. D. It needs a sorted input.",
+          "reference_answer": "B"
+        },
+        {
+          "question_id": "q_2",
+          "topic": "Fill in the blank: Merge sort has worst-case time complexity ______.",
+          "question_type": "fill_in_blank",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "Fill in the blank: Merge sort has worst-case time complexity ______.",
+          "reference_answer": "O(n log n)"
+        }
+      ],
+      "results": [
+        {
+          "qa_pair": {
+            "question_id": "q_1",
+            "question": "Which statement about quick sort is correct?",
+            "question_type": "choice",
+            "options": {
+              "A": "It is always a stable sort.",
+              "B": "It repeatedly splits the array around a chosen pivot.",
+              "C": "It always finishes in linear time.",
+              "D": "It only works when the input is already sorted."
+            },
+            "correct_answer": "B",
+            "explanation": "Quick sort works by choosing a pivot element and partitioning the array so that elements smaller than the pivot go to one side and larger elements go to the other, then recursively sorting each side. It is not stable in its standard form (A is false), its average time is O(n log n) with a worst case of O(n²) rather than linear (C is false), and it does not require sorted input (D is false).",
+            "difficulty": "easy",
+            "concentration": "Which statement about quick sort is correct? A. It is always stable. B. It partitions around a pivot. C. It always takes linear time. D. It needs a sorted input."
+          },
+          "metadata": {}
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_2",
+            "question": "Fill in the blank: Merge sort has worst-case time complexity ______.",
+            "question_type": "fill_in_blank",
+            "options": null,
+            "correct_answer": "O(n log n)",
+            "explanation": "Merge sort repeatedly splits the array in half (about log n levels of splitting) and merges the pieces back together, doing O(n) work at each level. Multiplying the O(n) merge work by the O(log n) levels gives a worst-case time complexity of O(n log n), which holds regardless of the input order.",
+            "difficulty": "easy",
+            "concentration": "Fill in the blank: Merge sort has worst-case time complexity ______."
+          },
+          "metadata": {}
+        }
+      ],
+      "analysis": ""
+    },
+    "mode": "mimic",
+    "metadata": {
+      "cost_summary": {
+        "total_cost_usd": 0.0009256499999999999,
+        "total_tokens": 5271,
+        "total_calls": 2,
+        "prompt_tokens": 4971,
+        "completion_tokens": 300
+      },
+      "usage_summary": {
+        "prompt_tokens": 5644,
+        "completion_tokens": 464,
+        "total_tokens": 6108,
+        "cache_read_input_tokens": 4608,
+        "cache_creation_input_tokens": 0,
+        "reasoning_tokens": 0,
+        "duration_seconds": 4.562149336561561,
+        "total_calls": 3,
+        "cache_reported_calls": 3,
+        "cache_input_tokens": 5644,
+        "cache_hit_rate": 0.8164422395464209,
+        "ttft_seconds": 0.807163096498698,
+        "ttft_calls": 2,
+        "generation_seconds": 1.6857388080097735,
+        "timed_completion_tokens": 300,
+        "tokens_per_second": 177.96351283754788,
+        "estimated_calls": 0,
+        "call_details": [
+          {
+            "call_id": "0a28861fee0d4fa69bb1b6140bf07572",
+            "prompt_tokens": 673,
+            "completion_tokens": 164,
+            "total_tokens": 837,
+            "cache_read_input_tokens": 512,
+            "model": "deepseek-v4-flash",
+            "provider": "OpenAICompatProvider",
+            "status": "completed",
+            "estimated": false,
+            "duration_seconds": 1.2593098422512412,
+            "ttft_seconds": null,
+            "generation_seconds": null,
+            "tokens_per_second": null,
+            "cache_hit_rate": 0.7607726597325408
+          },
+          {
+            "call_id": "b7a61351b5174bddad19ba469c0dcc3a",
+            "prompt_tokens": 2507,
+            "completion_tokens": 179,
+            "total_tokens": 2686,
+            "cache_read_input_tokens": 2048,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.8184135383926332,
+            "ttft_seconds": 0.8077345304191113,
+            "generation_seconds": 1.0095896706916392,
+            "tokens_per_second": 177.2997537478494,
+            "cache_hit_rate": 0.8169126445951336
+          },
+          {
+            "call_id": "947eebd3da234f87b477e53cef0722e9",
+            "prompt_tokens": 2464,
+            "completion_tokens": 121,
+            "total_tokens": 2585,
+            "cache_read_input_tokens": 2048,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.4844259559176862,
+            "ttft_seconds": 0.8065916625782847,
+            "generation_seconds": 0.6761491373181343,
+            "tokens_per_second": 178.95460235286583,
+            "cache_hit_rate": 0.8311688311688312
+          }
+        ]
+      }
+    }
+  },
+  "session_id": "unified_1792134311472_2cf2aa8b",
+  "turn_id": "turn_1792134311658_c4ee5900b3",
+  "seq": 13,
+  "timestamp": 1792134317.366626
+}

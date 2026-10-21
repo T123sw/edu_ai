@@ -1,0 +1,31 @@
+{
+  "preparation_id": "prep_f490a8326a334d33a472aa13e1f6c1c9",
+  "attempt_no": 1,
+  "status": "accepted",
+  "created_at": "2026-10-18T05:29:03.319996+00:00",
+  "stage": "normalize",
+  "revision": 1,
+  "error_code": null,
+  "failure": null,
+  "result_ref": null,
+  "budget": {
+    "limits": {
+      "calls": null,
+      "tokens": null,
+      "seconds": null,
+      "retry_only": true,
+      "cost_micro_usd": null
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "deadline": null
+  }
+}

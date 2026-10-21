@@ -12,15 +12,15 @@ CHUNK_CHARS = 12000
 
 class InputPoint(Contract):
     text: ShortText
-    source_quote: str = Field(default="", max_length=400, description="使用 source_ref 时由程序回填，无需抄写")
+    source_quote: str = Field(default="", description="使用 source_ref 时由程序回填，无需抄写")
     source_ref: str | None = Field(default=None, max_length=100, description="从 document.passages 选择 source_ref")
 
 
 class DocumentUnderstanding(Contract):
     kind: Literal['job_description', 'learner_background', 'syllabus', 'learning_material', 'other']
     summary: ShortText
-    relevant_points: tuple[InputPoint, ...] = Field(default=(), max_length=6)
-    material_gaps: tuple[ShortText, ...] = Field(default=(), max_length=8)
+    relevant_points: tuple[InputPoint, ...] = Field(default=())
+    material_gaps: tuple[ShortText, ...] = Field(default=())
 
 
 def effective_request(request, checkpoint):
@@ -82,7 +82,8 @@ def understand_next_document(stages, context, checkpoint, request):
     tool = {'type': 'function', 'function': {'name': 'record_input_document',
             'description': '根据当前文件原文理解用途和与学习需求相关的信息，要点使用 document.passages 的 source_ref，程序回填原文；资料缺失写入 material_gaps。',
             'parameters': DocumentUnderstanding.model_json_schema()}}
-    remaining = (datetime.fromisoformat(context.deadline) - datetime.now(timezone.utc)).total_seconds()
+    from .runtime_contracts import remaining_seconds
+    remaining = remaining_seconds(context.deadline)
     name, raw = model.decide({'phase': 'input_document', 'goal': request.goal,
         'document': {'document_id': pending.document_id, 'filename': doc['filename'], 'offset': offset,
                      'total_chars': len(text), 'content': content, 'passages': spans},

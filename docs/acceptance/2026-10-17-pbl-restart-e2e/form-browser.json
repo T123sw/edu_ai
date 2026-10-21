@@ -1,0 +1,64 @@
+{
+  "name": "form",
+  "exerciseId": "pbl_c590ff382a66f9b109569d25d037b3a5",
+  "steps": [
+    {
+      "id": "signup-form",
+      "passed": true,
+      "cumulative": 6
+    }
+  ],
+  "checks": 6,
+  "errors": [],
+  "requestFailures": [
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://col.csbops.io/data/sandpack",
+      "error": "net::ERR_TIMED_OUT"
+    }
+  ],
+  "emptyStarterRejected": true,
+  "previewText": "活动报名\n姓名\n报名",
+  "previewRendered": true,
+  "previewControls": [
+    {
+      "tag": "INPUT",
+      "text": "",
+      "label": null,
+      "testId": "name-input",
+      "type": "text"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "报名",
+      "label": null,
+      "testId": "submit-button",
+      "type": "button"
+    }
+  ],
+  "refreshPreservesCodeAndStep": true,
+  "regressionRejected": true,
+  "repairedCodePasses": true,
+  "mobileNoPageOverflow": true,
+  "previewViewports": [
+    {
+      "outerWidth": 390,
+      "width": 349,
+      "scrollWidth": 349
+    },
+    {
+      "outerWidth": 320,
+      "width": 279,
+      "scrollWidth": 279
+    }
+  ],
+  "privateAnswersExcluded": true,
+  "passed": true
+}

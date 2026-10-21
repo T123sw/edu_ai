@@ -1,0 +1,11 @@
+{
+  "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "version": "1.6.14",
+  "source": "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor",
+  "patches": [
+    {
+      "file": "0006-independent-exam-checks.patch",
+      "sha256": "7c34c783c702b239bd862fc44d7e598497b9cd6b32eca58d61d6295f24babc8a"
+    }
+  ]
+}

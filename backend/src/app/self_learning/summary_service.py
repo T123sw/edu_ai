@@ -57,7 +57,7 @@ class SummaryService(SessionRepository):
             pairs = successful_pairs(db, sid, self.memory, owner)
             withdrawn_sources = {source for row in db.scalars(select(LearningObservation).where(
                 LearningObservation.owner == owner, LearningObservation.course_id == session.course_id,
-                LearningObservation.topic_id == session.topic_id, LearningObservation.status.in_(['resolved', 'retracted'])))
+                LearningObservation.status.in_(['resolved', 'retracted'])))
                 for source in row.payload.get('source_message_ids', [])}
             pairs = [pair for pair in pairs if not any(m.message_id in withdrawn_sources for m in pair)]
             previous = db.get(LearningContextSummary, sid)

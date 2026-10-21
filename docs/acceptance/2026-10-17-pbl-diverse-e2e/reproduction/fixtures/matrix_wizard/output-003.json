@@ -1,0 +1,551 @@
+{
+  "unit": {
+    "stepId": "step1-basic-info",
+    "title": "第 1 步：填写并校验姓名与年龄",
+    "objective": "实现第 1 步表单，校验姓名非空与年龄为 18 到 60 的整数，通过后进入第 2 步占位页。",
+    "instructionsMarkdown": "本步要做出报名向导的第一屏：一个填写姓名和年龄的小表单。\n\n页面上需要包含：\n\n- 一个姓名输入框，提示文字可以是“请输入姓名”。\n- 一个年龄输入框，提示文字可以是“请输入年龄”。\n- 一个“下一步”按钮。\n\n点击“下一步”时进行校验：\n\n- 姓名去掉首尾空格后如果为空（例如只输入空格或什么都不填），显示姓名错误提示，并停留在第 1 步。\n- 年龄为空、不是整数（例如 18.5）、小于 18 或大于 60，都显示年龄错误提示，并停留在第 1 步。\n- 姓名和年龄都合法时，进入第 2 步。本步的第 2 步只需一个占位页面，显示“第 2 步”字样和线上/线下选择控件即可，具体提交逻辑留到后续步骤。\n\n错误提示要能让人看懂问题所在，例如“姓名不能为空”“年龄必须是 18 到 60 之间的整数”。\n\n**代码约定**\n\n- 姓名输入框加 `data-testid=\"name-input\"`。\n- 年龄输入框加 `data-testid=\"age-input\"`。\n- “下一步”按钮加 `data-testid=\"next-button\"`。\n- 姓名错误提示放在 `data-testid=\"name-error\"` 的元素里。\n- 年龄错误提示放在 `data-testid=\"age-error\"` 的元素里。\n- 第 2 步占位页里放一个 `data-testid=\"step2-placeholder\"` 的容器，里面包含“线上”“线下”两个选项（可用单选按钮）。\n\n这些标记只是供系统识别对应部件，不会改变页面外观。",
+    "explanationMarkdown": "这一步的核心是“受控输入 + 提交时校验”。\n\n用 `useState` 保存姓名和年龄两个字符串，输入框的 `value` 绑定状态，`onChange` 更新状态。点击“下一步”时不要直接跳转，而是先算出错误信息：\n\n- 姓名：`name.trim()` 是否为空。\n- 年龄：先判断是否为空；再用 `Number(age)` 转换，检查是否为整数（可用 `Number.isInteger`），最后检查是否在 18 到 60 之间。注意 `Number('')` 是 0，所以要先单独处理空字符串。\n\n把错误信息存进状态，如果有任何错误就停留在第 1 步并显示提示；没有错误才把当前步骤切换到第 2 步。用一个 `step` 状态（例如 1 或 2）控制显示哪一屏，比用多个布尔值更清晰，也方便后续加“返回”。\n\n年龄输入框可以用 `type=\"text\"`，这样 18.5 这类输入能原样进入校验逻辑，便于给出“必须是整数”的提示。",
+    "hints": [
+      "用两个 `useState` 分别保存姓名和年龄，再用一个 `step` 状态控制当前显示第几步。",
+      "校验年龄时先判断空字符串，再转成数字，用 `Number.isInteger` 判断整数，最后判断范围。",
+      "错误信息可以放在一个对象里，例如 `{ name: '', age: '' }`，提交时整体更新。",
+      "只有两个错误都为空时才把 `step` 设为 2。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "check-step1-empty-name",
+      "check-step1-age-not-integer",
+      "check-step1-age-too-young",
+      "check-step1-age-too-old",
+      "check-step1-empty-age",
+      "check-step1-valid-next"
+    ]
+  },
+  "behaviorCases": [
+    {
+      "requirementId": "step1-validation",
+      "setup": "第 1 步初始状态，姓名填“   ”（纯空格），年龄填“30”",
+      "action": "点击“下一步”",
+      "expected": "停留在第 1 步，姓名输入框仍可见，出现姓名错误提示",
+      "checkId": "check-step1-empty-name"
+    },
+    {
+      "requirementId": "step1-validation",
+      "setup": "第 1 步初始状态，姓名填“张三”，年龄填“18.5”",
+      "action": "点击“下一步”",
+      "expected": "停留在第 1 步，出现年龄错误提示",
+      "checkId": "check-step1-age-not-integer"
+    },
+    {
+      "requirementId": "step1-validation",
+      "setup": "第 1 步初始状态，姓名填“张三”，年龄填“17”",
+      "action": "点击“下一步”",
+      "expected": "停留在第 1 步，出现年龄错误提示",
+      "checkId": "check-step1-age-too-young"
+    },
+    {
+      "requirementId": "step1-validation",
+      "setup": "第 1 步初始状态，姓名填“张三”，年龄填“61”",
+      "action": "点击“下一步”",
+      "expected": "停留在第 1 步，出现年龄错误提示",
+      "checkId": "check-step1-age-too-old"
+    },
+    {
+      "requirementId": "step1-validation",
+      "setup": "第 1 步初始状态，姓名填“张三”，年龄留空",
+      "action": "点击“下一步”",
+      "expected": "停留在第 1 步，出现年龄错误提示",
+      "checkId": "check-step1-empty-age"
+    },
+    {
+      "requirementId": "step1-validation",
+      "setup": "第 1 步初始状态，姓名填“张三”，年龄填“30”",
+      "action": "点击“下一步”",
+      "expected": "进入第 2 步，显示参加方式选择控件",
+      "checkId": "check-step1-valid-next"
+    },
+    {
+      "requirementId": "step1-validation",
+      "setup": "第 1 步初始状态，姓名填“张三”，年龄填“18”（下边界）",
+      "action": "点击“下一步”",
+      "expected": "进入第 2 步",
+      "checkId": "check-step1-valid-next"
+    },
+    {
+      "requirementId": "step1-validation",
+      "setup": "第 1 步初始状态，姓名填“张三”，年龄填“60”（上边界）",
+      "action": "点击“下一步”",
+      "expected": "进入第 2 步",
+      "checkId": "check-step1-valid-next"
+    }
+  ],
+  "checks": [
+    {
+      "id": "check-step1-empty-name",
+      "label": "姓名只填空格时点击下一步，停留在第 1 步并显示姓名错误提示",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "   ",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-input"
+          },
+          "value": "30",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "next-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-error"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-step1-age-not-integer",
+      "label": "年龄填 18.5 时点击下一步，停留在第 1 步并显示年龄错误提示",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-input"
+          },
+          "value": "18.5",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "next-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-error"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-step1-age-too-young",
+      "label": "年龄填 17 时点击下一步，停留在第 1 步并显示年龄错误提示",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-input"
+          },
+          "value": "17",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "next-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-error"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-step1-age-too-old",
+      "label": "年龄填 61 时点击下一步，停留在第 1 步并显示年龄错误提示",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-input"
+          },
+          "value": "61",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "next-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-error"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-step1-empty-age",
+      "label": "年龄留空时点击下一步，停留在第 1 步并显示年龄错误提示",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "next-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-error"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-step1-valid-next",
+      "label": "姓名张三、年龄 30 时点击下一步进入第 2 步；年龄 18 与 60 边界值也能进入第 2 步",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-input"
+          },
+          "value": "30",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "next-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "step2-placeholder"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "radio",
+            "name": "线上",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "radio",
+            "name": "线下",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "faultyFiles": {},
+  "faultyCheckId": null
+}

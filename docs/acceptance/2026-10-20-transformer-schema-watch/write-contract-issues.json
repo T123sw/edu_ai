@@ -1,0 +1,10 @@
+[
+  {
+    "at": "2026-10-20 06:31:37.191404+00:00",
+    "node": "n1-why-transformer",
+    "phase": "resource_write",
+    "protocol_attempt": 0,
+    "error": "submission references or edits invalid: preparation_locator_not_found_or_empty",
+    "action_id": "paction_ed4eb5fdbf514f68bdde5b8b02536ed3"
+  }
+]

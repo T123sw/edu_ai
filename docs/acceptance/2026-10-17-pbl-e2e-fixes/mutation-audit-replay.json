@@ -1,0 +1,660 @@
+[
+  {
+    "name": "score-blue-decrement-noop",
+    "case": "score",
+    "requirement": "蓝队已经得分后，减一分确实减少分数",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shell-teams-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"红队\" 的可见状态\n   实际：true\n✓ 2. 检查 \"蓝队\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-scores-zero",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-status-draw",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-buttons-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"red-add\" 的可见状态\n   实际：true\n✓ 2. 检查 \"red-add\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"red-minus\" 的可见状态\n   实际：true\n✓ 4. 检查 \"red-minus\" 的可操作状态\n   实际：true\n✓ 5. 检查 \"blue-add\" 的可见状态\n   实际：true\n✓ 6. 检查 \"blue-add\" 的可操作状态\n   实际：true\n✓ 7. 检查 \"blue-minus\" 的可见状态\n   实际：true\n✓ 8. 检查 \"blue-minus\" 的可操作状态\n   实际：true\n✓ 9. 检查 \"reset\" 的可见状态\n   实际：true\n✓ 10. 检查 \"reset\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "red-add-increments",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 4. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "blue-add-increments",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"blue-add\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "red-minus-decrements",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"red-minus\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 5. 点击 \"blue-add\"\n✓ 6. 点击 \"blue-add\"\n✓ 7. 点击 \"blue-minus\"\n× 8. 检查 \"blue-score\" 的显示文字\n预期：\"1\"\n实际：\"2\""
+        },
+        {
+          "caseId": "minus-at-zero-stays-zero",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"blue-minus\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 3. 点击 \"red-minus\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 5. 点击 \"red-add\"\n✓ 6. 点击 \"red-minus\"\n✓ 7. 点击 \"red-minus\"\n✓ 8. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "red-add-keeps-blue",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"red-add\"\n✓ 4. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 5. 检查 \"red-score\" 的显示文字\n   实际：\"3\"\n✓ 6. 点击 \"blue-add\"\n✓ 7. 点击 \"blue-add\"\n✓ 8. 检查 \"red-score\" 的显示文字\n   实际：\"3\"\n✓ 9. 检查 \"blue-score\" 的显示文字\n   实际：\"2\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reset-clears-both",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"blue-add\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 5. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 6. 点击 \"reset\"\n✓ 7. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 8. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 9. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 10. 点击 \"blue-add\"\n✓ 11. 点击 \"blue-add\"\n✓ 12. 点击 \"blue-add\"\n✓ 13. 检查 \"blue-score\" 的显示文字\n   实际：\"3\"\n✓ 14. 点击 \"reset\"\n✓ 15. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 16. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 17. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-red-leads",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"red-add\"\n✓ 5. 点击 \"blue-add\"\n✓ 6. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 7. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 9. 点击 \"blue-add\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-blue-leads",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"blue-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"blue-add\"\n✓ 5. 点击 \"red-add\"\n✓ 6. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 7. 检查 \"blue-score\" 的显示文字\n   实际：\"2\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 9. 点击 \"red-add\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-back-to-draw",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 点击 \"blue-add\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 6. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 7. 点击 \"red-add\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 9. 点击 \"red-minus\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 11. 点击 \"red-minus\"\n✓ 12. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 13. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 14. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 5938.316553
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "score-blue-decrement-noop",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"blue-add\"\n✓ 2. 点击 \"blue-add\"\n✓ 3. 点击 \"blue-minus\"\n× 4. 检查 \"blue-score\" 的显示文字\n预期：\"1\"\n实际：\"2\""
+        }
+      ],
+      "durationMs": 1805.3663049999996
+    }
+  },
+  {
+    "name": "score-red-negative",
+    "case": "score",
+    "requirement": "红队分数不能低于零",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shell-teams-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"红队\" 的可见状态\n   实际：true\n✓ 2. 检查 \"蓝队\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-scores-zero",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-status-draw",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-buttons-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"red-add\" 的可见状态\n   实际：true\n✓ 2. 检查 \"red-add\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"red-minus\" 的可见状态\n   实际：true\n✓ 4. 检查 \"red-minus\" 的可操作状态\n   实际：true\n✓ 5. 检查 \"blue-add\" 的可见状态\n   实际：true\n✓ 6. 检查 \"blue-add\" 的可操作状态\n   实际：true\n✓ 7. 检查 \"blue-minus\" 的可见状态\n   实际：true\n✓ 8. 检查 \"blue-minus\" 的可操作状态\n   实际：true\n✓ 9. 检查 \"reset\" 的可见状态\n   实际：true\n✓ 10. 检查 \"reset\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "red-add-increments",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 4. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "blue-add-increments",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"blue-add\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "red-minus-decrements",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"red-minus\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 5. 点击 \"blue-add\"\n✓ 6. 点击 \"blue-add\"\n✓ 7. 点击 \"blue-minus\"\n✓ 8. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "minus-at-zero-stays-zero",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"blue-minus\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 3. 点击 \"red-minus\"\n× 4. 检查 \"red-score\" 的显示文字\n预期：\"0\"\n实际：\"-1\""
+        },
+        {
+          "caseId": "red-add-keeps-blue",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"red-add\"\n✓ 4. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 5. 检查 \"red-score\" 的显示文字\n   实际：\"3\"\n✓ 6. 点击 \"blue-add\"\n✓ 7. 点击 \"blue-add\"\n✓ 8. 检查 \"red-score\" 的显示文字\n   实际：\"3\"\n✓ 9. 检查 \"blue-score\" 的显示文字\n   实际：\"2\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reset-clears-both",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"blue-add\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 5. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 6. 点击 \"reset\"\n✓ 7. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 8. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 9. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 10. 点击 \"blue-add\"\n✓ 11. 点击 \"blue-add\"\n✓ 12. 点击 \"blue-add\"\n✓ 13. 检查 \"blue-score\" 的显示文字\n   实际：\"3\"\n✓ 14. 点击 \"reset\"\n✓ 15. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 16. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 17. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-red-leads",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"red-add\"\n✓ 5. 点击 \"blue-add\"\n✓ 6. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 7. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 9. 点击 \"blue-add\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-blue-leads",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"blue-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"blue-add\"\n✓ 5. 点击 \"red-add\"\n✓ 6. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 7. 检查 \"blue-score\" 的显示文字\n   实际：\"2\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 9. 点击 \"red-add\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-back-to-draw",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 点击 \"blue-add\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 6. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 7. 点击 \"red-add\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 9. 点击 \"red-minus\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 11. 点击 \"red-minus\"\n✓ 12. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 13. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 14. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 5601.379617999999
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "score-red-negative",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"red-minus\"\n× 2. 检查 \"red-score\" 的显示文字\n预期：\"0\"\n实际：\"-1\""
+        }
+      ],
+      "durationMs": 1735.4000250000008
+    }
+  },
+  {
+    "name": "score-reset-blue-omitted",
+    "case": "score",
+    "requirement": "重置比赛清空双方分数",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shell-teams-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"红队\" 的可见状态\n   实际：true\n✓ 2. 检查 \"蓝队\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-scores-zero",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-status-draw",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-buttons-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"red-add\" 的可见状态\n   实际：true\n✓ 2. 检查 \"red-add\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"red-minus\" 的可见状态\n   实际：true\n✓ 4. 检查 \"red-minus\" 的可操作状态\n   实际：true\n✓ 5. 检查 \"blue-add\" 的可见状态\n   实际：true\n✓ 6. 检查 \"blue-add\" 的可操作状态\n   实际：true\n✓ 7. 检查 \"blue-minus\" 的可见状态\n   实际：true\n✓ 8. 检查 \"blue-minus\" 的可操作状态\n   实际：true\n✓ 9. 检查 \"reset\" 的可见状态\n   实际：true\n✓ 10. 检查 \"reset\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "red-add-increments",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 4. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "blue-add-increments",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"blue-add\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "red-minus-decrements",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"red-minus\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 5. 点击 \"blue-add\"\n✓ 6. 点击 \"blue-add\"\n✓ 7. 点击 \"blue-minus\"\n✓ 8. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "minus-at-zero-stays-zero",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"blue-minus\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 3. 点击 \"red-minus\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 5. 点击 \"red-add\"\n✓ 6. 点击 \"red-minus\"\n✓ 7. 点击 \"red-minus\"\n✓ 8. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "red-add-keeps-blue",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"red-add\"\n✓ 4. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 5. 检查 \"red-score\" 的显示文字\n   实际：\"3\"\n✓ 6. 点击 \"blue-add\"\n✓ 7. 点击 \"blue-add\"\n✓ 8. 检查 \"red-score\" 的显示文字\n   实际：\"3\"\n✓ 9. 检查 \"blue-score\" 的显示文字\n   实际：\"2\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reset-clears-both",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 点击 \"red-add\"\n✓ 3. 点击 \"blue-add\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 5. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 6. 点击 \"reset\"\n✓ 7. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n× 8. 检查 \"blue-score\" 的显示文字\n预期：\"0\"\n实际：\"1\""
+        },
+        {
+          "caseId": "status-red-leads",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"red-add\"\n✓ 5. 点击 \"blue-add\"\n✓ 6. 检查 \"red-score\" 的显示文字\n   实际：\"2\"\n✓ 7. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 9. 点击 \"blue-add\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-blue-leads",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"blue-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 3. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 4. 点击 \"blue-add\"\n✓ 5. 点击 \"red-add\"\n✓ 6. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 7. 检查 \"blue-score\" 的显示文字\n   实际：\"2\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n✓ 9. 点击 \"red-add\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "status-back-to-draw",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"red-add\"\n✓ 2. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 3. 点击 \"blue-add\"\n✓ 4. 检查 \"red-score\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 6. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 7. 点击 \"red-add\"\n✓ 8. 检查 \"status\" 的显示文字\n   实际：\"红队领先\"\n✓ 9. 点击 \"red-minus\"\n✓ 10. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n✓ 11. 点击 \"red-minus\"\n✓ 12. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 13. 检查 \"blue-score\" 的显示文字\n   实际：\"1\"\n✓ 14. 检查 \"status\" 的显示文字\n   实际：\"蓝队领先\"\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 5486.350597000001
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "score-reset-blue-omitted",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"blue-add\"\n✓ 2. 点击 \"reset\"\n× 3. 检查 \"blue-score\" 的显示文字\n预期：\"0\"\n实际：\"1\""
+        }
+      ],
+      "durationMs": 1946.7683460000007
+    }
+  },
+  {
+    "name": "form-old-error-retained",
+    "case": "form",
+    "requirement": "修改姓名时也清除旧错误提示",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "input-and-button-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 2. 检查 \"name-input\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"name-input\" 的输入值\n   实际：\"\"\n✓ 4. 检查 \"submit-button\" 的可见状态\n   实际：true\n✓ 5. 检查 \"submit-button\" 的可操作状态\n   实际：true\n✓ 6. 检查 \"submit-button\" 的显示文字\n   实际：\"报名\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "empty-name-error",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"submit-button\"\n✓ 2. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "whitespace-name-error",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"   \"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "valid-name-success",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：张三\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "trimmed-name-success",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"  李四  \"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：李四\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "clear-message-on-edit",
+          "status": "failed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"王五\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：王五\"\n✓ 4. 在 \"name-input\" 输入 \"王五五\"\n✓ 5. 检查 \"message\" 的数量\n   实际：0\n✓ 6. 在 \"name-input\" 输入 \"\"\n✓ 7. 点击 \"submit-button\"\n✓ 8. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n✓ 9. 在 \"name-input\" 输入 \"赵六\"\n× 10. 检查 \"message\" 的数量\n预期：0\n实际：1"
+        }
+      ],
+      "durationMs": 2928.1082690000003
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "form-old-error-retained",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"submit-button\"\n✓ 2. 在 \"name-input\" 输入 \"小明\"\n× 3. 检查 \"message\" 的数量\n预期：0\n实际：1"
+        }
+      ],
+      "durationMs": 1750.4469229999995
+    }
+  },
+  {
+    "name": "form-trim-omitted",
+    "case": "form",
+    "requirement": "空格姓名不能报名",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "input-and-button-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 2. 检查 \"name-input\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"name-input\" 的输入值\n   实际：\"\"\n✓ 4. 检查 \"submit-button\" 的可见状态\n   实际：true\n✓ 5. 检查 \"submit-button\" 的可操作状态\n   实际：true\n✓ 6. 检查 \"submit-button\" 的显示文字\n   实际：\"报名\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "empty-name-error",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"submit-button\"\n✓ 2. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "whitespace-name-error",
+          "status": "failed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"   \"\n✓ 2. 点击 \"submit-button\"\n× 3. 检查 \"message\" 的显示文字\n预期：\"请输入姓名\"\n实际：\"报名成功：\""
+        },
+        {
+          "caseId": "valid-name-success",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：张三\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "trimmed-name-success",
+          "status": "failed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"  李四  \"\n✓ 2. 点击 \"submit-button\"\n× 3. 检查 \"message\" 的显示文字\n预期：\"报名成功：李四\"\n实际：\"报名成功：  李四\""
+        },
+        {
+          "caseId": "clear-message-on-edit",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"王五\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：王五\"\n✓ 4. 在 \"name-input\" 输入 \"王五五\"\n✓ 5. 检查 \"message\" 的数量\n   实际：0\n✓ 6. 在 \"name-input\" 输入 \"\"\n✓ 7. 点击 \"submit-button\"\n✓ 8. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n✓ 9. 在 \"name-input\" 输入 \"赵六\"\n✓ 10. 检查 \"message\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 4158.615603000006
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "form-trim-omitted",
+          "status": "failed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"   \"\n✓ 2. 点击 \"submit-button\"\n× 3. 检查 \"message\" 的显示文字\n预期：\"请输入姓名\"\n实际：\"报名成功：\""
+        }
+      ],
+      "durationMs": 1707.5464770000035
+    }
+  },
+  {
+    "name": "shopping-toggle-back-missing",
+    "case": "shop_a",
+    "requirement": "已购买商品可以切换回待购买",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "add-item-appears",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 5. 在 \"item-name-input\" 输入 \"鸡蛋\"\n✓ 6. 点击 \"add-button\"\n✓ 7. 检查 \"item-name\" 的数量\n   实际：2\n✓ 8. 检查 第 1 个 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 9. 检查 第 2 个 \"item-name\" 的显示文字\n   实际：\"鸡蛋\"\n✓ 10. 检查 第 2 个 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "add-clears-input",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"面包\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-name-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "blank-shows-hint",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"add-button\"\n✓ 2. 检查 \"item-name\" 的数量\n   实际：0\n✓ 3. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 4. 在 \"item-name-input\" 输入 \"   \"\n✓ 5. 点击 \"add-button\"\n✓ 6. 检查 \"item-name\" 的数量\n   实际：0\n✓ 7. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 8. 在 \"item-name-input\" 输入 \"苹果\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-name\" 的数量\n   实际：1\n✓ 11. 检查 \"item-name\" 的显示文字\n   实际：\"苹果\"\n✓ 12. 检查 \"blank-hint\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "quantity-increase",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"苹果\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 4. 点击 \"item-increase\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"2\"\n✓ 6. 点击 \"item-increase\"\n✓ 7. 检查 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 8. 在 \"item-name-input\" 输入 \"香蕉\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-quantity\" 的数量\n   实际：2\n✓ 11. 点击 第 1 个 \"item-increase\"\n✓ 12. 检查 第 1 个 \"item-quantity\" 的显示文字\n   实际：\"4\"\n✓ 13. 检查 第 2 个 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "quantity-decrease",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"香蕉\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 点击 \"item-increase\"\n✓ 4. 点击 \"item-increase\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 6. 点击 \"item-decrease\"\n✓ 7. 检查 \"item-quantity\" 的显示文字\n   实际：\"2\"\n✓ 8. 点击 \"item-decrease\"\n✓ 9. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "quantity-floor-one",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"橙子\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 4. 点击 \"item-decrease\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 6. 点击 \"item-decrease\"\n✓ 7. 点击 \"item-decrease\"\n✓ 8. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "toggle-to-purchased",
+          "status": "failed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"鸡蛋\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-status\" 的显示文字\n   实际：\"待购买\"\n✓ 4. 点击 \"item-toggle\"\n✓ 5. 检查 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 6. 点击 \"item-toggle\"\n× 7. 检查 \"item-status\" 的显示文字\n预期：\"待购买\"\n实际：\"已购买\""
+        },
+        {
+          "caseId": "delete-removes-item",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"酸奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 检查 \"item-name\" 的数量\n   实际：2\n✓ 6. 点击 第 1 个 \"item-delete\"\n✓ 7. 检查 \"item-name\" 的数量\n   实际：1\n✓ 8. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 9. 在 \"item-name-input\" 输入 \"酸奶\"\n✓ 10. 点击 \"add-button\"\n✓ 11. 点击 第 2 个 \"item-toggle\"\n✓ 12. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 13. 点击 第 2 个 \"item-delete\"\n✓ 14. 检查 \"item-name\" 的数量\n   实际：1\n✓ 15. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "filter-pending",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"大米\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"面粉\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 第 2 个 \"item-toggle\"\n✓ 6. 检查 \"item-name\" 的数量\n   实际：2\n✓ 7. 点击 \"filter-pending\"\n✓ 8. 检查 \"item-name\" 的数量\n   实际：1\n✓ 9. 检查 \"item-name\" 的显示文字\n   实际：\"大米\"\n✓ 10. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 11. 点击 \"filter-all\"\n✓ 12. 检查 \"item-name\" 的数量\n   实际：2\n✓ 13. 检查 第 1 个 \"item-name\" 的显示文字\n   实际：\"大米\"\n✓ 14. 检查 第 2 个 \"item-name\" 的显示文字\n   实际：\"面粉\"\n✓ 15. 点击 \"filter-purchased\"\n✓ 16. 点击 \"filter-pending\"\n✓ 17. 检查 \"item-name\" 的数量\n   实际：1\n✓ 18. 检查 \"item-name\" 的显示文字\n   实际：\"大米\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "filter-purchased",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"大米\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"面粉\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 第 2 个 \"item-toggle\"\n✓ 6. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 7. 点击 \"filter-purchased\"\n✓ 8. 检查 \"item-name\" 的数量\n   实际：1\n✓ 9. 检查 \"item-name\" 的显示文字\n   实际：\"面粉\"\n✓ 10. 点击 \"filter-all\"\n✓ 11. 检查 \"item-name\" 的数量\n   实际：2\n✓ 12. 检查 第 1 个 \"item-name\" 的显示文字\n   实际：\"大米\"\n✓ 13. 检查 第 2 个 \"item-name\" 的显示文字\n   实际：\"面粉\"\n✓ 14. 点击 \"filter-pending\"\n✓ 15. 点击 \"filter-purchased\"\n✓ 16. 检查 \"item-name\" 的数量\n   实际：1\n✓ 17. 检查 \"item-name\" 的显示文字\n   实际：\"面粉\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-kind-count",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"0\"\n✓ 2. 在 \"item-name-input\" 输入 \"可乐\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 在 \"item-name-input\" 输入 \"薯片\"\n✓ 5. 点击 \"add-button\"\n✓ 6. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"2\"\n✓ 7. 点击 第 2 个 \"item-delete\"\n✓ 8. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-pending-total",
+          "status": "failed",
+          "message": "✓ 1. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"0\"\n✓ 2. 在 \"item-name-input\" 输入 \"可乐\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 在 \"item-name-input\" 输入 \"薯片\"\n✓ 5. 点击 \"add-button\"\n✓ 6. 点击 第 1 个 \"item-increase\"\n✓ 7. 点击 第 1 个 \"item-increase\"\n✓ 8. 检查 第 1 个 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 9. 点击 第 2 个 \"item-toggle\"\n✓ 10. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 11. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"3\"\n✓ 12. 点击 第 2 个 \"item-toggle\"\n× 13. 检查 第 2 个 \"item-status\" 的显示文字\n预期：\"待购买\"\n实际：\"已购买\""
+        },
+        {
+          "caseId": "stats-unaffected-by-filter",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"可乐\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"薯片\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 第 1 个 \"item-increase\"\n✓ 6. 点击 第 1 个 \"item-increase\"\n✓ 7. 点击 第 2 个 \"item-toggle\"\n✓ 8. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"2\"\n✓ 9. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"3\"\n✓ 10. 点击 \"filter-purchased\"\n✓ 11. 检查 \"item-name\" 的数量\n   实际：1\n✓ 12. 检查 \"item-name\" 的显示文字\n   实际：\"薯片\"\n✓ 13. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"2\"\n✓ 14. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"3\"\n✓ 15. 点击 \"filter-pending\"\n✓ 16. 检查 \"item-name\" 的数量\n   实际：1\n✓ 17. 检查 \"item-name\" 的显示文字\n   实际：\"可乐\"\n✓ 18. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"2\"\n✓ 19. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"3\"\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 8630.791375
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shopping-toggle-back-missing",
+          "status": "failed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 点击 \"item-toggle\"\n✓ 4. 点击 \"item-toggle\"\n× 5. 检查 \"item-status\" 的显示文字\n预期：\"待购买\"\n实际：\"已购买\""
+        }
+      ],
+      "durationMs": 1855.9780470000005
+    }
+  },
+  {
+    "name": "shopping-filter-all-noop",
+    "case": "shop_a",
+    "requirement": "从筛选返回全部时重新显示所有商品",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "add-item-appears",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 5. 在 \"item-name-input\" 输入 \"鸡蛋\"\n✓ 6. 点击 \"add-button\"\n✓ 7. 检查 \"item-name\" 的数量\n   实际：2\n✓ 8. 检查 第 1 个 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 9. 检查 第 2 个 \"item-name\" 的显示文字\n   实际：\"鸡蛋\"\n✓ 10. 检查 第 2 个 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "add-clears-input",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"面包\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-name-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "blank-shows-hint",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"add-button\"\n✓ 2. 检查 \"item-name\" 的数量\n   实际：0\n✓ 3. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 4. 在 \"item-name-input\" 输入 \"   \"\n✓ 5. 点击 \"add-button\"\n✓ 6. 检查 \"item-name\" 的数量\n   实际：0\n✓ 7. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 8. 在 \"item-name-input\" 输入 \"苹果\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-name\" 的数量\n   实际：1\n✓ 11. 检查 \"item-name\" 的显示文字\n   实际：\"苹果\"\n✓ 12. 检查 \"blank-hint\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "quantity-increase",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"苹果\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 4. 点击 \"item-increase\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"2\"\n✓ 6. 点击 \"item-increase\"\n✓ 7. 检查 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 8. 在 \"item-name-input\" 输入 \"香蕉\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-quantity\" 的数量\n   实际：2\n✓ 11. 点击 第 1 个 \"item-increase\"\n✓ 12. 检查 第 1 个 \"item-quantity\" 的显示文字\n   实际：\"4\"\n✓ 13. 检查 第 2 个 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "quantity-decrease",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"香蕉\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 点击 \"item-increase\"\n✓ 4. 点击 \"item-increase\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 6. 点击 \"item-decrease\"\n✓ 7. 检查 \"item-quantity\" 的显示文字\n   实际：\"2\"\n✓ 8. 点击 \"item-decrease\"\n✓ 9. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "quantity-floor-one",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"橙子\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 4. 点击 \"item-decrease\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 6. 点击 \"item-decrease\"\n✓ 7. 点击 \"item-decrease\"\n✓ 8. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "toggle-to-purchased",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"鸡蛋\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-status\" 的显示文字\n   实际：\"待购买\"\n✓ 4. 点击 \"item-toggle\"\n✓ 5. 检查 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 6. 点击 \"item-toggle\"\n✓ 7. 检查 \"item-status\" 的显示文字\n   实际：\"待购买\"\n✓ 8. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-status\" 的数量\n   实际：2\n✓ 11. 点击 第 1 个 \"item-toggle\"\n✓ 12. 检查 第 1 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 13. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"待购买\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "delete-removes-item",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"酸奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 检查 \"item-name\" 的数量\n   实际：2\n✓ 6. 点击 第 1 个 \"item-delete\"\n✓ 7. 检查 \"item-name\" 的数量\n   实际：1\n✓ 8. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 9. 在 \"item-name-input\" 输入 \"酸奶\"\n✓ 10. 点击 \"add-button\"\n✓ 11. 点击 第 2 个 \"item-toggle\"\n✓ 12. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 13. 点击 第 2 个 \"item-delete\"\n✓ 14. 检查 \"item-name\" 的数量\n   实际：1\n✓ 15. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "filter-pending",
+          "status": "failed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"大米\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"面粉\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 第 2 个 \"item-toggle\"\n✓ 6. 检查 \"item-name\" 的数量\n   实际：2\n✓ 7. 点击 \"filter-pending\"\n✓ 8. 检查 \"item-name\" 的数量\n   实际：1\n✓ 9. 检查 \"item-name\" 的显示文字\n   实际：\"大米\"\n✓ 10. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 11. 点击 \"filter-all\"\n× 12. 检查 \"item-name\" 的数量\n预期：2\n实际：1"
+        },
+        {
+          "caseId": "filter-purchased",
+          "status": "failed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"大米\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"面粉\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 第 2 个 \"item-toggle\"\n✓ 6. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 7. 点击 \"filter-purchased\"\n✓ 8. 检查 \"item-name\" 的数量\n   实际：1\n✓ 9. 检查 \"item-name\" 的显示文字\n   实际：\"面粉\"\n✓ 10. 点击 \"filter-all\"\n× 11. 检查 \"item-name\" 的数量\n预期：2\n实际：1"
+        },
+        {
+          "caseId": "stats-kind-count",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"0\"\n✓ 2. 在 \"item-name-input\" 输入 \"可乐\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 在 \"item-name-input\" 输入 \"薯片\"\n✓ 5. 点击 \"add-button\"\n✓ 6. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"2\"\n✓ 7. 点击 第 2 个 \"item-delete\"\n✓ 8. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-pending-total",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"0\"\n✓ 2. 在 \"item-name-input\" 输入 \"可乐\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 在 \"item-name-input\" 输入 \"薯片\"\n✓ 5. 点击 \"add-button\"\n✓ 6. 点击 第 1 个 \"item-increase\"\n✓ 7. 点击 第 1 个 \"item-increase\"\n✓ 8. 检查 第 1 个 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 9. 点击 第 2 个 \"item-toggle\"\n✓ 10. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 11. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"3\"\n✓ 12. 点击 第 2 个 \"item-toggle\"\n✓ 13. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"待购买\"\n✓ 14. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"4\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-unaffected-by-filter",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"可乐\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"薯片\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 第 1 个 \"item-increase\"\n✓ 6. 点击 第 1 个 \"item-increase\"\n✓ 7. 点击 第 2 个 \"item-toggle\"\n✓ 8. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"2\"\n✓ 9. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"3\"\n✓ 10. 点击 \"filter-purchased\"\n✓ 11. 检查 \"item-name\" 的数量\n   实际：1\n✓ 12. 检查 \"item-name\" 的显示文字\n   实际：\"薯片\"\n✓ 13. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"2\"\n✓ 14. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"3\"\n✓ 15. 点击 \"filter-pending\"\n✓ 16. 检查 \"item-name\" 的数量\n   实际：1\n✓ 17. 检查 \"item-name\" 的显示文字\n   实际：\"可乐\"\n✓ 18. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"2\"\n✓ 19. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"3\"\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 8585.987263
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shopping-filter-all-noop",
+          "status": "failed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"面包\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 \"切换 面包 的购买状态\"\n✓ 6. 点击 \"filter-purchased\"\n✓ 7. 点击 \"filter-all\"\n× 8. 检查 \"item-name\" 的数量\n预期：2\n实际：1"
+        }
+      ],
+      "durationMs": 1931.916373
+    }
+  },
+  {
+    "name": "shopping-stats-use-visible-items",
+    "case": "shop_a",
+    "requirement": "筛选不能改变全清单统计",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "add-item-appears",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 5. 在 \"item-name-input\" 输入 \"鸡蛋\"\n✓ 6. 点击 \"add-button\"\n✓ 7. 检查 \"item-name\" 的数量\n   实际：2\n✓ 8. 检查 第 1 个 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 9. 检查 第 2 个 \"item-name\" 的显示文字\n   实际：\"鸡蛋\"\n✓ 10. 检查 第 2 个 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "add-clears-input",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"面包\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-name-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "blank-shows-hint",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"add-button\"\n✓ 2. 检查 \"item-name\" 的数量\n   实际：0\n✓ 3. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 4. 在 \"item-name-input\" 输入 \"   \"\n✓ 5. 点击 \"add-button\"\n✓ 6. 检查 \"item-name\" 的数量\n   实际：0\n✓ 7. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 8. 在 \"item-name-input\" 输入 \"苹果\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-name\" 的数量\n   实际：1\n✓ 11. 检查 \"item-name\" 的显示文字\n   实际：\"苹果\"\n✓ 12. 检查 \"blank-hint\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "quantity-increase",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"苹果\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 4. 点击 \"item-increase\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"2\"\n✓ 6. 点击 \"item-increase\"\n✓ 7. 检查 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 8. 在 \"item-name-input\" 输入 \"香蕉\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-quantity\" 的数量\n   实际：2\n✓ 11. 点击 第 1 个 \"item-increase\"\n✓ 12. 检查 第 1 个 \"item-quantity\" 的显示文字\n   实际：\"4\"\n✓ 13. 检查 第 2 个 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "quantity-decrease",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"香蕉\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 点击 \"item-increase\"\n✓ 4. 点击 \"item-increase\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 6. 点击 \"item-decrease\"\n✓ 7. 检查 \"item-quantity\" 的显示文字\n   实际：\"2\"\n✓ 8. 点击 \"item-decrease\"\n✓ 9. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "quantity-floor-one",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"橙子\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 4. 点击 \"item-decrease\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 6. 点击 \"item-decrease\"\n✓ 7. 点击 \"item-decrease\"\n✓ 8. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "toggle-to-purchased",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"鸡蛋\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-status\" 的显示文字\n   实际：\"待购买\"\n✓ 4. 点击 \"item-toggle\"\n✓ 5. 检查 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 6. 点击 \"item-toggle\"\n✓ 7. 检查 \"item-status\" 的显示文字\n   实际：\"待购买\"\n✓ 8. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-status\" 的数量\n   实际：2\n✓ 11. 点击 第 1 个 \"item-toggle\"\n✓ 12. 检查 第 1 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 13. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"待购买\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "delete-removes-item",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"酸奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 检查 \"item-name\" 的数量\n   实际：2\n✓ 6. 点击 第 1 个 \"item-delete\"\n✓ 7. 检查 \"item-name\" 的数量\n   实际：1\n✓ 8. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 9. 在 \"item-name-input\" 输入 \"酸奶\"\n✓ 10. 点击 \"add-button\"\n✓ 11. 点击 第 2 个 \"item-toggle\"\n✓ 12. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 13. 点击 第 2 个 \"item-delete\"\n✓ 14. 检查 \"item-name\" 的数量\n   实际：1\n✓ 15. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "filter-pending",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"大米\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"面粉\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 第 2 个 \"item-toggle\"\n✓ 6. 检查 \"item-name\" 的数量\n   实际：2\n✓ 7. 点击 \"filter-pending\"\n✓ 8. 检查 \"item-name\" 的数量\n   实际：1\n✓ 9. 检查 \"item-name\" 的显示文字\n   实际：\"大米\"\n✓ 10. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 11. 点击 \"filter-all\"\n✓ 12. 检查 \"item-name\" 的数量\n   实际：2\n✓ 13. 检查 第 1 个 \"item-name\" 的显示文字\n   实际：\"大米\"\n✓ 14. 检查 第 2 个 \"item-name\" 的显示文字\n   实际：\"面粉\"\n✓ 15. 点击 \"filter-purchased\"\n✓ 16. 点击 \"filter-pending\"\n✓ 17. 检查 \"item-name\" 的数量\n   实际：1\n✓ 18. 检查 \"item-name\" 的显示文字\n   实际：\"大米\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "filter-purchased",
+          "status": "passed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"大米\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"面粉\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 第 2 个 \"item-toggle\"\n✓ 6. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 7. 点击 \"filter-purchased\"\n✓ 8. 检查 \"item-name\" 的数量\n   实际：1\n✓ 9. 检查 \"item-name\" 的显示文字\n   实际：\"面粉\"\n✓ 10. 点击 \"filter-all\"\n✓ 11. 检查 \"item-name\" 的数量\n   实际：2\n✓ 12. 检查 第 1 个 \"item-name\" 的显示文字\n   实际：\"大米\"\n✓ 13. 检查 第 2 个 \"item-name\" 的显示文字\n   实际：\"面粉\"\n✓ 14. 点击 \"filter-pending\"\n✓ 15. 点击 \"filter-purchased\"\n✓ 16. 检查 \"item-name\" 的数量\n   实际：1\n✓ 17. 检查 \"item-name\" 的显示文字\n   实际：\"面粉\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-kind-count",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"0\"\n✓ 2. 在 \"item-name-input\" 输入 \"可乐\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 在 \"item-name-input\" 输入 \"薯片\"\n✓ 5. 点击 \"add-button\"\n✓ 6. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"2\"\n✓ 7. 点击 第 2 个 \"item-delete\"\n✓ 8. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-pending-total",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"0\"\n✓ 2. 在 \"item-name-input\" 输入 \"可乐\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 在 \"item-name-input\" 输入 \"薯片\"\n✓ 5. 点击 \"add-button\"\n✓ 6. 点击 第 1 个 \"item-increase\"\n✓ 7. 点击 第 1 个 \"item-increase\"\n✓ 8. 检查 第 1 个 \"item-quantity\" 的显示文字\n   实际：\"3\"\n✓ 9. 点击 第 2 个 \"item-toggle\"\n✓ 10. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 11. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"3\"\n✓ 12. 点击 第 2 个 \"item-toggle\"\n✓ 13. 检查 第 2 个 \"item-status\" 的显示文字\n   实际：\"待购买\"\n✓ 14. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"4\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-unaffected-by-filter",
+          "status": "failed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"可乐\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"薯片\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 第 1 个 \"item-increase\"\n✓ 6. 点击 第 1 个 \"item-increase\"\n✓ 7. 点击 第 2 个 \"item-toggle\"\n✓ 8. 检查 \"stats-kind-count\" 的显示文字\n   实际：\"2\"\n✓ 9. 检查 \"stats-pending-total\" 的显示文字\n   实际：\"3\"\n✓ 10. 点击 \"filter-purchased\"\n✓ 11. 检查 \"item-name\" 的数量\n   实际：1\n✓ 12. 检查 \"item-name\" 的显示文字\n   实际：\"薯片\"\n× 13. 检查 \"stats-kind-count\" 的显示文字\n预期：\"2\"\n实际：\"1\""
+        }
+      ],
+      "durationMs": 7320.856748999995
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shopping-stats-use-visible-items",
+          "status": "failed",
+          "message": "✓ 1. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"item-name-input\" 输入 \"面包\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 \"切换 面包 的购买状态\"\n✓ 6. 点击 \"filter-purchased\"\n× 7. 检查 \"stats-kind-count\" 的显示文字\n预期：\"2\"\n实际：\"1\""
+        }
+      ],
+      "durationMs": 1869.7313110000032
+    }
+  }
+]

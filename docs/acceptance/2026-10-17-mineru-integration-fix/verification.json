@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-10-17T08:32:41.147735+00:00",
+  "tests": {
+    "passed": 121,
+    "skipped": 6,
+    "warnings": 2
+  },
+  "production_data_written": false,
+  "production_backend_restarted": false,
+  "activation_blocker": "sudo requires administrator password",
+  "production_backend": "MainPID=1160014\nExecMainStartTimestamp=Sat 2026-10-17 08:23:02 UTC\n",
+  "files_sha256": {
+    "backend/src/app/integrations/pdf/__init__.py": "d4717bdb92ebdbc39afab1cca5a61227aa31f02dedae10533dc230137638c91a",
+    "backend/src/app/integrations/pdf/configuration.py": "ce27ddf3120bc1c2a71e4744b256706790991f25ab57760325d99fd4aaf36bdd",
+    "backend/src/app/integrations/pdf/mineru_local.py": "a040433b2d83c3bde73537f999bcefb103a9171458650ac056ac710925d75851",
+    "backend/src/app/integrations/pdf/mineru_local_artifacts.py": "e818a994aba979c6ae47c6654eb66cc611499749da5c9e172028c01e7a5236b1",
+    "backend/src/app/exam_generation/snapshots.py": "18404b65f5d90c1c829dea52e182208ed6ecc993debf1237abf6573625b737c4",
+    "backend/src/app/exam_generation/sources.py": "777d8aa8112def1055022541d30d39a5fee9b9d091fe30580442fab50347deb9",
+    "backend/src/app/course_preparation/adapters/documents.py": "5f1f5e8986f6aeae451ed6208b536587ba2de7102882b33cdecaa52b1de62ecd",
+    "backend/src/app/course_preparation/adapters/document_store.py": "fe7bfb5084873518a3d3e043d51982515e820ee9941edb8268f4c1d866240d03",
+    "backend/src/app/api/runtime_config.py": "f5f2f06be75eea5b254f0e650cfa6ae8fb17cc030635d4bd5796f5ebc294ced9",
+    "backend/src/modules/rag_v2/rag_main/system.py": "7cd12b40d13c78d374e7915895bdd2df9b8cd9e1c428951c179824c5118e9c2d",
+    "backend/src/tests/test_mineru_local.py": "70e6273c6a59f552874f853bcc49f2a64e8fb6d3fdad82fae7e0aa71b53401c5",
+    "backend/src/tests/exam_generation/test_generation.py": "471bc8ca6f77acabb070dcd73656742018dda83a8fb4458fc6f931714dd34750",
+    "backend/src/tests/course_preparation/test_document_adapter.py": "269db21d16e9b4f0963b4ad4d6e5d0f967996a16918df52ba4440fe2267bde4a",
+    "services/deeptutor/scripts/verify_m2_backend.py": "f945777501aa8182e2721f4d40893666a1eaa6ffab91d8868c0e1d819455a3d5",
+    "services/deeptutor/scripts/verify_m2_generation.py": "56ccfcf82c70f57874ba30a91cc7e647b91b57348c61b6742dbba8c5de495fc0"
+  }
+}

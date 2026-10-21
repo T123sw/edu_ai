@@ -1,0 +1,122 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "计算证据修复验收 1792260860771",
+  "startedAt": "2026-10-17T18:14:20.771Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/examgen_963b0aff1fd978f7e2f3cd01624a1e5e/retry",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-17T18:14:24.803Z",
+      "attempt": 0,
+      "generation_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+      "job_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-17T18:15:01.704Z",
+      "attempt": 0,
+      "generation_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+      "job_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-17T18:15:22.409Z",
+      "attempt": 0,
+      "generation_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+      "job_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-17T18:25:30.158Z",
+      "attempt": 0,
+      "generation_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+      "job_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    },
+    {
+      "at": "2026-10-17T18:25:32.982Z",
+      "attempt": 1,
+      "generation_id": "examgen_2614fc5b2b7a9895a0b6c088d044a244",
+      "job_id": "job_91f4e9d362024490",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-17T18:26:08.977Z",
+      "attempt": 1,
+      "generation_id": "examgen_2614fc5b2b7a9895a0b6c088d044a244",
+      "job_id": "job_91f4e9d362024490",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-17T18:26:29.729Z",
+      "attempt": 1,
+      "generation_id": "examgen_2614fc5b2b7a9895a0b6c088d044a244",
+      "job_id": "job_91f4e9d362024490",
+      "status": "succeeded",
+      "progress": 100,
+      "message": "试题生成结果已保存，尚待整卷校验",
+      "exam_ready": false,
+      "error_code": null
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+    "examgen_2614fc5b2b7a9895a0b6c088d044a244"
+  ],
+  "retries": 1,
+  "refresh_recovery": true,
+  "completed": true,
+  "questions": 32,
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "finishedAt": "2026-10-17T18:26:34.727Z"
+}

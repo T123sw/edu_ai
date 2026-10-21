@@ -1,0 +1,62 @@
+[
+  {
+    "node": "n1-why-transformer",
+    "duration": 286.6,
+    "streams": [
+      "video",
+      "audio"
+    ],
+    "timeline_duration": 286.6,
+    "segments": 9,
+    "with_narration": 9,
+    "narration_chars": 1446
+  },
+  {
+    "node": "n2-self-attention",
+    "duration": 292.0,
+    "streams": [
+      "video",
+      "audio"
+    ],
+    "timeline_duration": 292.0,
+    "segments": 10,
+    "with_narration": 10,
+    "narration_chars": 1427
+  },
+  {
+    "node": "n3-multihead",
+    "duration": 72.166667,
+    "streams": [
+      "video",
+      "audio"
+    ],
+    "timeline_duration": 72.166667,
+    "segments": 7,
+    "with_narration": 7,
+    "narration_chars": 389
+  },
+  {
+    "node": "n4-position-ffn-norm",
+    "duration": 100.3,
+    "streams": [
+      "video",
+      "audio"
+    ],
+    "timeline_duration": 100.3,
+    "segments": 9,
+    "with_narration": 9,
+    "narration_chars": 509
+  },
+  {
+    "node": "n5-encoder-decoder",
+    "duration": 300.933333,
+    "streams": [
+      "video",
+      "audio"
+    ],
+    "timeline_duration": 300.933333,
+    "segments": 10,
+    "with_narration": 10,
+    "narration_chars": 1552
+  }
+]

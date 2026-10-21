@@ -1,0 +1,40 @@
+{
+  "checked_at": "2026-10-19T04:03:21.884308+00:00",
+  "result": "three_native_workers_completed_concurrently",
+  "scope": "isolated copied prior native project; three frame workers, not full course/MP4 validation",
+  "elapsed_seconds": 680.15,
+  "peak_active_workers": 3,
+  "worker_durations_seconds": [
+    390.41,
+    278.44,
+    677.06
+  ],
+  "frames": [
+    {
+      "path": "compositions/frames/01-two-formulas.html",
+      "bytes": 9501,
+      "sha256": "50523eea00a0b90ea6c59a937091e98858f9aab0625c67e1a493e3567d5c567a"
+    },
+    {
+      "path": "compositions/frames/02-b-zero-line.html",
+      "bytes": 15460,
+      "sha256": "5d93275ab394f0a60558faa443d0cfbff31f1b4fdea853f693a2c02841ecdc30"
+    },
+    {
+      "path": "compositions/frames/03-b-two-shift.html",
+      "bytes": 22010,
+      "sha256": "8c460ea51fa5a296a04be5ccf0a38cb53c98f3e0873fe8aa04d60c8c4db5be8b"
+    }
+  ],
+  "shared_existing_files_changed": [],
+  "regression": {
+    "initial": "18 passed in 62.79s",
+    "related": "134 passed in 51.84s",
+    "final_host_and_concurrency": "12 passed in 3.92s",
+    "preview_process_cleanup": "8 passed in 1.17s",
+    "counts_overlap": true
+  },
+  "release": "prepared_not_loaded_in_production",
+  "real_run_version_note": "Async worker dispatch and private temp directories exercised with real model workers; auto-port preview and compact polling additions were validated separately with real sandbox/unit regression tests.",
+  "speed_note": "No identical serial control run; overlap proves concurrency, not an end-to-end speedup ratio."
+}

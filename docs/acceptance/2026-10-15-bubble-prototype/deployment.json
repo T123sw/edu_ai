@@ -1,0 +1,31 @@
+{
+  "publishedAt": "20261015T031432Z",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-bubble-release",
+  "sourceSnapshot": "/tmp/edu-bubble-publish-source",
+  "backup": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-bubble-prototype-20261015T031432Z",
+  "baselineReproduced": true,
+  "baselineSource": "/tmp/edu-preview-heading-source; rebuilt byte-identical production baseline",
+  "previousIndexSha256": "2cab39ee5263880656e8f26fa5b0d4668f20e219f0c5dfe89a316702611d01e1",
+  "releaseIndexSha256": "0ba6be21f714bca7f9ab23d1e2710cd13902b436228f376cac41434e7e5d7eb3",
+  "nginxIndexMatches": true,
+  "route": "/#/practice/bubble-sort",
+  "entry": "互动实验 → 冒泡排序 · 分步体验",
+  "changes": [
+    "Integrate two-phase bubble sorting prototype into authenticated application",
+    "Add simulation home entry and return link",
+    "Scope prototype styles and isolate tab progress by username"
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "unitTests": 7,
+    "previewBrowserTests": 8,
+    "resourcePreviewRegressionChecks": 24,
+    "publishedBrowserTests": 8
+  },
+  "verificationLimits": "Business APIs and authentication mocked in browser checks; teaching actions run real frontend rules. No AI calls, backend deployment, database changes, performance testing phase, or free exploration phase.",
+  "sourceManifest": "release-source-manifest.json"
+}

@@ -1,0 +1,15 @@
+{
+  "backend_pid": 1295789,
+  "backend_start_utc": "2026-10-17T09:36:38Z",
+  "new_upload_route_registered": true,
+  "new_upload_http_status": 201,
+  "deeptutor_default_port_8026_listening": false,
+  "deeptutor_token_configured": false,
+  "frontend_placeholder": true,
+  "hashes": {
+    "backend/src/app/api/exam_generations.py": "415da3834e32da0cdc21ec589baeceb7cb30efc562a1b8148c5c9d34d2fe4f8e",
+    "backend/src/app/exam_generation/uploads.py": "dcc4c2344410ed1631505fb7f905735febb8299690ed4b9eea816da19dad72ae",
+    "backend/src/app/exam_generation/sources.py": "34463e128e1dbda23b626a95c5ccb9f9bb193e0edc10e7f0bbb5d1c8f7fafe33",
+    "services/deeptutor/.upstream/DeepTutor/deeptutor/tools/question/question_extractor.py": "8851357f456fb4bf7d2f32cfd72cba0dc4d0caf4b46ff45d239da6317bf3fa0d"
+  }
+}

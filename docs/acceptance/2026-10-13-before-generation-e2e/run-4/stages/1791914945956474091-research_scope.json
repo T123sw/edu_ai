@@ -1,0 +1,10 @@
+{
+  "stage": "research_scope",
+  "started_at": 1791914876.4051428,
+  "seconds": 69.55133628845215,
+  "next_stage": null,
+  "error": {
+    "code": "AGENT_NO_PROGRESS",
+    "message": "AGENT_NO_PROGRESS: coverage 必须逐项且不重复覆盖全部需求 ID：req-1"
+  }
+}

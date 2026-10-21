@@ -27,6 +27,9 @@ def test_scan_read_only_repeat_import_and_reconcile(preparation,count):
     second=migration.import_records(report)
     assert first['created']>0 and second['created']==0
     assert migration.reconcile(report)['unexplained_differences']==[]
+    preparation.learning.sessions.enter('alice','course','b')
+    assert migration.reconcile(report)['unexplained_differences']==[]
+    assert migration.import_records(report)['created']==0
     facts=preparation.learning.progress_repository.read('alice','course')
     assert not any(r['completed'] for r in facts['resources'])
     assert migration.archived('alice','course')['overlay']['progress']['pending:a']['note']=='保留占位笔记'

@@ -1,0 +1,20 @@
+{
+  "backend/src/app/services/tutoring_response_policy.py": "a325e574fc56e77efe462d6a8078e518ce2dcb6f8eaa165b634809ba697402cb",
+  "backend/src/app/services/classroom_qa_prompt.py": "79b042352b6be750c06351e19c4b6c26751813e65ec1c3aab783d649daf37a38",
+  "backend/src/app/services/resource_qa_prompt.py": "4798d421e038f67ba373136418d95fb1df847b59abab9f0062134bf85b795324",
+  "backend/src/app/self_learning/learning-role.md": "43c92c14339245de4e97e6bfda85bb5a231dd5d64a699a52c104eb39c4da4625",
+  "backend/src/app/self_learning/teaching_skills.py": "a475de8d62c4ec9b177198ba6e2563bffaf51d5713b0de9acb2dc0adf5380aae",
+  "backend/src/app/self_learning/service.py": "017758966584b4827df3c880569dd1e1d07411a1bf55fda76c0531ee9c087a51",
+  "backend/src/app/self_learning/check_service.py": "1ee9c3dc1edccf8092c2ef59b84dacca82bdbc95779e6079278b955f3b0cfd73",
+  "backend/src/app/self_learning/skills/teach-current-topic/SKILL.md": "d038611d167b879b8da454dacbf39e6aead6a000861bdac846a7c3a19a787e64",
+  "backend/src/app/self_learning/skills/teach-current-topic/references/classroom.md": "f150b804e21e2859ec57c8306930905cdcd91644fa0045b5f69fd1aae3fddd80",
+  "backend/src/app/self_learning/skills/teach-current-topic/references/document.md": "adc0da35359cf0c7231991a76f2a0083e7fef39016b50552c4e70489f7fb46ef",
+  "backend/src/app/self_learning/skills/teach-current-topic/references/quiz.md": "1206b734ffb9e0df4143115fcac4e523461b90ff876db0a7b4ad44440a702fe6",
+  "backend/src/app/practice/experiment/tutor.py": "f8d401281dc4ba95307794161de842ed6a71b93a7489db6364be43d38a8c689f",
+  "backend/src/app/practice/skills/teach-experiment/SKILL.md": "3d5410288ecd65453ddc0b8749b56d12400fae866a70cb15ddab31e5e05aab82",
+  "backend/src/app/pbl/tutor.py": "b1fded937494ad444634f1d3bce3b8c4071939498835054106c6979e70a6825f",
+  "backend/src/app/exam_practice/worker.py": "dd67d1ba4b5f858eae9e4769d9effa5d4d90a1d7db65011c5eee0ab72b0245eb",
+  "backend/src/app/api/practice.py": "0901a5f003a7c55aea12aae012523a2109bb5e492dbf14bdf13d1a2c15c99ee8",
+  "backend/src/app/chat/domain/persona_policy.py": "bf59f2a60a04b5abc0ece0513a0c140513943d9b8c2431dfdc187b93f238ade5",
+  "backend/src/app/chat/harness/root-role.md": "56ece87a9bfcb3ddb944ee9fda073bd1687b16e94bf7b392b06349ac3614cf65"
+}

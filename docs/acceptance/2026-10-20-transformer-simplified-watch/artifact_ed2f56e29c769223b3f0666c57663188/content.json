@@ -1,0 +1,113 @@
+{
+  "title": "自注意力与多头注意力：QKV 与多子空间",
+  "content": {
+    "title": "自注意力与多头注意力：QKV 与多子空间 习题",
+    "questions": [
+      {
+        "id": "n2-q1",
+        "stem": "在自注意力中，输入序列矩阵 X 得到 Q、K、V 的正确方式是？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "Q = XW_Q，K = XW_K，V = XW_V，其中 W_Q、W_K、W_V 是三组可学习的线性映射参数矩阵",
+          "Q、K、V 直接等于 X 本身，不需要任何参数矩阵",
+          "Q 来自输入 X，K 和 V 来自上一层的输出",
+          "Q、K、V 由 softmax 函数直接对 X 归一化得到"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：自注意力先用三个线性映射矩阵把同一输入 X 投影成查询、键、值三个向量序列。B 错误：虽然 Q、K、V 同源（都来自 X），但必须经过不同的投影矩阵，否则无法学习不同的表示。C 错误：这是编码器-解码器注意力（交叉注意力）的情形，自注意力中三者都来自同一输入。D 错误：softmax 用在打分之后做归一化，不用于生成 Q、K、V。"
+      },
+      {
+        "id": "n2-q2",
+        "stem": "缩放点积自注意力的输出矩阵可以写成下列哪一项？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "softmax(QK^T)V，不需要任何缩放",
+          "softmax(QK^T/√d_k)V，其中 softmax 按行归一化",
+          "softmax(Q^T K/√d_k)V，其中 softmax 按列归一化",
+          "softmax(VK^T/√d_k)Q，其中 softmax 按行归一化"
+        ],
+        "difficulty": "medium",
+        "explanation": "B 正确：先用 Q 与 K 的点积打分，除以 √d_k 缩放，再对每一行做 softmax 得到注意力权重，最后用权重对 V 加权求和。A 错误：缺少 √d_k 缩放，维度较大时点积数值会过大，softmax 会变得过于尖锐。C 错误：打分矩阵应为 QK^T（行对应查询位置、列对应被关注位置），且归一化是按行而非按列。D 错误：打分应由 Q 与 K 计算，加权对象是 V，顺序被颠倒了。"
+      },
+      {
+        "id": "n2-q3",
+        "stem": "在缩放点积自注意力中，softmax 是对打分矩阵的每一行做归一化，因此注意力权重矩阵的每一行之和为 1。",
+        "type": "true_false",
+        "answer": "正确",
+        "difficulty": "easy",
+        "explanation": "正确。打分矩阵 QK^T/√d_k 的每一行对应一个查询位置对所有被关注位置的打分，按行 softmax 后该行权重之和为 1，于是每个输出向量都是输入值向量按权重（总和为 1）的加权平均式组合。若误按列归一化，则每个查询位置的权重之和不再为 1，加权组合的含义就被破坏。"
+      },
+      {
+        "id": "n2-q4",
+        "stem": "关于自注意力中“Q、K、V 同源”以及输出向量的含义，下列说法正确的是？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "Q、K、V 都来自同一输入序列 X，输出序列中每个向量都是对输入值向量的加权组合",
+          "Q、K、V 来自两个不同序列，输出向量只包含当前词自身的信息",
+          "Q、K、V 同源意味着三者数值完全相同，输出向量等于输入向量本身",
+          "Q、K、V 同源意味着注意力权重与输入内容无关，只由位置决定"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：自注意力只用序列内部信息，Q、K、V 都由同一输入 X 经不同投影得到，因此每个位置都能与序列中所有位置做注意力计算，输出是输入值向量的加权组合。B 错误：Q、K、V 来自不同序列是交叉注意力的情形。C 错误：同源指来源相同，但经过不同投影矩阵后数值并不相同，输出也不是简单的恒等映射。D 错误：权重由 Q 与 K 的点积决定，依赖输入内容；位置信息需要另外通过位置编码引入。"
+      },
+      {
+        "id": "n2-q5",
+        "stem": "关于多头注意力，下列说法正确的有？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "用多组不同的投影矩阵，在多个不同的表示子空间中分别做自注意力",
+          "每个头各自输出一个按注意力权重加权求和的向量，最后把这些结果拼接并合并为最终输出",
+          "多个头可以在不同子空间捕捉不同的交互信息，比单头更丰富",
+          "多头注意力中所有头共享同一组投影矩阵，因此结果与单头完全相同"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：多头注意力的核心就是用多组不同参数的投影矩阵在多个投影空间分别应用自注意力。B 正确：每个头输出一个加权求和向量，各头结果拼接后再经输出投影合并。C 正确：不同子空间可以关注不同类型的关系，这正是多头相对单头的价值。D 错误：若所有头共享同一组投影矩阵，各头结果将相同，拼接后没有新增信息，也就失去了多头的意义。"
+      },
+      {
+        "id": "n2-q6",
+        "stem": "用 3 个词的极小例子说明：若某个查询位置对三个位置的注意力权重为 (0.5, 0.3, 0.2)，对应的值向量为 v1、v2、v3，该位置的输出向量是什么？并说明为什么说输出是输入向量的加权组合。",
+        "type": "short_answer",
+        "answer": "输出向量 = 0.5·v1 + 0.3·v2 + 0.2·v3。因为权重由 softmax 按行归一化得到、三者之和为 1，输出就是三个值向量按这些权重做的加权平均式组合，权重越大表示该位置的信息被继承得越多。",
+        "difficulty": "medium",
+        "explanation": "本题考查对“加权求和”这一注意力本质的理解。计算上只需把权重与对应值向量相乘再相加；解释上要指出权重来自 Q 与 K 的点积打分经按行 softmax 归一化，和为 1，因此输出落在输入值向量的凸组合范围内，体现了“用自己的查询去判断与各位置键的相似度，决定继承多少信息”。"
+      },
+      {
+        "id": "n2-q7",
+        "stem": "请写出缩放点积自注意力的完整计算流程（从输入 X 到输出），并说明公式中 √d_k 的作用。",
+        "type": "short_answer",
+        "answer": "① 由输入 X 经三个线性映射得到 Q = XW_Q、K = XW_K、V = XW_V；② 用点积打分得到 QK^T；③ 除以 √d_k 缩放；④ 对打分矩阵按行做 softmax 得到注意力权重；⑤ 用权重对 V 加权求和，即输出 = softmax(QK^T/√d_k)V。√d_k 用于缩放点积结果，避免维度较大时打分数值过大导致 softmax 过于尖锐、梯度变小。",
+        "difficulty": "hard",
+        "explanation": "流程的关键是顺序不能乱：先投影出 Q、K、V，再打分、缩放、按行 softmax，最后对 V 加权求和。√d_k 的说明要落在“控制打分数值范围、使 softmax 分布更平滑、训练更稳定”上，而不是把它说成归一化权重本身。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "unknown",
+        "method": "生成后不要求逐题估时。",
+        "value_minutes": null
+      },
+      "spec_digest": "f9e1a2b06a0ffce5d219ca2b5a50c71dd82caea1af7167d6f4972847c08b0831",
+      "schema_version": 1,
+      "alignment_policy": "quiz-structure-only-v1",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "243284d5e0034c2eeb0b78a85b9fa0c07fd6f9a04e0643256c4b0c395aa314cb"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "quiz-structure-only-v1",
+      "reason": "结构可展示即可交付；不执行模型审阅、数值审查或自动内容修订。",
+      "decision": "skipped",
+      "resource_type": "quiz",
+      "content_sha256": "848239fc32633198d7839cae924a59c6c9680c81dd9cb020ebb810fc4152b712",
+      "preparation_sha256": "e4bfbe2d0f0be2395fc1862242c4ed194bf4eb54c79b56cde1fc33c5967f8ffa"
+    }
+  }
+}

@@ -1,0 +1,1172 @@
+{
+  "_failure_detail": {
+    "code": "RESOURCE_CONTENT_REJECTED",
+    "phase": "resource_review",
+    "message": "第 2 题：数值断言无法复算：D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；；请提供受支持的算式或明确其验证限制",
+    "category": "content",
+    "artifact_id": null,
+    "retry_scope": "content",
+    "budget_metric": null,
+    "content_digest": "679a08d46c043de9e6bdb76b52d25779a34d1e3e0859f6bd43c5b68209ac2c50"
+  },
+  "_review_candidate": {
+    "content": {
+      "title": "为什么需要 Transformer：循环网络的瓶颈与注意力思路（检测题）",
+      "questions": [
+        {
+          "id": "q1",
+          "stem": "判断：循环模型“训练样本内部无法并行”的根源在于隐藏状态 ht 必须依赖前一时刻的隐藏状态 ht−1，因此第 t 步的计算必须等第 t−1 步完成。",
+          "type": "true_false",
+          "answer": "正确",
+          "difficulty": "easy",
+          "explanation": "正确。循环模型沿符号位置分解计算，生成隐藏状态序列 ht，其中 ht 是前一隐藏状态 ht−1 与位置 t 输入的函数。这种递推关系使各时间步之间存在数据依赖，第 t 步必须等第 t−1 步算完，所以同一个训练样本内部无法并行。注意区分：样本之间仍可组成批次并行处理，受限的是样本内部的时间步。"
+        },
+        {
+          "id": "q2",
+          "stem": "某循环模型处理一个含 100 个词的句子，每个时间步计算一个隐藏状态。若只考虑这种逐步递推带来的顺序依赖，完成该句全部隐藏状态至少需要多少个顺序计算步？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "1 步，因为整句可以一次性输入",
+            "100 步，每个词对应一个时间步",
+            "约 7 步，因为 100 的对数约为 7",
+            "10000 步，因为每步都要与所有词两两比较"
+          ],
+          "difficulty": "medium",
+          "explanation": "B 正确：循环模型把符号位置对齐到计算时间步，100 个词就对应 100 个依次执行的隐藏状态计算，顺序步数为 100。A 错误：一次性输入整句正是循环模型做不到的，它必须逐步推进。C 错误：本题问的是循环模型的顺序步数，而“对数”这一量级来自论文对 ByteNet 的描述——两个任意位置之间所需操作数随位置距离对数增长；这是另一类卷积模型的属性，与本题的 100 个时间步无关，且论文未给出把 100 个词换算成 7 步的算式，因此该数值无法从本题条件推出。D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；注意力层恰恰可以在一步内并行算出全部位置，所以这个数字既不是循环模型的顺序步数，也不能用来回答本题。"
+        },
+        {
+          "id": "q3",
+          "stem": "关于注意力机制与 Transformer 的关系，下列哪些说法符合《Attention Is All You Need》的表述？",
+          "type": "multiple_choice",
+          "answer": "A,B,D",
+          "options": [
+            "在 Transformer 之前，注意力机制大多与循环网络结合使用",
+            "Transformer 完全依赖注意力在输入与输出之间建立全局依赖",
+            "Transformer 用卷积层替代了循环层，因此不再需要注意力",
+            "Transformer 不使用循环，也不使用卷积"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：论文指出，除少数例外，此前的注意力机制都是与循环网络结合使用的。B 正确：论文明确说 Transformer 摒弃循环，完全依赖注意力机制在输入与输出之间建立全局依赖。C 错误：Transformer 既不用循环也不用卷积，卷积并不是它的替代手段；用卷积替代循环的是 ConvS2S、ByteNet 等另一类模型。D 正确：论文原话是“dispensing with recurrence and convolutions entirely”，即完全不用循环和卷积。"
+        },
+        {
+          "id": "q4",
+          "stem": "下列哪一项最准确地概括了 Transformer 的定位？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "一种在循环网络内部加入注意力模块的改进型编码器",
+            "2017 年提出、完全基于注意力、不含循环与卷积的序列转换架构",
+            "一种用卷积替代循环、按距离线性增长操作数的序列模型",
+            "一种只用于图像分类、不使用编码器-解码器结构的网络"
+          ],
+          "difficulty": "easy",
+          "explanation": "B 正确：Transformer 是 2017 年论文《Attention Is All You Need》提出的序列转换架构，完全基于注意力机制，摒弃循环与卷积，并沿用编码器-解码器结构。A 错误：那描述的是 Transformer 之前“注意力与循环网络结合”的常见做法，正是本文要摆脱的形态。C 错误：用卷积替代循环、两位置间操作数随距离线性增长的是 ConvS2S 一类模型，不是 Transformer。D 错误：Transformer 面向序列转换（如机器翻译），并使用编码器-解码器结构，与图像分类网络无关。"
+        },
+        {
+          "id": "q5",
+          "stem": "请用两三句话说明：循环模型的顺序性根源是什么？为什么 Transformer 用注意力替代循环后能提高并行度？",
+          "type": "short_answer",
+          "answer": "根源是循环模型的隐藏状态 ht 依赖前一状态 ht−1，各时间步形成必须依次执行的递推链，因此同一训练样本内部无法并行。Transformer 摒弃循环，完全依赖注意力在输入与输出之间建立全局依赖，同一层内所有位置可以同时计算，从而显著提高并行度。",
+          "difficulty": "medium",
+          "explanation": "评分要点：(1) 指出 ht 依赖 ht−1 的递推关系，并说明它导致时间步之间必须串行；(2) 指出 Transformer 不用循环、完全依赖注意力建立全局依赖；(3) 说明由此同一层内各位置可同时计算，并行度显著提升。只答“注意力更快”而未说明依赖关系与并行来源，不算完整。"
+        }
+      ]
+    },
+    "artifact_id": "artifact_e019805f3ebe3fdb6eb01eddedba8658",
+    "resource_id": "resource_e019805f3ebe3fdb6eb01eddedba8658",
+    "spec_digest": "1f03d3ec10812ceedb3c82e2a27fd93fcd5751e6fadb4515d4d2f4c0270e0caf",
+    "review_state": {
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "五题分别覆盖节点三个目标：q1/q2/q5 覆盖 ht 依赖 ht−1 的顺序性与样本内并行限制，q3 覆盖注意力此前多与循环网络结合及 Transformer 完全依赖注意力建立全局依赖，q4 覆盖 2017 年提出、不含循环与卷积的序列转换架构定位；与 req-goal-transformer 的动机部分真实相关。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "q1 判断正确；q2 100 词对应 100 个顺序隐藏状态计算，答案 B 正确，C 的对数说法与 ByteNet 的说明相符；q3 答案 A,B,D 与论文表述一致，C 的“用卷积替代循环”确为 ConvS2S/ByteNet 一类模型；q4 答案 B 准确；q5 参考答案与评分要点无事实错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q2 以 100 词句子为具体实例，干扰项 1 步、约 7 步、10000 步分别对应可解释的错误算式（一次性输入、对数增长、注意力矩阵规模），解析给出真实原因而非猜测；其余题目为概念辨析，无需额外算例。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序由顺序性根源（q1）→ 定量代价（q2）→ 注意力与 Transformer 关系（q3）→ 定位概括（q4）→ 综合简答（q5），符合节点活动“先列限制、再对比信息路径、最后讨论步数”的顺序，难度 easy/medium 与入门深度匹配，语言为中文。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "q3、q4 的解析引用论文原话“dispensing with recurrence and convolutions entirely”及“除少数例外，注意力与循环网络结合使用”，与 research_context 中提供的论文摘要/引言原文一致，未超出所给依据。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "5 题覆盖三个目标且每题均有答案与逐步解析，判断题与简答题按契约省略 options，选择题选项无 A./B. 前缀、答案用大写字母，正确答案位置分布为 B、A,B,D、B，未出现全部同位的规律；本资源不承担其他节点内容。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q2 的 C 选项解析提到 ByteNet 的对数增长，属背景知识，可考虑在题干或解析中补一句“与本题循环模型无关”的提示，降低入门读者的理解负担。",
+              "q3 为多选题但题干未明示“多选”，建议在题干中标注“（多选）”，避免学习者按单选作答。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "循环模型沿符号位置分解计算，ht = f(ht−1, xt)，第 t 步必须等第 t−1 步完成，因此同一训练样本内部的时间步无法并行；但不同样本之间仍可组成批次并行。题干表述正确。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "循环模型必须逐步推进隐藏状态，无法一次性输入整句并行计算，故“1 步”错误。",
+                    "option_text": "1 步，因为整句可以一次性输入",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：一次性输入整句正是循环模型做不到的，它必须逐步推进。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称“一次性输入整句正是循环模型做不到的，它必须逐步推进”，与 ht 依赖 ht−1 的递推性质一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "100 个词对应 100 个时间步，顺序步数为 100，正确。",
+                    "option_text": "100 步，每个词对应一个时间步",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：循环模型把符号位置对齐到计算时间步，100 个词就对应 100 个依次执行的隐藏状态计算，顺序步数为 100。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析说明符号位置对齐计算时间步、100 词对应 100 次依次执行的隐藏状态计算，推导正确。"
+                  },
+                  {
+                    "reasoning": "对数步数并非循环模型的顺序步数，log2(100)≈6.64 只是某些卷积结构中两位置间操作数的增长量级，故错误。",
+                    "option_text": "约 7 步，因为 100 的对数约为 7",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：对数步数对应的是某些卷积结构（如 ByteNet）中两位置间所需操作数随距离对数增长，不是循环模型的顺序步数。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析把对数增长归给 ByteNet 等卷积结构而非循环模型，与论文背景部分一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "100×100 是注意力中位置两两交互的矩阵规模，不是循环模型的顺序步数，故错误。",
+                    "option_text": "10000 步，因为每步都要与所有词两两比较",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：100×100 是把“每个位置与所有位置两两交互”的注意力矩阵规模误当成顺序步数；注意力层恰恰可以在一步内并行算出全部位置。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 100×100 被误当成顺序步数，并补充注意力层可一步并行算出全部位置，两处判断均成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "100",
+                    "excerpt": "B 正确：循环模型把符号位置对齐到计算时间步，100 个词就对应 100 个依次执行的隐藏状态计算，顺序步数为 100。",
+                    "expression": "100",
+                    "end_segment": 0,
+                    "source_field": "explanation",
+                    "start_segment": 0,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "10000",
+                    "excerpt": "D 错误：100×100 是把“每个位置与所有位置两两交互”的注意力矩阵规模误当成顺序步数；",
+                    "expression": "100*100",
+                    "end_segment": 3,
+                    "source_field": "explanation",
+                    "start_segment": 3,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "循环模型每个词对应一个时间步，100 个词需 100 个依次执行的隐藏状态计算，顺序步数为 100，选 B。A 错（循环模型不能一次性输入整句）；C 错（对数增长是 ByteNet 等卷积模型两位置间操作数，不是循环步数）；D 错（100×100 是注意力矩阵规模，注意力层可一步并行算出全部位置）。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "论文原文“In all but a few cases, however, such attention mechanisms are used in conjunction with a recurrent network”，A 正确。",
+                    "option_text": "在 Transformer 之前，注意力机制大多与循环网络结合使用",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文指出，除少数例外，此前的注意力机制都是与循环网络结合使用的。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析复述“除少数例外，此前注意力机制都与循环网络结合使用”，与论文原句一致。"
+                  },
+                  {
+                    "reasoning": "论文称 Transformer 摒弃循环、完全依赖注意力在输入输出间建立全局依赖，B 正确。",
+                    "option_text": "Transformer 完全依赖注意力在输入与输出之间建立全局依赖",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：论文明确说 Transformer 摒弃循环，完全依赖注意力机制在输入与输出之间建立全局依赖。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析准确转述“eschewing recurrence and relying entirely on attention to draw global dependencies”，成立。"
+                  },
+                  {
+                    "reasoning": "Transformer 不使用卷积，也不以卷积替代循环，C 错误。",
+                    "option_text": "Transformer 用卷积层替代了循环层，因此不再需要注意力",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：Transformer 既不用循环也不用卷积，卷积并不是它的替代手段；用卷积替代循环的是 ConvS2S、ByteNet 等另一类模型。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 Transformer 既不用循环也不用卷积，并说明用卷积替代循环的是 ConvS2S、ByteNet，与论文背景部分一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "论文原话“dispensing with recurrence and convolutions entirely”，D 正确。",
+                    "option_text": "Transformer 不使用循环，也不使用卷积",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：论文原话是“dispensing with recurrence and convolutions entirely”，即完全不用循环和卷积。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用原句并给出中文释义，与论文表述一致。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文指出除少数例外注意力机制此前都与循环网络结合使用（A 对）；Transformer 摒弃循环、完全依赖注意力在输入输出间建立全局依赖（B 对）；它既不用循环也不用卷积，用卷积替代循环的是 ConvS2S、ByteNet（C 错）；原话 dispensing with recurrence and convolutions entirely（D 对）。答案 A,B,D。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [
+                  {
+                    "reasoning": "在循环网络内部加注意力模块是 Transformer 之前的常见形态，不是 Transformer 的定位，错误。",
+                    "option_text": "一种在循环网络内部加入注意力模块的改进型编码器",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：那描述的是 Transformer 之前“注意力与循环网络结合”的常见做法，正是本文要摆脱的形态。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称该描述正是本文要摆脱的“注意力与循环网络结合”形态，与论文引言一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "同时满足 2017 年提出、完全基于注意力、不含循环与卷积、序列转换架构四项，正确。",
+                    "option_text": "2017 年提出、完全基于注意力、不含循环与卷积的序列转换架构",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：Transformer 是 2017 年论文《Attention Is All You Need》提出的序列转换架构，完全基于注意力机制，摒弃循环与卷积，并沿用编码器-解码器结构。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析完整列出年份、注意力基础、摒弃循环卷积与编码器-解码器结构，与论文一致。"
+                  },
+                  {
+                    "reasoning": "用卷积替代循环、两位置间操作数随距离线性增长的是 ConvS2S，不是 Transformer，错误。",
+                    "option_text": "一种用卷积替代循环、按距离线性增长操作数的序列模型",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：用卷积替代循环、两位置间操作数随距离线性增长的是 ConvS2S 一类模型，不是 Transformer。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析把线性增长归给 ConvS2S 一类模型，与论文背景部分“linearly for ConvS2S”一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "Transformer 面向序列转换（如机器翻译）并使用编码器-解码器结构，与图像分类网络无关，错误。",
+                    "option_text": "一种只用于图像分类、不使用编码器-解码器结构的网络",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：Transformer 面向序列转换（如机器翻译），并使用编码器-解码器结构，与图像分类网络无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出其面向序列转换且使用编码器-解码器结构，与论文第 3 节描述一致，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Transformer 是 2017 年《Attention Is All You Need》提出的序列转换架构，完全基于注意力、摒弃循环与卷积、沿用编码器-解码器结构，B 最准确。A 描述的是注意力与循环网络结合的旧做法；C 描述 ConvS2S 一类卷积模型；D 与序列转换任务及编码器-解码器结构不符。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "顺序性根源：循环模型隐藏状态 ht 是 ht−1 与位置 t 输入的函数，形成必须依次执行的递推链，故同一训练样本内部无法并行（样本之间仍可批处理）。并行度提升来源：Transformer 摒弃循环，完全依赖注意力在输入与输出之间建立全局依赖，同一层内所有位置可同时计算。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 判断题直接考查 ht 依赖 ht−1 导致样本内无法并行，真实支持“理解 Transformer 工作机制”的动机部分。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 以 100 词句子定量核算顺序步数为 100，落实对循环模型顺序计算代价的理解。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 多选逐项核对注意力与循环网络结合、Transformer 完全依赖注意力建立全局依赖，与所述贡献一致。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 单选要求识别 2017 年提出、不含循环与卷积的序列转换架构，准确对应定位目标。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 简答要求说明顺序性根源与并行度提升来源，综合检验动机理解，与所述贡献相符。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1 的 check，直接判定 ht 依赖 ht−1 与样本内并行限制的因果关系。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o1 的 practice，通过 100 词步数计算练习顺序性代价。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o1 的 check，要求复述顺序性根源，覆盖该目标核心。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的 check，覆盖注意力此前与循环网络结合及完全依赖注意力建立全局依赖两点。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o2 的 practice，要求说明 Transformer 不用循环、依赖注意力带来的并行提升。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o3 的 check，直接考查 2017 年提出、不含循环与卷积的序列转换架构定位。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n1-why-transformer:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "revise",
+          "content_sha256": "352c0b9bda26d94c5ca0424f324197d1343a718ea2c301011309dad0b743223e"
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "五题分别覆盖循环模型顺序性（q1）、顺序步数定量（q2）、注意力与循环关系及完全依赖注意力（q3）、Transformer 定位（q4）、顺序性根源与并行度提升（q5），与节点目标 o1/o2/o3 及 req-goal-transformer 的动机部分真实对应，未越界到其他节点内容。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "q1 判断正确；q2 100 词对应 100 个顺序隐藏状态计算，答案 B 正确，干扰项 1/7/10000 均有可解释来源；q3 答案 A,B,D 与论文表述一致，C 项“用卷积替代循环”确为错误；q4 答案 B 准确概括 2017 年、完全基于注意力、不含循环与卷积；q5 参考答案与评分要点一致，无事实错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q2 以 100 词句子为具体实例，逐项给出 1 步、约 7 步、10000 步的错误算式来源（对数对应 ByteNet 类卷积结构、100×100 为注意力打分矩阵元素数），解析逐步求解而非只重复答案。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序由“顺序性根源→顺序步数→注意力关系→整体定位→综合简答”递进，符合入门深度与节点活动（含 100 词讨论题）；语言为中文，无前置知识要求，未引入实现或调参内容。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "q3、q4 的解析引用论文原话（dispensing with recurrence and convolutions entirely、注意力多与循环网络结合），与 research_context 提供的论文摘录一致，未虚构外部来源。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "5 题覆盖三个节点目标，题型含判断、单选、多选、简答，难度标注齐全，每题均有解析；简答题给出评分要点，可支撑节点自检要求。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q2 的 C 项解析提到 ByteNet 的对数增长，属论文背景知识，入门学习者可能不熟悉，可加一句“可忽略，只需知道它不是循环模型的步数”。",
+              "q3 为多选且答案含三项，可考虑在题干提示“多选”，避免学习者误按单选作答。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "循环模型按符号位置展开计算，ht = f(ht−1, xt)，第 t 步依赖第 t−1 步结果，故同一训练样本内部时间步无法并行；样本之间仍可批处理。题干表述正确。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "循环模型必须逐步推进，无法一次性输入整句并一步得到全部隐藏状态，故“1 步”错误。",
+                    "option_text": "1 步，因为整句可以一次性输入",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：一次性输入整句正是循环模型做不到的，它必须逐步推进。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称“一次性输入整句正是循环模型做不到的，它必须逐步推进”，与 ht 依赖 ht−1 的递推事实一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "100 个词对应 100 个依次执行的隐藏状态计算，顺序步数为 100，正确。",
+                    "option_text": "100 步，每个词对应一个时间步",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：循环模型把符号位置对齐到计算时间步，100 个词就对应 100 个依次执行的隐藏状态计算，顺序步数为 100。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析把符号位置对齐到计算时间步并得出 100 步，推导与题干数据一致。"
+                  },
+                  {
+                    "reasoning": "log2(100)≈6.64 与循环模型的顺序步数无关，循环模型是线性步数，故错误。",
+                    "option_text": "约 7 步，因为 100 的对数约为 7",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：对数步数对应的是某些卷积结构（如 ByteNet）中两位置间所需操作数随距离对数增长，不是循环模型的顺序步数。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出对数步数对应 ByteNet 等卷积结构中两位置间操作数随距离对数增长，而非循环模型顺序步数，归因准确。"
+                  },
+                  {
+                    "reasoning": "100×100=10000 是注意力打分矩阵的元素个数，注意力层可一步并行算出全部位置，不是顺序步数，故错误。",
+                    "option_text": "10000 步，因为每步都要与所有词两两比较",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；注意力层恰恰可以在一步内并行算出全部位置，所以这个数字既不是循环模型的顺序步数，也不能用来回答本题。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明 10000 为 100 行×100 列打分矩阵元素数、衡量并行工作量而非顺序步数，并指出注意力层可一步并行，两分句均成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "10000",
+                    "excerpt": "D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；",
+                    "expression": "100*100",
+                    "end_segment": 3,
+                    "source_field": "explanation",
+                    "start_segment": 3,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "7",
+                    "excerpt": "C 错误：对数步数对应的是某些卷积结构（如 ByteNet）中两位置间所需操作数随距离对数增长，不是循环模型的顺序步数。",
+                    "expression": "log(100)",
+                    "end_segment": 2,
+                    "source_field": "explanation",
+                    "start_segment": 2,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "100 个词、每步算一个隐藏状态且逐步递推，顺序步数 = 100，选 B。A 的 1 步与循环模型矛盾；C 的约 7 步来自 log2(100)≈6.64，对应卷积类模型的距离操作数而非循环步数；D 的 10000 = 100×100 是注意力打分矩阵元素数，不是顺序步数。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "论文称“In all but a few cases, such attention mechanisms are used in conjunction with a recurrent network”，A 正确。",
+                    "option_text": "在 Transformer 之前，注意力机制大多与循环网络结合使用",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文指出，除少数例外，此前的注意力机制都是与循环网络结合使用的。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析复述“除少数例外，此前注意力机制都与循环网络结合使用”，与论文表述一致。"
+                  },
+                  {
+                    "reasoning": "论文称 Transformer 摒弃循环、完全依赖注意力在输入输出间建立全局依赖，B 正确。",
+                    "option_text": "Transformer 完全依赖注意力在输入与输出之间建立全局依赖",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：论文明确说 Transformer 摒弃循环，完全依赖注意力机制在输入与输出之间建立全局依赖。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析与论文原句 relying entirely on an attention mechanism to draw global dependencies 对应，准确。"
+                  },
+                  {
+                    "reasoning": "Transformer 既不用循环也不用卷积，说它“用卷积层替代循环层”与事实相反，C 错误。",
+                    "option_text": "Transformer 用卷积层替代了循环层，因此不再需要注意力",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：Transformer 既不用循环也不用卷积，卷积并不是它的替代手段；用卷积替代循环的是 ConvS2S、ByteNet 等另一类模型。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 Transformer 不用循环也不用卷积，并说明用卷积替代循环的是 ConvS2S、ByteNet，两分句均成立。"
+                  },
+                  {
+                    "reasoning": "论文原话 dispensing with recurrence and convolutions entirely，D 正确。",
+                    "option_text": "Transformer 不使用循环，也不使用卷积",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：论文原话是“dispensing with recurrence and convolutions entirely”，即完全不用循环和卷积。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用论文原话并给出中文释义，与 D 项表述一致。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文指出此前注意力机制除少数例外均与循环网络结合（A 对）；Transformer 摒弃循环、完全依赖注意力建立输入输出间全局依赖（B 对）；它同时不用卷积，用卷积替代循环的是 ConvS2S/ByteNet（C 错）；论文原话 dispensing with recurrence and convolutions entirely（D 对）。答案 A,B,D。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [
+                  {
+                    "reasoning": "在循环网络内部加注意力模块是 Transformer 之前的常见形态，不是 Transformer 的定位，错误。",
+                    "option_text": "一种在循环网络内部加入注意力模块的改进型编码器",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：那描述的是 Transformer 之前“注意力与循环网络结合”的常见做法，正是本文要摆脱的形态。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称该描述是“注意力与循环网络结合”的旧做法，正是本文要摆脱的形态，与论文引言一致。"
+                  },
+                  {
+                    "reasoning": "同时满足 2017 年提出、完全基于注意力、不含循环与卷积、序列转换架构，正确。",
+                    "option_text": "2017 年提出、完全基于注意力、不含循环与卷积的序列转换架构",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：Transformer 是 2017 年论文《Attention Is All You Need》提出的序列转换架构，完全基于注意力机制，摒弃循环与卷积，并沿用编码器-解码器结构。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析逐项列出年份、注意力基础、摒弃循环卷积与编码器-解码器结构，与论文一致。"
+                  },
+                  {
+                    "reasoning": "用卷积替代循环、操作数随距离线性增长的是 ConvS2S 一类模型，不是 Transformer，错误。",
+                    "option_text": "一种用卷积替代循环、按距离线性增长操作数的序列模型",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：用卷积替代循环、两位置间操作数随距离线性增长的是 ConvS2S 一类模型，不是 Transformer。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析把该特征归给 ConvS2S 一类模型，与论文 Background 中“linearly for ConvS2S”一致。"
+                  },
+                  {
+                    "reasoning": "Transformer 面向序列转换（如机器翻译）并使用编码器-解码器结构，与图像分类网络无关，错误。",
+                    "option_text": "一种只用于图像分类、不使用编码器-解码器结构的网络",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：Transformer 面向序列转换（如机器翻译），并使用编码器-解码器结构，与图像分类网络无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 Transformer 面向序列转换且使用编码器-解码器结构，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Transformer 是 2017 年《Attention Is All You Need》提出的序列转换架构，完全基于注意力、不含循环与卷积，沿用编码器-解码器结构，选 B。A 描述的是注意力与循环结合的旧做法；C 描述 ConvS2S 类卷积模型；D 与序列转换任务及编码器-解码器结构不符。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "顺序性根源：ht 是 ht−1 与位置 t 输入的函数，形成必须依次执行的递推链，同一训练样本内部无法并行。Transformer 摒弃循环、完全依赖注意力在输入输出间建立全局依赖，同一层内各位置可同时计算，并行度显著提升。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 判断题直接检验 ht 依赖 ht−1 导致样本内部无法并行，真实支持“理解 Transformer 工作机制”的动机部分。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 以 100 词句子定量核算顺序步数，落实对循环模型顺序计算代价的理解。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 多选同时覆盖“注意力此前多与循环网络结合”与“完全依赖注意力建立全局依赖”，与所述贡献一致。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 单选要求识别 2017 年提出、不含循环与卷积的序列转换架构，直接对应定位目标。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 简答要求说明顺序性根源与并行度提升来源，综合检验动机理解，与所述贡献相符。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1 的 check，准确检验 ht 依赖 ht−1 的顺序性及其对样本内部并行的限制。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o1 的 practice，通过 100 词步数计算练习顺序性代价，与目标一致。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o1 的 check，要求用完整句子说明顺序性根源，覆盖该目标核心。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的 check，逐项核验注意力与循环网络关系及完全依赖注意力建立全局依赖。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o2 的 practice，要求说明 Transformer 不用循环、完全依赖注意力，与目标对应。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o3 的 check，直接检验对 Transformer 定位的一句话概括。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n1-why-transformer:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 2,
+          "decision": "revise",
+          "content_sha256": "59333c67e5b9a1e14b15c7a15bf92e724a3bb59f48cb297daabec359bac0bd4d"
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "五道题分别覆盖循环模型顺序性（q1）、顺序步数定量（q2）、注意力与循环关系及完全依赖注意力（q3）、Transformer 定位（q4）、综合说明（q5），与本节点 req-goal-transformer 的动机部分分工一致，未越界讲授其他节点内容。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "q1 判断正确；q2 答案 B（100 步）与论文“沿符号位置分解计算”一致，C/D 干扰项解析给出的对数、100×100 来源说明准确；q3 答案 A,B,D 与论文原句一致，C 的否定理由正确；q4 答案 B 概括准确；q5 参考答案与评分要点无事实错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q2 以 100 词句子为具体实例，四个选项分别对应可解释的错误算式（1 步、log 量级、100×100 打分矩阵），解析逐项给出真实计算或明确错误原因，无随意数字。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序由“顺序性根源→顺序步数→注意力关系→定位→综合表述”递进，符合入门深度与节点活动（含 100 词讨论）；题干自足，未在题干泄露答案，难度标注 easy/medium 与认知负荷相符。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "q3、q4 的表述可追溯到 research_context 中论文引言原句（如 dispensing with recurrence and convolutions entirely、attention used in conjunction with a recurrent network），未出现无依据的外部断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "五个目标点均有对应题目，题型含判断、单选、多选、简答，每题均有解析；简答题给出评分要点，覆盖本节点自检要求。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q2 的 C 选项解析较长且跨两个分句，可考虑精简为一句“对数增长是 ByteNet 等卷积模型的距离-操作数关系，与本题顺序步数无关”，便于学习者快速定位错误原因。",
+              "q3 为多选题但题干未提示“多选”，可在题干末尾补“（多选）”以降低误答风险。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "循环模型按符号位置展开计算，h_t = f(h_{t−1}, x_t)，第 t 步依赖第 t−1 步结果，故同一训练样本内部时间步无法并行；样本之间仍可批处理。题干陈述正确。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "循环模型必须逐步推进，无法一次性输入整句并一步算出全部隐藏状态，故“1 步”错误。",
+                    "option_text": "1 步，因为整句可以一次性输入",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：一次性输入整句正是循环模型做不到的，它必须逐步推进。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称“一次性输入整句正是循环模型做不到的，它必须逐步推进”，与 h_t 依赖 h_{t−1} 的递推性质一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "100 个词对应 100 个时间步，顺序步数为 100，正确。",
+                    "option_text": "100 步，每个词对应一个时间步",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：循环模型把符号位置对齐到计算时间步，100 个词就对应 100 个依次执行的隐藏状态计算，顺序步数为 100。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析把符号位置对齐到计算时间步，得出 100 个依次执行的隐藏状态计算，推导正确。"
+                  },
+                  {
+                    "reasoning": "“对数”量级来自 ByteNet 两位置间操作数随距离对数增长，与循环模型 100 个时间步的顺序步数无关，故错误。",
+                    "option_text": "约 7 步，因为 100 的对数约为 7",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：本题问的是循环模型的顺序步数，而“对数”这一量级来自论文对 ByteNet 的描述——两个任意位置之间所需操作数随位置距离对数增长；这是另一类卷积模型的属性，与本题的 100 个时间步无关，且论文未给出把 100 个词换算成 7 步的算式，因此该数值无法从本题条件推出。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析正确指出对数关系出自论文对 ByteNet 的描述，并说明论文未给出把 100 词换算成 7 步的算式，批评成立。"
+                  },
+                  {
+                    "reasoning": "100×100 是注意力打分矩阵元素数，衡量一次并行计算的工作量，不是顺序步数，故错误。",
+                    "option_text": "10000 步，因为每步都要与所有词两两比较",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；注意力层恰恰可以在一步内并行算出全部位置，所以这个数字既不是循环模型的顺序步数，也不能用来回答本题。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明 100×100 为注意力打分矩阵规模且注意力层可一步并行算出全部位置，与本题所问顺序步数区分清楚，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "10000",
+                    "excerpt": "D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；",
+                    "expression": "100*100",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "100 个词对应 100 个依次执行的隐藏状态计算，顺序步数为 100，选 B。A（1 步）与循环模型逐步推进矛盾；C（约 7 步）来自 ByteNet 的对数距离-操作数关系，与本题无关；D（10000 步）是 100×100 注意力打分矩阵元素数，不是顺序步数。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "论文原句“In all but a few cases, however, such attention mechanisms are used in conjunction with a recurrent network”，A 正确。",
+                    "option_text": "在 Transformer 之前，注意力机制大多与循环网络结合使用",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文指出，除少数例外，此前的注意力机制都是与循环网络结合使用的。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析复述“除少数例外，此前注意力机制都与循环网络结合”，与论文原句一致。"
+                  },
+                  {
+                    "reasoning": "论文称 Transformer 摒弃循环、完全依赖注意力在输入输出间建立全局依赖，B 正确。",
+                    "option_text": "Transformer 完全依赖注意力在输入与输出之间建立全局依赖",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：论文明确说 Transformer 摒弃循环，完全依赖注意力机制在输入与输出之间建立全局依赖。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析与论文“relying entirely on an attention mechanism to draw global dependencies between input and output”一致。"
+                  },
+                  {
+                    "reasoning": "Transformer 不使用卷积，也不以卷积替代循环，且仍完全依赖注意力，C 两处均错。",
+                    "option_text": "Transformer 用卷积层替代了循环层，因此不再需要注意力",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：Transformer 既不用循环也不用卷积，卷积并不是它的替代手段；用卷积替代循环的是 ConvS2S、ByteNet 等另一类模型。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 Transformer 既不用循环也不用卷积，并说明用卷积替代循环的是 ConvS2S、ByteNet，批评准确。"
+                  },
+                  {
+                    "reasoning": "论文原话“dispensing with recurrence and convolutions entirely”，D 正确。",
+                    "option_text": "Transformer 不使用循环，也不使用卷积",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：论文原话是“dispensing with recurrence and convolutions entirely”，即完全不用循环和卷积。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用原句并给出正确中文释义，成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文指出此前注意力机制除少数例外都与循环网络结合（A 对）；Transformer 摒弃循环、完全依赖注意力建立全局依赖（B 对）；它既不用循环也不用卷积（D 对）；C 说用卷积替代循环且不再需要注意力，与论文相反，错误。答案 A,B,D。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [
+                  {
+                    "reasoning": "在循环网络内部加注意力模块是 Transformer 之前的常见形态，不是 Transformer 的定位，错误。",
+                    "option_text": "一种在循环网络内部加入注意力模块的改进型编码器",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：那描述的是 Transformer 之前“注意力与循环网络结合”的常见做法，正是本文要摆脱的形态。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称该描述是本文要摆脱的旧形态，与论文引言一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "同时满足 2017 年提出、完全基于注意力、不含循环与卷积、序列转换架构，正确。",
+                    "option_text": "2017 年提出、完全基于注意力、不含循环与卷积的序列转换架构",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：Transformer 是 2017 年论文《Attention Is All You Need》提出的序列转换架构，完全基于注意力机制，摒弃循环与卷积，并沿用编码器-解码器结构。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析概括与论文摘要及架构描述一致，成立。"
+                  },
+                  {
+                    "reasoning": "用卷积替代循环、操作数随距离线性增长的是 ConvS2S 一类模型，不是 Transformer，错误。",
+                    "option_text": "一种用卷积替代循环、按距离线性增长操作数的序列模型",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：用卷积替代循环、两位置间操作数随距离线性增长的是 ConvS2S 一类模型，不是 Transformer。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析正确把该特征归于 ConvS2S，与论文 Background 部分一致。"
+                  },
+                  {
+                    "reasoning": "Transformer 面向序列转换并使用编码器-解码器结构，与图像分类网络无关，错误。",
+                    "option_text": "一种只用于图像分类、不使用编码器-解码器结构的网络",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：Transformer 面向序列转换（如机器翻译），并使用编码器-解码器结构，与图像分类网络无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出其任务与结构，否定理由成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Transformer 是 2017 年《Attention Is All You Need》提出的序列转换架构，完全基于注意力，不含循环与卷积，沿用编码器-解码器结构，选 B。A 描述的是注意力与循环结合的旧做法；C 描述 ConvS2S 类卷积模型；D 与序列转换任务不符。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "顺序性根源：h_t 依赖 h_{t−1}，时间步构成必须依次执行的递推链，样本内部无法并行。Transformer 摒弃循环、完全依赖注意力建立全局依赖，同一层内各位置可同时计算，并行度显著提升。参考答案与评分要点完整覆盖这两点。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 判断题直接检验 h_t 依赖 h_{t−1} 导致的样本内部不可并行，真实支持“理解 Transformer 工作机制”的动机部分。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 以 100 词句子定量核算顺序步数，落实对循环模型顺序计算代价的理解。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 多选覆盖“注意力此前多与循环网络结合”与“完全依赖注意力建立全局依赖”，与目标 o2 一致。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 单选要求识别 2017 年提出、不含循环与卷积的序列转换架构，直接对应目标 o3。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 简答要求说明顺序性根源与并行度提升来源，综合检验动机理解，评分要点明确。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1 的 check，准确检验 h_t 依赖 h_{t−1} 与样本内部并行限制。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o1 的 practice，通过 100 词实例练习顺序步数计算。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o1 的 check，要求用完整句子表述顺序性根源，符合自检要求。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的 check，逐项核对注意力与循环网络关系及完全依赖注意力。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o2 的 practice，要求说明注意力替代循环后并行度提升的来源。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o3 的 check，直接检验 Transformer 的一句话定位。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n1-why-transformer:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 3,
+          "decision": "revise",
+          "content_sha256": "679a08d46c043de9e6bdb76b52d25779a34d1e3e0859f6bd43c5b68209ac2c50"
+        }
+      ],
+      "version": 4,
+      "feedback": [
+        "第 2 题：数值断言无法复算：D 错误：100×100 是“每个位置与所有位置两两交互”的注意力打分矩阵的元素个数（100 行 × 100 列），它衡量的是注意力层一次并行计算的工作量规模，而不是顺序步数；；请提供受支持的算式或明确其验证限制"
+      ],
+      "preparation": {
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 7.29
+        },
+        "spec_digest": "1f03d3ec10812ceedb3c82e2a27fd93fcd5751e6fadb4515d4d2f4c0270e0caf",
+        "schema_version": 1,
+        "objective_bindings": [
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q1"
+            },
+            "objective_id": "n1-why-transformer:o1"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q2"
+            },
+            "objective_id": "n1-why-transformer:o1"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q5"
+            },
+            "objective_id": "n1-why-transformer:o1"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q3"
+            },
+            "objective_id": "n1-why-transformer:o2"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q5"
+            },
+            "objective_id": "n1-why-transformer:o2"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q4"
+            },
+            "objective_id": "n1-why-transformer:o3"
+          }
+        ],
+        "applied_requirements": [
+          {
+            "locator": {
+              "question_id": "q1"
+            },
+            "explanation": "通过循环模型顺序性与并行限制的判断题，落实“理解 Transformer 工作机制”中关于动机部分的原理理解。",
+            "requirement_id": "req-goal-transformer"
+          },
+          {
+            "locator": {
+              "question_id": "q2"
+            },
+            "explanation": "通过 100 词序列顺序步数的计算题，落实对循环模型顺序计算代价的定量理解。",
+            "requirement_id": "req-goal-transformer"
+          },
+          {
+            "locator": {
+              "question_id": "q3"
+            },
+            "explanation": "通过注意力与循环网络关系的多选题，落实对 Transformer 完全依赖注意力建立全局依赖这一机制的理解。",
+            "requirement_id": "req-goal-transformer"
+          },
+          {
+            "locator": {
+              "question_id": "q4"
+            },
+            "explanation": "通过 Transformer 定位的单选题，落实对 2017 年提出、不含循环与卷积的序列转换架构这一核心概念的掌握。",
+            "requirement_id": "req-goal-transformer"
+          },
+          {
+            "locator": {
+              "question_id": "q5"
+            },
+            "explanation": "通过简答题要求说明顺序性根源与并行度提升，综合检验对 Transformer 工作机制动机的理解。",
+            "requirement_id": "req-goal-transformer"
+          }
+        ],
+        "question_time_estimates": [
+          {
+            "reason": "需回忆 ht 依赖 ht−1 的递推关系，再判断“样本内部并行”与“样本之间批处理”的区别，并排除把并行限制归因于卷积或注意力的干扰项。",
+            "question_id": "q1",
+            "thinking_seconds": 30
+          },
+          {
+            "reason": "需把 100 个词映射为 100 次顺序隐藏状态计算，再对比注意力层一次性处理全序列的步数，并核算各干扰项对应的错误算式（如 1 步、log 步、100×100 步）。",
+            "question_id": "q2",
+            "thinking_seconds": 45
+          },
+          {
+            "reason": "多选需逐项判断：注意力此前多与循环网络结合、Transformer 完全依赖注意力、是否使用卷积、全局依赖与距离无关，需区分论文原话与常见误解。",
+            "question_id": "q3",
+            "thinking_seconds": 50
+          },
+          {
+            "reason": "需从四个定位描述中识别同时满足“2017 年提出”“不含循环与卷积”“序列转换架构”三项条件的选项，排除只对一半的干扰项。",
+            "question_id": "q4",
+            "thinking_seconds": 25
+          },
+          {
+            "reason": "简答需组织两点：顺序性根源是 ht 依赖 ht−1 的递推，以及注意力替代循环后同一层内各位置可并行计算，需用完整句子表达因果链。",
+            "question_id": "q5",
+            "thinking_seconds": 90
+          }
+        ],
+        "teaching_context_digest": "9b353d05b245f0dbd44cd08cdb12c51a4063c18afcd73e388063d753f6e059da"
+      },
+      "needs_repair": true
+    },
+    "owner_user_id": "teacher",
+    "content_digest": "679a08d46c043de9e6bdb76b52d25779a34d1e3e0859f6bd43c5b68209ac2c50",
+    "preparation_id": "prep_4406eb8b05ec47bdb9b1609e35e31ab5",
+    "schema_version": 1,
+    "recovery_attempt": 0,
+    "resource_version": 1,
+    "parent_attempt_no": 1,
+    "teaching_context_digest": "9b353d05b245f0dbd44cd08cdb12c51a4063c18afcd73e388063d753f6e059da"
+  }
+}

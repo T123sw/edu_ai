@@ -1,0 +1,24 @@
+{
+  "implemented": true,
+  "productionDataModified": false,
+  "tests": {
+    "passed": 196,
+    "skipped": 6,
+    "log": "full-final.log"
+  },
+  "freshGeneration": {
+    "passed": true,
+    "steps": 4,
+    "checks": 11,
+    "modelCalls": 11,
+    "seconds": 121.48
+  },
+  "seededReplay": {
+    "passed": true,
+    "steps": 5,
+    "checks": 11
+  },
+  "activated": false,
+  "activationBlocker": "sudo: a password is required",
+  "sourceManifest": "source-hashes.json"
+}

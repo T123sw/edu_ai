@@ -142,6 +142,16 @@ def create_app(
     app.include_router(course_research_router)
     app.include_router(course_preparations_router)
     app.include_router(self_learning_router)
+    from app.api.hyperframes import router as hyperframes_router
+    app.include_router(hyperframes_router)
+    from app.api.practice import router as practice_router
+    app.include_router(practice_router)
+    from app.api.pbl import router as pbl_router
+    app.include_router(pbl_router)
+    from app.api.exam_generations import router as exam_generations_router
+    app.include_router(exam_generations_router)
+    from app.api.exam_practice import router as exam_practice_router
+    app.include_router(exam_practice_router)
     app.include_router(courses_router)
     app.include_router(learning_router)
     app.include_router(standard_resources_router)
@@ -149,6 +159,8 @@ def create_app(
     app.include_router(classroom_catalog_router)
     app.include_router(assessment_router)
     app.include_router(personal_knowledge_router)
+    from app.api.personal_studio import router as personal_studio_router
+    app.include_router(personal_studio_router)
     app.include_router(health_router)
     app.include_router(jobs_router)
     app.include_router(runtime_config_router)

@@ -1,0 +1,750 @@
+{
+  "at": "2026-10-20T05:54:16.799115+00:00",
+  "elapsed_seconds": 2194.82,
+  "attempt_no": 1,
+  "attempt_started_at": "2026-10-20T05:17:41.657974+00:00",
+  "original_started_at": "2026-10-20T05:17:41.657974+00:00",
+  "original_elapsed_seconds": 2194.82,
+  "preparation_id": "prep_593ea484dc7c4247bacf13fcaddf8c5d",
+  "status": "failed",
+  "stage": "review",
+  "error": "PREPARATION_CONTENT_CONTRACT",
+  "delivery": {
+    "course_id": "learn-593ea484dc7c4247bacf13fcaddf8c5d",
+    "signature": "34d9afaa47a6d944615c698e96c2c77f00492b4f2406c539c0fa318c310cf26f",
+    "manifest_id": "manifest_938f3f90640b7b0c6036c99cfd4c2621",
+    "course_ready": false,
+    "path_available": true,
+    "course_available": true,
+    "manifest_version": 10,
+    "planned_resources": 15,
+    "available_resources": 13,
+    "excluded_artifact_ids": []
+  },
+  "resource_counts": {
+    "draft": 13,
+    "failed": 2
+  },
+  "planned_resources": 15,
+  "artifacts": [
+    {
+      "id": "artifact_5738c863f8ed92df828e79604c6ddd25",
+      "node": "n1-why-transformer",
+      "title": "为什么需要 Transformer：循环网络的串行瓶颈与设计决策",
+      "type": "classroom",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:19:20.039889+00:00",
+      "elapsed_since_submission": 2096.44,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473560.3956027,
+      "finished_at": 1792475007.6124127,
+      "execution_seconds": 1447.22,
+      "progress": {
+        "step": "importing",
+        "message": "正在保存 HyperFrames 原生工程与播放时间轴",
+        "progress": 95
+      },
+      "task_error": null,
+      "workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1",
+      "tool_calls": 171,
+      "tool_failures": [
+        {
+          "at": 1792473613.9251168,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0005954219959676266,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md"
+        },
+        {
+          "at": 1792473614.0670576,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0007443190552294254,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/rules-index.md"
+        }
+      ],
+      "last_tool": {
+        "at": 1792474995.2829623,
+        "tool": "complete_project",
+        "ok": true,
+        "elapsed": 0.8588287117891014
+      },
+      "scene_workers": [
+        {
+          "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+          "status": "succeeded",
+          "submitted_at": 1792473846.8392925,
+          "started_at": 1792473848.029542,
+          "finished_at": 1792474389.4413893,
+          "error": null
+        },
+        {
+          "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+          "status": "succeeded",
+          "submitted_at": 1792473845.0220387,
+          "started_at": 1792473847.0463624,
+          "finished_at": 1792474180.0137463,
+          "error": null
+        },
+        {
+          "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+          "status": "succeeded",
+          "submitted_at": 1792473845.9895265,
+          "started_at": 1792473847.662894,
+          "finished_at": 1792474176.8435018,
+          "error": null
+        }
+      ],
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck",
+          "brief": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"Transformer 拿掉循环，是为了消除串行瓶颈——代价是必须显式补上顺序信息与深层训练稳定性\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n面向希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织），讲清本节点“为什么需要 Transformer”：循环网络沿符号位置分解计算、隐藏状态 h_t 依赖 h_{t−1}，这种固有串行性使训练样本内部无法并行，序列越长越关键；Transformer 的核心创新是架构决策而非新数学工具——不用循环也不用卷积，只用注意力与逐位置前馈网络搭出整个模型。语气清晰、克制、以图示与对比为主，像一次讲透一个决策的课堂讲解，而不是术语罗列。\n\n本视频只覆盖本节点，不规划其他节点内容；自注意力具体怎么算、位置编码的完整推导留给后续节点。\n\n## Assets\n\n- 无用户提供的附件或素材；视觉全部为自绘示意图（依赖链、全连接示意、层堆叠结构），不写假素材路径。\n\n## Customizations\n\n- 画幅 16:9，中文讲解，配语音旁白。\n- 视觉遵循课程统一契约：字体 Noto Sans SC，画布 1920x1080，正文最小 32px，图示标签最小 28px，标题最小 48px，背景 #0f172a，前景 #f8fafc，强调色 #38bdf8。\n- 密集图示分步呈现，不靠缩小字号塞进一屏。\n\n## Notes\n\n必须讲清的内容与演示深度（约 5 分钟，围绕默认时长安排充分解释与示例，不为凑时长加无关内容）：\n\n1. 循环模型的串行瓶颈：沿符号位置分解计算，h_t 由 h_{t−1} 与位置 t 的输入决定；这种固有串行性使训练样本内部无法并行，长序列时尤为关键，因为显存限制使跨样本批处理也受限。演示深度：用一条逐格推进的依赖链动画展示“必须等前一步”，并对比“所有位置一次算完”的顺序步数从 O(n) 降到 O(1)。\n2. 核心架构决策：不用循环也不用卷积，只用注意力与逐位置前馈网络。演示深度：一句话给出决策，再展开三项效果——消除串行瓶颈、建立直接连接（每个位置直接读取任意位置，路径长度 O(1)）、统一计算模式（同构层堆叠，每层只有注意力子层与前馈子层）。\n3. 拿掉循环后必须补上的两件事：显式注入顺序信息（位置编码），以及用残差与归一化支撑深层堆叠的训练稳定性。演示深度：各用一屏说明“为什么缺了它就不成立”，不展开正弦公式推导与旋转位置编码。\n4. 效果佐证：原论文在 8 块 P100 GPU 上训练 12 小时即达到新的翻译质量最优，可显著并行化。演示深度：作为结论性数据点呈现，不展开实验细节。\n\n来源：\n- Vaswani 等《Attention Is All You Need》(NIPS 2017)，https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf —— 串行性、摒弃循环、8×P100/12 小时等表述的原始出处。\n- https://yeasy.gitbook.io/llm_internals/di-yi-bu-fen-ji-chu-pian/01_introduction/1.4_transformer_idea —— 架构决策、三项效果、需补两件事的整理。\n\n排除项与边界：\n- 不覆盖仅编码器/仅解码器变体与各类高效注意力实现的细节。\n- 位置编码只讲“为什么需要”，不展开正弦方案与可学习嵌入的对比细节，也不涉及旋转位置编码。\n- 不安排编程框架或代码实现演示。\n- 视频内不设题目、不做测验；自测与练习由习题资源承担。\n- 不声称视频内容经过额外模型审核。\n\n学习活动归属：\n- 进入视频（教师演示）：RNN 依赖链与自注意力全连接的对比示意、顺序步数对比、架构决策与三项效果、需补的两件事。\n- 留给报告（详细阅读）：阅读原始论文摘要与第 1 节并标出“固有串行性使训练样本内无法并行”的原句。\n- 留给习题（独立练习）：用一句话写下架构决策并列出三项效果；在纸上画两条依赖链并对比顺序步数；不看资料复述自测标准。\n",
+          "files": [
+            "meta.json",
+            "CLAUDE.md",
+            "package.json",
+            "index.html",
+            "AGENTS.md",
+            "frame.md",
+            "SCRIPT.md",
+            "BRIEF.md",
+            "STORYBOARD.md",
+            "audio_request.json",
+            "hyperframes.json",
+            "audio_meta.json"
+          ],
+          "frame_files": 9,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 42230263
+            }
+          ],
+          "audio_lines": 9,
+          "audio_seconds": 274.296,
+          "narration_chars": 1494
+        }
+      ],
+      "brief_decisions": {
+        "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置为空，有效偏好为空，故采用 defaults 的 target_minutes=5、narration=true、aspect=16:9，时长来源记为 default，不表述为用户指定。节点学习预算 10 分钟包含阅读与练习，不等同成片时长，因此视频按约 5 分钟（300s）安排充分解释与示例。内容为约 5 分钟的常规教学解释，按原生路由走 general-video；flow=automation、storyboard=no。教师演示类活动（依赖链对比、顺序步数、架构决策与三项效果、需补两件事）写入视频必须覆盖要求；论文原句精读留给报告；一句话总结、手绘对比与自测复述留给习题，视频内不设题目。语言按提问语言推断为中文，画幅与视觉遵循课程统一契约。",
+        "narration": true,
+        "target_minutes": 5,
+        "duration_source": "default"
+      },
+      "brief_seconds": 12.694303512573242
+    },
+    {
+      "id": "artifact_208758fe00919cc4b4e8e048107ce4fb",
+      "node": "n1-why-transformer",
+      "title": "为什么需要 Transformer：循环网络的串行瓶颈与设计决策",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:19:20.252300+00:00",
+      "elapsed_since_submission": 2096.23,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473560.3422368,
+      "finished_at": 1792473592.728991,
+      "execution_seconds": 32.39,
+      "progress": null,
+      "task_error": null
+    },
+    {
+      "id": "artifact_1583723044c05155fb5990fe6c495f47",
+      "node": "n1-why-transformer",
+      "title": "为什么需要 Transformer：循环网络的串行瓶颈与设计决策",
+      "type": "quiz",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:19:20.605859+00:00",
+      "elapsed_since_submission": 2095.87,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473560.9082468,
+      "finished_at": 1792473596.7770507,
+      "execution_seconds": 35.87,
+      "progress": {
+        "step": "reviewing",
+        "message": "正在逐题核对答案与解析",
+        "progress": 25
+      },
+      "task_error": null
+    },
+    {
+      "id": "artifact_210f78512e03ef5e8d4372f08cc457ee",
+      "node": "n2-overall-architecture",
+      "title": "整体结构与数据流：编码器-解码器、子层、残差与掩码",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:19:21.003703+00:00",
+      "elapsed_since_submission": 2095.48,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473561.0609262,
+      "finished_at": 1792473593.8682091,
+      "execution_seconds": 32.81,
+      "progress": null,
+      "task_error": null
+    },
+    {
+      "id": "artifact_fc15b32071f2d3cfe2a58dfcd2d8418a",
+      "node": "n2-overall-architecture",
+      "title": "整体结构与数据流：编码器-解码器、子层、残差与掩码",
+      "type": "quiz",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:19:21.367308+00:00",
+      "elapsed_since_submission": 2095.11,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473561.4195535,
+      "finished_at": 1792473625.5211573,
+      "execution_seconds": 64.1,
+      "progress": {
+        "step": "reviewing",
+        "message": "正在逐题核对答案与解析",
+        "progress": 50
+      },
+      "task_error": null
+    },
+    {
+      "id": "artifact_e21ca5a786cd8b876c441271447904a3",
+      "node": "n3-self-attention",
+      "title": "自注意力与多头注意力：Q/K/V 与缩放点积计算思路",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:19:21.732037+00:00",
+      "elapsed_since_submission": 2094.75,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473561.9668827,
+      "finished_at": 1792473645.6047685,
+      "execution_seconds": 83.64,
+      "progress": null,
+      "task_error": null
+    },
+    {
+      "id": "artifact_57481ae5c9b34371d5d5d0d766322461",
+      "node": "n3-self-attention",
+      "title": "自注意力与多头注意力：Q/K/V 与缩放点积计算思路",
+      "type": "quiz",
+      "status": "failed",
+      "error": "PREPARATION_CONTENT_CONTRACT",
+      "created_at": "2026-10-20T05:19:22.285090+00:00",
+      "elapsed_since_submission": 2094.19,
+      "task_status": "failed",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473562.581117,
+      "finished_at": 1792473611.662661,
+      "execution_seconds": 49.08,
+      "progress": {
+        "step": "revising",
+        "message": "正在根据核对结果修订内容",
+        "progress": 60
+      },
+      "task_error": "PREPARATION_CONTENT_CONTRACT: preparation_content_envelope_missing"
+    },
+    {
+      "id": "artifact_ab69c876e677d30eefe9b1703b17c6b7",
+      "node": "n4-position-ffn",
+      "title": "位置编码与逐位置前馈网络：补回顺序信息与逐位置非线性",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:19:22.737090+00:00",
+      "elapsed_since_submission": 2093.74,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473563.0991757,
+      "finished_at": 1792473593.7863376,
+      "execution_seconds": 30.69,
+      "progress": null,
+      "task_error": null
+    },
+    {
+      "id": "artifact_b245004f7483dfb671d66c6dee9774f3",
+      "node": "n4-position-ffn",
+      "title": "位置编码与逐位置前馈网络：补回顺序信息与逐位置非线性",
+      "type": "quiz",
+      "status": "failed",
+      "error": "RESOURCE_CONTENT_REJECTED",
+      "created_at": "2026-10-20T05:20:03.658999+00:00",
+      "elapsed_since_submission": 2052.82,
+      "task_status": "failed",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473603.9697657,
+      "finished_at": 1792473691.038503,
+      "execution_seconds": 87.07,
+      "progress": {
+        "step": "reviewing",
+        "message": "正在逐题核对答案与解析",
+        "progress": 75
+      },
+      "task_error": "RESOURCE_CONTENT_REJECTED: q-pe-handcalc 解析第 4 段（explanation_segments 索引 4）：“常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001”自相矛盾：漏掉因子 2 时指数为 i/d_model=1/4，角频率为 10000^(-1/4)≈0.1，pos=1 得 sin(0.1)≈0.0998；而 1/10000 与 sin(0.0001) 对应的是把指数算成 2i/d_model=1 的另一类错误。应改为与所述错误算式一致的数值，或改写错误描述。; q-pe-handcalc 的解析第 4 段把“漏掉因子 2”的错误结果写成 sin(0.0001)≈0.0001，但漏掉因子 2 时 i=1 的角频率应为 1/10000^0.25≈0.1，pos=1 时得到 sin(0.1)≈0.0998，而非 0.0001；0.0001 对应的是把指数算成 2i/d_model=1 的情形，错误归因不成立。其余题目事实与数值（sin1≈0.8415、cos1≈0.5403、sin0.01≈0.0100、cos0.01≈0.99995、波长 2π 与 200π）均正确。; 第 4 题：数值断言无法复算：pos=1 时：第 0 维 i=0，角频率 1/10000^0=1，PE(1,0)=sin1≈0.8415；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 1 维 PE(1,1)=cos1≈0.5403；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 2 维 i=1，角频率 1/10000^(2/4)=1/100，PE(1,2)=sin0.01≈0.0100；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 3 维 PE(1,3)=cos0.01≈0.99995。；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001。；请提供受支持的算式或明确其验证限制; 第 4 题：d_model=4，i∈{0,1}。i=0：角频率 10000^0=1，波长 2π≈6.2832；i=1：指数 2i/d_model=0.5，角频率 10000^(-0.5)=0.01，波长 200π≈628.32。pos=0：PE=(sin0,cos0,sin0,cos0)=(0,1,0,1)。pos=1：PE=(sin1,cos1,sin0.01,cos0.01)≈(0.8415,0.5403,0.0100,0.99995)。参考答案正确；但解析中“漏掉因子 2 会得到 sin(0.0001)≈0.0001”的归因错误：漏掉因子 2 时角频率为 10000^(-0.25)≈0.1，得 sin(0.1)≈0.0998。"
+    },
+    {
+      "id": "artifact_f3eb04047ca0834be22ae65775d1b213",
+      "node": "n5-tradeoff",
+      "title": "取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:20:04.521552+00:00",
+      "elapsed_since_submission": 2051.96,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473604.636973,
+      "finished_at": 1792473637.9268596,
+      "execution_seconds": 33.29,
+      "progress": null,
+      "task_error": null
+    },
+    {
+      "id": "artifact_d3e0da639a7506dea3f70af055da0e96",
+      "node": "n5-tradeoff",
+      "title": "取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界",
+      "type": "quiz",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:20:05.389089+00:00",
+      "elapsed_since_submission": 2051.09,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473605.5122907,
+      "finished_at": 1792473675.2416065,
+      "execution_seconds": 69.73,
+      "progress": {
+        "step": "reviewing",
+        "message": "正在逐题核对答案与解析",
+        "progress": 50
+      },
+      "task_error": null
+    },
+    {
+      "id": "artifact_b90915a9d51a2faa28953d6b203c0562",
+      "node": "n2-overall-architecture",
+      "title": "整体结构与数据流：编码器-解码器、子层、残差与掩码",
+      "type": "classroom",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:20:06.080067+00:00",
+      "elapsed_since_submission": 2050.4,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473606.5394905,
+      "finished_at": 1792475124.2669897,
+      "execution_seconds": 1517.73,
+      "progress": {
+        "step": "importing",
+        "message": "正在保存 HyperFrames 原生工程与播放时间轴",
+        "progress": 95
+      },
+      "task_error": null,
+      "workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/662ba27468512e487c028a88bac28a9611778c0eebd498151548770abc88afe6",
+      "tool_calls": 195,
+      "tool_failures": [
+        {
+          "at": 1792473638.570244,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0005034590139985085,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/references/production-loop.md"
+        },
+        {
+          "at": 1792473945.1573422,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.00046635791659355164,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/rules/grid-card-assemble.md",
+          "worker_id": "5ae81ddd93a14601a8d281b3ad78f11e"
+        }
+      ],
+      "last_tool": {
+        "at": 1792475116.9589174,
+        "tool": "complete_project",
+        "ok": true,
+        "elapsed": 0.24324651202186942
+      },
+      "scene_workers": [
+        {
+          "worker_id": "7eb21d6a0e5245e2a4b2282a96da555f",
+          "status": "succeeded",
+          "submitted_at": 1792473921.0621262,
+          "started_at": 1792473923.0455897,
+          "finished_at": 1792474352.319788,
+          "error": null
+        },
+        {
+          "worker_id": "86ea9032142e41b8b5e4d0850aa61231",
+          "status": "succeeded",
+          "submitted_at": 1792473919.8783963,
+          "started_at": 1792473921.6276023,
+          "finished_at": 1792474537.081223,
+          "error": null
+        },
+        {
+          "worker_id": "1330d6cfb7dd4e56b1aa35c93e868806",
+          "status": "succeeded",
+          "submitted_at": 1792473921.7534604,
+          "started_at": 1792473923.8936305,
+          "finished_at": 1792474343.6956756,
+          "error": null
+        },
+        {
+          "worker_id": "5ae81ddd93a14601a8d281b3ad78f11e",
+          "status": "succeeded",
+          "submitted_at": 1792473922.7792332,
+          "started_at": 1792473924.6271265,
+          "finished_at": 1792474193.0555975,
+          "error": null
+        }
+      ],
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/662ba27468512e487c028a88bac28a9611778c0eebd498151548770abc88afe6/videos/transformer-overall-architecture",
+          "brief": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"Transformer 用编码器-解码器加堆叠子层把输入序列变成输出序列：编码器产出连续表示 z，解码器基于 z 自回归逐符号生成\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知）\"\n---\n\n## Intent\n\n这是一节面向 Transformer 初学者的中文教学视频，属于课程节点「整体结构与数据流：编码器-解码器、子层、残差与掩码」。用户原话是「我想学习transformer」，希望系统学习 Transformer 的基本原理与整体结构，包括编码器-解码器、自注意力、位置编码与前馈网络等核心组成。本节点只讲整体结构与数据流，深度为入门（introductory），语气清晰、循序渐进，像一位老师在白板前把论文图 1 拆开讲，而不是念公式。\n\n视频要让学生看完后能说明 Transformer 的整体结构与数据流，能解释核心机制的作用与计算思路，能判断 Transformer 相对循环网络的取舍（本节点聚焦前两项，第三项由先修节点铺垫）。\n\n## Assets\n\n- 无用户提供的附件或素材；视觉全部由视频自行设计（示意图、框图、数据流箭头），不引用外部图片路径。\n\n## Customizations\n\n- 视觉规范（课程统一）：字体 Noto Sans SC；画布 1920x1080；正文最小 32px，图示标签最小 28px，标题最小 48px；背景 #0f172a，前景 #f8fafc，强调色 #38bdf8。密集框图要拆成多步呈现，不要靠缩小字号塞进一屏。\n- 中文配音讲解（默认开启，用户未提出关闭）。\n\n## Notes\n\n必须讲清的内容与演示深度（教师演示部分，视频必须覆盖）：\n\n1. 编码器-解码器总体数据流：编码器把输入符号序列 (x1..xn) 映射为连续表示 z = (z1..zn)；解码器基于 z 自回归地一次生成一个输出符号 (y1..ym)，生成下一个符号时把已生成的符号作为额外输入。要按「输入嵌入 → 编码器栈 → z → 解码器栈 → 线性 + softmax」的顺序把一次前向的数据流讲成一条可跟随的链路。\n2. 子层构成：编码器由 N=6 个相同层堆叠，每层两个子层——多头自注意力、逐位置全连接前馈网络；解码器同样 6 层，并在两个子层之外插入第三个子层，对编码器输出做多头注意力（交叉注意力）。要讲清三种注意力用法：编码器-解码器注意力中查询来自上一层解码器、键和值来自编码器输出；编码器自注意力中键、值、查询都来自上一层编码器输出；解码器自注意力中每个位置只能关注到并包括自身在内的解码器位置。\n3. 残差与归一化：每个子层都套残差连接再接层归一化，输出为 LayerNorm(x + Sublayer(x))；为配合残差，所有子层与嵌入层输出维度统一为 d_model = 512。要解释这个写法为什么能支撑深层堆叠（先修节点已铺垫「残差与归一化支撑深层堆叠」，此处落到具体公式与维度约束）。\n4. 掩码：解码器自注意力子层被修改为阻止位置关注其后的位置；掩码配合输出嵌入右移一位，保证位置 i 的预测只依赖位置小于 i 的已知输出；实现方式是在缩放点积注意力中把 softmax 输入里对应非法连接的值设为 −∞，以保持自回归性质。\n\n演示深度：以论文图 1 的左右两半为骨架做逐步展开的框图动画，先给整体轮廓，再逐层放大到子层、残差与归一化位置，最后单独演示掩码矩阵（上三角被置 −∞）与右移一位的配合。允许用示意性的小序列（如 4 个位置）演示掩码，不要求真实数值计算。\n\n留给习题与报告（不要塞进视频）：\n- 手绘编码器层与解码器层子层框图并标注残差与层归一化位置——这是学生独立练习，视频只做演示示范。\n- 写出一次前向的数据流清单——独立练习。\n- 用一句话解释解码器为何要掩码并指出掩码实现方式——属于自测，视频只讲原理，不设视频内题目。\n- 自注意力打分公式的完整推导、位置编码的正弦公式细节、多头注意力的分头维度计算等详细阅读内容留给讲义报告，视频只做必要的衔接性提及。\n\n来源与依据：\n- 主要依据 2017 年原始论文《Attention Is All You Need》（https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf）第 3 节与第 3.1、3.2 节，配置为 N=6、d_model=512、h=8。\n- 先修节点「为什么需要 Transformer：循环网络的串行瓶颈与设计决策」已讲过串行瓶颈与「不用循环也不用卷积」的架构决策，本视频可直接承接，不重复展开。\n\n排除项与限制：\n- 不覆盖仅编码器/仅解码器变体与各类高效注意力实现的细节。\n- 不展开旋转位置编码等后续方案，位置编码只做衔接性提及。\n- 不安排特定编程框架的代码实现。\n- 用户未提供附件与既有基础信息，按入门深度组织。\n- 用户未指定视频时长，按默认约 5 分钟安排充分解释与示例；节点 15 分钟学习预算包含阅读与练习，不等同视频时长。\n- 不写假素材路径，不虚构论文以外的数据或结论。\n",
+          "files": [
+            "audio_meta_index.json",
+            "meta.json",
+            "CLAUDE.md",
+            "package.json",
+            "index.html",
+            "AGENTS.md",
+            "frame.md",
+            "SCRIPT.md",
+            "BRIEF.md",
+            "STORYBOARD.md",
+            "audio_request.json",
+            "hyperframes.json",
+            "audio_meta.json"
+          ],
+          "frame_files": 10,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 24174664
+            }
+          ],
+          "audio_lines": 10,
+          "audio_seconds": 289.176,
+          "narration_chars": 1493
+        }
+      ],
+      "brief_decisions": {
+        "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null，显式配置为空），因此采用 defaults 的约 5 分钟目标，duration_source=default，不声称是用户指定。节点 15 分钟学习预算包含阅读与练习，不作为成片时长。视频时长按 300s 写入 frontmatter。配音：用户未要求关闭，defaults.narration=true，采用中文配音讲解。画幅取 defaults 的 16:9，并叠加课程视觉规范（1920x1080、Noto Sans SC、深色底 #0f172a、强调色 #38bdf8）。交付类型为约 5 分钟的常规教学解释视频，按原生路由走 general-video，flow: automation、storyboard: no。缺失信息假设：用户背景未知，按入门深度组织；无附件，视觉全部自行设计；依据限于 2017 年原始论文的编码器-解码器配置。教师演示内容（数据流、子层构成、残差与归一化、掩码）写入视频必须覆盖的要求，手绘框图与数据流清单留给习题，公式推导与位置编码细节留给报告，自测不进入视频。",
+        "narration": true,
+        "target_minutes": 5,
+        "duration_source": "default"
+      },
+      "brief_seconds": 12.231963157653809
+    },
+    {
+      "id": "artifact_5f4b2b9274cc91de16960330223cb76d",
+      "node": "n3-self-attention",
+      "title": "自注意力与多头注意力：Q/K/V 与缩放点积计算思路",
+      "type": "classroom",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:20:30.312009+00:00",
+      "elapsed_since_submission": 2026.17,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473630.4408665,
+      "finished_at": 1792475079.1038876,
+      "execution_seconds": 1448.66,
+      "progress": {
+        "step": "importing",
+        "message": "正在保存 HyperFrames 原生工程与播放时间轴",
+        "progress": 95
+      },
+      "task_error": null,
+      "workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/13921f99179dbdc3dec619b7b8e000fd258bde8b937167b70bfdcf24d10e3bb1",
+      "tool_calls": 208,
+      "tool_failures": [],
+      "last_tool": {
+        "at": 1792475070.633522,
+        "tool": "complete_project",
+        "ok": true,
+        "elapsed": 0.3595075597986579
+      },
+      "scene_workers": [
+        {
+          "worker_id": "ccf7da357fb44874bf6ea2350e828fa0",
+          "status": "succeeded",
+          "submitted_at": 1792473918.428275,
+          "started_at": 1792473919.694362,
+          "finished_at": 1792474368.4688065,
+          "error": null
+        },
+        {
+          "worker_id": "6e618bf38fcc4ca2b00161eea6298a5f",
+          "status": "succeeded",
+          "submitted_at": 1792473918.0788538,
+          "started_at": 1792473918.635856,
+          "finished_at": 1792474382.9007754,
+          "error": null
+        },
+        {
+          "worker_id": "c4b6bd583ca54a4aa54a5f6a7b54b004",
+          "status": "succeeded",
+          "submitted_at": 1792473918.7855434,
+          "started_at": 1792473919.994302,
+          "finished_at": 1792474399.3820353,
+          "error": null
+        },
+        {
+          "worker_id": "7d2f0aecc1f1436f86706d2ec9f5ca2a",
+          "status": "succeeded",
+          "submitted_at": 1792473919.570893,
+          "started_at": 1792473921.3695238,
+          "finished_at": 1792474435.4023511,
+          "error": null
+        }
+      ],
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/13921f99179dbdc3dec619b7b8e000fd258bde8b937167b70bfdcf24d10e3bb1/videos/n3-self-attention",
+          "brief": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力用 Q/K/V 三个投影让每个位置向全序列发问，再用缩放点积 softmax(QK^T/√dk)V 加权取回内容；多头把这件事并行做 h 次\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n面向希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织），讲清本节点“自注意力与多头注意力：Q/K/V 与缩放点积计算思路”。用户原话是“我想学习transformer”，本节点属于 req-transformer-basics（讲授 Transformer 的基本原理与整体结构，包括编码器-解码器、自注意力、位置编码与前馈网络等核心组成）中的自注意力部分。语气：清晰、逐步推进、以图示与手算演示为主，避免堆砌公式而不解释。\n\n本视频必须覆盖（教师演示型活动进入视频）：\n\n1. 自注意力的定义与动机：序列中每个位置去看同一序列的所有位置（包括自己），与解码器读编码器的交叉注意力（Cross-Attention）相对。用 “The animal didn't cross the street because it was too tired” 中的 it 为例，说明要判断 it 指向 animal 还是 street，必须在同一句子内部建立词与词的关系，自注意力让每个词向其余所有词发问并按相关性更新自己的表示。\n2. 为什么拆成 Q/K/V：同一向量同时承担“发问、被匹配、提供内容”三种角色，矛盾比 Bahdanau 的 h_j 一身两职更尖锐；解法是乘三个不同的可学习矩阵，分别得到 Query（发问）、Key（被匹配）、Value（被取走的内容），从而学出“容易被找到”与“携带有用内容”两套不同表示。\n3. 缩放点积注意力的计算步骤，按 Attention(Q,K,V)=softmax(QK^T/√dk)V 逐步演示：查询与所有键做点积 → 各自除以 √dk → softmax 归一化成对值的权重 → 对 V 加权求和得到输出。必须讲清缩放的原因：dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域（论文脚注的假设：q、k 各分量独立、均值 0、方差 1）。\n4. 玩具矩阵手算演示（教师演示，视频内必须走完一遍）：3 个词元、dk=4 的小矩阵，依次展示 QK^T、除以 √dk、softmax 归一化、加权求和 V 的完整流程，并让每一步的矩阵形状可见。\n5. 多头注意力：把 Q、K、V 分别用 h 组不同的可学习线性投影映射到 dk、dk、dv 维，并行执行注意力，拼接后再投影得到最终输出；作用是让模型同时关注不同位置、不同表示子空间的信息，而单头注意力的平均会抑制这一点。给出原论文配置 h=8、dk=dv=d_model/h=64，并核对 h×dk=d_model 在 base 配置上成立（8×64=512），说明因每头维度降低，总计算成本与全维单头注意力相近。\n\n## Assets\n\n- 无用户提供的附件或素材；所有图示需自行绘制（矩阵、箭头、权重条形图等），不得引用不存在的素材路径。\n\n## Customizations\n\n- 公式与矩阵演示按步骤分屏推进，不要一次性铺满整屏；密集图示拆成多步而不是缩小字号。\n- 玩具矩阵的数值需自洽可核对（softmax 权重和为 1，加权结果与手算一致）。\n\n## Notes\n\n必须讲清的内容与演示深度：\n\n- 自注意力 vs 交叉注意力的区别要明确点出（同一序列 vs 解码器读编码器）。\n- Q/K/V 的“为什么”优先于“怎么算”，先讲角色拆分再讲公式。\n- 缩放因子 √dk 的理由必须给出，不能只写公式。\n- 多头注意力的四步流程（投影—并行注意力—拼接—再投影）与 h×dk=d_model 的关系必须核对展示。\n- 先修假设：学习者已看过上一节点“整体结构与数据流：编码器-解码器、子层、残差与掩码”，可引用编码器/解码器层中子层的位置，但不要重新讲整体架构。\n\n排除项与边界：\n\n- 依据以 2017 年原始论文的编码器-解码器配置（N=6、d_model=512、h=8）为主；不展开仅编码器/仅解码器变体与各类高效注意力实现的细节。\n- 不展开位置编码的后续方案（如旋转位置编码），本节点不涉及。\n- 不安排特定编程框架的代码实现。\n- 视频不承载独立练习与自测题：3 词元玩具矩阵的手算作为教师演示在视频内走完；学习者自行复述公式、判断多头优势等自测留给习题，视频只做提示。\n- 详细阅读材料（论文原文、教材章节）留给报告，视频不逐段朗读。\n\n来源：\n\n- Vaswani 等《Attention Is All You Need》(https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf)，3.2.1 缩放点积注意力、3.2.2 多头注意力、3.2.3 三种注意力用法。\n- 《大模型原理与架构 | LLM Internals》1.4 节 Transformer 的提出与核心思想 (https://yeasy.gitbook.io/llm_internals/di-yi-bu-fen-ji-chu-pian/01_introduction/1.4_transformer_idea)。\n\n语音与画幅：中文配音讲解；16:9 画幅；视觉沿用课程默认（Noto Sans SC，1920×1080，深色底 #0f172a、前景 #f8fafc、强调色 #38bdf8，正文不小于 32px，图示标签不小于 28px，标题不小于 48px）。\n\n时长：用户未指定视频时长，按默认约 5 分钟（300s）安排充分解释与示例；节点 15 分钟学习预算包含阅读与练习，不等同于视频时长。\n",
+          "files": [
+            "meta.json",
+            "CLAUDE.md",
+            "package.json",
+            "index.html",
+            "AGENTS.md",
+            "frame.md",
+            "SCRIPT.md",
+            "BRIEF.md",
+            "STORYBOARD.md",
+            "audio_request.json",
+            "hyperframes.json",
+            "audio_meta.json"
+          ],
+          "frame_files": 13,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 28229797
+            }
+          ],
+          "audio_lines": 13,
+          "audio_seconds": 296.20799999999997,
+          "narration_chars": 1630
+        }
+      ],
+      "brief_decisions": {
+        "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置为空，有效个人偏好为空，故采用 defaults 的 target_minutes=5.0 与 narration=true、aspect=16:9；节点 15 分钟学习预算含阅读与练习，不作为成片时长。约 5 分钟常规教学解释按原生路由走 general-video，flow=automation、storyboard=no。语言按提问语言推断为中文，画幅沿用课程视觉契约 16:9。教师演示型活动（it 指代例子、3 词元 dk=4 手算、多头四步与 8×64=512 核对）写入视频必须覆盖项，独立自测留给习题，详细阅读留给报告。",
+        "narration": true,
+        "target_minutes": 5,
+        "duration_source": "default"
+      },
+      "brief_seconds": 15.269920110702515
+    },
+    {
+      "id": "artifact_f389a890295c6fa609e053a92da5f28b",
+      "node": "n4-position-ffn",
+      "title": "位置编码与逐位置前馈网络：补回顺序信息与逐位置非线性",
+      "type": "classroom",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:20:31.313454+00:00",
+      "elapsed_since_submission": 2025.17,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473631.402818,
+      "finished_at": 1792475647.2620146,
+      "execution_seconds": 2015.86,
+      "progress": {
+        "step": "importing",
+        "message": "正在保存 HyperFrames 原生工程与播放时间轴",
+        "progress": 95
+      },
+      "task_error": null,
+      "workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/1cab0e1b7ecece1cdb9e3a60387edcc88f47614f904791f7a7af033ad5f34e1d",
+      "tool_calls": 200,
+      "tool_failures": [],
+      "last_tool": {
+        "at": 1792475635.48424,
+        "tool": "complete_project",
+        "ok": true,
+        "elapsed": 0.300816741771996
+      },
+      "scene_workers": [
+        {
+          "worker_id": "26d2d55d470c4c6caecb2eb125b836c7",
+          "status": "succeeded",
+          "submitted_at": 1792474013.7607224,
+          "started_at": 1792474016.1271942,
+          "finished_at": 1792474556.0071373,
+          "error": null
+        },
+        {
+          "worker_id": "36fcbbb0445d4ab6aca5bbd9b1ce2acc",
+          "status": "succeeded",
+          "submitted_at": 1792474012.8863766,
+          "started_at": 1792474014.6686027,
+          "finished_at": 1792474427.539612,
+          "error": null
+        },
+        {
+          "worker_id": "aa4f755718774a9999bbc0288c5e93e0",
+          "status": "succeeded",
+          "submitted_at": 1792474014.893476,
+          "started_at": 1792474179.122129,
+          "finished_at": 1792474757.052616,
+          "error": null
+        }
+      ],
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/1cab0e1b7ecece1cdb9e3a60387edcc88f47614f904791f7a7af033ad5f34e1d/videos/transformer-position-ffn",
+          "brief": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力本身看不见顺序，所以要把位置编码加到嵌入上；每个位置再各自过同一个前馈网络，补回非线性\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知）\"\nangle: concept\n---\n\n## Intent\n\n这是「我想学习transformer」课程中的一个节点视频，主题是**位置编码与逐位置前馈网络：补回顺序信息与逐位置非线性**。面向希望系统学习 Transformer 的初学者（具体背景未知），按入门深度讲解，中文讲授。\n\n本节点要让学生看懂两件事：一是自注意力对位置置换等变，模型本身看不见词序，因此必须显式注入位置信息，且位置编码要与嵌入同维（d_model）以便相加；二是编码器和解码器每层里还有一个对每个位置分别且相同施加的前馈网络，用两个线性变换夹一个 ReLU 补回逐位置的非线性。语气清楚、循序渐进，先讲“为什么需要”，再讲“具体怎么做”，最后落到公式与配置数字。\n\n## Assets\n\n- 无用户提供的附件或素材；视觉全部由视频自行设计生成（示意图、公式排版、正弦波形示意）。\n\n## Customizations\n\n- 无用户点选的能力项或定制要求。\n\n## Notes\n\n**必须讲清的内容与演示深度（教师演示部分，视频必须覆盖）：**\n\n1. **为什么需要位置编码**：Transformer 既无循环也无卷积，自注意力对输入位置的置换是等变的——把同一句子的词序打乱后只做自注意力，输出只是跟着重排，模型无法区分“猫追狗”和“狗追猫”。因此必须显式注入词元的相对或绝对位置信息。\n2. **注入方式**：把位置编码**加到**编码器和解码器栈底部的输入嵌入上；位置编码与嵌入同维 d_model，才能直接相加。\n3. **正弦位置编码公式**：PE(pos,2i)=sin(pos/10000^(2i/d_model))，PE(pos,2i+1)=cos(pos/10000^(2i/d_model))，pos 是位置、i 是维度；每个维度对应一条正弦曲线，波长构成从 2π 到 10000·2π 的几何级数。\n4. **两个设计理由**：① 便于模型学习按相对位置关注——对任意固定偏移 k，PE(pos+k) 可表示为 PE(pos) 的线性函数；② 可能外推到训练时未见过的更长序列。\n5. **与可学习位置嵌入的对比**：作者也试验了可学习位置嵌入，两者结果几乎相同；选择正弦版本的理由是外推性。\n6. **逐位置前馈网络**：编码器和解码器的每一层除注意力子层外还含一个全连接前馈网络，对每个位置分别且相同地施加，由两个线性变换和中间的 ReLU 组成：FFN(x)=max(0, xW1+b1)W2+b2；不同位置共享同一组线性变换，但不同层使用不同参数；也可描述为两个核大小为 1 的卷积。原论文 d_model=512，内层维度 d_ff=2048。\n\n**演示深度建议**：位置编码部分可配合“打乱词序 → 输出只是重排”的示意与正弦波形/热力图示意，直观呈现不同维度波长差异；公式要逐项拆解符号含义，不要求推导。前馈网络部分用“同一组权重在每个位置上各算一遍”的图示说明“逐位置、共享参数、层间不共享”，并给出 512→2048→512 的维度变化。\n\n**留给习题与报告（不放进视频）**：\n- 打乱词序的小实验、对 pos=0..3、d_model=4 手算前几个位置编码值等动手练习，属于独立练习，交由习题环节。\n- 正弦方案与可学习嵌入的论文结论对比、作者选择理由的详细阅读与延伸（如旋转位置编码等后续方案），交由报告环节。\n- 视频内不设题目、不设测验。\n\n**来源与依据**：Vaswani 等，*Attention Is All You Need*（NeurIPS 2017），第 3.3 节 Position-wise Feed-Forward Networks 与第 3.5 节 Positional Encoding，https://papers.neurips.cc/paper/7181-attention-is-all-you-need.pdf 。\n\n**排除项与限制**：\n- 依据以 2017 年原始论文的编码器-解码器配置（N=6、d_model=512、h=8）为主；不展开仅编码器/仅解码器变体与各类高效注意力实现细节。\n- 位置编码只覆盖原论文正弦方案与可学习嵌入的对比，不展开旋转位置编码等后续方案。\n- 不安排特定编程框架的代码实现。\n- 先修内容为上一节点「自注意力与多头注意力：Q/K/V 与缩放点积计算思路」，本视频可直接引用其结论（自注意力让每个位置关注全序列、Attention(Q,K,V)=softmax(QK^T/√dk)V），不重复推导。\n\n**语音与画幅**：中文配音讲解；16:9 画幅；课程视觉约定为深色底 #0f172a、前景 #f8fafc、强调色 #38bdf8，字体 Noto Sans SC，正文不小于 32px、图示标签不小于 28px、标题不小于 48px；密集图示分步呈现而不是缩小字号。\n\n**时长说明**：用户未指定视频时长，按默认约 5 分钟（300s）安排充分解释与示例；节点 12 分钟学习预算包含阅读与练习，不等同成片时长。\n",
+          "files": [
+            "meta.json",
+            "CLAUDE.md",
+            "package.json",
+            "index.html",
+            "AGENTS.md",
+            "frame.md",
+            "SCRIPT.md",
+            "BRIEF.md",
+            "STORYBOARD.md",
+            "audio_request.json",
+            "hyperframes.json",
+            "audio_meta.json",
+            "audio_meta.assembly.json"
+          ],
+          "frame_files": 9,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 36370417
+            }
+          ],
+          "audio_lines": 9,
+          "audio_seconds": 284.736,
+          "narration_chars": 1507
+        }
+      ],
+      "brief_decisions": {
+        "reason": "用户请求中 requested_video_minutes 为 null，显式配置与有效个人偏好均为空，故视频时长采用 defaults 的约 5 分钟（300s），并围绕该时长安排位置编码与前馈网络的充分解释与示意，不压缩为一分钟概述。节点 12 分钟学习预算含阅读与练习，不作为成片时长。配音采用 defaults 的 narration=true（中文讲解），画幅沿用 defaults 的 16:9 并叠加课程视觉约定。交付类型为约 5 分钟的常规教学解释视频，按原生路由走 general-video，flow: automation、storyboard: no。用户未提供附件，故 Assets 为空并注明视觉自行生成；未要求题目，故自测与手算练习留给习题、详细对比阅读留给报告，视频内不设题。",
+        "narration": true,
+        "target_minutes": 5,
+        "duration_source": "default"
+      },
+      "brief_seconds": 15.42010498046875
+    },
+    {
+      "id": "artifact_57380f90897ff79c7dc7dd394a430802",
+      "node": "n5-tradeoff",
+      "title": "取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界",
+      "type": "classroom",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T05:20:44.294188+00:00",
+      "elapsed_since_submission": 2012.19,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792473644.483879,
+      "finished_at": 1792475016.0225408,
+      "execution_seconds": 1371.54,
+      "progress": {
+        "step": "importing",
+        "message": "正在保存 HyperFrames 原生工程与播放时间轴",
+        "progress": 95
+      },
+      "task_error": null,
+      "workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97",
+      "tool_calls": 164,
+      "tool_failures": [],
+      "last_tool": {
+        "at": 1792475006.3724504,
+        "tool": "complete_project",
+        "ok": true,
+        "elapsed": 0.5426644566468894
+      },
+      "scene_workers": [
+        {
+          "worker_id": "95adecefbc9748768ef97d8033c3263a",
+          "status": "succeeded",
+          "submitted_at": 1792473989.561878,
+          "started_at": 1792473990.570088,
+          "finished_at": 1792474396.7806554,
+          "error": null
+        },
+        {
+          "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+          "status": "succeeded",
+          "submitted_at": 1792473988.6128883,
+          "started_at": 1792473989.2286494,
+          "finished_at": 1792474205.1904318,
+          "error": null
+        },
+        {
+          "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+          "status": "succeeded",
+          "submitted_at": 1792473988.9705572,
+          "started_at": 1792473990.0271819,
+          "finished_at": 1792474432.4117234,
+          "error": null
+        }
+      ],
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention",
+          "brief": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力用常数步顺序操作换来 O(1) 路径长度，代价是每层 O(n²·d) 复杂度；而“完全并行”只对编码器和训练时的解码器成立\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n面向希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织），讲清一个取舍判断：为什么 Transformer 用自注意力取代循环网络，以及“完全并行”这句话到底在什么范围内成立。这是课程节点 n5-tradeoff 的教师讲解视频，承接先修节点“整体结构与数据流：编码器-解码器、子层、残差与掩码”和“自注意力与多头注意力：Q/K/V 与缩放点积计算思路”，学生此时已经知道编码器-解码器结构、掩码、以及 Attention(Q,K,V)=softmax(QK^T/√dk)V 的计算思路。语气清晰、克制、以对比和判断为主，不做营销式渲染。\n\n## Customizations\n\n- 视频必须覆盖教师演示部分：用一张三行对比表（自注意力 / 循环 / 卷积 × 每层计算复杂度、最少顺序操作数、最大路径长度）作为核心视觉，逐列讲清三个衡量角度，并标注各自适用条件。\n- 必须讲清 n < d 时自注意力比循环层更快这一条件，以及句子表示中该条件通常成立的理由（word-piece、byte-pair 表示）。\n- 必须讲清路径长度与长程依赖可学习性的关系：自注意力 O(1)、循环 O(n)、卷积 O(log_k(n))，路径越短越易学习长程依赖。\n- 必须讲清代价：自注意力每层复杂度随 n 平方增长；长序列可限制为邻域 r 的受限自注意力，复杂度降为 O(r·n·d)，但最大路径长度升为 O(n/r)。\n- 必须区分训练时并行与推理时串行：训练用教师强制，解码器输入是真实目标句右移一位，因果掩码保证位置 i 只能看到位置 1 到 i，一次前向即可同时算出所有位置的预测；推理时第 i 个词元必须等第 i−1 个选出后才能作为输入，生成 m 个词元仍需 m 次顺序前向。结论要明确落到“Transformer 消掉的是训练的顺序步数，而非生成的顺序步数”。\n- 可引用原论文的工程佐证：Transformer 在 8 块 P100 GPU 上训练 12 小时即达到新的翻译质量最优。\n- 视觉遵循本课程统一契约：1920x1080、背景 #0f172a、前景 #f8fafc、强调色 #38bdf8、字体 Noto Sans SC；正文不小于 32px，图示标签不小于 28px，标题不小于 48px。密集对比表分步呈现，不要缩小字号硬塞。\n\n## Notes\n\n- 本视频是教师讲解，不是练习：三行对比表填写、超长文档场景分析、“用两句话向同伴解释完全并行范围”这三项学习活动属于学生独立练习，留给习题，不在视频中出题或要求作答。\n- 自测标准（不看资料说出两项优势与一项代价，并准确指出“完全并行”的适用范围）只作为讲解覆盖度的检验，不在视频内设题。\n- 详细推导与延伸阅读留给报告，视频只做入门深度的解释与示例，不展开多头注意力内部细节、位置编码公式推导。\n- 来源以 2017 年原始论文《Attention Is All You Need》第 4 节 “Why Self-Attention” 与 Table 1 为主，辅以对“训练并行、生成串行”的说明材料（https://yeasy.gitbook.io/llm_internals/di-yi-bu-fen-ji-chu-pian/01_introduction/1.4_transformer_idea）。\n- 排除项：不覆盖仅编码器/仅解码器变体、各类高效注意力实现细节、旋转位置编码等后续方案；不安排特定编程框架的代码实现。\n- 用户未提供任何附件与素材，视频视觉需全部由排版、图示与动画生成，不引用不存在的素材路径。\n- 用户未指定视频时长，按默认约 5 分钟安排充分解释与示例；节点学习预算 8 分钟包含阅读与练习，不等同于成片时长。\n- 使用中文配音讲解。\n",
+          "files": [
+            "meta.json",
+            "CLAUDE.md",
+            "package.json",
+            "index.html",
+            "AGENTS.md",
+            "frame.md",
+            "SCRIPT.md",
+            "BRIEF.md",
+            "STORYBOARD.md",
+            "audio_request.json",
+            "hyperframes.json",
+            "audio_meta.json"
+          ],
+          "frame_files": 9,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 15126394
+            }
+          ],
+          "audio_lines": 9,
+          "audio_seconds": 284.28,
+          "narration_chars": 1543
+        }
+      ],
+      "brief_decisions": {
+        "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置与有效个人偏好均为空，故采用 defaults 的约 5 分钟目标时长，围绕该时长安排充分解释与示例，不压成一分钟概述。节点学习预算 8 分钟包含阅读与练习，不作为成片时长。配音采用 defaults 的 narration=true，并在正文写明中文配音。画幅沿用 defaults 的 16:9，与课程视觉契约 1920x1080 一致。交付类型为约 5 分钟常规教学解释视频，按原生路由走 general-video，flow: automation、storyboard: no。缺失信息假设：受众具体背景未知，按入门深度组织；无附件素材，视觉全部由排版与图示生成。",
+        "narration": true,
+        "target_minutes": 5,
+        "duration_source": "default"
+      },
+      "brief_seconds": 15.617408990859985
+    }
+  ]
+}

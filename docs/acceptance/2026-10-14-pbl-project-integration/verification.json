@@ -1,0 +1,66 @@
+{
+  "backend": {
+    "passed": 102,
+    "postgres": "dedicated pbl_acceptance DB"
+  },
+  "browserChecker": {
+    "passed": 3
+  },
+  "frontendTypes": "passed",
+  "frontendLint": "passed",
+  "productionBuild": "passed",
+  "newProjectFixture": {
+    "passed": 2
+  },
+  "realModelAndUi": {
+    "passed": true,
+    "exerciseId": "pbl_ba82f83b651e12b8ff22463498210ecd",
+    "steps": [
+      {
+        "stepId": "step-layout",
+        "checks": 2,
+        "passed": true
+      },
+      {
+        "stepId": "step-input",
+        "checks": 5,
+        "passed": true
+      },
+      {
+        "stepId": "step-operations",
+        "checks": 9,
+        "passed": true
+      },
+      {
+        "stepId": "step-error",
+        "checks": 11,
+        "passed": true
+      }
+    ],
+    "runs": 19,
+    "checks": 11,
+    "backend": "real isolated PostgreSQL + actual model artifact + server browser checks",
+    "preview": "official hosted Sandpack React",
+    "tested": [
+      "empty starter rejection",
+      "cumulative checks per step",
+      "shared code across steps",
+      "interactive error recovery scenario",
+      "changed hash invalidation",
+      "refresh retains files and active step",
+      "later regression rejected",
+      "desktop/mobile layout"
+    ]
+  },
+  "legacyAndHome": {
+    "passed": 12,
+    "note": "Initial hosted Sandpack connection timed out in one test; all other 11 passed, isolated rerun of that test passed."
+  },
+  "productionBackendLoaded": false,
+  "remaining": "Administrator restart edu-ai-backend required; production model flow not asserted",
+  "publishedFrontendBrowserChecks": {
+    "passed": 5,
+    "target": "Nginx port 80",
+    "api": "mocked fixtures; production backend remains awaiting restart"
+  }
+}

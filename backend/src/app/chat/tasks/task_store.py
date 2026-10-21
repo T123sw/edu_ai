@@ -345,7 +345,7 @@ class TaskStore:
             if deadline_seconds <= 0:
                 raise ValueError("deadline_seconds must be positive")
             normalized_deadline = now + deadline_seconds
-        if normalized_deadline is None:
+        if normalized_deadline is None and workflow_type not in ('preparation_step', 'preparation_resource'):
             normalized_deadline = now + DEFAULT_TASK_DEADLINE_SECONDS
         with self._lock:
             try:
@@ -416,6 +416,9 @@ class TaskStore:
         lease_owner: str,
         lease_seconds: float,
         now: float | None = None,
+        workflow_types: tuple[str, ...] | None = None,
+        excluded_workflow_types: tuple[str, ...] = (),
+        light_resources_only: bool = False,
     ) -> DurableTask | None:
         normalized_owner = str(lease_owner or "").strip()
         if not normalized_owner:
@@ -423,6 +426,18 @@ class TaskStore:
         if float(lease_seconds) <= 0:
             raise ValueError("lease_seconds must be positive")
         active_now = float(now if now is not None else _now_ts())
+        filters = ""
+        parameters: list[Any] = [active_now]
+        if workflow_types is not None:
+            if not workflow_types:
+                return None
+            filters += " AND workflow_type IN (" + ",".join("?" for _ in workflow_types) + ")"
+            parameters.extend(workflow_types)
+        if excluded_workflow_types:
+            filters += " AND workflow_type NOT IN (" + ",".join("?" for _ in excluded_workflow_types) + ")"
+            parameters.extend(excluded_workflow_types)
+        if light_resources_only:
+            filters += " AND (workflow_type IN ('report_direct','quiz_direct','exam_practice') OR (workflow_type='preparation_resource' AND json_extract(command_json, '$.resource_type') IN ('report','quiz')))"
         with self._lock:
             try:
                 self._conn.execute("BEGIN IMMEDIATE")
@@ -434,10 +449,11 @@ class TaskStore:
                       AND cancel_requested=0
                       AND available_at<=?
                       AND attempt_count<max_attempts
+                    """ + filters + """
                     ORDER BY available_at ASC, created_at ASC, task_id ASC
                     LIMIT 1
                     """,
-                    (active_now,),
+                    tuple(parameters),
                 ).fetchone()
                 if candidate is None:
                     self._conn.commit()
@@ -718,6 +734,7 @@ class TaskStore:
                     WHERE status IN ('pending', 'leased')
                       AND command_json IS NOT NULL
                       AND deadline_at IS NULL
+                      AND (workflow_type IS NULL OR workflow_type NOT IN ('preparation_step', 'preparation_resource'))
                     """,
                     (float(DEFAULT_TASK_DEADLINE_SECONDS),),
                 )

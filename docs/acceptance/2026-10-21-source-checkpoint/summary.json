@@ -1,0 +1,31 @@
+{
+  "version_label": "snapshot-2026-10-21",
+  "purpose": "Current project source checkpoint, including accumulated development and tutoring response improvements",
+  "branch": "feat/self-learning-frontend-20260914",
+  "remote": "https://github.com/T123sw/edu_ai.git",
+  "included": [
+    "Backend, frontend, database migrations, integration adapters, tests and scripts",
+    "Architecture, deployment and acceptance documents",
+    "Pinned HyperFrames upstream submodule and DeepTutor upstream patch set"
+  ],
+  "excluded": [
+    "Environment secrets and local user data",
+    "Installed dependencies and virtual environments",
+    "Frontend release backups and temporary builds",
+    "Generated acceptance media, raw checkpoints and action logs"
+  ],
+  "validation": [
+    "Tutoring response verification is recorded in ../2026-10-21-tutoring-response/verification.json",
+    "Source paths checked for configured credentials and common credential patterns",
+    "Shell installer syntax and source whitespace checked",
+    "This is a source checkpoint, not a claim that all accumulated changes passed a fresh full-repository acceptance run"
+  ],
+  "deployment": "Supplementary worker refreshed; main backend still requires administrator restart, as recorded in ../2026-10-21-tutoring-response/deployment.json",
+  "hyperframes": {
+    "commit": "b18b3e958aa199529fa5fa06728e81b97d520021",
+    "verified_source_files": 9468,
+    "source_differences": 0,
+    "storage": "Pinned upstream Git submodule; source files unchanged",
+    "local_git_note": "65 raw upstream blobs also match upstream LFS globs; local info/attributes compares those paths as their actual stored blobs. No source content or upstream attributes were changed."
+  }
+}

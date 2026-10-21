@@ -1,0 +1,224 @@
+{
+  "title": "Transformer 与循环网络：并行计算与长距离依赖",
+  "content": {
+    "title": "Transformer 与循环网络：并行计算与长距离依赖",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_0085ebb4c6452b3efa30375ab1b62728",
+      "entry": "index.html",
+      "digest": "0f3a955cb73e2be6674b351c5e2434bbd809111ac3e38535fc53db09396290fe"
+    },
+    "timeline": {
+      "duration": 284.0,
+      "segments": [
+        {
+          "id": "f01-hook",
+          "end": 21.5,
+          "start": 0.0,
+          "title": "开场：为什么要换掉 RNN",
+          "events": [],
+          "narration": "前面我们看过 Transformer 的整体结构，也拆过自注意力里查询、键和值是怎么算的。可是还有一个问题一直没回答：既然循环网络一直好用，为什么非要把它换掉？这一段，我们就用三个问题把它说清楚。",
+          "audio_path": "assets/audio/5775e7cdabe7f4be6529e20f061122dc2cd02f1dced982d9840c6471c763e2eb.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "提问「为什么非要换掉 RNN？」，三行对比表以空表出现"
+        },
+        {
+          "id": "f02-rnn-seq",
+          "end": 45.5,
+          "start": 21.5,
+          "title": "循环网络：一步接一步",
+          "events": [],
+          "narration": "先看循环网络。它沿着序列的位置，一个符号接一个符号地往前算：第 t 步的隐藏状态，是由上一步的隐藏状态和当前位置的输入一起算出来的。位置和时间步被绑在一起，所以第五步永远要等第四步算完。",
+          "audio_path": "assets/audio/6a34364dc700239fff6b7328a2a4de3a76905d9a034fb541c481b7b9638a48a2.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "输入 x1–x6 与隐藏状态 h1–h6 依次展开，脉冲在链上逐格前进"
+        },
+        {
+          "id": "f03-seq-cost",
+          "end": 69.5,
+          "start": 45.5,
+          "title": "顺序的代价：两头都受限",
+          "events": [],
+          "narration": "这种顺序是写进结构里的。于是一个训练样本内部就没法并行：显卡有几千个计算核，也只能排着队等。序列越长越要命——显存被单个样本占满，跨样本的批处理也堆不上去。样本内、样本外，两头都受限。",
+          "audio_path": "assets/audio/119b27c491e01f3befaf700c96fa4df454b382c0d099a10bd33c846564e7ecec.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左侧计算核排队，右侧显存条被单样本占满，批处理被压住"
+        },
+        {
+          "id": "f04-improve",
+          "end": 90.0,
+          "start": 69.5,
+          "title": "技巧改善，约束仍在",
+          "events": [],
+          "narration": "后来有人用因式分解、条件计算这些技巧去省计算，效率确实提高了，模型效果也更好。但请注意：这些只是让每一步变便宜，必须一步一步走这个基本约束，并没有被打破。",
+          "audio_path": "assets/audio/e364cfc600d3558cbd83406a8248cb820398101d6db88d4a8563951b313d03aa.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "计算量条被技巧压短，但「顺序依赖」的墙没有倒"
+        },
+        {
+          "id": "f05-attention-parallel",
+          "end": 114.5,
+          "start": 90.0,
+          "title": "Transformer：只留注意力",
+          "events": [],
+          "narration": "Transformer 的做法很干脆：把循环整个拿掉，只留注意力。每个位置直接和其他所有位置建立联系，一次矩阵运算就能把整条序列一起算完。论文里有个旁证：八块 P100 训练十二小时，翻译质量就达到了当时的新水平。",
+          "audio_path": "assets/audio/2ce5104326af3b57347db949cb1224824ac5f5a1a11b49a6af4320d3dbb12dd9.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "六个位置同时被注意力两两连接，一次矩阵运算算完整条序列"
+        },
+        {
+          "id": "f06-table-parallel",
+          "end": 133.5,
+          "start": 114.5,
+          "title": "对比表第一行：能否并行",
+          "events": [],
+          "narration": "回到第一个问题：能不能并行？循环层不能，序列有多长，就要等多少步。自注意力层可以，所有位置同时算。这是对比表的第一行。",
+          "audio_path": "assets/audio/2f9ca30a3751b50ac2e3390452e4c95d7ec79e1512645edae195fdf6573d6307.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "对比表第一行被点亮：循环层「否」，自注意力「是」"
+        },
+        {
+          "id": "f07-path-attention",
+          "end": 157.0,
+          "start": 133.5,
+          "title": "路径长度：一步到位",
+          "events": [],
+          "narration": "第二个问题是路径长度：信息从位置一传到位置六，中间要走多远？在自注意力层里，任意两个位置都是直接相连，中间只隔一次注意力操作。所以路径长度是常数一，隔多远都是一步。",
+          "audio_path": "assets/audio/6d29dc82c9f1fabdf04ed9c1006341925a1ee5d3f47e6a73a444ced30062943a.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "自注意力层里位置 1 与位置 6 直接相连，路径长度是常数 1"
+        },
+        {
+          "id": "f08-path-rnn",
+          "end": 180.0,
+          "start": 157.0,
+          "title": "路径长度：一路传递",
+          "events": [],
+          "narration": "换成循环层，位置一的信息只能顺着隐藏状态一路往下传：先到位置二，再到三，一直到六。n 个位置，最远要走 n 步。路径越长，梯度要穿过的环节越多，长距离依赖就越难学。",
+          "audio_path": "assets/audio/9e9adfcdb36851965b8ae2acc337dcddebbead46720aeb34bda6fc8c60a2b75a.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "循环层里位置 1 的信息必须逐格传递到位置 6，最远 n 步"
+        },
+        {
+          "id": "f09-table-path",
+          "end": 200.5,
+          "start": 180.0,
+          "title": "对比表第二行：路径长度",
+          "events": [],
+          "narration": "所以第二行：任意两个位置之间的路径长度。循环层是 n 的量级，自注意力层是常数。路径越短，长距离依赖越好学——这就是 Transformer 的第二个优势。",
+          "audio_path": "assets/audio/0058973287ff336843526f93c52ea5ababeb4eb97c089aa16c4de527082fb066.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "对比表第二行被点亮：循环层 O(n)，自注意力 O(1)"
+        },
+        {
+          "id": "f10-complexity",
+          "end": 230.5,
+          "start": 200.5,
+          "title": "代价：n 的平方",
+          "events": [],
+          "narration": "但代价也在这里。自注意力要让每个位置去看所有位置，两两配对，配对数就是 n 乘 n，所以每层计算复杂度是 n 的平方；循环层只是 n 的量级。曲线画出来很清楚：短序列时自注意力更划算，一旦 n 变大，平方项就会迅速吃掉这个优势。",
+          "audio_path": "assets/audio/c92d43ffef7098186c6a4f606279b7df791a8a92fb70aec1d676774024334ebb.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "O(n) 与 O(n²) 两条曲线生长，交叉点左侧标出「自注意力更划算」"
+        },
+        {
+          "id": "f11-table-cost",
+          "end": 262.5,
+          "start": 230.5,
+          "title": "什么时候划算：n 小于 d 与邻域 r",
+          "events": [],
+          "narration": "那什么时候划算？当序列长度 n 小于表示维度 d 的时候，自注意力比循环层更快——机器翻译里的子词、字节对表示，通常就是这种情况。如果序列实在太长，还有一招：只让每个位置看半径为 r 的邻域，最大路径长度变成 n 除以 r。这是第三行。",
+          "audio_path": "assets/audio/39d0c939975edaff1f62cb5cf24188e8c73ae97aaa2b39633f14df037ed73d42.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "对比表第三行填满（O(n) / O(n²)），随后浮出邻域 r 的限制"
+        },
+        {
+          "id": "f12-close",
+          "end": 284.0,
+          "start": 262.5,
+          "title": "收尾：你能同时说出优势与代价吗",
+          "events": [],
+          "narration": "最后留一个问题给你：不看画面，你能同时说出 Transformer 的优势和代价吗？优势是并行、路径短；代价是平方级的计算量。两件事能一起说出来，这一段才算真的过关。",
+          "audio_path": "assets/audio/46663ce641765fd7aa660b5b1a44a1ce78cf01283dd8adbe648457836c872241.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "优势与代价两枚结论卡并置，收在自测问题"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 284.0
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.733333333333333
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "670318bc1593b8ef54e9a929a3a63536203a241dcf0779c814aa31e99055eb72",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 284.0
+      },
+      "content_digest": "b338b37746e2f4f6645b97d07d1b4aaa1dc785ff3aac5ac1aa251dcb69c950b9",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.733333333333333
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "a471a53b549b708875692d5a1d192b8be9277d4aa584d6600c2e23189c32444c"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "15104a1ac3ad1f698e8468f5dee376cfc2b61b63bc9a992772ff20e30aa9e1d0",
+      "preparation_sha256": "6df950308ca483c03005df5569c22be67d553d496f09f05ef918c425fb7c4707"
+    }
+  }
+}

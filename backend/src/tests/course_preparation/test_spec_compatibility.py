@@ -86,13 +86,32 @@ def production_input():
     return request, cp, node
 
 
+def test_prepare_specifications_stops_before_any_resource_submission():
+    from app.course_preparation.production_stages import ProductionStages
+    request, cp, node = production_input()
+    before = deepcopy(cp)
+    def forbidden(*args, **kwargs):
+        pytest.fail('preparing specifications must not submit or reserve generation')
+    repo = SimpleNamespace(get=lambda **kwargs: SimpleNamespace(request=request), begin_action=forbidden)
+    generation = SimpleNamespace(submit=forbidden, reconcile=forbidden, read_result=forbidden)
+    stages = ProductionStages(repo, generation, SimpleNamespace(validate=lambda *args: None))
+    context = SimpleNamespace(checkpoint=cp, owner_user_id='alice', preparation_id='prep')
+    prepared = stages.prepare_specifications(context)
+    assert [s['resource_type'] for s in prepared['resource_specs']] == ['classroom', 'report', 'quiz']
+    assert cp == before
+    assert 'generation_receipts' not in prepared
+    result, actions = production(request, cp)
+    assert result.checkpoint['resource_specs'] == prepared['resource_specs']
+    assert len(actions) == 3
+
+
 def test_production_keeps_kinds_and_shares_node_budget_without_resource_allocation():
     request, cp, node = production_input()
     request = request.model_copy(update={'overrides': request.overrides.model_copy(update={'required_resource_types': ('classroom',)})})
     before = deepcopy(cp)
     result, actions = production(request, cp)
     specs = result.checkpoint['resource_specs']
-    assert [s['resource_type'] for s in specs] == ['report', 'quiz', 'classroom']
+    assert [s['resource_type'] for s in specs] == ['classroom', 'report', 'quiz']
     expected = build(request, cp, node).model_dump(mode='json')
     assert all(s['schema_version'] == 2 and s['teaching_context'] == expected for s in specs)
     assert all(s['minutes'] == 10 and s['teaching_context']['resource_target_minutes'] is None for s in specs)
@@ -109,7 +128,7 @@ def test_classroom_switch_controls_actual_generation_even_when_brief_disagrees(e
         request = request.model_copy(update={'overrides': request.overrides.model_copy(update={
             'include_classroom': enabled, 'required_resource_types': ('classroom',)})})
     result, actions = production(request, cp)
-    expected = ['report', 'quiz'] + ([] if enabled is False else ['classroom'])
+    expected = ['report', 'quiz'] if enabled is False else ['classroom', 'report', 'quiz']
     assert [s['resource_type'] for s in result.checkpoint['resource_specs']] == expected
     assert [s['resource_type'] for _, s in actions] == expected
 
@@ -172,3 +191,29 @@ def test_real_v1_artifact_sql_read_and_reconcile_preserve_stored_identity(genera
     assert restored['spec_digest'] == fixture['spec_digest']
     assert restored['content'] == content
     assert restored['content_digest'] == digest(content)
+
+
+@pytest.mark.parametrize('enabled', [True, False])
+def test_every_new_node_gets_companions_and_resume_does_not_duplicate(enabled):
+    request, cp, _ = production_input()
+    request = request.model_copy(update={'overrides': request.overrides.model_copy(update={'include_classroom': enabled})})
+    other = {**deepcopy(cp['plan']['nodes'][0]), 'node_key': 'n2'}
+    cp['plan']['nodes'].append(other)
+    cp['node_evidence']['n2'] = deepcopy(cp['node_evidence']['n1'])
+    first, _ = production(request, cp)
+    specs = first.checkpoint['resource_specs']
+    for node_id in ('n1', 'n2'):
+        kinds = [spec['resource_type'] for spec in specs if spec['node_id'] == node_id]
+        assert kinds.count('report') == kinds.count('quiz') == 1
+        assert kinds.count('classroom') == int(enabled)
+    second, _ = production(request, first.checkpoint)
+    assert second.checkpoint['resource_specs'] == specs
+
+
+def test_adjusted_nodes_include_companions_but_supplements_remain_scoped():
+    from app.course_preparation.resource_selection import course_resource_types
+    request, _, _ = production_input()
+    request = request.model_copy(update={'operation': 'adjust_course'})
+    assert set(course_resource_types(request, ['classroom'])) == {'report', 'quiz', 'classroom'}
+    request = request.model_copy(update={'operation': 'supplement_node'})
+    assert course_resource_types(request, ['report']) == ['report']

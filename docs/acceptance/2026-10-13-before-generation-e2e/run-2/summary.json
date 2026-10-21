@@ -1,0 +1,201 @@
+{
+  "preparation_id": "prep_2116f6409bc3443088a18b7c52605f2c",
+  "action_counts": {
+    "model_completion": 19,
+    "search": 2,
+    "extract": 2
+  },
+  "model_phases": {
+    "intent": {
+      "calls": 1,
+      "total_tokens": 5047,
+      "prompt_tokens": 4582,
+      "completion_tokens": 465,
+      "max_input_bytes_upper_bound": 20359,
+      "tools": {
+        "mcp__preparation__save_preparation_brief": 1
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "understand-learning-request"
+      ]
+    },
+    "learning_path": {
+      "calls": 13,
+      "total_tokens": 304256,
+      "prompt_tokens": 295303,
+      "completion_tokens": 8953,
+      "max_input_bytes_upper_bound": 117056,
+      "tools": {
+        "skill": 2,
+        "mcp__preparation__search_sources": 2,
+        "mcp__preparation__fetch_source": 6,
+        "mcp__preparation__record_evidence_finding": 20,
+        "mcp__preparation__finalize_research_summary": 1,
+        "mcp__preparation__save_course_plan": 2
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "build-learning-path"
+      ]
+    },
+    "review": {
+      "calls": 1,
+      "total_tokens": 11711,
+      "prompt_tokens": 11586,
+      "completion_tokens": 125,
+      "max_input_bytes_upper_bound": 43976,
+      "tools": {
+        "mcp__preparation__submit_path_review": 1
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "review-learning-path"
+      ]
+    },
+    "research_nodes": {
+      "calls": 4,
+      "total_tokens": 29333,
+      "prompt_tokens": 27626,
+      "completion_tokens": 1707,
+      "max_input_bytes_upper_bound": 38908,
+      "tools": {
+        "mcp__preparation__assess_node_evidence": 4
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "review-learning-path"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "stage": "normalize",
+      "started_at": 1791914712.3741863,
+      "seconds": 4.549713134765625,
+      "next_stage": "research_scope",
+      "error": null
+    },
+    {
+      "stage": "research_scope",
+      "started_at": 1791914717.7831233,
+      "seconds": 47.544089555740356,
+      "next_stage": null,
+      "error": null
+    },
+    {
+      "stage": "research_scope",
+      "started_at": 1791914766.3205884,
+      "seconds": 42.879048109054565,
+      "next_stage": "plan",
+      "error": null
+    },
+    {
+      "stage": "plan",
+      "started_at": 1791914810.6850078,
+      "seconds": 3.55945086479187,
+      "next_stage": "research_nodes",
+      "error": null
+    },
+    {
+      "stage": "research_nodes",
+      "started_at": 1791914815.6804066,
+      "seconds": 4.3992509841918945,
+      "next_stage": null,
+      "error": null
+    },
+    {
+      "stage": "research_nodes",
+      "started_at": 1791914820.8536217,
+      "seconds": 4.966278076171875,
+      "next_stage": null,
+      "error": null
+    },
+    {
+      "stage": "research_nodes",
+      "started_at": 1791914827.0836756,
+      "seconds": 5.2338786125183105,
+      "next_stage": null,
+      "error": null
+    },
+    {
+      "stage": "research_nodes",
+      "started_at": 1791914833.2881136,
+      "seconds": 4.989792108535767,
+      "next_stage": "produce",
+      "error": null
+    },
+    {
+      "stage": "produce",
+      "started_at": 1791914839.2911193,
+      "seconds": 0.46765947341918945,
+      "next_stage": null,
+      "error": null
+    }
+  ],
+  "nodes": 4,
+  "findings": 10,
+  "sources": 6,
+  "resource_spec_count": 12,
+  "resources_generated": {
+    "preparation_artifacts": 0,
+    "prepared_manifest_versions": 0
+  },
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 23,
+      "tokens": 350347,
+      "cost_micro_usd": 3503470
+    },
+    "deadline": "2026-10-13 19:05:12.213975+00:00"
+  },
+  "status": {
+    "preparation_id": "prep_2116f6409bc3443088a18b7c52605f2c",
+    "attempt_no": 1,
+    "status": "canceled",
+    "stage": "produce",
+    "revision": 120,
+    "error_code": null,
+    "result_ref": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 23,
+        "tokens": 350347,
+        "cost_micro_usd": 3503470
+      },
+      "deadline": "2026-10-13T19:05:12.213975+00:00"
+    }
+  },
+  "context_restarts": 1,
+  "node_research_repairs": 0
+}

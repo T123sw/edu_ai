@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-10-15T04:16:27.632718+00:00",
+  "backendCasesPassed": 63,
+  "exampleUnitCasesPassed": 6,
+  "layoutCasesPassed": 6,
+  "runtimeCasesPassed": 2,
+  "publishedCasesPassed": 3,
+  "typecheck": "passed",
+  "eslint": "passed",
+  "build": "passed",
+  "firstRunIssues": [
+    "Saved artifact test incorrectly compared rendered text length with raw Markdown including markup; changed to full normalized rendered text equality, all four steps passed.",
+    "Algorithm viewport test initially failed at 320px; unchanged isolated rerun passed all widths. This does not establish absence of intermittent resize races."
+  ],
+  "realModelGeneration": "Both isolated real-provider runs reached the 300s acceptance deadline without an artifact; new model content quality remains unverified.",
+  "boundaries": [
+    "Business/auth/storage/tutor APIs mocked in browser cases; layout cases block external runtime.",
+    "Runtime regressions use real React preview and algorithm Worker.",
+    "Saved calculator artifact is read-only; production learner records were not modified.",
+    "Screenshot algorithm/project text is a controlled fixture, not output from a new real model run.",
+    "Frontend deployed; complete new generator prompts require backend restart. sudo required a password."
+  ],
+  "changes": [
+    "Full instructionsMarkdown rendered without truncation or substitution by objective, including old saved content.",
+    "Model instructions control statement structure and concise writing; no hard statement length cap.",
+    "One existing input/output example selected; algorithms prefer representative nonempty unsorted values.",
+    "New and repair generation both use updated writing instructions."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "boundary": "Same frozen real response, exact parser before/after; no new model call.",
+  "response_characters": 785,
+  "valid_json": true,
+  "contains_embedded_code_fence": true,
+  "before_keys": [],
+  "after_keys": [
+    "well_posed",
+    "solution",
+    "requires_computation",
+    "calculations"
+  ],
+  "exact_json_preserved": true
+}

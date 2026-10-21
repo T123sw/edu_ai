@@ -6,6 +6,7 @@ outside tmp_path.
 from __future__ import annotations
 
 import json
+import socket
 from pathlib import Path
 from unittest.mock import patch
 
@@ -25,6 +26,15 @@ from app.chat.workflows.report.image_downloader import (
 # ---------------------------------------------------------------------------
 
 PNG_BYTES = b"\x89PNG\r\n\x1a\n" + b"\x00" * 200  # 208 bytes — enough to exceed 200 minimum threshold
+
+
+@pytest.fixture(autouse=True)
+def isolated_image_metadata_and_dns(monkeypatch):
+    monkeypatch.setenv('APP_STATE_PERSISTENCE_MODE', 'json')
+    def resolve(host, port, *args, **kwargs):
+        assert host == 'example.com', 'Image unit tests must not resolve real hosts'
+        return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('93.184.216.34', port))]
+    monkeypatch.setattr('app.chat.workflows.report.image_downloader.socket.getaddrinfo', resolve)
 
 
 def _png_response(request: httpx.Request) -> httpx.Response:
@@ -51,6 +61,7 @@ def _patch_httpx_with(handler):
 
     def _mock_client(*args, **kwargs):
         kwargs.pop("transport", None)
+        kwargs['trust_env'] = False
         return real_client(transport=transport, **kwargs)
 
     return patch("app.chat.workflows.report.image_downloader.httpx.Client", side_effect=_mock_client)

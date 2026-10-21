@@ -1,0 +1,388 @@
+{
+  "passed": true,
+  "stepCount": 4,
+  "steps": [
+    "添加书籍并显示列表",
+    "拦截空白书名",
+    "切换已读状态与删除书籍",
+    "统计数量与筛选"
+  ],
+  "evidence": [
+    {
+      "stepId": "add-and-list",
+      "reference": {
+        "passed": true,
+        "results": [
+          {
+            "caseId": "add-book-appears",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 检查 \"book-status\" 的可见状态\n   实际：true\n✓ 5. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "add-book-clears-input",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+          }
+        ],
+        "durationMs": 893.1989399999999
+      },
+      "previous": {
+        "passed": false,
+        "results": [
+          {
+            "caseId": "add-book-appears",
+            "status": "failed",
+            "message": "× 1. 在 \"book-input\" 输入 \"三体\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+          },
+          {
+            "caseId": "add-book-clears-input",
+            "status": "failed",
+            "message": "× 1. 在 \"book-input\" 输入 \"三体\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+          }
+        ],
+        "durationMs": 2980.4282620000004
+      },
+      "faulty": null,
+      "previousRegression": {
+        "stepId": "add-and-list",
+        "referenceHash": "f0954ecfd1ecbefbcacb817f8e9134435103a6f30e366db11c065adc57f12a3a",
+        "previousHash": "16855a1c7bcb0737c6bdcf69a17003ca4c075c74b89ba397db9cb4028ee57dce",
+        "checkIds": [],
+        "skipped": true,
+        "reason": "首步没有前序验收"
+      }
+    },
+    {
+      "stepId": "blank-guard",
+      "reference": {
+        "passed": true,
+        "results": [
+          {
+            "caseId": "add-book-appears",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 检查 \"book-status\" 的可见状态\n   实际：true\n✓ 5. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "add-book-clears-input",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-shows-hint",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 4. 检查 \"blank-hint\" 的显示文字\n   实际：\"书名不能为空\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-not-added",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          }
+        ],
+        "durationMs": 1427.3943
+      },
+      "previous": {
+        "passed": false,
+        "results": [
+          {
+            "caseId": "blank-shows-hint",
+            "status": "failed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n× 3. 检查 \"blank-hint\" 的可见状态\n预期：true\n实际：false"
+          },
+          {
+            "caseId": "blank-not-added",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          }
+        ],
+        "durationMs": 2044.5487779999999
+      },
+      "faulty": null,
+      "previousRegression": {
+        "stepId": "blank-guard",
+        "referenceHash": "6cafff4d5ee83b12bc587a7b116857479709c53c6bb2823d1aed47525246d0de",
+        "previousHash": "f0954ecfd1ecbefbcacb817f8e9134435103a6f30e366db11c065adc57f12a3a",
+        "checkIds": [
+          "add-book-appears",
+          "add-book-clears-input"
+        ],
+        "passed": true,
+        "results": [
+          {
+            "caseId": "add-book-appears",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 检查 \"book-status\" 的可见状态\n   实际：true\n✓ 5. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "add-book-clears-input",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+          }
+        ],
+        "durationMs": 921.9322759999999
+      }
+    },
+    {
+      "stepId": "toggle-and-delete",
+      "reference": {
+        "passed": true,
+        "results": [
+          {
+            "caseId": "add-book-appears",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 检查 \"book-status\" 的可见状态\n   实际：true\n✓ 5. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "add-book-clears-input",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-shows-hint",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 4. 检查 \"blank-hint\" 的显示文字\n   实际：\"书名不能为空\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-not-added",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "toggle-marks-read",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n✓ 4. 点击 \"toggle-button\"\n✓ 5. 检查 \"book-status\" 的显示文字\n   实际：\"三体（已读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "toggle-back-unread",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 点击 \"toggle-button\"\n✓ 4. 检查 \"book-status\" 的显示文字\n   实际：\"三体（已读）\"\n✓ 5. 点击 \"toggle-button\"\n✓ 6. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "delete-removes-book",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 点击 \"delete-button\"\n✓ 5. 检查 \"book-item\" 的数量\n   实际：0\n✓ 6. 检查 \"book-status\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          }
+        ],
+        "durationMs": 2293.668569
+      },
+      "previous": {
+        "passed": false,
+        "results": [
+          {
+            "caseId": "toggle-marks-read",
+            "status": "failed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n× 4. 点击 \"toggle-button\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+          },
+          {
+            "caseId": "toggle-back-unread",
+            "status": "failed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n× 3. 点击 \"toggle-button\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+          },
+          {
+            "caseId": "delete-removes-book",
+            "status": "failed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n× 4. 点击 \"delete-button\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+          }
+        ],
+        "durationMs": 4790.207736
+      },
+      "faulty": null,
+      "previousRegression": {
+        "stepId": "toggle-and-delete",
+        "referenceHash": "47d4dcf18b55db80fb636f1200ccdddb6c7907569aa1bc584f93d7e0802d86cd",
+        "previousHash": "6cafff4d5ee83b12bc587a7b116857479709c53c6bb2823d1aed47525246d0de",
+        "checkIds": [
+          "add-book-appears",
+          "add-book-clears-input",
+          "blank-shows-hint",
+          "blank-not-added"
+        ],
+        "passed": true,
+        "results": [
+          {
+            "caseId": "add-book-appears",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 检查 \"book-status\" 的可见状态\n   实际：true\n✓ 5. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "add-book-clears-input",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-shows-hint",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 4. 检查 \"blank-hint\" 的显示文字\n   实际：\"书名不能为空\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-not-added",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          }
+        ],
+        "durationMs": 1376.9456409999998
+      }
+    },
+    {
+      "stepId": "counts-and-filter",
+      "reference": {
+        "passed": true,
+        "results": [
+          {
+            "caseId": "add-book-appears",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 检查 \"book-status\" 的可见状态\n   实际：true\n✓ 5. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "add-book-clears-input",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-shows-hint",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 4. 检查 \"blank-hint\" 的显示文字\n   实际：\"书名不能为空\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-not-added",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "toggle-marks-read",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n✓ 4. 点击 \"toggle-button\"\n✓ 5. 检查 \"book-status\" 的显示文字\n   实际：\"三体（已读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "toggle-back-unread",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 点击 \"toggle-button\"\n✓ 4. 检查 \"book-status\" 的显示文字\n   实际：\"三体（已读）\"\n✓ 5. 点击 \"toggle-button\"\n✓ 6. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "delete-removes-book",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 点击 \"delete-button\"\n✓ 5. 检查 \"book-item\" 的数量\n   实际：0\n✓ 6. 检查 \"book-status\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "counts-update",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"book-input\" 输入 \"活着\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 检查 \"stats\" 的显示文字\n   实际：\"共 2 本，已读 0 本\"\n✓ 6. 点击 \"切换《三体》的已读状态\"\n✓ 7. 检查 \"stats\" 的显示文字\n   实际：\"共 2 本，已读 1 本\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "filter-unread",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"book-input\" 输入 \"活着\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 \"切换《三体》的已读状态\"\n✓ 6. 点击 \"filter-unread\"\n✓ 7. 检查 \"book-item\" 的数量\n   实际：1\n✓ 8. 检查 \"book-status\" 的显示文字\n   实际：\"活着（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "filter-read",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"book-input\" 输入 \"活着\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 \"切换《三体》的已读状态\"\n✓ 6. 点击 \"filter-read\"\n✓ 7. 检查 \"book-item\" 的数量\n   实际：1\n✓ 8. 检查 \"book-status\" 的显示文字\n   实际：\"三体（已读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "filter-all",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"book-input\" 输入 \"活着\"\n✓ 4. 点击 \"add-button\"\n✓ 5. 点击 \"切换《三体》的已读状态\"\n✓ 6. 点击 \"filter-read\"\n✓ 7. 检查 \"book-item\" 的数量\n   实际：1\n✓ 8. 点击 \"filter-all\"\n✓ 9. 检查 \"book-item\" 的数量\n   实际：2\n本项操作与预期全部通过。"
+          }
+        ],
+        "durationMs": 4031.1334840000004
+      },
+      "previous": {
+        "passed": false,
+        "results": [
+          {
+            "caseId": "counts-update",
+            "status": "failed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"book-input\" 输入 \"活着\"\n✓ 4. 点击 \"add-button\"\n× 5. 检查 \"stats\" 的显示文字\n预期：\"共 2 本，已读 0 本\"\n实际：\"目标不可见或不存在\""
+          },
+          {
+            "caseId": "filter-unread",
+            "status": "failed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"book-input\" 输入 \"活着\"\n✓ 4. 点击 \"add-button\"\n× 5. 点击 \"切换《三体》的已读状态\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+          },
+          {
+            "caseId": "filter-read",
+            "status": "failed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"book-input\" 输入 \"活着\"\n✓ 4. 点击 \"add-button\"\n× 5. 点击 \"切换《三体》的已读状态\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+          },
+          {
+            "caseId": "filter-all",
+            "status": "failed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 在 \"book-input\" 输入 \"活着\"\n✓ 4. 点击 \"add-button\"\n× 5. 点击 \"切换《三体》的已读状态\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+          }
+        ],
+        "durationMs": 6441.857484
+      },
+      "faulty": null,
+      "previousRegression": {
+        "stepId": "counts-and-filter",
+        "referenceHash": "dd41d5ccb8cba35f6c7e0dbe640a172cc2f65132f97a58bfb84fa24a5d2474d4",
+        "previousHash": "47d4dcf18b55db80fb636f1200ccdddb6c7907569aa1bc584f93d7e0802d86cd",
+        "checkIds": [
+          "add-book-appears",
+          "add-book-clears-input",
+          "blank-shows-hint",
+          "blank-not-added",
+          "toggle-marks-read",
+          "toggle-back-unread",
+          "delete-removes-book"
+        ],
+        "passed": true,
+        "results": [
+          {
+            "caseId": "add-book-appears",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 检查 \"book-status\" 的可见状态\n   实际：true\n✓ 5. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "add-book-clears-input",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-shows-hint",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 4. 检查 \"blank-hint\" 的显示文字\n   实际：\"书名不能为空\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "blank-not-added",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "toggle-marks-read",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n✓ 4. 点击 \"toggle-button\"\n✓ 5. 检查 \"book-status\" 的显示文字\n   实际：\"三体（已读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "toggle-back-unread",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 点击 \"toggle-button\"\n✓ 4. 检查 \"book-status\" 的显示文字\n   实际：\"三体（已读）\"\n✓ 5. 点击 \"toggle-button\"\n✓ 6. 检查 \"book-status\" 的显示文字\n   实际：\"三体（未读）\"\n本项操作与预期全部通过。"
+          },
+          {
+            "caseId": "delete-removes-book",
+            "status": "passed",
+            "message": "✓ 1. 在 \"book-input\" 输入 \"三体\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-item\" 的数量\n   实际：1\n✓ 4. 点击 \"delete-button\"\n✓ 5. 检查 \"book-item\" 的数量\n   实际：0\n✓ 6. 检查 \"book-status\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+          }
+        ],
+        "durationMs": 2261.167318
+      }
+    }
+  ],
+  "topic": "我想用 React 做一个阅读清单页面。页面包含书名输入框、“添加”按钮、书籍列表，以及“全部 / 未读 / 已读”三个筛选选项。添加书名后，新书出现在列表中，默认为未读，同时清空输入框。空白书名不能添加，页面要给出提示。每本书可以切换已读、未读状态，也可以删除。页面显示书籍总数和已读数量，筛选后只显示符合条件的书籍。",
+  "modelCalls": [
+    "plan",
+    "build_step",
+    "build_checks",
+    "build_step",
+    "build_checks",
+    "build_step",
+    "build_checks",
+    "build_step",
+    "build_checks",
+    "repair_step",
+    "repair_checks"
+  ],
+  "elapsedSeconds": 121.48,
+  "productionDataModified": false,
+  "checkCount": 11,
+  "allStepRegressionReportsValid": true
+}

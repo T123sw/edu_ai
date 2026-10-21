@@ -1,0 +1,152 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "多PDF验收 shanghai-0011 1792301263930",
+  "startedAt": "2026-10-18T05:27:43.930Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/examgen_81e4fb0cf344ae88bed8942e4ef3e5b0/retry",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/job_82a81bd8967f487e/retry",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-18T05:27:49.196Z",
+      "attempt": 0,
+      "generation_id": "examgen_81e4fb0cf344ae88bed8942e4ef3e5b0",
+      "job_id": "examgen_81e4fb0cf344ae88bed8942e4ef3e5b0",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:28:27.419Z",
+      "attempt": 0,
+      "generation_id": "examgen_81e4fb0cf344ae88bed8942e4ef3e5b0",
+      "job_id": "examgen_81e4fb0cf344ae88bed8942e4ef3e5b0",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:29:07.776Z",
+      "attempt": 0,
+      "generation_id": "examgen_81e4fb0cf344ae88bed8942e4ef3e5b0",
+      "job_id": "examgen_81e4fb0cf344ae88bed8942e4ef3e5b0",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:37:57.049Z",
+      "resume_attempt": 0,
+      "generation_id": "examgen_68e855e548756020104f2348db6cfdbe",
+      "job_id": "job_82a81bd8967f487e",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:38:41.178Z",
+      "resume_attempt": 0,
+      "generation_id": "examgen_68e855e548756020104f2348db6cfdbe",
+      "job_id": "job_82a81bd8967f487e",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:56:44.310Z",
+      "resume_attempt": 0,
+      "generation_id": "examgen_68e855e548756020104f2348db6cfdbe",
+      "job_id": "job_82a81bd8967f487e",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    },
+    {
+      "at": "2026-10-18T05:56:47.006Z",
+      "resume_attempt": 1,
+      "generation_id": "examgen_ad6a4d4e12a721bb8594f8124bbc32e1",
+      "job_id": "job_0b15f20dc96c4725",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:57:12.533Z",
+      "resume_attempt": 1,
+      "generation_id": "examgen_ad6a4d4e12a721bb8594f8124bbc32e1",
+      "job_id": "job_0b15f20dc96c4725",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:58:29.408Z",
+      "resume_attempt": 1,
+      "generation_id": "examgen_ad6a4d4e12a721bb8594f8124bbc32e1",
+      "job_id": "job_0b15f20dc96c4725",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_81e4fb0cf344ae88bed8942e4ef3e5b0",
+    "examgen_68e855e548756020104f2348db6cfdbe",
+    "examgen_ad6a4d4e12a721bb8594f8124bbc32e1"
+  ],
+  "retries": 2,
+  "refresh_recovery": true,
+  "controlled_hotfix_interruption": true,
+  "interruption_reason": "Bridge NDJSON task-context regression; source patch remains 0011 and accepted checkpoints are preserved.",
+  "resume_startedAt": "2026-10-18T05:37:44.961Z",
+  "completed": false,
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "expected_questions": 45,
+  "finishedAt": "2026-10-18T05:58:31.275Z"
+}

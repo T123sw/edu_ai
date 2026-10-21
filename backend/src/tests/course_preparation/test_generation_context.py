@@ -237,3 +237,17 @@ def test_explicit_depth_language_and_target_objective_order_win():
     node['objective_ids'] = ['n1:o2', 'n1:o1']
     with pytest.raises(ValueError, match='OBJECTIVE_ID_ORDER_CHANGED'):
         build(request, cp, node)
+
+
+def test_local_supplement_resolves_original_prerequisites_without_expanding_path():
+    request, cp, node = context_input()
+    request = PreparationRequest(request_id=uuid4(), operation='supplement_node', goal='补充本节习题',
+        target={'course_id': 'course', 'node_id': 'n1', 'base_manifest_version': 1})
+    previous = {'node_id': 'n0', 'title': 'Python 基础', 'objectives': [{'objective_id': 'n0:o1', 'text': '阅读函数'}]}
+    target = {'node_id': 'n1', 'title': node['title'], 'objectives': [{'objective_id': 'saved-o1', 'text': node['objectives'][0]}],
+              'prerequisite_node_ids': ['n0']}
+    cp['target_snapshot'] = {'node': target, 'manifest': {'nodes': [previous, target]}}
+    context = build(request, cp, node)
+    assert len(cp['plan']['nodes']) == 1 and node['prerequisite_keys'] == []
+    assert context.objective_ids == ['saved-o1']
+    assert context.prerequisites[0].model_dump() == {'node_id': 'n0', 'title': 'Python 基础', 'objectives': ['阅读函数']}

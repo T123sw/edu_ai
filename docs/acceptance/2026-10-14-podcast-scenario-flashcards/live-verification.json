@@ -1,0 +1,17 @@
+{
+  "isolated_storage": "/tmp/edu-studio-smoke-fkf7oy8y",
+  "results": [
+    {
+      "kind": "scenario",
+      "saved": true,
+      "seconds": 11.02
+    },
+    {
+      "kind": "podcast",
+      "saved": true,
+      "seconds": 25.77,
+      "duration_seconds": 245.232,
+      "bytes": 981165
+    }
+  ]
+}

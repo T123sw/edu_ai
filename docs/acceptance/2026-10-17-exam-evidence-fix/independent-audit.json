@@ -1,0 +1,281 @@
+{
+  "boundary": "Independent recomputation of selected final production candidates; not proof of all generated prose",
+  "generation_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+  "cases": [
+    {
+      "ordinal": 8,
+      "question_sha256": "4ae15341f0affeb806bfc45e4fd73150a56f975da90c8fd0c211d30ec61c65eb",
+      "detail": {
+        "partition_result": [
+          34,
+          12,
+          23,
+          46,
+          91,
+          58,
+          67,
+          79
+        ],
+        "unique_option": "A"
+      },
+      "passed": true
+    },
+    {
+      "ordinal": 12,
+      "question_sha256": "c91fbfd8a5db77393f7b06eaa481086aae2129e2b4675dece534eca7fb5c5c4f",
+      "detail": {
+        "valid_options": [
+          "C"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "ordinal": 14,
+      "question_sha256": "5867bbced754b2689c6db9b11fedd430ab1ffdfa732b0594c9287472bb5c4d56",
+      "detail": {
+        "valid_options": [
+          "A"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "ordinal": 26,
+      "question_sha256": "22ccbd44d9453230ffc26884ad50d457ee0cae9742b3a7cc16614c2fbdfbbf3d",
+      "detail": {
+        "count": 68,
+        "target": 45,
+        "top_subtree": "left",
+        "leaves_in_spatial_order": [
+          63,
+          64,
+          65,
+          66,
+          67,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46
+        ],
+        "leaves_before_target": 16,
+        "subtree_root": 4,
+        "subtree": [
+          4,
+          9,
+          10,
+          19,
+          20,
+          21,
+          22,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46
+        ]
+      },
+      "passed": true
+    },
+    {
+      "ordinal": 27,
+      "question_sha256": "7710d420aedb03089851375883a00c8f0b8423164c851bd4411fa04251990f08",
+      "detail": {
+        "table_before_delete": [
+          null,
+          14,
+          1,
+          68,
+          27,
+          55,
+          19,
+          20,
+          84,
+          null,
+          23,
+          11,
+          10
+        ],
+        "success_probes": [
+          1,
+          1,
+          1,
+          2,
+          1,
+          1,
+          3,
+          3,
+          1,
+          3
+        ],
+        "failure_probes": [
+          1,
+          9,
+          8,
+          7,
+          6,
+          5,
+          4,
+          3,
+          2,
+          1,
+          4,
+          3,
+          2
+        ],
+        "success_asl": 1.7,
+        "failure_asl_fraction": "55/13"
+      },
+      "passed": true
+    },
+    {
+      "ordinal": 7,
+      "generation_id": "examgen_2614fc5b2b7a9895a0b6c088d044a244",
+      "question_sha256": "bdbd5b3e2cd729bd87df73f32c7264dd31adcad6dbb4fa1b74379d2eb9558927",
+      "detail": {
+        "comparison_values": [
+          41,
+          74,
+          57,
+          62
+        ],
+        "count": 4,
+        "correct_option": "B"
+      },
+      "passed": true
+    },
+    {
+      "ordinal": 28,
+      "generation_id": "examgen_2614fc5b2b7a9895a0b6c088d044a244",
+      "question_sha256": "4c91ea660a5104caa19c5e320afe61638b781ded6da4a3d935446d3e2886f159",
+      "detail": {
+        "heap_after_one_output": [
+          83,
+          68,
+          76,
+          41,
+          52,
+          9,
+          24,
+          30,
+          17,
+          95
+        ],
+        "merge_after_two_passes": [
+          17,
+          41,
+          52,
+          83,
+          9,
+          30,
+          68,
+          76,
+          24,
+          95
+        ],
+        "shell_gap_three": [
+          24,
+          17,
+          9,
+          41,
+          30,
+          83,
+          52,
+          68,
+          95,
+          76
+        ]
+      },
+      "passed": true
+    },
+    {
+      "ordinal": 29,
+      "generation_id": "examgen_2614fc5b2b7a9895a0b6c088d044a244",
+      "question_sha256": "31667846b6ae264efc91bcf56a7cb31e0650c4b0bd57c50ba7c3931ae73b0c9d",
+      "detail": {
+        "forward_inverse_checked_n": [
+          1,
+          25
+        ],
+        "A_6_5_index": 17,
+        "B_20_coordinate": [
+          7,
+          6
+        ],
+        "A_8_9_address": 1100
+      },
+      "passed": true
+    },
+    {
+      "ordinal": 30,
+      "generation_id": "examgen_2614fc5b2b7a9895a0b6c088d044a244",
+      "question_sha256": "3db871afbf5d48e47be6da32523ba2de09374dfaa2911dfc01ddef6defad87a5",
+      "detail": {
+        "S": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          0
+        ],
+        "D": [
+          0,
+          18,
+          15,
+          12,
+          30,
+          40
+        ],
+        "P": [
+          -1,
+          3,
+          0,
+          0,
+          3,
+          2
+        ],
+        "path_to_5": [
+          0,
+          2,
+          5
+        ],
+        "length": 40
+      },
+      "passed": true
+    },
+    {
+      "ordinal": 32,
+      "generation_id": "examgen_2614fc5b2b7a9895a0b6c088d044a244",
+      "question_sha256": "d6835dcff44f1ecad14864b3c26b4fb0f075d0ab341b8483f77c4054cd41afa5",
+      "detail": {
+        "inorder": [
+          20,
+          30,
+          40,
+          50,
+          60,
+          70,
+          80
+        ],
+        "bst": true,
+        "successful_depth_sum": 17,
+        "nodes": 7,
+        "boundary": "Concrete tree/result checked; algorithm prose was not compiled"
+      },
+      "passed": true
+    }
+  ]
+}

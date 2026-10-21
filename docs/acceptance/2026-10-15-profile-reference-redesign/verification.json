@@ -1,0 +1,26 @@
+{
+  "verifiedAt": "2026-10-15T06:50:34.677691+00:00",
+  "typecheck": "passed",
+  "build": "passed",
+  "lint": "0 errors; existing Profile useEffect dependency warning",
+  "unitTestsPassed": 10,
+  "releaseBrowserTestsPassed": 12,
+  "publishedBrowserTestsPassed": 12,
+  "viewports": [
+    "1440x1000",
+    "1024x768",
+    "390x844"
+  ],
+  "checks": [
+    "Role-neutral account page",
+    "Personal details, appearance and security tabs; arrow/Home/End keyboard navigation",
+    "Avatar upload and edit profile with reload",
+    "Password update and sign out",
+    "Forest, ocean and dark themes; preference survives reload",
+    "Desktop/mobile layout without horizontal overflow",
+    "AI icon visibility",
+    "AI settings entry and previous runtime-configuration boundaries"
+  ],
+  "liveIndexStillMatches": true,
+  "limits": "Real browser front-end interactions with mocked authentication and business APIs; no model calls or production learner data writes. Backend logic unchanged."
+}

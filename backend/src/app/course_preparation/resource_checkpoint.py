@@ -28,6 +28,29 @@ class ArtifactResourceCheckpoint:
             self._validate(candidate, row, prep, attempt)
             return deepcopy(candidate)
 
+    def load_generation_state(self):
+        with Session(self._store.engine) as session, session.begin():
+            row, prep, attempt, _ = self._store._locked(session, self._context)
+            saved = (row.content or {}).get('_native_generation')
+            if saved is None:
+                return None
+            if (digest(row.content) != row.content_digest or saved['spec_digest'] != row.spec_digest
+                    or digest(row.spec) != row.spec_digest or saved['parent_attempt_no'] != attempt.attempt_no
+                    or saved['artifact_id'] != row.artifact_id):
+                raise ValueError('NATIVE_GENERATION_CHECKPOINT_STALE')
+            return deepcopy(saved['value'])
+
+    def save_generation_state(self, value):
+        with Session(self._store.engine) as session, session.begin():
+            row, prep, attempt, _ = self._store._locked(session, self._context)
+            if digest(row.spec) != row.spec_digest:
+                raise ValueError('NATIVE_GENERATION_SPEC_STALE')
+            envelope = deepcopy(row.content or {})
+            envelope['_native_generation'] = {'spec_digest': row.spec_digest,
+                'parent_attempt_no': attempt.attempt_no, 'artifact_id': row.artifact_id, 'value': deepcopy(value)}
+            row.content = envelope
+            row.content_digest = digest(envelope)
+
     @staticmethod
     def _validate(candidate, row, prep, attempt):
         if (digest(row.content) != row.content_digest

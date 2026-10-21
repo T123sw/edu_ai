@@ -5,6 +5,10 @@ import { JobLeaderLease, getJobPollDelay } from "./jobPolling";
 import { jobKindLabel, presentJobError } from "./jobPresentation";
 import { jobStore } from "./jobStore";
 import type { JobRecord, JobListResponse } from "./types";
+import { useAuth } from '../context/AuthContext';
+import { usePreparationProgress } from '../liveLearning/usePreparationProgress';
+import { preparationGlobalJob } from '../liveLearning/preparationProgress';
+import { PreparationProgress } from '../liveLearning/PreparationProgress';
 
 const BROADCAST_CHANNEL = "edu-ai-job-center-v2";
 
@@ -24,6 +28,18 @@ export function GlobalJobManager({
   currentCourseId?: string | null;
   currentCourseTitle?: string | null;
 }) {
+  const { user } = useAuth();
+  const owner = enabled ? user?.username || '' : '';
+  const preparation = usePreparationProgress(owner);
+  const openPreparation = preparation.open;
+  useEffect(() => {
+    if (owner) jobStore.getState().mergeJobs(preparation.tasks.map(task => preparationGlobalJob(task, owner)));
+  }, [owner, preparation.tasks]);
+  useEffect(() => {
+    const open = (event: Event) => openPreparation((event as CustomEvent<string>).detail);
+    window.addEventListener('edu-ai:open-preparation', open);
+    return () => window.removeEventListener('edu-ai:open-preparation', open);
+  }, [openPreparation]);
   useEffect(() => {
     if (!enabled) {
       jobStore.getState().reset();
@@ -146,14 +162,19 @@ export function GlobalJobManager({
       jobStore.getState().setPolling(false);
       jobStore.getState().reset();
     };
-  }, [enabled]);
+  }, [enabled, owner]);
 
   return enabled ? (
-    <JobCenterDrawer
+    <><JobCenterDrawer
       showLauncher={showLauncher}
       currentCourseId={currentCourseId}
       currentCourseTitle={currentCourseTitle}
+      preparationError={preparation.connectionError}
     />
+    {preparation.selection?.open && <PreparationProgress key={`${owner}:${preparation.selection.id}`} task={preparation.selected} goal={preparation.selection.goal}
+      submitting={preparation.submitting} submitError={preparation.submitError} connectionError={preparation.connectionError}
+      controlError={preparation.controlError} controlling={preparation.controlling} onClose={preparation.close} onControl={preparation.control}
+      onEnter={async id => { const url = new URL(location.href); url.search = ''; url.hash = `/classroom/${encodeURIComponent(id)}`; preparation.close(); location.assign(url); }} />}</>
   ) : null;
 }
 

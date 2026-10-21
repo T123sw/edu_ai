@@ -11,7 +11,8 @@ class ToolDispatcher:
         if not calls or len(calls) > 4 or len({c.call_id for c in calls}) != len(calls):
             raise ValueError('INVALID_TOOL_BATCH')
         budget = self.repository.get_public(context.owner_user_id, context.preparation_id)['budget']
-        remaining = budget['limits']['calls'] - budget['consumed']['calls'] - budget['reserved']['calls']
+        remaining = (float('inf') if budget['limits'].get('retry_only') else
+                     budget['limits']['calls'] - budget['consumed']['calls'] - budget['reserved']['calls'])
         mounted = self.registry.mount(context, remaining_calls=remaining)
         allowed = {s.name: s for s in mounted.tools}
         prepared = []
@@ -25,7 +26,7 @@ class ToolDispatcher:
         # Aggregate preflight; SQL reservation remains the authoritative concurrent gate.
         for metric in ('calls', 'tokens', 'cost_micro_usd'):
             total = sum(getattr(s.cost, metric) for _, s, _ in prepared)
-            if budget['reserved'][metric] + budget['consumed'][metric] + total > budget['limits'][metric]:
+            if not budget['limits'].get('retry_only') and budget['reserved'][metric] + budget['consumed'][metric] + total > budget['limits'][metric]:
                 raise ValueError('BATCH_BUDGET_EXCEEDED')
         results = []
         for call, spec, args in prepared:

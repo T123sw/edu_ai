@@ -1,0 +1,20 @@
+.sl-focus-select { position: relative; max-width: 100%; }
+.sl-focus-select .sl-focus-trigger { display: inline-flex; align-items: center; gap: 9px; min-height: 36px; max-width: 100%; padding: 8px 11px; border: 1px solid var(--edu-line, #d8dece); border-radius: 7px; background: var(--edu-paper, #f3f4eb); color: var(--edu-secondary, #718060); font: inherit; font-size: 11px; cursor: pointer; transition: border-color .15s, background .15s; }
+.sl-focus-select .sl-focus-trigger:hover, .sl-focus-select .sl-focus-trigger[aria-expanded='true'] { border-color: var(--edu-accent, #6f815a); background: var(--edu-soft, #edf0e3); }
+.sl-focus-select .sl-focus-trigger:focus-visible { outline: 2px solid var(--edu-accent, #244b38); outline-offset: 3px; }
+.sl-focus-icon { flex-shrink: 0; }
+.sl-focus-label { color: var(--edu-secondary, #718060); white-space: nowrap; }
+.sl-focus-value { color: var(--edu-ink, #344c37); font-weight: 500; white-space: nowrap; }
+.sl-focus-chevron { display: flex; margin-left: 3px; transform: rotate(90deg); transition: transform .15s; }
+.sl-focus-trigger[aria-expanded='true'] .sl-focus-chevron { transform: rotate(-90deg); }
+.sl-focus-menu { position: absolute; z-index: 30; top: calc(100% + 9px); left: 0; width: min(272px, calc(100vw - 80px)); box-sizing: border-box; padding: 6px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--edu-line, #d8dece); border-radius: 12px; background: var(--edu-sheet, #fffef9); color: var(--edu-ink, #344c37); box-shadow: 0 12px 36px #142a201a, 0 2px 6px #142a2008; }
+.sl-focus-menu.opens-above { top: auto; bottom: calc(100% + 9px); }
+.sl-focus-menu-heading { padding: 7px 10px 9px; font-size: 10px; letter-spacing: .5px; color: var(--edu-muted, #858e7a); }
+.sl-focus-menu ul { margin: 0; padding: 0; list-style: none; }
+.sl-focus-menu li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px; margin: 2px 0; border-radius: 7px; cursor: pointer; }
+.sl-focus-menu li.is-active { background: var(--edu-paper, #f3f4eb); }
+.sl-focus-menu li[aria-selected='true'] { background: var(--edu-selected, #e7ebdc); color: var(--edu-accent, #244b38); }
+.sl-focus-menu li strong { display: block; font-size: 12px; line-height: 1.5; font-weight: 500; }
+.sl-focus-menu li small { display: block; margin-top: 3px; font-size: 10px; line-height: 1.6; color: var(--edu-secondary, #718060); }
+.sl-focus-menu li > svg { flex-shrink: 0; }
+@media (prefers-reduced-motion: reduce) { .sl-focus-select .sl-focus-trigger, .sl-focus-chevron { transition: none; } }

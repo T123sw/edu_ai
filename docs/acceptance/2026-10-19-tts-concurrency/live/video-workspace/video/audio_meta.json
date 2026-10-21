@@ -1,0 +1,31 @@
+{
+  "bgm": null,
+  "bgm_pending": false,
+  "voices": [
+    {
+      "frame": 1,
+      "path": "assets/audio/afe2a0f899a906de8d4454fe29d73b28c5bda53f449d92e3ff170156e300684c.mp3",
+      "duration_s": 18.696,
+      "words": []
+    },
+    {
+      "frame": 2,
+      "path": "assets/audio/684384dc640c5d1617946ed6297922401d649d9b36f67a892660919c29a2d9b6.mp3",
+      "duration_s": 14.688,
+      "words": []
+    },
+    {
+      "frame": 3,
+      "path": "assets/audio/29dd1372a8b2b5983664469694e4fa5d42346cad561c70c45ea00f4247be6622.mp3",
+      "duration_s": 18.864,
+      "words": []
+    },
+    {
+      "frame": 4,
+      "path": "assets/audio/d508b8ed0bac2622e6f5ce75e9c89d578612f69b19cbd564af7c155a8ce2eeb8.mp3",
+      "duration_s": 14.928,
+      "words": []
+    }
+  ],
+  "sfx": []
+}

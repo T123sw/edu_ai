@@ -1,0 +1,912 @@
+{
+  "phase": "repair_checks",
+  "data": {
+    "topic": "用 React 做三道固定题的单选小测验。题目分别为 2+3 等于多少（选项4/5/6，正确5）、水的化学式（H2O/CO2/O2，正确H2O）、一周几天（5/6/7，正确7）。每次只显示一题和进度；没选答案不能提交；提交后显示对错和正确答案，本题不能再改选或重复计分；点击下一题进入下一题，第三题提交后显示总分（满分3）。重新开始后分数、进度、选项和反馈全部恢复初始。完全本地，无额外依赖，分步实现。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "三道固定题的单选小测验",
+      "goal": "用 React 实现一个完全本地的三道固定单选题小测验：每次只显示一题和进度，未选择答案不能提交，提交后显示对错与正确答案且本题锁定不可改选、不重复计分，点击下一题进入下一题，第三题提交后显示总分（满分 3），重新开始后分数、进度、选项与反馈全部恢复初始。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "single-question-view",
+          "description": "页面每次只显示当前一道题的题干与三个选项，并显示当前进度（第几题/共 3 题）。"
+        },
+        {
+          "id": "submit-requires-selection",
+          "description": "未选择任何选项时提交按钮不可用（或提交无效），选择选项后才能提交。"
+        },
+        {
+          "id": "submit-feedback",
+          "description": "提交后显示本题对错反馈与正确答案；本题选项不能再改选，也不能重复提交计分。"
+        },
+        {
+          "id": "next-question",
+          "description": "提交后出现“下一题”按钮，点击进入下一题；第三题提交后不再进入下一题而显示总分。"
+        },
+        {
+          "id": "final-score",
+          "description": "第三题提交后显示总分，满分 3，分数等于答对题数。"
+        },
+        {
+          "id": "restart-reset",
+          "description": "点击“重新开始”后分数、进度、选项选择与反馈全部恢复初始状态，从第一题重新开始。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "quiz-shell",
+          "title": "搭建单题展示与进度",
+          "objective": "渲染第一题题干、三个选项与进度，并支持选择选项。",
+          "dependsOn": [],
+          "entryCondition": "从初始 React 工程开始，App.jsx 与 styles.css 为空壳。",
+          "deliverable": "页面显示第一题“2+3 等于多少”的题干、三个选项（4/5/6）和进度“第 1 题 / 共 3 题”；点击选项可选中并高亮当前选择。",
+          "requirementIds": [
+            "single-question-view"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "first-question-shown",
+            "option-selectable"
+          ]
+        },
+        {
+          "id": "submit-and-feedback",
+          "title": "提交判定与锁定",
+          "objective": "实现未选不能提交、提交后显示对错与正确答案并锁定本题。",
+          "dependsOn": [
+            "quiz-shell"
+          ],
+          "entryCondition": "上一步已完成第一题展示与选项选择。",
+          "deliverable": "未选择时提交按钮不可用；选择后提交，显示“回答正确/回答错误”与正确答案；提交后选项不可再改选，提交按钮不再可用。",
+          "requirementIds": [
+            "single-question-view",
+            "submit-requires-selection",
+            "submit-feedback"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "submit-disabled-without-selection",
+            "submit-shows-feedback",
+            "locked-after-submit"
+          ]
+        },
+        {
+          "id": "next-and-final-score",
+          "title": "下一题与总分",
+          "objective": "实现下一题切换与第三题提交后显示总分。",
+          "dependsOn": [
+            "submit-and-feedback"
+          ],
+          "entryCondition": "上一步已完成第一题提交与反馈。",
+          "deliverable": "提交后出现“下一题”按钮，点击进入第二题、第三题并更新进度；第三题提交后显示总分（满分 3），分数等于答对题数。",
+          "requirementIds": [
+            "single-question-view",
+            "submit-requires-selection",
+            "submit-feedback",
+            "next-question",
+            "final-score"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "next-question-advances",
+            "final-score-shown"
+          ]
+        },
+        {
+          "id": "restart",
+          "title": "重新开始",
+          "objective": "实现重新开始，恢复全部初始状态。",
+          "dependsOn": [
+            "next-and-final-score"
+          ],
+          "entryCondition": "上一步已完成三题流程与总分显示。",
+          "deliverable": "点击“重新开始”后回到第一题，进度为第 1 题，选项未选中，反馈与总分消失，分数归零。",
+          "requirementIds": [
+            "single-question-view",
+            "submit-requires-selection",
+            "submit-feedback",
+            "next-question",
+            "final-score",
+            "restart-reset"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "restart-resets"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "first-question-shown",
+          "stepId": "quiz-shell",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "single-question-view"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "断言题干文本包含“2+3 等于多少”",
+            "断言进度文本为“第 1 题 / 共 3 题”",
+            "断言三个选项 4、5、6 均可见"
+          ],
+          "expected": [
+            "显示第一题题干、进度与三个选项"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "option-selectable",
+          "stepId": "quiz-shell",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "single-question-view"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“5”",
+            "断言选项“5”处于选中状态（aria-checked 或选中标记）"
+          ],
+          "expected": [
+            "点击选项后该选项被选中"
+          ],
+          "requiredAssertions": [
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "submit-disabled-without-selection",
+          "stepId": "submit-and-feedback",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "submit-requires-selection"
+          ],
+          "setup": "打开页面初始状态，未选择任何选项。",
+          "actions": [
+            "断言提交按钮不可用"
+          ],
+          "expected": [
+            "未选择时提交按钮不可用"
+          ],
+          "requiredAssertions": [
+            "enabled"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "submit-shows-feedback",
+          "stepId": "submit-and-feedback",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "submit-feedback"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“5”",
+            "点击提交按钮",
+            "断言反馈文本包含“回答正确”",
+            "断言正确答案文本包含“5”"
+          ],
+          "expected": [
+            "提交正确选项后显示回答正确与正确答案"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "locked-after-submit",
+          "stepId": "submit-and-feedback",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "submit-feedback"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“4”",
+            "点击提交按钮",
+            "断言反馈文本包含“回答错误”",
+            "断言正确答案文本包含“5”",
+            "尝试点击选项“5”",
+            "断言选项“5”未被选中"
+          ],
+          "expected": [
+            "提交后显示错误反馈与正确答案，且不能改选"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "next-question-advances",
+          "stepId": "next-and-final-score",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "next-question"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“5”",
+            "点击提交按钮",
+            "点击“下一题”按钮",
+            "断言进度文本为“第 2 题 / 共 3 题”",
+            "断言题干文本包含“水的化学式”"
+          ],
+          "expected": [
+            "点击下一题后进入第二题并更新进度"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "final-score-shown",
+          "stepId": "next-and-final-score",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "final-score"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“5”",
+            "点击提交按钮",
+            "点击“下一题”按钮",
+            "点击选项“H2O”",
+            "点击提交按钮",
+            "点击“下一题”按钮",
+            "点击选项“7”",
+            "点击提交按钮",
+            "断言总分文本包含“3”"
+          ],
+          "expected": [
+            "三题全对后显示总分 3"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "restart-resets",
+          "stepId": "restart",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "restart-reset"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“5”",
+            "点击提交按钮",
+            "点击“下一题”按钮",
+            "点击“重新开始”按钮",
+            "断言进度文本为“第 1 题 / 共 3 题”",
+            "断言题干文本包含“2+3 等于多少”",
+            "断言提交按钮不可用"
+          ],
+          "expected": [
+            "重新开始后回到第一题且选项未选中、提交不可用"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "enabled"
+          ],
+          "viewport": null
+        }
+      ]
+    },
+    "step": {
+      "id": "submit-and-feedback",
+      "title": "提交判定与锁定",
+      "objective": "实现未选不能提交、提交后显示对错与正确答案并锁定本题。",
+      "dependsOn": [
+        "quiz-shell"
+      ],
+      "entryCondition": "上一步已完成第一题展示与选项选择。",
+      "deliverable": "未选择时提交按钮不可用；选择后提交，显示“回答正确/回答错误”与正确答案；提交后选项不可再改选，提交按钮不再可用。",
+      "requirementIds": [
+        "single-question-view",
+        "submit-requires-selection",
+        "submit-feedback"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "submit-disabled-without-selection",
+        "submit-shows-feedback",
+        "locked-after-submit"
+      ]
+    },
+    "requiredChecks": [
+      {
+        "id": "submit-disabled-without-selection",
+        "stepId": "submit-and-feedback",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "submit-requires-selection"
+        ],
+        "setup": "打开页面初始状态，未选择任何选项。",
+        "actions": [
+          "断言提交按钮不可用"
+        ],
+        "expected": [
+          "未选择时提交按钮不可用"
+        ],
+        "requiredAssertions": [
+          "enabled"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "submit-shows-feedback",
+        "stepId": "submit-and-feedback",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "submit-feedback"
+        ],
+        "setup": "打开页面初始状态。",
+        "actions": [
+          "点击选项“5”",
+          "点击提交按钮",
+          "断言反馈文本包含“回答正确”",
+          "断言正确答案文本包含“5”"
+        ],
+        "expected": [
+          "提交正确选项后显示回答正确与正确答案"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "locked-after-submit",
+        "stepId": "submit-and-feedback",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "submit-feedback"
+        ],
+        "setup": "打开页面初始状态。",
+        "actions": [
+          "点击选项“4”",
+          "点击提交按钮",
+          "断言反馈文本包含“回答错误”",
+          "断言正确答案文本包含“5”",
+          "尝试点击选项“5”",
+          "断言选项“5”未被选中"
+        ],
+        "expected": [
+          "提交后显示错误反馈与正确答案，且不能改选"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text"
+        ],
+        "viewport": null
+      }
+    ],
+    "previousFiles": {
+      "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nconst QUESTIONS = [\n  { question: '2+3 等于多少？', options: ['4', '5', '6'], answer: '5' },\n  { question: '水的化学式是什么？', options: ['H2O', 'CO2', 'O2'], answer: 'H2O' },\n  { question: '一周有几天？', options: ['5', '6', '7'], answer: '7' },\n];\n\nexport default function App() {\n  const [current, setCurrent] = useState(0);\n  const [selected, setSelected] = useState(null);\n\n  const q = QUESTIONS[current];\n\n  return (\n    <main className=\"quiz\">\n      <p className=\"progress\" data-testid=\"progress\">\n        第 {current + 1} 题 / 共 {QUESTIONS.length} 题\n      </p>\n      <h1 className=\"question\" data-testid=\"question\">{q.question}</h1>\n      <div className=\"options\" role=\"radiogroup\">\n        {q.options.map((opt) => (\n          <button\n            key={opt}\n            type=\"button\"\n            role=\"radio\"\n            aria-checked={selected === opt ? 'true' : 'false'}\n            data-testid=\"option\"\n            className={'option' + (selected === opt ? ' selected' : '')}\n            onClick={() => setSelected(opt)}\n          >\n            {opt}\n          </button>\n        ))}\n      </div>\n    </main>\n  );\n}\n",
+      "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\nmain.quiz { padding: 24px; max-width: 480px; }\n.progress { color: #666; margin: 0 0 12px; }\n.question { font-size: 20px; margin: 0 0 16px; }\n.options { display: flex; flex-direction: column; gap: 10px; }\n.option {\n  padding: 10px 14px;\n  border: 1px solid #ccc;\n  border-radius: 8px;\n  background: #fff;\n  font-size: 16px;\n  text-align: left;\n  cursor: pointer;\n}\n.option.selected { border-color: #2f6fed; background: #e8f0ff; }\n"
+    },
+    "previousChecks": [
+      {
+        "id": "first-question-shown",
+        "label": "初始页面显示进度“第 1 题 / 共 3 题”、第一题题干“2+3 等于多少”以及三个选项 4、5、6",
+        "actions": [
+          {
+            "type": "assert",
+            "target": {
+              "testId": "progress"
+            },
+            "assertion": "text",
+            "expected": "第 1 题 / 共 3 题"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "question"
+            },
+            "assertion": "text",
+            "expected": "2+3 等于多少？"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "index": 0,
+              "testId": "option"
+            },
+            "assertion": "text",
+            "expected": "4"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "index": 1,
+              "testId": "option"
+            },
+            "assertion": "text",
+            "expected": "5"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "index": 2,
+              "testId": "option"
+            },
+            "assertion": "text",
+            "expected": "6"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "index": 0,
+              "testId": "option"
+            },
+            "assertion": "visible"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "index": 1,
+              "testId": "option"
+            },
+            "assertion": "visible"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "index": 2,
+              "testId": "option"
+            },
+            "assertion": "visible"
+          }
+        ]
+      },
+      {
+        "id": "option-selectable",
+        "label": "点击选项“5”后该选项被选中，再点击“4”后选中状态转移到“4”且“5”恢复未选中",
+        "actions": [
+          {
+            "type": "click",
+            "target": {
+              "index": 1,
+              "testId": "option"
+            }
+          },
+          {
+            "type": "assert",
+            "target": {
+              "index": 1,
+              "testId": "option"
+            },
+            "assertion": "text",
+            "expected": "5"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": "radio",
+              "name": "5"
+            },
+            "assertion": "visible"
+          },
+          {
+            "type": "click",
+            "target": {
+              "index": 0,
+              "testId": "option"
+            }
+          },
+          {
+            "type": "assert",
+            "target": {
+              "index": 0,
+              "testId": "option"
+            },
+            "assertion": "text",
+            "expected": "4"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": "radio",
+              "name": "4"
+            },
+            "assertion": "visible"
+          }
+        ]
+      }
+    ],
+    "issues": [
+      "参考实现未通过累计检查（先核对需求、本步检查和代码；本步验收可修复，前序检查保留）: [{\"caseId\": \"submit-disabled-without-selection\", \"status\": \"failed\", \"message\": \"× 1. 检查 \\\"submit\\\" 的可操作状态\\n预期：true\\n实际：false\"}, {\"caseId\": \"locked-after-submit\", \"status\": \"failed\", \"message\": \"✓ 1. 点击 第 1 个 \\\"option\\\"\\n✓ 2. 点击 \\\"submit\\\"\\n✓ 3. 检查 \\\"feedback\\\" 的显示文字\\n   实际：\\\"回答错误\\\"\\n✓ 4. 检查 \\\"correct-answer\\\" 的显示文字\\n   实际：\\\"正确答案：5\\\"\\n✓ 5. 点击 第 2 个 \\\"option\\\"\\n✓ 6. 检查 第 1 个 \\\"option\\\" 的显示文字\\n   实际：\\\"4\\\"\\n✓ 7. 检查 第 2 个 \\\"option\\\" 的显示文字\\n   实际：\\\"5\\\"\\n× 8. 检查 \\\"submit\\\" 的可操作状态\\n预期：true\\n实际：false\"}]"
+    ],
+    "priorCandidate": {
+      "unit": {
+        "stepId": "submit-and-feedback",
+        "title": "提交判定与锁定",
+        "objective": "实现未选不能提交、提交后显示对错与正确答案并锁定本题。",
+        "instructionsMarkdown": "上一步你已经能显示第一题并选中选项。这一步让测验真正能“作答”。\n\n需要完成的效果：\n\n- 在选项下方放一个“提交”按钮。没有选中任何选项时，这个按钮不可用；选中选项后按钮变为可用。\n- 点击“提交”后，页面显示本题反馈：答对显示“回答正确”，答错显示“回答错误”，并且无论对错都显示正确答案（例如“正确答案：5”）。\n- 提交之后，本题被锁定：再点击其他选项不会改变选择，提交按钮也不再可用，不能重复提交。\n\n本步只处理第一题的提交与反馈，下一题切换和总分留到后面步骤。\n\n**代码约定**\n\n- 提交按钮使用 `data-testid=\"submit\"`，文字为“提交”。\n- 反馈文字放在一个元素里，使用 `data-testid=\"feedback\"`，内容包含“回答正确”或“回答错误”。\n- 正确答案放在一个元素里，使用 `data-testid=\"correct-answer\"`，内容包含正确答案文字（如“5”）。\n- 选项继续沿用上一步的 `data-testid=\"option\"` 与 `role=\"radio\"`，选中状态用 `aria-checked` 表示。\n- 这些标记只供系统识别，不会改变页面外观。",
+        "explanationMarkdown": "这一步的核心是把“选择”和“提交”分开，并引入一个“本题是否已提交”的状态。\n\n思路提示：\n\n1. 新增一个状态记录本题是否已提交，例如 `const [submitted, setSubmitted] = useState(false)`。\n2. 提交按钮的 `disabled` 属性可以写成“没有选中选项”或“已经提交”时为真，这样同时满足“未选不能提交”和“提交后不能再提交”。\n3. 点击选项时，如果本题已提交就不再更新选择，从而锁定本题。\n4. 提交时把 `submitted` 设为 `true`，并根据 `selected === q.answer` 判断对错，渲染对应反馈和正确答案。\n\n注意反馈和正确答案只在提交后出现，未提交时不要显示。",
+        "hints": [
+          "用一个布尔状态记录本题是否已提交，提交按钮的 disabled 同时考虑“未选择”和“已提交”两种情况。",
+          "点击选项的处理函数里先判断是否已提交，已提交就直接返回，不再改变选择。",
+          "对错判断就是比较当前选择和这道题的正确答案是否相等。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "submit-disabled-without-selection",
+          "submit-shows-feedback",
+          "locked-after-submit"
+        ]
+      },
+      "behaviorCases": [
+        {
+          "requirementId": "submit-requires-selection",
+          "setup": "初始页面，未选择任何选项",
+          "action": "观察提交按钮状态",
+          "expected": "提交按钮不可用",
+          "checkId": "submit-disabled-without-selection"
+        },
+        {
+          "requirementId": "submit-requires-selection",
+          "setup": "初始页面，未选择任何选项",
+          "action": "点击选项“5”后观察提交按钮",
+          "expected": "提交按钮变为可用",
+          "checkId": "submit-disabled-without-selection"
+        },
+        {
+          "requirementId": "submit-feedback",
+          "setup": "初始页面，选择正确选项“5”",
+          "action": "点击提交按钮",
+          "expected": "显示“回答正确”反馈，并显示正确答案“5”",
+          "checkId": "submit-shows-feedback"
+        },
+        {
+          "requirementId": "submit-feedback",
+          "setup": "初始页面，选择错误选项“4”",
+          "action": "点击提交按钮",
+          "expected": "显示“回答错误”反馈，并显示正确答案“5”",
+          "checkId": "locked-after-submit"
+        },
+        {
+          "requirementId": "submit-feedback",
+          "setup": "已选择“4”并提交，本题已锁定",
+          "action": "尝试点击选项“5”",
+          "expected": "选择仍保持“4”，“5”未被选中",
+          "checkId": "locked-after-submit"
+        },
+        {
+          "requirementId": "submit-feedback",
+          "setup": "已选择“4”并提交，本题已锁定",
+          "action": "观察提交按钮状态",
+          "expected": "提交按钮不可用，不能重复提交",
+          "checkId": "locked-after-submit"
+        }
+      ],
+      "checks": [
+        {
+          "id": "submit-disabled-without-selection",
+          "label": "初始未选择时提交按钮不可用；点击选项“5”后提交按钮变为可用",
+          "actions": [
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "submit"
+              },
+              "value": null,
+              "assertion": "enabled",
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": 1,
+                "role": null,
+                "name": null,
+                "testId": "option"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "submit"
+              },
+              "value": null,
+              "assertion": "enabled",
+              "expected": null,
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        },
+        {
+          "id": "submit-shows-feedback",
+          "label": "选择正确选项“5”并提交后显示“回答正确”与正确答案“5”",
+          "actions": [
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": 1,
+                "role": null,
+                "name": null,
+                "testId": "option"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "submit"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "feedback"
+              },
+              "value": null,
+              "assertion": "text",
+              "expected": "回答正确",
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "correct-answer"
+              },
+              "value": null,
+              "assertion": "text",
+              "expected": "正确答案：5",
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        },
+        {
+          "id": "locked-after-submit",
+          "label": "选择错误选项“4”并提交后显示“回答错误”与正确答案“5”，且本题锁定：再点“5”不改变选择，提交按钮不可用",
+          "actions": [
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": 0,
+                "role": null,
+                "name": null,
+                "testId": "option"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "submit"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "feedback"
+              },
+              "value": null,
+              "assertion": "text",
+              "expected": "回答错误",
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "correct-answer"
+              },
+              "value": null,
+              "assertion": "text",
+              "expected": "正确答案：5",
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": 1,
+                "role": null,
+                "name": null,
+                "testId": "option"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": 0,
+                "role": null,
+                "name": null,
+                "testId": "option"
+              },
+              "value": null,
+              "assertion": "text",
+              "expected": "4",
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": 1,
+                "role": null,
+                "name": null,
+                "testId": "option"
+              },
+              "value": null,
+              "assertion": "text",
+              "expected": "5",
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "submit"
+              },
+              "value": null,
+              "assertion": "enabled",
+              "expected": null,
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        }
+      ],
+      "faultyFiles": {},
+      "faultyCheckId": null,
+      "referenceFiles": {
+        "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nconst QUESTIONS = [\n  { question: '2+3 等于多少？', options: ['4', '5', '6'], answer: '5' },\n  { question: '水的化学式是什么？', options: ['H2O', 'CO2', 'O2'], answer: 'H2O' },\n  { question: '一周有几天？', options: ['5', '6', '7'], answer: '7' },\n];\n\nexport default function App() {\n  const [current, setCurrent] = useState(0);\n  const [selected, setSelected] = useState(null);\n  const [submitted, setSubmitted] = useState(false);\n\n  const q = QUESTIONS[current];\n  const isCorrect = selected === q.answer;\n\n  function handleSelect(opt) {\n    if (submitted) return;\n    setSelected(opt);\n  }\n\n  function handleSubmit() {\n    if (selected === null || submitted) return;\n    setSubmitted(true);\n  }\n\n  return (\n    <main className=\"quiz\">\n      <p className=\"progress\" data-testid=\"progress\">\n        第 {current + 1} 题 / 共 {QUESTIONS.length} 题\n      </p>\n      <h1 className=\"question\" data-testid=\"question\">{q.question}</h1>\n      <div className=\"options\" role=\"radiogroup\">\n        {q.options.map((opt) => (\n          <button\n            key={opt}\n            type=\"button\"\n            role=\"radio\"\n            aria-checked={selected === opt ? 'true' : 'false'}\n            data-testid=\"option\"\n            className={'option' + (selected === opt ? ' selected' : '')}\n            onClick={() => handleSelect(opt)}\n          >\n            {opt}\n          </button>\n        ))}\n      </div>\n      <button\n        type=\"button\"\n        data-testid=\"submit\"\n        className=\"submit\"\n        disabled={selected === null || submitted}\n        onClick={handleSubmit}\n      >\n        提交\n      </button>\n      {submitted && (\n        <div className=\"feedback-area\">\n          <p className=\"feedback\" data-testid=\"feedback\">\n            {isCorrect ? '回答正确' : '回答错误'}\n          </p>\n          <p className=\"correct-answer\" data-testid=\"correct-answer\">\n            正确答案：{q.answer}\n          </p>\n        </div>\n      )}\n    </main>\n  );\n}\n",
+        "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\nmain.quiz { padding: 24px; max-width: 480px; }\n.progress { color: #666; margin: 0 0 12px; }\n.question { font-size: 20px; margin: 0 0 16px; }\n.options { display: flex; flex-direction: column; gap: 10px; }\n.option {\n  padding: 10px 14px;\n  border: 1px solid #ccc;\n  border-radius: 8px;\n  background: #fff;\n  font-size: 16px;\n  text-align: left;\n  cursor: pointer;\n}\n.option.selected { border-color: #2f6fed; background: #e8f0ff; }\n.submit {\n  margin-top: 16px;\n  padding: 10px 20px;\n  border: none;\n  border-radius: 8px;\n  background: #2f6fed;\n  color: #fff;\n  font-size: 16px;\n  cursor: pointer;\n}\n.submit:disabled { background: #b9c4d8; cursor: not-allowed; }\n.feedback-area { margin-top: 16px; }\n.feedback { font-size: 16px; font-weight: bold; margin: 0 0 6px; }\n.correct-answer { color: #444; margin: 0; }\n"
+      }
+    },
+    "previousCheckReport": {
+      "stepId": "submit-and-feedback",
+      "referenceHash": "5b651ac328e876db2faf2087395b194a34e12595be5a1fb4d07aa9cc1504c41a",
+      "previousHash": "4e170ab41962a22dec37711cad6bf98bd3fb1c2ff8d7ac5c571cb53452e81d25",
+      "checkIds": [
+        "first-question-shown",
+        "option-selectable"
+      ],
+      "passed": true,
+      "results": [
+        {
+          "caseId": "first-question-shown",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"progress\" 的显示文字\n   实际：\"第 1 题 / 共 3 题\"\n✓ 2. 检查 \"question\" 的显示文字\n   实际：\"2+3 等于多少？\"\n✓ 3. 检查 第 1 个 \"option\" 的显示文字\n   实际：\"4\"\n✓ 4. 检查 第 2 个 \"option\" 的显示文字\n   实际：\"5\"\n✓ 5. 检查 第 3 个 \"option\" 的显示文字\n   实际：\"6\"\n✓ 6. 检查 第 1 个 \"option\" 的可见状态\n   实际：true\n✓ 7. 检查 第 2 个 \"option\" 的可见状态\n   实际：true\n✓ 8. 检查 第 3 个 \"option\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "option-selectable",
+          "status": "passed",
+          "message": "✓ 1. 点击 第 2 个 \"option\"\n✓ 2. 检查 第 2 个 \"option\" 的显示文字\n   实际：\"5\"\n✓ 3. 检查 \"5\" 的可见状态\n   实际：true\n✓ 4. 点击 第 1 个 \"option\"\n✓ 5. 检查 第 1 个 \"option\" 的显示文字\n   实际：\"4\"\n✓ 6. 检查 \"4\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 997.010495
+    },
+    "unit": {
+      "stepId": "submit-and-feedback",
+      "title": "提交判定与锁定",
+      "objective": "实现未选不能提交、提交后显示对错与正确答案并锁定本题。",
+      "instructionsMarkdown": "上一步你已经能显示第一题并选中选项。这一步让测验真正能“作答”。\n\n需要完成的效果：\n\n- 在选项下方放一个“提交”按钮。没有选中任何选项时，这个按钮不可用；选中选项后按钮变为可用。\n- 点击“提交”后，页面显示本题反馈：答对显示“回答正确”，答错显示“回答错误”，并且无论对错都显示正确答案（例如“正确答案：5”）。\n- 提交之后，本题被锁定：再点击其他选项不会改变选择，提交按钮也不再可用，不能重复提交。\n\n本步只处理第一题的提交与反馈，下一题切换和总分留到后面步骤。\n\n**代码约定**\n\n- 提交按钮使用 `data-testid=\"submit\"`，文字为“提交”。\n- 反馈文字放在一个元素里，使用 `data-testid=\"feedback\"`，内容包含“回答正确”或“回答错误”。\n- 正确答案放在一个元素里，使用 `data-testid=\"correct-answer\"`，内容包含正确答案文字（如“5”）。\n- 选项继续沿用上一步的 `data-testid=\"option\"` 与 `role=\"radio\"`，选中状态用 `aria-checked` 表示。\n- 这些标记只供系统识别，不会改变页面外观。",
+      "explanationMarkdown": "这一步的核心是把“选择”和“提交”分开，并引入一个“本题是否已提交”的状态。\n\n思路提示：\n\n1. 新增一个状态记录本题是否已提交，例如 `const [submitted, setSubmitted] = useState(false)`。\n2. 提交按钮的 `disabled` 属性可以写成“没有选中选项”或“已经提交”时为真，这样同时满足“未选不能提交”和“提交后不能再提交”。\n3. 点击选项时，如果本题已提交就不再更新选择，从而锁定本题。\n4. 提交时把 `submitted` 设为 `true`，并根据 `selected === q.answer` 判断对错，渲染对应反馈和正确答案。\n\n注意反馈和正确答案只在提交后出现，未提交时不要显示。",
+      "hints": [
+        "用一个布尔状态记录本题是否已提交，提交按钮的 disabled 同时考虑“未选择”和“已提交”两种情况。",
+        "点击选项的处理函数里先判断是否已提交，已提交就直接返回，不再改变选择。",
+        "对错判断就是比较当前选择和这道题的正确答案是否相等。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "checkIds": [
+        "submit-disabled-without-selection",
+        "submit-shows-feedback",
+        "locked-after-submit"
+      ]
+    },
+    "referenceFiles": {
+      "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nconst QUESTIONS = [\n  { question: '2+3 等于多少？', options: ['4', '5', '6'], answer: '5' },\n  { question: '水的化学式是什么？', options: ['H2O', 'CO2', 'O2'], answer: 'H2O' },\n  { question: '一周有几天？', options: ['5', '6', '7'], answer: '7' },\n];\n\nexport default function App() {\n  const [current, setCurrent] = useState(0);\n  const [selected, setSelected] = useState(null);\n  const [submitted, setSubmitted] = useState(false);\n\n  const q = QUESTIONS[current];\n  const isCorrect = selected === q.answer;\n\n  function handleSelect(opt) {\n    if (submitted) return;\n    setSelected(opt);\n  }\n\n  function handleSubmit() {\n    if (selected === null || submitted) return;\n    setSubmitted(true);\n  }\n\n  return (\n    <main className=\"quiz\">\n      <p className=\"progress\" data-testid=\"progress\">\n        第 {current + 1} 题 / 共 {QUESTIONS.length} 题\n      </p>\n      <h1 className=\"question\" data-testid=\"question\">{q.question}</h1>\n      <div className=\"options\" role=\"radiogroup\">\n        {q.options.map((opt) => (\n          <button\n            key={opt}\n            type=\"button\"\n            role=\"radio\"\n            aria-checked={selected === opt ? 'true' : 'false'}\n            data-testid=\"option\"\n            className={'option' + (selected === opt ? ' selected' : '')}\n            onClick={() => handleSelect(opt)}\n          >\n            {opt}\n          </button>\n        ))}\n      </div>\n      <button\n        type=\"button\"\n        data-testid=\"submit\"\n        className=\"submit\"\n        disabled={selected === null || submitted}\n        onClick={handleSubmit}\n      >\n        提交\n      </button>\n      {submitted && (\n        <div className=\"feedback-area\">\n          <p className=\"feedback\" data-testid=\"feedback\">\n            {isCorrect ? '回答正确' : '回答错误'}\n          </p>\n          <p className=\"correct-answer\" data-testid=\"correct-answer\">\n            正确答案：{q.answer}\n          </p>\n        </div>\n      )}\n    </main>\n  );\n}\n",
+      "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\nmain.quiz { padding: 24px; max-width: 480px; }\n.progress { color: #666; margin: 0 0 12px; }\n.question { font-size: 20px; margin: 0 0 16px; }\n.options { display: flex; flex-direction: column; gap: 10px; }\n.option {\n  padding: 10px 14px;\n  border: 1px solid #ccc;\n  border-radius: 8px;\n  background: #fff;\n  font-size: 16px;\n  text-align: left;\n  cursor: pointer;\n}\n.option.selected { border-color: #2f6fed; background: #e8f0ff; }\n.submit {\n  margin-top: 16px;\n  padding: 10px 20px;\n  border: none;\n  border-radius: 8px;\n  background: #2f6fed;\n  color: #fff;\n  font-size: 16px;\n  cursor: pointer;\n}\n.submit:disabled { background: #b9c4d8; cursor: not-allowed; }\n.feedback-area { margin-top: 16px; }\n.feedback { font-size: 16px; font-weight: bold; margin: 0 0 6px; }\n.correct-answer { color: #444; margin: 0; }\n"
+    },
+    "referenceHash": "5b651ac328e876db2faf2087395b194a34e12595be5a1fb4d07aa9cc1504c41a"
+  },
+  "startedAt": 1792228909.4076917
+}

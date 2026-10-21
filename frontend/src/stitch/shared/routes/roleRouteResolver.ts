@@ -5,8 +5,6 @@ const sharedRoutes = new Set([
   "profile",
   "settings",
   "classroom-player",
-  "player-smoke",
-  "video-render",
 ]);
 
 export function defaultHashForRole(role: AuthUser["role"]): string {

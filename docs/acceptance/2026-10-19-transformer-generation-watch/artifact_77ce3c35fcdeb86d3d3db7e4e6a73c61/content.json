@@ -1,0 +1,200 @@
+{
+  "title": "自注意力与缩放点积：Q、K、V 如何算出加权和",
+  "content": {
+    "title": "自注意力与缩放点积：Q、K、V 如何算出加权和",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_77ce3c35fcdeb86d3d3db7e4e6a73c61",
+      "entry": "index.html",
+      "digest": "8a5aa0b10db3000491fb333853e8fa55abccb4d827f4ce7b12a8a3480183975c"
+    },
+    "timeline": {
+      "duration": 292.0,
+      "segments": [
+        {
+          "id": "01-opening",
+          "end": 16.0,
+          "start": 0.0,
+          "title": "Opening",
+          "events": [],
+          "narration": "上一节我们说到，Transformer 完全靠注意力来建立依赖。这一节，我们把这句说法，变成一条可以一步步算出来的流水线：自注意力，以及它的缩放点积形式。",
+          "audio_path": "assets/audio/9a313900fb5a2a5fdc47bc62f79c31982846e39f200c408bd8fa591520378b26.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "纸面标题卡，四步流水线预告"
+        },
+        {
+          "id": "02-definition",
+          "end": 54.0,
+          "start": 16.0,
+          "title": "Definition",
+          "events": [],
+          "narration": "先给定义。自注意力，是让同一个序列里不同位置互相关联，从而算出这个序列表示的机制。更一般地说，注意力函数把一个查询，和一组键值对，映射成一个输出；输出是所有值的加权和，而每个值的权重，由查询和对应键的相容性算出来。可以把它想成一次带权重的信息检索：查询发出请求，键负责被匹配，值才是被取回的内容。这里没有循环，也没有卷积，只有这种匹配。",
+          "audio_path": "assets/audio/17069fda064d148c85176f48434fe4e0c88ffb8c3041bb0beac5f3db6458806f.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "查询、键值对、加权和：注意力函数的板书示意"
+        },
+        {
+          "id": "03-qkv-roles",
+          "end": 90.0,
+          "start": 54.0,
+          "title": "Q/K/V Roles",
+          "events": [],
+          "narration": "那查询、键、值从哪里来？同一个输入 x，分别乘上三个不同的线性变换矩阵，就得到 Q、K、V。可以这样记：Q 是「我想找什么」，K 是「我是什么」，V 是「我的内容」。这三个变换矩阵，都是模型从数据里学出来的参数，不是人手工设定的。关键在于：算相似度用的是 Q 和 K，真正被搬走的信息是 V。两件事被解耦，模型就可以分别学习「该关注谁」和「关注之后取什么信息」。",
+          "audio_path": "assets/audio/f8d92ff5328506672948761b0b7c7a9b9a3b75d29d7dd485bb69b21039e28f81.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "一个输入，三个线性变换，三种分工"
+        },
+        {
+          "id": "04-pronoun-intuition",
+          "end": 113.0,
+          "start": 90.0,
+          "title": "Pronoun Intuition",
+          "events": [],
+          "narration": "看一个直觉例子。句子是：小明把苹果给了他的母亲。处理「他」这个词时，模型把大部分注意力投向了「小明」，因为「他」需要知道，自己指的是谁。这些权重不是人写死的规则，而是模型从数据里学出来的。这里的数值只是示意，不是论文的实验数据。",
+          "audio_path": "assets/audio/d91a7990e1009eb85475a9e2856faa7d5e04c8c890d7588d1b35da82b3a7e4a8.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "七词句 + 「他」的注意力权重条"
+        },
+        {
+          "id": "05-formula",
+          "end": 148.0,
+          "start": 113.0,
+          "title": "Formula",
+          "events": [],
+          "narration": "把刚才的流程写成一个式子，就是缩放点积注意力：注意力函数等于，softmax，括号里是 Q 乘 K 的转置，再除以根号 d k，最后再乘 V。拆开看是四步：Q K 点积，得到相似度矩阵；除以根号 d k，做缩放；softmax 把每一行变成权重；权重再乘 V，做加权求和。写成矩阵形式，是为了让所有位置一次算完，而不是一个一个循环。",
+          "audio_path": "assets/audio/30bc915a88bb85838322c444869279ec4462831060ccbc1b93edc745ef7c38b6.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "公式逐项点亮，四步卡片对应"
+        },
+        {
+          "id": "06-scaling",
+          "end": 182.0,
+          "start": 148.0,
+          "title": "Why Divide by √dk",
+          "events": [],
+          "narration": "为什么一定要除以根号 d k？如果 Q 和 K 的每个分量互相独立，均值为零、方差为一，那么一个点积是 d k 个乘积之和，它的方差就正比于 d k。d k 越大，点积的幅值越大。幅值一大，softmax 的输入被拉得很开，输出就几乎变成一个只保留最大值的向量；而在这附近，softmax 的梯度极小，训练几乎学不动。除以根号 d k，正好把方差拉回到 1 左右。",
+          "audio_path": "assets/audio/9544a8720203c0f0c5146be348c67b1c1459992d75f482d0f561d16d0e7ae7e2.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "两栏对照：点积幅值放大 → softmax 饱和 → 梯度极小"
+        },
+        {
+          "id": "07-scores",
+          "end": 212.0,
+          "start": 182.0,
+          "title": "Worked Example: Scores",
+          "events": [],
+          "narration": "下面手算一遍。为了看得清，我们只用三个 token，每个向量两维。三个词是小明、喜欢、音乐，它们的 Q、K、V 都列在画面左边。第一步，Q 乘 K 的转置。第 i 行第 j 列，就是第 i 个词的 Q 和第 j 个词的 K 的点积，结果是一个三乘三的打分矩阵。注意，第 i 行就是第 i 个词，对三个位置的原始分数。",
+          "audio_path": "assets/audio/219b322ab99b53f1da9c4cb0f0993044921e7d937685183c3a031fa6c1b911b4.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三词两维的 Q/K/V 表 + QKᵀ 打分矩阵"
+        },
+        {
+          "id": "08-softmax",
+          "end": 240.0,
+          "start": 212.0,
+          "title": "Worked Example: Scale & Softmax",
+          "events": [],
+          "narration": "第二步，除以根号 d k。这里 d k 等于 2，所以除以根号 2，大约 1.41。第三步，对每一行做 softmax：先对每个分数取指数，再除以这一行指数的总和。算完你检查一下，每一行三个数加起来都等于 1。它们是一条概率分布，也就是这个位置的词，分别分给三个位置多少注意力。",
+          "audio_path": "assets/audio/c3a104de24eb2b2cf09e954cb826ecfb01fc182ef873aac46fbbcb35fb04673a.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "÷√2 缩放 + 逐行 softmax，每行 Σ = 1.00"
+        },
+        {
+          "id": "09-weighted-sum",
+          "end": 268.0,
+          "start": 240.0,
+          "title": "Worked Example: Weighted Sum",
+          "events": [],
+          "narration": "最后一步，用权重乘 V，再相加。看第一行：0.40 乘第一个 v，加 0.20 乘第二个 v，加 0.40 乘第三个 v，得到输出 0.8 和 0.6。三行都算完，我们就有三个输出向量。所以输出不再是原来那个词自己的向量，而是整条序列的值，按注意力权重混合出来的新表示。",
+          "audio_path": "assets/audio/61cf57d6f9690c81542fbd9e579bb3f1b06016e74165b024649398495344278f.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "权重 × V 相加，三行输出向量"
+        },
+        {
+          "id": "10-recap",
+          "end": 292.0,
+          "start": 268.0,
+          "title": "Recap",
+          "events": [],
+          "narration": "回顾一下：线性变换得到 Q、K、V；Q 和所有 K 点积并缩放；softmax 得到权重；再用权重对 V 加权求和。一句话记住：注意力，就是按相似度把值加权混合。多头注意力、位置编码、残差和层归一化，我们后面再讲。",
+          "audio_path": "assets/audio/90377454079e998f3550e5974892fbd56b1fa158c3347a74064ef5bd7cdad254.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三步回顾 + 一句话收束 + 后面再讲"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 292.0
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.866666666666666
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "68dc01ff3ffb570736e57aadc15d679306c5608de01c0a72f670b53fe5d5c8b7",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 292.0
+      },
+      "content_digest": "d24ee7d9e81290d218309b20dc6e4a9463e40889a2ae1a43f99291022841c0e2",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.866666666666666
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "6ac39f13593fea31e02fc6ff1e876542bf819e11efe3e3f3eb54114f6954ea7c"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "82b16ee78318d3651ec39f01ba8a6c5d50f0538d85e99a65ceed1c54c67f4b39",
+      "preparation_sha256": "5a44adf4a843e2aeb1334c5106a81d633cb3dad36f72ac1652a03a974a77498e"
+    }
+  }
+}

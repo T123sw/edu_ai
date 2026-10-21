@@ -6,7 +6,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.schemas.course import GenerateClassroomRequest
-from app.services.classroom_job_service import create_classroom_job
+from app.services.classroom_jobs import create_classroom_job
 from app.services.classroom_persistence import persist_classroom_result
 from app.services.classroom_service import submit_classroom_generation_job
 from app.services.durable_task_handlers import DurableExecutionContext
@@ -158,42 +158,19 @@ def test_classroom_worker_resolves_source_once(
     captured = {}
     job = create_classroom_job(owner="teacher-a", course_id="course-1")
 
-    class _FakeClient:
-        pass
+    def fake_generate(command, context, manager, source, requirement):
+        import asyncio
+        from app.services.classroom_service import _build_research_context
+        captured["source_snapshot"] = source.to_snapshot()
+        captured["research_context"] = asyncio.run(_build_research_context(
+            course_storage_manager=manager, course_id="course-1", requirement=requirement,
+            web_research_context=None, rag_top_k=5, rag_system=None, resolved_source=source))
+        update_job(context.task_id, status=JobStatus.SUCCEEDED,
+            result_ref={"classroom_id": "native-1"})
 
-    monkeypatch.setattr(
-        "app.integrations.openmaic.get_openmaic_client",
-        lambda owner_user_id=None, **_kwargs: _FakeClient(),
-    )
-
-    def fake_callback(**kwargs):
-        captured["source_snapshot"] = kwargs["source_snapshot"]
-
-        async def callback(_result):
-            return {"classroom_id": "stage-1"}
-
-        return callback
-
-    async def fake_run(active_job, **kwargs):
-        captured["research_context"] = kwargs["research_context"]
-        return update_job(
-            active_job.edu_job_id,
-            status=JobStatus.SUCCEEDED,
-            result_ref={"classroom_id": "stage-1"},
-        )
-
-    monkeypatch.setattr(
-        "app.services.classroom_service._make_on_sidecar_succeeded",
-        fake_callback,
-    )
-    monkeypatch.setattr(
-        "app.services.classroom_service.fetch_knowledge_graph_context",
-        lambda **kwargs: "knowledge graph evidence",
-    )
-    monkeypatch.setattr(
-        "app.services.classroom_job_service.run_generate_classroom_job",
-        fake_run,
-    )
+    monkeypatch.setattr("app.services.classroom_service.fetch_knowledge_graph_context",
+        lambda **kwargs: "knowledge graph evidence")
+    monkeypatch.setattr("app.services.hyperframes_classroom.generate_and_persist", fake_generate)
     handler = PlatformTaskHandlers(
         course_storage_factory=lambda: manager,
         generation_source_resolver_factory=lambda _manager: resolver,

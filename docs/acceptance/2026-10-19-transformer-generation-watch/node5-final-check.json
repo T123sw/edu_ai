@@ -1,0 +1,10 @@
+{
+  "policy": "playback-first-v1",
+  "digest": "b3166a9bcd057a011391056fc9f25faa0347a43416395d4ba3dc4a08f91f4a25",
+  "cached": false,
+  "passed": true,
+  "blocking": [],
+  "advisory_count": 65,
+  "report_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245/videos/transformer-encoder-decoder/.hyperframes/host-check-native.json",
+  "next": "Proceed to render. Do not rerun lint/check, add per-scene previews, or polish advisory layout/contrast findings."
+}

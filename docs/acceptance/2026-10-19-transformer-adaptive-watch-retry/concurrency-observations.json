@@ -1,0 +1,13 @@
+{
+  "sampled_peak_running_videos": 6,
+  "sampled_peak_running_scene_workers": 5,
+  "sample_interval_seconds": 30,
+  "admission": "第五与第六视频在恢复后约137、138秒启动；不再受整条视频最多4条的固定限制。",
+  "limits_of_inference": "并发启动6条已验证，但5条因连接池故障终止；未检验16路场景总额度或4条同时渲染，不可作为整课提速成功样本。",
+  "runtime_builds": [
+    "25b83b0444ee7b5f1504"
+  ],
+  "tts_429_count_observed_in_service_logs": 1,
+  "tts_429_at": "2026-10-19T16:57:07Z",
+  "tts_note": "429 后日志有成功请求；最终失败来自数据库连接池，不是直接抛出的配音429。"
+}

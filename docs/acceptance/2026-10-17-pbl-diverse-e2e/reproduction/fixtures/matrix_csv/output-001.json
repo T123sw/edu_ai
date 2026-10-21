@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "title": "本地成绩文本分析器",
+  "goal": "在本地 React 页面中实现一个成绩文本分析器：用户在多行文本框中输入每行“姓名,分数”的记录，点击分析后页面显示有效记录表格、有效人数、平均分（两位小数）与最高分，并列出无效行的原始行号与原因；无有效记录时人数为 0、平均分与最高分显示“—”；再次分析替换旧结果，清空按钮清除输入与全部结果。",
+  "runtimeKind": "react_app",
+  "editableFiles": [
+    "/src/App.jsx",
+    "/src/styles.css"
+  ],
+  "requirements": [
+    {
+      "id": "input-area",
+      "description": "页面提供多行文本输入框（可输入多行文本）与“分析”按钮、“清空”按钮，初始状态无任何结果。"
+    },
+    {
+      "id": "parse-valid",
+      "description": "每个非空行按“姓名,分数”解析：姓名去首尾空格后不能为空；分数必须是 0 到 100 的数字（含 0 与 100）。满足条件的行成为有效记录，允许重复姓名。"
+    },
+    {
+      "id": "parse-invalid",
+      "description": "不满足格式或取值要求的非空行成为无效行，记录其原始行号（从 1 开始，按输入文本的行计数）与原因；空行被忽略，不算有效也不算无效。"
+    },
+    {
+      "id": "valid-table",
+      "description": "分析后以表格形式显示全部有效记录，每行显示姓名与分数，顺序与输入顺序一致。"
+    },
+    {
+      "id": "summary-stats",
+      "description": "分析后显示有效人数、平均分（保留两位小数）与最高分；无有效记录时人数显示 0，平均分与最高分显示“—”。"
+    },
+    {
+      "id": "invalid-list",
+      "description": "分析后显示每个无效行的原始行号与原因，且不影响其他有效行的统计。"
+    },
+    {
+      "id": "reanalyze",
+      "description": "再次点击分析时用新结果完全替换旧结果（表格、统计、无效行列表都更新）。"
+    },
+    {
+      "id": "clear-all",
+      "description": "点击清空按钮后输入框内容清空，表格、统计与无效行列表全部消失，回到初始状态。"
+    }
+  ],
+  "steps": [
+    {
+      "id": "input-and-parse",
+      "title": "搭建输入区并解析有效记录",
+      "objective": "做出多行输入框、分析按钮与有效记录表格，把合法行解析成表格显示。",
+      "dependsOn": [],
+      "entryCondition": "从初始工程开始，页面只有占位内容。",
+      "deliverable": "页面包含多行文本输入框、分析按钮，以及分析后显示有效记录（姓名、分数）的表格；合法行按输入顺序进入表格，非法行暂不显示。",
+      "requirementIds": [
+        "input-area",
+        "parse-valid",
+        "valid-table"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "input-controls-visible",
+        "valid-rows-table"
+      ]
+    },
+    {
+      "id": "invalid-and-stats",
+      "title": "显示无效行与统计结果",
+      "objective": "在表格基础上增加无效行列表（原始行号与原因）以及有效人数、平均分、最高分统计。",
+      "dependsOn": [
+        "input-and-parse"
+      ],
+      "entryCondition": "上一步已完成输入区与有效记录表格。",
+      "deliverable": "分析后页面同时显示有效记录表格、有效人数、平均分（两位小数）、最高分，以及每个无效行的原始行号与原因；无有效记录时人数为 0、平均分与最高分为“—”。",
+      "requirementIds": [
+        "input-area",
+        "parse-valid",
+        "valid-table",
+        "parse-invalid",
+        "summary-stats",
+        "invalid-list"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "invalid-lines-listed",
+        "stats-values",
+        "stats-empty"
+      ]
+    },
+    {
+      "id": "reanalyze-and-clear",
+      "title": "再次分析与清空",
+      "objective": "让再次分析替换旧结果，并让清空按钮清除输入与全部结果。",
+      "dependsOn": [
+        "invalid-and-stats"
+      ],
+      "entryCondition": "上一步已完成表格、统计与无效行列表。",
+      "deliverable": "再次点击分析时表格、统计与无效行列表全部按新输入更新；点击清空后输入框为空且表格、统计、无效行列表全部消失。",
+      "requirementIds": [
+        "input-area",
+        "parse-valid",
+        "valid-table",
+        "parse-invalid",
+        "summary-stats",
+        "invalid-list",
+        "reanalyze",
+        "clear-all"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "reanalyze-replaces",
+        "clear-resets"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "input-controls-visible",
+      "stepId": "input-and-parse",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "input-area"
+      ],
+      "setup": "打开页面，处于初始状态。",
+      "actions": [
+        "检查多行输入框可见且可用",
+        "检查“分析”按钮可见且可用"
+      ],
+      "expected": [
+        "多行输入框与“分析”按钮存在并可用"
+      ],
+      "requiredAssertions": [
+        "visible",
+        "enabled"
+      ],
+      "viewport": null
+    },
+    {
+      "id": "valid-rows-table",
+      "stepId": "input-and-parse",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "parse-valid",
+        "valid-table"
+      ],
+      "setup": "打开页面，处于初始状态。",
+      "actions": [
+        "在多行输入框中填入三行：\"张三,90\"、\"李四, 75 \"、\"王五,abc\"",
+        "点击“分析”按钮",
+        "检查有效记录表格中第一行显示姓名“张三”与分数“90”",
+        "检查有效记录表格中第二行显示姓名“李四”与分数“75”",
+        "检查有效记录表格中有效数据行数量为 2"
+      ],
+      "expected": [
+        "合法行按输入顺序进入表格，非法行不进入表格"
+      ],
+      "requiredAssertions": [
+        "visible",
+        "text",
+        "count"
+      ],
+      "viewport": null
+    },
+    {
+      "id": "invalid-lines-listed",
+      "stepId": "invalid-and-stats",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "parse-invalid",
+        "invalid-list"
+      ],
+      "setup": "打开页面，处于初始状态。",
+      "actions": [
+        "在多行输入框中填入：第1行\"张三,90\"，第2行\"李四,abc\"，第3行空行，第4行\" ,50\"",
+        "点击“分析”按钮",
+        "检查无效行列表中包含原始行号 2 与原因说明的条目",
+        "检查无效行列表中包含原始行号 4 与原因说明的条目",
+        "检查无效行列表条目数量为 2"
+      ],
+      "expected": [
+        "无效行按原始行号列出原因，空行被忽略"
+      ],
+      "requiredAssertions": [
+        "visible",
+        "text",
+        "count"
+      ],
+      "viewport": null
+    },
+    {
+      "id": "stats-values",
+      "stepId": "invalid-and-stats",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "summary-stats",
+        "parse-valid"
+      ],
+      "setup": "打开页面，处于初始状态。",
+      "actions": [
+        "在多行输入框中填入：\"张三,90\"、\"李四,80\"、\"王五,abc\"",
+        "点击“分析”按钮",
+        "检查有效人数显示为 3 以外的正确值 2",
+        "检查平均分显示为“85.00”",
+        "检查最高分显示为“90”"
+      ],
+      "expected": [
+        "有效人数 2、平均分 85.00、最高分 90"
+      ],
+      "requiredAssertions": [
+        "text"
+      ],
+      "viewport": null
+    },
+    {
+      "id": "stats-empty",
+      "stepId": "invalid-and-stats",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "summary-stats"
+      ],
+      "setup": "打开页面，处于初始状态。",
+      "actions": [
+        "在多行输入框中填入：\"张三,abc\"、\"李四,120\"",
+        "点击“分析”按钮",
+        "检查有效人数显示为“0”",
+        "检查平均分显示为“—”",
+        "检查最高分显示为“—”"
+      ],
+      "expected": [
+        "无有效记录时人数 0、平均分与最高分为“—”"
+      ],
+      "requiredAssertions": [
+        "text"
+      ],
+      "viewport": null
+    },
+    {
+      "id": "reanalyze-replaces",
+      "stepId": "reanalyze-and-clear",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "reanalyze",
+        "valid-table",
+        "summary-stats",
+        "invalid-list"
+      ],
+      "setup": "打开页面，处于初始状态。",
+      "actions": [
+        "在多行输入框中填入：\"张三,90\"、\"李四,abc\"",
+        "点击“分析”按钮",
+        "清空输入框并填入：\"赵六,60\"、\"钱七,70\"",
+        "再次点击“分析”按钮",
+        "检查有效记录表格中不再出现“张三”",
+        "检查有效记录表格中显示“赵六”与“60”",
+        "检查有效人数显示为“2”",
+        "检查平均分显示为“65.00”",
+        "检查无效行列表不再包含行号 2 的条目"
+      ],
+      "expected": [
+        "再次分析后旧结果被完全替换"
+      ],
+      "requiredAssertions": [
+        "text",
+        "count"
+      ],
+      "viewport": null
+    },
+    {
+      "id": "clear-resets",
+      "stepId": "reanalyze-and-clear",
+      "kind": "ui_scenario",
+      "requirementIds": [
+        "clear-all"
+      ],
+      "setup": "打开页面，处于初始状态。",
+      "actions": [
+        "在多行输入框中填入：\"张三,90\"、\"李四,abc\"",
+        "点击“分析”按钮",
+        "点击“清空”按钮",
+        "检查多行输入框的值为空",
+        "检查有效记录表格中不再显示“张三”",
+        "检查无效行列表不再显示行号 2 的条目",
+        "检查有效人数不再显示“1”"
+      ],
+      "expected": [
+        "清空后输入与全部结果消失"
+      ],
+      "requiredAssertions": [
+        "value",
+        "text",
+        "count"
+      ],
+      "viewport": null
+    }
+  ]
+}

@@ -62,7 +62,7 @@ _PUBLICATION_FIELDS_BY_TYPE: dict[str, frozenset[str]] = {
     "game": _COMMON_PUBLICATION_FIELDS | frozenset({"content"}),
     "classroom": _COMMON_PUBLICATION_FIELDS
     | frozenset(
-        {"content", "stage", "scenes", "scenes_count", "voice_status", "video_status"}
+        {"content", "format", "project", "timeline", "exports", "stage", "scenes", "scenes_count", "voice_status", "video_status"}
     ),
     "blog": _COMMON_PUBLICATION_FIELDS
     | frozenset({"content", "final_markdown", "markdown", "outline"}),
@@ -121,6 +121,8 @@ _PUBLIC_NESTED_KEYS_BY_TYPE: dict[str, frozenset[str]] = {
     "classroom": _COMMON_PUBLIC_KEYS
     | frozenset(
         {
+            "format", "project", "digest", "entry", "timeline", "segments", "narration", "visual_description",
+            "audio_path", "objective_ids", "source_ids", "events", "target", "exports", "video", "subtitles",
             "stage", "scenes", "scenes_count", "mode", "metadata", "settings", "theme",
             "createdAt", "updatedAt", "version", "actions", "notes", "transition", "canvas",
             "viewportSize", "viewportRatio", "themeColors", "backgroundColor", "fontColor",

@@ -1,0 +1,15 @@
+{
+  "frontend_published": true,
+  "old_assets_preserved": true,
+  "previous_index_backup": "frontend/dist-release-backups/classroom-audio-20261014T014735Z/index.html",
+  "index_sha256": "01bf5407f8bcc34adb281c9edca97ef94ed5ce65e9deddc73f04f560fd946dd9",
+  "backend_restart_required": true,
+  "backend_restart_attempt": "sudo requires administrator password",
+  "backend_tests_passed": 16,
+  "frontend_tests_passed": 29,
+  "scoped_types_lint_build": "passed",
+  "root_tsc": "existing broad-project type errors; scoped self-learning config passed",
+  "published_frontend_real_playback_passed": true,
+  "new_api_verified_in_isolated_process": true,
+  "production_backend_loaded_new_api": false
+}

@@ -15,11 +15,11 @@ class TargetStore:
             return self.read_in_session(session, owner, target)
 
     def read_in_session(self, session, owner, target):
-        user=session.get(User,owner)
-        if user is None or user.is_disabled or session.get(CourseMembership,(target.course_id,owner)) is None:
+        user=session.get(User,owner,populate_existing=True)
+        if user is None or user.is_disabled or session.get(CourseMembership,(target.course_id,owner),populate_existing=True) is None:
             raise PermissionError('TARGET_COURSE_UNAVAILABLE')
-        pointer=session.get(PreparedCoursePointer,(owner,target.course_id))
-        row=session.get(PreparedManifestVersion,(owner,target.course_id,pointer.version)) if pointer else None
+        pointer=session.get(PreparedCoursePointer,(owner,target.course_id),populate_existing=True)
+        row=session.get(PreparedManifestVersion,(owner,target.course_id,pointer.version),populate_existing=True) if pointer else None
         if row is None:
             from ..publication import PreparedPublication
             row=PreparedPublication.current(session,target.course_id)
@@ -53,11 +53,14 @@ class TargetStore:
         return {'manifest':manifest,'node':node,'resource':resource,'source_owner':row.owner_user_id,'resource_content':resource_content}
 
     def authorize(self,owner,request):
-        snapshot=self.read(owner,request.target)
+        with Session(self.engine) as session:
+            return self.authorize_in_session(session,owner,request)
+
+    def authorize_in_session(self,session,owner,request):
+        snapshot=self.read_in_session(session,owner,request.target)
         if request.learning_context:
-            with Session(self.engine) as session:
-                for ref in request.learning_context.evidence_refs:
-                    message=session.get(ConversationMessage,ref)
-                    if not request.origin or message is None or message.conversation_id!=request.origin.conversation_id:
-                        raise PermissionError('LEARNING_EVIDENCE_UNAVAILABLE')
+            for ref in request.learning_context.evidence_refs:
+                message=session.get(ConversationMessage,ref,populate_existing=True)
+                if not request.origin or message is None or message.conversation_id!=request.origin.conversation_id:
+                    raise PermissionError('LEARNING_EVIDENCE_UNAVAILABLE')
         return snapshot

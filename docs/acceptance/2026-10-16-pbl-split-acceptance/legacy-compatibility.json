@@ -1,0 +1,8 @@
+{
+  "plan": true,
+  "review_plan": true,
+  "build_step": true,
+  "repair_step": true,
+  "validate": true,
+  "publish": true
+}

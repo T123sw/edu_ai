@@ -1,0 +1,35 @@
+{
+  "typecheck": "passed",
+  "eslint": "passed",
+  "build": "passed",
+  "layoutCases": 6,
+  "runtimeCases": 3,
+  "viewports": [
+    1920,
+    1440,
+    1024,
+    900,
+    768,
+    720,
+    700,
+    390,
+    320
+  ],
+  "coverage": [
+    "Removed problem dialog and entry for both exercise types",
+    "Visible requirements and acceptance, examples and algorithm contract",
+    "Current-step and cumulative project checks update on step switch",
+    "Long headings and preformatted code remain within reading column",
+    "Optional inline hints retained through workspace round trip",
+    "Normal-motion wheel animation, reduced-motion path, preview and code node identity",
+    "Actual React preview counter and algorithm Worker checks; drafts and save/reload behavior"
+  ],
+  "fixtureNotes": [
+    "Initial development fixture intercepted source API module requests; constrained mock to /api/ paths.",
+    "Enriched reading area naturally grows beyond half a screen; initial-position assertion now checks it leaves a usable workspace preview.",
+    "Native scroll rounds fractional pixels. Viewport assertions allow subpixel rounding and verify task text is fully offscreen."
+  ],
+  "limits": "Authentication and business APIs mocked. Layout tests block external preview runtime. Runtime regressions use actual React preview and algorithm Worker. Existing public calculator artifact is read-only; no production learner-data writes or model calls.",
+  "productionLayoutCases": 3,
+  "productionLayoutStatus": "passed"
+}

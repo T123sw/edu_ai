@@ -1,0 +1,91 @@
+{
+  "at": "2026-10-19T04:13:47.308717+00:00",
+  "tasks": [
+    {
+      "task_id": "generate_artifact_539a8ac535fbb94b65a43f0f9794e07e",
+      "workflow_type": "preparation_resource",
+      "status": "leased",
+      "attempt_count": 1,
+      "lease_owner": "durable-7f24585d34a0-2",
+      "started_at": "2026-10-19 03:21:55.000625+00:00",
+      "heartbeat_at": "2026-10-19 04:13:43.276001+00:00",
+      "progress": {
+        "step": "native_workflow",
+        "message": "HyperFrames 正在根据需求制作视频",
+        "progress": 10
+      },
+      "error_code": null
+    },
+    {
+      "task_id": "generate_artifact_fafed4dd35099d915d1cfaecfde21bb1",
+      "workflow_type": "preparation_resource",
+      "status": "leased",
+      "attempt_count": 1,
+      "lease_owner": "durable-7f24585d34a0-1",
+      "started_at": "2026-10-19 03:21:55.228530+00:00",
+      "heartbeat_at": "2026-10-19 04:13:43.209640+00:00",
+      "progress": {
+        "step": "native_workflow",
+        "message": "HyperFrames 正在根据需求制作视频",
+        "progress": 10
+      },
+      "error_code": null
+    },
+    {
+      "task_id": "generate_artifact_2a70a70325a6161c57befbdf2572d4b2",
+      "workflow_type": "preparation_resource",
+      "status": "leased",
+      "attempt_count": 1,
+      "lease_owner": "durable-9164ecda3320-1",
+      "started_at": "2026-10-19 04:13:32.758046+00:00",
+      "heartbeat_at": "2026-10-19 04:13:42.828933+00:00",
+      "progress": {
+        "step": "native_workflow",
+        "message": "HyperFrames 正在根据需求制作视频",
+        "progress": 10
+      },
+      "error_code": null
+    },
+    {
+      "task_id": "generate_artifact_24a77778b0f04441dc2c26abaa277f28",
+      "workflow_type": "preparation_resource",
+      "status": "leased",
+      "attempt_count": 1,
+      "lease_owner": "durable-9164ecda3320-4",
+      "started_at": "2026-10-19 04:13:33.279107+00:00",
+      "heartbeat_at": "2026-10-19 04:13:43.392792+00:00",
+      "progress": {
+        "step": "native_workflow",
+        "message": "HyperFrames 正在根据需求制作视频",
+        "progress": 10
+      },
+      "error_code": null
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "artifact_539a8ac535fbb94b65a43f0f9794e07e",
+      "title": "冒泡排序的基本思想与一趟扫描",
+      "status": "running",
+      "error_code": null
+    },
+    {
+      "artifact_id": "artifact_fafed4dd35099d915d1cfaecfde21bb1",
+      "title": "手工逐步追踪每一趟比较与交换",
+      "status": "running",
+      "error_code": null
+    },
+    {
+      "artifact_id": "artifact_2a70a70325a6161c57befbdf2572d4b2",
+      "title": "从伪代码到可运行的代码实现",
+      "status": "running",
+      "error_code": null
+    },
+    {
+      "artifact_id": "artifact_24a77778b0f04441dc2c26abaa277f28",
+      "title": "时间复杂度、稳定性与优化小结",
+      "status": "running",
+      "error_code": null
+    }
+  ]
+}

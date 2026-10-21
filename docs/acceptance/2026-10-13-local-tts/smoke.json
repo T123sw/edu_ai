@@ -1,0 +1,18 @@
+{
+  "endpoint": "http://127.0.0.1:8188/v1/audio/speech",
+  "model": "qwen3-tts",
+  "voice": "vivian",
+  "timeout_seconds": 120,
+  "narration_seconds": 5.93,
+  "narration_url": "/api/courses/tts-smoke/classrooms/classroom-smoke/audio/speech-1.mp3",
+  "qa_seconds": 10.42,
+  "qa_mime": "audio/mpeg",
+  "narration": {
+    "duration": "2.616000",
+    "size": "41900"
+  },
+  "answer": {
+    "duration": "4.704000",
+    "size": "75308"
+  }
+}

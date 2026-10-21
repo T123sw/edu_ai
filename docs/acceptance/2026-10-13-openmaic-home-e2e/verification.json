@@ -1,0 +1,179 @@
+{
+  "task": "Default image generation and real homepage single-topic classroom acceptance",
+  "topic": "栈的后进先出（LIFO）与入栈、出栈",
+  "image": {
+    "model": "qwen-image-3.0",
+    "provider_smoke": "passed",
+    "budget_reservation_micro_usd_per_request": 50000,
+    "official_output_price_cny": 0.18,
+    "price_source": "https://help.aliyun.com/zh/model-studio/model-pricing",
+    "price_checked_at": "2026-10-13"
+  },
+  "video_enabled": false,
+  "homepage_login": "passed",
+  "homepage_classroom_default": "enabled",
+  "course_generation": "failed",
+  "notes": [
+    "真实 Nginx 首页提交，实际后端、模型、资料检索和 Qwen Image 3.0；没有接口模拟。",
+    "默认图片生成配置已加载；此次课堂流程真实生成并嵌入 1 张图片。",
+    "课堂 7 页与报告、习题均已持久化为私有候选；课堂尚未通过审核，没有发布课程或绕过门禁。",
+    "单独在 Chromium 验证生成的交互 HTML 不等于已交付课堂的端到端通过；课堂内测验提交、图片渲染、语音播放仍待交付后验收。",
+    "已修复知识点数量提示、重复原生上下文、研究恢复投影和整课审核二进制图片文本膨胀；后两项 Python 源码修复尚未加载到运行服务。",
+    "完整课堂独立审核仍超限，单纯再次重启不能解决这个剩余问题。",
+    "所有失败和重试保留预算消耗；未提高预算，未手动改写检查点或候选验收状态。"
+  ],
+  "backend_configuration": "verified_loaded",
+  "attempts": [
+    {
+      "id": "prep_a40c65867e4c4e6aa6af4d2e6fc4444d",
+      "outcome": "canceled",
+      "reason": "single-topic scope split and wrong example objective"
+    },
+    {
+      "id": "prep_a2e4ab94329b423b8ca940b37f4057f7",
+      "outcome": "failed",
+      "reason": "research projection after context rollover; frontend retry later exhausted budget"
+    },
+    {
+      "id": "prep_bd9bf5f14e8e4f93b46732563edb4e53",
+      "outcome": "failed",
+      "reason": "CONTEXT_BUDGET_EXCEEDED: duplicate requirements/evidence in native outline prompt"
+    },
+    {
+      "id": "prep_8ea9fa9b97984beea2469d25c514f850",
+      "outcome": "failed",
+      "retry": 3,
+      "first_failure": "AGENT_NO_PROGRESS: citation_refs exceeded maxItems 8",
+      "final_failure": "CONTEXT_BUDGET_EXCEEDED at resource_review",
+      "intermediate_failure": "NodeEvidenceAssessment.reason exceeded maxLength 2000"
+    }
+  ],
+  "checks": {
+    "research_scope_regressions": "51 passed",
+    "rollover_regressions": "22 passed, 4 skipped",
+    "native_bridge_regressions": "8 passed, 1 skipped",
+    "native_pipeline_regressions": "6 passed",
+    "sidecar_typescript": "passed",
+    "outline_context_fix": {
+      "input_upper_bound": 76768,
+      "output_limit": 12000,
+      "limit": 128000,
+      "source_copies": 1
+    },
+    "quality_media_and_research_context": "19 passed, 1 skipped",
+    "candidate_interaction": "six-step sequence, peek, reset and empty-pop guard passed; underflow preset instruction conflicts with disabled button"
+  },
+  "end_to_end_passed": false,
+  "delivered_course": null,
+  "current_preparation_id": "prep_8ea9fa9b97984beea2469d25c514f850",
+  "current_status": {
+    "preparation_id": "prep_8ea9fa9b97984beea2469d25c514f850",
+    "attempt_no": 3,
+    "status": "failed",
+    "stage": "review",
+    "revision": 173,
+    "error_code": "CONTEXT_BUDGET_EXCEEDED",
+    "result_ref": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 46,
+        "tokens": 697010,
+        "cost_micro_usd": 7020100
+      },
+      "deadline": "2026-10-13T17:11:14.915713+00:00"
+    }
+  },
+  "generated_candidate": {
+    "scenes": 7,
+    "speech_actions": 43,
+    "images": 1,
+    "image_bytes": 400906,
+    "image_model": "qwen-image-3.0",
+    "report": "reviewed private draft",
+    "quiz": "reviewed private draft",
+    "classroom": "persisted private review candidate; not approved",
+    "standalone_interaction": {
+      "scope": "standalone generated candidate; not delivered classroom",
+      "sequence_and_controls_passed": true,
+      "issue": "空栈禁用出栈按钮，预设却提示点击查看下溢，无法按提示触发该反馈。",
+      "steps": [
+        {
+          "op": "push",
+          "value": 3,
+          "stack": "[3]",
+          "top": "3",
+          "lastPop": "—",
+          "message": "push(3)：top 先加 1 再写入，元素 3 放到栈顶。当前栈 [3]，栈顶元素 3，top = 0。"
+        },
+        {
+          "op": "push",
+          "value": 7,
+          "stack": "[3, 7]",
+          "top": "7",
+          "lastPop": "—",
+          "message": "push(7)：top 先加 1 再写入，元素 7 放到栈顶。当前栈 [3, 7]，栈顶元素 7，top = 1。"
+        },
+        {
+          "op": "pop",
+          "value": null,
+          "stack": "[3]",
+          "top": "3",
+          "lastPop": "7",
+          "message": "pop()：先取出栈顶元素再让 top 减 1，返回值为 7。当前栈 [3]，栈顶元素 3，top = 0。"
+        },
+        {
+          "op": "push",
+          "value": 5,
+          "stack": "[3, 5]",
+          "top": "5",
+          "lastPop": "7",
+          "message": "push(5)：top 先加 1 再写入，元素 5 放到栈顶。当前栈 [3, 5]，栈顶元素 5，top = 1。"
+        },
+        {
+          "op": "pop",
+          "value": null,
+          "stack": "[3]",
+          "top": "3",
+          "lastPop": "5",
+          "message": "pop()：先取出栈顶元素再让 top 减 1，返回值为 5。当前栈 [3]，栈顶元素 3，top = 0。"
+        },
+        {
+          "op": "pop",
+          "value": null,
+          "stack": "[]",
+          "top": "无（栈为空）",
+          "lastPop": "3",
+          "message": "pop()：先取出栈顶元素再让 top 减 1，返回值为 3。当前栈 []，栈已空，top = -1。"
+        }
+      ],
+      "empty": {
+        "stack": "[]",
+        "top": "无（栈为空）",
+        "lastPop": "3",
+        "message": "pop()：先取出栈顶元素再让 top 减 1，返回值为 3。当前栈 []，栈已空，top = -1。",
+        "popDisabled": true,
+        "underflowFeedbackReachable": false
+      },
+      "errors": []
+    }
+  },
+  "blocker": {
+    "code": "CONTEXT_BUDGET_EXCEEDED",
+    "phase": "resource_review",
+    "input_byte_upper_bound": 202288,
+    "context_limit": 128000,
+    "requested_output_tokens": 32768,
+    "required_next_fix": "Bound the complete classroom review using batches while preserving per-scene/per-speech and cross-scene checks; add typed checkpoint recovery for review context errors."
+  }
+}

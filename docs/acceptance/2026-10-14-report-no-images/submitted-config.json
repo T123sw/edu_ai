@@ -1,0 +1,11 @@
+{
+  "question": "Agent 基础概念",
+  "report_config": {
+    "template": "detailed",
+    "audience": "自主学习者",
+    "depth": "standard",
+    "structure_emphasis": "结论、依据与可执行建议",
+    "special_requirements": "",
+    "include_visuals": false
+  }
+}

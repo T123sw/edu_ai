@@ -1,0 +1,660 @@
+{
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 2,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"s1\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s1",
+        "dataAttributes": {},
+        "sourceFile": "/tmp/edu-hyperframes-j1r_x6jk/index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"s1\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"s2\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s2",
+        "dataAttributes": {},
+        "sourceFile": "/tmp/edu-hyperframes-j1r_x6jk/index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"s2\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      }
+    ],
+    "filesScanned": 1
+  },
+  "check": {
+    "ok": true,
+    "strict": false,
+    "browserSkipped": false,
+    "lint": {
+      "ok": true,
+      "errorCount": 0,
+      "warningCount": 2,
+      "infoCount": 0,
+      "findings": [
+        {
+          "code": "nested_structure_needs_subcomposition",
+          "severity": "warning",
+          "message": "<section id=\"s1\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s1",
+          "dataAttributes": {},
+          "sourceFile": "/tmp/edu-hyperframes-j1r_x6jk/index.html",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "time": 0,
+          "fixHint": "Move <section id=\"s1\"> and its contents into a sub-composition file and mount it with data-composition-src."
+        },
+        {
+          "code": "nested_structure_needs_subcomposition",
+          "severity": "warning",
+          "message": "<section id=\"s2\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s2",
+          "dataAttributes": {},
+          "sourceFile": "/tmp/edu-hyperframes-j1r_x6jk/index.html",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "time": 0,
+          "fixHint": "Move <section id=\"s2\"> and its contents into a sub-composition file and mount it with data-composition-src."
+        }
+      ],
+      "filesScanned": 1
+    },
+    "runtime": {
+      "ok": true,
+      "errorCount": 0,
+      "warningCount": 0,
+      "infoCount": 0,
+      "findings": []
+    },
+    "layout": {
+      "ok": true,
+      "errorCount": 0,
+      "warningCount": 5,
+      "infoCount": 0,
+      "findings": [
+        {
+          "code": "panel_out_of_canvas",
+          "severity": "warning",
+          "time": 2.712,
+          "selector": "div.glow.g1",
+          "message": "Painted panel extends outside the composition canvas.",
+          "rect": {
+            "left": -180,
+            "top": -220,
+            "right": 440,
+            "bottom": 400,
+            "width": 620,
+            "height": 620
+          },
+          "containerSelector": "#root",
+          "text": "",
+          "fixHint": "Move the panel inward, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+          "containerRect": {
+            "left": 0,
+            "top": 0,
+            "right": 1920,
+            "bottom": 1080,
+            "width": 1920,
+            "height": 1080
+          },
+          "overflow": {
+            "left": 180,
+            "top": 220
+          },
+          "dataAttributes": {},
+          "sourceFile": "index.html",
+          "bbox": {
+            "x": -180,
+            "y": -220,
+            "width": 620,
+            "height": 620
+          },
+          "firstSeen": 2.712,
+          "lastSeen": 18.984,
+          "occurrences": 4,
+          "heldMs": 0,
+          "times": [
+            2.712,
+            8.136,
+            13.56,
+            18.984
+          ]
+        },
+        {
+          "code": "panel_out_of_canvas",
+          "severity": "warning",
+          "time": 2.712,
+          "selector": "div.glow.g2",
+          "message": "Painted panel extends outside the composition canvas.",
+          "rect": {
+            "left": 1560,
+            "top": 760,
+            "right": 2080,
+            "bottom": 1280,
+            "width": 520,
+            "height": 520
+          },
+          "containerSelector": "#root",
+          "text": "",
+          "fixHint": "Move the panel inward, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+          "containerRect": {
+            "left": 0,
+            "top": 0,
+            "right": 1920,
+            "bottom": 1080,
+            "width": 1920,
+            "height": 1080
+          },
+          "overflow": {
+            "right": 160,
+            "bottom": 200
+          },
+          "dataAttributes": {},
+          "sourceFile": "index.html",
+          "bbox": {
+            "x": 1560,
+            "y": 760,
+            "width": 520,
+            "height": 520
+          },
+          "firstSeen": 2.712,
+          "lastSeen": 18.984,
+          "occurrences": 4,
+          "heldMs": 0,
+          "times": [
+            2.712,
+            8.136,
+            13.56,
+            18.984
+          ]
+        },
+        {
+          "code": "escaped_container",
+          "severity": "warning",
+          "time": 24.408,
+          "selector": "#threshold-tag",
+          "message": "Positioned element renders far outside its offset parent — its coordinates were likely computed in a different frame (canvas/viewport pixels).",
+          "rect": {
+            "left": 510,
+            "top": 616.66,
+            "right": 707.38,
+            "bottom": 662.66,
+            "width": 197.38,
+            "height": 46
+          },
+          "containerSelector": "#threshold-line",
+          "text": "启动阈值 30°C",
+          "fixHint": "Compute left/top in the offset parent's frame (subtract its rect), or mark intentional placement with data-layout-allow-overflow.",
+          "containerRect": {
+            "left": 210,
+            "top": 423.33,
+            "right": 630,
+            "bottom": 426.33,
+            "width": 420,
+            "height": 3
+          },
+          "dataAttributes": {},
+          "sourceFile": "index.html",
+          "bbox": {
+            "x": 510,
+            "y": 616.66,
+            "width": 197.38,
+            "height": 46
+          },
+          "firstSeen": 24.408,
+          "lastSeen": 46.104,
+          "occurrences": 5,
+          "heldMs": 0,
+          "times": [
+            24.408,
+            29.832,
+            35.256,
+            40.68,
+            46.104
+          ]
+        },
+        {
+          "code": "panel_out_of_canvas",
+          "severity": "warning",
+          "time": 24.408,
+          "selector": "div.glow.g3",
+          "message": "Painted panel extends outside the composition canvas.",
+          "rect": {
+            "left": -200,
+            "top": 680,
+            "right": 440,
+            "bottom": 1320,
+            "width": 640,
+            "height": 640
+          },
+          "containerSelector": "#root",
+          "text": "",
+          "fixHint": "Move the panel inward, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+          "containerRect": {
+            "left": 0,
+            "top": 0,
+            "right": 1920,
+            "bottom": 1080,
+            "width": 1920,
+            "height": 1080
+          },
+          "overflow": {
+            "left": 200,
+            "bottom": 240
+          },
+          "dataAttributes": {},
+          "sourceFile": "index.html",
+          "bbox": {
+            "x": -200,
+            "y": 680,
+            "width": 640,
+            "height": 640
+          },
+          "firstSeen": 24.408,
+          "lastSeen": 46.104,
+          "occurrences": 5,
+          "heldMs": 0,
+          "times": [
+            24.408,
+            29.832,
+            35.256,
+            40.68,
+            46.104
+          ]
+        },
+        {
+          "code": "panel_out_of_canvas",
+          "severity": "warning",
+          "time": 24.408,
+          "selector": "div.glow.g4",
+          "message": "Painted panel extends outside the composition canvas.",
+          "rect": {
+            "left": 1540,
+            "top": -200,
+            "right": 2100,
+            "bottom": 360,
+            "width": 560,
+            "height": 560
+          },
+          "containerSelector": "#root",
+          "text": "",
+          "fixHint": "Move the panel inward, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+          "containerRect": {
+            "left": 0,
+            "top": 0,
+            "right": 1920,
+            "bottom": 1080,
+            "width": 1920,
+            "height": 1080
+          },
+          "overflow": {
+            "right": 180,
+            "top": 200
+          },
+          "dataAttributes": {},
+          "sourceFile": "index.html",
+          "bbox": {
+            "x": 1540,
+            "y": -200,
+            "width": 560,
+            "height": 560
+          },
+          "firstSeen": 24.408,
+          "lastSeen": 46.104,
+          "occurrences": 5,
+          "heldMs": 0,
+          "times": [
+            24.408,
+            29.832,
+            35.256,
+            40.68,
+            46.104
+          ]
+        }
+      ],
+      "duration": 48.816,
+      "samples": [
+        2.712,
+        8.136,
+        13.56,
+        18.984,
+        24.408,
+        29.832,
+        35.256,
+        40.68,
+        46.104
+      ],
+      "transitionSamples": [],
+      "transitionSamplesDropped": 0,
+      "tolerance": 2,
+      "totalIssueCount": 5,
+      "truncated": false
+    },
+    "motion": {
+      "ok": true,
+      "errorCount": 0,
+      "warningCount": 0,
+      "infoCount": 0,
+      "findings": [],
+      "enabled": true,
+      "specPath": "/tmp/edu-hyperframes-j1r_x6jk/index.motion.json",
+      "samples": 300
+    },
+    "contrast": {
+      "ok": true,
+      "errorCount": 0,
+      "warningCount": 0,
+      "infoCount": 0,
+      "findings": [],
+      "enabled": true,
+      "samples": [
+        2.712,
+        13.56,
+        24.408,
+        35.256,
+        46.104
+      ],
+      "checked": 80,
+      "passed": 80
+    },
+    "hdr": {
+      "autoPromotion": null,
+      "inspection": "available"
+    },
+    "snapshots": {
+      "enabled": false,
+      "files": [],
+      "times": [],
+      "findingFiles": []
+    },
+    "saved": {
+      "id": "4b811dcc-0ce2-472f-a93f-3345337e8437",
+      "revision": null,
+      "report": "/tmp/edu-hyperframes-j1r_x6jk/.hyperframes/artifacts/checks/4b811dcc-0ce2-472f-a93f-3345337e8437.json",
+      "attribution": "unversioned"
+    },
+    "_meta": {
+      "version": "0.8.168",
+      "updateAvailable": false
+    }
+  },
+  "passed": true,
+  "policy": "playback-first",
+  "issues": [
+    {
+      "code": "panel_out_of_canvas",
+      "severity": "warning",
+      "time": 2.712,
+      "selector": "div.glow.g1",
+      "message": "Painted panel extends outside the composition canvas.",
+      "rect": {
+        "left": -180,
+        "top": -220,
+        "right": 440,
+        "bottom": 400,
+        "width": 620,
+        "height": 620
+      },
+      "containerSelector": "#root",
+      "text": "",
+      "fixHint": "Move the panel inward, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+      "containerRect": {
+        "left": 0,
+        "top": 0,
+        "right": 1920,
+        "bottom": 1080,
+        "width": 1920,
+        "height": 1080
+      },
+      "overflow": {
+        "left": 180,
+        "top": 220
+      },
+      "dataAttributes": {},
+      "sourceFile": "index.html",
+      "bbox": {
+        "x": -180,
+        "y": -220,
+        "width": 620,
+        "height": 620
+      },
+      "firstSeen": 2.712,
+      "lastSeen": 18.984,
+      "occurrences": 4,
+      "heldMs": 0,
+      "times": [
+        2.712,
+        8.136,
+        13.56,
+        18.984
+      ],
+      "section": "layout",
+      "blocking": false
+    },
+    {
+      "code": "panel_out_of_canvas",
+      "severity": "warning",
+      "time": 2.712,
+      "selector": "div.glow.g2",
+      "message": "Painted panel extends outside the composition canvas.",
+      "rect": {
+        "left": 1560,
+        "top": 760,
+        "right": 2080,
+        "bottom": 1280,
+        "width": 520,
+        "height": 520
+      },
+      "containerSelector": "#root",
+      "text": "",
+      "fixHint": "Move the panel inward, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+      "containerRect": {
+        "left": 0,
+        "top": 0,
+        "right": 1920,
+        "bottom": 1080,
+        "width": 1920,
+        "height": 1080
+      },
+      "overflow": {
+        "right": 160,
+        "bottom": 200
+      },
+      "dataAttributes": {},
+      "sourceFile": "index.html",
+      "bbox": {
+        "x": 1560,
+        "y": 760,
+        "width": 520,
+        "height": 520
+      },
+      "firstSeen": 2.712,
+      "lastSeen": 18.984,
+      "occurrences": 4,
+      "heldMs": 0,
+      "times": [
+        2.712,
+        8.136,
+        13.56,
+        18.984
+      ],
+      "section": "layout",
+      "blocking": false
+    },
+    {
+      "code": "escaped_container",
+      "severity": "warning",
+      "time": 24.408,
+      "selector": "#threshold-tag",
+      "message": "Positioned element renders far outside its offset parent — its coordinates were likely computed in a different frame (canvas/viewport pixels).",
+      "rect": {
+        "left": 510,
+        "top": 616.66,
+        "right": 707.38,
+        "bottom": 662.66,
+        "width": 197.38,
+        "height": 46
+      },
+      "containerSelector": "#threshold-line",
+      "text": "启动阈值 30°C",
+      "fixHint": "Compute left/top in the offset parent's frame (subtract its rect), or mark intentional placement with data-layout-allow-overflow.",
+      "containerRect": {
+        "left": 210,
+        "top": 423.33,
+        "right": 630,
+        "bottom": 426.33,
+        "width": 420,
+        "height": 3
+      },
+      "dataAttributes": {},
+      "sourceFile": "index.html",
+      "bbox": {
+        "x": 510,
+        "y": 616.66,
+        "width": 197.38,
+        "height": 46
+      },
+      "firstSeen": 24.408,
+      "lastSeen": 46.104,
+      "occurrences": 5,
+      "heldMs": 0,
+      "times": [
+        24.408,
+        29.832,
+        35.256,
+        40.68,
+        46.104
+      ],
+      "section": "layout",
+      "blocking": false
+    },
+    {
+      "code": "panel_out_of_canvas",
+      "severity": "warning",
+      "time": 24.408,
+      "selector": "div.glow.g3",
+      "message": "Painted panel extends outside the composition canvas.",
+      "rect": {
+        "left": -200,
+        "top": 680,
+        "right": 440,
+        "bottom": 1320,
+        "width": 640,
+        "height": 640
+      },
+      "containerSelector": "#root",
+      "text": "",
+      "fixHint": "Move the panel inward, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+      "containerRect": {
+        "left": 0,
+        "top": 0,
+        "right": 1920,
+        "bottom": 1080,
+        "width": 1920,
+        "height": 1080
+      },
+      "overflow": {
+        "left": 200,
+        "bottom": 240
+      },
+      "dataAttributes": {},
+      "sourceFile": "index.html",
+      "bbox": {
+        "x": -200,
+        "y": 680,
+        "width": 640,
+        "height": 640
+      },
+      "firstSeen": 24.408,
+      "lastSeen": 46.104,
+      "occurrences": 5,
+      "heldMs": 0,
+      "times": [
+        24.408,
+        29.832,
+        35.256,
+        40.68,
+        46.104
+      ],
+      "section": "layout",
+      "blocking": false
+    },
+    {
+      "code": "panel_out_of_canvas",
+      "severity": "warning",
+      "time": 24.408,
+      "selector": "div.glow.g4",
+      "message": "Painted panel extends outside the composition canvas.",
+      "rect": {
+        "left": 1540,
+        "top": -200,
+        "right": 2100,
+        "bottom": 360,
+        "width": 560,
+        "height": 560
+      },
+      "containerSelector": "#root",
+      "text": "",
+      "fixHint": "Move the panel inward, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+      "containerRect": {
+        "left": 0,
+        "top": 0,
+        "right": 1920,
+        "bottom": 1080,
+        "width": 1920,
+        "height": 1080
+      },
+      "overflow": {
+        "right": 180,
+        "top": 200
+      },
+      "dataAttributes": {},
+      "sourceFile": "index.html",
+      "bbox": {
+        "x": 1540,
+        "y": -200,
+        "width": 560,
+        "height": 560
+      },
+      "firstSeen": 24.408,
+      "lastSeen": 46.104,
+      "occurrences": 5,
+      "heldMs": 0,
+      "times": [
+        24.408,
+        29.832,
+        35.256,
+        40.68,
+        46.104
+      ],
+      "section": "layout",
+      "blocking": false
+    }
+  ]
+}

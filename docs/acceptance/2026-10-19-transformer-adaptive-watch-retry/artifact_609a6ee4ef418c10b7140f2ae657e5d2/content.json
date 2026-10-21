@@ -1,0 +1,1169 @@
+{
+  "_failure_detail": {
+    "code": "RESOURCE_CONTENT_REJECTED",
+    "phase": "resource_review",
+    "message": "q5-hand-compute 解析对干扰项 A 的错误来源说明不成立：把缩放后分数 [1.4142,0,0] 当作 [1,0,0] 做线性归一化应得 [1,0,0]，而非 [0.5,0.25,0.25]；随后“把 [2,0,0] 先除以 4 再给零项各分 0.25”的说法也无法由任何标准算式推出，属于凑数解释。; q5-hand-compute 解析对干扰项 B 的说明不成立：softmax([2.8,0,0])≈[0.90,0.05,0.05]，与 [0.88,0.06,0.06] 不符，因此“相当于把缩放后分数放大到约 [2.8,0,0] 再 softmax”的归因错误；应改为给出能真正产生 [0.88,0.06,0.06] 的算式（如对 [3,0,0] 做 softmax 得 [0.91,0.045,0.045]，或直接说明该数值不对应任何标准步骤）。; q5 解析第 2 段称 A 项 [0.5,0.25,0.25] 来自“把 [1.4142,0,0] 当作 [1,0,0] 做线性归一化”，但线性归一化 [1,0,0] 应得 [1,0,0]，与 [0.5,0.25,0.25] 不符；第 5 段称 [0.88,0.06,0.06] 相当于把分数放大到约 [2.8,0,0] 再 softmax，实际 softmax([2.8,0,0])≈[0.90,0.05,0.05]，也不成立。其余题目（q1–q4、q6、q7）的公式、方差推导与数值均正确。; 第 5 题：数值不符：再按行 softmax：e^1.4142≈4.1133，e^0=1，分母为 4.1133+1+1=6.1133，于是权重约为 [4.1133/6.1133, 1/6.1133, 1/6.1133]≈[0.673, 0.164, 0.164]，三者之和为 1，与 D 的 [0.67, 0.16, 0.16] 一致。；exp(1.4142) = 4.113194593724947，原文声称 4.1133; 第 5 题：数值不符：[0.88, 0.06, 0.06] 相当于把缩放后分数放大到约 [2.8, 0, 0] 再 softmax，属于多除了一次或漏除的错误。；softmax([2.8,0,0]) = [0.8915674545129257, 0.054216272743537186, 0.054216272743537186]，原文声称 [0.88, 0.06, 0.06]; 第 5 题：第 1 行 [2,0,0] 除以 √2≈1.41421 得 [1.41421,0,0]；softmax：e^1.41421≈4.11325，分母 4.11325+1+1=6.11325，得 [0.6730,0.1635,0.1635]，约 [0.67,0.16,0.16]，即 D。; 第 5 题选项 1 的解析：解析第 2 段称把 [1.4142,0,0] 当作 [1,0,0] 做线性归一化会得 [0.5,0.25,0.25]，但线性归一化 [1,0,0] 应得 [1,0,0]，该归因不成立；第 3 段“先除以 4 再给零项各分 0.25”也无法由任何算式推出，属凑数解释。; 第 5 题选项 2 的解析：第 4 段“跳过缩放得 [0.787,0.107,0.107]”计算正确；但第 5 段称 [0.88,0.06,0.06] 相当于对约 [2.8,0,0] 做 softmax，实际 softmax([2.8,0,0])≈[0.90,0.05,0.05]，归因错误。",
+    "category": "content",
+    "artifact_id": null,
+    "retry_scope": "content",
+    "budget_metric": null,
+    "content_digest": "61aa619f1fc3f24a76a19cfacfcf78b41f52bf4f8b40f766e5bd7c63ee2101b3"
+  },
+  "_review_candidate": {
+    "content": {
+      "title": "自注意力：QKV 与缩放点积的计算过程（练习）",
+      "questions": [
+        {
+          "id": "q1-qkv-roles",
+          "stem": "在自注意力中，对句子 \"The cat sat because it was tired\" 里的单词 \"it\" 而言，下列哪一项最准确地描述了 Q、K、V 三者的分工？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "Q 是 \"it\" 发出的“我在找什么”的查询，K 是各位置提供的“我是什么内容”的标签，V 是被选中位置实际被取走的信息向量",
+            "Q 是 \"it\" 最终输出的结果向量，K 是 \"it\" 的输入词向量，V 是位置编码向量",
+            "Q、K、V 都是对同一个输入向量做同一种线性变换得到的，因此三者数值完全相同",
+            "Q 表示其他 token 提供的内容标签，K 表示当前 token 在找什么，V 是注意力权重矩阵"
+          ],
+          "difficulty": "easy",
+          "explanation": "A 正确：QKV 的命名来自信息检索系统，Q（query）表示当前 token 在“问什么”，例如 \"it\" 的查询在寻找先行词（如 \"cat\"）；K（key）表示其他 token 提供的“内容标签”，\"cat\" 的键表明它是先行词的候选；V（value）是若该位置被选中后实际取走的信息向量。B 错误：Q 不是输出结果，输出是 softmax 权重对 V 加权求和得到的；K 也不是原始输入词向量，而是输入经 W_K 线性投影后的向量；V 更不是位置编码，位置编码是加到输入嵌入上的固定向量，与 V 无关。C 错误：Q、K、V 由三个不同的参数矩阵 W_Q、W_K、W_V 分别投影得到，参数不同，数值一般不同。D 错误：把 Q 与 K 的角色说反了，且 V 不是注意力权重矩阵——权重矩阵是 softmax(QK^T/√d_k) 的结果，V 是被加权求和的对象。"
+        },
+        {
+          "id": "q2-step-order",
+          "stem": "下列哪一项正确给出了缩放点积自注意力的计算顺序？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "先对 QK^T 做 softmax，再除以 √d_k，最后乘以 V",
+            "线性投影得 Q、K、V → 计算 QK^T → 除以 √d_k → 在 key 维上做 softmax → 用权重对 V 加权求和",
+            "线性投影得 Q、K、V → 计算 QK^T → 在 key 维上做 softmax → 除以 √d_k → 用权重对 V 加权求和",
+            "先计算 VK^T 得到权重，再与 Q 相乘，最后除以 √d_k"
+          ],
+          "difficulty": "medium",
+          "explanation": "B 正确：完整公式为 Attention(Q,K,V)=softmax(QK^T/√d_k)V，顺序是投影→打分→缩放→归一化→加权求和。A 错误：缩放必须在 softmax 之前，因为缩放的目的正是控制进入 softmax 的数值幅度；若先 softmax 再除以 √d_k，权重之和就不再是 1，不再是概率分布。C 错误：把 softmax 与缩放的位置颠倒了，同样破坏了“先缩放再归一化”的作用。D 错误：打分用的是查询与键的点积 QK^T，而不是 VK^T；V 只在最后被加权求和时使用。"
+        },
+        {
+          "id": "q3-softmax-dim",
+          "stem": "设序列长度 n=3、键维度 d_k=2，打分矩阵 S=QK^T 是一个 3×3 矩阵。关于 softmax 的作用维度，下列说法正确的是：",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "沿 key 维（每一行）归一化，即每一行 3 个权重之和为 1，表示某个位置对所有位置的注意力分布",
+            "沿 query 维（每一列）归一化，即每一列 3 个权重之和为 1",
+            "对整个 3×3 矩阵的所有 9 个元素一起归一化，使总和为 1",
+            "不需要归一化，直接对 S 的每一行取最大值作为权重"
+          ],
+          "difficulty": "medium",
+          "explanation": "A 正确：softmax 作用在最后一维（key 维），S 的第 i 行对应“位置 i 对所有位置 j 的注意力分布”，因此每行之和为 1。B 错误：按列归一化会让每个被关注位置 j 收到的权重之和为 1，这对应的是“每个 key 被分配的总权重”，不是某个 query 的注意力分布，与公式 softmax(QK^T/√d_k)V 的语义不符。C 错误：对全部 9 个元素一起归一化会使整个矩阵和为 1，单行之和远小于 1，加权求和 V 时输出会被整体缩小，且不再是每个位置各自的分布。D 错误：取最大值（argmax）会得到 one-hot 权重，丢失了“按相似度软加权”的信息，也不是 softmax。"
+        },
+        {
+          "id": "q4-scale-reason",
+          "stem": "关于缩放点积注意力中除以 √d_k 的原因，下列哪一项最准确？",
+          "type": "single_choice",
+          "answer": "C",
+          "options": [
+            "为了让注意力权重矩阵的行和恰好等于 √d_k，便于后续计算",
+            "为了减少参数量，因为除以 √d_k 相当于删掉了一部分投影矩阵",
+            "若 q、k 各分量独立、零均值、方差为 1，则点积 q^T k 的方差随 d_k 线性增长、幅度约为 √d_k；不缩放会使 softmax 输入过大而接近 one-hot、梯度极小，缩放后使 softmax 输入回到 O(1) 量级",
+            "因为 √d_k 是序列长度 n 的近似值，除以它可以抵消序列长度带来的影响"
+          ],
+          "difficulty": "medium",
+          "explanation": "C 正确：q^T k = Σ q_r k_r，在分量独立、零均值、方差为 1 的假设下，每一项方差为 1，d_k 项相加后方差为 d_k，标准差为 √d_k；除以 √d_k 使打分回到 O(1) 波动，避免 softmax 饱和到近似 one-hot 导致梯度消失。A 错误：softmax 之后每行之和恒为 1，与 √d_k 无关；缩放发生在 softmax 之前，不改变行和为 1 的性质。B 错误：缩放是数值操作，不涉及任何参数，参数量由 W_Q、W_K、W_V 等矩阵决定。D 错误：缩放因子由键维度 d_k 决定，与序列长度 n 无关；序列长度影响的是打分矩阵的尺寸 n×n，而不是缩放系数。"
+        },
+        {
+          "id": "q5-hand-compute",
+          "stem": "取 n=3、d_k=2，已算得打分矩阵 S=QK^T 为：第 1 行 [2, 0, 0]，第 2 行 [0, 2, 0]，第 3 行 [0, 0, 2]。按缩放点积注意力（除以 √d_k 后按行 softmax），第 1 行的注意力权重约为多少？",
+          "type": "single_choice",
+          "answer": "D",
+          "options": [
+            "[0.5, 0.25, 0.25]",
+            "[0.88, 0.06, 0.06]",
+            "[0.33, 0.33, 0.33]",
+            "[0.67, 0.16, 0.16]"
+          ],
+          "difficulty": "hard",
+          "explanation": "先缩放：√d_k=√2≈1.4142，第 1 行变为 [2/1.4142, 0, 0]≈[1.4142, 0, 0]。再按行 softmax：e^1.4142≈4.1133，e^0=1，分母为 4.1133+1+1=6.1133，于是权重约为 [4.1133/6.1133, 1/6.1133, 1/6.1133]≈[0.673, 0.164, 0.164]，三者之和为 1，与 D 的 [0.67, 0.16, 0.16] 一致。A 错误：把缩放后分数 [1.4142, 0, 0] 当作 [1, 0, 0] 再按“分数除以总和”做线性归一化，会得到 [1, 0, 0] 而不是 [0.5, 0.25, 0.25]；[0.5, 0.25, 0.25] 对应的是把 [2, 0, 0] 先除以 4 再给零项各分 0.25 的凑数做法，既不是 softmax 也不是正确的线性归一化。B 错误：若跳过缩放直接对 [2, 0, 0] 做 softmax，e^2≈7.389，分母 7.389+1+1=9.389，得 [0.787, 0.107, 0.107]，与 [0.88, 0.06, 0.06] 不符；[0.88, 0.06, 0.06] 相当于把缩放后分数放大到约 [2.8, 0, 0] 再 softmax，属于多除了一次或漏除的错误。C 错误：[0.33, 0.33, 0.33] 是打分三项全相等时的均匀分布，本题第 1 行是 [2, 0, 0]，三项不相等，不可能得到均匀权重。"
+        },
+        {
+          "id": "q6-true-false",
+          "stem": "判断：在缩放点积注意力中，softmax 是在 key 维（打分矩阵的每一行）上归一化，因此每一行权重之和为 1；而除以 √d_k 是为了让点积的数值幅度不随键维度 d_k 增大而失控。",
+          "type": "true_false",
+          "answer": "正确",
+          "difficulty": "easy",
+          "explanation": "两句话都成立。softmax 对最后一维（key 维）做，打分矩阵 A=softmax(QK^T/√d_k) 的第 i 行是位置 i 对所有位置的注意力分布，行和为 1。缩放因子 √d_k 的作用是抵消点积幅度随 d_k 增长（约 √d_k 量级）的问题，使 softmax 输入保持在 O(1) 量级，避免饱和到近似 one-hot 而梯度消失。"
+        },
+        {
+          "id": "q7-short-derive",
+          "stem": "请写出缩放点积自注意力的完整公式，并简要说明：(1) softmax 沿哪一维做；(2) 若 q、k 各分量独立、零均值、方差为 1，为什么点积的幅度约为 √d_k，以及不缩放会带来什么问题。",
+          "type": "short_answer",
+          "answer": "公式：Attention(Q,K,V)=softmax(QK^T/√d_k)V。(1) softmax 沿 key 维（最后一维，即打分矩阵的每一行）做，每一行对应一个位置对所有位置的注意力分布，行和为 1。(2) q^T k=Σ_{r=1}^{d_k} q_r k_r，在分量独立、零均值、方差为 1 的假设下每一项方差为 1，d_k 项相加后方差为 d_k，标准差为 √d_k，故点积幅度约为 √d_k 量级；除以 √d_k 后方差回到 O(1)。若不缩放，d_k 较大时 softmax 输入过大，输出接近 one-hot，梯度极小（饱和），训练难以进行。",
+          "difficulty": "medium",
+          "explanation": "评分要点：公式中缩放位置在 softmax 之前、V 在最后相乘；指出 softmax 沿 key 维/按行；给出方差相加得 d_k、标准差 √d_k 的推理；指出不缩放导致 softmax 饱和、梯度消失。只写公式不解释维度或缩放原因，只能得部分分。"
+        }
+      ]
+    },
+    "artifact_id": "artifact_609a6ee4ef418c10b7140f2ae657e5d2",
+    "resource_id": "resource_609a6ee4ef418c10b7140f2ae657e5d2",
+    "spec_digest": "47af782e6c123ae4e7a315a1a808d958769c7df69fbea9f649013911351182dd",
+    "review_state": {
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本资源为 n2 节点习题，7 题分别覆盖 QKV 角色（q1）、计算顺序（q2）、softmax 维度（q3）、√d_k 缩放原因（q4）、手算缩放 softmax（q5）、判断题（q6）、简答推导（q7），真实支持 req-transformer-basics 中“自注意力”这一机制，未越界到其他节点。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": false,
+                "reason": "q5 的正确答案标为 B（[0.88,0.06,0.06]），但按题干 S 第 1 行 [2,0,0]、d_k=2 计算，缩放后为 [1.414,0,0]，softmax 得 [0.673,0.164,0.164]，与 B 不符；解析自身也承认 B 对应“不缩放直接 softmax”且数值为 [0.787,0.107,0.107]，与 0.88 不符，却仍判 B 为答案，答案与解析自相矛盾。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": false,
+                "reason": "q5 是唯一的数值实例题，其选项与解析中的数值断言多处不成立：解析称 D 的 [0.67,0.17,0.17] 是“线性归一化 1.414/2.414≈0.586”的结果，但 0.586 与 0.67 不符，且 D 实际更接近正确 softmax 值 [0.673,0.164,0.164]；解析末句“正确结果约为 [0.67,0.16,0.16]，与 B 最接近”与 B=[0.88,0.06,0.06] 明显不符。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序由概念（QKV 角色）→流程（计算顺序）→维度（softmax 行归一化）→动机（缩放原因）→手算→判断→简答推导，符合节点活动“阅读直觉→动手推演→口头推导”的顺序，难度标注 easy/medium/hard 与题目认知负荷基本一致。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "QKV 检索式直觉（it 指代 cat）、按行 softmax、方差随 d_k 线性增长与 √d_k 缩放动机均与 research_context 中 CS336 笔记与 theaiedge 原文一致，未出现无依据的外部断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "7 题覆盖三个节点目标：o1 由 q1 检查，o2 由 q2/q5/q7 检查，o3 由 q3/q4/q6/q7 检查；题型含单选、判断、简答，语言为中文，深度为入门，符合 resource_contract 字段要求。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q5 修正后建议把正确选项放在非 B 位置，并同步调整解析中“与 B 最接近”的表述，避免答案位置规律。",
+              "q5 解析可补充说明 D 的 [0.67,0.17,0.17] 是 [0.673,0.164,0.164] 保留两位小数的结果，使干扰项来源可解释。",
+              "q2 选项 A 与 C 都涉及缩放与 softmax 顺序颠倒，可考虑让其中一个改为“先乘 V 再 softmax”等不同误区，减少重复考点。"
+            ],
+            "blocking_issues": [
+              "q5-hand-compute 答案错误：题干 S 第 1 行 [2,0,0]、d_k=2，缩放后 [1.414,0,0]，按行 softmax 得 [0.673,0.164,0.164]，正确选项应为 D（[0.67,0.17,0.17]），而非标注的 B（[0.88,0.06,0.06]）。",
+              "q5 解析自相矛盾：解析第 2 段已算出 B 对应不缩放 softmax 得 [0.787,0.107,0.107] 且“与 0.88 也不符”，第 6 段却称“正确结果约为 [0.67,0.16,0.16]，与 B 最接近”，结论与计算冲突。",
+              "q5 解析对 D 的批评不成立：解析称 D 是“把 [1.414,0,0] 直接线性归一化（1.414/2.414≈0.586）”的结果，但 0.586 与 0.67 不符，且 D 实际就是正确的 softmax 结果，该干扰项解析属于错误批评。",
+              "q5 解析对 A 的说明含糊：称“若把缩放后分数当作 [1,0,0] 再线性归一化才会得到 [0.5,0.25,0.25]”，但 [1,0,0] 线性归一化应为 [1,0,0]，无法得到 [0.5,0.25,0.25]，该错误算式不可复现。"
+            ],
+            "question_checks": [
+              {
+                "question_id": "q1-qkv-roles",
+                "option_checks": [
+                  {
+                    "reasoning": "准确描述 Q 为查询、K 为内容标签、V 为被取走的信息向量，与 QKV 检索式直觉一致。",
+                    "option_text": "Q 是 \"it\" 发出的“我在找什么”的查询，K 是各位置提供的“我是什么内容”的标签，V 是被选中位置实际被取走的信息向量",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：QKV 的命名来自信息检索系统，Q（query）表示当前 token 在“问什么”，例如 \"it\" 的查询在寻找先行词（如 \"cat\"）；K（key）表示其他 token 提供的“内容标签”，\"cat\" 的键表明它是先行词的候选；V（value）是若该位置被选中后实际取走的信息向量。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0-2 段分别说明 Q 在问什么、K 是内容标签、V 是实际取走的信息，与选项 A 表述逐项对应，无错误。"
+                  },
+                  {
+                    "reasoning": "Q 不是输出结果，K 不是原始词向量而是 W_K 投影结果，V 也不是位置编码，三项均错。",
+                    "option_text": "Q 是 \"it\" 最终输出的结果向量，K 是 \"it\" 的输入词向量，V 是位置编码向量",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：Q 不是输出结果，输出是 softmax 权重对 V 加权求和得到的；K 也不是原始输入词向量，而是输入经 W_K 线性投影后的向量；V 更不是位置编码，位置编码是加到输入嵌入上的固定向量，与 V 无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3-5 段分别指出输出是权重对 V 的加权和、K 经 W_K 投影、位置编码是加到嵌入上的固定向量，三条批评均成立。"
+                  },
+                  {
+                    "reasoning": "Q、K、V 由三个不同参数矩阵投影得到，数值一般不同，故错。",
+                    "option_text": "Q、K、V 都是对同一个输入向量做同一种线性变换得到的，因此三者数值完全相同",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：Q、K、V 由三个不同的参数矩阵 W_Q、W_K、W_V 分别投影得到，参数不同，数值一般不同。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 6 段指出 W_Q、W_K、W_V 参数不同，正确否定了“三者数值完全相同”。"
+                  },
+                  {
+                    "reasoning": "该选项把 Q 与 K 的角色互换，并把 V 说成注意力权重矩阵，均错。",
+                    "option_text": "Q 表示其他 token 提供的内容标签，K 表示当前 token 在找什么，V 是注意力权重矩阵",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：把 Q 与 K 的角色说反了，且 V 不是注意力权重矩阵——权重矩阵是 softmax(QK^T/√d_k) 的结果，V 是被加权求和的对象。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 7 段指出角色说反且权重矩阵是 softmax(QK^T/√d_k) 的结果、V 是被加权对象，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Q 是当前 token 的查询（在找什么），K 是各位置提供的内容标签，V 是被选中位置实际取走的信息向量，因此 A 正确；B 把 Q 说成输出、V 说成位置编码，C 说三者相同，D 把 Q/K 角色互换且把 V 说成权重矩阵，均错。"
+              },
+              {
+                "question_id": "q2-step-order",
+                "option_checks": [
+                  {
+                    "reasoning": "先 softmax 再除以 √d_k 会使权重行和不再为 1，且失去缩放控制 softmax 输入幅度的作用，故错。",
+                    "option_text": "先对 QK^T 做 softmax，再除以 √d_k，最后乘以 V",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：缩放必须在 softmax 之前，因为缩放的目的正是控制进入 softmax 的数值幅度；若先 softmax 再除以 √d_k，权重之和就不再是 1，不再是概率分布。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 1-2 段说明缩放须在 softmax 之前、否则行和不为 1，推理成立。"
+                  },
+                  {
+                    "reasoning": "完整复现投影→打分→缩放→按行 softmax→加权求和，与公式一致，正确。",
+                    "option_text": "线性投影得 Q、K、V → 计算 QK^T → 除以 √d_k → 在 key 维上做 softmax → 用权重对 V 加权求和",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：完整公式为 Attention(Q,K,V)=softmax(QK^T/√d_k)V，顺序是投影→打分→缩放→归一化→加权求和。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段给出公式与顺序，与选项 B 完全对应。"
+                  },
+                  {
+                    "reasoning": "把 softmax 放在缩放之前，顺序错误。",
+                    "option_text": "线性投影得 Q、K、V → 计算 QK^T → 在 key 维上做 softmax → 除以 √d_k → 用权重对 V 加权求和",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：把 softmax 与缩放的位置颠倒了，同样破坏了“先缩放再归一化”的作用。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3 段指出 softmax 与缩放位置颠倒，批评成立。"
+                  },
+                  {
+                    "reasoning": "打分应为 QK^T 而非 VK^T，V 只在最后加权求和时使用，故错。",
+                    "option_text": "先计算 VK^T 得到权重，再与 Q 相乘，最后除以 √d_k",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：打分用的是查询与键的点积 QK^T，而不是 VK^T；V 只在最后被加权求和时使用。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4-5 段指出打分用 QK^T、V 仅用于加权求和，准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "缩放点积注意力为 softmax(QK^T/√d_k)V，顺序是投影→QK^T→除以 √d_k→按行 softmax→加权求和 V，故 B 正确；A、C 把缩放与 softmax 顺序颠倒，D 用 VK^T 打分，均错。"
+              },
+              {
+                "question_id": "q3-softmax-dim",
+                "option_checks": [
+                  {
+                    "reasoning": "softmax 作用在 key 维即每行，行和为 1，正确。",
+                    "option_text": "沿 key 维（每一行）归一化，即每一行 3 个权重之和为 1，表示某个位置对所有位置的注意力分布",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：softmax 作用在最后一维（key 维），S 的第 i 行对应“位置 i 对所有位置 j 的注意力分布”，因此每行之和为 1。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段说明 softmax 在最后一维、第 i 行是位置 i 对所有位置的分布，与选项一致。"
+                  },
+                  {
+                    "reasoning": "按列归一化对应每个 key 收到的总权重为 1，不是某个 query 的注意力分布，故错。",
+                    "option_text": "沿 query 维（每一列）归一化，即每一列 3 个权重之和为 1",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：按列归一化会让每个被关注位置 j 收到的权重之和为 1，这对应的是“每个 key 被分配的总权重”，不是某个 query 的注意力分布，与公式 softmax(QK^T/√d_k)V 的语义不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 1 段正确区分列归一化语义与公式 softmax(QK^T/√d_k)V 的语义。"
+                  },
+                  {
+                    "reasoning": "对 9 个元素整体归一化会使单行和远小于 1，输出被整体缩小，故错。",
+                    "option_text": "对整个 3×3 矩阵的所有 9 个元素一起归一化，使总和为 1",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：对全部 9 个元素一起归一化会使整个矩阵和为 1，单行之和远小于 1，加权求和 V 时输出会被整体缩小，且不再是每个位置各自的分布。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段指出整体归一化破坏每位置各自的分布，批评成立。"
+                  },
+                  {
+                    "reasoning": "取最大值得到 one-hot 权重，丢失软加权信息，也不是 softmax，故错。",
+                    "option_text": "不需要归一化，直接对 S 的每一行取最大值作为权重",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：取最大值（argmax）会得到 one-hot 权重，丢失了“按相似度软加权”的信息，也不是 softmax。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3 段指出 argmax 得 one-hot、非 softmax，准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "S=QK^T 为 3×3，softmax 沿最后一维（key 维）即每一行归一化，每行 3 个权重和为 1，对应某位置对所有位置的注意力分布，故 A 正确；按列归一化、全矩阵归一化、argmax 均不符合公式语义。"
+              },
+              {
+                "question_id": "q4-scale-reason",
+                "option_checks": [
+                  {
+                    "reasoning": "softmax 后行和恒为 1，与 √d_k 无关，故错。",
+                    "option_text": "为了让注意力权重矩阵的行和恰好等于 √d_k，便于后续计算",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：softmax 之后每行之和恒为 1，与 √d_k 无关；缩放发生在 softmax 之前，不改变行和为 1 的性质。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2-3 段指出行和恒为 1、缩放不改变该性质，批评成立。"
+                  },
+                  {
+                    "reasoning": "缩放是数值操作，不涉及参数，参数量由 W_Q、W_K、W_V 决定，故错。",
+                    "option_text": "为了减少参数量，因为除以 √d_k 相当于删掉了一部分投影矩阵",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：缩放是数值操作，不涉及任何参数，参数量由 W_Q、W_K、W_V 等矩阵决定。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4 段正确指出缩放不改变参数量。"
+                  },
+                  {
+                    "reasoning": "完整给出方差线性增长、标准差 √d_k 与 softmax 饱和的因果链，正确。",
+                    "option_text": "若 q、k 各分量独立、零均值、方差为 1，则点积 q^T k 的方差随 d_k 线性增长、幅度约为 √d_k；不缩放会使 softmax 输入过大而接近 one-hot、梯度极小，缩放后使 softmax 输入回到 O(1) 量级",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：q^T k = Σ q_r k_r，在分量独立、零均值、方差为 1 的假设下，每一项方差为 1，d_k 项相加后方差为 d_k，标准差为 √d_k；除以 √d_k 使打分回到 O(1) 波动，避免 softmax 饱和到近似 one-hot 导致梯度消失。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0-1 段推导方差为 d_k、标准差 √d_k 并说明避免饱和，与选项 C 一致。"
+                  },
+                  {
+                    "reasoning": "缩放因子由 d_k 决定，与序列长度 n 无关，故错。",
+                    "option_text": "因为 √d_k 是序列长度 n 的近似值，除以它可以抵消序列长度带来的影响",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：缩放因子由键维度 d_k 决定，与序列长度 n 无关；序列长度影响的是打分矩阵的尺寸 n×n，而不是缩放系数。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 5-6 段指出 n 只影响打分矩阵尺寸 n×n，不影响缩放系数，准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "q^T k=Σ q_r k_r，在分量独立、零均值、方差 1 假设下每项方差 1，d_k 项相加方差为 d_k、标准差 √d_k；不缩放会使 softmax 输入过大接近 one-hot、梯度极小，除以 √d_k 使输入回到 O(1)，故 C 正确；A、B、D 分别把缩放与行和、参数量、序列长度错误关联。"
+              },
+              {
+                "question_id": "q5-hand-compute",
+                "option_checks": [
+                  {
+                    "reasoning": "[0.5,0.25,0.25] 不是任何正确 softmax 结果，正确值约为 [0.673,0.164,0.164]，故错。",
+                    "option_text": "[0.5, 0.25, 0.25]",
+                    "option_index": 0,
+                    "explanation_valid": false,
+                    "explanation_excerpt": "A 的 [0.5, 0.25, 0.25] 无法由任何一步正确计算得到（若把缩放后分数当作 [1,0,0] 再线性归一化才会得到 [0.5,0.25,0.25]，但 softmax 不是线性归一化）。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称“把缩放后分数当作 [1,0,0] 再线性归一化才会得到 [0.5,0.25,0.25]”，但 [1,0,0] 线性归一化应为 [1,0,0]，该错误算式不可复现，批评依据不成立。"
+                  },
+                  {
+                    "reasoning": "[0.88,0.06,0.06] 与正确值 [0.673,0.164,0.164] 不符；不缩放 softmax 也只有 [0.787,0.107,0.107]，故该项错误。",
+                    "option_text": "[0.88, 0.06, 0.06]",
+                    "option_index": 1,
+                    "explanation_valid": false,
+                    "explanation_excerpt": "B 的 [0.88, 0.06, 0.06] 对应不缩放直接 softmax：e^2≈7.389，分母 7.389+1+1=9.389，得 [0.787, 0.107, 0.107]，与 0.88 也不符，且它忽略了缩放这一步，故不选。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段已算出不缩放 softmax 为 [0.787,0.107,0.107] 且“与 0.88 也不符”，却仍把 B 当作答案，与第 6 段“与 B 最接近”矛盾，解析整体不成立。"
+                  },
+                  {
+                    "reasoning": "[0.33,0.33,0.33] 是打分全相等时的均匀分布，与 [2,0,0] 不符，故错。",
+                    "option_text": "[0.33, 0.33, 0.33]",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 的 [0.33, 0.33, 0.33] 是打分全相等时的均匀分布，与本题打分 [2,0,0] 不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4 段指出均匀分布对应打分全相等，批评成立。"
+                  },
+                  {
+                    "reasoning": "[0.67,0.17,0.17] 是 [0.673,0.164,0.164] 保留两位的结果，实际为正确选项。",
+                    "option_text": "[0.67, 0.17, 0.17]",
+                    "option_index": 3,
+                    "explanation_valid": false,
+                    "explanation_excerpt": "D 的 [0.67, 0.17, 0.17] 是把缩放后分数 [1.414,0,0] 直接线性归一化（1.414/2.414≈0.586，与 0.67 不符）得到的近似，不是 softmax 结果。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析称 D 是“线性归一化 1.414/2.414≈0.586”的近似，但 0.586 与 0.67 不符，且 D 恰为正确 softmax 结果，该批评错误。"
+                  }
+                ],
+                "answer_matches": false,
+                "question_index": 4,
+                "explanation_valid": false,
+                "calculation_checks": [
+                  {
+                    "claimed": "1.414",
+                    "excerpt": "先缩放：√d_k=√2≈1.414，第 1 行变为 [2/1.414, 0, 0]≈[1.414, 0, 0]。",
+                    "expression": "2/sqrt(2)",
+                    "end_segment": 0,
+                    "source_field": "explanation",
+                    "start_segment": 0,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "[0.673, 0.164, 0.164]",
+                    "excerpt": "再按行 softmax：e^1.414≈4.113，e^0=1，分母为 4.113+1+1=6.113，于是权重约为 [4.113/6.113, 1/6.113, 1/6.113]≈[0.673, 0.164, 0.164]，三者之和为 1。",
+                    "expression": "softmax([2/sqrt(2), 0, 0])",
+                    "end_segment": 1,
+                    "source_field": "explanation",
+                    "start_segment": 1,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "[0.787, 0.107, 0.107]",
+                    "excerpt": "B 的 [0.88, 0.06, 0.06] 对应不缩放直接 softmax：e^2≈7.389，分母 7.389+1+1=9.389，得 [0.787, 0.107, 0.107]，与 0.88 也不符，且它忽略了缩放这一步，故不选。",
+                    "expression": "softmax([2, 0, 0])",
+                    "end_segment": 2,
+                    "source_field": "explanation",
+                    "start_segment": 2,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "0.586",
+                    "excerpt": "D 的 [0.67, 0.17, 0.17] 是把缩放后分数 [1.414,0,0] 直接线性归一化（1.414/2.414≈0.586，与 0.67 不符）得到的近似，不是 softmax 结果。",
+                    "expression": "1.414/2.414",
+                    "end_segment": 5,
+                    "source_field": "explanation",
+                    "start_segment": 5,
+                    "decimal_places": 3
+                  }
+                ],
+                "independent_solution": "d_k=2，√d_k=√2≈1.414214；第 1 行 [2,0,0] 缩放后为 [1.414214,0,0]；softmax：e^1.414214≈4.113251，e^0=1，分母 6.113251，得 [0.673,0.164,0.164]，保留两位为 [0.67,0.16,0.16]，与选项 D [0.67,0.17,0.17] 最接近。故正确答案应为 D，而非标注的 B。"
+              },
+              {
+                "question_id": "q6-true-false",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "softmax 在 key 维（每行）归一化，行和为 1；除以 √d_k 抵消点积幅度随 d_k 约 √d_k 增长的问题，使 softmax 输入保持 O(1)，避免饱和。两句话均成立，答案为“正确”。"
+              },
+              {
+                "question_id": "q7-short-derive",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "公式 Attention(Q,K,V)=softmax(QK^T/√d_k)V；(1) softmax 沿 key 维即每行归一化，行和为 1；(2) q^T k=Σ q_r k_r，独立零均值方差 1 时每项方差 1，d_k 项相加方差 d_k、标准差 √d_k，故幅度约 √d_k；不缩放则 softmax 输入过大接近 one-hot、梯度极小。参考答案与评分要点一致。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1-qkv-roles 通过 Q/K/V 角色辨析真实检查自注意力 QKV 检索式直觉，支持 req-transformer-basics 中自注意力机制。",
+                "locator": {
+                  "question_id": "q1-qkv-roles"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2-step-order 要求复述投影→QK^T→缩放→softmax→加权求和顺序，真实检查自注意力计算流程。",
+                "locator": {
+                  "question_id": "q2-step-order"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4-scale-reason 检查 √d_k 缩放动机（方差线性增长、softmax 饱和），真实支持该要求。",
+                "locator": {
+                  "question_id": "q4-scale-reason"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 的四个选项分别辨析 Q、K、V 角色，直接检查目标 o1。",
+                "locator": {
+                  "question_id": "q1-qkv-roles"
+                },
+                "binding_id": "n2-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 按顺序排列计算步骤，检查目标 o2 的流程复述。",
+                "locator": {
+                  "question_id": "q2-step-order"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": false,
+                "reason": "q5 作为 o2 的动手推演练习，其答案标为 B 而正确值应为 D，练习本身给出错误反馈，不能有效支持目标 o2。",
+                "locator": {
+                  "question_id": "q5-hand-compute"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 要求写出完整公式并推导 √d_k，作为 o2 的练习覆盖公式与步骤。",
+                "locator": {
+                  "question_id": "q7-short-derive"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 明确检查 softmax 沿 key 维（每行）归一化，直接支持目标 o3。",
+                "locator": {
+                  "question_id": "q3-softmax-dim"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 检查缩放原因，支持目标 o3 中“解释除以 √d_k 的原因”。",
+                "locator": {
+                  "question_id": "q4-scale-reason"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 判断题同时覆盖 softmax 维度与缩放动机，检查目标 o3。",
+                "locator": {
+                  "question_id": "q6-true-false"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 简答要求说明 softmax 维度与缩放推导，检查目标 o3。",
+                "locator": {
+                  "question_id": "q7-short-derive"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "revise",
+          "content_sha256": "5ef7fd4977c1943e1f2e8300f9ddf3e4c972706cfedf1c6171cca3c9b4d0ad3d"
+        },
+        {
+          "version": 2,
+          "decision": "revise",
+          "structural_issues": [
+            "q5-hand-compute 答案错误：题干 S 第 1 行 [2,0,0]、d_k=2，缩放后 [1.414,0,0]，按行 softmax 得 [0.673,0.164,0.164]，正确选项应为 D（[0.67,0.17,0.17]），而非标注的 B（[0.88,0.06,0.06]）。",
+            "q5 解析自相矛盾：解析第 2 段已算出 B 对应不缩放 softmax 得 [0.787,0.107,0.107] 且“与 0.88 也不符”，第 6 段却称“正确结果约为 [0.67,0.16,0.16]，与 B 最接近”，结论与计算冲突。",
+            "q5 解析对 D 的批评不成立：解析称 D 是“把 [1.414,0,0] 直接线性归一化（1.414/2.414≈0.586）”的结果，但 0.586 与 0.67 不符，且 D 实际就是正确的 softmax 结果，该干扰项解析属于错误批评。",
+            "q5 解析对 A 的说明含糊：称“若把缩放后分数当作 [1,0,0] 再线性归一化才会得到 [0.5,0.25,0.25]”，但 [1,0,0] 线性归一化应为 [1,0,0]，无法得到 [0.5,0.25,0.25]，该错误算式不可复现。",
+            "q5 的正确答案标为 B（[0.88,0.06,0.06]），但按题干 S 第 1 行 [2,0,0]、d_k=2 计算，缩放后为 [1.414,0,0]，softmax 得 [0.673,0.164,0.164]，与 B 不符；解析自身也承认 B 对应“不缩放直接 softmax”且数值为 [0.787,0.107,0.107]，与 0.88 不符，却仍判 B 为答案，答案与解析自相矛盾。",
+            "q5 是唯一的数值实例题，其选项与解析中的数值断言多处不成立：解析称 D 的 [0.67,0.17,0.17] 是“线性归一化 1.414/2.414≈0.586”的结果，但 0.586 与 0.67 不符，且 D 实际更接近正确 softmax 值 [0.673,0.164,0.164]；解析末句“正确结果约为 [0.67,0.16,0.16]，与 B 最接近”与 B=[0.88,0.06,0.06] 明显不符。",
+            "第 5 题：d_k=2，√d_k=√2≈1.414214；第 1 行 [2,0,0] 缩放后为 [1.414214,0,0]；softmax：e^1.414214≈4.113251，e^0=1，分母 6.113251，得 [0.673,0.164,0.164]，保留两位为 [0.67,0.16,0.16]，与选项 D [0.67,0.17,0.17] 最接近。故正确答案应为 D，而非标注的 B。",
+            "第 5 题选项 1 的解析：解析称“把缩放后分数当作 [1,0,0] 再线性归一化才会得到 [0.5,0.25,0.25]”，但 [1,0,0] 线性归一化应为 [1,0,0]，该错误算式不可复现，批评依据不成立。",
+            "第 5 题选项 2 的解析：解析第 2 段已算出不缩放 softmax 为 [0.787,0.107,0.107] 且“与 0.88 也不符”，却仍把 B 当作答案，与第 6 段“与 B 最接近”矛盾，解析整体不成立。",
+            "第 5 题选项 4 的解析：解析称 D 是“线性归一化 1.414/2.414≈0.586”的近似，但 0.586 与 0.67 不符，且 D 恰为正确 softmax 结果，该批评错误。",
+            "n2-self-attention:o2 @ {'question_id': 'q5-hand-compute'}: q5 作为 o2 的动手推演练习，其答案标为 B 而正确值应为 D，练习本身给出错误反馈，不能有效支持目标 o2。",
+            "本轮输出格式或映射校验失败：修改片段未唯一匹配原文。按本轮格式重交完整封装及必需教学映射；原生题目 JSON 应放在 content 字段内。"
+          ]
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "习题 7 题覆盖本节点分工 req-transformer-basics 中的自注意力机制：q1 考 QKV 角色、q2 考计算顺序、q3 考 softmax 维度、q4 考 √d_k 缩放动机、q5 手算、q6 判断、q7 简答推导，与节点目标 o1/o2/o3 一一对应，未越界讲多头/位置编码。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": false,
+                "reason": "q5 解析第 2 段称 A 项 [0.5,0.25,0.25] 来自“把 [1.4142,0,0] 当作 [1,0,0] 做线性归一化”，但线性归一化 [1,0,0] 应得 [1,0,0]，与 [0.5,0.25,0.25] 不符；第 5 段称 [0.88,0.06,0.06] 相当于把分数放大到约 [2.8,0,0] 再 softmax，实际 softmax([2.8,0,0])≈[0.90,0.05,0.05]，也不成立。其余题目（q1–q4、q6、q7）的公式、方差推导与数值均正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q5 给出 n=3、d_k=2 的具体打分矩阵并要求手算缩放后按行 softmax，q1 用 “it 指代 cat” 的检索式例子，均与节点学习活动一致；例子本身数值正确（[0.673,0.164,0.164]），仅干扰项解析有误，已在 correctness 中指出。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为概念辨析（q1）→ 流程（q2）→ 维度（q3）→ 动机（q4）→ 手算（q5）→ 判断（q6）→ 综合简答（q7），由浅入深，符合 15 分钟入门节点的活动顺序；正确答案分布为 A、B、A、C、D、正确、简答，未全部集中在同一位置。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "内容与提供的证据一致：QKV 检索式直觉对应 theaiedge 与 kangshitao 博客，softmax 按行归一化与 √d_k 方差推导对应 CS336 笔记，缩放动机对应 volcengine 译文；未出现无依据的外部断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "7 题覆盖三个目标：o1 由 q1 检查，o2 由 q2、q5、q7 检查，o3 由 q3、q4、q6、q7 检查；题型含单选、判断、简答，每题均有答案与解析，无缺项。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q5 的干扰项可改为对应明确错误算式：如“忘记缩放直接 softmax 得 [0.787,0.107,0.107]”作为一项，使每个数值干扰项都有可复算来源。",
+              "q3 题干已给出 n=3、d_k=2，可在解析中顺带说明打分矩阵尺寸为 n×n，与 d_k 无关，强化 q4 中“缩放因子与序列长度无关”的对照。"
+            ],
+            "blocking_issues": [
+              "q5-hand-compute 解析对干扰项 A 的错误来源说明不成立：把缩放后分数 [1.4142,0,0] 当作 [1,0,0] 做线性归一化应得 [1,0,0]，而非 [0.5,0.25,0.25]；随后“把 [2,0,0] 先除以 4 再给零项各分 0.25”的说法也无法由任何标准算式推出，属于凑数解释。",
+              "q5-hand-compute 解析对干扰项 B 的说明不成立：softmax([2.8,0,0])≈[0.90,0.05,0.05]，与 [0.88,0.06,0.06] 不符，因此“相当于把缩放后分数放大到约 [2.8,0,0] 再 softmax”的归因错误；应改为给出能真正产生 [0.88,0.06,0.06] 的算式（如对 [3,0,0] 做 softmax 得 [0.91,0.045,0.045]，或直接说明该数值不对应任何标准步骤）。"
+            ],
+            "question_checks": [
+              {
+                "question_id": "q1-qkv-roles",
+                "option_checks": [
+                  {
+                    "reasoning": "准确描述 Q 为查询、K 为内容标签、V 为被取走的信息向量，与 QKV 检索式直觉一致。",
+                    "option_text": "Q 是 \"it\" 发出的“我在找什么”的查询，K 是各位置提供的“我是什么内容”的标签，V 是被选中位置实际被取走的信息向量",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：QKV 的命名来自信息检索系统，Q（query）表示当前 token 在“问什么”，例如 \"it\" 的查询在寻找先行词（如 \"cat\"）；K（key）表示其他 token 提供的“内容标签”，\"cat\" 的键表明它是先行词的候选；V（value）是若该位置被选中后实际取走的信息向量。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0–2 段分别说明 Q 在问什么、K 是内容标签、V 是实际取走的信息，与选项 A 表述一致，无错误批评。"
+                  },
+                  {
+                    "reasoning": "Q 不是输出结果（输出是权重对 V 的加权和），K 不是原始词向量而是 XW_K，V 也不是位置编码，三项全错。",
+                    "option_text": "Q 是 \"it\" 最终输出的结果向量，K 是 \"it\" 的输入词向量，V 是位置编码向量",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：Q 不是输出结果，输出是 softmax 权重对 V 加权求和得到的；K 也不是原始输入词向量，而是输入经 W_K 线性投影后的向量；V 更不是位置编码，位置编码是加到输入嵌入上的固定向量，与 V 无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3–5 段逐项指出 Q 非输出、K 经 W_K 投影、V 非位置编码，三条批评均成立。"
+                  },
+                  {
+                    "reasoning": "Q、K、V 由三个不同参数矩阵投影，数值一般不同，故“完全相同”错误。",
+                    "option_text": "Q、K、V 都是对同一个输入向量做同一种线性变换得到的，因此三者数值完全相同",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：Q、K、V 由三个不同的参数矩阵 W_Q、W_K、W_V 分别投影得到，参数不同，数值一般不同。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 6 段指出 W_Q、W_K、W_V 参数不同，正确否定了“数值完全相同”。"
+                  },
+                  {
+                    "reasoning": "该选项把 Q 与 K 角色互换，且把 V 说成注意力权重矩阵，均错误。",
+                    "option_text": "Q 表示其他 token 提供的内容标签，K 表示当前 token 在找什么，V 是注意力权重矩阵",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：把 Q 与 K 的角色说反了，且 V 不是注意力权重矩阵——权重矩阵是 softmax(QK^T/√d_k) 的结果，V 是被加权求和的对象。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 7 段指出角色说反且 V 不是权重矩阵（权重是 softmax(QK^T/√d_k)），批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Q 是当前 token 发出的查询（“我在找什么”），K 是各位置提供的内容标签，V 是被选中位置实际取走的信息向量；三者由 W_Q、W_K、W_V 三个不同矩阵投影得到。故 A 正确，B、C、D 均错。"
+              },
+              {
+                "question_id": "q2-step-order",
+                "option_checks": [
+                  {
+                    "reasoning": "先 softmax 再缩放会使行和变为 1/√d_k，不再是概率分布，顺序错误。",
+                    "option_text": "先对 QK^T 做 softmax，再除以 √d_k，最后乘以 V",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：缩放必须在 softmax 之前，因为缩放的目的正是控制进入 softmax 的数值幅度；若先 softmax 再除以 √d_k，权重之和就不再是 1，不再是概率分布。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 1–2 段指出缩放须在 softmax 之前，且先 softmax 再除会使行和不为 1，推理正确。"
+                  },
+                  {
+                    "reasoning": "与公式 Attention(Q,K,V)=softmax(QK^T/√d_k)V 的运算顺序完全一致。",
+                    "option_text": "线性投影得 Q、K、V → 计算 QK^T → 除以 √d_k → 在 key 维上做 softmax → 用权重对 V 加权求和",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：完整公式为 Attention(Q,K,V)=softmax(QK^T/√d_k)V，顺序是投影→打分→缩放→归一化→加权求和。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段给出完整公式并列出投影→打分→缩放→归一化→加权求和，与选项一致。"
+                  },
+                  {
+                    "reasoning": "把 softmax 与缩放顺序颠倒，缩放失去控制 softmax 输入幅度的作用，错误。",
+                    "option_text": "线性投影得 Q、K、V → 计算 QK^T → 在 key 维上做 softmax → 除以 √d_k → 用权重对 V 加权求和",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：把 softmax 与缩放的位置颠倒了，同样破坏了“先缩放再归一化”的作用。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3 段指出该选项颠倒了 softmax 与缩放位置，破坏了先缩放再归一化的作用，成立。"
+                  },
+                  {
+                    "reasoning": "打分应为 QK^T 而非 VK^T，V 只在最后加权求和时使用，错误。",
+                    "option_text": "先计算 VK^T 得到权重，再与 Q 相乘，最后除以 √d_k",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：打分用的是查询与键的点积 QK^T，而不是 VK^T；V 只在最后被加权求和时使用。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4–5 段指出打分用 QK^T、V 仅用于最后加权求和，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "缩放点积注意力为 softmax(QK^T/√d_k)V，顺序为：线性投影得 Q/K/V → 计算 QK^T → 除以 √d_k → 在 key 维 softmax → 对 V 加权求和。故 B 正确。"
+              },
+              {
+                "question_id": "q3-softmax-dim",
+                "option_checks": [
+                  {
+                    "reasoning": "softmax 作用在 key 维即每行，行和为 1，符合公式语义。",
+                    "option_text": "沿 key 维（每一行）归一化，即每一行 3 个权重之和为 1，表示某个位置对所有位置的注意力分布",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：softmax 作用在最后一维（key 维），S 的第 i 行对应“位置 i 对所有位置 j 的注意力分布”，因此每行之和为 1。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段说明 softmax 作用于最后一维、第 i 行是位置 i 的注意力分布、行和为 1，正确。"
+                  },
+                  {
+                    "reasoning": "按列归一化得到的是每个 key 被分配的总权重，不是某个 query 的注意力分布，错误。",
+                    "option_text": "沿 query 维（每一列）归一化，即每一列 3 个权重之和为 1",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：按列归一化会让每个被关注位置 j 收到的权重之和为 1，这对应的是“每个 key 被分配的总权重”，不是某个 query 的注意力分布，与公式 softmax(QK^T/√d_k)V 的语义不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 1 段指出按列归一化对应“每个 key 的总权重”，与公式语义不符，批评成立。"
+                  },
+                  {
+                    "reasoning": "对 9 个元素整体归一化会使单行和远小于 1，输出被整体缩小，错误。",
+                    "option_text": "对整个 3×3 矩阵的所有 9 个元素一起归一化，使总和为 1",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：对全部 9 个元素一起归一化会使整个矩阵和为 1，单行之和远小于 1，加权求和 V 时输出会被整体缩小，且不再是每个位置各自的分布。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段说明整体归一化后单行和远小于 1、输出被缩小，推理正确。"
+                  },
+                  {
+                    "reasoning": "取最大值得到 one-hot 权重，丢失软加权信息，且不是 softmax，错误。",
+                    "option_text": "不需要归一化，直接对 S 的每一行取最大值作为权重",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：取最大值（argmax）会得到 one-hot 权重，丢失了“按相似度软加权”的信息，也不是 softmax。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3 段指出 argmax 得 one-hot、丢失软加权信息，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "S=QK^T 为 n×n=3×3，softmax 沿最后一维（key 维）逐行归一化，每行 3 个权重和为 1，表示该位置对所有位置的注意力分布。故 A 正确。"
+              },
+              {
+                "question_id": "q4-scale-reason",
+                "option_checks": [
+                  {
+                    "reasoning": "softmax 后行和恒为 1，与 √d_k 无关，该说法错误。",
+                    "option_text": "为了让注意力权重矩阵的行和恰好等于 √d_k，便于后续计算",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：softmax 之后每行之和恒为 1，与 √d_k 无关；缩放发生在 softmax 之前，不改变行和为 1 的性质。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2–3 段指出 softmax 后行和恒为 1、缩放不改变该性质，正确否定了 A。"
+                  },
+                  {
+                    "reasoning": "缩放是数值操作，不改变参数量，错误。",
+                    "option_text": "为了减少参数量，因为除以 √d_k 相当于删掉了一部分投影矩阵",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：缩放是数值操作，不涉及任何参数，参数量由 W_Q、W_K、W_V 等矩阵决定。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4 段指出缩放不涉及参数、参数量由 W_Q/W_K/W_V 决定，批评成立。"
+                  },
+                  {
+                    "reasoning": "完整给出方差随 d_k 线性增长、幅度约 √d_k、softmax 饱和与 O(1) 稳定的因果链，正确。",
+                    "option_text": "若 q、k 各分量独立、零均值、方差为 1，则点积 q^T k 的方差随 d_k 线性增长、幅度约为 √d_k；不缩放会使 softmax 输入过大而接近 one-hot、梯度极小，缩放后使 softmax 输入回到 O(1) 量级",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：q^T k = Σ q_r k_r，在分量独立、零均值、方差为 1 的假设下，每一项方差为 1，d_k 项相加后方差为 d_k，标准差为 √d_k；除以 √d_k 使打分回到 O(1) 波动，避免 softmax 饱和到近似 one-hot 导致梯度消失。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0–1 段给出方差相加得 d_k、标准差 √d_k 及避免饱和的推理，与选项一致。"
+                  },
+                  {
+                    "reasoning": "缩放因子由 d_k 决定，与序列长度 n 无关，错误。",
+                    "option_text": "因为 √d_k 是序列长度 n 的近似值，除以它可以抵消序列长度带来的影响",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：缩放因子由键维度 d_k 决定，与序列长度 n 无关；序列长度影响的是打分矩阵的尺寸 n×n，而不是缩放系数。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 5–6 段指出缩放因子由 d_k 决定、n 只影响打分矩阵尺寸，批评准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "设 q、k 分量独立、零均值、方差 1，则 q^T k=Σ q_r k_r 每项方差 1，d_k 项相加方差为 d_k，标准差 √d_k；除以 √d_k 使方差回到 1，避免 softmax 输入过大饱和成 one-hot 导致梯度消失。故 C 正确。"
+              },
+              {
+                "question_id": "q5-hand-compute",
+                "option_checks": [
+                  {
+                    "reasoning": "[0.5,0.25,0.25] 不是任何标准步骤的结果：正确 softmax 为 [0.673,0.164,0.164]，故 A 错误。",
+                    "option_text": "[0.5, 0.25, 0.25]",
+                    "option_index": 0,
+                    "explanation_valid": false,
+                    "explanation_excerpt": "A 错误：把缩放后分数 [1.4142, 0, 0] 当作 [1, 0, 0] 再按“分数除以总和”做线性归一化，会得到 [1, 0, 0] 而不是 [0.5, 0.25, 0.25]；[0.5, 0.25, 0.25] 对应的是把 [2, 0, 0] 先除以 4 再给零项各分 0.25 的凑数做法，既不是 softmax 也不是正确的线性归一化。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段称把 [1.4142,0,0] 当作 [1,0,0] 做线性归一化会得 [0.5,0.25,0.25]，但线性归一化 [1,0,0] 应得 [1,0,0]，该归因不成立；第 3 段“先除以 4 再给零项各分 0.25”也无法由任何算式推出，属凑数解释。"
+                  },
+                  {
+                    "reasoning": "跳过缩放直接 softmax([2,0,0]) 得 [0.787,0.107,0.107]，与 [0.88,0.06,0.06] 不符，故 B 错误。",
+                    "option_text": "[0.88, 0.06, 0.06]",
+                    "option_index": 1,
+                    "explanation_valid": false,
+                    "explanation_excerpt": "B 错误：若跳过缩放直接对 [2, 0, 0] 做 softmax，e^2≈7.389，分母 7.389+1+1=9.389，得 [0.787, 0.107, 0.107]，与 [0.88, 0.06, 0.06] 不符；[0.88, 0.06, 0.06] 相当于把缩放后分数放大到约 [2.8, 0, 0] 再 softmax，属于多除了一次或漏除的错误。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "第 4 段“跳过缩放得 [0.787,0.107,0.107]”计算正确；但第 5 段称 [0.88,0.06,0.06] 相当于对约 [2.8,0,0] 做 softmax，实际 softmax([2.8,0,0])≈[0.90,0.05,0.05]，归因错误。"
+                  },
+                  {
+                    "reasoning": "[0.33,0.33,0.33] 是三项相等时的均匀分布，本题第 1 行为 [2,0,0]，不可能得到，故 C 错误。",
+                    "option_text": "[0.33, 0.33, 0.33]",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：[0.33, 0.33, 0.33] 是打分三项全相等时的均匀分布，本题第 1 行是 [2, 0, 0]，三项不相等，不可能得到均匀权重。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 6 段指出均匀分布要求三项相等，本题不满足，批评成立。"
+                  },
+                  {
+                    "reasoning": "按 √2 缩放后 softmax 得 [0.673,0.164,0.164]，与 [0.67,0.16,0.16] 一致，D 正确。",
+                    "option_text": "[0.67, 0.16, 0.16]",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "先缩放：√d_k=√2≈1.4142，第 1 行变为 [2/1.4142, 0, 0]≈[1.4142, 0, 0]。再按行 softmax：e^1.4142≈4.1133，e^0=1，分母为 4.1133+1+1=6.1133，于是权重约为 [4.1133/6.1133, 1/6.1133, 1/6.1133]≈[0.673, 0.164, 0.164]，三者之和为 1，与 D 的 [0.67, 0.16, 0.16] 一致。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0–1 段的缩放与 softmax 计算（4.1133/6.1133≈0.673）正确，与 D 相符。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": false,
+                "calculation_checks": [
+                  {
+                    "claimed": "1.4142",
+                    "excerpt": "先缩放：√d_k=√2≈1.4142，第 1 行变为 [2/1.4142, 0, 0]≈[1.4142, 0, 0]。",
+                    "expression": "2/sqrt(2)",
+                    "end_segment": 0,
+                    "source_field": "explanation",
+                    "start_segment": 0,
+                    "decimal_places": 4
+                  },
+                  {
+                    "claimed": "4.1133",
+                    "excerpt": "再按行 softmax：e^1.4142≈4.1133，e^0=1，分母为 4.1133+1+1=6.1133，于是权重约为 [4.1133/6.1133, 1/6.1133, 1/6.1133]≈[0.673, 0.164, 0.164]，三者之和为 1，与 D 的 [0.67, 0.16, 0.16] 一致。",
+                    "expression": "exp(1.4142)",
+                    "end_segment": 1,
+                    "source_field": "explanation",
+                    "start_segment": 1,
+                    "decimal_places": 4
+                  },
+                  {
+                    "claimed": "[0.673, 0.164, 0.164]",
+                    "excerpt": "再按行 softmax：e^1.4142≈4.1133，e^0=1，分母为 4.1133+1+1=6.1133，于是权重约为 [4.1133/6.1133, 1/6.1133, 1/6.1133]≈[0.673, 0.164, 0.164]，三者之和为 1，与 D 的 [0.67, 0.16, 0.16] 一致。",
+                    "expression": "softmax([1.4142,0,0])",
+                    "end_segment": 1,
+                    "source_field": "explanation",
+                    "start_segment": 1,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "7.389",
+                    "excerpt": "B 错误：若跳过缩放直接对 [2, 0, 0] 做 softmax，e^2≈7.389，分母 7.389+1+1=9.389，得 [0.787, 0.107, 0.107]，与 [0.88, 0.06, 0.06] 不符；",
+                    "expression": "exp(2)",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "[0.787, 0.107, 0.107]",
+                    "excerpt": "B 错误：若跳过缩放直接对 [2, 0, 0] 做 softmax，e^2≈7.389，分母 7.389+1+1=9.389，得 [0.787, 0.107, 0.107]，与 [0.88, 0.06, 0.06] 不符；",
+                    "expression": "softmax([2,0,0])",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 3
+                  },
+                  {
+                    "claimed": "[0.88, 0.06, 0.06]",
+                    "excerpt": "[0.88, 0.06, 0.06] 相当于把缩放后分数放大到约 [2.8, 0, 0] 再 softmax，属于多除了一次或漏除的错误。",
+                    "expression": "softmax([2.8,0,0])",
+                    "end_segment": 5,
+                    "source_field": "explanation",
+                    "start_segment": 5,
+                    "decimal_places": 2
+                  }
+                ],
+                "independent_solution": "第 1 行 [2,0,0] 除以 √2≈1.41421 得 [1.41421,0,0]；softmax：e^1.41421≈4.11325，分母 4.11325+1+1=6.11325，得 [0.6730,0.1635,0.1635]，约 [0.67,0.16,0.16]，即 D。"
+              },
+              {
+                "question_id": "q6-true-false",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "softmax 沿 key 维（每行）归一化，行和为 1；除以 √d_k 抵消点积幅度随 d_k 约 √d_k 增长的问题，使 softmax 输入保持 O(1)，避免饱和。两句均成立，答案为“正确”。"
+              },
+              {
+                "question_id": "q7-short-derive",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "公式 Attention(Q,K,V)=softmax(QK^T/√d_k)V；(1) softmax 沿 key 维（每行）归一化，行和为 1；(2) q^T k=Σ_{r=1}^{d_k} q_r k_r，分量独立零均值方差 1 时每项方差 1，和方差 d_k、标准差 √d_k，故幅度约 √d_k；除以 √d_k 后方差回到 1；不缩放则 d_k 大时 softmax 输入过大、输出近 one-hot、梯度极小。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1-qkv-roles 通过 Q/K/V 角色辨析（含 “it 指代 cat” 例子）真实检查自注意力 QKV 检索式直觉，支持 req-transformer-basics 中自注意力机制部分。",
+                "locator": {
+                  "question_id": "q1-qkv-roles"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2-step-order 要求选出投影→QK^T→除以 √d_k→softmax→加权求和 的正确顺序，真实检查自注意力完整计算流程。",
+                "locator": {
+                  "question_id": "q2-step-order"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4-scale-reason 的 C 项完整给出方差随 d_k 线性增长、幅度约 √d_k、softmax 饱和的因果链，真实检查缩放动机。",
+                "locator": {
+                  "question_id": "q4-scale-reason"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 直接对应目标 o1（说明 Q、K、V 各自角色），选项与解析均围绕查询/标签/取值信息展开。",
+                "locator": {
+                  "question_id": "q1-qkv-roles"
+                },
+                "binding_id": "n2-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 对应目标 o2 的“按顺序复述计算步骤”，四个选项分别对应顺序错误与正确顺序。",
+                "locator": {
+                  "question_id": "q2-step-order"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 以 n=3、d_k=2 的小矩阵要求手算缩放后按行 softmax，落实目标 o2 的动手推演活动；正确答案与解析主体计算正确（干扰项 A/B 的归因错误已在 blocking_issues 记录）。",
+                "locator": {
+                  "question_id": "q5-hand-compute"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 要求写出完整公式并推导方差与 √d_k 关系，属目标 o2/o3 的综合练习，答案与评分要点正确。",
+                "locator": {
+                  "question_id": "q7-short-derive"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 明确检查 softmax 在 key 维（每行）归一化，对应目标 o3 的维度部分。",
+                "locator": {
+                  "question_id": "q3-softmax-dim"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 检查除以 √d_k 的原因，对应目标 o3 的缩放动机部分。",
+                "locator": {
+                  "question_id": "q4-scale-reason"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 判断题同时覆盖 softmax 维度与缩放动机两个陈述，答案“正确”与解析一致。",
+                "locator": {
+                  "question_id": "q6-true-false"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 简答要求说明 softmax 维度与 √d_k 推导，作为目标 o3 的综合检查，参考答案完整正确。",
+                "locator": {
+                  "question_id": "q7-short-derive"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 3,
+          "decision": "revise",
+          "content_sha256": "61aa619f1fc3f24a76a19cfacfcf78b41f52bf4f8b40f766e5bd7c63ee2101b3"
+        }
+      ],
+      "version": 4,
+      "feedback": [
+        "q5-hand-compute 解析对干扰项 A 的错误来源说明不成立：把缩放后分数 [1.4142,0,0] 当作 [1,0,0] 做线性归一化应得 [1,0,0]，而非 [0.5,0.25,0.25]；随后“把 [2,0,0] 先除以 4 再给零项各分 0.25”的说法也无法由任何标准算式推出，属于凑数解释。",
+        "q5-hand-compute 解析对干扰项 B 的说明不成立：softmax([2.8,0,0])≈[0.90,0.05,0.05]，与 [0.88,0.06,0.06] 不符，因此“相当于把缩放后分数放大到约 [2.8,0,0] 再 softmax”的归因错误；应改为给出能真正产生 [0.88,0.06,0.06] 的算式（如对 [3,0,0] 做 softmax 得 [0.91,0.045,0.045]，或直接说明该数值不对应任何标准步骤）。",
+        "q5 解析第 2 段称 A 项 [0.5,0.25,0.25] 来自“把 [1.4142,0,0] 当作 [1,0,0] 做线性归一化”，但线性归一化 [1,0,0] 应得 [1,0,0]，与 [0.5,0.25,0.25] 不符；第 5 段称 [0.88,0.06,0.06] 相当于把分数放大到约 [2.8,0,0] 再 softmax，实际 softmax([2.8,0,0])≈[0.90,0.05,0.05]，也不成立。其余题目（q1–q4、q6、q7）的公式、方差推导与数值均正确。",
+        "第 5 题：数值不符：再按行 softmax：e^1.4142≈4.1133，e^0=1，分母为 4.1133+1+1=6.1133，于是权重约为 [4.1133/6.1133, 1/6.1133, 1/6.1133]≈[0.673, 0.164, 0.164]，三者之和为 1，与 D 的 [0.67, 0.16, 0.16] 一致。；exp(1.4142) = 4.113194593724947，原文声称 4.1133",
+        "第 5 题：数值不符：[0.88, 0.06, 0.06] 相当于把缩放后分数放大到约 [2.8, 0, 0] 再 softmax，属于多除了一次或漏除的错误。；softmax([2.8,0,0]) = [0.8915674545129257, 0.054216272743537186, 0.054216272743537186]，原文声称 [0.88, 0.06, 0.06]",
+        "第 5 题：第 1 行 [2,0,0] 除以 √2≈1.41421 得 [1.41421,0,0]；softmax：e^1.41421≈4.11325，分母 4.11325+1+1=6.11325，得 [0.6730,0.1635,0.1635]，约 [0.67,0.16,0.16]，即 D。",
+        "第 5 题选项 1 的解析：解析第 2 段称把 [1.4142,0,0] 当作 [1,0,0] 做线性归一化会得 [0.5,0.25,0.25]，但线性归一化 [1,0,0] 应得 [1,0,0]，该归因不成立；第 3 段“先除以 4 再给零项各分 0.25”也无法由任何算式推出，属凑数解释。",
+        "第 5 题选项 2 的解析：第 4 段“跳过缩放得 [0.787,0.107,0.107]”计算正确；但第 5 段称 [0.88,0.06,0.06] 相当于对约 [2.8,0,0] 做 softmax，实际 softmax([2.8,0,0])≈[0.90,0.05,0.05]，归因错误。"
+      ],
+      "preparation": {
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 12.54
+        },
+        "spec_digest": "47af782e6c123ae4e7a315a1a808d958769c7df69fbea9f649013911351182dd",
+        "schema_version": 1,
+        "objective_bindings": [
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q1-qkv-roles"
+            },
+            "objective_id": "n2-self-attention:o1"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q2-step-order"
+            },
+            "objective_id": "n2-self-attention:o2"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q5-hand-compute"
+            },
+            "objective_id": "n2-self-attention:o2"
+          },
+          {
+            "role": "practice",
+            "locator": {
+              "question_id": "q7-short-derive"
+            },
+            "objective_id": "n2-self-attention:o2"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q3-softmax-dim"
+            },
+            "objective_id": "n2-self-attention:o3"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q4-scale-reason"
+            },
+            "objective_id": "n2-self-attention:o3"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q6-true-false"
+            },
+            "objective_id": "n2-self-attention:o3"
+          },
+          {
+            "role": "check",
+            "locator": {
+              "question_id": "q7-short-derive"
+            },
+            "objective_id": "n2-self-attention:o3"
+          }
+        ],
+        "applied_requirements": [
+          {
+            "locator": {
+              "question_id": "q1-qkv-roles"
+            },
+            "explanation": "通过 Q/K/V 角色辨析题落实“自注意力”这一核心机制中 QKV 检索式直觉的理解检查。",
+            "requirement_id": "req-transformer-basics"
+          },
+          {
+            "locator": {
+              "question_id": "q2-step-order"
+            },
+            "explanation": "通过计算顺序题检查自注意力完整计算流程（投影→打分→缩放→softmax→加权求和）的掌握。",
+            "requirement_id": "req-transformer-basics"
+          },
+          {
+            "locator": {
+              "question_id": "q4-scale-reason"
+            },
+            "explanation": "通过缩放原因题检查对 √d_k 缩放动机（方差随 d_k 线性增长、softmax 饱和）的理解。",
+            "requirement_id": "req-transformer-basics"
+          }
+        ],
+        "question_time_estimates": [
+          {
+            "reason": "需回忆 QKV 的检索式直觉，并逐一排除“Q 是输出”“三者相同”“Q/K 角色互换”等常见误区。",
+            "question_id": "q1-qkv-roles",
+            "thinking_seconds": 30
+          },
+          {
+            "reason": "需在脑中复现完整公式，并判断缩放与 softmax 的先后顺序，排除先 softmax 后缩放和用 VK^T 打分的干扰项。",
+            "question_id": "q2-step-order",
+            "thinking_seconds": 35
+          },
+          {
+            "reason": "需明确打分矩阵行列含义，判断按行还是按列归一化，并排除全局归一化与 argmax 两种错误做法。",
+            "question_id": "q3-softmax-dim",
+            "thinking_seconds": 40
+          },
+          {
+            "reason": "需调用方差相加得 d_k、标准差 √d_k 的推导，并区分缩放因子与序列长度、参数量的关系。",
+            "question_id": "q4-scale-reason",
+            "thinking_seconds": 45
+          },
+          {
+            "reason": "需先除以 √2 缩放，再对三个元素做指数与归一化，并核对各干扰项对应的错误算式。",
+            "question_id": "q5-hand-compute",
+            "thinking_seconds": 90
+          },
+          {
+            "reason": "需同时确认 softmax 的作用维度与缩放动机两个陈述，判断整体是否正确。",
+            "question_id": "q6-true-false",
+            "thinking_seconds": 20
+          },
+          {
+            "reason": "需写出完整公式、说明 softmax 维度，并组织方差线性增长与 softmax 饱和的推导，属于综合表述。",
+            "question_id": "q7-short-derive",
+            "thinking_seconds": 120
+          }
+        ],
+        "teaching_context_digest": "29726f3a640932130a0b65f2bf65ecf716865740b08bf72009528c67f7a3773a"
+      },
+      "needs_repair": true
+    },
+    "owner_user_id": "teacher",
+    "content_digest": "61aa619f1fc3f24a76a19cfacfcf78b41f52bf4f8b40f766e5bd7c63ee2101b3",
+    "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda",
+    "schema_version": 1,
+    "recovery_attempt": 0,
+    "resource_version": 1,
+    "parent_attempt_no": 2,
+    "teaching_context_digest": "29726f3a640932130a0b65f2bf65ecf716865740b08bf72009528c67f7a3773a"
+  }
+}

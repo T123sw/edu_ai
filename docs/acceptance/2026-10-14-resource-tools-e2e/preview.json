@@ -1,0 +1,80 @@
+{
+  "results": [
+    {
+      "kind": "report",
+      "checks": [
+        "unauthenticated access denied",
+        "table and code rendered",
+        "Markdown export preserves complete saved content",
+        "desktop/mobile no page overflow",
+        "saved resource reopens after reload",
+        "attach to classroom"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "quiz",
+      "checks": [
+        "unauthenticated access denied",
+        "four requested types generated",
+        "answer/explanation expansion",
+        "JSON export preserves all questions",
+        "desktop/mobile no page overflow",
+        "saved resource reopens after reload",
+        "attach to classroom"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "flashcard",
+      "checks": [
+        "unauthenticated access denied",
+        "unknown returns once to queue",
+        "known cards removed",
+        "round completion and restart",
+        "JSON export",
+        "desktop/mobile no page overflow",
+        "saved resource reopens after reload"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "graph",
+      "checks": [
+        "unauthenticated access denied",
+        "13 nodes / 3 levels",
+        "expand, zoom and reset",
+        "native JSON export",
+        "desktop/mobile no page overflow",
+        "saved resource reopens after reload"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "podcast",
+      "checks": [
+        "unauthenticated access denied",
+        "real MP3 decoded and playback advances",
+        "chapter transcript",
+        "audio download",
+        "desktop/mobile no page overflow",
+        "saved resource reopens after reload"
+      ],
+      "duration": 243,
+      "passed": true
+    },
+    {
+      "kind": "scenario",
+      "checks": [
+        "unauthenticated access denied",
+        "every root-to-ending path",
+        "choice feedback, ending and restart",
+        "desktop/mobile no page overflow",
+        "saved resource reopens after reload"
+      ],
+      "paths": 81,
+      "passed": true
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "label": "kentucky-0011",
+    "generation_id": "examgen_ccdd0a2021d8baa6c0eb139a27712419",
+    "accepted_before": 3
+  },
+  {
+    "label": "princeton-0011",
+    "generation_id": "examgen_6422602b0fbfb736dba9385287ecc8e1",
+    "accepted_before": 2
+  },
+  {
+    "label": "shanghai-0011",
+    "generation_id": "examgen_81e4fb0cf344ae88bed8942e4ef3e5b0",
+    "accepted_before": 15
+  }
+]

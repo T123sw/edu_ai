@@ -21,6 +21,7 @@ class ParsedDocument:
     assets: tuple[dict, ...] = ()
     layout: tuple[dict, ...] = ()
     remote_task: dict | None = None
+    parser_revision: str | None = None
 
 
 TEXT_SUFFIXES = frozenset({'.md', '.markdown', '.txt'})
@@ -40,6 +41,7 @@ class DocumentParser:
         source_hash = hashlib.sha256(data).hexdigest()
         defects, units, assets, layout = [], [], [], []
         remote_task = None
+        parser_revision = None
         if suffix in TEXT_SUFFIXES:
             try: content = data.decode('utf-8-sig')
             except UnicodeError as exc: raise DocumentUnreadable('DOCUMENT_ENCODING_INVALID') from exc
@@ -68,7 +70,8 @@ class DocumentParser:
                 raise error from exc
             control.check()
             if parsed.metadata.get('taskId'):
-                remote_task = {'provider':'mineru-cloud','task_id':parsed.metadata['taskId']}
+                remote_task = {'provider':parsed.metadata.get('parser', 'mineru-cloud'),'task_id':parsed.metadata['taskId']}
+            parser_revision = parsed.metadata.get('adapterRevision')
             for index, value in enumerate(parsed.images):
                 import base64
                 try:
@@ -93,7 +96,7 @@ class DocumentParser:
             units.append({'offset_chars':offset,'content':content[offset:offset+4000]})
         control.check()
         return ParsedDocument(content, parser, source_hash, tuple(units), tuple(defects),
-                              tuple(assets), tuple(layout), remote_task)
+                              tuple(assets), tuple(layout), remote_task, parser_revision)
 
 
 class PersonalDocumentReader:

@@ -1,0 +1,162 @@
+diff --git a/deeptutor/agents/question/capability.py b/deeptutor/agents/question/capability.py
+index 3687ec1..39d45af 100644
+--- a/deeptutor/agents/question/capability.py
++++ b/deeptutor/agents/question/capability.py
+@@ -218,7 +218,7 @@ class DeepQuestionCapability(TurnCapability):
+         if i18n is None:
+             i18n = StatusI18n(self.name, context.language, module="question")
+         paper_path = str(overrides.get("paper_path", "") or "").strip()
+-        max_questions = int(overrides.get("max_questions", 10) or 10)
++        max_questions = int(overrides.get("max_questions") or 0)
+         pdf_attachment = next(
+             (
+                 attachment
+diff --git a/deeptutor/agents/question/pipeline.py b/deeptutor/agents/question/pipeline.py
+index fb4ae8d..45c0d43 100644
+--- a/deeptutor/agents/question/pipeline.py
++++ b/deeptutor/agents/question/pipeline.py
+@@ -491,6 +491,8 @@ class QuestionPipeline:
+         client = build_openai_client(self.client_config)
+ 
+         try:
++            if templates_override is not None and not templates_override:
++                raise ValueError("Exam extraction produced no templates; refusing custom fallback")
+             await self._prepare_pageindex_tools()
+             return await self._run_inner(
+                 context=context,
+@@ -503,7 +505,7 @@ class QuestionPipeline:
+                 attachments=attachments,
+                 image_attachments=image_attachments,
+                 quiz_history=quiz_history,
+-                templates_override=list(templates_override) if templates_override else None,
++                templates_override=list(templates_override) if templates_override is not None else None,
+                 stream=stream,
+                 client=client,
+             )
+@@ -906,6 +908,11 @@ class QuestionPipeline:
+             previous_questions=self._render_previous_questions(previous_pairs),
+             reference_block=self._render_reference_block(template),
+         )
++        # Preserve the explicit request even when mimic bypasses Explore/Plan.
++        # This is task data, not a replacement for system/tool policy.
++        requirements = context.user_message.strip()
++        if requirements:
++            user_prompt += "\n\n## User requirements and supplied context\n" + requirements
+         messages = self._build_system_user_messages(
+             system_prompt, user_prompt, image_attachments=image_attachments
+         )
+@@ -953,6 +960,7 @@ class QuestionPipeline:
+                 issues=issues,
+                 stream=stream,
+                 client=client,
++                requirements=requirements,
+             )
+             if repaired:
+                 normalized = self._normalize_quiz_payload(template, repaired)
+@@ -974,6 +982,7 @@ class QuestionPipeline:
+         issues: list[str],
+         stream: StreamBus,
+         client: Any,
++        requirements: str = "",
+     ) -> dict[str, Any] | None:
+         system_prompt = append_language_directive(
+             self._t("repair.system"),
+@@ -988,6 +997,8 @@ class QuestionPipeline:
+             invalid_payload=json.dumps(payload, ensure_ascii=False, indent=2),
+             issues=json.dumps(issues, ensure_ascii=False),
+         )
++        if requirements:
++            user_prompt += "\n\n## User requirements and supplied context\n" + requirements
+         messages = self._build_system_user_messages(system_prompt, user_prompt)
+         iter_meta = self._build_simple_trace_meta(
+             call_id_root=f"quiz-repair-{template.question_id}",
+@@ -1609,6 +1620,8 @@ class QuestionPipeline:
+             requested_tools=self.enabled_tools,
+             optional_whitelist=self._optional_tools,
+             mount_flags=self._mount_flags(context),
++            builtin_whitelist=(set(context.allowed_builtin_tools)
++                               if context.allowed_builtin_tools is not None else None),
+         )
+         resolved = list(dict.fromkeys([*names, *self._pageindex_tool_names()]))
+         return drop_unconfigured_generation_tools(resolved)
+diff --git a/deeptutor/agents/question/prompts/en/pipeline.yaml b/deeptutor/agents/question/prompts/en/pipeline.yaml
+index a614756..7d05143 100644
+--- a/deeptutor/agents/question/prompts/en/pipeline.yaml
++++ b/deeptutor/agents/question/prompts/en/pipeline.yaml
+@@ -259,7 +259,7 @@ quiz_step:
+     ## Already-generated questions this turn (do NOT duplicate)
+     {previous_questions}
+ 
+-    ## Reference material (mimic mode only — paraphrase / shadow this question's style and difficulty rather than inventing a fresh stem)
++    ## Reference material (mimic mode only — preserve the question type, assessed concept and comparable difficulty, but create a NEW question by changing the scenario, data, conditions or task. Do not copy, translate or merely reorder the original wording. Recompute the answer for your new question.)
+     {reference_block}
+ 
+     Begin work on question {question_id}.
+diff --git a/deeptutor/agents/question/prompts/zh/pipeline.yaml b/deeptutor/agents/question/prompts/zh/pipeline.yaml
+index 81fd8f8..180b274 100644
+--- a/deeptutor/agents/question/prompts/zh/pipeline.yaml
++++ b/deeptutor/agents/question/prompts/zh/pipeline.yaml
+@@ -240,7 +240,7 @@ quiz_step:
+     ## 本轮已生成题目（**不要**重复）
+     {previous_questions}
+ 
+-    ## 参考素材（仅 mimic 模式使用——本题应**仿写 / 改编**该参考题的风格和难度，**不要**另起炉灶）
++    ## 参考素材（仅 mimic 模式使用——保留题型、考点与相近难度，通过改变情境、数据、条件或具体问法生成一道新题。不得照抄、翻译或仅调整原题文字顺序；根据新题重新推导答案。）
+     {reference_block}
+ 
+     开始为 {question_id} 出题。
+diff --git a/deeptutor/app/service.py b/deeptutor/app/service.py
+index b81fb02..dd33f84 100644
+--- a/deeptutor/app/service.py
++++ b/deeptutor/app/service.py
+@@ -244,6 +244,12 @@ class TurnApplicationService:
+                 return
+             status = str(turn.get("status") or "")
+             if status in {"completed", "failed", "cancelled"}:
++                # The owner commits the terminal row before publishing DONE.
++                # Wait for that frame (including persisted message ids) while
++                # the owner still holds its lease; this is not a legacy row.
++                if await self.coordinator.get_lease(turn_id) is not None:
++                    await asyncio.sleep(self._CANCEL_WAIT_INTERVAL_SECONDS)
++                    continue
+                 # A terminal row without DONE can only be legacy data. Keep the
+                 # compatibility envelope stable while all new paths journal
+                 # DONE before the terminal CAS.
+diff --git a/deeptutor/runtime/request_contracts.py b/deeptutor/runtime/request_contracts.py
+index 9906b96..52ace7a 100644
+--- a/deeptutor/runtime/request_contracts.py
++++ b/deeptutor/runtime/request_contracts.py
+@@ -49,7 +49,7 @@ class DeepQuestionRequestConfig(BaseModel):
+ 
+     mode: Literal["custom", "mimic"] = "custom"
+     topic: str = ""
+-    num_questions: int = Field(default=1, ge=1, le=50)
++    num_questions: int = Field(default=1, ge=1)
+     difficulty: str = ""
+     # Allowed-types whitelist. Empty list means "any type — let the
+     # planner pick per question". Frontend sends the user's multi-select.
+@@ -59,7 +59,7 @@ class DeepQuestionRequestConfig(BaseModel):
+     # "no per-type targets — distribute freely across allowed types".
+     per_type_counts: dict[str, int] = Field(default_factory=dict)
+     paper_path: str = ""
+-    max_questions: int = Field(default=10, ge=1, le=100)
++    max_questions: int = Field(default=0, ge=0)
+ 
+ 
+ class VisualizeRequestConfig(BaseModel):
+diff --git a/deeptutor/services/session/turns/request_preparer.py b/deeptutor/services/session/turns/request_preparer.py
+index 1124a8f..8327125 100644
+--- a/deeptutor/services/session/turns/request_preparer.py
++++ b/deeptutor/services/session/turns/request_preparer.py
+@@ -526,7 +526,10 @@ class TurnRequestPreparer:
+             )
+ 
+             current_user = get_current_user()
+-            if not current_user.is_admin:
++            # An embedding service may already have authorized a request-local
++            # model. It must never fall back to the global/admin configuration.
++            from deeptutor.services.llm.config import _SCOPED_LLM_CONFIG
++            if not current_user.is_admin and _SCOPED_LLM_CONFIG.get() is None:
+                 # Single gate, shared with the frontend lock and any HTTP
+                 # surface: no usable LLM grant → a clear terminal error here
+                 # instead of a silent fall-through to the global client.

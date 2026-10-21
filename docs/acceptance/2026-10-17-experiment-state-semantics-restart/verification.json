@@ -1,0 +1,45 @@
+{
+  "checked_at": "2026-10-17T14:26:19.523061+00:00",
+  "status": "active-production-key-facts-retested",
+  "backend_pid": 1531252,
+  "backend_started_at": "2026-10-17T14:23:10Z",
+  "source_hashes": {
+    "backend/src/app/practice/experiment/state_evidence.py": "26b22aa37121841d1bf13cab03327c4a6607cd6e9eee5a3d09f5ac3db6d53bbd",
+    "backend/src/app/practice/experiment/facts.py": "1009e706132c51b21ba5295829eb5d4cd6294db73765f510841f6540195d290c",
+    "backend/src/app/practice/experiment/teaching.py": "a01da1eaac7926e354be09d1f5a00b218804b5eb5f46639a49f15c7d29d5ee10",
+    "backend/src/app/practice/experiment/tutor.py": "aa21d9a75be6336bc9cb6919c9bc9882a68227eace95e0c121543449d549a603",
+    "backend/src/app/practice/pages/generation.py": "0b2126973d4a4624653b9deebe3447cbfb73a4795252d212083b5f6e602c6491",
+    "backend/src/app/practice/skills/teach-experiment/SKILL.md": "70eb271993bea084f787f8116d2a967f34b28aaed003e53ca489d01c493939e7",
+    "backend/src/app/practice/skills/design-experiment/SKILL.md": "528ce2df6999cfbc2f271cd5206297b2d6293d3edf34cf63a1a78586be5724f0",
+    "backend/src/app/practice/skills/design-experiment/references/pages-runtime.md": "13f84b0e1038da1a2c1b9bfc6d7497f03da1279e0738d2189487aad500f15aa6",
+    "backend/src/app/practice/skills/design-experiment/references/state-evidence.md": "f401de209a806ee93bb382ee7f124d3eb01a49d164a6f772d8bb5424e29a694d",
+    "backend/src/app/practice/skills/design-experiment/references/narration.md": "8373b6df2226f7a0fbe26a55ccb6d03196f13142c375da3b3b7e5a968831fbec",
+    "backend/src/tests/practice/test_experiment_state_evidence.py": "038ec536798dd51c9d196f3d759aaab1fbeed750833e6e7c4e876eefb9ed5331",
+    "backend/src/tests/practice/test_experiment_tutor.py": "8d3c4f29feab177103e10b204d830a69a72888293a8ed5143369f9af45ed0f5d"
+  },
+  "live_new_projection_confirmed": true,
+  "new_run": "a8582920-9221-4054-8dca-7c3a9ebbe6a5",
+  "previous_run_preserved": "99b991ce-885c-4066-bde3-30d5dc83bd1e",
+  "online_real_qa": 7,
+  "complete": 7,
+  "pending": 0,
+  "refresh_preserved": true,
+  "browser_errors": [],
+  "first_text_ms_range": [
+    1215,
+    2520
+  ],
+  "finished_ms_range": [
+    2324,
+    4183
+  ],
+  "product_changes": false,
+  "frontend_publish": false,
+  "new_experiment_generated": false,
+  "scope": "existing repaired dedicated bubble experiment, new run; actual production UI/API/model",
+  "not_retested": [
+    "tool budget exhaustion",
+    "mid-answer refresh lease",
+    "pendulum generation"
+  ]
+}

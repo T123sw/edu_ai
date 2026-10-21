@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "exerciseId": "pbl_e9a9e84a42ae939f3b87205c1f0e8e63",
+  "jobId": "pbl_e9a9e84a42ae939f3b87205c1f0e8e63",
+  "createdAt": "2026-10-13T21:23:25.899Z",
+  "durationMs": 35129,
+  "cases": 16,
+  "runs": [
+    {
+      "runId": "1996772a-b439-4be6-900b-35cc6fdadccf",
+      "status": "passed",
+      "codeHash": "5f06daf99623f3fbaebea33d2016b86be675e9318d5bf64a3e5767c2adde8bca"
+    },
+    {
+      "runId": "86f6b73a-34f6-48ef-ac92-8a2b6160bf7a",
+      "status": "passed",
+      "codeHash": "da6c6d9b30a4ba3662185356695a04c2e1f1df5658bed6671b3c298ec4871dd9"
+    },
+    {
+      "runId": "1a22329d-0929-4515-8909-4574b33226c2",
+      "status": "failed",
+      "codeHash": "99eb02df92eb1ad88da64bbb17e543562ca2e61274a4bdfad9060df8dd22cab3"
+    }
+  ],
+  "auth": "real isolated user login",
+  "backend": "real PostgreSQL and durable task",
+  "runtime": "official hosted Sandpack",
+  "model": "actual configured provider; artifact generated during test"
+}

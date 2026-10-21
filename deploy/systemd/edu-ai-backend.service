@@ -1,7 +1,7 @@
 [Unit]
 Description=Edu-AI FastAPI backend
-Wants=network-online.target postgresql.service edu-ai-openmaic.service
-After=network-online.target postgresql.service edu-ai-openmaic.service
+Wants=network-online.target postgresql.service edu-ai-tts.service
+After=network-online.target postgresql.service edu-ai-tts.service
 
 [Service]
 Type=simple

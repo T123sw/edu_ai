@@ -1,0 +1,12 @@
+{
+  "browserTestsPassed": 8,
+  "coverage": [
+    "same loading surface while material and saved answers are delayed",
+    "no read-only question preview or editable incomplete form",
+    "all versioned cards appear only with saved state ready, no per-question GET fan-out",
+    "failure and retry on narrow screens",
+    "saved legacy answer restored before first editable form",
+    "quiz types, code, math, simplified controls and explicit tutoring references"
+  ],
+  "limits": "Business API responses mocked with controlled delays; no backend speedup or single HTTP request claimed."
+}

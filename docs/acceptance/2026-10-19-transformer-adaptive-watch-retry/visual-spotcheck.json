@@ -1,0 +1,14 @@
+{
+  "node": "n6-vs-rnn",
+  "images": [
+    "n6-vs-rnn-e87a288e-c0df-4e37-a001-16d2e1a8f1a7-contact-sheet-1.jpg",
+    "n6-vs-rnn-e87a288e-c0df-4e37-a001-16d2e1a8f1a7-contact-sheet-2.jpg"
+  ],
+  "observations": [
+    "深蓝背景、青色强调和结构图风格一致；可见 RNN 串行链、自注意力并行连接、路径长度和复杂度对照。",
+    "部分表格标签与图注在缩略图中偏小，不能据此认定全屏字号合格。",
+    "246.5 秒快照的中心面板暂为空白；源码显示面板先出现、标题和内容随后逐步出现，该单帧不能证明持续缺失。"
+  ],
+  "scope": "仅查看工作流已生成的两张 contact sheet（13 个采样时刻），并核对相关动画源码及部分讲稿；未额外渲染，未逐帧审校。",
+  "production_modified": false
+}

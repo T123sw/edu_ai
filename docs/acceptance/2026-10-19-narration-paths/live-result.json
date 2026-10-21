@@ -1,0 +1,84 @@
+{
+  "status": "passed",
+  "calls": [
+    {
+      "chars": 407,
+      "sha256": "a0bad86d882b0567b2ccd605477bacc0c5c59b161ba34941df324a0790043dd8",
+      "timeout": 730.5,
+      "started_at": 1792387741.3685737,
+      "bytes": 1342508,
+      "elapsed_seconds": 183.38,
+      "status": "ok"
+    },
+    {
+      "chars": 76,
+      "sha256": "ca647ae95c944141025de657e8321d13492dbc02262e363af00d0f7d35132f77",
+      "timeout": 234.0,
+      "started_at": 1792387924.754369,
+      "bytes": 277292,
+      "elapsed_seconds": 37.25,
+      "status": "ok"
+    },
+    {
+      "chars": 195,
+      "sha256": "d274a9b52e82a9fa8f63417bd13d383778356da448bab340b530591adbf191be",
+      "timeout": 412.5,
+      "started_at": 1792387963.3101962,
+      "bytes": 743468,
+      "elapsed_seconds": 100.32,
+      "status": "ok"
+    }
+  ],
+  "media": [
+    {
+      "path": "live/podcast/podcast.mp3",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "mp3",
+            "sample_rate": "24000",
+            "channels": 1
+          }
+        ],
+        "format": {
+          "duration": "101.232000"
+        }
+      },
+      "decode": "passed"
+    },
+    {
+      "path": "live/video-workspace/video/assets/audio/483f68bcf13fcc86b8b803d7f87cfd92697493b70e3d1a0dc94d78d19bfd18f8.mp3",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "mp3",
+            "sample_rate": "24000",
+            "channels": 1
+          }
+        ],
+        "format": {
+          "duration": "46.464000"
+        }
+      },
+      "decode": "passed"
+    }
+  ],
+  "video_metadata": {
+    "bgm": null,
+    "bgm_pending": false,
+    "voices": [
+      {
+        "frame": 1,
+        "path": "assets/audio/483f68bcf13fcc86b8b803d7f87cfd92697493b70e3d1a0dc94d78d19bfd18f8.mp3",
+        "duration_s": 46.464,
+        "words": []
+      }
+    ],
+    "sfx": []
+  },
+  "scope": "Real podcast renderer with two chapters; original HyperFrames audio CLI/provider plus duration sync. No full video animation generation or ASR semantic audit."
+}

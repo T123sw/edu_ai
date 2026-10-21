@@ -1,0 +1,51 @@
+{
+  "base": "http://127.0.0.1:18719",
+  "api": "fixtures",
+  "results": [
+    {
+      "width": 1440,
+      "removed": true,
+      "filtersRemoved": true,
+      "allStatusesVisible": true,
+      "search": true,
+      "paletteVisible": true,
+      "themes": 5,
+      "themePersistence": true,
+      "escapeAndOutsideClose": true,
+      "listsVisible": true,
+      "modeSwitch": true,
+      "refresh": true,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "removed": true,
+      "filtersRemoved": true,
+      "allStatusesVisible": true,
+      "search": true,
+      "paletteVisible": true,
+      "themes": 5,
+      "themePersistence": true,
+      "escapeAndOutsideClose": true,
+      "listsVisible": true,
+      "modeSwitch": true,
+      "refresh": true,
+      "errors": []
+    },
+    {
+      "width": 320,
+      "removed": true,
+      "filtersRemoved": true,
+      "allStatusesVisible": true,
+      "search": true,
+      "paletteVisible": true,
+      "themes": 5,
+      "themePersistence": true,
+      "escapeAndOutsideClose": true,
+      "listsVisible": true,
+      "modeSwitch": true,
+      "refresh": true,
+      "errors": []
+    }
+  ]
+}

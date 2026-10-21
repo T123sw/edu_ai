@@ -1,0 +1,74 @@
+--- /tmp/edu-node-review-before/harness_adapter.py	2026-10-19 16:18:12.142651133 +0000
++++ backend/src/app/course_preparation/harness_adapter.py	2026-10-19 16:18:12.182651501 +0000
+@@ -28,11 +28,25 @@
+         return [{'name': name, 'description': spec['description'], 'inputSchema': spec['parameters']}
+                 for name, spec in self.tools.items()]
+ 
++    def validate_arguments(self, name, arguments):
++        from jsonschema import Draft202012Validator
++        from .harness_provider import ToolSchemaError
++        error = next(Draft202012Validator(self.tools[name]['parameters']).iter_errors(arguments), None)
++        if error is not None:
++            path = '.'.join(map(str, error.absolute_path)) or '$'
++            raise ToolSchemaError(f'{name}.{path}: {error.message}'[:1000])
++
+     def call(self, name, arguments):
+         with self.lock:
+             if name not in self.tools or not isinstance(arguments, dict):
+                 self.invalid = True
+                 return {'ok': False, 'error': 'TOOL_NOT_AVAILABLE'}
++            from .harness_provider import ToolSchemaError
++            try:
++                self.validate_arguments(name, arguments)
++            except ToolSchemaError as exc:
++                self.invalid = True
++                return {'ok': False, 'error': exc.code, 'message': str(exc)}
+             decision = (name, arguments)
+             if self.result is not None and self.result != decision:
+                 return {'ok': False, 'error': 'DEFERRED_TO_NEXT_STEP',
+--- /tmp/edu-node-review-before/harness_provider.py	2026-10-19 16:18:12.142651133 +0000
++++ backend/src/app/course_preparation/harness_provider.py	2026-10-19 16:18:12.182651501 +0000
+@@ -21,7 +21,11 @@
+     pass
+ 
+ 
+-class ContentSchemaError(CompletionFormatError):
++class ToolSchemaError(CompletionFormatError):
++    pass
++
++
++class ContentSchemaError(ToolSchemaError):
+     pass
+ 
+ 
+@@ -209,9 +213,15 @@
+                                             call['function']['name'].split('__')[-1] in toolset.tools]
+                                         if len(submissions) > 1:
+                                             raise MultipleContentSubmissions('multiple content submissions in one completion')
+-                                        for submission in submissions:
+-                                            toolset.validate_arguments(submission['function']['name'].split('__')[-1],
+-                                                json.loads(submission['function']['arguments']))
++                                    # Stage decisions need the same pre-dispatch
++                                    # format recovery as resource submissions.
++                                    # Validate every mounted call before any is
++                                    # visible to the SDK or marked accepted.
++                                    if callable(getattr(toolset, 'validate_arguments', None)):
++                                        for call in calls:
++                                            name = call['function']['name'].split('__')[-1]
++                                            if name in toolset.tools:
++                                                toolset.validate_arguments(name, json.loads(call['function']['arguments']))
+                         except (json.JSONDecodeError, CompletionFormatError) as exc:
+                             if protocol_attempt == 2:
+                                 raise CompletionFormatError('MODEL_PROTOCOL_ERROR: incomplete response after two corrections') from exc
+@@ -229,9 +239,9 @@
+                                         'invalid_argument_excerpt': exc.doc[max(0, exc.pos-350):exc.pos+350],
+                                         'excerpt_start': max(0, exc.pos-350)},
+                                         ensure_ascii=False))
+-                            elif isinstance(exc, ContentSchemaError):
++                            elif isinstance(exc, ToolSchemaError):
+                                 feedback = ('上一轮工具参数不符合当前 schema，整批工具均未执行。'
+-                                    '请按工具 schema 重新提交完整审阅，补齐必填字段、移除未定义字段。'
++                                    '请按工具 schema 重新提交完整结构化结果，补齐必填字段、移除未定义字段。'
+                                     '保持独立判断，保留真实 blocking_issues，不将格式修正当成内容通过。具体错误：' + str(exc))
+                             elif isinstance(exc, MultipleContentSubmissions):
+                                 feedback = ('上一轮同时调用了多个正文提交工具，整批工具均未执行。'

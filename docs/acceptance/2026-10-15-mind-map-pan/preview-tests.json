@@ -1,0 +1,232 @@
+{
+  "config": {
+    "argv": [
+      "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/node",
+      "/tmp/edu-mind-map-pan-source/frontend/node_modules/.pnpm/playwright@1.62.1/node_modules/playwright/cli.js",
+      "test",
+      "-c",
+      "playwright.mindmap-release.config.ts"
+    ],
+    "configFile": "/tmp/edu-mind-map-pan-source/frontend/playwright.mindmap-release.config.ts",
+    "rootDir": "/tmp/edu-mind-map-pan-source/frontend/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-15-mind-map-pan/preview-tests",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/tmp/edu-mind-map-pan-source/frontend/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "mind-map-viewport.spec.ts",
+          "harness-resources.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/home/zxqs_ep/Edu_AI/docs/acceptance/2026-10-15-mind-map-pan/preview-tests.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "harness-resources.spec.ts",
+      "file": "harness-resources.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "mind map starts with a balanced overview and preserves hidden nodes in export",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2578,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-15T05:50:21.331Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5f57b2623a0b393ca5df-b13fe2de28f998d947df",
+          "file": "harness-resources.spec.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "mind-map-viewport.spec.ts",
+      "file": "mind-map-viewport.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "mind map fits every expanded node and keeps deep branches connected at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6834,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-15T05:50:24.123Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09dd04795bfdb09b4c75-ae5074a9a3925f85d76a",
+          "file": "mind-map-viewport.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "mind map fits every expanded node and keeps deep branches connected at 920px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4848,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-15T05:50:30.974Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09dd04795bfdb09b4c75-1281477e9d5caf5ee62f",
+          "file": "mind-map-viewport.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "mind map fits every expanded node and keeps deep branches connected at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4304,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-15T05:50:35.846Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09dd04795bfdb09b4c75-a41d7be8a7596e76bffe",
+          "file": "mind-map-viewport.spec.ts",
+          "line": 51,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-15T05:50:20.229Z",
+    "duration": 20050.864,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

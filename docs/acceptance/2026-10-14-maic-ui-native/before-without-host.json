@@ -1,0 +1,86 @@
+[
+  {
+    "name": "quicksort",
+    "hostPresentation": false,
+    "dpr": 2,
+    "before": [
+      {
+        "id": "canvas",
+        "bitmap": [
+          794,
+          260
+        ],
+        "css": [
+          794,
+          260
+        ]
+      }
+    ],
+    "after": [
+      {
+        "id": "canvas",
+        "bitmap": [
+          794,
+          260
+        ],
+        "css": [
+          794,
+          260
+        ]
+      }
+    ]
+  },
+  {
+    "name": "friction",
+    "hostPresentation": false,
+    "dpr": 2,
+    "before": [
+      {
+        "id": "scene",
+        "bitmap": [
+          972,
+          300
+        ],
+        "css": [
+          486,
+          150
+        ]
+      },
+      {
+        "id": "chart",
+        "bitmap": [
+          972,
+          400
+        ],
+        "css": [
+          486,
+          200
+        ]
+      }
+    ],
+    "after": [
+      {
+        "id": "scene",
+        "bitmap": [
+          972,
+          600
+        ],
+        "css": [
+          486,
+          300
+        ]
+      },
+      {
+        "id": "chart",
+        "bitmap": [
+          972,
+          800
+        ],
+        "css": [
+          486,
+          400
+        ]
+      }
+    ]
+  }
+]

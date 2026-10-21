@@ -1,0 +1,14 @@
+{
+  "status": "running",
+  "state": [
+    "plan",
+    "audio",
+    "files",
+    "checks",
+    "events",
+    "check_digest",
+    "visible_targets"
+  ],
+  "audio_count": 11,
+  "duration": 224.544
+}

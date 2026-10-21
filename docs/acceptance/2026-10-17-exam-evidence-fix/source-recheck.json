@@ -1,0 +1,11 @@
+{
+  "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "version": "1.6.14",
+  "source": "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor",
+  "patches": [
+    {
+      "file": "0009-tree-index-conventions.patch",
+      "sha256": "d9f76e9c0cfacb6b813267f74e6234962a00bd7ae66f0c51a4584da2b1c73dbe"
+    }
+  ]
+}

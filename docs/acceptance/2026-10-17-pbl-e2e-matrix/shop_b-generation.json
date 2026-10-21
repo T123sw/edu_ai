@@ -1,0 +1,180 @@
+{
+  "case": "shop_b",
+  "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+  "exerciseId": "pbl_47181002134d22ab660729f21da842ee",
+  "generationPassed": false,
+  "job": {
+    "schema_version": 2,
+    "version": 20,
+    "edu_job_id": "pbl_47181002134d22ab660729f21da842ee",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_shop_b",
+    "owner": "matrix_shop_b",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_47181002134d22ab660729f21da842ee",
+    "input_summary": {
+      "title": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+      "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+      "exercise_id": "pbl_47181002134d22ab660729f21da842ee"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error_code": "PBL_VALIDATION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T07:31:30.197502+00:00",
+    "started_at": "2026-10-17T07:31:30.646328+00:00",
+    "finished_at": "2026-10-17T07:33:42.921382+00:00",
+    "updated_at": "2026-10-17T07:33:42.921382+00:00"
+  },
+  "events": [
+    {
+      "seconds": 2.39,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 12.65,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：添加商品与空白校验"
+      ]
+    },
+    {
+      "seconds": 16.76,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：添加商品与空白校验"
+      ]
+    },
+    {
+      "seconds": 31.14,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：增减数量"
+      ]
+    },
+    {
+      "seconds": 37.33,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：增减数量"
+      ]
+    },
+    {
+      "seconds": 39.39,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：增减数量"
+      ]
+    },
+    {
+      "seconds": 53.8,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：切换购买状态与删除"
+      ]
+    },
+    {
+      "seconds": 59.96,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：切换购买状态与删除"
+      ]
+    },
+    {
+      "seconds": 64.08,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：切换购买状态与删除"
+      ]
+    },
+    {
+      "seconds": 78.46,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：筛选与统计"
+      ]
+    },
+    {
+      "seconds": 84.82,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：筛选与统计"
+      ]
+    },
+    {
+      "seconds": 89.11,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：筛选与统计"
+      ]
+    },
+    {
+      "seconds": 106.1,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：筛选与统计"
+      ]
+    },
+    {
+      "seconds": 114.61,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：筛选与统计"
+      ]
+    },
+    {
+      "seconds": 121.0,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：筛选与统计"
+      ]
+    },
+    {
+      "seconds": 127.35,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：筛选与统计"
+      ]
+    },
+    {
+      "seconds": 135.92,
+      "state": [
+        "failed",
+        "failed",
+        "任务执行失败"
+      ]
+    }
+  ],
+  "seconds": 135.93,
+  "idempotentCreate": true
+}

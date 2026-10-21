@@ -1,0 +1,30 @@
+{
+  "status": "frontend-published-backend-policy-restart-required",
+  "publishedAt": "20261019T064200Z",
+  "source": "/tmp/edu-node-resource-bundle-source",
+  "release": "/tmp/edu-node-resource-bundle-release",
+  "backupIndex": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-node-resource-bundle-20261019T064200Z/index.html",
+  "previousIndexSha256": "f1bbff50a15b69dc1914d16ea24d4fa0523311972d2a7dc28e334e3d2dad6a5a",
+  "releaseIndexSha256": "e7c8428e42308fc74ab91409cac9ceb08524b5cb8dad00599428896d2ee24e60",
+  "backendRestarted": false,
+  "backendRestartReason": "systemctl --no-ask-password restart edu-ai-backend: Interactive authentication required",
+  "behavior": "New frontend submissions explicitly require report and quiz for every node; server-side create/adjust fallback updated on disk, awaits main backend restart. Existing persisted specs are not rewritten.",
+  "verification": {
+    "backendPassed": 45,
+    "backendSkipped": 14,
+    "browserPassed": 2,
+    "browserScope": "Intercepted preparation submissions with AI classroom enabled/disabled",
+    "typecheck": "passed",
+    "eslint": "no errors; 2 existing component export warnings",
+    "build": "passed",
+    "onlineBrowserPassed": 2,
+    "onlineScope": "Published frontend; intercepted submissions confirm report+quiz with video on and off; no real new course created for these tests"
+  },
+  "backfill": {
+    "course_id": "learn-4abecf6908d242b5bbed483aff8a17de",
+    "unit": "edu-node-resource-backfill-20261019.service",
+    "status": "running",
+    "strategy": "Sequential node supplement tasks via authenticated API and exact latest manifest version; preserve original videos; report and quiz generated within each node task"
+  },
+  "nginxIndexVerified": true
+}

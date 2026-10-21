@@ -1,0 +1,46 @@
+[
+  {
+    "path": "requests/1791914495156023372-b563a2fb.json",
+    "phase": "intent",
+    "time": 1791914495.1560445,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 16807,
+    "tool_names": [
+      "mcp__preparation__save_preparation_brief",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914497273829135-d5de58f7.json",
+    "phase": "intent",
+    "time": 1791914497.2738562,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 16807,
+    "tool_names": [
+      "mcp__preparation__save_preparation_brief",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914498836784452-8380862a.json",
+    "phase": "intent",
+    "time": 1791914498.8368022,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 16807,
+    "tool_names": [
+      "mcp__preparation__save_preparation_brief",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914501614712731-decc91b4.json",
+    "phase": "intent",
+    "time": 1791914501.6147451,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 16807,
+    "tool_names": [
+      "mcp__preparation__save_preparation_brief",
+      "skill"
+    ]
+  }
+]

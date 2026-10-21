@@ -50,8 +50,6 @@ const CourseListPage = lazy(() => import("./pages/CourseDetail").then((module) =
 const CourseEditPage = lazy(() => import("./pages/CourseEdit").then((module) => ({ default: module.CourseEditPage })));
 const ProfilePage = lazy(() => import("./pages/Profile").then((module) => ({ default: module.ProfilePage })));
 const RuntimeSettingsPage = lazy(() => import("./pages/RuntimeSettings").then((module) => ({ default: module.RuntimeSettingsPage })));
-const PlayerSmokePage = lazy(() => import("./pages/_dev/PlayerSmoke").then((module) => ({ default: module.PlayerSmokePage })));
-const ClassroomVideoRenderPage = lazy(() => import("./pages/_dev/ClassroomVideoRender").then((module) => ({ default: module.ClassroomVideoRenderPage })));
 const ClassroomStudioPage = lazy(() => import("./pages/ClassroomStudio").then((module) => ({ default: module.ClassroomStudioPage })));
 const ClassroomPlayerPage = lazy(() => import("./pages/ClassroomPlayer").then((module) => ({ default: module.ClassroomPlayerPage })));
 const StudentApp = lazy(() => import("./student/StudentApp").then((module) => ({ default: module.StudentApp })));
@@ -71,8 +69,6 @@ const pages = [
   [routes.graph, "Knowledge Graph", LegacyKnowledgeGraphRedirect],
   [routes.knowledge, "Course Knowledge", CourseKnowledgePage],
   [routes.edit, "Course Edit", CourseEditPage],
-  [routes.playerSmoke, "Player Smoke (dev)", PlayerSmokePage],
-  [routes.videoRender, "Video Render", ClassroomVideoRenderPage],
   [routes.classroomStudio, "Classroom Studio", ClassroomStudioPage],
   [routes.classroomPlayer, "Classroom Player", ClassroomPlayerPage],
 ] as const;
@@ -154,12 +150,6 @@ function getCurrentRoute(): AppRouteKey {
   const route = hash.split("?")[0];
   if (isStudentRoute(route)) return route;
   return pages.some(([id]) => id === route) ? route as RouteKey : routes.home;
-}
-
-function isFixtureVideoRenderRoute(): boolean {
-  if (getCurrentRoute() !== routes.videoRender) return false;
-  const query = window.location.hash.split("?")[1] ?? "";
-  return new URLSearchParams(query).get("fixture") === "1";
 }
 
 function getStoredCourse(): CourseSummary | null {
@@ -368,8 +358,6 @@ function AppPresentation({
   }, [routeCourse.course, setRememberedCourse]);
 
   const ActivePage = pages.find(([id]) => id === current)?.[2] ?? HomeDashboardPage;
-  const isStandaloneDevRoute = current === routes.playerSmoke || isFixtureVideoRenderRoute();
-  const isVideoRenderRoute = current === routes.videoRender;
   const isCourseRoute = isCourseWorkspaceRoute(current);
   const isStudentWorkspace = isStudentRoute(current);
   const authorizedHash = authUser ? resolveRoleHash(authUser.role, window.location.hash) : window.location.hash;
@@ -401,10 +389,7 @@ function AppPresentation({
     >
       <RouteErrorBoundary key={current}>
       <Suspense fallback={<div className="grid min-h-screen place-items-center text-sm text-slate-500">正在加载页面…</div>}>
-        {isStandaloneDevRoute ? (
-          // Dev-only: no backend dependency, so it skips the auth gate.
-          <ActivePage />
-        ) : !authReady ? (
+        {!authReady ? (
           <div className="grid min-h-screen place-items-center text-sm text-slate-500">Loading...</div>
         ) : authenticated && !routeAuthorized ? (
           <div className="grid min-h-screen place-items-center text-sm text-slate-500">正在进入对应工作区…</div>
@@ -412,7 +397,7 @@ function AppPresentation({
           <>
             <ResumeTracker />
             <DeferredGlobalJobManager
-              enabled={!isVideoRenderRoute}
+              enabled
               showLauncher={authUser?.role !== "student" && !isCourseRoute && !isStudentWorkspace}
               currentCourseId={jobCenterCourseId}
               currentCourseTitle={jobCenterCourseTitle}

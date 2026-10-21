@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "caseId": "add-item-appears",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-name-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"1\"\n✓ 5. 在 \"item-name-input\" 输入 \"鸡蛋\"\n✓ 6. 点击 \"add-button\"\n✓ 7. 检查 \"item-name\" 的数量\n   实际：2\n✓ 8. 检查 第 1 个 \"item-name\" 的显示文字\n   实际：\"牛奶\"\n✓ 9. 检查 第 2 个 \"item-name\" 的显示文字\n   实际：\"鸡蛋\"\n✓ 10. 检查 第 2 个 \"item-quantity\" 的显示文字\n   实际：\"1\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "add-clears-input",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-name-input\" 输入 \"面包\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"item-name-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "blank-shows-hint",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"add-button\"\n✓ 2. 检查 \"item-name\" 的数量\n   实际：0\n✓ 3. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 4. 在 \"item-name-input\" 输入 \"   \"\n✓ 5. 点击 \"add-button\"\n✓ 6. 检查 \"item-name\" 的数量\n   实际：0\n✓ 7. 检查 \"blank-hint\" 的可见状态\n   实际：true\n✓ 8. 在 \"item-name-input\" 输入 \"苹果\"\n✓ 9. 点击 \"add-button\"\n✓ 10. 检查 \"item-name\" 的数量\n   实际：1\n✓ 11. 检查 \"item-name\" 的显示文字\n   实际：\"苹果\"\n✓ 12. 检查 \"blank-hint\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+    }
+  ],
+  "durationMs": 1369.589697
+}

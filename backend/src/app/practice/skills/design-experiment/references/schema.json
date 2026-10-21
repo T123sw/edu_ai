@@ -1,0 +1,798 @@
+{
+  "$defs": {
+    "Action": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "phases": {
+          "items": {
+            "enum": [
+              "demonstrate",
+              "guided",
+              "explore"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Phases",
+          "type": "array"
+        },
+        "parameters": {
+          "items": {
+            "$ref": "#/$defs/Parameter"
+          },
+          "title": "Parameters",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "description",
+        "phases"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "ActionSubmissionTask": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "objective": {
+          "title": "Objective",
+          "type": "string"
+        },
+        "prompt": {
+          "title": "Prompt",
+          "type": "string"
+        },
+        "checkpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Checkpoint"
+        },
+        "allowed_actions": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Actions",
+          "type": "array"
+        },
+        "submission": {
+          "const": "on_action",
+          "default": "on_action",
+          "title": "Submission",
+          "type": "string"
+        },
+        "submit_action": {
+          "description": "触发本次尝试判定的动作 ID，必须属于 allowed_actions",
+          "minLength": 1,
+          "title": "Submit Action",
+          "type": "string"
+        },
+        "assessment": {
+          "default": "deterministic",
+          "enum": [
+            "deterministic",
+            "rubric"
+          ],
+          "title": "Assessment",
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/Condition"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "rubric": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rubric",
+          "type": "array"
+        },
+        "success": {
+          "title": "Success",
+          "type": "string"
+        },
+        "retry": {
+          "title": "Retry",
+          "type": "string"
+        },
+        "recovery": {
+          "default": "rollback",
+          "enum": [
+            "rollback",
+            "keep"
+          ],
+          "title": "Recovery",
+          "type": "string"
+        },
+        "hints": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Hints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "objective",
+        "prompt",
+        "allowed_actions",
+        "submit_action",
+        "success",
+        "retry",
+        "hints"
+      ],
+      "title": "ActionSubmissionTask",
+      "type": "object"
+    },
+    "Command": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "input": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Input",
+          "type": "object"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "title": "Command",
+      "type": "object"
+    },
+    "Condition": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "description": "首段必须是 after、before 或 input，例如 [\"after\", \"comparisons\"]；不能只写状态字段名",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          },
+          "minItems": 1,
+          "prefixItems": [
+            {
+              "enum": [
+                "before",
+                "after",
+                "input"
+              ],
+              "type": "string"
+            }
+          ],
+          "title": "Path",
+          "type": "array"
+        },
+        "op": {
+          "enum": [
+            "eq",
+            "ne",
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "contains",
+            "near"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        },
+        "right_path": {
+          "anyOf": [
+            {
+              "description": "首段必须是 after、before 或 input，例如 [\"after\", \"comparisons\"]；不能只写状态字段名",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "minItems": 1,
+              "prefixItems": [
+                {
+                  "enum": [
+                    "before",
+                    "after",
+                    "input"
+                  ],
+                  "type": "string"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Right Path"
+        },
+        "tolerance": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Tolerance",
+          "type": "number"
+        }
+      },
+      "required": [
+        "path",
+        "op"
+      ],
+      "title": "Condition",
+      "type": "object"
+    },
+    "DemoStep": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "before": {
+          "title": "Before",
+          "type": "string"
+        },
+        "after": {
+          "title": "After",
+          "type": "string"
+        },
+        "commands": {
+          "description": "初始状态观察步骤可以为空数组；实际操作步骤必须列出真实动作",
+          "items": {
+            "$ref": "#/$defs/Command"
+          },
+          "title": "Commands",
+          "type": "array"
+        },
+        "assertions": {
+          "items": {
+            "$ref": "#/$defs/Condition"
+          },
+          "minItems": 1,
+          "title": "Assertions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "before",
+        "after",
+        "commands",
+        "assertions"
+      ],
+      "title": "DemoStep",
+      "type": "object"
+    },
+    "ExplicitSubmissionTask": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "objective": {
+          "title": "Objective",
+          "type": "string"
+        },
+        "prompt": {
+          "title": "Prompt",
+          "type": "string"
+        },
+        "checkpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Checkpoint"
+        },
+        "allowed_actions": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Allowed Actions",
+          "type": "array"
+        },
+        "submission": {
+          "const": "explicit_submit",
+          "default": "explicit_submit",
+          "title": "Submission",
+          "type": "string"
+        },
+        "submit_action": {
+          "default": null,
+          "description": "手动提交由宿主按钮完成，此字段必须为 null 或省略",
+          "title": "Submit Action",
+          "type": "null"
+        },
+        "assessment": {
+          "default": "deterministic",
+          "enum": [
+            "deterministic",
+            "rubric"
+          ],
+          "title": "Assessment",
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/Condition"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "rubric": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rubric",
+          "type": "array"
+        },
+        "success": {
+          "title": "Success",
+          "type": "string"
+        },
+        "retry": {
+          "title": "Retry",
+          "type": "string"
+        },
+        "recovery": {
+          "default": "rollback",
+          "enum": [
+            "rollback",
+            "keep"
+          ],
+          "title": "Recovery",
+          "type": "string"
+        },
+        "hints": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Hints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "objective",
+        "prompt",
+        "allowed_actions",
+        "success",
+        "retry",
+        "hints"
+      ],
+      "title": "ExplicitSubmissionTask",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "Parameter": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "number",
+            "integer",
+            "string",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "default": {
+          "$ref": "#/$defs/JsonValue"
+        },
+        "minimum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum"
+        },
+        "maximum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Options",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type",
+        "default"
+      ],
+      "title": "Parameter",
+      "type": "object"
+    },
+    "ScientificModel": {
+      "additionalProperties": false,
+      "properties": {
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "rules": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Rules",
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "assumptions",
+        "rules",
+        "limitations"
+      ],
+      "title": "ScientificModel",
+      "type": "object"
+    },
+    "StateField": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          },
+          "minItems": 1,
+          "title": "Path",
+          "type": "array"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "unit": {
+          "default": "",
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "label",
+        "description"
+      ],
+      "title": "StateField",
+      "type": "object"
+    },
+    "TeachingContext": {
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "title": "Background",
+          "type": "string"
+        },
+        "misconceptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Misconceptions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "background",
+        "misconceptions"
+      ],
+      "title": "TeachingContext",
+      "type": "object"
+    },
+    "ValidationCase": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        },
+        "commands": {
+          "items": {
+            "$ref": "#/$defs/Command"
+          },
+          "minItems": 1,
+          "title": "Commands",
+          "type": "array"
+        },
+        "expected": {
+          "enum": [
+            "pass",
+            "fail",
+            "awaiting_review"
+          ],
+          "title": "Expected",
+          "type": "string"
+        },
+        "assertions": {
+          "items": {
+            "$ref": "#/$defs/Condition"
+          },
+          "title": "Assertions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "task_id",
+        "commands",
+        "expected"
+      ],
+      "title": "ValidationCase",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "protocol": {
+      "const": "edu-experiment/1",
+      "default": "edu-experiment/1",
+      "title": "Protocol",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "subject": {
+      "minLength": 1,
+      "title": "Subject",
+      "type": "string"
+    },
+    "overview": {
+      "minLength": 1,
+      "title": "Overview",
+      "type": "string"
+    },
+    "objectives": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Objectives",
+      "type": "array"
+    },
+    "scientific_model": {
+      "$ref": "#/$defs/ScientificModel"
+    },
+    "state_fields": {
+      "items": {
+        "$ref": "#/$defs/StateField"
+      },
+      "minItems": 1,
+      "title": "State Fields",
+      "type": "array"
+    },
+    "actions": {
+      "items": {
+        "$ref": "#/$defs/Action"
+      },
+      "minItems": 1,
+      "title": "Actions",
+      "type": "array"
+    },
+    "checkpoints": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "$ref": "#/$defs/JsonValue"
+        },
+        "type": "object"
+      },
+      "title": "Checkpoints",
+      "type": "object"
+    },
+    "demo_checkpoint": {
+      "title": "Demo Checkpoint",
+      "type": "string"
+    },
+    "demo_steps": {
+      "items": {
+        "$ref": "#/$defs/DemoStep"
+      },
+      "maxItems": 16,
+      "minItems": 1,
+      "title": "Demo Steps",
+      "type": "array"
+    },
+    "guided_checkpoint": {
+      "title": "Guided Checkpoint",
+      "type": "string"
+    },
+    "tasks": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "explicit_submit": "#/$defs/ExplicitSubmissionTask",
+            "on_action": "#/$defs/ActionSubmissionTask"
+          },
+          "propertyName": "submission"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ActionSubmissionTask"
+          },
+          {
+            "$ref": "#/$defs/ExplicitSubmissionTask"
+          }
+        ]
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Tasks",
+      "type": "array"
+    },
+    "explore_checkpoint": {
+      "title": "Explore Checkpoint",
+      "type": "string"
+    },
+    "exploration_prompts": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Exploration Prompts",
+      "type": "array"
+    },
+    "teaching_context": {
+      "$ref": "#/$defs/TeachingContext"
+    },
+    "validation_cases": {
+      "items": {
+        "$ref": "#/$defs/ValidationCase"
+      },
+      "maxItems": 24,
+      "minItems": 1,
+      "title": "Validation Cases",
+      "type": "array"
+    }
+  },
+  "required": [
+    "title",
+    "subject",
+    "overview",
+    "objectives",
+    "scientific_model",
+    "state_fields",
+    "actions",
+    "checkpoints",
+    "demo_checkpoint",
+    "demo_steps",
+    "guided_checkpoint",
+    "tasks",
+    "explore_checkpoint",
+    "exploration_prompts",
+    "teaching_context",
+    "validation_cases"
+  ],
+  "title": "ExperimentSpec",
+  "type": "object"
+}

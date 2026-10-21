@@ -1,0 +1,554 @@
+{
+  "plan": {
+    "schemaVersion": 1,
+    "title": "本地打字统计器",
+    "goal": "用 React + TypeScript 构建一个本地打字统计器：输入文本时即时显示包含空格的字符数（初始为 0），并能通过清空按钮把输入和计数都重置为 0；字符统计逻辑放在独立的 TypeScript 模块中，全程不访问网络。",
+    "runtimeKind": "sandpack_project",
+    "runtime": {
+      "template": "react-ts",
+      "entry": "/index.tsx",
+      "dependencies": {},
+      "moduleType": "commonjs"
+    },
+    "editableFiles": [
+      "/index.tsx",
+      "/App.tsx",
+      "/styles.css",
+      "/tsconfig.json",
+      "/public/index.html",
+      "/charCount.ts"
+    ],
+    "requirements": [
+      {
+        "id": "char-count",
+        "description": "输入框中的文本变化时，页面即时显示该文本的字符数，空格也计入；初始状态（输入为空）显示 0。"
+      },
+      {
+        "id": "clear-input",
+        "description": "点击清空按钮后，输入框内容变为空，显示的字符数变为 0。"
+      },
+      {
+        "id": "count-module",
+        "description": "字符统计逻辑实现为独立的 TypeScript 模块，由界面组件导入使用，不依赖网络请求。"
+      }
+    ],
+    "steps": [
+      {
+        "id": "count-display",
+        "title": "输入即统计字符数",
+        "objective": "搭建打字统计器界面，输入文本时即时显示包含空格的字符数，初始显示 0，统计逻辑放在独立 TypeScript 模块中。",
+        "dependsOn": [],
+        "entryCondition": "从初始 React + TypeScript 工程开始，工程中只有默认的 Hello world 页面。",
+        "deliverable": "页面包含一个可输入的文本框和一个显示字符数的区域；初始时输入为空、计数显示 0；输入任意文本（含空格）后计数即时更新为对应字符数；字符统计由独立的 TypeScript 模块提供。",
+        "requirementIds": [
+          "char-count",
+          "count-module"
+        ],
+        "focusFiles": [
+          "/App.tsx",
+          "/charCount.ts",
+          "/index.tsx",
+          "/styles.css"
+        ],
+        "newCheckIds": [
+          "initial-count-zero",
+          "count-updates-with-spaces",
+          "count-module-pure"
+        ]
+      },
+      {
+        "id": "clear-button",
+        "title": "一键清空输入与计数",
+        "objective": "在统计器上增加清空按钮，点击后输入框内容清空、字符数回到 0。",
+        "dependsOn": [
+          "count-display"
+        ],
+        "entryCondition": "上一步的统计器已能输入文本并即时显示字符数。",
+        "deliverable": "页面新增一个清空按钮；在有输入内容时点击它，输入框变为空、字符数显示 0；清空后继续输入仍能正常统计。",
+        "requirementIds": [
+          "char-count",
+          "clear-input",
+          "count-module"
+        ],
+        "focusFiles": [
+          "/App.tsx",
+          "/charCount.ts",
+          "/styles.css"
+        ],
+        "newCheckIds": [
+          "clear-resets-input-and-count",
+          "count-after-clear-again"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "initial-count-zero",
+        "stepId": "count-display",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "char-count"
+        ],
+        "setup": "打开页面，不做任何输入。",
+        "actions": [
+          "读取字符数显示区域",
+          "读取输入框的值"
+        ],
+        "expected": [
+          "字符数显示为 0",
+          "输入框初始为空"
+        ],
+        "requiredAssertions": [
+          "text",
+          "value"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "count-updates-with-spaces",
+        "stepId": "count-display",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "char-count"
+        ],
+        "setup": "打开页面，输入框为空。",
+        "actions": [
+          "在输入框中输入 \"hello world\"",
+          "读取字符数显示区域",
+          "把输入框内容改为 \"a b\"",
+          "读取字符数显示区域"
+        ],
+        "expected": [
+          "输入 \"hello world\" 后显示 11（空格计入）",
+          "输入 \"a b\" 后显示 3"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "count-module-pure",
+        "stepId": "count-display",
+        "kind": "function_case",
+        "requirementIds": [
+          "count-module",
+          "char-count"
+        ],
+        "setup": "导入独立统计模块导出的字符统计函数。",
+        "actions": [
+          "调用统计函数传入空字符串",
+          "调用统计函数传入 \"hello world\"",
+          "调用统计函数传入 \"a b\""
+        ],
+        "expected": [
+          "空字符串返回 0",
+          "\"hello world\" 返回 11",
+          "\"a b\" 返回 3"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "clear-resets-input-and-count",
+        "stepId": "clear-button",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "clear-input",
+          "char-count"
+        ],
+        "setup": "打开页面，输入框为空。",
+        "actions": [
+          "在输入框中输入 \"hello world\"",
+          "点击清空按钮",
+          "读取输入框的值",
+          "读取字符数显示区域"
+        ],
+        "expected": [
+          "清空后输入框为空",
+          "清空后字符数显示 0"
+        ],
+        "requiredAssertions": [
+          "value",
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "count-after-clear-again",
+        "stepId": "clear-button",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "clear-input",
+          "char-count"
+        ],
+        "setup": "打开页面，输入框为空。",
+        "actions": [
+          "在输入框中输入 \"abc\"",
+          "点击清空按钮",
+          "在输入框中输入 \"xy z\"",
+          "读取字符数显示区域"
+        ],
+        "expected": [
+          "清空后再次输入 \"xy z\" 显示 4"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      }
+    ]
+  },
+  "completed": [
+    {
+      "candidate": {
+        "unit": {
+          "stepId": "count-display",
+          "title": "输入即统计字符数",
+          "objective": "搭建打字统计器界面，输入文本时即时显示包含空格的字符数，初始显示 0，统计逻辑放在独立 TypeScript 模块中。",
+          "instructionsMarkdown": "这一步要做出一个「打字统计器」的雏形：页面上有一个可以输入文字的文本框，还有一个显示当前字符数的区域。\n\n**页面组成**\n\n- 一个多行文本框，初始为空。\n- 一个显示字符数的区域，初始显示 `0`。\n\n**完成效果**\n\n- 打开页面时，文本框为空，字符数显示 `0`。\n- 在文本框里输入任意文字，字符数会立刻更新为这段文字的长度，**空格也算一个字符**。例如输入 `hello world`（中间一个空格）应显示 `11`，输入 `a b` 应显示 `3`。\n- 把文字删掉后，字符数回到 `0`。\n\n**统计逻辑要独立**\n\n字符数的计算不要直接写在界面组件里，而是放到一个独立的 TypeScript 模块中，由界面组件导入调用。这样统计规则集中在一处，后面扩展更方便。整个过程只在本地运行，不发起任何网络请求。\n\n**代码约定**\n\n为了便于系统识别页面部件，请给下面这些元素加上对应的 `data-testid`（只是标记，不会改变外观）：\n\n- 输入文本框：`data-testid=\"text-input\"`\n- 显示字符数的区域：`data-testid=\"char-count\"`，里面只放数字本身（例如 `0`、`11`），不要附加「字符」等文字。\n- 独立统计模块：放在 `/charCount.ts`，导出一个函数 `countCharacters(text: string): number`，返回传入文本的字符数（含空格）。",
+          "explanationMarkdown": "## 为什么把统计逻辑拆出去\n\n界面组件负责「显示」和「响应输入」，而「一段文字有多少字符」是一条纯粹的规则。把这条规则放进独立模块，好处是：\n\n- 规则只有一处，改起来不会漏。\n- 可以单独测试这个函数，不必启动整个页面。\n- 以后想改统计方式（比如不计空格），只动这一个文件。\n\n## React 里怎么做到「即时更新」\n\n用 `useState` 保存输入文本。文本框的 `value` 绑定这个状态，`onChange` 时把新值写回状态。每次状态变化，组件重新渲染，字符数区域就会用最新文本重新计算并显示。\n\n字符数不需要单独存一份状态——它可以从文本「算出来」，直接调用统计函数即可，避免两份数据不同步。\n\n## 空格为什么会被算进去\n\n`\"hello world\".length` 是 11，因为字符串长度天然包含空格。只要统计函数直接返回 `text.length`，空格就自动计入，不需要额外处理。",
+          "hints": [
+            "先在 `/charCount.ts` 里写一个导出函数，返回 `text.length`。",
+            "在 `App.tsx` 里用 `useState<string>(\"\")` 保存输入文本。",
+            "文本框用 `<textarea>`，绑定 `value` 和 `onChange`，并加上 `data-testid=\"text-input\"`。",
+            "字符数区域用一个元素显示 `countCharacters(text)` 的结果，加上 `data-testid=\"char-count\"`，里面只放数字。",
+            "如果数字不更新，检查 `onChange` 里是否用了 `e.target.value` 写回状态。"
+          ],
+          "focusFiles": [
+            "/App.tsx",
+            "/charCount.ts",
+            "/index.tsx",
+            "/styles.css"
+          ],
+          "checkIds": [
+            "initial-count-zero",
+            "count-updates-with-spaces",
+            "count-module-pure"
+          ]
+        },
+        "behaviorCases": [
+          {
+            "requirementId": "char-count",
+            "setup": "页面刚打开，未做任何输入",
+            "action": "读取字符数区域与输入框",
+            "expected": "字符数显示 0，输入框为空",
+            "checkId": "initial-count-zero"
+          },
+          {
+            "requirementId": "char-count",
+            "setup": "输入框为空",
+            "action": "输入 \"hello world\"",
+            "expected": "字符数显示 11（空格计入）",
+            "checkId": "count-updates-with-spaces"
+          },
+          {
+            "requirementId": "char-count",
+            "setup": "输入框已有 \"hello world\"",
+            "action": "把内容改为 \"a b\"",
+            "expected": "字符数显示 3",
+            "checkId": "count-updates-with-spaces"
+          },
+          {
+            "requirementId": "char-count",
+            "setup": "输入框已有 \"a b\"",
+            "action": "清空输入框内容",
+            "expected": "字符数回到 0",
+            "checkId": "count-updates-with-spaces"
+          },
+          {
+            "requirementId": "count-module",
+            "setup": "导入 /charCount.ts 的 countCharacters",
+            "action": "传入空字符串、\"hello world\"、\"a b\"、\"  \"（两个空格）",
+            "expected": "分别返回 0、11、3、2",
+            "checkId": "count-module-pure"
+          }
+        ],
+        "checks": [
+          {
+            "id": "initial-count-zero",
+            "label": "打开页面时输入框为空，字符数显示 0",
+            "engine": "sandpack-jest",
+            "source": "import React from \"react\";\nimport { render, screen } from \"@testing-library/react\";\nimport App from \"../App\";\n\ntest(\"初始状态输入框为空且字符数为 0\", () => {\n  render(<App />);\n  const input = screen.getByTestId(\"text-input\");\n  expect(input.value).toBe(\"\");\n  const count = screen.getByTestId(\"char-count\");\n  expect(count.textContent.trim()).toBe(\"0\");\n});\n",
+            "viewport": null
+          },
+          {
+            "id": "count-updates-with-spaces",
+            "label": "输入文本时字符数即时更新，空格计入；改为更短文本或清空后随之变化",
+            "engine": "sandpack-jest",
+            "source": "import React from \"react\";\nimport { render, screen, fireEvent } from \"@testing-library/react\";\nimport App from \"../App\";\n\ntest(\"输入 hello world 显示 11，改为 a b 显示 3，清空后回到 0\", () => {\n  render(<App />);\n  const input = screen.getByTestId(\"text-input\");\n  const count = screen.getByTestId(\"char-count\");\n\n  fireEvent.change(input, { target: { value: \"hello world\" } });\n  expect(input.value).toBe(\"hello world\");\n  expect(count.textContent.trim()).toBe(\"11\");\n\n  fireEvent.change(input, { target: { value: \"a b\" } });\n  expect(count.textContent.trim()).toBe(\"3\");\n\n  fireEvent.change(input, { target: { value: \"\" } });\n  expect(count.textContent.trim()).toBe(\"0\");\n});\n",
+            "viewport": null
+          },
+          {
+            "id": "count-module-pure",
+            "label": "独立统计模块的 countCharacters 对空串、含空格文本返回正确字符数",
+            "engine": "sandpack-jest",
+            "source": "import { countCharacters } from \"../charCount\";\n\ntest(\"countCharacters 统计字符数并计入空格\", () => {\n  expect(countCharacters(\"\")).toBe(0);\n  expect(countCharacters(\"hello world\")).toBe(11);\n  expect(countCharacters(\"a b\")).toBe(3);\n  expect(countCharacters(\"  \")).toBe(2);\n});\n",
+            "viewport": null
+          }
+        ],
+        "faultyFiles": {},
+        "faultyCheckId": null,
+        "referenceFiles": {
+          "/index.tsx": "import React, { StrictMode } from \"react\";\nimport { createRoot } from \"react-dom/client\";\nimport \"./styles.css\";\n\nimport App from \"./App\";\n\nconst root = createRoot(document.getElementById(\"root\"));\nroot.render(\n  <StrictMode>\n    <App />\n  </StrictMode>\n);",
+          "/App.tsx": "import { useState } from \"react\";\nimport { countCharacters } from \"./charCount\";\n\nexport default function App(): JSX.Element {\n  const [text, setText] = useState<string>(\"\");\n\n  return (\n    <div className=\"app\">\n      <h1>打字统计器</h1>\n      <textarea\n        className=\"text-input\"\n        data-testid=\"text-input\"\n        value={text}\n        onChange={(e) => setText(e.target.value)}\n        placeholder=\"在这里输入文字…\"\n        rows={5}\n      />\n      <div className=\"count-row\">\n        <span className=\"count-label\">字符数：</span>\n        <span className=\"count-value\" data-testid=\"char-count\">\n          {countCharacters(text)}\n        </span>\n      </div>\n    </div>\n  );\n}\n",
+          "/charCount.ts": "export function countCharacters(text: string): number {\n  return text.length;\n}\n",
+          "/styles.css": "body {\n  font-family: sans-serif;\n  -webkit-font-smoothing: auto;\n  -moz-font-smoothing: auto;\n  -moz-osx-font-smoothing: grayscale;\n  font-smoothing: auto;\n  text-rendering: optimizeLegibility;\n  font-smooth: always;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-touch-callout: none;\n  margin: 0;\n}\n\n* {\n  box-sizing: border-box;\n}\n\n.app {\n  max-width: 640px;\n  margin: 0 auto;\n  padding: 16px;\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  min-width: 0;\n}\n\nh1 {\n  font-size: 1.5rem;\n  margin: 0;\n}\n\n.text-input {\n  width: 100%;\n  min-width: 0;\n  padding: 8px;\n  font-size: 1rem;\n  font-family: inherit;\n  border: 1px solid #ccc;\n  border-radius: 6px;\n  resize: vertical;\n}\n\n.count-row {\n  display: flex;\n  align-items: baseline;\n  gap: 6px;\n  flex-wrap: wrap;\n}\n\n.count-label {\n  color: #555;\n}\n\n.count-value {\n  font-size: 1.5rem;\n  font-weight: 600;\n}\n",
+          "/tsconfig.json": "{\n  \"include\": [\n    \"./**/*\"\n  ],\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"lib\": [ \"dom\", \"es2015\" ],\n    \"jsx\": \"react-jsx\"\n  }\n}",
+          "/public/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Document</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n  </body>\n</html>"
+        }
+      },
+      "validated": true,
+      "qualityWarnings": [
+        "未提供可执行负例，负例区分度未验证"
+      ],
+      "referenceHash": "5e05b40559c8d7e04d2e44f232ee06ff6db1a0b624e0ef513ea47302755990a4",
+      "faultyHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "evidence": {
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "initial-count-zero",
+              "status": "passed",
+              "message": "初始状态输入框为空且字符数为 0：通过"
+            },
+            {
+              "caseId": "count-updates-with-spaces",
+              "status": "passed",
+              "message": "输入 hello world 显示 11，改为 a b 显示 3，清空后回到 0：通过"
+            },
+            {
+              "caseId": "count-module-pure",
+              "status": "passed",
+              "message": "countCharacters 统计字符数并计入空格：通过"
+            }
+          ],
+          "durationMs": 46585.198564
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "initial-count-zero",
+              "status": "failed",
+              "message": "初始状态输入框为空且字符数为 0：未通过\nUnable to find an element by: [data-testid=\"text-input\"]\n\nIgnored nodes: comments, script, style\n<body>\n  <div>\n    <h1>\n      Hello world\n    </h1>\n  </div>\n</body>"
+            },
+            {
+              "caseId": "count-updates-with-spaces",
+              "status": "failed",
+              "message": "输入 hello world 显示 11，改为 a b 显示 3，清空后回到 0：未通过\nUnable to find an element by: [data-testid=\"text-input\"]\n\nIgnored nodes: comments, script, style\n<body>\n  <div>\n    <h1>\n      Hello world\n    </h1>\n  </div>\n</body>"
+            },
+            {
+              "caseId": "count-module-pure",
+              "status": "failed",
+              "message": "countCharacters 统计字符数并计入空格：未通过\n(0 , _charCount.countCharacters) is not a function"
+            }
+          ],
+          "durationMs": 24694.181828999997
+        },
+        "faulty": null,
+        "previousRegression": {
+          "stepId": "count-display",
+          "referenceHash": "5e05b40559c8d7e04d2e44f232ee06ff6db1a0b624e0ef513ea47302755990a4",
+          "previousHash": "93f4aa578734d2d77fecf338c22644887e9cb648cea721e6f76ef8bb207ebb04",
+          "checkIds": [],
+          "skipped": true,
+          "reason": "首步没有前序验收"
+        }
+      }
+    },
+    {
+      "candidate": {
+        "unit": {
+          "stepId": "clear-button",
+          "title": "一键清空输入与计数",
+          "objective": "在统计器上增加清空按钮，点击后输入框内容清空、字符数回到 0。",
+          "instructionsMarkdown": "上一步的统计器已经能输入文字并即时显示字符数。这一步给它加一个「清空」按钮，让用户一键把内容清掉。\n\n完成后页面应该是这样：\n\n- 输入框下方、字符数旁边（或附近）有一个写着「清空」的按钮。\n- 输入框里有内容时，点击这个按钮，输入框立刻变空，字符数显示回到 0。\n- 清空之后继续输入新的文字，字符数仍然能正常统计（例如再输入 `xy z` 显示 4）。\n- 字符统计仍然由独立的 TypeScript 模块提供，不要改成在组件里直接写死。\n\n按钮文字请使用「清空」两个字，方便识别。\n\n**代码约定**\n\n- 清空按钮需要加上 `data-testid=\"clear-button\"`，系统靠它找到这个按钮来模拟点击。\n- 输入框保持 `data-testid=\"text-input\"`，字符数显示区域保持 `data-testid=\"char-count\"`，与上一步一致。\n- 这些标记只是供系统识别，不会改变页面外观。",
+          "explanationMarkdown": "清空按钮本质上就是把状态重置回初始值。你的输入文字存在一个 state 里，字符数是由这段文字算出来的，所以只要把文字 state 设回空字符串 `\"\"`，输入框和计数就会一起回到初始状态，不需要单独去改计数。\n\n在 React 里给按钮绑定 `onClick`，在回调里调用 `setText(\"\")` 即可。因为计数是每次渲染时用 `countCharacters(text)` 现算的，文字变空后它自然就是 0，这也体现了「单一数据源」的好处：只维护一份文字状态，其余都从它派生。",
+          "hints": [
+            "按钮用 `<button>` 元素，文字写「清空」，并加上 `data-testid=\"clear-button\"`。",
+            "给按钮加 `onClick={() => setText(\"\")}`，把文字状态重置为空字符串。",
+            "不需要单独维护一个计数 state，计数继续用 `countCharacters(text)` 现算即可。",
+            "清空后再次输入能正常统计，说明你只是重置了文字，没有破坏输入框的 `onChange` 逻辑。"
+          ],
+          "focusFiles": [
+            "/App.tsx",
+            "/charCount.ts",
+            "/styles.css"
+          ],
+          "checkIds": [
+            "clear-resets-input-and-count",
+            "count-after-clear-again"
+          ]
+        },
+        "behaviorCases": [
+          {
+            "requirementId": "clear-input",
+            "setup": "页面初始为空，输入框已输入 \"hello world\"（字符数显示 11）",
+            "action": "点击「清空」按钮",
+            "expected": "输入框内容变为空字符串，字符数显示 0",
+            "checkId": "clear-resets-input-and-count"
+          },
+          {
+            "requirementId": "char-count",
+            "setup": "输入框已输入 \"hello world\"，点击清空按钮后输入框为空",
+            "action": "读取清空后的输入框值与字符数显示",
+            "expected": "输入框值为空，字符数显示 0",
+            "checkId": "clear-resets-input-and-count"
+          },
+          {
+            "requirementId": "clear-input",
+            "setup": "输入框已输入 \"abc\"（字符数 3）",
+            "action": "点击「清空」按钮，再输入 \"xy z\"",
+            "expected": "清空后输入框为空、计数 0；再次输入 \"xy z\" 后计数显示 4",
+            "checkId": "count-after-clear-again"
+          },
+          {
+            "requirementId": "char-count",
+            "setup": "输入框已输入 \"abc\"，点击清空后输入框为空",
+            "action": "在输入框输入 \"xy z\" 并读取字符数",
+            "expected": "字符数显示 4（空格计入），说明清空未破坏输入统计",
+            "checkId": "count-after-clear-again"
+          }
+        ],
+        "checks": [
+          {
+            "id": "clear-resets-input-and-count",
+            "label": "输入 hello world 后点击清空按钮，输入框变空且字符数显示 0",
+            "engine": "sandpack-jest",
+            "source": "import React from \"react\";\nimport { render, screen, fireEvent } from \"@testing-library/react\";\nimport App from \"../App\";\n\ntest(\"输入 hello world 后点击清空按钮，输入框变空且字符数显示 0\", () => {\n  render(<App />);\n  const input = screen.getByTestId(\"text-input\");\n  const count = screen.getByTestId(\"char-count\");\n  const clearButton = screen.getByTestId(\"clear-button\");\n\n  fireEvent.change(input, { target: { value: \"hello world\" } });\n  expect(input.value).toBe(\"hello world\");\n  expect(count.textContent.trim()).toBe(\"11\");\n\n  fireEvent.click(clearButton);\n\n  expect(input.value).toBe(\"\");\n  expect(count.textContent.trim()).toBe(\"0\");\n});\n",
+            "viewport": null
+          },
+          {
+            "id": "count-after-clear-again",
+            "label": "输入 abc 后点击清空，再输入 xy z 字符数显示 4",
+            "engine": "sandpack-jest",
+            "source": "import React from \"react\";\nimport { render, screen, fireEvent } from \"@testing-library/react\";\nimport App from \"../App\";\n\ntest(\"输入 abc 后点击清空，再输入 xy z 字符数显示 4\", () => {\n  render(<App />);\n  const input = screen.getByTestId(\"text-input\");\n  const count = screen.getByTestId(\"char-count\");\n  const clearButton = screen.getByTestId(\"clear-button\");\n\n  fireEvent.change(input, { target: { value: \"abc\" } });\n  expect(count.textContent.trim()).toBe(\"3\");\n\n  fireEvent.click(clearButton);\n  expect(input.value).toBe(\"\");\n  expect(count.textContent.trim()).toBe(\"0\");\n\n  fireEvent.change(input, { target: { value: \"xy z\" } });\n  expect(input.value).toBe(\"xy z\");\n  expect(count.textContent.trim()).toBe(\"4\");\n});\n",
+            "viewport": null
+          }
+        ],
+        "faultyFiles": {
+          "/index.tsx": "import React, { StrictMode } from \"react\";\nimport { createRoot } from \"react-dom/client\";\nimport \"./styles.css\";\n\nimport App from \"./App\";\n\nconst root = createRoot(document.getElementById(\"root\"));\nroot.render(\n  <StrictMode>\n    <App />\n  </StrictMode>\n);",
+          "/App.tsx": "import { useState } from \"react\";\nimport { countCharacters } from \"./charCount\";\n\nexport default function App(): JSX.Element {\n  const [text, setText] = useState<string>(\"\");\n\n  return (\n    <div className=\"app\">\n      <h1>打字统计器</h1>\n      <textarea\n        className=\"text-input\"\n        data-testid=\"text-input\"\n        value={text}\n        onChange={(e) => setText(e.target.value)}\n        placeholder=\"在这里输入文字…\"\n        rows={5}\n      />\n      <div className=\"count-row\">\n        <span className=\"count-label\">字符数：</span>\n        <span className=\"count-value\" data-testid=\"char-count\">\n          {countCharacters(text)}\n        </span>\n        <button\n          type=\"button\"\n          className=\"clear-button\"\n          data-testid=\"clear-button\"\n          onClick={() => {}}\n        >\n          清空\n        </button>\n      </div>\n    </div>\n  );\n}\n",
+          "/charCount.ts": "export function countCharacters(text: string): number {\n  return text.length;\n}\n",
+          "/styles.css": "body {\n  font-family: sans-serif;\n  -webkit-font-smoothing: auto;\n  -moz-font-smoothing: auto;\n  -moz-osx-font-smoothing: grayscale;\n  font-smoothing: auto;\n  text-rendering: optimizeLegibility;\n  font-smooth: always;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-touch-callout: none;\n  margin: 0;\n}\n\n* {\n  box-sizing: border-box;\n}\n\n.app {\n  max-width: 640px;\n  margin: 0 auto;\n  padding: 16px;\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  min-width: 0;\n}\n\nh1 {\n  font-size: 1.5rem;\n  margin: 0;\n}\n\n.text-input {\n  width: 100%;\n  min-width: 0;\n  padding: 8px;\n  font-size: 1rem;\n  font-family: inherit;\n  border: 1px solid #ccc;\n  border-radius: 6px;\n  resize: vertical;\n}\n\n.count-row {\n  display: flex;\n  align-items: baseline;\n  gap: 6px;\n  flex-wrap: wrap;\n}\n\n.count-label {\n  color: #555;\n}\n\n.count-value {\n  font-size: 1.5rem;\n  font-weight: 600;\n}\n\n.clear-button {\n  margin-left: auto;\n  padding: 6px 14px;\n  font-size: 0.95rem;\n  font-family: inherit;\n  color: #fff;\n  background-color: #2563eb;\n  border: none;\n  border-radius: 6px;\n  cursor: pointer;\n}\n\n.clear-button:hover {\n  background-color: #1d4ed8;\n}\n",
+          "/tsconfig.json": "{\n  \"include\": [\n    \"./**/*\"\n  ],\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"lib\": [ \"dom\", \"es2015\" ],\n    \"jsx\": \"react-jsx\"\n  }\n}",
+          "/public/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Document</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n  </body>\n</html>"
+        },
+        "faultyCheckId": "clear-resets-input-and-count",
+        "referenceFiles": {
+          "/index.tsx": "import React, { StrictMode } from \"react\";\nimport { createRoot } from \"react-dom/client\";\nimport \"./styles.css\";\n\nimport App from \"./App\";\n\nconst root = createRoot(document.getElementById(\"root\"));\nroot.render(\n  <StrictMode>\n    <App />\n  </StrictMode>\n);",
+          "/App.tsx": "import { useState } from \"react\";\nimport { countCharacters } from \"./charCount\";\n\nexport default function App(): JSX.Element {\n  const [text, setText] = useState<string>(\"\");\n\n  return (\n    <div className=\"app\">\n      <h1>打字统计器</h1>\n      <textarea\n        className=\"text-input\"\n        data-testid=\"text-input\"\n        value={text}\n        onChange={(e) => setText(e.target.value)}\n        placeholder=\"在这里输入文字…\"\n        rows={5}\n      />\n      <div className=\"count-row\">\n        <span className=\"count-label\">字符数：</span>\n        <span className=\"count-value\" data-testid=\"char-count\">\n          {countCharacters(text)}\n        </span>\n        <button\n          type=\"button\"\n          className=\"clear-button\"\n          data-testid=\"clear-button\"\n          onClick={() => setText(\"\")}\n        >\n          清空\n        </button>\n      </div>\n    </div>\n  );\n}\n",
+          "/charCount.ts": "export function countCharacters(text: string): number {\n  return text.length;\n}\n",
+          "/styles.css": "body {\n  font-family: sans-serif;\n  -webkit-font-smoothing: auto;\n  -moz-font-smoothing: auto;\n  -moz-osx-font-smoothing: grayscale;\n  font-smoothing: auto;\n  text-rendering: optimizeLegibility;\n  font-smooth: always;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-touch-callout: none;\n  margin: 0;\n}\n\n* {\n  box-sizing: border-box;\n}\n\n.app {\n  max-width: 640px;\n  margin: 0 auto;\n  padding: 16px;\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  min-width: 0;\n}\n\nh1 {\n  font-size: 1.5rem;\n  margin: 0;\n}\n\n.text-input {\n  width: 100%;\n  min-width: 0;\n  padding: 8px;\n  font-size: 1rem;\n  font-family: inherit;\n  border: 1px solid #ccc;\n  border-radius: 6px;\n  resize: vertical;\n}\n\n.count-row {\n  display: flex;\n  align-items: baseline;\n  gap: 6px;\n  flex-wrap: wrap;\n}\n\n.count-label {\n  color: #555;\n}\n\n.count-value {\n  font-size: 1.5rem;\n  font-weight: 600;\n}\n\n.clear-button {\n  margin-left: auto;\n  padding: 6px 14px;\n  font-size: 0.95rem;\n  font-family: inherit;\n  color: #fff;\n  background-color: #2563eb;\n  border: none;\n  border-radius: 6px;\n  cursor: pointer;\n}\n\n.clear-button:hover {\n  background-color: #1d4ed8;\n}\n",
+          "/tsconfig.json": "{\n  \"include\": [\n    \"./**/*\"\n  ],\n  \"compilerOptions\": {\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"lib\": [ \"dom\", \"es2015\" ],\n    \"jsx\": \"react-jsx\"\n  }\n}",
+          "/public/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Document</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n  </body>\n</html>"
+        }
+      },
+      "validated": true,
+      "qualityWarnings": [],
+      "referenceHash": "39f9723756880163ca2fea2d616b3d3ca4286e57bbc20d756034d2c81ca6a949",
+      "faultyHash": "a7b2a8d0173c304939c23178f70cfb88dd0d19a9d23f142e9d4f58adb2b45f22",
+      "evidence": {
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "initial-count-zero",
+              "status": "passed",
+              "message": "初始状态输入框为空且字符数为 0：通过"
+            },
+            {
+              "caseId": "count-updates-with-spaces",
+              "status": "passed",
+              "message": "输入 hello world 显示 11，改为 a b 显示 3，清空后回到 0：通过"
+            },
+            {
+              "caseId": "count-module-pure",
+              "status": "passed",
+              "message": "countCharacters 统计字符数并计入空格：通过"
+            },
+            {
+              "caseId": "clear-resets-input-and-count",
+              "status": "passed",
+              "message": "输入 hello world 后点击清空按钮，输入框变空且字符数显示 0：通过"
+            },
+            {
+              "caseId": "count-after-clear-again",
+              "status": "passed",
+              "message": "输入 abc 后点击清空，再输入 xy z 字符数显示 4：通过"
+            }
+          ],
+          "durationMs": 31629.394048
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "clear-resets-input-and-count",
+              "status": "failed",
+              "message": "输入 hello world 后点击清空按钮，输入框变空且字符数显示 0：未通过\nUnable to find an element by: [data-testid=\"clear-button\"]\n\nIgnored nodes: comments, script, style\n<body>\n  <div>\n    <div\n      class=\"app\"\n    >\n      <h1>\n        打字统计器\n      </h1>\n      <textarea\n        class=\"text-input\"\n        data-testid=\"text-input\"\n        placeholder=\"在这里输入文字…\"\n        rows=\"5\"\n      />\n      <div\n        class=\"count-row\"\n      >\n        <span\n          class=\"count-label\"\n        >\n          字符数：\n        </span>\n        <span\n          class=\"count-value\"\n          data-testid=\"char-count\"\n        >\n          0\n        </span>\n      </div>\n    </div>\n  </div>\n</body>"
+            },
+            {
+              "caseId": "count-after-clear-again",
+              "status": "failed",
+              "message": "输入 abc 后点击清空，再输入 xy z 字符数显示 4：未通过\nUnable to find an element by: [data-testid=\"clear-button\"]\n\nIgnored nodes: comments, script, style\n<body>\n  <div>\n    <div\n      class=\"app\"\n    >\n      <h1>\n        打字统计器\n      </h1>\n      <textarea\n        class=\"text-input\"\n        data-testid=\"text-input\"\n        placeholder=\"在这里输入文字…\"\n        rows=\"5\"\n      />\n      <div\n        class=\"count-row\"\n      >\n        <span\n          class=\"count-label\"\n        >\n          字符数：\n        </span>\n        <span\n          class=\"count-value\"\n          data-testid=\"char-count\"\n        >\n          0\n        </span>\n      </div>\n    </div>\n  </div>\n</body>"
+            }
+          ],
+          "durationMs": 57611.181651
+        },
+        "faulty": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "clear-resets-input-and-count",
+              "status": "failed",
+              "message": "输入 hello world 后点击清空按钮，输入框变空且字符数显示 0：未通过\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"\"\nReceived: \"hello world\""
+            }
+          ],
+          "durationMs": 55037.851295
+        },
+        "previousRegression": {
+          "stepId": "clear-button",
+          "referenceHash": "39f9723756880163ca2fea2d616b3d3ca4286e57bbc20d756034d2c81ca6a949",
+          "previousHash": "5e05b40559c8d7e04d2e44f232ee06ff6db1a0b624e0ef513ea47302755990a4",
+          "checkIds": [
+            "initial-count-zero",
+            "count-updates-with-spaces",
+            "count-module-pure"
+          ],
+          "passed": true,
+          "results": [
+            {
+              "caseId": "initial-count-zero",
+              "status": "passed",
+              "message": "初始状态输入框为空且字符数为 0：通过"
+            },
+            {
+              "caseId": "count-updates-with-spaces",
+              "status": "passed",
+              "message": "输入 hello world 显示 11，改为 a b 显示 3，清空后回到 0：通过"
+            },
+            {
+              "caseId": "count-module-pure",
+              "status": "passed",
+              "message": "countCharacters 统计字符数并计入空格：通过"
+            }
+          ],
+          "durationMs": 42808.582698000006
+        }
+      }
+    }
+  ],
+  "skillVersions": {
+    "plan": "ce36dc701284e1fb22a89d9b22df5b84fda2b476ce939458ac140276bfd1524f",
+    "review_plan": "74a499b33a2da92b2e052a86bb21917e729e5f8aa9ec9f93e0c5180b77d5a455",
+    "build_step": "ecb505c64b343998ebfe179ccd4b7b8ad0a6b3d5aa5b77faa72e46c4f741300f",
+    "repair_step": "d1c8d1ff7896f990c01ec354e2a1c6a90b9870b8f631b991225169779c027faf",
+    "build_checks": "23612a7386516e82d806f9fe850176f306d736b20ec2978037f51ae55349fa8c",
+    "repair_checks": "d2ca5d72aca24dcac1a4a405d64a73d414223c197a2e07d8e4a25a2f25a8e798",
+    "validate": "e4c36c324a079d3ae529876643d210e2bd4232a338fa2eec4a28b20f666373c8",
+    "publish": "862add4ae35ac2ca876f72e5b93ab73bdb45ee09d8cc4a0c17f826c6eaab48ff"
+  }
+}

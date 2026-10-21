@@ -1,0 +1,24 @@
+{
+  "preparation_id": "prep_2622c589249241eba63c2b7f9c6dbff1",
+  "result": "failed",
+  "submitted_at": "2026-10-19T03:20:20.903895+00:00",
+  "terminal_event_at": "2026-10-19T03:28:21.783088+00:00",
+  "elapsed_seconds": 480.88,
+  "live_backend_pid": 2345017,
+  "submission_count": 1,
+  "scope": "live preparation API; browser playback not reached",
+  "requested_video_seconds": [
+    5,
+    8
+  ],
+  "partial_voice_seconds": 5.736,
+  "mp4_created": false,
+  "course_published": false,
+  "failure_code": "RESOURCE_GENERATION_FAILED",
+  "observed_native_error": "Preparation Harness completion failed / SERVER / HTTP 502; step 80, retries exhausted",
+  "underlying_cause": "Model returned mcp__hyperframes__edit_file, absent from offered tools. ResearchModelAdapter.parse raised TOOL_NOT_AVAILABLE; request-scoped harness_provider cached the error and replied 502 to subsequent SDK retries.",
+  "requirement_boundary": "Clarified by user: platform owns requirements, research, learning path and per-node objectives; native HyperFrames owns video production. Earlier blanket assessment that preliminary research violates ownership is withdrawn. The minimal request specifically prohibited research, which was nevertheless performed.",
+  "native_workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/fa3d56273a7922fe118c4dbe4dd7ba09e8cdef777edc03b41c175d1850b9fc6f",
+  "product_code_changed": false,
+  "concurrent_task": "prep_7503c0c7836a416899607228aba1e35e; running produce, independent workspaces; no evidence it caused this failure"
+}

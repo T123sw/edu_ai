@@ -1,0 +1,12 @@
+{
+  "_failure_detail": {
+    "code": "PREPARATION_CONTENT_CONTRACT",
+    "phase": "resource_write",
+    "message": "preparation_content_envelope_missing",
+    "category": "contract",
+    "artifact_id": null,
+    "retry_scope": "none",
+    "budget_metric": null,
+    "content_digest": null
+  }
+}

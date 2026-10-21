@@ -1,0 +1,23 @@
+{
+  "scope": "read-only replay of the real persisted candidate against changed source, not deployed E2E",
+  "scene_count": 7,
+  "speech_count": 43,
+  "extra_model_review_calls": 0,
+  "content_changed": false,
+  "receipt": {
+    "decision": "skipped",
+    "method": "structural_validation",
+    "policy": "classroom-no-extra-review-v1",
+    "resource_type": "classroom",
+    "content_sha256": "11b978848b317faf5433de9edc5ee6b53930c02cc93a5fdaf7f69293e7e97a15",
+    "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。"
+  },
+  "structural_checks": {
+    "schema_version": 1,
+    "passed": true,
+    "issues": [],
+    "invalid_scene_ids": [],
+    "browser_layout": "not_checked",
+    "audio_listening": "not_checked"
+  }
+}

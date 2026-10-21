@@ -1,0 +1,127 @@
+{
+  "observed_at": 1792305077.4114094,
+  "tag": "多PDF验收 princeton-0013 1792304153987",
+  "generations": [
+    {
+      "generation_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "job_id": "examgen_84063a92be99187d60738b6e120f254b",
+      "turn": {
+        "id": "turn_1792304212755_fef29f91da",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792304212.8800292,
+        "updated_at": 1792304871.0058084
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 13780,
+          "layout_blocks": 175,
+          "images": 49
+        }
+      ],
+      "blueprint_count": 9,
+      "local_events": 68622,
+      "upstream_events": 68622,
+      "done_received": true,
+      "summary": {
+        "failed": 2,
+        "success": false,
+        "completed": 7,
+        "requested": 9,
+        "template_count": 9
+      },
+      "failed_questions": [
+        {
+          "ordinal": 4,
+          "issues": [
+            "novel_question",
+            "answer_valid",
+            "requirements_met",
+            "no_substantive_task_change",
+            "候选与源题在数组结构、长度、算法和选项上完全相同，仅翻译为中文并重排选项，不构成新的有效数据或新任务。",
+            "子题(b)插入排序答案错误：候选选C（~2n^2），但正确分析为每个A越过n个B（2n·n=2n^2），每个B越过2n个A（n·2n=2n^2），总计约4n^2，应选D。",
+            "候选对插入排序的解释称“处理最后n个B时，每个B都要越过前面全部2n个A...共约2n^2次”，但随后又写“总比较次数约为2n^2+4n”，前后矛盾且漏算中间A段的2n^2次比较。",
+            "Independent solution to check against the question: 设数组长度为 N=4n，结构为 B^n A^{2n} B^n。\n\n(a) 选择排序（q_546430adafa1877ee9b3）：标准选择排序对每个位置 i 都要扫描其后所有元素找最小值，比较次数恒为 N(N-1)/2 = (4n)(4n-1)/2 ~ 8n^2。与元素取值无关。选 E。\n\n(b) 插入排序（q_08384b366910eef68ef4）：前 n 个 B 已有序，无移动。中间 2n 个 A 逐个插入：每个 A 需要越过前面所有 B（n 次比较）以及前面已插入的 A（这些 A 与当前 A 相等，标准插入排序在相等时停止，故不越过相等的 A）。因此每个 A 约 n 次比较，共 2n·n = 2n^2。后 n 个 B 插入时，需越过前面所有 A（2n 个）以及前面所有 B（相等停止，不越过 B），每个 B 约 2n 次比较，共 n·2n = 2n^2。总计约 4n^2。选 D。\n\n(c) 三路快速排序（q_01ff9a1ce3b098df96eb）：三路快排对含大量重复键的数组，一次划分把等于枢轴的元素全部归位。若枢轴取到 A，则一次划分后 2n 个 A 全部就位，只需再分别排序两侧的 B 段（各 n 个相同元素，三路划分一次即可完成）。总比较次数为线性 O(n)。具体地，第一层划分扫描 4n 个元素约 4n 次比较，之后两个 B 段各约 n 次，总计约 6n。选 B。\n\n各选项核对：\n(a) 只有 E（8n^2）符合；\n(b) 只有 D（4n^2）符合；\n(c) 只有 B（6n）符合。"
+          ]
+        },
+        {
+          "ordinal": 6,
+          "issues": [
+            "answer_valid",
+            "requirements_met",
+            "第四子题（2-3-4 树插入）最大值答案错误：按题面只统计节点内定位比较，最坏每层最多 3 次比较，树高约 log4 n，总比较次数约 3log4 n = (3/2)log2 n，应选 I，而非 C。",
+            "第四子题解释错误：声称在 3 个键中定位最多需 2 次比较，与题面规定的比较模型不符。",
+            "父题正确答案中第四子题写作“最少 A，最多 C”，与独立求解的“A、I”不一致。",
+            "Independent solution to check against the question: 本题按“教科书标准实现”的键比较次数分析四个子题。\n\n**q_26efa1c5c60f1aa9ce49（有序数组二分查找，键存在）**：每次迭代取中点做一次三路比较（小于/等于/大于）。最好情况第一次就命中，比较次数为 Θ(1)，对应 A。最坏情况比较次数为 ⌈log₂(n+1)⌉ 量级，即 ∼log₂ n，对应 C。故填 A、C。\n\n**q_a2242a25ee00a04eae1b（四叉堆 delete-the-max）**：删除根后新根下沉。每层先在 4 个子节点中找最大者需 3 次比较，再与当前元素比较需 1 次，共 4 次/层。最好情况新根已不小于最大子节点，只需 1 层即 4 次比较，为 Θ(1)，对应 A。最坏情况下沉到叶，高度为 log₄ n，比较次数约为 4·log₄ n = 4·(log₂ n / 2) = 2 log₂ n，对应 D。故填 A、D。\n\n**q_c159644558b40959c237（BST 插入）**：从根沿路径比较直到空链接。最好情况树退化为根即为插入位置附近，最少比较次数为 Θ(1)，对应 A。最坏情况树退化为链，比较次数为 ∼n，对应 E。故填 A、E。\n\n**q_dcdfd315bcddaea0e93c（2-3-4 树插入，只计节点内定位比较）**：沿路径下行，在含 k 个键的节点内定位需 k 次比较（k=1,2,3）。最好情况根为 2-节点（1 个键），一次比较即确定方向，为 Θ(1)，对应 A。最坏情况每层都是 4-节点（3 个键），高度约为 log₄ n，每层 3 次比较，总计约 3·log₄ n = 3·(log₂ n/2) = (3/2)log₂ n，对应 I。故填 A、I。\n\n各空依次为：A C；A D；A E；A I。"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 65,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 35,
+          "deepseek-v4-flash": 30
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_430578a8dc08cca2fdf6d810f9ce4f70",
+      "job_id": "job_80194ea9f74b499c",
+      "turn": {
+        "id": "turn_1792304924674_2b6d768515",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792304924.7878242,
+        "updated_at": 1792305020.898115
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 13780,
+          "layout_blocks": 175,
+          "images": 49
+        }
+      ],
+      "blueprint_count": 9,
+      "local_events": 10243,
+      "upstream_events": 10243,
+      "done_received": true,
+      "summary": {
+        "failed": 1,
+        "success": false,
+        "completed": 8,
+        "requested": 9,
+        "template_count": 9
+      },
+      "failed_questions": [
+        {
+          "ordinal": 6,
+          "issues": [
+            "novel_question",
+            "answer_valid",
+            "requirements_met",
+            "no_substantive_task_change",
+            "(d) 2-3 树插入最坏比较次数应为 ~log2 n（C），候选答 D（~log3 n）错误：2-3 树最坏高度对应全 2-节点路径，约 log2 n 层，每层 1 次比较。",
+            "候选对 (d) 的解释称每层常数次比较、树高 log3 n，却直接得 ~log3 n，未体现常数因子与底数关系，推导与结论不一致。",
+            "子题操作与所问量与原题完全一致，仅扩展选项表并新增 Θ(n) 项，属于同一事实的选项重排，不构成有意义的新任务。",
+            "Independent solution to check against the question: 本题为概念性（渐近/精确渐近）分析，无固定输入规模，不需要代入具体 n 计算。\n\n(a) q_26efa1c5c60f1aa9ce49：有序数组二分查找。最好情况第一次比较即命中，比较次数为常数，最小值 A（Θ(1)）。最坏情况每次将区间折半，比较次数约为 log2 n，最大值 C（~log2 n）。\n\n(b) q_a2242a25ee00a04eae1b：三叉堆删除最大键。删除根后把末尾元素放到根并下沉。每层需在至多 3 个子节点中选最大（2 次比较），再与待下沉元素比较（1 次），每层约 3 次比较；堆高约为 log3 n，故最坏约 3log3 n，最大值 H。最好情况：若堆只有常数层或无需下沉（如 n 很小，或末尾元素已不小于子节点），比较次数为常数，最小值 A。\n\n(c) q_c159644558b40959c237：BST 插入。沿根到叶路径比较，最好情况与根比较一次即确定位置（或树高为常数），最小值 A（Θ(1)）。最坏情况树退化为链，比较次数约 n，最大值 I（Θ(n)）。\n\n(d) q_dcdfd315bcddaea0e93c：2-3 树插入。树高为 Θ(log n)（以 2 或 3 为底），每层至多常数次键比较，最好情况常数层，最小值 A；最坏情况沿高度路径比较，比较次数为 Θ(log n)。在给定选项中，最坏增长对应 ~log2 n 量级（2-3 树高度上界约 log2 n），最大值 C。\n\n综上：(a) A, C；(b) A, H；(c) A, I；(d) A, C。"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 12,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 4,
+          "deepseek-v4-flash": 8
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 7,
+    "unchanged_in_latest": 7
+  }
+}

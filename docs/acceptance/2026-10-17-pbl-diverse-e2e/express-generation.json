@@ -1,0 +1,68 @@
+{
+  "case": "express",
+  "topic": "用 Node.js Express 做商品库存 API 后端，不需要前端。GET /products，POST /products，POST /products/:id/stock 调整库存；不能出现负库存，未知商品404，非法数量400。用JSON文件持久化，实际启动服务并用HTTP调用验收，不要改成React页面或模拟接口。",
+  "exerciseId": "pbl_3e260748972848ea77596be30deb8b5a",
+  "generationPassed": false,
+  "job": {
+    "schema_version": 2,
+    "version": 7,
+    "edu_job_id": "pbl_3e260748972848ea77596be30deb8b5a",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_express",
+    "owner": "matrix_express",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_3e260748972848ea77596be30deb8b5a",
+    "input_summary": {
+      "title": "用 Node.js Express 做商品库存 API 后端，不需要前端。GET /products，POST /products，POST /products/:id/stock 调整库存；不能出现负库存，未知商品404，非法数量400。用JSON文件持久化，实际启动服务并用HTTP调用验收，不要改成React页面或模拟接口。",
+      "topic": "用 Node.js Express 做商品库存 API 后端，不需要前端。GET /products，POST /products，POST /products/:id/stock 调整库存；不能出现负库存，未知商品404，非法数量400。用JSON文件持久化，实际启动服务并用HTTP调用验收，不要改成React页面或模拟接口。",
+      "exercise_id": "pbl_3e260748972848ea77596be30deb8b5a"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目计划经过修复仍未通过检查",
+    "error": "项目计划经过修复仍未通过检查",
+    "error_code": "PBL_PLAN_INVALID",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:20:54.520588+00:00",
+    "started_at": "2026-10-17T09:24:41.915549+00:00",
+    "finished_at": "2026-10-17T09:25:02.796074+00:00",
+    "updated_at": "2026-10-17T09:25:02.796074+00:00"
+  },
+  "events": [
+    {
+      "seconds": 4.3,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 230.24,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 250.8,
+      "state": [
+        "failed",
+        "failed",
+        "任务执行失败"
+      ]
+    }
+  ],
+  "seconds": 250.81,
+  "idempotentCreate": true
+}

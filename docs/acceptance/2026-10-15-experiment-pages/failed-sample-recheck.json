@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "issues": [],
+  "checks": [
+    "registered-and-initialized",
+    "reset",
+    "saved-state-restore",
+    "visible-content"
+  ],
+  "scope": "basic-page-runtime",
+  "scientific_certification": false,
+  "diagnostics": {
+    "evidence_id": "770cba4a-c813-4e5f-b105-196ec6544508"
+  }
+}

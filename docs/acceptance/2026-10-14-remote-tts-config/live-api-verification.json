@@ -1,0 +1,17 @@
+{
+  "backend_pid": 3618130,
+  "remote_selected": true,
+  "remote_key_present": true,
+  "running_config_matches": true,
+  "different_fields": [],
+  "model": "qwen-audio-3.1-tts-flash",
+  "voice": "longanhuan_v3.1",
+  "speed": 1.0,
+  "protocol": "qwen-audio-tts",
+  "api_host": "dashscope.aliyuncs.com",
+  "success": true,
+  "audio_bytes": 77851,
+  "format": "mp3",
+  "seconds": 4.122,
+  "audio_file": "docs/acceptance/2026-10-14-remote-tts-config/remote-sample.mp3"
+}

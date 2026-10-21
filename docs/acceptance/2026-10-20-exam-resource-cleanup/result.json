@@ -1,0 +1,70 @@
+{
+  "owner": "teacher",
+  "examCount": 1,
+  "personalResourceCount": 16,
+  "visibleResourceCount": 15,
+  "jobIds": [
+    "examgen_bfb709da4063f0a66bb7574841f56e37",
+    "studio_068bad96a8c838435549948b4927",
+    "studio_0ea942f79d9942f5a0d34ba13712",
+    "studio_215e46ce329855c278a63ba0991a",
+    "studio_50c6529b3d8d7db43cf755916957",
+    "studio_5f2ae8bb4b96cded809a8d42bbbe",
+    "studio_791f0af361b56ac33c23ee22c866",
+    "studio_81a1266898e3452bbe25ffcfe675",
+    "studio_8a598b4fdd28e9b3bfd4a13be88e",
+    "studio_8bd56d08e64357ca2150d4b2d19d",
+    "studio_b1813a93db3f3eb5e1d944bc0f55",
+    "studio_bd837760509cabaee767b9fd4093",
+    "studio_bf4843afc9795099294c556ab0a9",
+    "studio_cba3dfabb67527ab335cc1196871",
+    "studio_f81d8db52236fb3ec7f36b54ff89",
+    "studio_fbdc33ec7a80ad0a9670ebdde80c",
+    "studio_fee1f2ac1264c40d2394e7216027"
+  ],
+  "durableTaskIds": [
+    "examgen_bfb709da4063f0a66bb7574841f56e37"
+  ],
+  "stateRows": 75370,
+  "directories": [
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/courses/personal-studio-1057a9604e04b274da5a4de0c8f4b4868d9b230989f8c8c6a28221143cc5a755",
+      "files": 29
+    },
+    {
+      "path": "/home/zxqs_ep/Edu_AI/services/deeptutor/.runtime/edu_checkpoints/1057a9604e04b274da5a4de0c8f4b4868d9b230989f8c8c6a28221143cc5a755/d4b87acf-76f1-4805-9399-acb129ab9eaa",
+      "files": 43
+    }
+  ],
+  "otherMaterialsBefore": {
+    "count": 25,
+    "sha256": "0a1afef698434abd044602bca6409054f8829f88a667b3a66561fa826158cb0e"
+  },
+  "status": "deleted-and-online-verified",
+  "deletedCounts": {
+    "material_versions": 44,
+    "materials": 16,
+    "job_events": 10,
+    "jobs": 1,
+    "durable_tasks": 1,
+    "exam_state": 75370
+  },
+  "otherMaterialsAfter": {
+    "count": 25,
+    "sha256": "0a1afef698434abd044602bca6409054f8829f88a667b3a66561fa826158cb0e"
+  },
+  "removedPaths": [
+    "/home/zxqs_ep/data/edu_ai/course_data/courses/personal-studio-1057a9604e04b274da5a4de0c8f4b4868d9b230989f8c8c6a28221143cc5a755",
+    "/home/zxqs_ep/Edu_AI/services/deeptutor/.runtime/edu_checkpoints/1057a9604e04b274da5a4de0c8f4b4868d9b230989f8c8c6a28221143cc5a755/d4b87acf-76f1-4805-9399-acb129ab9eaa"
+  ],
+  "timestamp": "2026-10-20T09:56:40.569896+00:00",
+  "onlineVerification": {
+    "myExams": 0,
+    "myResources": 0,
+    "legacyResources": 0,
+    "resourceJobs": 0,
+    "deletedExamReturns404": true,
+    "allDeletedResourcesReturn404": true,
+    "existingCourseIdsUnchanged": true
+  }
+}

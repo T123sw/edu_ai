@@ -9,6 +9,7 @@ from .preparation_content import (CONTENT_INSTRUCTIONS, ReviewCandidate, generat
     parse_envelope, phase_gateway, preparation_metadata, report_sections, teaching_context,
     validate_preparation_review, value_digest, duration_constraint, ResourceDurationExceeded)
 from .preparation_review_transport import IndexedPreparationCheck, indexed_preparation, restore_preparation_checks
+from .preparation_write_contract import bind_write_contract
 
 CRITERIA = {'requirements', 'correctness', 'examples', 'teaching_structure', 'sources', 'completeness'}
 
@@ -105,12 +106,16 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
                 raise generation_failure('REPORT_CONTENT_REJECTED', '; '.join(feedback)[:1500], category='content',
                     phase='resource_review', retry_scope='content', content_digest=value_digest(body))
             saved = None
-    for version in range(start_version, 4):
+    full_revision = False
+    for attempt_index, version in enumerate(range(start_version, start_version + 3)):
         if not saved:
             previous_body, previous_metadata = body, metadata
             repairing = context is not None and bool(body)
-            repair_format = ('本轮是局部修复，仅返回 JSON {\"edits\":[{\"path\":[],\"before\":\"逐字唯一原片段\",\"after\":\"修正片段\"}],\"applied_requirements\":[...],\"objective_bindings\":[...]}。保留正确正文和稳定ID。只有映射错误时 edits=[]，只修映射。' if repairing else '')
+            patch_revision = repairing and not full_revision
+            repair_format = ('本轮是局部修复，仅返回 JSON {\"edits\":[{\"path\":[],\"before\":\"逐字唯一原片段\",\"after\":\"修正片段\"}],\"applied_requirements\":[...],\"objective_bindings\":[...]}。保留正确正文和稳定ID。只有映射错误时 edits=[]，只修映射。' if patch_revision else ('本轮返回修正后的完整内容封装，保留原有章节ID、相对顺序与未涉及的正确内容，并修复 feedback。' if repairing else ''))
             writer = phase_gateway(gateway, payload, 'resource_repair' if body else 'resource_write')
+            writer = bind_write_contract(writer, 'report', context, spec_digest,
+                                         previous=body or None, patch=patch_revision)
             raw = writer.chat([
                 {'role':'system','content': '撰写完整教学报告正文。' +
                  (CONTENT_INSTRUCTIONS if context is not None else '输出 Markdown；严格保留确认大纲各章标题和顺序，标题使用 ##。') +
@@ -122,34 +127,45 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
             ], temperature=0.2, max_tokens=12000).strip()
             if context is not None:
                 try:
-                    if repairing:
+                    if patch_revision:
                         from app.artifact_revision.adapters import apply_edits
                         envelope = json.loads(re.sub(r'^```(?:json)?\s*|\s*```$', '', raw))
-                        edits = envelope['edits']
-                        previous_ids = set(report_sections(body))
-                        body = apply_edits(body, edits) if edits else body
-                        if set(report_sections(body)) != previous_ids:
+                        previous_ids = list(report_sections(body))
+                        if isinstance(envelope, dict) and 'edits' not in envelope and 'content' in envelope:
+                            # A complete corrected envelope is also safe to validate;
+                            # do not discard a usable revision just for its transport form.
+                            body, envelope = parse_envelope(raw)
+                        else:
+                            if not isinstance(envelope, dict) or not isinstance(envelope.get('edits'), list):
+                                raise ValueError('report_repair_requires_edits_array')
+                            body = apply_edits(body, envelope['edits']) if envelope['edits'] else body
+                        if list(report_sections(body)) != previous_ids:
                             raise ValueError('report_repair_changed_section_identity')
                     else:
                         body, envelope = parse_envelope(raw)
+                        if repairing and list(report_sections(body)) != list(report_sections(previous_body)):
+                            raise ValueError('report_repair_changed_section_identity')
                     if not isinstance(body, str):
                         raise ValueError('report_content_must_be_markdown')
                     metadata = preparation_metadata('report', body, envelope, context, spec_digest,
-                                                    enforce_repair_target=version < 3)
+                                                    enforce_repair_target=attempt_index < 2)
                     rejected_draft = None
                 except (ValueError, TypeError, KeyError) as exc:
                     if isinstance(exc, ResourceDurationExceeded):
                         rejected_draft = envelope
                     body, metadata = previous_body, previous_metadata
-                    feedback = ['本轮输出格式或映射校验失败：' + str(exc)[:1200] +
+                    if patch_revision and str(exc) != 'report_repair_changed_section_identity':
+                        full_revision = True
+                    feedback = [*feedback, '本轮输出格式或映射校验失败：' + str(exc)[:1200] +
                                 '。请按本轮格式重交完整封装及必需教学映射，保留有效的原正文和稳定ID。']
-                    if version < 3:
+                    if attempt_index < 2:
                         continue
                     if isinstance(exc, ResourceDurationExceeded):
                         raise generation_failure('RESOURCE_DURATION_EXCEEDED', str(exc), category='content',
                             phase='resource_write', retry_scope='content') from exc
-                    raise generation_failure('PREPARATION_CONTENT_CONTRACT', str(exc), category='contract',
-                        phase='resource_write', retry_scope='none') from exc
+                    raise generation_failure('RESOURCE_REPAIR_FORMAT_INVALID' if previous_body else 'PREPARATION_CONTENT_CONTRACT',
+                        str(exc), category='content' if previous_body else 'contract',
+                        phase='resource_write', retry_scope='content' if previous_body else 'none') from exc
             else:
                 body = raw
         saved = None

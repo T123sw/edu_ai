@@ -1,0 +1,30 @@
+[
+  {
+    "width": 1440,
+    "route": "/",
+    "courseUpdateRemoved": true,
+    "notificationRequests": 0,
+    "taskAndProfileRetained": true
+  },
+  {
+    "width": 1440,
+    "route": "/classroom/course-a",
+    "courseUpdateRemoved": true,
+    "notificationRequests": 0,
+    "taskAndProfileRetained": true
+  },
+  {
+    "width": 390,
+    "route": "/",
+    "courseUpdateRemoved": true,
+    "notificationRequests": 0,
+    "taskAndProfileRetained": true
+  },
+  {
+    "width": 390,
+    "route": "/classroom/course-a",
+    "courseUpdateRemoved": true,
+    "notificationRequests": 0,
+    "taskAndProfileRetained": true
+  }
+]

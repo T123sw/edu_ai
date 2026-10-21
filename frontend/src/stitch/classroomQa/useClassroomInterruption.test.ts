@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { PagePlaybackCheckpoint } from '../../openmaic/pagePlaybackController.ts';
+import type { PagePlaybackCheckpoint } from '../../classroom/playbackTypes.ts';
 import type { ClassroomQaTurnSubmission } from '../api/types.ts';
 import {
   ClassroomInterruptionCoordinator,
@@ -287,4 +287,38 @@ test('navigation and dispose ignore late responses without audio or resume', asy
     assert.equal(harness.answerAudio.playCalls, 0);
     assert.equal(harness.playback.resumeCalls, 0);
   }
+});
+
+test('native questions freeze exact seconds and digest at submit without scene-index conversion', async () => {
+  let seconds = 7.125;
+  let submitted: import('../api/types').ClassroomQaTurnRequest | undefined;
+  let resumed: import('../../classroom/playbackTypes').InterruptionCheckpoint | undefined;
+  const controller = new ClassroomInterruptionCoordinator({
+    courseId: 'course-1', classroomId: 'classroom-1', resourceVersion: 4,
+    playback: {
+      interrupt: () => ({ kind: 'hyperframes', seconds, segment_id: 'segment-b', content_hash: 'digest-v4', pageRevision: 0, sceneIndex: -1, wasPlaying: true }),
+      snapshot: () => ({ sceneIndex: -1, revision: 0, status: 'interrupted' }),
+      resumeInterrupted: checkpoint => { resumed = checkpoint; return true; },
+    },
+    loadSession: async () => ({ session_id: 's', course_id: 'course-1', classroom_id: 'classroom-1', turns: [] }),
+    submitTurn: async (_course, _resource, request) => { submitted = structuredClone(request); seconds = 11; return { ...readySubmission, turn: { ...readySubmission.turn, tts_status: 'failed' } }; },
+    loadAudio: async () => '', createAudio: () => new FakeAnswerAudio(), speakBrowser: async () => 'ended', cancelBrowserSpeech: () => {}, createClientTurnId: () => 'native-question', revokeObjectUrl: () => {},
+  });
+  await controller.submitQuestion('这个高亮是什么意思？');
+  assert.deepEqual(submitted?.checkpoint, { kind: 'hyperframes', seconds: 7.125, segment_id: 'segment-b', content_hash: 'digest-v4' });
+  assert.equal(submitted?.resource_version, 4);
+  assert.equal(resumed && 'kind' in resumed ? resumed.seconds : undefined, 7.125);
+  controller.dispose();
+});
+
+test('effect restart revives the coordinator while invalidating any old operation', async () => {
+  const harness = createHarness();
+  harness.controller.dispose();
+  harness.controller.activate();
+  const question = harness.controller.submitQuestion('继续提问');
+  await waitFor(() => harness.answerAudio.playCalls === 1);
+  harness.answerAudio.finish();
+  await question;
+  assert.equal(harness.playback.interruptCalls, 1);
+  assert.equal(harness.playback.resumeCalls, 1);
 });

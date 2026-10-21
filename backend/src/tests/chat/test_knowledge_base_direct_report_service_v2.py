@@ -1,7 +1,6 @@
 from types import SimpleNamespace
 
 from app.chat.application.knowledge_base_direct_report_service_v2 import KnowledgeBaseDirectReportServiceV2
-from app.services.visual_assets.pipeline import VisualAssetPipeline
 
 
 class DummyContentProvider:
@@ -161,73 +160,28 @@ def test_direct_report_applies_every_visible_report_configuration():
     assert "加入课堂案例" in prompt
 
 
-def test_direct_report_plans_images_before_body_and_assembles_locked_visuals():
-    class SequencedLlm:
-        def __init__(self):
-            self.calls = []
-            self.responses = [
-                """
-                {"outline":[{"section_id":"implementation","title":"实现方式"}],
-                 "visuals":[{"slot_id":"linked-list","section_id":"implementation",
-                 "purpose":"解释 next 指针","query":"linked list next pointer diagram",
-                 "preferred_kind":"diagram","caption_hint":"链表节点连接关系"}]}
-                """,
-                "# 链表实现\n\n## 实现方式\n\n{{VISUAL:linked-list}}\n\n正文。",
-            ]
+def test_course_context_is_included_in_report_model_messages():
+    llm = DummyLlm('# 变量\n\n变量与对象的绑定。')
+    service = KnowledgeBaseDirectReportServiceV2(content_provider=DummyContentProvider({'documents': []}), llm=llm, course_storage_manager=DummyCourseStorageManager())
+    service.generate(SimpleNamespace(question='补充变量说明', selected_doc_ids=[], course_id='course-context-test', owner='alice', research_context='Python 课程原文：名字到对象的绑定。', report_config={'include_visuals': False}))
+    assert '名字到对象的绑定' in str(llm.calls[0])
 
-        def invoke(self, messages):
-            self.calls.append(messages)
-            return SimpleNamespace(content=self.responses.pop(0))
 
-    llm = SequencedLlm()
-    visual_pipeline = VisualAssetPipeline(
-        knowledge_search=lambda **kwargs: [
-            {
-                "url": "/api/courses/course-1/knowledge-base/documents/doc-1/media?path=list.png",
-                "source_page": "knowledge://doc-1",
-                "title": "链表节点图",
-                "width": 1200,
-                "height": 700,
-            }
-        ],
-        localize=lambda candidate, **kwargs: {
-            **candidate,
-            "local_url": candidate["url"],
-            "content_hash": "kb-linked-list",
-        },
-    )
-    service = KnowledgeBaseDirectReportServiceV2(
-        content_provider=DummyContentProvider(
-            {
-                "documents": [
-                    {
-                        "title": "链表课程资料",
-                        "summary": "链表节点包含数据与 next 指针。",
-                        "content": "节点通过 next 指向后继节点。",
-                    }
-                ],
-                "truncated": False,
-            }
-        ),
-        llm=llm,
-        course_storage_manager=DummyCourseStorageManager(),
-        visual_pipeline=visual_pipeline,
-    )
-
-    result = service.generate(
-        SimpleNamespace(
-            question="链表如何实现",
-            selected_doc_ids=["doc-1"],
-            source_context="节点通过 next 指向后继节点。",
-            source_mode="selected_documents",
-            owner="tester",
-            course_id="course-1",
-            report_config={"include_visuals": True},
-        )
-    )
-
-    content = result["artifacts"][0]["content"]
-    assert len(llm.calls) == 2
-    assert "![链表节点连接关系]" in content
-    assert "{{VISUAL:" not in content
-    assert result["trace"]["visuals"]["selected_count"] == 1
+def test_report_ignores_retired_visual_flag_and_generates_body_once(monkeypatch):
+    def fail_if_visuals_called(*args, **kwargs):
+        raise AssertionError('Report generation must not plan, retrieve, or insert images')
+    for method in ('plan_with_model', 'run', 'assemble'):
+        monkeypatch.setattr('app.services.visual_assets.pipeline.VisualAssetPipeline.' + method, fail_if_visuals_called)
+    progress = []
+    storage = DummyCourseStorageManager()
+    llm = DummyLlm('# 排序\n\n报告正文')
+    service = KnowledgeBaseDirectReportServiceV2(llm=llm, course_storage_manager=storage)
+    result = service.generate(SimpleNamespace(question='排序', selected_doc_ids=[], owner='alice',
+        course_id='c1', report_config={'include_visuals': True}),
+        progress=lambda value, step, message: progress.append((value, step)))
+    assert result['artifacts'][0]['content'] == '# 排序\n\n报告正文'
+    assert len(storage.saved) == 1
+    assert len(llm.calls) == 1
+    assert '图片占位符' in str(llm.calls[0])
+    assert 'visuals' not in result['trace']
+    assert progress == [(15, 'writing'), (90, 'saving')]

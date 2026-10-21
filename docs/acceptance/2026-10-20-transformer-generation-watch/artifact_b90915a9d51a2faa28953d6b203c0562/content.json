@@ -1,0 +1,200 @@
+{
+  "title": "整体结构与数据流：编码器-解码器、子层、残差与掩码",
+  "content": {
+    "title": "整体结构与数据流：编码器-解码器、子层、残差与掩码",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_b90915a9d51a2faa28953d6b203c0562",
+      "entry": "index.html",
+      "digest": "f84ce162ef0b92bf90704c432dee62a6bf9cb2401fdc83411aad0deebcc0ba7e"
+    },
+    "timeline": {
+      "duration": 296.0,
+      "segments": [
+        {
+          "id": "01-opening",
+          "end": 23.54,
+          "start": 0.0,
+          "title": "开场：拆开结构图",
+          "events": [],
+          "narration": "上一节我们看到，循环网络只能一个符号接一个符号地算，训练时一个样本内部没法并行。这一节我们换一张白板，把 Transformer 的结构图拆开，沿着一次前向的数据流从头走到尾。图上左边是编码器，右边是解码器，中间那根箭头，是它们之间最主要的信息通道。",
+          "audio_path": "assets/audio/5de02f4e698ac8a0ad00c0c83d3c3634413b4ef437368973d32895227384994b.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "标题逐行落下，左右两栈与中间 z 通道的骨架慢慢点亮"
+        },
+        {
+          "id": "02-dataflow",
+          "end": 63.4,
+          "start": 23.54,
+          "title": "一次前向的总览",
+          "events": [],
+          "narration": "先看整体骨架。输入的符号序列，x1 到 xn，每个符号先做嵌入，再送进编码器栈。编码器把它们映射成一串连续表示，记作 z，也就是 z1 到 zn。z 是整段输入的连续表示，带着整条输入序列的信息，被解码器的每一层反复读取。解码器拿到 z 之后，自回归地一次生成一个输出符号；生成下一个符号时，把已经生成的符号作为额外输入再接回去。最后一层的输出经过一个线性层和 softmax，得到下一个符号上的概率分布。",
+          "audio_path": "assets/audio/b4c654d7346b3534647d4b8a9780b36ee5cecd7046c8ab9676f3d6d7a0649a04.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "横向数据流链逐段接通，z 被解码器反复读取，右侧补上自回归反馈环"
+        },
+        {
+          "id": "03-encoder",
+          "end": 92.61,
+          "start": 63.4,
+          "title": "编码器：六层，每层两个子层",
+          "events": [],
+          "narration": "现在把编码器放大。它由 N 等于 6 个完全相同的层堆叠而成，注意是同一套结构的六份拷贝，不是六种不同的层。每一层只有两个子层。第一个是多头自注意力，让每个位置都能看到输入序列里的所有位置；第二个是逐位置的全连接前馈网络，对每个位置单独做同样的变换。先自注意力，再前馈网络，然后交给上一层。",
+          "audio_path": "assets/audio/5921f1fe33a6a75cba9d7da834a802c6943dd0cd8b495c3f731c465a8a6155b7.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左边六层堆叠，右边展开一层：自注意力 → 前馈网络，各自套残差与归一化"
+        },
+        {
+          "id": "04-decoder",
+          "end": 120.38,
+          "start": 92.61,
+          "title": "解码器：第三子层是交叉注意力",
+          "events": [],
+          "narration": "解码器同样是六层，但每层有三个子层。除了自注意力和前馈网络，中间还插入了第三个子层：它对编码器的输出做多头注意力，也就是交叉注意力。查询来自上一层解码器的输出，键和值来自编码器的输出 z。它让解码器的每个位置都能回看整个输入序列。而最下面那个自注意力子层，被改成了带掩码的版本。",
+          "audio_path": "assets/audio/e0ede961f17978fd87ba163dfd44789ee8486822604fce026d634c0944caf971.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "解码器层展开成三个子层，z 从左侧汇入中间的交叉注意力"
+        },
+        {
+          "id": "05-attention-roles",
+          "end": 159.91,
+          "start": 120.38,
+          "title": "三种注意力：只看查询、键、值从哪来",
+          "events": [],
+          "narration": "把三种注意力并排放，区别只在查询、键、值分别从哪来。编码器自注意力：三者都来自上一层编码器的输出，每个位置可以关注上一层所有位置。解码器自注意力：三者都来自解码器自身，但每个位置只能关注到包括自己在内的、位于它之前的解码器位置。编码器-解码器注意力：查询来自解码器，键和值来自编码器输出。所以自注意力负责整合单个序列内部的信息，交叉注意力负责对齐输入和输出这两个序列。",
+          "audio_path": "assets/audio/563c904d77881a3bd35d1b386030dabee01142486bda4f3b33a8b12f749f05ba.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三列依次立起，每列用 Q/K/V 来源与一张小掩码矩阵说明规则"
+        },
+        {
+          "id": "06-residual-norm",
+          "end": 187.13,
+          "start": 159.91,
+          "title": "残差与层归一化：为什么能堆六层",
+          "events": [],
+          "narration": "每个子层外面都套了一圈残差连接，再接一个层归一化。所以子层的输出写成：LayerNorm，括号里是 x 加上 Sublayer(x)。x 是子层的输入，残差让梯度有一条直达的捷径，这是能堆到六层甚至更深的原因。为了能做这个加法，所有子层和嵌入层的输出维度都统一成 d_model 等于 512。",
+          "audio_path": "assets/audio/22374259fda6acdf81c7c3f757510cff7b188e73ee0267bd9f6d526470cb1018.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "子层块出现，旁路绕过它汇入加法，公式被逐段写出，最后标出统一维度"
+        },
+        {
+          "id": "07-mask",
+          "end": 223.39,
+          "start": 187.13,
+          "title": "掩码：把非法的位置设成负无穷",
+          "events": [],
+          "narration": "再看掩码。缩放点积注意力先算查询和键的点积，除以根号 dk，再做 softmax 得到权重。为了让位置 i 只能看到它自己和它左边，我们在 softmax 之前，把矩阵里所有非法连接的位置设成负无穷。负无穷经过 softmax 变成零，权重就全部落在合法位置上。softmax 之后，我们用这些权重对值做加权求和，结果就是这个位置的输出。图上这个四乘四的例子里，右上角被整片置成负无穷。",
+          "audio_path": "assets/audio/0fd9fc695e9e54d0b4a0a2a29ad735ae78cef9e298e1f9443ca5b881e6aa5e8f.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "矩阵逐格铺开，上三角被负无穷吞掉，右侧管线说明顺序"
+        },
+        {
+          "id": "08-shift",
+          "end": 254.04,
+          "start": 223.39,
+          "title": "右移一位：掩码与错位的配合",
+          "events": [],
+          "narration": "光有掩码还不够，还要配合输出嵌入右移一位。训练时，我们把目标序列整体右移一格再喂给解码器，于是位置 i 的输入里只剩位置小于 i 的已知输出，模型的任务就是预测位置 i 上的符号。左向的信息流被切断，错位又保证每个位置都在预测它后面的那一个。两件事合起来，位置 i 的预测只能依赖它之前的已知输出，自回归性质就保住了。",
+          "audio_path": "assets/audio/57cbe889eb5e02a39a8675e271011d4f614dc6e27e95f7df4e594659df218e77.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "两行 token 错开一位，竖线连出「输入位置 j 预测输出位置 j+1」"
+        },
+        {
+          "id": "09-recap",
+          "end": 281.09,
+          "start": 254.04,
+          "title": "把链路连起来：一次前向的清单",
+          "events": [],
+          "narration": "现在把整条链路连起来。输入嵌入加上位置编码，进入六层编码器，每层先自注意力再前馈网络，每个子层外面是残差和层归一化，最后输出 z。解码器六层，每层掩码自注意力、交叉注意力、前馈网络，同样套残差和归一化。最后一层接线性层和 softmax，给出下一个符号的概率分布。",
+          "audio_path": "assets/audio/256aac6cea1f7739193ef6bc0ede2e356862292089dbc29b305e86d0cf12c6e9.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "清单逐行落下，右侧同一张链路图对应环节同时点亮"
+        },
+        {
+          "id": "10-close",
+          "end": 295.97999999999996,
+          "start": 281.09,
+          "title": "收束：记住三件事",
+          "events": [],
+          "narration": "这一节记住三件事：左右两个栈、每个子层的残差加归一化写法，还有掩码配合右移一位。下一节我们钻进自注意力内部，把打分和加权求和算清楚。",
+          "audio_path": "assets/audio/b37b58ee3774ab04d3badc5f68887b2a098e0c26f40ab98bc10de053d415691c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三枚要点卡依次落位，结尾给出下一节方向"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 296.0
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.933333333333334
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "81921703917d838d143aa8d5f2f69ee39c79e4c37eb57dd1f1c51899f40ce17d",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 296.0
+      },
+      "content_digest": "38e256a4da5c82d2f0b19410dcb267181a5b5f50b7b6eed339fc9399a20ddbcd",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.933333333333334
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "5110a660219d70debdfd9ed36a0d0fd0a9a7360ec41f0c8fb331e01a6d658d92"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "cdb8a12182de3025a62214322df3374a9a4828e73fc4632504f6d6cff4243b54",
+      "preparation_sha256": "8d2b8296f0a9dad3a5e42c9aa0136053c8cde0654fc9e0e5506fafe29fc9568d"
+    }
+  }
+}

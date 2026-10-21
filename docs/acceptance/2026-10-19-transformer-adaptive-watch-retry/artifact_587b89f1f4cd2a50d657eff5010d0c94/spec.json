@@ -1,0 +1,192 @@
+{
+  "title": "多头注意力：多子空间并行与三种使用方式",
+  "minutes": 12,
+  "node_id": "n3-multi-head",
+  "audience": "希望系统学习 Transformer 的初学者（具体背景未知）",
+  "evidence": [
+    {
+      "url": "https://developer.volcengine.com/articles/7382260814868119578",
+      "claim": "多头注意力把查询、键、值分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维，并行执行注意力函数，再把各头输出拼接并做一次线性投影得到最终输出；它使模型能在不同表示子空间中联合关注不同位置的信息，单头时的平均操作会抑制这种能力。原始论文取 h=8，d_k=d_v=d_model/h=64，总计算成本与全维单头注意力相近。",
+      "quote": "我们并没有使用单个dmodel维度的键、值和查询来执行单一的注意力函数，而是发现将查询、键和值分别通过h个不同的、学习得到的线性投影，线性映射到dk、dk和dv维度上是有益的。然后，我们在这些投影后的查询、键和值的每一个版本上并行执行注意力函数，得到dv维度的输出值。这些输出值被拼接起来，并再次进行投影，得到最终的输出值，如图2所示。\n\n多头注意力允许模型在不同的表示子空间中联合关注不同位置的信息。使用单个注意力头时，平均操作会抑制这种能力。\n",
+      "source_id": "ev_6f83a834a32bd420dd30f8bd",
+      "finding_id": "f-multi-head",
+      "source_hash": "818a58da9d641cc188e43967330ed9bd2a91445c0826196aeab404712daf8f8b",
+      "source_excerpt": "缩放的情况下表现更好。然而，由于点积注意力可以使用优化的矩阵乘法代码实现，它在实践中通常更受欢迎。\n\n**缩放点积注意力-工作流程**\n\n**缩放点积注意力通过计算每个token的查询向量与所有token的键向量的点积，并经过softmax** **归一化** **得到注意力权重，再将这些权重应用于值向量进行加权求和，从而生成每个token的自注意力输出表示。**\n\n1. **每个token对应的** **Query** **向量与每个token对应的Key向量做点积**\n\n* 对于输入序列中的每个token，我们都有一个对应的查询向量（Query Vector, Q）和键向量（Key Vector, K）。\n* 我们计算每个查询向量与所有键向量的点积。\n* 这个步骤是在所有token之间建立关系，表示每个token对其他token的“关注”程度。\n\n**QK向量点积运算**\n\n1. **将上述点积取softmax（得到0~1之间的值，即为Attention权重）** 点积的结果需要经过一个softmax函数，确保所有token的注意力权重之和为1。softmax函数将点积结果转换为0到1之间的值，这些值表示了每个token相对于其他所有token的注意力权重。\n\n**计算Attention权重**\n\n1. **计算每个token相对于所有其它token的Attention权重（最终构成一个Attention矩阵）**\n\n* 经过softmax处理后的注意力权重构成了一个Attention矩阵。\n* 这个矩阵的每一行对应一个token，每一列也对应一个token，矩阵中的每个元素表示了对应行token对列token的注意力权重。\n\n**构成Attention矩阵**\n\n1. **每个token对应的value向量乘以Attention权重，并相加，得到当前token的Self-Attention value向量**\n\n* 使用这个Attention矩阵来加权输入序列中的值向量（Value Vector, V）。\n* 具体来说，对于每个token，我们将其对应的值向量与Attention矩阵中该token所在行的所有权重相乘，并将结果相加。\n* 这个加权求和的结果就是该token经过自注意力机制处理后的输出表示。\n\n**加权求和Value向量**\n\n1. **将上述操作应用于每个token**\n\n* 上述操作会应用于输入序列中的每个token，从而得到每个token经过自注意力机制处理后的输出表示。\n* 这些输出表示通常会被送入模型的下一个层进行进一步的处理。\n\n**应用于每个token**\n\n***3.2.2 Multi-Head Attention（多头注意力）***\n\n**Multi-Head Attention**\n\n**3.2.2 多头注意力**\n\n我们并没有使用单个dmodel维度的键、值和查询来执行单一的注意力函数，而是发现将查询、键和值分别通过h个不同的、学习得到的线性投影，线性映射到dk、dk和dv维度上是有益的。然后，我们在这些投影后的查询、键和值的每一个版本上并行执行注意力函数，得到dv维度的输出值。这些输出值被拼接起来，并再次进行投影，得到最终的输出值，如图2所示。\n\n多头注意力允许模型在不同的表示子空间中联合关注不同位置的信息。使用单个注意力头时，平均操作会抑制这种能力。\n\n这里的投影是参数矩阵WiQ∈Rdmodel×dk，WiK∈Rdmodel×dk，WiV∈Rdmodel×dv和WO∈Rhdv×dmodel。\n\n在这项工作中，我们使用了h=8个并行注意力层或“头”。对于每一个头，我们设置dk=dv=dmodel/h=64。由于每个头的维度降低了，所以总的计算成本与全维度的单头注意力相似。\n\n**敲黑板，划重点**\n\n**多头注意力机制** **通过** **并行** **执行多个注意力函数，并在不同表示子空间中捕获信息，提高了模型的表达能力和性能。**\n\n* **多头注意力机制** ：我们采用多头注意力机制，而不是单一的注意力函数。这意味着查询、键和值分别通过多个不同的线性投影进行映射，每个投影对应一个“头”。\n* **并行执行** ：在每个投影后的查询、键和值版本上，我们并行执行注意力函数，从而得到多个输出值。\n* **输出值处理** ：这些并行计算得到的输出值被拼接起来，并经过一次额外的线性投影，得到最终的输出值。\n* **参数矩阵** ：投影过程是通过一系列参数矩阵实现的，这些矩阵包括WiQ、WiK、WiV和WO，它们分别对应查询、键、值和输出的投影。\n* **头的数量与维度** ：在这项工作中，我们使用了8个并行的注意力头（h=8）。每个头的维度（dk和dv）被设置为模型维度（dmodel）除以头的数量，即64。\n* **计算成本** ：由于每个头的维度较低，尽管有多头并行处理，但总的计算成本与全维度的单头注意力相似。\n* **优势** ：多头注意力允许模型在不同的表示子空间中联合关注不同位置的信息，"
+    },
+    {
+      "url": "https://developer.volcengine.com/articles/7382260814868119578",
+      "claim": "多头注意力把查询、键、值分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维，并行执行注意力函数，再把各头输出拼接并做一次线性投影得到最终输出；它使模型能在不同表示子空间中联合关注不同位置的信息，单头时的平均操作会抑制这种能力。原始论文取 h=8，d_k=d_v=d_model/h=64，总计算成本与全维单头注意力相近。",
+      "quote": "\n这里的投影是参数矩阵WiQ∈Rdmodel×dk，WiK∈Rdmodel×dk，WiV∈Rdmodel×dv和WO∈Rhdv×dmodel。\n\n在这项工作中，我们使用了h=8个并行注意力层或“头”。对于每一个头，我们设置dk=dv=dmodel/h=64。由于每个头的维度降低了，所以总的计算成本与全维度的单头注意力相似。\n\n**敲黑板，划重点**\n\n",
+      "source_id": "ev_6f83a834a32bd420dd30f8bd",
+      "finding_id": "f-multi-head",
+      "source_hash": "818a58da9d641cc188e43967330ed9bd2a91445c0826196aeab404712daf8f8b",
+      "source_excerpt": "n对应的Key向量做点积**\n\n* 对于输入序列中的每个token，我们都有一个对应的查询向量（Query Vector, Q）和键向量（Key Vector, K）。\n* 我们计算每个查询向量与所有键向量的点积。\n* 这个步骤是在所有token之间建立关系，表示每个token对其他token的“关注”程度。\n\n**QK向量点积运算**\n\n1. **将上述点积取softmax（得到0~1之间的值，即为Attention权重）** 点积的结果需要经过一个softmax函数，确保所有token的注意力权重之和为1。softmax函数将点积结果转换为0到1之间的值，这些值表示了每个token相对于其他所有token的注意力权重。\n\n**计算Attention权重**\n\n1. **计算每个token相对于所有其它token的Attention权重（最终构成一个Attention矩阵）**\n\n* 经过softmax处理后的注意力权重构成了一个Attention矩阵。\n* 这个矩阵的每一行对应一个token，每一列也对应一个token，矩阵中的每个元素表示了对应行token对列token的注意力权重。\n\n**构成Attention矩阵**\n\n1. **每个token对应的value向量乘以Attention权重，并相加，得到当前token的Self-Attention value向量**\n\n* 使用这个Attention矩阵来加权输入序列中的值向量（Value Vector, V）。\n* 具体来说，对于每个token，我们将其对应的值向量与Attention矩阵中该token所在行的所有权重相乘，并将结果相加。\n* 这个加权求和的结果就是该token经过自注意力机制处理后的输出表示。\n\n**加权求和Value向量**\n\n1. **将上述操作应用于每个token**\n\n* 上述操作会应用于输入序列中的每个token，从而得到每个token经过自注意力机制处理后的输出表示。\n* 这些输出表示通常会被送入模型的下一个层进行进一步的处理。\n\n**应用于每个token**\n\n***3.2.2 Multi-Head Attention（多头注意力）***\n\n**Multi-Head Attention**\n\n**3.2.2 多头注意力**\n\n我们并没有使用单个dmodel维度的键、值和查询来执行单一的注意力函数，而是发现将查询、键和值分别通过h个不同的、学习得到的线性投影，线性映射到dk、dk和dv维度上是有益的。然后，我们在这些投影后的查询、键和值的每一个版本上并行执行注意力函数，得到dv维度的输出值。这些输出值被拼接起来，并再次进行投影，得到最终的输出值，如图2所示。\n\n多头注意力允许模型在不同的表示子空间中联合关注不同位置的信息。使用单个注意力头时，平均操作会抑制这种能力。\n\n这里的投影是参数矩阵WiQ∈Rdmodel×dk，WiK∈Rdmodel×dk，WiV∈Rdmodel×dv和WO∈Rhdv×dmodel。\n\n在这项工作中，我们使用了h=8个并行注意力层或“头”。对于每一个头，我们设置dk=dv=dmodel/h=64。由于每个头的维度降低了，所以总的计算成本与全维度的单头注意力相似。\n\n**敲黑板，划重点**\n\n**多头注意力机制** **通过** **并行** **执行多个注意力函数，并在不同表示子空间中捕获信息，提高了模型的表达能力和性能。**\n\n* **多头注意力机制** ：我们采用多头注意力机制，而不是单一的注意力函数。这意味着查询、键和值分别通过多个不同的线性投影进行映射，每个投影对应一个“头”。\n* **并行执行** ：在每个投影后的查询、键和值版本上，我们并行执行注意力函数，从而得到多个输出值。\n* **输出值处理** ：这些并行计算得到的输出值被拼接起来，并经过一次额外的线性投影，得到最终的输出值。\n* **参数矩阵** ：投影过程是通过一系列参数矩阵实现的，这些矩阵包括WiQ、WiK、WiV和WO，它们分别对应查询、键、值和输出的投影。\n* **头的数量与维度** ：在这项工作中，我们使用了8个并行的注意力头（h=8）。每个头的维度（dk和dv）被设置为模型维度（dmodel）除以头的数量，即64。\n* **计算成本** ：由于每个头的维度较低，尽管有多头并行处理，但总的计算成本与全维度的单头注意力相似。\n* **优势** ：多头注意力允许模型在不同的表示子空间中联合关注不同位置的信息，"
+    },
+    {
+      "url": "https://github.com/bcefghj/learn-cs336/blob/main/docs/04-%E5%A4%9A%E5%A4%B4%E6%B3%A8%E6%84%8F%E5%8A%9B%E4%B8%8ERoPE.md",
+      "claim": "多头注意力把查询、键、值分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维，并行执行注意力函数，再把各头输出拼接并做一次线性投影得到最终输出；它使模型能在不同表示子空间中联合关注不同位置的信息，单头时的平均操作会抑制这种能力。原始论文取 h=8，d_k=d_v=d_model/h=64，总计算成本与全维单头注意力相近。",
+      "quote": "有时把 (\\alpha) 写作温度：(\\mathrm{softmax}(\\mathbf{S}/T))。(\\sqrt{d\\_k}) 相当于**隐式**设定温度，使训练稳定。\n\n---\n\n## 三、Multi-Head Attention\n\n### 3.1 为什么要多头？\n\n单头注意力只学习**一种**相似度模式；多头将 (d) 切为 (h) 份，每份在独立子空间做 Attention，再拼接/投影，能同时捕获：\n\n* 句法局部模式\n* 语义依赖\n* 指代、共指等\n\n",
+      "source_id": "ev_b65c279e9d830a24a6006942",
+      "finding_id": "f-multi-head",
+      "source_hash": "e6fb62cca9cf32a6cbb6d7237da4890341c549634a4ad73c72f51572ce1f7f16",
+      "source_excerpt": "max \\*\\*对最后一维（key 维）\\*\\*做：每一行 (i) 对应「位置 (i) 对所有 (j) 的注意力分布」。\n\n### 1.4 加权求和得到输出\n\n[ \\mathrm{Attention}(\\mathbf{Q},\\mathbf{K},\\mathbf{V}) = \\mathbf{A}\\mathbf{V} = \\mathbf{O} \\in \\mathbb{R}^{n \\times d\\_k} ]\n\n再经输出投影 (\\mathbf{W}\\_O) 回到 (d) 维（单头）或与多头拼接后投影。\n\n### 1.5 完整公式（背诵版）\n\n[ \\boxed{ \\mathrm{Attention}(\\mathbf{Q},\\mathbf{K},\\mathbf{V}) = \\mathrm{softmax}\\left(\\frac{\\mathbf{Q}\\mathbf{K}^\\top}{\\sqrt{d\\_k}}\\right)\\mathbf{V} } ]\n\n**Decoder 因果掩码**：在 softmax **之前**，对非法位置 ((i,j), j>i) 将 logits 置为 (-\\infty)，使 (\\mathbf{A}\\_{ij}=0)。\n\n---\n\n## 二、为什么要除以 (\\sqrt{d\\_k})？\n\n### 2.1 方差稳定直觉\n\n设 (\\mathbf{q},\\mathbf{k}) 的分量近似独立、零均值、方差 1，则 (q^\\top k = \\sum\\_{r=1}^{d\\_k} q\\_r k\\_r) 的方差随 (d\\_k) **线性增长**（独立项方差相加）。因此点积幅度约为 **(\\sqrt{d\\_k})** 量级。\n\n若不缩放，softmax 输入过大 → **近似 one-hot** → 梯度消失；过小 → **近似均匀** → 梯度信号弱。**除以 (\\sqrt{d\\_k})** 使点积方差回到 (O(1))，softmax 温度适中。\n\n### 2.2 简化的数学推导（面试够用）\n\n假设 (q\\_r, k\\_r) 独立，(\\mathbb{E}[q\\_r]=\\mathbb{E}[k\\_r]=0)，(\\mathrm{Var}(q\\_r)=\\mathrm{Var}(k\\_r)=1)。\n\n[ \\mathbb{E}[q\\_r k\\_r] = 0,\\quad \\mathrm{Var}(q\\_r k\\_r) = \\mathbb{E}[q\\_r^2]\\mathbb{E}[k\\_r^2] = 1 ]\n\n和 (S = \\sum\\_{r=1}^{d\\_k} q\\_r k\\_r) 的方差为 (d\\_k)，标准差 (\\sqrt{d\\_k})。故将 (S) 除以 (\\sqrt{d\\_k})，使 **标准化** 到 (O(1)) 波动。\n\n### 2.3 与「温度」的关系\n\n有时把 (\\alpha) 写作温度：(\\mathrm{softmax}(\\mathbf{S}/T))。(\\sqrt{d\\_k}) 相当于**隐式**设定温度，使训练稳定。\n\n---\n\n## 三、Multi-Head Attention\n\n### 3.1 为什么要多头？\n\n单头注意力只学习**一种**相似度模式；多头将 (d) 切为 (h) 份，每份在独立子空间做 Attention，再拼接/投影，能同时捕获：\n\n* 句法局部模式\n* 语义依赖\n* 指代、共指等\n\n**一句话**：**多子空间并行，模式更丰富**。\n\n### 3.2 头数与维度关系\n\n常见设定：(d\\_k = d\\_h = d/h)，每头维度 (d\\_h)。总参数量：(4 d^2)（QKV O）或按实现拆分为多头低秩形式。\n\n### 3.3 拼接与输出投影\n\n[ \\mathrm{MultiHead}("
+    },
+    {
+      "url": "https://newsletter.theaiedge.io/p/attention-is-all-you-need-the-original",
+      "claim": "多头注意力把查询、键、值分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维，并行执行注意力函数，再把各头输出拼接并做一次线性投影得到最终输出；它使模型能在不同表示子空间中联合关注不同位置的信息，单头时的平均操作会抑制这种能力。原始论文取 h=8，d_k=d_v=d_model/h=64，总计算成本与全维单头注意力相近。",
+      "quote": "To combine those heads' hidden states, we concatenate them, and we pass them through a final linear layer ***WO*** to mix the signals coming from the different heads:\n\n\\( H' = \\text{Concat}(H'\\_1, \\ldots, H'\\_{n\\_{\\text{head}}})W^O\\)\n\n",
+      "source_id": "ev_04795338283ff420a41a08ef",
+      "finding_id": "f-multi-head",
+      "source_hash": "ddb04361f00cdc2f51563ba0bd5abc414e3fac3ced190a1f07ae50f5b8a4cf3f",
+      "source_excerpt": "action patterns between the different tokens in the input sequence. Combining those will lead to more heterogeneous learning, and we will be able to learn richer information from the input sequence. Think about the multi-head attention layer as an ensemble of self-attentions, a bit like the random forest is an ensemble of decision tree models.\n\nWe call \"heads\" the parallel attention mechanisms. To ensure that the time complexity of the computations remains independent of the number of attention heads, we need to reduce the size of the internal vectors within the layers. The hidden size dimensionality per head is divided by the number of heads:\n\n\\( d\\_{\\text{head}} = \\frac{d\\_{\\text{model}}}{n\\_{\\text{head}}}\\)\n\nwhere ***n*****head** is the number of heads. This implies that the hidden size has to be chosen so that it is divisible by the number of heads.\n\nEach attention generates vectors of size ***dhead = dmodel / nhead***, depending of the number of heads.\n\nLet us call ***H =[h1, …, hN]*** the incoming hidden states. Each head ***h*** generates resulting hidden states ***H’h*** of size ***d*****head*****=*** ***d*****model** ***/ n*****head**:\n\n\\(H'\\_h = \\text{Attention}\\_h(H)\\)\n\nTo combine those heads' hidden states, we concatenate them, and we pass them through a final linear layer ***WO*** to mix the signals coming from the different heads:\n\n\\( H' = \\text{Concat}(H'\\_1, \\ldots, H'\\_{n\\_{\\text{head}}})W^O\\)\n\nThe result of each head is concatenated, and the signals are further mixed by a final linear layer ***WO***.\n\nTo generate smaller hidden states, we need to reduce the dimensionality of the internal matrices. In each head, the projection matrices ***WK***, ***WQ***, and ***WV*** take vectors of size ***d*****model** and generate vectors of size ***d*****model** ***/ n*****head**.\n\nTo generate smaller context vectors, we underlying projection matrices ***WK***, ***WQ***, and ***WV*** need to be of size ***d*****model** ***X d*****head** for each head.\n\n#### The Tensor Representation\n\n**I**n reality, the projection matrices are not spread across multiple heads, but different sections of the matrices handle the projections for the different heads.\n\nAlthough the information we have described so far about the multi-head attention layer is accurate, there is a critical subtlety to understand when it comes to its implementation. To illustrate the mathematical properties of the attention heads, we pictured separate \"boxes\" where each attention mechanism evolved in parallel, but in reality, they are slightly more connected. To fully utilize the efficient parallelization capability of the GPU hardware, it is critical to rethink every operation as a tensor operation. We described ***WK***, ***WQ***, and ***WV*** of each head as separate matrices, but in practice, it is just three matrices that we conceptually break down by the number of heads needed.\n\nSimilarly, there is only one set of keys, queries, and values, and each head processes the entire sequence of tokens but operates on a distinct subset of features. The keys, queries, and values have dimension ***d*****model** ***X N***, where ***N*** is the number of tokens in the input sequence. To specify each head's sub-segment explicitly, we reshape the matrices into 3-dimensional tensors with dimension ***n*****head** ***X d*****head** ***X N***. Let us consider the incoming set of the hidden states. It is first projected into keys, queries, and values:\n\n\\(\\begin{align} K = W^K H, \\quad \\text{shape: } d\\_\\text{model}\\times N\\\\ Q = W^Q H, \\quad \\text{shape: } d\\_\\text{model}\\times N \\\\ V = W^V H, \\quad \\text{shape: } d\\_\\text{model}\\times N \\end{align}\\)\n\nWe then reshape the resulting matrices into 3-dimensional tensors:\n\n\\(\\begin{align} K' = \\text{Reshape}(K), \\quad \\text{shape: } n\\_\\text{head}\\times d\\_\\text{head}\\t"
+    },
+    {
+      "url": "https://newsletter.theaiedge.io/p/attention-is-all-you-need-the-original",
+      "claim": "多头注意力把查询、键、值分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维，并行执行注意力函数，再把各头输出拼接并做一次线性投影得到最终输出；它使模型能在不同表示子空间中联合关注不同位置的信息，单头时的平均操作会抑制这种能力。原始论文取 h=8，d_k=d_v=d_model/h=64，总计算成本与全维单头注意力相近。",
+      "quote": "The hidden size dimensionality per head is divided by the number of heads:\n\n\\( d\\_{\\text{head}} = \\frac{d\\_{\\text{model}}}{n\\_{\\text{head}}}\\)\n\nwhere ***n*****head** is the number of heads. ",
+      "source_id": "ev_04795338283ff420a41a08ef",
+      "finding_id": "f-multi-head",
+      "source_hash": "ddb04361f00cdc2f51563ba0bd5abc414e3fac3ced190a1f07ae50f5b8a4cf3f",
+      "source_excerpt": "ayers in parallel, they will be able to learn various interaction patterns between the different tokens in the input sequence. Combining those will lead to more heterogeneous learning, and we will be able to learn richer information from the input sequence. Think about the multi-head attention layer as an ensemble of self-attentions, a bit like the random forest is an ensemble of decision tree models.\n\nWe call \"heads\" the parallel attention mechanisms. To ensure that the time complexity of the computations remains independent of the number of attention heads, we need to reduce the size of the internal vectors within the layers. The hidden size dimensionality per head is divided by the number of heads:\n\n\\( d\\_{\\text{head}} = \\frac{d\\_{\\text{model}}}{n\\_{\\text{head}}}\\)\n\nwhere ***n*****head** is the number of heads. This implies that the hidden size has to be chosen so that it is divisible by the number of heads.\n\nEach attention generates vectors of size ***dhead = dmodel / nhead***, depending of the number of heads.\n\nLet us call ***H =[h1, …, hN]*** the incoming hidden states. Each head ***h*** generates resulting hidden states ***H’h*** of size ***d*****head*****=*** ***d*****model** ***/ n*****head**:\n\n\\(H'\\_h = \\text{Attention}\\_h(H)\\)\n\nTo combine those heads' hidden states, we concatenate them, and we pass them through a final linear layer ***WO*** to mix the signals coming from the different heads:\n\n\\( H' = \\text{Concat}(H'\\_1, \\ldots, H'\\_{n\\_{\\text{head}}})W^O\\)\n\nThe result of each head is concatenated, and the signals are further mixed by a final linear layer ***WO***.\n\nTo generate smaller hidden states, we need to reduce the dimensionality of the internal matrices. In each head, the projection matrices ***WK***, ***WQ***, and ***WV*** take vectors of size ***d*****model** and generate vectors of size ***d*****model** ***/ n*****head**.\n\nTo generate smaller context vectors, we underlying projection matrices ***WK***, ***WQ***, and ***WV*** need to be of size ***d*****model** ***X d*****head** for each head.\n\n#### The Tensor Representation\n\n**I**n reality, the projection matrices are not spread across multiple heads, but different sections of the matrices handle the projections for the different heads.\n\nAlthough the information we have described so far about the multi-head attention layer is accurate, there is a critical subtlety to understand when it comes to its implementation. To illustrate the mathematical properties of the attention heads, we pictured separate \"boxes\" where each attention mechanism evolved in parallel, but in reality, they are slightly more connected. To fully utilize the efficient parallelization capability of the GPU hardware, it is critical to rethink every operation as a tensor operation. We described ***WK***, ***WQ***, and ***WV*** of each head as separate matrices, but in practice, it is just three matrices that we conceptually break down by the number of heads needed.\n\nSimilarly, there is only one set of keys, queries, and values, and each head processes the entire sequence of tokens but operates on a distinct subset of features. The keys, queries, and values have dimension ***d*****model** ***X N***, where ***N*** is the number of "
+    },
+    {
+      "url": "https://developer.volcengine.com/articles/7382260814868119578",
+      "claim": "Transformer 以三种方式使用多头注意力：编码器-解码器注意力（查询来自解码器前一层，键和值来自编码器输出，使解码器每个位置都能关注输入序列所有位置）；编码器自注意力（Q、K、V 均来自编码器前一层输出）；解码器自注意力（通过把 softmax 输入中非法连接置为 -∞ 的掩码阻止信息向左流动，保持自回归属性）。",
+      "quote": "Transformer使用多头注意力机制的三种不同方式如下：\n\n* 在“编码器-解码器注意力”层中，查询来自前一层解码器，而记忆键和值则来自编码器的输出。这使得解码器中的每个位置都能关注输入序列中的所有位置。这模仿了序列到序列模型（如[31, 2, 8]）中典型的编码器-解码器注意力机制。\n* 编码器包含自注意力层。在自注意力层中，所有的键、值和查询都来自同一个地方，即编码器前一层的输出。编码器中的每个位置都可以关注编码器前一层中的所有位置。\n",
+      "source_id": "ev_8dae6a19e0d295ee3a9aa2fa",
+      "finding_id": "f-attention-three-uses",
+      "source_hash": "3f856626a64606f030a74add0aa414ee5c19a034a1343633d848766357d46c92",
+      "source_excerpt": "从而提高了模型的表达能力和性能。而使用单个注意力头时，平均操作可能会抑制这种能力。\n\n**多头注意力-工作流程**\n\n**多头注意力** **将每个头得到向量拼接在一起，最后乘一个线性矩阵，得到 Multi-Head Attention 的输出。**\n\n* **输入线性变换** ：对于输入的Query（查询）、Key（键）和Value（值）向量，首先通过线性变换将它们映射到不同的子空间。这些线性变换的参数是模型需要学习的。\n* **分割多头** ：经过线性变换后，Query、Key和Value向量被分割成多个头。每个头都会独立地进行注意力计算。\n* **缩放点积注意力** ：在每个头内部，使用缩放点积注意力来计算Query和Key之间的注意力分数。这个分数决定了在生成输出时，模型应该关注Value向量的部分。\n* **注意力权重应用** ：将计算出的注意力权重应用于Value向量，得到加权的中间输出。这个过程可以理解为根据注意力权重对输入信息进行筛选和聚焦。\n* **拼接和线性变换** ：将所有头的加权输出拼接在一起，然后通过一个线性变换得到最终的Multi-Head Attention输出。\n\n**拼接和线性变换**\n\n***3.2.3 Applications of Attention in our Model（** **注意力机制** **在我们模型中的应用）***\n\n**Applications of Attention in our Model**\n\n**3.2.3** **注意力机制** **在我们模型中的应用**\n\nTransformer使用多头注意力机制的三种不同方式如下：\n\n* 在“编码器-解码器注意力”层中，查询来自前一层解码器，而记忆键和值则来自编码器的输出。这使得解码器中的每个位置都能关注输入序列中的所有位置。这模仿了序列到序列模型（如[31, 2, 8]）中典型的编码器-解码器注意力机制。\n* 编码器包含自注意力层。在自注意力层中，所有的键、值和查询都来自同一个地方，即编码器前一层的输出。编码器中的每个位置都可以关注编码器前一层中的所有位置。\n* 同样，解码器中的自注意力层允许解码器中的每个位置关注解码器中包括该位置在内的所有位置。我们需要防止解码器中的信息向左流动，以保持自回归属性。我们通过将softmax输入中对应非法连接的所有值掩盖掉（设为-∞）来实现这一点。请参阅图2。\n\n**敲黑板，划重点**\n\n**Transformer模型** **利用三种方式应用多头注意力机制，包括编码器-** **解码器** **间的全局关注、编码器内部的自交互以及解码器的** **自回归** **关注**\n\n* **Transformer模型中的注意力应用** ：Transformer模型使用了多头注意力机制，并在三种不同的场景中应用：编码器-解码器注意力、编码器自注意力以及解码器自注意力。\n* **编码器-解码器注意力** ：这种注意力机制允许解码器中的每个位置关注输入序列中的所有位置。查询来自解码器的前一层，而键和值则来自编码器的输出。\n* **编码器自注意力** ：在编码器的自注意力层中，所有的键、值和查询都来自编码器前一层的输出。这使得编码器中的每个位置都能关注其前一层中的所有位置。\n* **解码器自注意力** ：解码器中的自注意力允许每个位置关注解码器中包括该位置在内的所有位置。但为了防止信息向左流动并保持自回归属性，会通过掩盖softmax输入中对应非法连接的值来实现。\n\n## **3.3 Position-wise** **Feed-Forward Networks** **（位置相关的** **前馈神经网络** **）**\n\n**Position-wise Feed-Forward Networks**\n\n**3.3 位置相关的** **前馈神经网络**\n\n除了注意力子层之外，我们的编码器和解码器中的每一层都包含一个全连接的前馈神经网络，该网络分别且相同地应用于每个位置。这包括两个线性变换，并在它们之间使用ReLU激活函数。\n\n前馈神经网络（FFN）的表达式为：FFN(x) = max(0, xW1 + b1)W2 + b2 (2)\n\n尽管线性变换在不同位置上是相同的，但它们在不同层之间使用不同的参数。另一种描述方式是将其视为两个核大小为1的卷积操作。\n\n输入和输出的维度为dmodel = 512，而内层的维度为dff = 2048。\n\n**Position-wise Feed-Forward Networks**\n\n**敲黑板，划重点**\n\n**位置相关的** **前馈神经网络** **是** **Transformer模型** **中每层的重要组件，通过** **线性变换** **和** **ReLU** **激活函数** **处理数据，增强模型的表达能力。**\n\n* **网络结构** ：位置相关的前馈神经网络（Position-wise Feed-Forward Networks）是Transformer模型编码器和解码器中每一层的重要组成部分，除了注意力子层之外，每个位置都独立且相同地应用了一个全连接的前馈神经网络。\n* **线性变换与激活函数** ：前馈神经网络包含两个线性变换，并在它们之间使用ReLU激活函数。这种结构有助于模型捕获并转换输入数据的复杂特征。\n* **参数特性** ：尽管线性变换在不同位置上是相同的，但不同层之间使用不同的参数。这种设计使得模型能够在不同层次上学习并提取不同的特征信息。\n* **维度设置** ：输入和输出的维度被设定为dmodel = 512，而内层的维度为dff = 2048。这种维度设置有助于模型在保持一定复杂度的同时，有效地处理输入数据。\n* **卷积操作的类比** ：位置相关的前馈神经网络也可以被描述为两个核大小为1的卷积操作，这种类比有助于我们更直观地理解其工作原理和在网络中的功能。\n\n**位置相关的前馈神经网络**\n\n## ***3.4 Embeddings and Softmax（嵌入与Softmax）***\n\n**Embeddings and Softmax**\n\n**3.4 嵌入与Softmax**\n\n类似于其他序列转换模型，我们使用学习到的嵌入（embeddings）将输入和输出标记转换为维度为dmodel的向量。同样，我们使用常见的线性变换和softmax函数将解码器输出转换为预测的下一个标记的概率。在我们的模型中，两个嵌入层与softmax前的线性变换共享相同的权重矩阵，这与[24]类似。在嵌入层中，我们将这些权重乘以√dmodel。\n\n**敲黑板，划重点**\n\n**嵌入与Softmax** **是** **Transformer模型** **的关键组件，通过学习嵌入转换输入和输出标记为向量，并使用softmax生成概率预测，同时采用权重共享和缩放策略优化模型性能。**\n\n* **嵌入转换** ：在Transformer模型中，使用学习到的嵌入（embeddings）将输入和输出标记转换为维度为dmodel的向量。这有助于将离散的标记转换为模型可以处理的连续向量表示。\n* **Softmax函数** ：模型使用softmax函数将解码器的输出转换为预测的下一个标记的概率分布。这使得模型能够生成概率上的预测，便于后续的处理和决策。\n* **权重共享** ：在Transformer模型中，两个嵌入层（输入嵌入和输出嵌入）与softmax前的线性变换共享相同的权重矩阵。这种权重共享有助于减少模型参数的数量，并可能促进更好的学习和泛化能力。\n* **权重缩放** ：在嵌入层中，权重矩阵被乘以√dmodel。这种缩放操作可能是为了平衡嵌入向量的规模，以确保模型在训练过程中的稳定性和性能。\n\n**嵌入与Softmax**\n\n## ***3.5 Positional Encoding（位置编码）"
+    },
+    {
+      "url": "https://developer.volcengine.com/articles/7382260814868119578",
+      "claim": "Transformer 以三种方式使用多头注意力：编码器-解码器注意力（查询来自解码器前一层，键和值来自编码器输出，使解码器每个位置都能关注输入序列所有位置）；编码器自注意力（Q、K、V 均来自编码器前一层输出）；解码器自注意力（通过把 softmax 输入中非法连接置为 -∞ 的掩码阻止信息向左流动，保持自回归属性）。",
+      "quote": "* 同样，解码器中的自注意力层允许解码器中的每个位置关注解码器中包括该位置在内的所有位置。我们需要防止解码器中的信息向左流动，以保持自回归属性。我们通过将softmax输入中对应非法连接的所有值掩盖掉（设为-∞）来实现这一点。请参阅图2。\n\n**敲黑板，划重点**\n\n**Transformer模型** **利用三种方式应用多头注意力机制，包括编码器-** **解码器** **间的全局关注、编码器内部的自交互以及解码器的** **自回归** **关注**\n\n",
+      "source_id": "ev_8dae6a19e0d295ee3a9aa2fa",
+      "finding_id": "f-attention-three-uses",
+      "source_hash": "3f856626a64606f030a74add0aa414ee5c19a034a1343633d848766357d46c92",
+      "source_excerpt": "从而提高了模型的表达能力和性能。而使用单个注意力头时，平均操作可能会抑制这种能力。\n\n**多头注意力-工作流程**\n\n**多头注意力** **将每个头得到向量拼接在一起，最后乘一个线性矩阵，得到 Multi-Head Attention 的输出。**\n\n* **输入线性变换** ：对于输入的Query（查询）、Key（键）和Value（值）向量，首先通过线性变换将它们映射到不同的子空间。这些线性变换的参数是模型需要学习的。\n* **分割多头** ：经过线性变换后，Query、Key和Value向量被分割成多个头。每个头都会独立地进行注意力计算。\n* **缩放点积注意力** ：在每个头内部，使用缩放点积注意力来计算Query和Key之间的注意力分数。这个分数决定了在生成输出时，模型应该关注Value向量的部分。\n* **注意力权重应用** ：将计算出的注意力权重应用于Value向量，得到加权的中间输出。这个过程可以理解为根据注意力权重对输入信息进行筛选和聚焦。\n* **拼接和线性变换** ：将所有头的加权输出拼接在一起，然后通过一个线性变换得到最终的Multi-Head Attention输出。\n\n**拼接和线性变换**\n\n***3.2.3 Applications of Attention in our Model（** **注意力机制** **在我们模型中的应用）***\n\n**Applications of Attention in our Model**\n\n**3.2.3** **注意力机制** **在我们模型中的应用**\n\nTransformer使用多头注意力机制的三种不同方式如下：\n\n* 在“编码器-解码器注意力”层中，查询来自前一层解码器，而记忆键和值则来自编码器的输出。这使得解码器中的每个位置都能关注输入序列中的所有位置。这模仿了序列到序列模型（如[31, 2, 8]）中典型的编码器-解码器注意力机制。\n* 编码器包含自注意力层。在自注意力层中，所有的键、值和查询都来自同一个地方，即编码器前一层的输出。编码器中的每个位置都可以关注编码器前一层中的所有位置。\n* 同样，解码器中的自注意力层允许解码器中的每个位置关注解码器中包括该位置在内的所有位置。我们需要防止解码器中的信息向左流动，以保持自回归属性。我们通过将softmax输入中对应非法连接的所有值掩盖掉（设为-∞）来实现这一点。请参阅图2。\n\n**敲黑板，划重点**\n\n**Transformer模型** **利用三种方式应用多头注意力机制，包括编码器-** **解码器** **间的全局关注、编码器内部的自交互以及解码器的** **自回归** **关注**\n\n* **Transformer模型中的注意力应用** ：Transformer模型使用了多头注意力机制，并在三种不同的场景中应用：编码器-解码器注意力、编码器自注意力以及解码器自注意力。\n* **编码器-解码器注意力** ：这种注意力机制允许解码器中的每个位置关注输入序列中的所有位置。查询来自解码器的前一层，而键和值则来自编码器的输出。\n* **编码器自注意力** ：在编码器的自注意力层中，所有的键、值和查询都来自编码器前一层的输出。这使得编码器中的每个位置都能关注其前一层中的所有位置。\n* **解码器自注意力** ：解码器中的自注意力允许每个位置关注解码器中包括该位置在内的所有位置。但为了防止信息向左流动并保持自回归属性，会通过掩盖softmax输入中对应非法连接的值来实现。\n\n## **3.3 Position-wise** **Feed-Forward Networks** **（位置相关的** **前馈神经网络** **）**\n\n**Position-wise Feed-Forward Networks**\n\n**3.3 位置相关的** **前馈神经网络**\n\n除了注意力子层之外，我们的编码器和解码器中的每一层都包含一个全连接的前馈神经网络，该网络分别且相同地应用于每个位置。这包括两个线性变换，并在它们之间使用ReLU激活函数。\n\n前馈神经网络（FFN）的表达式为：FFN(x) = max(0, xW1 + b1)W2 + b2 (2)\n\n尽管线性变换在不同位置上是相同的，但它们在不同层之间使用不同的参数。另一种描述方式是将其视为两个核大小为1的卷积操作。\n\n输入和输出的维度为dmodel = 512，而内层的维度为dff = 2048。\n\n**Position-wise Feed-Forward Networks**\n\n**敲黑板，划重点**\n\n**位置相关的** **前馈神经网络** **是** **Transformer模型** **中每层的重要组件，通过** **线性变换** **和** **ReLU** **激活函数** **处理数据，增强模型的表达能力。**\n\n* **网络结构** ：位置相关的前馈神经网络（Position-wise Feed-Forward Networks）是Transformer模型编码器和解码器中每一层的重要组成部分，除了注意力子层之外，每个位置都独立且相同地应用了一个全连接的前馈神经网络。\n* **线性变换与激活函数** ：前馈神经网络包含两个线性变换，并在它们之间使用ReLU激活函数。这种结构有助于模型捕获并转换输入数据的复杂特征。\n* **参数特性** ：尽管线性变换在不同位置上是相同的，但不同层之间使用不同的参数。这种设计使得模型能够在不同层次上学习并提取不同的特征信息。\n* **维度设置** ：输入和输出的维度被设定为dmodel = 512，而内层的维度为dff = 2048。这种维度设置有助于模型在保持一定复杂度的同时，有效地处理输入数据。\n* **卷积操作的类比** ：位置相关的前馈神经网络也可以被描述为两个核大小为1的卷积操作，这种类比有助于我们更直观地理解其工作原理和在网络中的功能。\n\n**位置相关的前馈神经网络**\n\n## ***3.4 Embeddings and Softmax（嵌入与Softmax）***\n\n**Embeddings and Softmax**\n\n**3.4 嵌入与Softmax**\n\n类似于其他序列转换模型，我们使用学习到的嵌入（embeddings）将输入和输出标记转换为维度为dmodel的向量。同样，我们使用常见的线性变换和softmax函数将解码器输出转换为预测的下一个标记的概率。在我们的模型中，两个嵌入层与softmax前的线性变换共享相同的权重矩阵，这与[24]类似。在嵌入层中，我们将这些权重乘以√dmodel。\n\n**敲黑板，划重点**\n\n**嵌入与Softmax** **是** **Transformer模型** **的关键组件，通过学习嵌入转换输入和输出标记为向量，并使用softmax生成概率预测，同时采用权重共享和缩放策略优化模型性能。**\n\n* **嵌入转换** ：在Transformer模型中，使用学习到的嵌入（embeddings）将输入和输出标记转换为维度为dmodel的向量。这有助于将离散的标记转换为模型可以处理的连续向量表示。\n* **Softmax函数** ：模型使用softmax函数将解码器的输出转换为预测的下一个标记的概率分布。这使得模型能够生成概率上的预测，便于后续的处理和决策。\n* **权重共享** ：在Transformer模型中，两个嵌入层（输入嵌入和输出嵌入）与softmax前的线性变换共享相同的权重矩阵。这种权重共享有助于减少模型参数的数量，并可能促进更好的学习和泛化能力。\n* **权重缩放** ：在嵌入层中，权重矩阵被乘以√dmodel。这种缩放操作可能是为了平衡嵌入向量的规模，以确保模型在训练过程中的稳定性和性能。\n\n**嵌入与Softmax**\n\n## ***3.5 Positional Encoding（位置编码）***\n\n**Positional Encoding**\n\n**3.5 位置编码**\n\n由于我们的模型不包含循环和卷积，为了让模型利用序列的顺序信息，我们必须在序列中的标记上注入一些关于相对或绝对位置的信息。为此，我们在编码器和解码器堆栈的底部向输入嵌入添加“位置编码”。位置编码的维度与嵌入的维度dmodel相同，以便可以将两者相加。关于位置编码，有多种选择，包括学习得到的和固定的[8]。\n\n在这项工作中，我们使用不同频率的正弦和余弦函数来生成位置编码：\n"
+    },
+    {
+      "url": "https://developer.volcengine.com/articles/7382260814868119578",
+      "claim": "Transformer 以三种方式使用多头注意力：编码器-解码器注意力（查询来自解码器前一层，键和值来自编码器输出，使解码器每个位置都能关注输入序列所有位置）；编码器自注意力（Q、K、V 均来自编码器前一层输出）；解码器自注意力（通过把 softmax 输入中非法连接置为 -∞ 的掩码阻止信息向左流动，保持自回归属性）。",
+      "quote": "* **Transformer模型中的注意力应用** ：Transformer模型使用了多头注意力机制，并在三种不同的场景中应用：编码器-解码器注意力、编码器自注意力以及解码器自注意力。\n* **编码器-解码器注意力** ：这种注意力机制允许解码器中的每个位置关注输入序列中的所有位置。查询来自解码器的前一层，而键和值则来自编码器的输出。\n",
+      "source_id": "ev_8dae6a19e0d295ee3a9aa2fa",
+      "finding_id": "f-attention-three-uses",
+      "source_hash": "3f856626a64606f030a74add0aa414ee5c19a034a1343633d848766357d46c92",
+      "source_excerpt": "从而提高了模型的表达能力和性能。而使用单个注意力头时，平均操作可能会抑制这种能力。\n\n**多头注意力-工作流程**\n\n**多头注意力** **将每个头得到向量拼接在一起，最后乘一个线性矩阵，得到 Multi-Head Attention 的输出。**\n\n* **输入线性变换** ：对于输入的Query（查询）、Key（键）和Value（值）向量，首先通过线性变换将它们映射到不同的子空间。这些线性变换的参数是模型需要学习的。\n* **分割多头** ：经过线性变换后，Query、Key和Value向量被分割成多个头。每个头都会独立地进行注意力计算。\n* **缩放点积注意力** ：在每个头内部，使用缩放点积注意力来计算Query和Key之间的注意力分数。这个分数决定了在生成输出时，模型应该关注Value向量的部分。\n* **注意力权重应用** ：将计算出的注意力权重应用于Value向量，得到加权的中间输出。这个过程可以理解为根据注意力权重对输入信息进行筛选和聚焦。\n* **拼接和线性变换** ：将所有头的加权输出拼接在一起，然后通过一个线性变换得到最终的Multi-Head Attention输出。\n\n**拼接和线性变换**\n\n***3.2.3 Applications of Attention in our Model（** **注意力机制** **在我们模型中的应用）***\n\n**Applications of Attention in our Model**\n\n**3.2.3** **注意力机制** **在我们模型中的应用**\n\nTransformer使用多头注意力机制的三种不同方式如下：\n\n* 在“编码器-解码器注意力”层中，查询来自前一层解码器，而记忆键和值则来自编码器的输出。这使得解码器中的每个位置都能关注输入序列中的所有位置。这模仿了序列到序列模型（如[31, 2, 8]）中典型的编码器-解码器注意力机制。\n* 编码器包含自注意力层。在自注意力层中，所有的键、值和查询都来自同一个地方，即编码器前一层的输出。编码器中的每个位置都可以关注编码器前一层中的所有位置。\n* 同样，解码器中的自注意力层允许解码器中的每个位置关注解码器中包括该位置在内的所有位置。我们需要防止解码器中的信息向左流动，以保持自回归属性。我们通过将softmax输入中对应非法连接的所有值掩盖掉（设为-∞）来实现这一点。请参阅图2。\n\n**敲黑板，划重点**\n\n**Transformer模型** **利用三种方式应用多头注意力机制，包括编码器-** **解码器** **间的全局关注、编码器内部的自交互以及解码器的** **自回归** **关注**\n\n* **Transformer模型中的注意力应用** ：Transformer模型使用了多头注意力机制，并在三种不同的场景中应用：编码器-解码器注意力、编码器自注意力以及解码器自注意力。\n* **编码器-解码器注意力** ：这种注意力机制允许解码器中的每个位置关注输入序列中的所有位置。查询来自解码器的前一层，而键和值则来自编码器的输出。\n* **编码器自注意力** ：在编码器的自注意力层中，所有的键、值和查询都来自编码器前一层的输出。这使得编码器中的每个位置都能关注其前一层中的所有位置。\n* **解码器自注意力** ：解码器中的自注意力允许每个位置关注解码器中包括该位置在内的所有位置。但为了防止信息向左流动并保持自回归属性，会通过掩盖softmax输入中对应非法连接的值来实现。\n\n## **3.3 Position-wise** **Feed-Forward Networks** **（位置相关的** **前馈神经网络** **）**\n\n**Position-wise Feed-Forward Networks**\n\n**3.3 位置相关的** **前馈神经网络**\n\n除了注意力子层之外，我们的编码器和解码器中的每一层都包含一个全连接的前馈神经网络，该网络分别且相同地应用于每个位置。这包括两个线性变换，并在它们之间使用ReLU激活函数。\n\n前馈神经网络（FFN）的表达式为：FFN(x) = max(0, xW1 + b1)W2 + b2 (2)\n\n尽管线性变换在不同位置上是相同的，但它们在不同层之间使用不同的参数。另一种描述方式是将其视为两个核大小为1的卷积操作。\n\n输入和输出的维度为dmodel = 512，而内层的维度为dff = 2048。\n\n**Position-wise Feed-Forward Networks**\n\n**敲黑板，划重点**\n\n**位置相关的** **前馈神经网络** **是** **Transformer模型** **中每层的重要组件，通过** **线性变换** **和** **ReLU** **激活函数** **处理数据，增强模型的表达能力。**\n\n* **网络结构** ：位置相关的前馈神经网络（Position-wise Feed-Forward Networks）是Transformer模型编码器和解码器中每一层的重要组成部分，除了注意力子层之外，每个位置都独立且相同地应用了一个全连接的前馈神经网络。\n* **线性变换与激活函数** ：前馈神经网络包含两个线性变换，并在它们之间使用ReLU激活函数。这种结构有助于模型捕获并转换输入数据的复杂特征。\n* **参数特性** ：尽管线性变换在不同位置上是相同的，但不同层之间使用不同的参数。这种设计使得模型能够在不同层次上学习并提取不同的特征信息。\n* **维度设置** ：输入和输出的维度被设定为dmodel = 512，而内层的维度为dff = 2048。这种维度设置有助于模型在保持一定复杂度的同时，有效地处理输入数据。\n* **卷积操作的类比** ：位置相关的前馈神经网络也可以被描述为两个核大小为1的卷积操作，这种类比有助于我们更直观地理解其工作原理和在网络中的功能。\n\n**位置相关的前馈神经网络**\n\n## ***3.4 Embeddings and Softmax（嵌入与Softmax）***\n\n**Embeddings and Softmax**\n\n**3.4 嵌入与Softmax**\n\n类似于其他序列转换模型，我们使用学习到的嵌入（embeddings）将输入和输出标记转换为维度为dmodel的向量。同样，我们使用常见的线性变换和softmax函数将解码器输出转换为预测的下一个标记的概率。在我们的模型中，两个嵌入层与softmax前的线性变换共享相同的权重矩阵，这与[24]类似。在嵌入层中，我们将这些权重乘以√dmodel。\n\n**敲黑板，划重点**\n\n**嵌入与Softmax** **是** **Transformer模型** **的关键组件，通过学习嵌入转换输入和输出标记为向量，并使用softmax生成概率预测，同时采用权重共享和缩放策略优化模型性能。**\n\n* **嵌入转换** ：在Transformer模型中，使用学习到的嵌入（embeddings）将输入和输出标记转换为维度为dmodel的向量。这有助于将离散的标记转换为模型可以处理的连续向量表示。\n* **Softmax函数** ：模型使用softmax函数将解码器的输出转换为预测的下一个标记的概率分布。这使得模型能够生成概率上的预测，便于后续的处理和决策。\n* **权重共享** ：在Transformer模型中，两个嵌入层（输入嵌入和输出嵌入）与softmax前的线性变换共享相同的权重矩阵。这种权重共享有助于减少模型参数的数量，并可能促进更好的学习和泛化能力。\n* **权重缩放** ：在嵌入层中，权重矩阵被乘以√dmodel。这种缩放操作可能是为了平衡嵌入向量的规模，以确保模型在训练过程中的稳定性和性能。\n\n**嵌入与Softmax**\n\n## ***3.5 Positional Encoding（位置编码）***\n\n**Positional Encoding**\n\n**3.5 位置编码**\n\n由于我们的模型不包含循环和卷积，为了让模型利用序列的顺序信息，我们必须在序列中的标记上注入一些关于相对或绝对位置的信息。为此，我们在编码器和解码器堆栈的底部向输入嵌入添加“位置编码”。位置编码的维度与嵌入的维度dmodel相同，以便可以将两者相加。关于位置编码，有多种选择，包括学习得到的和固定的[8]。\n\n在这项工作中，我们使用不同频率的正弦和余弦函数来生成位置编码：\n\n其中pos是位置，i是维度。也就是说，位置编码的每个维度对应于一个正弦波。波长从2π到10000·2π形成几何级数。我们选择这个函数是因为我们假设它能让模型轻松地学习根据相对位置进行关注，因为对于任何固定的偏移量k，PE(pos + k)都可以表示为PE(pos)的线性函数。\n\n我们也尝试使用学习得到的位置嵌入[8]，发现这两种版本产生"
+    },
+    {
+      "url": "https://developer.volcengine.com/articles/7382260814868119578",
+      "claim": "Transformer 以三种方式使用多头注意力：编码器-解码器注意力（查询来自解码器前一层，键和值来自编码器输出，使解码器每个位置都能关注输入序列所有位置）；编码器自注意力（Q、K、V 均来自编码器前一层输出）；解码器自注意力（通过把 softmax 输入中非法连接置为 -∞ 的掩码阻止信息向左流动，保持自回归属性）。",
+      "quote": "* **编码器自注意力** ：在编码器的自注意力层中，所有的键、值和查询都来自编码器前一层的输出。这使得编码器中的每个位置都能关注其前一层中的所有位置。\n* **解码器自注意力** ：解码器中的自注意力允许每个位置关注解码器中包括该位置在内的所有位置。但为了防止信息向左流动并保持自回归属性，会通过掩盖softmax输入中对应非法连接的值来实现。\n",
+      "source_id": "ev_8dae6a19e0d295ee3a9aa2fa",
+      "finding_id": "f-attention-three-uses",
+      "source_hash": "3f856626a64606f030a74add0aa414ee5c19a034a1343633d848766357d46c92",
+      "source_excerpt": "lti-Head Attention 的输出。**\n\n* **输入线性变换** ：对于输入的Query（查询）、Key（键）和Value（值）向量，首先通过线性变换将它们映射到不同的子空间。这些线性变换的参数是模型需要学习的。\n* **分割多头** ：经过线性变换后，Query、Key和Value向量被分割成多个头。每个头都会独立地进行注意力计算。\n* **缩放点积注意力** ：在每个头内部，使用缩放点积注意力来计算Query和Key之间的注意力分数。这个分数决定了在生成输出时，模型应该关注Value向量的部分。\n* **注意力权重应用** ：将计算出的注意力权重应用于Value向量，得到加权的中间输出。这个过程可以理解为根据注意力权重对输入信息进行筛选和聚焦。\n* **拼接和线性变换** ：将所有头的加权输出拼接在一起，然后通过一个线性变换得到最终的Multi-Head Attention输出。\n\n**拼接和线性变换**\n\n***3.2.3 Applications of Attention in our Model（** **注意力机制** **在我们模型中的应用）***\n\n**Applications of Attention in our Model**\n\n**3.2.3** **注意力机制** **在我们模型中的应用**\n\nTransformer使用多头注意力机制的三种不同方式如下：\n\n* 在“编码器-解码器注意力”层中，查询来自前一层解码器，而记忆键和值则来自编码器的输出。这使得解码器中的每个位置都能关注输入序列中的所有位置。这模仿了序列到序列模型（如[31, 2, 8]）中典型的编码器-解码器注意力机制。\n* 编码器包含自注意力层。在自注意力层中，所有的键、值和查询都来自同一个地方，即编码器前一层的输出。编码器中的每个位置都可以关注编码器前一层中的所有位置。\n* 同样，解码器中的自注意力层允许解码器中的每个位置关注解码器中包括该位置在内的所有位置。我们需要防止解码器中的信息向左流动，以保持自回归属性。我们通过将softmax输入中对应非法连接的所有值掩盖掉（设为-∞）来实现这一点。请参阅图2。\n\n**敲黑板，划重点**\n\n**Transformer模型** **利用三种方式应用多头注意力机制，包括编码器-** **解码器** **间的全局关注、编码器内部的自交互以及解码器的** **自回归** **关注**\n\n* **Transformer模型中的注意力应用** ：Transformer模型使用了多头注意力机制，并在三种不同的场景中应用：编码器-解码器注意力、编码器自注意力以及解码器自注意力。\n* **编码器-解码器注意力** ：这种注意力机制允许解码器中的每个位置关注输入序列中的所有位置。查询来自解码器的前一层，而键和值则来自编码器的输出。\n* **编码器自注意力** ：在编码器的自注意力层中，所有的键、值和查询都来自编码器前一层的输出。这使得编码器中的每个位置都能关注其前一层中的所有位置。\n* **解码器自注意力** ：解码器中的自注意力允许每个位置关注解码器中包括该位置在内的所有位置。但为了防止信息向左流动并保持自回归属性，会通过掩盖softmax输入中对应非法连接的值来实现。\n\n## **3.3 Position-wise** **Feed-Forward Networks** **（位置相关的** **前馈神经网络** **）**\n\n**Position-wise Feed-Forward Networks**\n\n**3.3 位置相关的** **前馈神经网络**\n\n除了注意力子层之外，我们的编码器和解码器中的每一层都包含一个全连接的前馈神经网络，该网络分别且相同地应用于每个位置。这包括两个线性变换，并在它们之间使用ReLU激活函数。\n\n前馈神经网络（FFN）的表达式为：FFN(x) = max(0, xW1 + b1)W2 + b2 (2)\n\n尽管线性变换在不同位置上是相同的，但它们在不同层之间使用不同的参数。另一种描述方式是将其视为两个核大小为1的卷积操作。\n\n输入和输出的维度为dmodel = 512，而内层的维度为dff = 2048。\n\n**Position-wise Feed-Forward Networks**\n\n**敲黑板，划重点**\n\n**位置相关的** **前馈神经网络** **是** **Transformer模型** **中每层的重要组件，通过** **线性变换** **和** **ReLU** **激活函数** **处理数据，增强模型的表达能力。**\n\n* **网络结构** ：位置相关的前馈神经网络（Position-wise Feed-Forward Networks）是Transformer模型编码器和解码器中每一层的重要组成部分，除了注意力子层之外，每个位置都独立且相同地应用了一个全连接的前馈神经网络。\n* **线性变换与激活函数** ：前馈神经网络包含两个线性变换，并在它们之间使用ReLU激活函数。这种结构有助于模型捕获并转换输入数据的复杂特征。\n* **参数特性** ：尽管线性变换在不同位置上是相同的，但不同层之间使用不同的参数。这种设计使得模型能够在不同层次上学习并提取不同的特征信息。\n* **维度设置** ：输入和输出的维度被设定为dmodel = 512，而内层的维度为dff = 2048。这种维度设置有助于模型在保持一定复杂度的同时，有效地处理输入数据。\n* **卷积操作的类比** ：位置相关的前馈神经网络也可以被描述为两个核大小为1的卷积操作，这种类比有助于我们更直观地理解其工作原理和在网络中的功能。\n\n**位置相关的前馈神经网络**\n\n## ***3.4 Embeddings and Softmax（嵌入与Softmax）***\n\n**Embeddings and Softmax**\n\n**3.4 嵌入与Softmax**\n\n类似于其他序列转换模型，我们使用学习到的嵌入（embeddings）将输入和输出标记转换为维度为dmodel的向量。同样，我们使用常见的线性变换和softmax函数将解码器输出转换为预测的下一个标记的概率。在我们的模型中，两个嵌入层与softmax前的线性变换共享相同的权重矩阵，这与[24]类似。在嵌入层中，我们将这些权重乘以√dmodel。\n\n**敲黑板，划重点**\n\n**嵌入与Softmax** **是** **Transformer模型** **的关键组件，通过学习嵌入转换输入和输出标记为向量，并使用softmax生成概率预测，同时采用权重共享和缩放策略优化模型性能。**\n\n* **嵌入转换** ：在Transformer模型中，使用学习到的嵌入（embeddings）将输入和输出标记转换为维度为dmodel的向量。这有助于将离散的标记转换为模型可以处理的连续向量表示。\n* **Softmax函数** ：模型使用softmax函数将解码器的输出转换为预测的下一个标记的概率分布。这使得模型能够生成概率上的预测，便于后续的处理和决策。\n* **权重共享** ：在Transformer模型中，两个嵌入层（输入嵌入和输出嵌入）与softmax前的线性变换共享相同的权重矩阵。这种权重共享有助于减少模型参数的数量，并可能促进更好的学习和泛化能力。\n* **权重缩放** ：在嵌入层中，权重矩阵被乘以√dmodel。这种缩放操作可能是为了平衡嵌入向量的规模，以确保模型在训练过程中的稳定性和性能。\n\n**嵌入与Softmax**\n\n## ***3.5 Positional Encoding（位置编码）***\n\n**Positional Encoding**\n\n**3.5 位置编码**\n\n由于我们的模型不包含循环和卷积，为了让模型利用序列的顺序信息，我们必须在序列中的标记上注入一些关于相对或绝对位置的信息。为此，我们在编码器和解码器堆栈的底部向输入嵌入添加“位置编码”。位置编码的维度与嵌入的维度dmodel相同，以便可以将两者相加。关于位置编码，有多种选择，包括学习得到的和固定的[8]。\n\n在这项工作中，我们使用不同频率的正弦和余弦函数来生成位置编码：\n\n其中pos是位置，i是维度。也就是说，位置编码的每个维度对应于一个正弦波。波长从2π到10000·2π形成几何级数。我们选择这个函数是因为我们假设它能让模型轻松地学习根据相对位置进行关注，因为对于任何固定的偏移量k，PE(pos + k)都可以表示为PE(pos)的线性函数。\n\n我们也尝试使用学习得到的位置嵌入[8]，发现这两种版本产生了几乎相同的结果（参见表3中的行(E)）。我们选择正弦波版本是因为它可能允许模型外推到比训练时遇到的更长的序列长度。\n\n**Positional Encoding**\n\n**敲黑板，划重点**\n\n**位置编码是** **Transformer模型** **中用于注入序列位置信息的机制，通过正弦和** **余弦** **函数生成，使模型能够学习基于"
+    }
+  ],
+  "language": "zh",
+  "required": true,
+  "revision": 1,
+  "objectives": [
+    "解释多头注意力为何有用：单头只学一种相似度模式，多头在不同表示子空间中并行关注不同位置信息",
+    "说明多头注意力的实现：h 个独立线性投影 → 各头并行做缩放点积注意力 → 拼接 → 输出投影 W_O，并会算 d_head=d_model/h",
+    "区分 Transformer 中多头注意力的三种用法：编码器自注意力、编码器-解码器注意力、带掩码的解码器自注意力"
+  ],
+  "memory_refs": {},
+  "memory_epoch": 0,
+  "objective_ids": [
+    "n3-multi-head:o1",
+    "n3-multi-head:o2",
+    "n3-multi-head:o3"
+  ],
+  "resource_type": "report",
+  "learning_check": "能否说明多头注意力相比单头的意义，并准确说出编码器-解码器注意力中 Q 来自哪里、K/V 来自哪里？",
+  "memory_subject": "teacher",
+  "schema_version": 2,
+  "config_snapshot": {},
+  "original_content": null,
+  "teaching_context": {
+    "depth": "introductory",
+    "node_id": "n3-multi-head",
+    "language": "zh",
+    "exclusions": [],
+    "objectives": [
+      "解释多头注意力为何有用：单头只学一种相似度模式，多头在不同表示子空间中并行关注不同位置信息",
+      "说明多头注意力的实现：h 个独立线性投影 → 各头并行做缩放点积注意力 → 拼接 → 输出投影 W_O，并会算 d_head=d_model/h",
+      "区分 Transformer 中多头注意力的三种用法：编码器自注意力、编码器-解码器注意力、带掩码的解码器自注意力"
+    ],
+    "self_check": "能否说明多头注意力相比单头的意义，并准确说出编码器-解码器注意力中 Q 来自哪里、K/V 来自哪里？",
+    "assumptions": [
+      "用户未说明学习时长，默认整门课程 60 分钟",
+      "用户未指定材料语言，按提问语言推断为中文",
+      "用户未说明已有基础，按入门深度组织内容",
+      "用户未说明具体用途（如面试、科研或工程实现），目标按通用原理理解处理"
+    ],
+    "limitations": [
+      "依据以原始论文的中文逐段解读、中文技术博客与 CS336 学习笔记为主，未直接引用 arXiv 英文原文；位置编码常数等细节以原始论文表述为准。",
+      "课程为入门级原理讲解，不包含从零实现可运行 Transformer 的训练；代码仅作示意。",
+      "未深入覆盖现代变体（RoPE、GQA/MQA、FlashAttention 等），仅在位置编码演进处简要提及。",
+      "学习者具体背景未知，课程按零基础入门设计；若已有深度学习基础，可压缩 n1 与 n6 的时间。",
+      "依据以原始论文的中文解读与中文技术博客为主，未直接引用 arXiv 英文原文；公式细节（如位置编码常数 10000 与部分解读中的 1000 写法差异）以原始论文表述为准。",
+      "课程为入门级原理讲解，不包含从零实现可运行 Transformer 代码的训练；CS336 笔记中的 PyTorch 代码仅作示意参考。",
+      "未覆盖现代变体（RoPE、GQA/MQA、FlashAttention 等）的深入内容，仅在位置编码演进处简要提及。"
+    ],
+    "request_goal": "我想学习一下transformer",
+    "requirements": [
+      {
+        "text": "讲授 Transformer 模型的基本原理与核心结构，包括自注意力、多头注意力、位置编码、前馈网络、残差连接与层归一化等关键机制",
+        "source_ref": null,
+        "source_quote": "我想学习一下transformer",
+        "requirement_id": "req-transformer-basics",
+        "source_document_id": null
+      }
+    ],
+    "objective_ids": [
+      "n3-multi-head:o1",
+      "n3-multi-head:o2",
+      "n3-multi-head:o3"
+    ],
+    "prerequisites": [
+      {
+        "title": "自注意力：QKV 与缩放点积的计算过程",
+        "node_id": "n2-self-attention",
+        "objectives": [
+          "说明 Q、K、V 三个线性投影各自的角色（查询在找什么、键提供什么标签、值是被取走的信息）",
+          "按顺序复述自注意力计算步骤：线性投影得 Q/K/V → 计算 QK^T → 除以 √d_k → softmax 归一化 → 加权求和 V",
+          "解释除以 √d_k 的原因，并说明 softmax 是在 key 维（每一行）上归一化"
+        ]
+      }
+    ],
+    "source_policy": {
+      "mode": "open"
+    },
+    "schema_version": 1,
+    "prior_knowledge": "未知",
+    "requirement_ids": [
+      "req-transformer-basics"
+    ],
+    "desired_outcomes": [
+      "能说明 Transformer 的整体结构（编码器-解码器）及各组成部分的作用",
+      "能解释自注意力机制的计算过程与多头注意力的意义",
+      "能说明位置编码、残差连接与层归一化在模型中的作用",
+      "能描述 Transformer 相比循环网络在并行计算与长距离依赖上的特点"
+    ],
+    "learning_context": null,
+    "requested_changes": [],
+    "learning_activities": [
+      "阅读/听讲：多头注意力“多子空间并行、模式更丰富”的动机与拼接+投影流程",
+      "计算练习：d_model=512、h=8 时每头维度是多少？说明为何总计算成本与全维单头注意力相近",
+      "画图练习：在 n1 的骨架图上标出三处注意力，分别写出其 Q、K、V 的来源，并说明解码器掩码把非法位置置为 -∞ 的作用"
+    ],
+    "node_budget_minutes": 12,
+    "effective_preferences": {},
+    "resource_target_minutes": null
+  },
+  "revision_feedback": [],
+  "preparation_policy": "automatic_personal_draft_v1",
+  "source_resource_ref": null,
+  "delivery_resource_id": null,
+  "delivery_resource_version": 1
+}

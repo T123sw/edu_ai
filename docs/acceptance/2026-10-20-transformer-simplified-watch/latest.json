@@ -1,0 +1,758 @@
+{
+  "at": "2026-10-20T08:56:02.196676+00:00",
+  "elapsed_seconds": 2117.01,
+  "attempt_no": 1,
+  "attempt_started_at": "2026-10-20T08:20:44.828375+00:00",
+  "original_started_at": "2026-10-20T08:20:44.828375+00:00",
+  "original_elapsed_seconds": 2117.01,
+  "preparation_id": "prep_117d20be16ac4d7d86675afce8e7324b",
+  "status": "succeeded",
+  "stage": "commit",
+  "error": null,
+  "delivery": {
+    "course_id": "learn-117d20be16ac4d7d86675afce8e7324b",
+    "signature": "6bfe0ba50d8ead30278a8ffafd2bf70491ef91d6c459ae5ee7a2cd0574a0142e",
+    "manifest_id": "manifest_377c3bbf6b8b60c3628c17d71c35f874",
+    "course_ready": false,
+    "path_available": true,
+    "course_available": true,
+    "manifest_version": 10,
+    "planned_resources": 15,
+    "available_resources": 15,
+    "excluded_artifact_ids": []
+  },
+  "resource_counts": {
+    "draft": 15
+  },
+  "planned_resources": 15,
+  "artifacts": [
+    {
+      "id": "artifact_3ece5fbad33f0a742879da18765404d4",
+      "node": "n1-motivation",
+      "title": "为什么需要 Transformer：Seq2Seq 与注意力动机",
+      "type": "classroom",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:22:40.312969+00:00",
+      "elapsed_since_submission": 2001.52,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484560.4032428,
+      "finished_at": 1792485850.845708,
+      "execution_seconds": 1290.44,
+      "progress": {
+        "step": "importing",
+        "message": "正在保存 HyperFrames 原生工程与播放时间轴",
+        "progress": 95
+      },
+      "task_error": null,
+      "workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f",
+      "tool_calls": 170,
+      "tool_failures": [],
+      "last_tool": {
+        "at": 1792485840.5196834,
+        "tool": "complete_project",
+        "ok": true,
+        "elapsed": 0.7072223229333758
+      },
+      "scene_workers": [
+        {
+          "worker_id": "f35229554936471886adb565668f4126",
+          "status": "succeeded",
+          "submitted_at": 1792484816.3331888,
+          "started_at": 1792484817.5645318,
+          "finished_at": 1792485217.9116793,
+          "error": null
+        },
+        {
+          "worker_id": "c926979826e340a58c5eea8199ad4911",
+          "status": "succeeded",
+          "submitted_at": 1792484815.023937,
+          "started_at": 1792484815.5813851,
+          "finished_at": 1792485304.7608204,
+          "error": null
+        },
+        {
+          "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+          "status": "succeeded",
+          "submitted_at": 1792484815.8325834,
+          "started_at": 1792484817.172831,
+          "finished_at": 1792485357.6839192,
+          "error": null
+        },
+        {
+          "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+          "status": "succeeded",
+          "submitted_at": 1792484815.4428687,
+          "started_at": 1792484816.7479682,
+          "finished_at": 1792485396.609072,
+          "error": null
+        }
+      ],
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation",
+          "brief": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"Transformer 用注意力替代 RNN/CNN：编码器把输入编码成语义表示，解码器据此生成输出，注意力就是先用 Query 与 Key 算权重、再用权重对 Value 加权求和\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织）\"\nangle: concept\n---\n\n## Intent\n\n这是《为什么需要 Transformer：Seq2Seq 与注意力动机》课程的第一个教学节点视频，面向希望系统学习 Transformer 的初学者（用户原话：“我想学习transformer”）。用户未说明已有基础，按入门深度讲解，中文讲授。\n\n本视频要讲清三件事：\n\n1. Transformer 是 2017 年 Google 团队在《Attention Is All You Need》中提出的基于多头注意力（Multi-Head Attention）的 Seq2Seq 模型，整体由**编码器**和**解码器**两部分组成，不使用 CNN 或 RNN，仅用注意力机制自动捕捉输入序列不同位置之间的关联，并可高度并行计算。\n2. 编码器-解码器结构最初用于序列到序列（Seq2Seq）问题，如机器翻译、问答、文档摘要等输入输出长度不定的任务；编码器把输入序列编码为语义向量（语义编码向量），解码器据此生成输出序列；编码器与解码器可选用 CNN、RNN、GRU、LSTM 等不同结构，Transformer 则用注意力替代它们。\n3. 注意力机制本质是加权求和：第一步用 Query 与 Key 计算权重（相似度），第二步用权重对 Value 加权求和得到注意力输出；在自注意力中 Q、K、V 都来自同一输入序列，因此每个词可以与句子中所有词做注意力计算，寻找序列内部关系。相比 RNN，注意力每一步计算不依赖上一步结果，因此可以并行；同时任意两个位置之间的距离为 1，便于建模长距离依赖。\n\n语气：清晰、循序渐进、以概念直觉为主，不堆公式。\n\n## Assets\n\n- 无用户提供的附件或素材；全部内容依据公开中文教材、技术博客与论文解读整理，不直接引用原始论文全文。\n\n## Customizations\n\n- 课堂讲解必须覆盖：用“中译英”例子展示输入输出长度不定的 Seq2Seq 问题，引出编码器-解码器分工。\n- 图示对比必须覆盖：RNN 逐时间步处理 vs 注意力可并行计算，并标注长距离依赖问题。\n- 课堂互动以视频内提问/停顿引导的形式呈现：请学习者用一句话说出“注意力就是加权求和”中权重从哪来、加权的对象是什么（视频只提出并给出提示，不要求作答）。\n\n## Notes\n\n必须讲清的内容与演示深度：\n\n- 讲清 Transformer 的定位（2017、Google、《Attention Is All You Need》、基于多头注意力的 Seq2Seq 模型）与“编码器 + 解码器”两部分组成，明确它不使用 CNN/RNN。\n- 讲清 Seq2Seq 问题的特征（输入输出都是序列、长度不定且变化），以及编码器-解码器分工：编码器编码为语义向量，解码器据此生成输出序列。\n- 讲清注意力的两步计算（Q 与 K 算权重 → 权重对 V 加权求和），并说明自注意力中 Q、K、V 同源。\n- 讲清注意力相对 RNN 的两点优势：可并行（不依赖上一步结果）、长距离依赖（任意两位置距离为 1）。\n- 演示深度为入门级概念直觉：可用示意性图示与中译英例子，不展开矩阵维度推导、不写代码、不做训练实践。\n\n来源：\n\n- https://arxiv.org/abs/1706.03762 （Attention Is All You Need，仅作为出处提及，不引用全文）\n- https://github.com/microsoft/AI-System/blob/main/Textbook/第2章-神经网络基础/2.9-注意力机制和Transformer.md\n- https://kangshitao.github.io/2020/11/15/transformer\n\n排除项：\n\n- 不包含 PyTorch 代码实现与训练实践。\n- 位置编码仅在本节点作为“自注意力忽略位置信息、需位置编码修正”的一句提示，不展开正弦/余弦公式，也不涉及 RoPE、ALiBi 等变体（位置编码的详细讲解属于后续节点）。\n- 不展开多头注意力的投影矩阵细节、掩码机制细节、Add&Norm 与前馈层的实现细节（属于后续节点）。\n- 不把本节点的自测题放进视频：自测（“不看资料，用 3 句话说明：Transformer 由哪两部分组成、它替代了什么结构、注意力机制的两步计算分别是什么”）留给习题资源；详细阅读材料留给报告资源。\n\n其他约束：\n\n- 用户未指定视频时长，按默认约 5 分钟（300s）安排充分解释与示例；节点 10 分钟学习预算包含阅读与练习，不等同视频时长。\n- 用户未说明具体用途（科研、工程实现或面试），按通用原理理解组织内容。\n- 若学习者缺乏神经网络基础，本节点可能需要额外补充前置知识；视频中不假设 RNN/Seq2Seq 已有基础，需先给出必要铺垫。\n- 画幅 16:9，中文配音讲解。\n- 视觉遵循课程默认：Noto Sans SC，1920x1080，背景 #0f172a，前景 #f8fafc，强调色 #38bdf8，正文不小于 32px，图示标签不小于 28px，标题不小于 48px；密集图示分步呈现，不缩小字号。\n- 不写假素材路径；如需图示，由创作流程自行绘制。\n",
+          "files": [
+            "meta.json",
+            "CLAUDE.md",
+            "package.json",
+            "index.html",
+            "audio_meta_assembly.json",
+            "AGENTS.md",
+            "frame.md",
+            "SCRIPT.md",
+            "BRIEF.md",
+            "STORYBOARD.md",
+            "audio_request.json",
+            "hyperframes.json",
+            "audio_meta.json"
+          ],
+          "frame_files": 10,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 33667344
+            }
+          ],
+          "audio_lines": 10,
+          "audio_seconds": 279.48,
+          "narration_chars": 1603
+        }
+      ],
+      "brief_decisions": {
+        "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置与有效偏好均为空，故采用 defaults 的约 5 分钟目标（300s），围绕本节点三个目标安排充分解释与中译英示例，不压成一分钟概述。节点 10 分钟学习预算包含阅读与练习，不作为成片时长。配音采用 defaults 的 narration=true（中文讲解），用户未要求无配音。画幅取 defaults 的 16:9。约 5 分钟常规教学解释按原生路由走 general-video，flow: automation、storyboard: no。自测留给习题、详细阅读留给报告，视频只覆盖教师演示型活动。",
+        "narration": true,
+        "target_minutes": 5,
+        "duration_source": "default"
+      },
+      "brief_seconds": 15.792185068130493
+    },
+    {
+      "id": "artifact_f87e8f7f3414b8a647efa54472efd88d",
+      "node": "n1-motivation",
+      "title": "为什么需要 Transformer：Seq2Seq 与注意力动机",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:22:40.727217+00:00",
+      "elapsed_since_submission": 2001.11,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484560.911922,
+      "finished_at": 1792484597.805814,
+      "execution_seconds": 36.89,
+      "progress": null,
+      "task_error": null
+    },
+    {
+      "id": "artifact_2b55f12fe0f162e66fee18346e19963e",
+      "node": "n1-motivation",
+      "title": "为什么需要 Transformer：Seq2Seq 与注意力动机",
+      "type": "quiz",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:22:41.219050+00:00",
+      "elapsed_since_submission": 2000.62,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484561.2917073,
+      "finished_at": 1792484577.6619823,
+      "execution_seconds": 16.37,
+      "progress": {
+        "step": "saving",
+        "message": "习题结构校验通过，正在保存",
+        "progress": 95
+      },
+      "task_error": null
+    },
+    {
+      "id": "artifact_1d89af9007473cb8248ed65bcad2242b",
+      "node": "n2-self-attention",
+      "title": "自注意力与多头注意力：QKV 与多子空间",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:22:41.809899+00:00",
+      "elapsed_since_submission": 2000.03,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484562.0100396,
+      "finished_at": 1792484614.3775134,
+      "execution_seconds": 52.37,
+      "progress": null,
+      "task_error": null
+    },
+    {
+      "id": "artifact_ed2f56e29c769223b3f0666c57663188",
+      "node": "n2-self-attention",
+      "title": "自注意力与多头注意力：QKV 与多子空间",
+      "type": "quiz",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:22:42.254841+00:00",
+      "elapsed_since_submission": 1999.58,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484562.32513,
+      "finished_at": 1792484578.4446816,
+      "execution_seconds": 16.12,
+      "progress": {
+        "step": "saving",
+        "message": "习题结构校验通过，正在保存",
+        "progress": 95
+      },
+      "task_error": null
+    },
+    {
+      "id": "artifact_f88d5cfe727d620ad76eb9fd0dd1999a",
+      "node": "n3-positional-encoding",
+      "title": "位置编码：并行结构如何知道词序",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:22:42.722382+00:00",
+      "elapsed_since_submission": 1999.12,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484562.7933404,
+      "finished_at": 1792484620.0123584,
+      "execution_seconds": 57.22,
+      "progress": null,
+      "task_error": null
+    },
+    {
+      "id": "artifact_6aa5ecd0e00e6e458a800287f9f86b42",
+      "node": "n3-positional-encoding",
+      "title": "位置编码：并行结构如何知道词序",
+      "type": "quiz",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:22:43.206906+00:00",
+      "elapsed_since_submission": 1998.63,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484563.3901255,
+      "finished_at": 1792484576.663768,
+      "execution_seconds": 13.27,
+      "progress": {
+        "step": "saving",
+        "message": "习题结构校验通过，正在保存",
+        "progress": 95
+      },
+      "task_error": null
+    },
+    {
+      "id": "artifact_84ab3817f07b52bdd2d7ccca1f2626db",
+      "node": "n4-encoder",
+      "title": "编码器结构：两子层与 Add&Norm",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:22:43.739341+00:00",
+      "elapsed_since_submission": 1998.1,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484564.053123,
+      "finished_at": 1792484598.214589,
+      "execution_seconds": 34.16,
+      "progress": null,
+      "task_error": null
+    },
+    {
+      "id": "artifact_fbb14bbac20447e41c23de3f6981e9b9",
+      "node": "n4-encoder",
+      "title": "编码器结构：两子层与 Add&Norm",
+      "type": "quiz",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:23:01.303558+00:00",
+      "elapsed_since_submission": 1980.53,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484581.485515,
+      "finished_at": 1792484599.7487192,
+      "execution_seconds": 18.26,
+      "progress": {
+        "step": "saving",
+        "message": "习题结构校验通过，正在保存",
+        "progress": 95
+      },
+      "task_error": null
+    },
+    {
+      "id": "artifact_a64f247a637a1c2db73b6cac9ac8b048",
+      "node": "n5-decoder-and-flow",
+      "title": "解码器、掩码与端到端数据流",
+      "type": "report",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:23:02.036246+00:00",
+      "elapsed_since_submission": 1979.8,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484582.2401047,
+      "finished_at": 1792484620.529862,
+      "execution_seconds": 38.29,
+      "progress": null,
+      "task_error": null
+    },
+    {
+      "id": "artifact_599eb8000a9e7b29a6d1ed0ea4acefcb",
+      "node": "n5-decoder-and-flow",
+      "title": "解码器、掩码与端到端数据流",
+      "type": "quiz",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:23:02.783381+00:00",
+      "elapsed_since_submission": 1979.05,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484582.8812826,
+      "finished_at": 1792484600.8000317,
+      "execution_seconds": 17.92,
+      "progress": {
+        "step": "saving",
+        "message": "习题结构校验通过，正在保存",
+        "progress": 95
+      },
+      "task_error": null
+    },
+    {
+      "id": "artifact_b6b5f8aa26ce63ee7ade5beefb8ae6a8",
+      "node": "n2-self-attention",
+      "title": "自注意力与多头注意力：QKV 与多子空间",
+      "type": "classroom",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:23:27.789274+00:00",
+      "elapsed_since_submission": 1954.05,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484607.8564985,
+      "finished_at": 1792486024.068734,
+      "execution_seconds": 1416.21,
+      "progress": {
+        "step": "importing",
+        "message": "正在保存 HyperFrames 原生工程与播放时间轴",
+        "progress": 95
+      },
+      "task_error": null,
+      "workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984",
+      "tool_calls": 146,
+      "tool_failures": [
+        {
+          "at": 1792484665.3817728,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.001748830545693636,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md"
+        }
+      ],
+      "last_tool": {
+        "at": 1792486014.584654,
+        "tool": "complete_project",
+        "ok": true,
+        "elapsed": 0.7774411463178694
+      },
+      "scene_workers": [
+        {
+          "worker_id": "def07ef2a16b4f8fb58b7a2fc04d2cb2",
+          "status": "succeeded",
+          "submitted_at": 1792484892.4309762,
+          "started_at": 1792484893.9702895,
+          "finished_at": 1792485265.6699598,
+          "error": null
+        },
+        {
+          "worker_id": "08a782a2a5f94d73b4415c00b4435d68",
+          "status": "succeeded",
+          "submitted_at": 1792484894.106892,
+          "started_at": 1792484895.513532,
+          "finished_at": 1792485427.4868145,
+          "error": null
+        },
+        {
+          "worker_id": "5dbe37ecaaf74001b1f2fd2215bcf0f3",
+          "status": "succeeded",
+          "submitted_at": 1792484892.9645615,
+          "started_at": 1792484895.1470113,
+          "finished_at": 1792485452.2892735,
+          "error": null
+        }
+      ],
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention",
+          "brief": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力用 Q、K、V 把序列内部关系算成一组加权求和；多头注意力在多个子空间并行做这件事，再拼接合并\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n这是「Transformer 入门」课程中的第 2 个节点视频，面向希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织）。上一节点已经讲过为什么需要 Transformer：Seq2Seq 与注意力动机，包括编码器-解码器分工、以及注意力“用 Query 与 Key 算权重、再用权重对 Value 加权求和”的基本思路。本节点要把这个思路落到自注意力与多头注意力的具体计算上，为后续位置编码、编码器-解码器细节打基础。\n\n语气：清晰、逐步推导的课堂讲解，像老师在黑板上一步步写公式并配一个极小例子，不追求炫技。\n\n## Assets\n\n- 无用户提供的附件素材；本节点全部依据公开中文教材、技术博客与论文解读（来源见 Notes），视觉素材需自行生成或绘制，不要伪造素材路径。\n\n## Customizations\n\n- 视频必须覆盖教师演示型活动（这些是课堂讲解，不是留给学生自己做的练习）：\n  1. 逐步推导自注意力计算流程：输入序列 X 经三个线性映射得到 Q = XW_Q、K = XW_K、V = XW_V → 用点积打分 → 缩放点积形式 softmax(QK^T/√d_k)V → softmax 按行归一化 → 用权重对 V 加权求和得到输出。\n  2. 手算演示：用 3 个词的极小例子（如“我 爱 你”）走一遍注意力权重矩阵，明确标出每一行权重之和为 1，并说明输出向量是输入向量的加权组合。\n  3. 课堂互动式设问：“如果只有一个头会缺什么？”由此引出多头注意力——用多组不同参数的投影矩阵在多个表示子空间分别做自注意力，每个头输出一个按注意力权重加权求和的向量，最后拼接并合并为最终输出，从而在不同子空间捕捉不同的交互信息。\n- 视频结尾可给出本节点自测的提示（能默写缩放点积注意力公式并解释 √d_k 与按行 softmax 的位置；能说明多头与单头在参数与输出上的差别），但只作口头点题，不在视频里出题、不展示题目与答案。\n\n## Notes\n\n必须讲清的内容与演示深度：\n\n- 自注意力中 Q、K、V 同源：三者都来自同一输入序列，只是经过三个不同的线性映射矩阵；因此每个词都能与句子中所有词做注意力计算，寻找序列内部关系。要讲清“同源”不等于“相同”，并纠正资料中“key=value=query”这种简化说法在严格意义上指的是来源相同而非数值相同。\n- 打分与归一化：Q 与 K 维度相同，用点积衡量相似度；缩放点积中除以 √d_k 是为了控制点积数值规模；softmax 按行归一化，即每个输出位置对所有输入位置的权重和为 1。\n- 输出语义：输出序列中每个向量都是对输入向量的加权组合，权重由该位置的 query 与其他位置 key 的相似度决定，相当于决定以多大比例继承其他位置的信息。\n- 多头注意力：多组投影矩阵 → 多个子空间并行自注意力 → 每个头一个加权求和向量 → 拼接 → 再经输出投影合并。要说明多头与单头在参数与输出维度上的差别，以及“不同头关注不同关系”的直觉，但不要编造具体头数的注意力可视化结论。\n- 动机衔接：自注意力可替换卷积层与循环层，能建立长距离依赖并支持并行计算；但它的权重只依赖 Q 与 K 的相关性，忽略位置信息，单独使用时需要位置编码修正——这一点只作一句衔接，位置编码的细节留给后续节点。\n\n来源：\n\n- https://github.com/microsoft/AI-System/blob/main/Textbook/第2章-神经网络基础/2.9-注意力和Transformer.md （注意力即加权求和、Q/K/V 定义、自注意力、多头注意力、并行与长距离依赖优势）\n- https://kangshitao.github.io/2020/11/15/transformer （QKV 线性映射、缩放点积公式 softmax(QK^T/√d_k)V、按行归一化、多头自注意力拼接）\n- https://www.cnblogs.com/rossiXYZ/p/18727704 （多头注意力多组参数、加权求和向量合并输出）\n\n排除项与边界：\n\n- 不展开编码器-解码器整体结构、位置编码细节、掩码、LayerNorm、前馈层——这些属于其他节点，本视频只在衔接处一句话带过。\n- 不包含 PyTorch 代码实现与训练实践；不展开 RoPE、ALiBi 等位置编码后续变体。\n- 不直接引用原始论文全文，公式与结论以公开中文教材与解读为准。\n- 不规划其他节点内容，不固定场景数量。\n\n语音与画幅：使用中文配音讲解（未显式关闭配音）。画幅 16:9，遵循课程视觉契约：字体 Noto Sans SC，画布 1920×1080，正文不小于 32px，图示标签不小于 28px，标题不小于 48px，背景 #0f172a，前景 #f8fafc，强调色 #38bdf8；密集图示分步呈现，不要缩小字号硬塞。\n",
+          "files": [
+            "meta.json",
+            "CLAUDE.md",
+            "package.json",
+            "index.html",
+            "AGENTS.md",
+            "frame.md",
+            "SCRIPT.md",
+            "BRIEF.md",
+            "STORYBOARD.md",
+            "audio_request.json",
+            "hyperframes.json",
+            "audio_meta.json"
+          ],
+          "frame_files": 9,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 31983691
+            }
+          ],
+          "audio_lines": 9,
+          "audio_seconds": 321.312,
+          "narration_chars": 1664
+        }
+      ],
+      "brief_decisions": {
+        "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置为空，有效个人偏好为空，因此采用 defaults 的约 5 分钟目标时长，duration_source=default，不声称是用户指定。节点学习预算 15 分钟包含阅读、练习与自测，不等同成片时长，故不按 15 分钟安排视频。5 分钟用于充分讲清 QKV 推导、3 词手算示例与多头动机，不压缩成一分钟概述，也不为凑时长加入编码器-解码器、位置编码等属于其他节点的内容。配音：显式配置与用户文本均未要求无配音，defaults.narration=true，故采用中文配音讲解。画幅采用 defaults 的 16:9，并叠加课程视觉契约。路由：约 5 分钟常规教学解释，按原生路由走 general-video；flow=automation、storyboard=no。缺失信息假设：用户未说明基础，按入门深度；未提供附件，素材需生成；未指定用途，按通用原理理解组织。",
+        "narration": true,
+        "target_minutes": 5,
+        "duration_source": "default"
+      },
+      "brief_seconds": 17.50184726715088
+    },
+    {
+      "id": "artifact_1119e3b97e9c560fe561b2128247f194",
+      "node": "n3-positional-encoding",
+      "title": "位置编码：并行结构如何知道词序",
+      "type": "classroom",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:23:28.651609+00:00",
+      "elapsed_since_submission": 1953.19,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484608.9304783,
+      "finished_at": 1792486010.6249416,
+      "execution_seconds": 1401.69,
+      "progress": {
+        "step": "importing",
+        "message": "正在保存 HyperFrames 原生工程与播放时间轴",
+        "progress": 95
+      },
+      "task_error": null,
+      "workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5",
+      "tool_calls": 145,
+      "tool_failures": [],
+      "last_tool": {
+        "at": 1792485999.0348942,
+        "tool": "complete_project",
+        "ok": true,
+        "elapsed": 0.7588588600046933
+      },
+      "scene_workers": [
+        {
+          "worker_id": "2bfa881300934c82b86b9a3f8dde065e",
+          "status": "succeeded",
+          "submitted_at": 1792484912.5127225,
+          "started_at": 1792484913.97897,
+          "finished_at": 1792485354.2841074,
+          "error": null
+        },
+        {
+          "worker_id": "10400b52fe5c4610aa54fdc12ce63202",
+          "status": "succeeded",
+          "submitted_at": 1792484911.3764129,
+          "started_at": 1792484912.3843272,
+          "finished_at": 1792485339.686708,
+          "error": null
+        },
+        {
+          "worker_id": "2f12b9b2bf6e46bbb0dbfce32f17ffb8",
+          "status": "succeeded",
+          "submitted_at": 1792484911.9915802,
+          "started_at": 1792484913.576021,
+          "finished_at": 1792485264.4542108,
+          "error": null
+        },
+        {
+          "worker_id": "9f8253e13bb840baa6a5562e6f94aaf9",
+          "status": "succeeded",
+          "submitted_at": 1792484913.3094578,
+          "started_at": 1792484915.4772418,
+          "finished_at": 1792485273.510682,
+          "error": null
+        }
+      ],
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding",
+          "brief": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力只看 Q 与 K 的相关性、天生不知道词序，所以必须把位置信息加进输入——Transformer 用的是固定正弦/余弦位置编码，不参与训练\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织）\"\nangle: concept\n---\n\n## Intent\n\n这是「Transformer 入门」课程中的一个节点视频：**位置编码：并行结构如何知道词序**。学习者刚学完自注意力与多头注意力（QKV 与多子空间），现在要理解一个关键缺口：自注意力只依赖 Q 与 K 的相关性，完全忽略位置信息，因此单独使用时必须加入位置编码修正。\n\n视频要讲清三件事：\n\n1. 自注意力只依赖 Q 与 K 的相关性、忽略位置信息，所以单独使用时必须加入位置编码修正。\n2. 位置编码的作用是为模型提供当前时间步前后出现顺序的信息——Transformer 不像 RNN 有天然的先后顺序，所有时间步同时输入、并行推理。\n3. 位置编码可以是固定的，也可以是可学习的参数；Transformer 论文中使用的是固定（正弦/余弦）位置编码，不参与训练。\n\n语气：清晰、循序渐进的课堂讲解，面向零基础或基础未知的初学者，不预设神经网络背景。中文讲解。\n\n## Assets\n\n- 无用户提供的附件或素材；全部视觉需由视频创作阶段自行设计（示意图、向量相加图示、正弦/余弦波形示意等），不得引用不存在的素材路径。\n\n## Customizations\n\n- 课堂讲解演示（视频必须覆盖）：先演示「打乱词序后自注意力结果相近」的现象，再引入位置编码——这是本节点引入动机的核心演示，必须作为视频内容呈现。\n- 图示说明（视频必须覆盖）：Embedding 向量与位置编码向量逐元素相加，形状保持不变（维度不变，位置信息被融合进时间步特征）。\n- 课堂互动（视频必须覆盖，以讲解方式呈现）：抛出「位置编码是训练出来的参数吗」这一问题，并说明固定编码与可学习编码各自的取舍；视频中给出答案与理由，不要求学习者作答。\n\n## Notes\n\n必须讲清的内容与演示深度：\n\n- 动机链条要完整：RNN 有循环结构带来的天然先后顺序 → Transformer 所有时间步同时输入、并行推理 → 自注意力权重只依赖 Q 与 K 的相关性，忽略位置 → 因此需要在时间步特征中融合位置编码信息。\n- 结合先修节点：学习者已知自注意力为 softmax(QK^T/√d_k)V、Q/K/V 同源、多头注意力在多个子空间并行。视频可复用这些概念，但不要重新完整讲授自注意力与多头注意力。\n- 位置编码加在哪一步：编码器栈第一个 EncoderLayer 的输入是 Input Embedding 与 Positional Encoding 相加的结果（词向量 + 位置向量，逐元素相加，形状不变）。\n- 固定 vs 可学习：位置编码可以有很多选择，可以是固定的，也可以设置为可学习的参数；Transformer 论文中使用固定（正弦/余弦）位置编码，没有梯度、不参与训练，每个位置上的值固定。\n- 可点到公式形式（第 pos 个位置编码向量的第 i 维由正弦/余弦预定义），但入门深度下以直观解释为主，不要求推导。\n\n来源与依据：\n\n- microsoft/AI-System 教材 2.9 注意力机制和 Transformer（位置编码作用、固定编码、编码器/解码器输入结构）。\n- kangshitao 博客《Transformer》（自注意力忽略位置信息、位置编码公式预定义、无梯度不参与训练、EncoderLayer 输入为 Embedding + 位置编码）。\n- 博客园 rossiXYZ《Transformer》解读（第一个 EncoderLayer 输入为 Input Embedding 与 Positional Encoding 相加）。\n- 原始论文《Attention Is All You Need》的固定正弦/余弦方案（经上述二手资料转述，未直接引用论文全文）。\n\n排除项与边界：\n\n- 不展开 RoPE、ALiBi 等后续位置编码变体。\n- 不包含 PyTorch 代码实现与训练实践。\n- 不规划其他节点内容（自注意力、多头注意力、编码器-解码器整体结构、掩码、Add&Norm、FFN 等由其他节点负责）。\n- 不把节点自测题（「为什么去掉位置编码后 Transformer 无法区分语序？」「位置编码加在哪一步、与词向量如何结合？」）作为视频内题目呈现；这些留给习题资源，视频只做讲解与结论性回答。\n- 详细阅读材料留给报告资源，视频不承担长文阅读。\n\n制作约束：\n\n- 画幅 16:9，中文配音讲解（有配音），目标时长约 5 分钟（300s），围绕默认时长安排充分解释与示例，不为凑时长增加无关内容。\n- 视觉规范沿用课程统一契约：字体 Noto Sans SC，画布 1920x1080，正文最小 32px、图示标签最小 28px、标题最小 48px，背景 #0f172a、前景 #f8fafc、强调色 #38bdf8；密集图示分步呈现，不要缩小字号。\n- 不写假素材路径，不虚构用户提供的文件。\n",
+          "files": [
+            "meta.json",
+            "CLAUDE.md",
+            "package.json",
+            "index.html",
+            "AGENTS.md",
+            "frame.md",
+            "SCRIPT.md",
+            "BRIEF.md",
+            "STORYBOARD.md",
+            "audio_request.json",
+            "hyperframes.json",
+            "audio_meta.json"
+          ],
+          "frame_files": 11,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 33611329
+            }
+          ],
+          "audio_lines": 11,
+          "audio_seconds": 277.68,
+          "narration_chars": 1494
+        }
+      ],
+      "brief_decisions": {
+        "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置与有效个人偏好均为空，因此采用 defaults 的约 5 分钟目标时长（300s），并围绕该时长安排动机演示、向量相加图示与固定/可学习编码的取舍解释；节点学习预算 10 分钟包含阅读与练习，不等同成片时长，故不据此压缩或扩写视频。配音采用 defaults 的 narration=true（中文讲解），用户未要求无配音。画幅沿用 defaults 的 16:9，并遵循课程视觉契约。路由按约 5 分钟常规教学解释走 general-video，flow: automation、storyboard: no。缺失信息假设：学习者基础未知，按入门深度组织；无附件素材，视觉全部自行设计；不覆盖 RoPE/ALiBi 与代码实现。",
+        "narration": true,
+        "target_minutes": 5,
+        "duration_source": "default"
+      },
+      "brief_seconds": 15.622442960739136
+    },
+    {
+      "id": "artifact_0190d63f52071cd7b9165ac310356d0f",
+      "node": "n4-encoder",
+      "title": "编码器结构：两子层与 Add&Norm",
+      "type": "classroom",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:23:29.540754+00:00",
+      "elapsed_since_submission": 1952.3,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484609.6685224,
+      "finished_at": 1792486272.1644993,
+      "execution_seconds": 1662.5,
+      "progress": {
+        "step": "importing",
+        "message": "正在保存 HyperFrames 原生工程与播放时间轴",
+        "progress": 95
+      },
+      "task_error": null,
+      "workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4",
+      "tool_calls": 229,
+      "tool_failures": [
+        {
+          "at": 1792484690.4603302,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0004223249852657318,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md"
+        }
+      ],
+      "last_tool": {
+        "at": 1792486263.1809871,
+        "tool": "complete_project",
+        "ok": true,
+        "elapsed": 0.284570693038404
+      },
+      "scene_workers": [
+        {
+          "worker_id": "c21db90420594971bb96596d3bcb383a",
+          "status": "succeeded",
+          "submitted_at": 1792484965.4482534,
+          "started_at": 1792484966.31408,
+          "finished_at": 1792485424.3873613,
+          "error": null
+        },
+        {
+          "worker_id": "271d1ea4846142238e39ca300909f93f",
+          "status": "succeeded",
+          "submitted_at": 1792484967.2316837,
+          "started_at": 1792484968.796587,
+          "finished_at": 1792485474.7463837,
+          "error": null
+        },
+        {
+          "worker_id": "e5c216cebd3848d39d3ed7f8f30f1d94",
+          "status": "succeeded",
+          "submitted_at": 1792484966.565477,
+          "started_at": 1792484967.763663,
+          "finished_at": 1792485634.5183783,
+          "error": null
+        },
+        {
+          "worker_id": "9835302b3d3345d399abb0ae821b496a",
+          "status": "succeeded",
+          "submitted_at": 1792484965.907452,
+          "started_at": 1792484967.3551245,
+          "finished_at": 1792485753.6910837,
+          "error": null
+        }
+      ],
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/videos/transformer-encoder-structure",
+          "brief": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"编码器层 = 多头自注意力 + Add&Norm + 逐位置前馈网络 + Add&Norm，堆叠 N 层后输出 memory\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织）\"\n---\n\n## Intent\n\n这是「Transformer 入门」课程中「编码器结构：两子层与 Add&Norm」这一节点的教学视频，中文讲解，面向希望系统学习 Transformer 的初学者（用户未说明具体背景，按入门深度组织）。目标是把单个编码器层讲清楚：它由两个子层组成——多头自注意力子层与逐位置前馈网络子层，每个子层后都接残差连接与层归一化（合称 Add&Norm）；整个编码器由 N 个相同的编码器层堆叠（论文中 N=6），并行处理、只做一次前向传播，输出高阶上下文表示（常称 memory）供解码器使用。语气清晰、结构感强，像老师在白板上一步步画图讲解，而不是念论文。\n\n## Assets\n\n- 无用户提供的附件素材；本节点全部依据研究阶段检索到的公开中文教材、技术博客与论文解读（如 kangshitao 博客、Microsoft AI-System 教材第 2.9 节、cnblogs/rossiXYZ 的 Transformer 解读），未直接引用原始论文全文。视频中的结构图需由创作阶段自行绘制，不得伪造素材路径或引用不存在的图片文件。\n\n## Customizations\n\n- 按「输入 + 位置编码 → 多头自注意力 → Add&Norm → 前馈网络 → Add&Norm」的顺序，逐步画出单个编码器层的数据流图（分步呈现，不要一次塞满整张图）。\n- 用对比方式点出：自注意力跨位置交换信息，而前馈网络是逐位置独立变换、不跨位置交互。\n- 明确标注哪些操作保持张量形状不变（残差相加、层归一化），便于学习者理解为什么能层层堆叠。\n- 视觉遵循课程统一契约：1920x1080、深色背景 #0f172a、前景 #f8fafc、强调色 #38bdf8、字体 Noto Sans SC；正文不小于 32px，图示标签不小于 28px，标题不小于 48px；密集图示拆成多步而不是缩小字号。\n\n## Notes\n\n必须讲清的内容（教师演示部分，视频必须覆盖）：\n\n1. 编码器由 N 个相同的编码器层堆叠而成，论文中 N=6；原图只画一个 EncoderLayer 并标注 Nx。\n2. 每个编码器层包含两个子层：多头自注意力层（Multi-Head Attention）与逐位置前馈全连接层（Position-wise Feed-Forward Network，两层线性变换中间夹 ReLU）。\n3. 每个子层后都有残差连接与层归一化，二者合称 Add&Norm；残差连接把子层新产生的数据与原始输入相加，缓解深层网络的梯度消失；层归一化使数据更稳定（均值 0、方差 1），便于后续处理。\n4. 编码器对输入并行处理、只做一次前向传播；最后一个编码器层的输出即编码器输出，是对原始输入的高阶抽象表示，代码中常称 memory，会送入解码器堆栈的每一个解码器层。\n5. 每个编码器层输出的张量维度与输入一致（[batch_size, seq_len, embedding_dim]），这是残差连接能成立的前提。\n\n演示深度与边界：\n\n- 入门级原理讲解，不写 PyTorch 代码、不涉及训练实践。\n- 自注意力与多头注意力的 QKV 计算细节、位置编码的正弦/余弦公式属于先修节点（自注意力与多头注意力、位置编码），本视频只需一句话衔接，不重复展开；不展开 RoPE、ALiBi 等后续变体。\n- 不规划其他节点内容，不固定场景数量。\n\n留给其他资源的部分：\n\n- 课堂练习（给模块清单排序、标注哪些操作保持张量形状不变）与自测（画出单个编码器层数据流并说明为何每个子层后都要 Add&Norm；说出编码器输出被称为什么、交给谁使用）由习题资源承担，视频不插入题目、不做测验。\n- 更详细的阅读材料（论文原文、教材章节）由报告资源承担。\n\n语音与画幅：\n\n- 需要中文配音讲解（用户未指定配音风格，采用清晰、平稳的教学讲解语气）。\n- 画幅 16:9，时长约 5 分钟（用户未指定视频时长，采用默认目标时长；节点 10 分钟学习预算包含阅读与练习，不等同视频时长）。\n\n排除项：用户未提出排除要求；不加入与编码器结构无关的内容来凑时长。\n",
+          "files": [
+            "meta.json",
+            "CLAUDE.md",
+            "package.json",
+            "index.html",
+            "AGENTS.md",
+            "frame.md",
+            "SCRIPT.md",
+            "BRIEF.md",
+            "STORYBOARD.md",
+            "audio_request.json",
+            "hyperframes.json",
+            "audio_meta.json"
+          ],
+          "frame_files": 12,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 35199304
+            }
+          ],
+          "audio_lines": 12,
+          "audio_seconds": 291.936,
+          "narration_chars": 1547
+        }
+      ],
+      "brief_decisions": {
+        "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置与有效个人偏好均为空，故采用 defaults 的约 5 分钟目标时长，围绕单个编码器层的两子层与 Add&Norm 安排充分解释与分步图示，不压缩成一分钟概述，也不为凑时长加入无关内容。节点 10 分钟学习预算包含阅读与练习，不作为成片时长。配音：用户未要求无配音，defaults.narration=true，采用中文配音讲解。画幅采用 defaults 的 16:9，并遵循课程视觉契约。交付类型为约 5 分钟常规教学解释视频，按原生路由走 general-video；flow=automation、storyboard=no。课堂练习与自测留给习题资源，详细阅读留给报告资源，视频不插入题目。",
+        "narration": true,
+        "target_minutes": 5,
+        "duration_source": "default"
+      },
+      "brief_seconds": 13.363787174224854
+    },
+    {
+      "id": "artifact_4511f8c5a1a43c23e3aaa36cdf9c4012",
+      "node": "n5-decoder-and-flow",
+      "title": "解码器、掩码与端到端数据流",
+      "type": "classroom",
+      "status": "draft",
+      "error": null,
+      "created_at": "2026-10-20T08:23:30.496883+00:00",
+      "elapsed_since_submission": 1951.34,
+      "task_status": "succeeded",
+      "worker": null,
+      "attempts": 1,
+      "started_at": 1792484610.5704787,
+      "finished_at": 1792486507.334907,
+      "execution_seconds": 1896.76,
+      "progress": {
+        "step": "importing",
+        "message": "正在保存 HyperFrames 原生工程与播放时间轴",
+        "progress": 95
+      },
+      "task_error": null,
+      "workspace": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef",
+      "tool_calls": 246,
+      "tool_failures": [],
+      "last_tool": {
+        "at": 1792486498.4785426,
+        "tool": "complete_project",
+        "ok": true,
+        "elapsed": 0.2506992742419243
+      },
+      "scene_workers": [
+        {
+          "worker_id": "95ccfc58080b48149154b5d76772ab60",
+          "status": "succeeded",
+          "submitted_at": 1792485025.09636,
+          "started_at": 1792485219.9280114,
+          "finished_at": 1792485709.7851768,
+          "error": null
+        },
+        {
+          "worker_id": "43ff539e902f48cbaf00cd3b3f1bdf29",
+          "status": "succeeded",
+          "submitted_at": 1792485024.2207508,
+          "started_at": 1792485025.670768,
+          "finished_at": 1792485603.208149,
+          "error": null
+        },
+        {
+          "worker_id": "70fcbe64d0664e6d8f6bb75c721c748f",
+          "status": "succeeded",
+          "submitted_at": 1792485027.0635908,
+          "started_at": 1792485269.4775305,
+          "finished_at": 1792485580.6523924,
+          "error": null
+        },
+        {
+          "worker_id": "0aef2dc0784349f2a3527227d6cfeffc",
+          "status": "succeeded",
+          "submitted_at": 1792485025.9477565,
+          "started_at": 1792485277.0102,
+          "finished_at": 1792485880.0962868,
+          "error": null
+        },
+        {
+          "worker_id": "297b39813ab1472cbbc72846aae94c25",
+          "status": "succeeded",
+          "submitted_at": 1792485024.4805584,
+          "started_at": 1792485269.047491,
+          "finished_at": 1792485938.3931472,
+          "error": null
+        }
+      ],
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow",
+          "brief": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"解码器靠掩码自注意力与交叉注意力，把编码器读懂的输入一步步变成输出词\"\ndestination: course-video\naspect: 1920x1080\nlanguage: zh\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知，按入门深度组织）\"\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n这是「我想学习transformer」这门入门课程的第 5 个节点视频，主题为「解码器、掩码与端到端数据流」。学习者已经看过编码器结构（N 个相同层、多头自注意力 + 逐位置前馈网络、每个子层后的 Add&Norm、编码器并行一次前向得到 memory），本节点要在约 5 分钟内把解码器讲清楚，并把整条数据流串起来。\n\n语气：清晰、循序渐进的课堂讲解，中文，入门深度；先对照编码器指出“多出来的那一层”，再讲掩码，最后走一遍端到端流程。视觉沿用本课程统一的可读性契约：1920×1080、深色背景 #0f172a、前景 #f8fafc、强调色 #38bdf8、字体 Noto Sans SC，正文不小于 32px，图示标签不小于 28px，标题不小于 48px；密集结构图分步呈现，不靠缩小字号塞进一屏。\n\n## Assets\n\n- 无用户提供的附件或素材；本节点全部视觉需按讲解内容自制示意图（解码器层结构、掩码矩阵、Q/K/V 来源表、端到端数据流箭头图）。\n\n## Customizations\n\n- 无用户点选的能力项或定制要求。\n\n## Notes\n\n必须讲清的内容与演示深度（教师演示部分进视频，独立练习不进视频）：\n\n1. **解码器层结构**：解码器同样由 N 个相同层堆叠（论文中 N=6），每层三个子层——掩码自注意力、编码器-解码器交叉注意力、逐位置前馈网络，每个子层后都有 Add&Norm（残差连接 + 层归一化，与编码器一致）。要对照编码器层逐项标出“多出来的交叉注意力子层”。\n2. **交叉注意力的 Q/K/V 来源**：Q 来自掩码自注意力的输出（解码器侧），K、V 来自编码器输出，因此解码器每个位置都能关注输入序列的所有位置。要讲清“K 和 V 来源总是相同；Q 在编码器自注意力和解码器掩码自注意力中与 K/V 同源，在交叉注意力中不同源”这条总结。\n3. **掩码的两个作用**：屏蔽无效的 padding 区域；屏蔽来自“未来”的信息。编码器中的掩码主要用于前者，解码器中的掩码同时承担两种作用。要解释为什么解码器必须保持自回归属性（不能偷看未来词），以及训练时用右移的目标序列配合掩码可一次性并行预测所有位置、模拟推理时的自回归效果；推理时虽无真正“偷看”可能，仍保留掩码以保持训练/推理行为一致。\n4. **右移（shifted right）与起始符**：解码器初始输入需要起始符激活，由右移操作事先给定；结束符表示生成终止。\n5. **端到端数据流**（按顺序复述）：输入序列 → Embedding + 位置编码 → 编码器并行处理得到隐状态 memory → 解码器以起始符（右移的目标序列）和编码器输出为起点 → 掩码自注意力 → 交叉注意力 → 前馈网络 → 线性层 + softmax 得到下一个词的概率分布 → 自回归地逐个生成，直到输出结束符或达到指定长度。\n6. **三种注意力场景对照**：编码器自注意力（QKV 同源，可关注整个输入序列）、解码器掩码自注意力（QKV 同源，只能关注已生成位置）、编码器-解码器交叉注意力（Q 来自解码器，K/V 来自编码器输出）。\n7. **架构变体与优缺点**：仅编码器（并行处理所有 token）、仅解码器（自回归推理）、经典编码器-解码器（编码输出作为交叉注意力输入）三种变体；优势——任意两位置距离为 1 便于建模长距离依赖、可高度并行契合 GPU、可推广到非 NLP 领域；局限——抛弃 RNN/CNN 后丧失部分局部特征捕捉能力、位置信息只能靠位置编码补充。\n\n示例与互动：视频中可用“我吃了一个苹果 → I ate an apple”这类短句做教师演示，逐步指出每一步的 Q、K、V 来自哪里、掩码挡住了什么；这是演示，不是让学习者作答的题目。\n\n留给习题与报告的部分（不要塞进视频）：\n- 让学习者独立补全空白结构图箭头、独立判断 Q/K/V 来源、独立复述完整数据流等自测与练习，交由习题资源承担。\n- 位置编码公式推导、Add&Norm 的数学细节、各来源原文的完整阅读，交由报告资源承担；视频只做概念级回顾。\n\n来源与限制：\n- 依据公开中文教材、技术博客与论文解读（kangshitao 博客、microsoft/AI-System 第 2.9 节、cnblogs/rossiXYZ 系列），未直接引用原始论文全文；不虚构论文原文引文。\n- 入门级原理讲解，不包含 PyTorch 代码实现与训练实践；位置编码只做固定正弦/余弦与可学习方案的概念区分，不展开 RoPE、ALiBi 等变体。\n- 不假设学习者已有神经网络基础；先修内容（编码器结构）只做简短回顾，不重复讲授。\n- 不规划其他节点的内容，不固定场景数量。\n\n语音与画幅：中文配音讲解（未指定配音音色，按默认中文旁白处理）；16:9、1920×1080。\n",
+          "files": [
+            "meta.json",
+            "CLAUDE.md",
+            "package.json",
+            "index.html",
+            "AGENTS.md",
+            "frame.md",
+            "SCRIPT.md",
+            "BRIEF.md",
+            "STORYBOARD.md",
+            "audio_request.json",
+            "hyperframes.json",
+            "audio_meta.json",
+            "assembly_audio_meta.json"
+          ],
+          "frame_files": 14,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 34704313
+            }
+          ],
+          "audio_lines": 14,
+          "audio_seconds": 309.744,
+          "narration_chars": 1653
+        }
+      ],
+      "brief_decisions": {
+        "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），因此采用 defaults 的约 5 分钟目标时长，围绕解码器三子层、掩码两作用、端到端数据流与三种架构变体安排充分解释与示例；节点 15 分钟学习预算包含阅读与练习，不等同成片时长，故不据此拉长视频。用户未指定配音与画幅，按 defaults 采用中文旁白与 16:9（1920×1080），并沿用课程视觉契约。约 5 分钟常规教学解释按原生路由走 general-video，flow: automation、storyboard: no。用户未要求题目，自测与独立练习留给习题资源，详细阅读留给报告，视频只覆盖教师演示部分。",
+        "narration": true,
+        "target_minutes": 5,
+        "duration_source": "default"
+      },
+      "brief_seconds": 16.92451024055481
+    }
+  ]
+}

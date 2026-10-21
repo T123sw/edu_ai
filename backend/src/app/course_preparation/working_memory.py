@@ -7,9 +7,9 @@ from .lifecycle_repository import RevisionConflict
 
 class WorkingMemory(Contract):
     revision: int=Field(default=0,ge=0)
-    assumptions: tuple[ShortText,...]=Field(default=(),max_length=10)
-    open_questions: tuple[ShortText,...]=Field(default=(),max_length=10)
-    decisions: tuple[ShortText,...]=Field(default=(),max_length=20)
+    assumptions: tuple[ShortText,...]=Field(default=())
+    open_questions: tuple[ShortText,...]=Field(default=())
+    decisions: tuple[ShortText,...]=Field(default=())
 
 
 def update_working_memory(repository,context,patch,*,expected_revision):

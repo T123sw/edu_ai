@@ -1,0 +1,44 @@
+{
+  "edu-ai-backend.service": {
+    "pid": 2738224,
+    "cwd": "/home/zxqs_ep/Edu_AI/backend/src",
+    "uid": 1009,
+    "environment": {
+      "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+      "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+      "DURABLE_JOB_WORKERS": "3",
+      "DURABLE_JOB_LIGHT_WORKERS": "2",
+      "DURABLE_JOB_CONTROL_WORKERS": "2",
+      "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+      "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+      "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+      "HYPERFRAMES_RENDER_WORKERS": "4",
+      "HYPERFRAMES_RENDER_MIN_FREE_MB": "2048",
+      "TTS_REMOTE_CONCURRENCY": "8",
+      "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+    }
+  },
+  "edu-ai-durable-workers.service": {
+    "pid": 2738435,
+    "cwd": "/home/zxqs_ep/Edu_AI/backend/src",
+    "uid": 1009,
+    "environment": {
+      "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+      "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+      "DURABLE_JOB_WORKERS": "3",
+      "DURABLE_JOB_LIGHT_WORKERS": "2",
+      "DURABLE_JOB_CONTROL_WORKERS": "2",
+      "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+      "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+      "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+      "HYPERFRAMES_RENDER_WORKERS": "4",
+      "HYPERFRAMES_RENDER_MIN_FREE_MB": "2048",
+      "TTS_REMOTE_CONCURRENCY": "8",
+      "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+    }
+  },
+  "source": {
+    "build_id": "25b83b0444ee7b5f1504",
+    "latest_mtime": 1792422090.9340003
+  }
+}

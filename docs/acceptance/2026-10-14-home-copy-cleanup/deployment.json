@@ -1,0 +1,14 @@
+{
+  "source_snapshot": "/tmp/edu-home-copy-cleanup/source/frontend",
+  "published_at": "20261014T011747Z",
+  "uncommitted_source_changes": true,
+  "task": "home-copy-cleanup",
+  "backend_changed": false,
+  "previous_index_sha256": "e315ae4c79e305458fdfc3545f21f628584227b9c0efe3f2db8a95a91f76cf6f",
+  "backup": "/tmp/edu-home-copy-cleanup/dist-backup-20261014T011747Z",
+  "http_verified": true,
+  "assets": [
+    "/assets/index-Ck2N5FmJ.js",
+    "/assets/index-8vDhdg1F.css"
+  ]
+}

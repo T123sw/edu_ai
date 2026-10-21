@@ -1,0 +1,341 @@
+{
+  "title": "整体结构：编码器-解码器与端到端数据流",
+  "content": "# 整体结构：编码器-解码器与端到端数据流\n\nTransformer 是 2017 年论文《Attention Is All You Need》提出的序列转换架构，它完全基于注意力机制，不使用循环和卷积，但沿用了序列转换模型常见的编码器-解码器结构（ev_1005fe4de2a2ef3a07311f7a、ev_4110aa07d7df1bce5ee76c30）。本节点只讲\"整体骨架\"：谁把输入变成什么、数据按什么顺序流过哪些部件、最后怎么变成\"下一个词\"的概率。注意力内部怎么算、位置编码的具体公式，属于后续节点。\n\n<a id=\"sec-architecture-overview\"></a>\n## 一、一句话骨架：编码器把输入变成 z，解码器用 z 逐个吐字\n\n论文对整体流程的表述非常简洁，可以拆成两句话：\n\n- **编码器**把输入符号表示序列 (x₁, …, xₙ) 映射为一段连续表示序列 z = (z₁, …, zₙ)。注意输入和输出**长度相同**，编码器不压缩、不删词，只是把每个位置的符号换成\"带上下文的向量\"。\n- **解码器**在给定 z 的条件下，一次一个元素地生成输出符号序列 (y₁, …, yₘ)。每一步都是**自回归**的：生成下一个符号时，把**已经生成的符号**当作额外输入一起喂进去（ev_4110aa07d7df1bce5ee76c30）。\n\n这里的 n 和 m 可以不同——这正是翻译能成立的原因：英文 4 个词元，中文可能 5 个词元。\n\n编码器和解码器都由\"堆叠的自注意力层 + 逐位置全连接层\"构成，论文 Figure 1 的左半边是编码器、右半边是解码器（ev_4110aa07d7df1bce5ee76c30）。原始 base 模型里两边各堆 N = 6 层，所有子层与嵌入层输出维度统一为 d_model = 512（ev_4110aa07d7df1bce5ee76c30）。**这些数字是 2017 年 base 模型的设定，不是 Transformer 的定义**，后续变体各不相同。\n\n一个容易混淆的点：编码器是**一次看完整句**（并行），解码器是**一步一个词**（串行）。所以\"Transformer 完全并行\"只对训练时的编码器和解码器的掩码自注意力计算成立，推理时解码器仍然要逐词生成。\n\n<a id=\"sec-dataflow\"></a>\n## 二、端到端数据流：六个阶段，数据形态逐级变化\n\n把上面的骨架展开，一次完整的\"输入句子 → 下一个词概率\"要经过下面六个阶段。请重点记住每一步**数据的形态**，而不只是部件名字。\n\n| 阶段 | 部件 | 输入形态 | 输出形态 |\n|---|---|---|---|\n| 1 | 分词 + 词表索引 | 原始字符串 | 整数 ID 序列，如 `[3, 17, 42, 1]` |\n| 2 | 词嵌入 | 整数 ID | 每词一个 d_model 维向量，得到 n × d_model 矩阵 |\n| 3 | 加位置编码 | 词向量矩阵 | 同形状矩阵，但每个向量已带上\"我在第几位\"的信息 |\n| 4 | 编码器栈（N 层） | n × d_model | z，仍是 n × d_model，但每个向量已融合全句上下文 |\n| 5 | 解码器栈（N 层） | 已生成的目标词元 + z | m × d_model 的隐状态 |\n| 6 | 线性层 + softmax | 解码器末层输出 | 词表大小的概率分布，取最大者即\"下一个词元\" |\n\n**阶段 1–3 属于\"输入端预处理\"**：机器只认数字，所以先分词、查词表得到索引；嵌入层把离散索引换成连续向量；因为 Transformer 并行处理、本身感知不到顺序，必须把位置编码**加到**词嵌入上（是逐元素相加，不是拼接），否则\"狗咬人\"和\"人咬狗\"在模型眼里完全一样（ev_2e69479d1666b9a55e05aee3、ev_b36a6fb637f2726baab03dfa）。\n\n**阶段 4 是编码器栈**。每层有两个子层：多头自注意力、逐位置前馈网络；每个子层外面套残差连接，后面接层归一化，即输出为 LayerNorm(x + Sublayer(x))（ev_4110aa07d7df1bce5ee76c30）。残差保证信息有\"直通车道\"、深层也能训练，归一化稳定数值尺度。编码器输出 z 就是\"每个输入词在看过全句之后的表示\"。\n\n**阶段 5 是解码器栈**。每层比编码器多一个子层，共三个：掩码多头自注意力、对编码器输出做多头注意力（交叉注意力）、前馈网络，同样每个子层配残差 + 层归一化（ev_4110aa07d7df1bce5ee76c30）。两个关键设计：\n\n- **掩码**：解码器的自注意力被改成\"不许看后面的位置\"，保证位置 i 的预测只依赖 i 之前已知的输出。这与\"输出嵌入整体右移一位\"配合，使训练时可以并行喂入整句目标、又不会偷看答案（ev_4110aa07d7df1bce5ee76c30）。\n- **交叉注意力的 Q/K/V 分工**：解码器用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V；Q 与各 K 点积、softmax 归一化得到权重，再对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐（ev_2e69479d1666b9a55e05aee3）。这是编码器与解码器之间**唯一的信息通道**。\n\n**阶段 6 是输出头**：用可学习的线性变换把解码器输出映射到词表维度，再经 softmax 变成\"下一个词元的预测概率\"（ev_fc172931ca406181cedc63b5）。\n\n<a id=\"sec-worked-example\"></a>\n## 三、完整走一遍：\"Transformer is powerful.\" → \"Transformer很强大。\"\n\n下面用中文教学材料中的例子，把六个阶段串起来，并标注每一步的数据形态（ev_2e69479d1666b9a55e05aee3）。\n\n**编码器侧（一次算完）**\n\n1. **分词与索引**：源句切成 4 个词元 `Transformer / is / powerful / .`，查词表得到 4 个整数 ID，形态是长度 4 的整数序列。\n2. **词嵌入**：4 个 ID 各查一行嵌入矩阵，变成 4 个 512 维向量，形态 4 × 512。\n3. **加位置编码**：给第 1、2、3、4 个位置各配一个 512 维位置向量，逐元素加到对应词向量上。此时\"powerful 在第 3 位\"这件事被编码进向量里。\n4. **编码器栈**：6 层依次处理，每层先做自注意力让每个词看到全句（\"powerful\"能注意到它修饰的是\"Transformer\"），再过前馈网络，残差与归一化贯穿其中。输出 z 仍是 4 × 512，但每个向量已是上下文表示。\n\n**解码器侧（逐词生成）**\n\n5. **第一步**：解码器输入只有起始符（加上右移后的已知输出），经掩码自注意力得到当前状态，产生查询 Q；用 Q 去和编码器输出的 4 组 K 做点积、softmax 得到权重，再对 4 组 V 加权求和得到上下文向量。线性层 + softmax 输出整个词表上的概率分布，最高的是\"Transformer\"。\n6. **第二步**：把已生成的\"Transformer\"作为额外输入，解码器输入变成\"起始符 + Transformer\"，重复上述过程，预测出\"很\"。\n7. **第三步**：输入\"起始符 + Transformer + 很\"，此时 Q 与编码器输出中\"powerful\"对应的 K 匹配度最高，注意力权重集中在\"powerful\"上，加权求和得到的上下文向量主要携带\"powerful\"的信息，于是预测出\"强\"（ev_2e69479d1666b9a55e05aee3）。\n8. **继续**：依次生成\"大\"\"。\"，直到输出结束符。\n\n**回看这条链**：整数 ID → 向量 → 带位置信息的向量 → 带全句上下文的 z → 解码器隐状态 → 词表概率分布。每一步的形态变化，就是本节点要你记住的主线。\n\n<a id=\"sec-embedding-weight-sharing\"></a>\n## 四、两个容易被忽略的设计：权重共享与 √d_model 缩放\n\n论文在 3.4 节给出两个细节（ev_fc172931ca406181cedc63b5）：\n\n1. **三处共享同一个权重矩阵**：输入嵌入层、输出嵌入层、softmax 之前的线性变换共享同一权重矩阵。直觉是：嵌入矩阵的每一行是\"某个词元的向量\"，而输出线性层要做的正是\"把隐状态和每个词元的向量比对、给出分数\"——两者本质是同一张\"词元 ↔ 向量\"对照表，共享既省参数，又让输入输出两侧对词的理解保持一致。\n2. **嵌入层权重乘以 √d_model**：嵌入向量的数值尺度通常偏小，而位置编码的数值尺度相对固定；乘上 √d_model 把两者拉到同一量级，相加后位置信息不会被词向量淹没。\n\n注意共享的是**权重矩阵**，不是把嵌入层和线性层合并成一个部件——它们在计算图里仍是不同位置、承担不同职责。\n\n<a id=\"sec-self-check\"></a>\n## 五、自检清单\n\n合上正文，试着完成下面三件事：\n\n1. **画图**：在空白纸上画出编码器-解码器数据流图，标出嵌入层、位置编码、编码器栈、解码器栈、线性 + softmax 的位置，并写出每一步的输入输出形态。\n2. **解释自回归**：说明解码器为什么必须一步一个词——因为生成第 i 个词时，需要把前 i−1 个已生成词作为额外输入；同时说明训练时靠掩码 + 输出右移一位来实现并行。\n3. **说出细节**：说出\"输入嵌入、输出嵌入、softmax 前线性变换共享权重\"以及\"嵌入权重乘以 √d_model\"这两点，并各用一句话解释理由。\n\n如果第 1 步能独立完成、第 2、3 步能讲清因果，本节点的目标就达成了。注意力内部的计算细节与位置编码的具体公式，留到后续节点展开。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 7.7
+      },
+      "sections": [
+        {
+          "section_id": "sec-architecture-overview",
+          "content_sha256": "e1a5421c1f4b87a8be6df22b2d628cd6909bc510089a2e6a1ae341952da7c555"
+        },
+        {
+          "section_id": "sec-dataflow",
+          "content_sha256": "ddee5ab0a6232426dd9278bc330452cd7771f9d86b75c68f50a901a25d1f89db"
+        },
+        {
+          "section_id": "sec-worked-example",
+          "content_sha256": "cbf76396d93884ca82d2a6b43ea1e42413ccb2ca80d5ae953a03bfabb4058b2c"
+        },
+        {
+          "section_id": "sec-embedding-weight-sharing",
+          "content_sha256": "218537d6a248b1e1bb59183d09f41840e14333b6c9de433772deca2a28fb5fdf"
+        },
+        {
+          "section_id": "sec-self-check",
+          "content_sha256": "f541b500cb75c1569d1d7b0da473c28f9ea4f9eb9a4e2f6c23c784e7a1122f16"
+        }
+      ],
+      "spec_digest": "d416aece41dd36c8267f959cdf69ea218a8130eaf67ab95c73dbdd2a5e9948e0",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-architecture-overview"
+          },
+          "objective_id": "n2-overall-architecture:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "sec-worked-example"
+          },
+          "objective_id": "n2-overall-architecture:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-dataflow"
+          },
+          "objective_id": "n2-overall-architecture:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "sec-worked-example"
+          },
+          "objective_id": "n2-overall-architecture:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "objective_id": "n2-overall-architecture:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-embedding-weight-sharing"
+          },
+          "objective_id": "n2-overall-architecture:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "objective_id": "n2-overall-architecture:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec-architecture-overview"
+          },
+          "explanation": "本节以编码器-解码器结构为主线讲授 Transformer 的核心架构原理，先给出整体映射关系（x1..xn → z → y1..ym），再逐层展开数据流，落实“讲授核心概念与架构原理、使学习者理解工作机制”的要求。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "teaching_context_digest": "ac6f96f5089b8e010520beed08eeab4b525ec0a67b6cfe54bac8cf6b7b95d5d1"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文第一节（sec-architecture-overview）明确给出编码器 (x1..xn)→z、解码器基于 z 自回归生成 (y1..ym) 的映射，第二节以六阶段表格展开端到端数据流，第四节讲权重共享与 √d_model，真实支持本节点分工 req-goal-transformer 的架构原理讲授；仅覆盖本节点，未声称整课已满足。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "第一节“编码器不压缩、不删词”“n 与 m 可不同”、第二节 LayerNorm(x+Sublayer(x))、解码器三子层与掩码+输出右移一位、第四节三处共享权重与嵌入权重乘 √d_model 均与论文原文一致；并正确区分“训练时并行、推理时逐词生成”，未把 N=6、d_model=512 当作定义。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第三节以“Transformer is powerful.”→“Transformer很强大。”逐步标注 4 个词元→4×512 向量→加位置编码→z→逐词生成“Transformer/很/强/大/。”，第三步 Q 与“powerful”的 K 匹配、加权求和得上下文向量的推演与来源一致，数据形态链条完整无跳步。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为骨架→六阶段数据流→完整走例→权重共享细节→自检，与目标要求的“先整体流程、再按序数据流、再细节”一致；自检清单对应画图、解释自回归、说出共享权重三点，落实节点活动与 self_check，未引入面试模板。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文引用 ev_1005fe4de2a2ef3a07311f7a、ev_4110aa07d7df1bce5ee76c30、ev_fc172931ca406181cedc63b5（论文）与 ev_2e69479d1666b9a55e05aee3、ev_b36a6fb637f2726baab03dfa（中文讲解），所引主张均能在提供的证据原文中找到对应句子，未虚构外部核查。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三个目标均有对应章节：o1 见第一节与第三节，o2 见第二节表格与第三节、第五节自检，o3 见第四节与第五节第 3 点；入门深度、中文表述，并明确把注意力内部计算与位置编码公式留给后续节点，边界清晰。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文第一节（sec-architecture-overview）明确给出编码器 (x1..xn)→z、解码器基于 z 自回归生成 (y1..ym) 的映射，第二节以六阶段表格展开端到端数据流，第四节讲权重共享与 √d_model，真实支持本节点分工 req-goal-transformer 的架构原理讲授；仅覆盖本节点，未声称整课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "第一节“编码器不压缩、不删词”“n 与 m 可不同”、第二节 LayerNorm(x+Sublayer(x))、解码器三子层与掩码+输出右移一位、第四节三处共享权重与嵌入权重乘 √d_model 均与论文原文一致；并正确区分“训练时并行、推理时逐词生成”，未把 N=6、d_model=512 当作定义。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第三节以“Transformer is powerful.”→“Transformer很强大。”逐步标注 4 个词元→4×512 向量→加位置编码→z→逐词生成“Transformer/很/强/大/。”，第三步 Q 与“powerful”的 K 匹配、加权求和得上下文向量的推演与来源一致，数据形态链条完整无跳步。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为骨架→六阶段数据流→完整走例→权重共享细节→自检，与目标要求的“先整体流程、再按序数据流、再细节”一致；自检清单对应画图、解释自回归、说出共享权重三点，落实节点活动与 self_check，未引入面试模板。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文引用 ev_1005fe4de2a2ef3a07311f7a、ev_4110aa07d7df1bce5ee76c30、ev_fc172931ca406181cedc63b5（论文）与 ev_2e69479d1666b9a55e05aee3、ev_b36a6fb637f2726baab03dfa（中文讲解），所引主张均能在提供的证据原文中找到对应句子，未虚构外部核查。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个目标均有对应章节：o1 见第一节与第三节，o2 见第二节表格与第三节、第五节自检，o3 见第四节与第五节第 3 点；入门深度、中文表述，并明确把注意力内部计算与位置编码公式留给后续节点，边界清晰。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第二节表格阶段 1 示例 ID `[3, 17, 42, 1]` 中的 1 若被理解为结束符，与“4 个词元”示例略有歧义，可注明为示意值。",
+              "第三节第 5 步“解码器输入只有起始符（加上右移后的已知输出）”表述稍绕，可简化为“起始符 + 右移一位的目标序列”。",
+              "第四节对 √d_model 缩放的解释（拉齐数值量级）属合理直觉，但论文未给出该理由，可标注为“一种常见解释”以区分原文与解读。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-architecture-overview 先给出 x1..xn→z→y1..ym 的整体映射与编码器/解码器堆叠结构，确实承担“讲授核心架构原理”的贡献，定位真实。",
+                "locator": {
+                  "section_id": "sec-architecture-overview"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-architecture-overview 明确描述编码器映射为等长连续表示 z、解码器自回归逐符号生成，直接解释目标 o1。",
+                "locator": {
+                  "section_id": "sec-architecture-overview"
+                },
+                "binding_id": "n2-overall-architecture:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-worked-example 编码器侧 4 步与解码器侧逐词生成步骤，让学习者在具体例子上练习 o1 的整体流程。",
+                "locator": {
+                  "section_id": "sec-worked-example"
+                },
+                "binding_id": "n2-overall-architecture:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-dataflow 六阶段表格按“分词索引→词嵌入→位置编码→编码器栈→解码器栈→线性+softmax”顺序展开，并标注每步输入输出形态，完整解释 o2。",
+                "locator": {
+                  "section_id": "sec-dataflow"
+                },
+                "binding_id": "n2-overall-architecture:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-worked-example 第 1–8 步按同一顺序走完例子并标注数据形态，构成对 o2 的练习。",
+                "locator": {
+                  "section_id": "sec-worked-example"
+                },
+                "binding_id": "n2-overall-architecture:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-self-check 第 1 点要求独立画出数据流图并写出每步输入输出形态，是对 o2 的有效检查。",
+                "locator": {
+                  "section_id": "sec-self-check"
+                },
+                "binding_id": "n2-overall-architecture:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-embedding-weight-sharing 明确说明输入嵌入、输出嵌入与 softmax 前线性变换共享权重矩阵，以及嵌入权重乘 √d_model，直接解释 o3。",
+                "locator": {
+                  "section_id": "sec-embedding-weight-sharing"
+                },
+                "binding_id": "n2-overall-architecture:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-self-check 第 3 点要求说出共享权重与 √d_model 两点并各解释理由，构成对 o3 的检查。",
+                "locator": {
+                  "section_id": "sec-self-check"
+                },
+                "binding_id": "n2-overall-architecture:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "096baf8fd80e84aab85325177f40c891f874cc9fdac436fb07eb2bcb6fda1d68",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第二节表格阶段 1 示例 ID `[3, 17, 42, 1]` 中的 1 若被理解为结束符，与“4 个词元”示例略有歧义，可注明为示意值。",
+        "第三节第 5 步“解码器输入只有起始符（加上右移后的已知输出）”表述稍绕，可简化为“起始符 + 右移一位的目标序列”。",
+        "第四节对 √d_model 缩放的解释（拉齐数值量级）属合理直觉，但论文未给出该理由，可标注为“一种常见解释”以区分原文与解读。"
+      ],
+      "content_sha256": "096baf8fd80e84aab85325177f40c891f874cc9fdac436fb07eb2bcb6fda1d68",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec-architecture-overview 先给出 x1..xn→z→y1..ym 的整体映射与编码器/解码器堆叠结构，确实承担“讲授核心架构原理”的贡献，定位真实。",
+          "locator": {
+            "section_id": "sec-architecture-overview"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-architecture-overview 明确描述编码器映射为等长连续表示 z、解码器自回归逐符号生成，直接解释目标 o1。",
+          "locator": {
+            "section_id": "sec-architecture-overview"
+          },
+          "binding_id": "n2-overall-architecture:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-worked-example 编码器侧 4 步与解码器侧逐词生成步骤，让学习者在具体例子上练习 o1 的整体流程。",
+          "locator": {
+            "section_id": "sec-worked-example"
+          },
+          "binding_id": "n2-overall-architecture:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-dataflow 六阶段表格按“分词索引→词嵌入→位置编码→编码器栈→解码器栈→线性+softmax”顺序展开，并标注每步输入输出形态，完整解释 o2。",
+          "locator": {
+            "section_id": "sec-dataflow"
+          },
+          "binding_id": "n2-overall-architecture:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-worked-example 第 1–8 步按同一顺序走完例子并标注数据形态，构成对 o2 的练习。",
+          "locator": {
+            "section_id": "sec-worked-example"
+          },
+          "binding_id": "n2-overall-architecture:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-self-check 第 1 点要求独立画出数据流图并写出每步输入输出形态，是对 o2 的有效检查。",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "binding_id": "n2-overall-architecture:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-embedding-weight-sharing 明确说明输入嵌入、输出嵌入与 softmax 前线性变换共享权重矩阵，以及嵌入权重乘 √d_model，直接解释 o3。",
+          "locator": {
+            "section_id": "sec-embedding-weight-sharing"
+          },
+          "binding_id": "n2-overall-architecture:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-self-check 第 3 点要求说出共享权重与 √d_model 两点并各解释理由，构成对 o3 的检查。",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "binding_id": "n2-overall-architecture:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "32fb8c7b5ac90608159371a6635dd1b701210d2fba74c457813a790b80d18d87"
+    }
+  }
+}

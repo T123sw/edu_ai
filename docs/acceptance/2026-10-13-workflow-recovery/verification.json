@@ -1,0 +1,70 @@
+{
+  "recorded_at": "2026-10-13T14:07:02.636121+00:00",
+  "status": "source_tested_not_deployed",
+  "user_direction": "本系统整理需求，AI 课堂生成交由 OpenMAIC 原生模块；重点是课程任务稳定执行和可恢复交付。",
+  "integration_boundary": {
+    "this_change": [
+      "lifecycle_repository.py: 原子保存分析阶段恢复计数、保留最新检查点并释放工作槽",
+      "runner.py: 白名单模型故障自动恢复，区分时限与额度错误"
+    ],
+    "other_window": "OpenMAIC 原生生成、输入映射及结果转换；本轮未修改这些模块。",
+    "content_duration": "新交接接口建议取消自动分摊的节点/资源内容预算；用户明确时长要求可作为需求偏好保留。本轮没有删除现有字段。"
+  },
+  "implemented": {
+    "stages": [
+      "normalize",
+      "research_scope",
+      "plan",
+      "research_nodes"
+    ],
+    "transient_codes": [
+      "PROVIDER_TIMEOUT",
+      "PROVIDER_UNAVAILABLE",
+      "HARNESS_UNAVAILABLE"
+    ],
+    "backoff_seconds": [
+      5,
+      10
+    ],
+    "retry_bound": "同一执行尝试的每个阶段最多自动恢复两次，更换错误码或进程重启不会重置次数。",
+    "preserved": [
+      "最新已提交检查点",
+      "来源读取结果",
+      "已消耗调用额度",
+      "原始任务截止时间",
+      "任务归属与租约校验"
+    ],
+    "excluded": [
+      "生成提交结果不明时的盲目重试",
+      "审阅和内容修订的嵌套重试",
+      "权限错误",
+      "程序错误",
+      "预算耗尽"
+    ],
+    "events": "stage_changed(reason=PROVIDER_RETRY, retry, retry_at)"
+  },
+  "validation": {
+    "passed": 74,
+    "skipped": 36,
+    "skipped_reason": "未设置隔离 PostgreSQL 测试数据库；相关 PostgreSQL 与行锁测试跳过。",
+    "coverage": [
+      "模型短暂失败后恢复",
+      "检查点不被领取时旧快照覆盖",
+      "重建 worker 后恢复",
+      "5/10 秒间隔重试与累计次数限制",
+      "取消与时限",
+      "真实 ResearchStages 使用脚本模型恢复至 produce，来源只读取一次",
+      "既有审阅恢复回归"
+    ],
+    "real_model_end_to_end": false,
+    "test_log": "pytest.log"
+  },
+  "remaining_integration_checks": [
+    "OpenMAIC 提交使用稳定请求标识；响应丢失时先查已有任务，不直接新建。",
+    "保存 OpenMAIC 任务引用和阶段结果；刷新与后端重启后查询并接续。",
+    "完成由持久化结果和可访问资源共同确认，不能只凭模型或单个子任务宣布成功。",
+    "统一前端弹窗和任务控制中心的状态来源。",
+    "原任务过期后的显式恢复策略尚需设计；本轮没有自动续期或提高费用上限。",
+    "与另一窗口的接入统一部署后，跑真实整课、超时、断线、重启、取消与交付回读验收。"
+  ]
+}

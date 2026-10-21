@@ -1,0 +1,136 @@
+/* The shared preview must also work in entry points without the legacy stylesheet. */
+.resource-text-preview { display: flow-root; }
+.resource-text-actions {
+  float: right;
+  display: flex;
+  gap: 8px;
+  margin: 0 0 12px 20px;
+}
+.resource-text-actions > button {
+  min-width: 84px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1px solid var(--edu-line, var(--app-border, #dce2dc));
+  border-radius: 20px;
+  background: var(--edu-soft, var(--surface-subtle, #f1f4ef));
+  color: var(--edu-ink, var(--app-text, #263d33));
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.resource-text-preview .markdown-document > :nth-child(2) { clear: both; }
+
+.markdown-preview.markdown-document {
+  --markdown-border: var(--edu-line, var(--app-border, #dce2dc));
+  --markdown-soft: var(--edu-soft, var(--surface-subtle, #f1f4ef));
+  --markdown-grid: #a8b4ad;
+  min-width: 0;
+  max-width: 100%;
+  color: var(--edu-ink, var(--app-text, #263d33));
+  font-size: 16px;
+  line-height: 2.1;
+  overflow-wrap: anywhere;
+}
+
+.markdown-preview.markdown-document :is(h1, h2, h3, h4, h5, h6) {
+  margin: 1.5em 0 .65em;
+  color: inherit;
+  font-family: inherit;
+  font-weight: 650;
+  line-height: 1.45;
+}
+.markdown-preview.markdown-document h1 { font-size: 28px; }
+.markdown-preview.markdown-document h2 { font-size: 22px; }
+.markdown-preview.markdown-document h3 { font-size: 18px; }
+.markdown-preview.markdown-document h4 { font-size: 16px; }
+.markdown-preview.markdown-document :is(h5, h6) { font-size: 15px; }
+.markdown-preview.markdown-document > :first-child { margin-top: 0; }
+.markdown-preview.markdown-document :is(p, ul, ol, blockquote) { margin: 1em 0; }
+.markdown-preview.markdown-document :is(ul, ol) { padding-left: 1.6em; }
+.markdown-preview.markdown-document ul { list-style-type: disc; }
+.markdown-preview.markdown-document ol { list-style-type: decimal; }
+.markdown-preview.markdown-document li { margin: .5em 0; }
+.markdown-preview.markdown-document li > :is(ul, ol) { margin: .3em 0; }
+.markdown-preview.markdown-document .contains-task-list { list-style: none; }
+.markdown-preview.markdown-document .task-list-item input { margin-right: .5em; }
+.markdown-preview.markdown-document strong { font-weight: 700; }
+.markdown-preview.markdown-document em { font-style: italic; }
+.markdown-preview.markdown-document a {
+  color: var(--edu-accent, var(--accent-strong, #47664d));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.markdown-preview.markdown-document blockquote {
+  padding: .2em 1em;
+  border-left: 3px solid var(--edu-accent, var(--accent-strong, #47664d));
+  background: var(--markdown-soft);
+}
+.markdown-preview.markdown-document hr {
+  margin: 1.6em 0;
+  border: 0;
+  border-top: 1px solid var(--markdown-border);
+}
+/* Highlighted blocks render pre > div > code; exclude every descendant of pre. */
+.markdown-preview.markdown-document code:not(pre code) {
+  padding: .15em .35em;
+  border-radius: 4px;
+  background: var(--markdown-soft);
+  color: inherit;
+  font-size: .9em;
+}
+.markdown-preview.markdown-document pre {
+  max-width: 100%;
+  margin: 1.2em 0;
+  overflow: auto;
+  white-space: pre;
+  overflow-wrap: normal;
+}
+.markdown-preview.markdown-document pre > code {
+  display: block;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--markdown-soft);
+  color: inherit;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.markdown-preview.markdown-document img { max-width: 100%; height: auto; }
+.markdown-preview.markdown-document .katex-display { overflow-x: auto; overflow-y: hidden; }
+
+.markdown-preview.markdown-document .markdown-table-scroll {
+  max-width: 100%;
+  margin: 1.3em 0;
+  overflow-x: auto;
+}
+.markdown-preview.markdown-document table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  border: 1px solid var(--markdown-grid);
+  white-space: normal;
+  font-size: 15px;
+  line-height: 2;
+}
+.markdown-preview.markdown-document :is(th, td) {
+  min-width: 100px;
+  padding: 12px 16px;
+  border: 1px solid var(--markdown-grid);
+  text-align: left;
+  vertical-align: top;
+}
+.markdown-preview.markdown-document th {
+  background: var(--markdown-soft);
+  font-weight: 650;
+}
+.markdown-preview.markdown-document :is(th, td) > :first-child { margin-top: 0; }
+.markdown-preview.markdown-document :is(th, td) > :last-child { margin-bottom: 0; }
+
+@media (max-width: 600px) {
+  .markdown-preview.markdown-document h1 { font-size: 24px; }
+  .markdown-preview.markdown-document h2 { font-size: 20px; }
+  .markdown-preview.markdown-document :is(th, td) { padding: 10px 12px; }
+}

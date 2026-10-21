@@ -1,0 +1,2 @@
+import { defineConfig } from 'playwright/test';
+export default defineConfig({ testDir: './tests/live-learning', testMatch: ['experiment.spec.ts'], workers: 1, timeout: 45000, reporter: [['list']], use: { baseURL: 'http://127.0.0.1:5219', screenshot: 'only-on-failure', deviceScaleFactor: 2 }, webServer: { command: 'pnpm exec vite preview --outDir dist-experiment-review --host 127.0.0.1 --port 5219 --strictPort', url: 'http://127.0.0.1:5219', reuseExistingServer: false } });

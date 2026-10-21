@@ -1,0 +1,83 @@
+{
+  "name": "score",
+  "exerciseId": "pbl_bc0c6e5445a7b30e1d5f2d1d12f5ed0c",
+  "steps": [
+    {
+      "id": "shell",
+      "passed": true,
+      "cumulative": 4
+    },
+    {
+      "id": "score-buttons",
+      "passed": true,
+      "cumulative": 9
+    },
+    {
+      "id": "reset-and-status",
+      "passed": true,
+      "cumulative": 13
+    }
+  ],
+  "checks": 13,
+  "errors": [],
+  "requestFailures": [
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://col.csbops.io/data/sandpack",
+      "error": "net::ERR_TIMED_OUT"
+    }
+  ],
+  "emptyStarterRejected": true,
+  "previewText": "比赛记分牌\n红队\n\n0\n\n加 1 分\n减 1 分\n蓝队\n\n0\n\n加 1 分\n减 1 分\n\n平局\n\n重置比赛",
+  "previewRendered": true,
+  "previewControls": [
+    {
+      "tag": "BUTTON",
+      "text": "加 1 分",
+      "label": null,
+      "testId": "red-add",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "减 1 分",
+      "label": null,
+      "testId": "red-minus",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "加 1 分",
+      "label": null,
+      "testId": "blue-add",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "减 1 分",
+      "label": null,
+      "testId": "blue-minus",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "重置比赛",
+      "label": null,
+      "testId": "reset",
+      "type": "button"
+    }
+  ],
+  "refreshPreservesCodeAndStep": true,
+  "regressionRejected": true,
+  "repairedCodePasses": true,
+  "mobileNoPageOverflow": true,
+  "privateAnswersExcluded": true,
+  "passed": true
+}

@@ -1,0 +1,25 @@
+{
+  "problem": "聚焦或提问后 chatActive 持续为 true，经 iframe 传入 externallyPaused，使视频容器 inert 且原生 play 事件立即被暂停。",
+  "fix": "提问改为有序的一次性暂停命令；原生视频控件可随时继续，继续课堂按钮发送一次性播放命令；面板隐藏仍使用持续暂停。手机隐藏面板中提问会取消返回面板时的自动续播。",
+  "scope": "6 个前端源码文件；不改后端、数据库或视频资源。命令按当前资料与版本隔离，接收端检查同源父窗口和序号。",
+  "before": "已用真实 MP4 与原生控件复现：聚焦提问框后播放时间不再推进。见 before-failure.txt。",
+  "checks": {
+    "typescript": "passed: tsc -p tsconfig.self-learning.json --noEmit",
+    "eslint": "passed: all six modified source files",
+    "developmentBrowser": "3 passed",
+    "productionBundleBrowser": "3 passed on final rebased release",
+    "onlineBrowser": "3 passed through Nginx; fixture business APIs"
+  },
+  "coverage": [
+    "桌面聚焦、提交、连续快捷提问后原生续播",
+    "回答完成保持暂停，用户已恢复播放时不打断",
+    "继续课堂按钮、拖动进度、1.5 倍速及播放器实例不重建",
+    "390px 手机 Agent/目录隐藏暂停与回到学习面板",
+    "课程会话 Agent 答疑等待中和失败后可继续播放",
+    "提交时的视频版本和时间定位保留"
+  ],
+  "testBoundaries": "浏览器使用真实生成的 MP4/AAC 测试媒体和拦截的课程/答疑接口；未调用生产模型、创建生产任务或写学习记录。",
+  "baseline": "2026-10-20-explore-cleanup 最新发布快照；检测到并保留并行任务的前端更新。",
+  "restartRequired": false,
+  "status": "published_and_verified"
+}

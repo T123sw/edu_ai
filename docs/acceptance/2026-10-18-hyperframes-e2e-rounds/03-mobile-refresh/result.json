@@ -1,0 +1,156 @@
+{
+  "scenario": "03-mobile-refresh",
+  "started": "2026-10-18T04:58:41.463Z",
+  "base": "http://127.0.0.1",
+  "course": "hf-e2e-20261017160234",
+  "material_id": "published-c3b736d8ac969ce79217",
+  "version": 2,
+  "digest": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448",
+  "checks": [
+    {
+      "name": "production-player-ready"
+    },
+    {
+      "name": "mobile-chromium-audible",
+      "audio": [
+        {
+          "state": "running",
+          "rms": 0.0001390654220373353
+        }
+      ],
+      "seconds": 9.890754727891157
+    },
+    {
+      "name": "refresh-restores-time-without-autoplay",
+      "saved": 9.919779671201814,
+      "restored": 9.9
+    },
+    {
+      "name": "mobile-directory-and-learning-panels"
+    },
+    {
+      "name": "audio-before-question",
+      "audio": [
+        {
+          "state": "running",
+          "rms": 0.062255132737660306
+        }
+      ],
+      "seconds": 20.117660460317463
+    },
+    {
+      "name": "question-freezes-exact-current-context",
+      "seconds": 20.207637784580502,
+      "segment": "seg-02"
+    },
+    {
+      "name": "real-model-answer-succeeded",
+      "elapsedSeconds": 17.036
+    },
+    {
+      "name": "current-answer-citation-jump-and-reload"
+    },
+    {
+      "name": "audio-after-answer-resume",
+      "audio": [
+        {
+          "state": "running",
+          "rms": 0.06059061576909847
+        }
+      ],
+      "seconds": 20.85706926984127
+    },
+    {
+      "name": "resume-after-question"
+    },
+    {
+      "name": "question-history-survives-refresh"
+    }
+  ],
+  "errors": [],
+  "httpFailures": [],
+  "requestsFailed": [],
+  "question": {
+    "request_id": "aea5e577-df45-4799-aea9-2a6633746d51",
+    "question": "我现在看到风扇这一段。温度是 29°C，b=0 和 b=2 时风扇分别会不会启动？请代入条件算一次并引用我暂停的位置。",
+    "reading_context": {
+      "resource_ref": {
+        "course_id": "hf-e2e-20261017160234",
+        "material_type": "classroom",
+        "material_id": "published-c3b736d8ac969ce79217",
+        "version": 2
+      },
+      "locator": {
+        "kind": "hyperframes",
+        "seconds": 20.207637784580502,
+        "segment_id": "seg-02",
+        "content_hash": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+      },
+      "selected_text": "",
+      "classroom": {
+        "status": "paused",
+        "position": {
+          "seconds": 20.207637784580502,
+          "segment_id": "seg-02"
+        }
+      }
+    }
+  },
+  "answer": {
+    "turn_id": "answer-1257c2846fba43689a3d0361dd3298aa",
+    "session_id": "learning-14275f3cfdb4305849dd41e4641a7398447c6dd9cf9bcaeb86dc5316bd8ed4ad",
+    "request_id": "aea5e577-df45-4799-aea9-2a6633746d51",
+    "topic_id": "bias",
+    "status": "succeeded",
+    "stage": "succeeded",
+    "attempt": 1,
+    "result": {
+      "actions": [],
+      "citations": [
+        {
+          "title": "神经元的偏置：平移直线与降低启动阈值",
+          "locator": {
+            "kind": "hyperframes",
+            "seconds": 20.207637784580502,
+            "segment_id": "seg-02",
+            "content_hash": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+          },
+          "visibility": "course",
+          "citation_id": "ctx_01",
+          "content_hash": "584044dd3b1ccdcbe8caf4443c4a78ed59dad71ea6496496e19b06b659bd5d04",
+          "resource_ref": {
+            "version": 2,
+            "course_id": "hf-e2e-20261017160234",
+            "material_id": "published-c3b736d8ac969ce79217",
+            "material_type": "classroom"
+          }
+        }
+      ],
+      "observation": null,
+      "citation_ids": [
+        "ctx_01"
+      ],
+      "memory_epoch": 0,
+      "model_rounds": 1,
+      "role_version": "learning-role-v3",
+      "tool_attempts": 0,
+      "teaching_skill": {
+        "mode": "classroom",
+        "name": "teach-current-topic",
+        "version": "6426cc3a24b06e8da8147a43206c7bd080aa183056f1dcf8dd833e28e2899d54"
+      },
+      "answer_markdown": "你停在 17 秒左右，画面正在讲“正偏置降低启动阈值”这一段，判断条件是 **T − 30 + b > 0**。\n\n**b = 0，T = 29：**\n29 − 30 + 0 = −1，不满足大于 0，**不启动**。阈值是 30 − 0 = 30°C，29°C 还没到。\n\n**b = 2，T = 29：**\n29 − 30 + 2 = 1，大于 0，**启动**。阈值是 30 − 2 = 28°C，29°C 已经超过。\n\n所以同样是 29°C，b = 0 时风扇是灰的、不转；b = 2 时风扇变青、转起来。这正是画面里两个状态卡片想说明的：正偏置把启动门槛从 30 拉到 28，让原本不够的温度也能触发激活。",
+      "source_revision": 140,
+      "preparation_receipts": [],
+      "suggested_action_ids": []
+    },
+    "error_code": null,
+    "committed_effects": []
+  },
+  "citation": {
+    "text": "来源：神经元的偏置：平移直线与降低启动阈值 · v2",
+    "href": "?learningPlayer=1#ai?course_id=hf-e2e-20261017160234&material_type=classroom&material_id=published-c3b736d8ac969ce79217&version=2&visibility=course&citation=1&seconds=20.207637784580502&segment_id=seg-02"
+  },
+  "status": "passed",
+  "finished": "2026-10-18T04:59:27.222Z"
+}

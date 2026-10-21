@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "elapsedSeconds": 3.65,
+  "nodeCount": 20,
+  "summaryLengths": [
+    0,
+    13,
+    11,
+    9,
+    12,
+    11,
+    11,
+    12,
+    12,
+    15,
+    10,
+    12,
+    11,
+    12,
+    12,
+    8,
+    10,
+    16,
+    10,
+    17
+  ],
+  "scope": "Real model, pre-change graph service, updated frontend request instructions, in-memory save only; no production resource writes."
+}

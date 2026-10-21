@@ -13,7 +13,7 @@ def encoded_size(value):
     return len(json.dumps(value,ensure_ascii=False,separators=(',',':')).encode())
 
 
-def context_packet(context, tools, *, max_tokens, output_tokens=6000, native_skill=False):
+def context_packet(context, tools, *, max_tokens, output_tokens=6000, native_skill=False, enforce_capacity=True):
     context=dict(context)
     skill = load_workflow_skill(context['phase']) if context['phase'] in HARNESS_PHASES else None
     role_file={'learning_path':'learning-path-role.md','input_document':'intake-role.md','intent':'intake-role.md','research':'workflow-role.md','plan':'workflow-role.md','route_adjustment':'workflow-role.md','review':'workflow-role.md','research_nodes':'workflow-role.md','course_review':'course-review.md'}.get(context['phase'],'workflow-role.md')
@@ -38,11 +38,11 @@ def context_packet(context, tools, *, max_tokens, output_tokens=6000, native_ski
         return [{'role':'system','content':role},{'role':'user','content':json.dumps(context,ensure_ascii=False)}]
     # Count schema, protocol framing and response capacity as well as prose.
     size=encoded_size({'messages':messages(),'tools':tools})+512+(encoded_size(skill['text']) if skill and native_skill else 0)
-    if size+output_tokens>max_tokens:
+    if enforce_capacity and size+output_tokens>max_tokens:
         context.pop('trace',None)
         size=encoded_size({'messages':messages(),'tools':tools})+512+(encoded_size(skill['text']) if skill and native_skill else 0)
     effective_output = output_tokens
-    if size+output_tokens>max_tokens:
+    if enforce_capacity and size+output_tokens>max_tokens:
         if native_skill and context['phase'] in CONTENT_PHASE_SKILLS and size + min(output_tokens, 8192) <= max_tokens:
             effective_output = max_tokens - size
         else:

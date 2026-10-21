@@ -1,0 +1,18 @@
+{
+  "action_id": "paction_de0e38dfe9e64e59aff74b0810bd5df8",
+  "model": "deepseek-v4-flash",
+  "phase": "research_nodes",
+  "arguments": {
+    "sufficient": true,
+    "reason": "本节点三个目标均有实质依据。Q/K/V 角色：source_2 明确给出 Q=「我在找什么」、K=「位置 j 的内容标签」、V=「实际取走的信息」，source_3 用 \"it 指代 cat/bank\" 的例子说明检索式直觉，source_1 给出 Q=XW_Q、K=XW_K、V=XW_V 的线性投影定义。计算步骤：source_1、source_2、source_3、source_4 均按「线性投影→QK^T→除以 √d_k→softmax→加权求和 V」顺序给出，source_2 给出背诵版公式 Attention(Q,K,V)=softmax(QK^T/√d_k)V，source_3 给出逐元素 a_ij=exp(e_ij)/Σexp(e_ij) 与 c_i=Σa_ij v_j，足以支撑手算推演。缩放原因：source_2 给出完整方差推导（q_r、k_r 独立零均值方差 1 时点积方差为 d_k、标准差 √d_k，不缩放则 softmax 近似 one-hot 导致梯度消失），source_4 与 source_3 亦说明点积幅度随 d_k 增大使 softmax 进入梯度极小区域。softmax 维度：source_1 明确「按行归一化」，source_2 明确「对最后一维（key 维）做，每一行对应位置 i 对所有 j 的注意力分布」，与目标一致。n=3、d_k=2 的小矩阵手算属教学自设练习，所需公式与步骤均已具备，无需额外来源。未发现来源间冲突；source_2 的面试导向表述不影响入门深度使用。",
+    "source_refs": [
+      "source_1",
+      "source_2",
+      "source_3",
+      "source_4"
+    ],
+    "gap_queries": [],
+    "sufficient_again": true
+  },
+  "protocol_recovery_attempt": 0
+}

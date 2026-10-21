@@ -1,0 +1,72 @@
+{
+  "tts_provider": "host",
+  "voice_id": null,
+  "voices": [
+    {
+      "id": "01-opening",
+      "path": "assets/audio/6aac4159a3cc7bf3aa40d23b72c159a3492ea02233b082ffdb60d1f8bb718664.mp3",
+      "duration_s": 28.368,
+      "words": [],
+      "frame": 1
+    },
+    {
+      "id": "02-recurrence",
+      "path": "assets/audio/aa45efd2ac23f23f73987ff07bba0e5b3ad629d1421ba1343909bab3788d1908.mp3",
+      "duration_s": 28.944,
+      "words": [],
+      "frame": 2
+    },
+    {
+      "id": "03-three-lenses",
+      "path": "assets/audio/9bbd8d147f1347059ba1e22b99a4ce3b0290e9a3856902c870666b5cd4403cec.mp3",
+      "duration_s": 26.928,
+      "words": [],
+      "frame": 3
+    },
+    {
+      "id": "04-complexity",
+      "path": "assets/audio/380534aa36892ab83a8c7e4d7c9b4b71c82348197240e22720f8112da9fd84a7.mp3",
+      "duration_s": 31.656,
+      "words": [],
+      "frame": 4
+    },
+    {
+      "id": "05-sequential-path",
+      "path": "assets/audio/c7d2bb214a10116562c908ae5cd3cb278fc0d4b7c547fb6e13b4c2eb5fa0357b.mp3",
+      "duration_s": 38.304,
+      "words": [],
+      "frame": 5
+    },
+    {
+      "id": "06-n-condition",
+      "path": "assets/audio/be1492fee746acb8f47d2c17107fa77fa87e9d6a28591b9454f4adad17278946.mp3",
+      "duration_s": 36.216,
+      "words": [],
+      "frame": 6
+    },
+    {
+      "id": "07-cost",
+      "path": "assets/audio/72a53eb2d39c60a7b6dd37ba21b290280c436f031d252f234299f0f44b3dded8.mp3",
+      "duration_s": 30.144,
+      "words": [],
+      "frame": 7
+    },
+    {
+      "id": "08-parallel-boundary",
+      "path": "assets/audio/180e7848cd8589c904b0953278005b0ac792a6e0301953b9976bd1f568ed4c5c.mp3",
+      "duration_s": 32.304,
+      "words": [],
+      "frame": 8
+    },
+    {
+      "id": "09-conclusion",
+      "path": "assets/audio/9bb4f231b834a21adb5b45d47f6ef0469721474dab28927a15c7170fdf6842b8.mp3",
+      "duration_s": 31.416,
+      "words": [],
+      "frame": 9
+    }
+  ],
+  "total_duration_s": 284.28,
+  "bgm": null,
+  "sfx": []
+}

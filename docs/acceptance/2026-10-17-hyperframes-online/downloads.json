@@ -1,0 +1,33 @@
+{
+  "expires_at": 1792263383,
+  "project_digest": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448",
+  "duration": 32.112,
+  "exports": {
+    "video": {
+      "file": "lesson.mp4",
+      "bytes": 2577386,
+      "sha256": "d0aa730b70288c31fd3dc2fbb47d9b38515cc0aa824bb7f6a230588616f1a1a6",
+      "content_type": "video/mp4",
+      "disposition": "attachment; filename=\"lesson.mp4\""
+    },
+    "project": {
+      "file": "project.zip",
+      "bytes": 708729,
+      "sha256": "a328a816b6593fc1453d378dca6b42d77db576e605395dab99ebe4a71f059b92",
+      "content_type": "application/zip",
+      "disposition": "attachment; filename=\"project.zip\""
+    },
+    "subtitles": {
+      "file": "lesson.srt",
+      "bytes": 467,
+      "sha256": "4971f54f72909e43a2a8570c8367c9b09b8c758e389f29cf17f8cca8891604bf",
+      "content_type": "text/plain; charset=utf-8",
+      "disposition": "attachment; filename=\"lesson.srt\""
+    }
+  },
+  "range": {
+    "status": 206,
+    "bytes": 1024,
+    "content_range": "bytes 0-1023/2577386"
+  }
+}

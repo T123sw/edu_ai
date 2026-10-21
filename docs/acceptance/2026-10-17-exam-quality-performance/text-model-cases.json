@@ -1,0 +1,72 @@
+[
+  {
+    "case": "old_binary",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "候选答案标为B（4次），但独立计算显示第3次比较即命中83，应为3次，正确答案是A。",
+      "解析中第3步误称mid=11处元素为75，实际下标11的元素是83；随后又编造第4次比较91并判定查找失败，推导错误。",
+      "最终答案与解析均与题目给定数据矛盾，答案无效。"
+    ],
+    "seconds": 5.31
+  },
+  {
+    "case": "old_partition",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_solution_unverified",
+      "题目描述的是以第一个元素 47 为枢轴、双指针从两端向中间扫描的划分。按常见的“挖坑法”（partition_hole）执行：初始 (47,23,68,35,56,19,74,31)。右指针从右找小于 47 的元素 31 填入左坑，左指针从左找大于 47 的元素 68 填入右坑，得 (31,23,_,35,56,19,74,68)；继续右指针找到 19 填入左坑，左指针找到 56 填入右坑，得 (31,23,19,35,_,56,74,68)；两指针相遇于下标 4，将枢轴 47 放入，得到 (31,23,19,35,47,56,74,68)。该结果与 partition_hole 的计算一致。若按交换法（partition_swap）则得到 (19,23,31,35,47,56,74,68)。两种约定下左段分别为 (31,23,19,35) 与 (19,23,31,35)，均与四个选项的左段 (31,23,35,19)、(19,23,35,31)、(23,31,35,19) 不完全相同；右段 (56,74,68) 只与 B 相符，但 B 的左段不符。因此没有任何选项完全匹配，题目按给定选项无正确答案。"
+    ],
+    "seconds": 6.2
+  },
+  {
+    "case": "new_arithmetic",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2328-2000 = 328, not 276",
+      "arithmetic_claim_invalid: 276 / 82 = 3.3658536585365852, not 4"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "new_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2**(11) = 2048, not 2047"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "correct_binary",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 4.23
+  },
+  {
+    "case": "old_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "候选答案第(1)问判断错误：S=1024的祖先链经过编号1（根0的左孩子），应位于左子树T_L，而非右子树T_R。",
+      "候选答案第(2)问错误：因S实际在T_L，原树n=1500时叶子为i≥750，T_L中排在S之前的叶子为750至1023共274个，而非0个。",
+      "候选答案第(3)问错误：T_X应为T_L，高度4时层序编号序列为1,3,4,7,8,9,10,15,16,17,18,19,20,21,22，而非以2开头的右子树序列。",
+      "候选答案的二进制路径解释有误：1025=(10000000001)_2去掉最高位后为0000000001，首位为0表示向左，与其结论“向右”矛盾。"
+    ],
+    "seconds": 9.95
+  },
+  {
+    "case": "correct_partition",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 5.58
+  }
+]

@@ -1,0 +1,473 @@
+{
+  "phase": "plan",
+  "data": {
+    "topic": "做一个全栈留言板，React前端配Python FastAPI后端和SQLite数据库。前端通过真实GET/POST /messages请求读取新增留言；刷新页面和后端重启后留言还存在。后端验证空内容并返回422。我要同时编写前后端代码、启动服务并做端到端验收，不接受本地数组或localStorage代替后端。",
+    "issues": [
+      "check-backend-get-empty 与声明的运行类型不匹配"
+    ],
+    "priorPlan": {
+      "schemaVersion": 1,
+      "title": "全栈留言板：React + FastAPI + SQLite",
+      "goal": "交付一个可运行的全栈留言板：React 前端通过真实 HTTP 请求 GET/POST /messages 读取与新增留言，FastAPI 后端把留言持久化到 SQLite，刷新页面与重启后端后留言仍在，空内容提交由后端返回 422。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "req-backend-api",
+          "description": "后端提供 GET /messages 返回全部留言列表（按创建顺序），POST /messages 接收 JSON 内容并返回新建留言；数据写入 SQLite 文件，服务重启后仍可读取。"
+        },
+        {
+          "id": "req-backend-validation",
+          "description": "后端对空内容（空字符串或仅空白）返回 422，且不写入数据库。"
+        },
+        {
+          "id": "req-frontend-load",
+          "description": "前端页面加载时通过真实 GET /messages 请求获取留言并渲染列表；列表为空时显示空状态提示。"
+        },
+        {
+          "id": "req-frontend-create",
+          "description": "前端提供内容输入框与提交按钮，提交时通过真实 POST /messages 发送内容；成功后清空输入框并把新留言显示在列表中。"
+        },
+        {
+          "id": "req-frontend-error",
+          "description": "后端返回 422 时，前端显示错误提示，输入内容保留，列表不新增条目。"
+        },
+        {
+          "id": "req-frontend-persist",
+          "description": "刷新页面后前端重新从后端读取，之前提交的留言仍然显示（不依赖本地数组或 localStorage）。"
+        },
+        {
+          "id": "req-layout",
+          "description": "页面在窄容器（约 260px 宽）下不横向溢出：输入区与提交按钮可换行，留言条目文字可折行。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "step-backend-api",
+          "title": "搭建 FastAPI + SQLite 留言接口",
+          "objective": "用 FastAPI 实现 GET /messages 与 POST /messages，并把留言持久化到 SQLite 文件。",
+          "dependsOn": [],
+          "entryCondition": "已安装 Python 3.10+，可创建虚拟环境并安装 fastapi、uvicorn。",
+          "deliverable": "一个可启动的 FastAPI 服务：GET /messages 返回 JSON 数组，POST /messages 写入 SQLite 并返回新留言，重启服务后数据仍在。",
+          "requirementIds": [
+            "req-backend-api"
+          ],
+          "focusFiles": [
+            "backend/main.py",
+            "backend/db.py",
+            "backend/requirements.txt"
+          ],
+          "newCheckIds": [
+            "check-backend-get-empty",
+            "check-backend-post-and-get",
+            "check-backend-restart-persist"
+          ]
+        },
+        {
+          "id": "step-backend-validation",
+          "title": "后端校验空内容返回 422",
+          "objective": "在 POST /messages 中校验内容，空或仅空白时返回 422 且不写库。",
+          "dependsOn": [
+            "step-backend-api"
+          ],
+          "entryCondition": "上一步的 FastAPI 服务可正常启动并读写 SQLite。",
+          "deliverable": "POST /messages 对空字符串与仅空白内容返回 422，数据库不新增记录；正常内容仍返回 200/201。",
+          "requirementIds": [
+            "req-backend-validation",
+            "req-backend-api"
+          ],
+          "focusFiles": [
+            "backend/main.py",
+            "backend/schemas.py"
+          ],
+          "newCheckIds": [
+            "check-backend-empty-422",
+            "check-backend-whitespace-422",
+            "check-backend-valid-after-invalid"
+          ]
+        },
+        {
+          "id": "step-frontend-load",
+          "title": "前端加载并展示留言列表",
+          "objective": "React 页面挂载时通过真实 GET /messages 拉取留言并渲染，空列表显示空状态。",
+          "dependsOn": [
+            "step-backend-validation"
+          ],
+          "entryCondition": "后端接口已可用，前端工程可启动（Vite 或 CRA）。",
+          "deliverable": "页面打开后显示从后端读取的留言列表；后端无数据时显示空状态提示。",
+          "requirementIds": [
+            "req-frontend-load",
+            "req-backend-api"
+          ],
+          "focusFiles": [
+            "frontend/src/App.jsx",
+            "frontend/src/api.js",
+            "frontend/src/styles.css"
+          ],
+          "newCheckIds": [
+            "check-frontend-load-list",
+            "check-frontend-empty-state"
+          ]
+        },
+        {
+          "id": "step-frontend-create",
+          "title": "前端提交新留言",
+          "objective": "提供输入框与提交按钮，通过真实 POST /messages 新增留言，成功后清空输入并更新列表。",
+          "dependsOn": [
+            "step-frontend-load"
+          ],
+          "entryCondition": "前端已能通过 GET 读取并渲染留言。",
+          "deliverable": "输入内容点击提交后，后端新增记录，页面列表出现新留言，输入框清空。",
+          "requirementIds": [
+            "req-frontend-create",
+            "req-frontend-load"
+          ],
+          "focusFiles": [
+            "frontend/src/App.jsx",
+            "frontend/src/api.js"
+          ],
+          "newCheckIds": [
+            "check-frontend-create-appends",
+            "check-frontend-create-clears-input"
+          ]
+        },
+        {
+          "id": "step-frontend-error",
+          "title": "前端处理 422 错误",
+          "objective": "后端返回 422 时前端显示错误提示，保留输入内容，列表不新增。",
+          "dependsOn": [
+            "step-frontend-create"
+          ],
+          "entryCondition": "前端已能提交留言并更新列表。",
+          "deliverable": "提交空内容时页面显示错误提示，输入框内容保留，列表条目数不变。",
+          "requirementIds": [
+            "req-frontend-error",
+            "req-backend-validation"
+          ],
+          "focusFiles": [
+            "frontend/src/App.jsx",
+            "frontend/src/api.js"
+          ],
+          "newCheckIds": [
+            "check-frontend-error-shown",
+            "check-frontend-error-no-append"
+          ]
+        },
+        {
+          "id": "step-frontend-persist",
+          "title": "刷新与重启后的持久化验收",
+          "objective": "验证刷新页面与重启后端后留言仍存在，完成端到端验收。",
+          "dependsOn": [
+            "step-frontend-error"
+          ],
+          "entryCondition": "前后端功能完整，可同时启动。",
+          "deliverable": "提交留言后刷新页面仍显示；重启后端后刷新页面仍显示；页面在窄容器下不横向溢出。",
+          "requirementIds": [
+            "req-frontend-persist",
+            "req-layout",
+            "req-frontend-load"
+          ],
+          "focusFiles": [
+            "frontend/src/App.jsx",
+            "frontend/src/styles.css"
+          ],
+          "newCheckIds": [
+            "check-frontend-reload-persist",
+            "check-layout-no-overflow"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "check-backend-get-empty",
+          "stepId": "step-backend-api",
+          "kind": "function_case",
+          "requirementIds": [
+            "req-backend-api"
+          ],
+          "setup": "清空 SQLite 数据库文件后启动服务。",
+          "actions": [
+            "GET /messages"
+          ],
+          "expected": [
+            "返回 200 与空数组 []"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-backend-post-and-get",
+          "stepId": "step-backend-api",
+          "kind": "function_case",
+          "requirementIds": [
+            "req-backend-api"
+          ],
+          "setup": "服务已启动，数据库为空。",
+          "actions": [
+            "POST /messages {\"content\":\"第一条\"}",
+            "POST /messages {\"content\":\"第二条\"}",
+            "GET /messages"
+          ],
+          "expected": [
+            "两次 POST 均成功返回新留言",
+            "GET 返回两条，顺序为第一条、第二条"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-backend-restart-persist",
+          "stepId": "step-backend-api",
+          "kind": "function_case",
+          "requirementIds": [
+            "req-backend-api"
+          ],
+          "setup": "已通过 POST 写入至少一条留言。",
+          "actions": [
+            "停止服务",
+            "重新启动服务",
+            "GET /messages"
+          ],
+          "expected": [
+            "重启后仍返回之前写入的留言"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-backend-empty-422",
+          "stepId": "step-backend-validation",
+          "kind": "function_case",
+          "requirementIds": [
+            "req-backend-validation"
+          ],
+          "setup": "服务已启动，数据库为空。",
+          "actions": [
+            "POST /messages {\"content\":\"\"}",
+            "GET /messages"
+          ],
+          "expected": [
+            "POST 返回 422",
+            "GET 仍为空数组"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-backend-whitespace-422",
+          "stepId": "step-backend-validation",
+          "kind": "function_case",
+          "requirementIds": [
+            "req-backend-validation"
+          ],
+          "setup": "服务已启动，数据库为空。",
+          "actions": [
+            "POST /messages {\"content\":\"   \"}",
+            "GET /messages"
+          ],
+          "expected": [
+            "POST 返回 422",
+            "GET 仍为空数组"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-backend-valid-after-invalid",
+          "stepId": "step-backend-validation",
+          "kind": "function_case",
+          "requirementIds": [
+            "req-backend-validation",
+            "req-backend-api"
+          ],
+          "setup": "服务已启动，数据库为空。",
+          "actions": [
+            "POST /messages {\"content\":\"\"}",
+            "POST /messages {\"content\":\"有效内容\"}",
+            "GET /messages"
+          ],
+          "expected": [
+            "第一次 POST 返回 422",
+            "第二次 POST 成功",
+            "GET 只返回一条“有效内容”"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-frontend-load-list",
+          "stepId": "step-frontend-load",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "req-frontend-load"
+          ],
+          "setup": "后端已有两条留言，前端已启动。",
+          "actions": [
+            "打开页面",
+            "等待列表渲染"
+          ],
+          "expected": [
+            "页面显示两条留言文本"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-frontend-empty-state",
+          "stepId": "step-frontend-load",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "req-frontend-load"
+          ],
+          "setup": "后端数据库为空，前端已启动。",
+          "actions": [
+            "打开页面"
+          ],
+          "expected": [
+            "显示空状态提示文字"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-frontend-create-appends",
+          "stepId": "step-frontend-create",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "req-frontend-create"
+          ],
+          "setup": "后端数据库为空，前端已启动。",
+          "actions": [
+            "在输入框填入“你好留言板”",
+            "点击提交按钮",
+            "等待列表更新"
+          ],
+          "expected": [
+            "列表出现“你好留言板”"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-frontend-create-clears-input",
+          "stepId": "step-frontend-create",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "req-frontend-create"
+          ],
+          "setup": "后端数据库为空，前端已启动。",
+          "actions": [
+            "在输入框填入“清空测试”",
+            "点击提交按钮"
+          ],
+          "expected": [
+            "输入框值为空字符串"
+          ],
+          "requiredAssertions": [
+            "value"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-frontend-error-shown",
+          "stepId": "step-frontend-error",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "req-frontend-error"
+          ],
+          "setup": "后端数据库为空，前端已启动。",
+          "actions": [
+            "输入框留空",
+            "点击提交按钮"
+          ],
+          "expected": [
+            "显示错误提示文字"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-frontend-error-no-append",
+          "stepId": "step-frontend-error",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "req-frontend-error"
+          ],
+          "setup": "后端数据库为空，前端已启动。",
+          "actions": [
+            "输入框填入“   ”",
+            "点击提交按钮",
+            "等待响应"
+          ],
+          "expected": [
+            "列表条目数为 0",
+            "输入框仍为“   ”"
+          ],
+          "requiredAssertions": [
+            "count",
+            "value"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-frontend-reload-persist",
+          "stepId": "step-frontend-persist",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "req-frontend-persist"
+          ],
+          "setup": "后端数据库为空，前端已启动。",
+          "actions": [
+            "输入“持久化测试”并提交",
+            "刷新页面",
+            "等待列表渲染"
+          ],
+          "expected": [
+            "刷新后仍显示“持久化测试”"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-layout-no-overflow",
+          "stepId": "step-frontend-persist",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "req-layout"
+          ],
+          "setup": "后端已有长文本留言，前端在窄容器中打开。",
+          "actions": [
+            "打开页面"
+          ],
+          "expected": [
+            "输入区与按钮不重叠，长文本可折行不横向溢出"
+          ],
+          "requiredAssertions": [
+            "not_overlapping",
+            "within_viewport"
+          ],
+          "viewport": "mobile"
+        }
+      ]
+    }
+  },
+  "startedAt": 1792229071.3856533
+}

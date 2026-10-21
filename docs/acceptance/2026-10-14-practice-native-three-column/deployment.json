@@ -1,0 +1,49 @@
+{
+  "publishedAt": "2026-10-14T05:09:23.716380+00:00",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-practice-three-column-release",
+  "backup": "/tmp/edu-practice-three-column-backup-20261014T050923Z",
+  "previousIndexSha256": "2f3be9eaf9ac97959371fa3830a5215a282fdefd1fea89b9244315f0afd3123a",
+  "releaseIndexSha256": "3923dbbe241038e31d4fde9b5cb8939c808def58f41d7266ce10de0e6c62a7f3",
+  "baselineReproduced": true,
+  "sourceChanges": [
+    "frontend/src/practice/Practice.tsx",
+    "frontend/src/practice/presentation.ts",
+    "frontend/src/practice/practice.css"
+  ],
+  "nginxIndexMatches": true,
+  "checks": {
+    "typecheck": "tsconfig.self-learning.json passed",
+    "eslint": "Practice.tsx and presentation.ts passed",
+    "build": "passed",
+    "releaseBrowser": {
+      "passed": 5,
+      "skipped": 1,
+      "widths": [
+        1440,
+        1100,
+        390
+      ],
+      "dpr": 2,
+      "api": "mocked business responses; actual native generated HTML"
+    },
+    "standaloneFriction": "DPR=2, no horizontal overflow or JS errors after native panel reflow"
+  },
+  "limits": [
+    "只调整前端展示；没有修改生成服务、用户实验或观察记录",
+    "识别到独立的原生步骤面板且其中没有实验参数或运行按钮时，才将其收进可展开说明；未知布局保持原文档",
+    "浏览器检查不构成学科正确性证明"
+  ],
+  "productionBrowser": {
+    "passed": 5,
+    "skipped": 1,
+    "widths": [
+      1440,
+      1100,
+      390
+    ],
+    "api": "mocked business responses; actual native HTML",
+    "verifiedAt": "2026-10-14T05:10:47.214144+00:00"
+  }
+}

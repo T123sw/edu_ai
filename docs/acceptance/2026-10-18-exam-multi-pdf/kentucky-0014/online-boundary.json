@@ -1,0 +1,23 @@
+{
+  "generation_checks": [
+    {
+      "generation_id": "examgen_f3da64103fac8f78318f586b71fa152c",
+      "paper_http": 200,
+      "anonymous_http": 401,
+      "answer_fields": [],
+      "blueprint_count": 4,
+      "blueprint_types": {
+        "compound": 4
+      },
+      "blueprint_child_counts": [
+        4,
+        4,
+        5,
+        4
+      ],
+      "all_shapes_match_blueprint": true,
+      "all_accepted": true,
+      "result_count": 4
+    }
+  ]
+}

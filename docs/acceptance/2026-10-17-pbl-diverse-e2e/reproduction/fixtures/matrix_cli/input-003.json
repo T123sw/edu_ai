@@ -1,0 +1,179 @@
+{
+  "phase": "plan",
+  "data": {
+    "topic": "做一个 Python 命令行CSV销售统计工具，不要网页。通过 python sales.py input.csv --output result.json 读取商品,数量,单价，计算总销售额与各商品销售额；用Decimal保留两位小数，非法行输出行号到stderr并以非零码退出。要有真实文件读写、命令行参数、退出码和临时目录验收。",
+    "issues": [
+      "当前项目运行环境仅支持 React 本地页面及 App.jsx/styles.css"
+    ],
+    "priorPlan": {
+      "schemaVersion": 1,
+      "title": "Python 命令行 CSV 销售统计工具",
+      "goal": "用 Python 编写 sales.py：通过 python sales.py input.csv --output result.json 读取含商品、数量、单价的 CSV，用 Decimal 计算总销售额与各商品销售额并保留两位小数写入 JSON；遇到非法行时把行号输出到 stderr 并以非零退出码结束。",
+      "runtimeKind": "js_function",
+      "editableFiles": [
+        "/sales.py"
+      ],
+      "requirements": [
+        {
+          "id": "cli-args",
+          "description": "程序以 python sales.py <input.csv> --output <result.json> 形式接收输入 CSV 路径与输出 JSON 路径两个命令行参数。"
+        },
+        {
+          "id": "csv-parse",
+          "description": "读取输入 CSV，跳过表头，按 商品,数量,单价 三列解析每一行数据。"
+        },
+        {
+          "id": "decimal-sum",
+          "description": "使用 Decimal 计算每行金额（数量×单价）与总销售额，各商品销售额按商品汇总，所有金额保留两位小数。"
+        },
+        {
+          "id": "json-output",
+          "description": "把总销售额与各商品销售额写入 --output 指定的 JSON 文件，金额以两位小数字符串或等价格式呈现，真实落盘可读回。"
+        },
+        {
+          "id": "invalid-line",
+          "description": "遇到非法行（列数不对、数量或单价不是合法数字、数量为负等）时，把该行行号输出到 stderr，并以非零退出码结束，不写出结果文件。"
+        },
+        {
+          "id": "exit-code",
+          "description": "全部行合法时以退出码 0 结束；出现非法行时以非零退出码结束。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "cli-and-parse",
+          "title": "读取命令行参数并解析 CSV",
+          "objective": "让 sales.py 接收输入 CSV 与 --output 参数，读取文件并按表头解析出每行的商品、数量、单价。",
+          "dependsOn": [],
+          "entryCondition": "从空的 sales.py 开始，本地有 Python 3 环境。",
+          "deliverable": "运行 python sales.py input.csv --output result.json 时，程序能读到 CSV 内容并解析出每行的三个字段；参数缺失时给出提示。",
+          "requirementIds": [
+            "cli-args",
+            "csv-parse"
+          ],
+          "focusFiles": [
+            "/sales.py"
+          ],
+          "newCheckIds": [
+            "check-cli-parse"
+          ]
+        },
+        {
+          "id": "decimal-and-json",
+          "title": "用 Decimal 汇总并写出 JSON",
+          "objective": "用 Decimal 计算每行金额、总销售额与各商品销售额，保留两位小数，写入 --output 指定的 JSON 文件。",
+          "dependsOn": [
+            "cli-and-parse"
+          ],
+          "entryCondition": "上一步已能解析 CSV 行。",
+          "deliverable": "对合法 CSV，程序生成 result.json，包含总销售额与各商品销售额，金额均为两位小数，退出码为 0。",
+          "requirementIds": [
+            "decimal-sum",
+            "json-output",
+            "exit-code"
+          ],
+          "focusFiles": [
+            "/sales.py"
+          ],
+          "newCheckIds": [
+            "check-decimal-json"
+          ]
+        },
+        {
+          "id": "invalid-and-exit",
+          "title": "非法行报错与非零退出",
+          "objective": "检测非法行，把行号输出到 stderr 并以非零退出码结束，且不写出结果文件。",
+          "dependsOn": [
+            "decimal-and-json"
+          ],
+          "entryCondition": "上一步已能对合法 CSV 生成正确 JSON。",
+          "deliverable": "对含非法行的 CSV，程序在 stderr 输出出错行号，退出码非零，且不生成结果文件；合法 CSV 仍退出码 0。",
+          "requirementIds": [
+            "invalid-line",
+            "exit-code",
+            "decimal-sum",
+            "json-output"
+          ],
+          "focusFiles": [
+            "/sales.py"
+          ],
+          "newCheckIds": [
+            "check-invalid-exit"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "check-cli-parse",
+          "stepId": "cli-and-parse",
+          "kind": "function_case",
+          "requirementIds": [
+            "cli-args",
+            "csv-parse"
+          ],
+          "setup": "在临时目录写入 input.csv，内容为表头 商品,数量,单价 加两行数据：苹果,2,3.50 与 香蕉,1,2.00。",
+          "actions": [
+            "在临时目录执行 python sales.py input.csv --output result.json",
+            "读取进程退出码与 stderr",
+            "检查程序是否成功读取并解析出两行数据（例如通过调试输出或后续步骤验证）"
+          ],
+          "expected": [
+            "程序能定位并读取 input.csv",
+            "解析出两行三列数据，不因表头报错"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-decimal-json",
+          "stepId": "decimal-and-json",
+          "kind": "function_case",
+          "requirementIds": [
+            "decimal-sum",
+            "json-output",
+            "exit-code"
+          ],
+          "setup": "在临时目录写入合法 input.csv：商品,数量,单价 加 苹果,2,3.50；香蕉,1,2.00；苹果,1,1.25。",
+          "actions": [
+            "执行 python sales.py input.csv --output result.json",
+            "读取退出码",
+            "读取并解析 result.json"
+          ],
+          "expected": [
+            "退出码为 0",
+            "总销售额为 10.75",
+            "苹果销售额为 8.25，香蕉销售额为 2.00",
+            "金额均为两位小数"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-invalid-exit",
+          "stepId": "invalid-and-exit",
+          "kind": "function_case",
+          "requirementIds": [
+            "invalid-line",
+            "exit-code",
+            "decimal-sum",
+            "json-output"
+          ],
+          "setup": "在临时目录写入含非法行的 input.csv：商品,数量,单价 加 苹果,2,3.50；坏行,abc,1.00；香蕉,1,2.00。",
+          "actions": [
+            "执行 python sales.py input.csv --output result.json",
+            "读取退出码与 stderr",
+            "检查 result.json 是否存在"
+          ],
+          "expected": [
+            "退出码非零",
+            "stderr 包含非法行行号（第 3 行）",
+            "不生成 result.json"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        }
+      ]
+    }
+  },
+  "startedAt": 1792229113.305485
+}

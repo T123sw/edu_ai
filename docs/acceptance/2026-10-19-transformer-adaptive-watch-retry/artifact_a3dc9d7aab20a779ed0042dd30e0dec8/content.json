@@ -1,0 +1,316 @@
+{
+  "title": "逐位置前馈网络与一次完整前向流程",
+  "content": "# 逐位置前馈网络与一次完整前向流程\n\n<a id=\"sec-ffn-formula\"></a>\n## 一、前馈网络长什么样：公式与维度\n\nTransformer 的编码器和解码器每一层里，除了注意力子层，还有一个**逐位置前馈网络**（Position-wise Feed-Forward Network，简称 FFN）。它的表达式只有一行：\n\n```\nFFN(x) = max(0, xW1 + b1)W2 + b2\n```\n\n拆开看，它是两个线性变换中间夹一个 ReLU 激活：\n\n1. 第一层：`xW1 + b1`，把 d_model 维的向量投影到更宽的内层；\n2. 激活：`max(0, ·)`，即 ReLU，把负数截成 0；\n3. 第二层：`·W2 + b2`，再把内层维度投影回 d_model 维。\n\n原始论文给出的维度设置是：输入和输出维度 `d_model = 512`，内层维度 `d_ff = 2048`。也就是说，每个位置的向量先被“撑宽”4 倍，再被“压回”原宽度。\n\n把矩阵形状写清楚（以单个位置为例）：\n\n| 步骤 | 输入形状 | 参数形状 | 输出形状 |\n| --- | --- | --- | --- |\n| 第一层 | 1 × 512 | W1: 512 × 2048，b1: 2048 | 1 × 2048 |\n| ReLU | 1 × 2048 | — | 1 × 2048 |\n| 第二层 | 1 × 2048 | W2: 2048 × 512，b2: 512 | 1 × 512 |\n\n所以 FFN 的输入和输出维度相同，都是 d_model。这一点很关键：正因为进出一致，它才能被塞进“子层 + Add&Norm”的框架里，与残差连接相加。\n\n> 另一种等价视角：把序列看成“长度为 n、通道数为 d_model”的张量，FFN 相当于两个**核大小为 1 的卷积**——卷积核在位置维度上不滑动、不跨位置混合，只在通道维度上做线性组合。这个视角直观说明了“逐位置”的含义。\n\n<a id=\"sec-position-wise\"></a>\n## 二、“逐位置”到底是什么意思\n\n“逐位置”（position-wise）包含两层含义，必须分开记：\n\n**第一层含义：对每个位置独立地应用。** 序列中第 1 个位置的向量和第 5 个位置的向量，各自单独送进同一个 FFN，互不影响。位置 1 的输出只由位置 1 的输入决定，不会“看到”位置 5 的信息。这与注意力子层形成鲜明对比：注意力子层的作用恰恰是让不同位置之间交换信息。\n\n**第二层含义：所有位置共享同一套参数。** 同一个 FFN 层里，位置 1 到位置 n 用的是同一个 W1、b1、W2、b2。不是每个位置各有一套参数。\n\n**但不同层之间参数不同。** 第 1 层的 FFN 和第 2 层的 FFN 是两套独立的参数。原文明确写道：“尽管线性变换在不同位置上是相同的，但它们在不同层之间使用不同的参数。”\n\n把这两点合起来，可以总结成一句话：**同一层内，位置之间共享参数、彼此独立；不同层之间，参数各不相同。**\n\n为什么这样设计？因为位置之间的信息交互已经由前面的注意力子层完成了，FFN 不需要再做一次跨位置混合；它要做的是对每个位置已经“汇总好”的表示，单独做一次非线性加工。分工清晰，计算也天然可以并行——n 个位置可以一次性批量算完。\n\n<a id=\"sec-nonlinearity\"></a>\n## 三、为什么需要 FFN：非线性与表示能力\n\n如果只有注意力子层，模型会缺什么？\n\n注意力子层的核心运算是加权求和：输出是 V 的线性组合，权重由 softmax 给出。虽然 softmax 本身是非线性的，但**在给定权重的情况下，输出对 V 是线性的**。整个注意力子层本质上是在做“按相关性挑选并混合信息”，它擅长的是**路由**（把哪些位置的信息送到哪里），而不是**变换**（把信息加工成更复杂的特征）。\n\nFFN 补上的正是这一块：\n\n- **引入非线性**：ReLU 让网络不再是若干线性变换的叠加。没有它，两层线性变换 `xW1W2` 可以合并成一个矩阵，深度就白加了。\n- **增强表示能力**：中间层被撑到 d_ff = 2048（是 d_model 的 4 倍），给每个位置提供了一个更宽的空间去做特征组合，再压回 512 维。可以粗略理解为：注意力负责“看哪里”，FFN 负责“想什么”。\n- **逐位置加工**：因为不跨位置，FFN 可以专注于把单个位置的表示变得更有区分度。\n\n一个常见的直觉类比：注意力子层像开会时互相交换信息，FFN 像每个人回到工位后自己消化、整理刚才听到的内容。两者交替进行，一层层加深理解。\n\n<a id=\"sec-pipeline\"></a>\n## 四、把一次完整前向流程串起来\n\n现在把编码器单层的数据流从头到尾走一遍。设输入序列有 n 个 token，d_model = 512。\n\n```\n输入 token 序列 (n 个)\n   │\n   ▼\n[1] 词嵌入：每个 token → 512 维向量          → 形状 n × 512\n   │\n   ▼\n[2] 加位置编码：与同维的位置向量逐元素相加    → 形状 n × 512\n   │\n   ▼\n[3] 多头自注意力：Q/K/V 来自同一输入，跨位置交换信息 → 形状 n × 512\n   │\n   ▼\n[4] Add & Norm：LayerNorm(x + Sublayer(x))   → 形状 n × 512\n   │\n   ▼\n[5] 逐位置前馈网络 FFN：每个位置独立过两层 + ReLU → 形状 n × 512\n   │\n   ▼\n[6] Add & Norm：LayerNorm(x + FFN(x))        → 形状 n × 512\n   │\n   ▼\n输出（送入下一层，或作为编码器最终输出）\n```\n\n逐步说明：\n\n**[1] 词嵌入。** 每个 token 被映射成一个 512 维向量，整句得到 n × 512 的矩阵。\n\n**[2] 加位置编码。** 因为 Transformer 不含循环和卷积、并行处理所有 token，本身没有顺序感，所以要在堆栈底部把位置编码加到输入嵌入上。位置编码维度与嵌入维度同为 d_model，才能直接相加。\n\n**[3] 多头自注意力。** 每个位置生成 Q、K、V，通过缩放点积注意力在位置之间交换信息。这一步是**唯一**让不同位置互相“看见”的环节。\n\n**[4] 第一个 Add & Norm。** 把注意力子层的输出与它的输入相加（残差连接），再做层归一化，即 `LayerNorm(x + Sublayer(x))`。残差连接给梯度提供了一条直通路径，缓解深层网络的梯度问题；层归一化稳定训练。\n\n**[5] 逐位置前馈网络。** 对 n × 512 矩阵的**每一行**独立地应用 `FFN(x) = max(0, xW1 + b1)W2 + b2`，所有行共享同一套参数。输出仍是 n × 512。\n\n**[6] 第二个 Add & Norm。** 同样地，把 FFN 的输出与 FFN 的输入相加，再层归一化。至此，编码器一层的输出完成，形状与输入一致，可以原样送入下一层。\n\n**注意形状始终是 n × 512。** 这是 Transformer 能堆叠 6 层（原文 N = 6）的前提：每个子层都保持 d_model 不变，Add&Norm 才能逐元素相加。\n\n**两个子层的分工。** 注意力子层负责跨位置的信息路由，FFN 负责逐位置的非线性加工；两者都由 Add&Norm 包裹，保证信息可以“绕过”子层直接传下去。\n\n<a id=\"sec-self-check\"></a>\n## 五、自查：不看资料能否复述\n\n合上资料，试着回答：\n\n1. 写出 FFN 的公式，并说明 W1、W2 的形状（d_model = 512、d_ff = 2048）。\n2. “逐位置”的两层含义分别是什么？不同层之间的参数是否相同？\n3. 如果去掉 ReLU，FFN 会退化成什么？为什么这会削弱模型？\n4. 按顺序说出编码器单层的六个步骤，并标出每一步的张量形状。\n5. 注意力子层和 FFN 在功能上如何分工？为什么说只有注意力子层在做跨位置交互？\n\n如果第 4 题能完整写出、第 5 题能说清分工，本节点的核心目标就达成了。\n\n> 说明：本节点聚焦 FFN 与编码器单层前向流程。自注意力的 QKV 计算细节、多头注意力的子空间划分、位置编码的具体公式与 Add&Norm 的完整推导，分别在前序节点展开，此处只按流程需要简要提及。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 6.2
+      },
+      "sections": [
+        {
+          "section_id": "sec-ffn-formula",
+          "content_sha256": "ae2b60b29d8f609dc8c12eb081eaad40667e39e5fdb47ca3cb0bf0f5d69cb2fd"
+        },
+        {
+          "section_id": "sec-position-wise",
+          "content_sha256": "6250cd6491964e91d4dd6b8f5760679b422709a50b99c6cf801fde96fbd10cd7"
+        },
+        {
+          "section_id": "sec-nonlinearity",
+          "content_sha256": "0f730640f7c7c9b10cc019d026122cd3c76107519d2e211c6b6fa7d3f2926b91"
+        },
+        {
+          "section_id": "sec-pipeline",
+          "content_sha256": "97ac4488d0abcdbb2e048843eea2c938f2c38da4ca2e385273c51f7ca506384d"
+        },
+        {
+          "section_id": "sec-self-check",
+          "content_sha256": "94757370336eb4f4032d533b51710139d4744dc63d0d4167797d3e4c421a6bc3"
+        }
+      ],
+      "spec_digest": "836b15cf35a3a5c083f15a9aa735eebf367ffa91e90bd4eda26dbcf9b6d5fc98",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-ffn-formula"
+          },
+          "objective_id": "n5-ffn-pipeline:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-position-wise"
+          },
+          "objective_id": "n5-ffn-pipeline:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-nonlinearity"
+          },
+          "objective_id": "n5-ffn-pipeline:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-pipeline"
+          },
+          "objective_id": "n5-ffn-pipeline:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "objective_id": "n5-ffn-pipeline:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec-ffn-formula"
+          },
+          "explanation": "给出前馈网络的公式、维度设置与卷积等价视角，落实“前馈网络”这一核心机制。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-pipeline"
+          },
+          "explanation": "把嵌入+位置编码、多头注意力、Add&Norm、前馈网络、Add&Norm 串成完整前向流程，落实“核心结构”的整体串联。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "teaching_context_digest": "98be1b3e5a440bfac33868a307afa61c3b30b81d3ef23ab0b38f9c5b98e58bdd"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文第一节（sec-ffn-formula）给出 FFN 公式、d_model=512/d_ff=2048 与核大小 1 卷积视角，第四节（sec-pipeline）把嵌入+位置编码→多头注意力→Add&Norm→FFN→Add&Norm 串成完整流程，真实支持本节点分工；未越界声称满足整门课其他节点。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "FFN(x)=max(0,xW1+b1)W2+b2、W1:512×2048、W2:2048×512、进出一致、同层共享参数/不同层参数不同、去掉 ReLU 可合并为 xW1W2 等表述均正确；sec-position-wise 对“逐位置”两层含义的区分与原文一致。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "sec-ffn-formula 的矩阵形状表与 sec-pipeline 的 n×512 六步箭头图给出可推演的具体例子，形状在每步保持一致，边界（单位置 1×512、批量 n 行共享参数）说明清楚；无算法分支类题目需核对。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为公式与维度→逐位置含义→为何需要非线性→完整前向流程→自查，与节点活动（阅读/听讲、流程串联、口头讲解）对应，先局部后整体，符合入门深度；未引入面试模板。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文引用的“不同位置相同、不同层不同参数”“两个核大小为 1 的卷积”“d_model=512、d_ff=2048”“N=6”均可在提供的 ev_8dae6a19e0d295ee3a9aa2fa 与 ev_cf807b1a738b6c6375a3ff43 原文中找到对应，未虚构外部来源。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三个节点目标均有落点：o1 在 sec-ffn-formula 与 sec-position-wise，o2 在 sec-nonlinearity（含维度 512/2048），o3 在 sec-pipeline 与 sec-self-check；自查五题覆盖公式、逐位置含义、去 ReLU 后果、六步流程与分工。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文第一节（sec-ffn-formula）给出 FFN 公式、d_model=512/d_ff=2048 与核大小 1 卷积视角，第四节（sec-pipeline）把嵌入+位置编码→多头注意力→Add&Norm→FFN→Add&Norm 串成完整流程，真实支持本节点分工；未越界声称满足整门课其他节点。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "FFN(x)=max(0,xW1+b1)W2+b2、W1:512×2048、W2:2048×512、进出一致、同层共享参数/不同层参数不同、去掉 ReLU 可合并为 xW1W2 等表述均正确；sec-position-wise 对“逐位置”两层含义的区分与原文一致。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "sec-ffn-formula 的矩阵形状表与 sec-pipeline 的 n×512 六步箭头图给出可推演的具体例子，形状在每步保持一致，边界（单位置 1×512、批量 n 行共享参数）说明清楚；无算法分支类题目需核对。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为公式与维度→逐位置含义→为何需要非线性→完整前向流程→自查，与节点活动（阅读/听讲、流程串联、口头讲解）对应，先局部后整体，符合入门深度；未引入面试模板。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文引用的“不同位置相同、不同层不同参数”“两个核大小为 1 的卷积”“d_model=512、d_ff=2048”“N=6”均可在提供的 ev_8dae6a19e0d295ee3a9aa2fa 与 ev_cf807b1a738b6c6375a3ff43 原文中找到对应，未虚构外部来源。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个节点目标均有落点：o1 在 sec-ffn-formula 与 sec-position-wise，o2 在 sec-nonlinearity（含维度 512/2048），o3 在 sec-pipeline 与 sec-self-check；自查五题覆盖公式、逐位置含义、去 ReLU 后果、六步流程与分工。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "sec-nonlinearity 中“softmax 本身是非线性的，但在给定权重下输出对 V 是线性的”表述可再补一句：注意力子层对输入仍是非线性的，避免入门读者误以为整个注意力子层是线性层。",
+              "sec-pipeline 第 [3] 步称多头自注意力是“唯一”让不同位置互相看见的环节，可加限定“在编码器单层内”，以免与解码器的编码器-解码器注意力混淆。",
+              "自查第 3 题可附一句参考答案要点（去掉 ReLU 后两层线性可合并为单一线性变换），便于自学者核对。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-ffn-formula 实际给出 FFN 公式、ReLU 位置、d_model=512/d_ff=2048 维度表与核大小 1 卷积等价视角，真实支持“前馈网络”这一核心机制。",
+                "locator": {
+                  "section_id": "sec-ffn-formula"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-pipeline 的箭头图与逐步说明按 词嵌入→位置编码→多头自注意力→Add&Norm→FFN→Add&Norm 顺序串联，并标注每步 n×512 形状，真实支持整体流程目标。",
+                "locator": {
+                  "section_id": "sec-pipeline"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-ffn-formula 写出 FFN(x)=max(0,xW1+b1)W2+b2 并给出 W1/W2 形状，直接支持目标 o1 的公式部分。",
+                "locator": {
+                  "section_id": "sec-ffn-formula"
+                },
+                "binding_id": "n5-ffn-pipeline:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-position-wise 明确区分“对每个位置独立应用”与“同层共享参数”，并引用原文说明不同层参数不同，完整支持 o1 的逐位置与跨层参数要求。",
+                "locator": {
+                  "section_id": "sec-position-wise"
+                },
+                "binding_id": "n5-ffn-pipeline:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-nonlinearity 说明 ReLU 引入非线性、去掉后两层线性可合并、d_ff=2048 为 d_model 的 4 倍增强表示能力，支持 o2 全部要点。",
+                "locator": {
+                  "section_id": "sec-nonlinearity"
+                },
+                "binding_id": "n5-ffn-pipeline:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-pipeline 以六步流程和形状标注落实 o3 的完整前向串联，并说明两个子层分工与残差/层归一化作用。",
+                "locator": {
+                  "section_id": "sec-pipeline"
+                },
+                "binding_id": "n5-ffn-pipeline:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-self-check 第 4、5 题要求复述六步流程与形状、说明注意力与 FFN 分工，与 o3 的检验目标一致，可作为该目标的核对点。",
+                "locator": {
+                  "section_id": "sec-self-check"
+                },
+                "binding_id": "n5-ffn-pipeline:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "ff87d5cd111a76a907cf51d51e631c57040ed1cb64c868fa87e509c08ce0b02c",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "sec-nonlinearity 中“softmax 本身是非线性的，但在给定权重下输出对 V 是线性的”表述可再补一句：注意力子层对输入仍是非线性的，避免入门读者误以为整个注意力子层是线性层。",
+        "sec-pipeline 第 [3] 步称多头自注意力是“唯一”让不同位置互相看见的环节，可加限定“在编码器单层内”，以免与解码器的编码器-解码器注意力混淆。",
+        "自查第 3 题可附一句参考答案要点（去掉 ReLU 后两层线性可合并为单一线性变换），便于自学者核对。"
+      ],
+      "content_sha256": "ff87d5cd111a76a907cf51d51e631c57040ed1cb64c868fa87e509c08ce0b02c",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec-ffn-formula 实际给出 FFN 公式、ReLU 位置、d_model=512/d_ff=2048 维度表与核大小 1 卷积等价视角，真实支持“前馈网络”这一核心机制。",
+          "locator": {
+            "section_id": "sec-ffn-formula"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-pipeline 的箭头图与逐步说明按 词嵌入→位置编码→多头自注意力→Add&Norm→FFN→Add&Norm 顺序串联，并标注每步 n×512 形状，真实支持整体流程目标。",
+          "locator": {
+            "section_id": "sec-pipeline"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-ffn-formula 写出 FFN(x)=max(0,xW1+b1)W2+b2 并给出 W1/W2 形状，直接支持目标 o1 的公式部分。",
+          "locator": {
+            "section_id": "sec-ffn-formula"
+          },
+          "binding_id": "n5-ffn-pipeline:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-position-wise 明确区分“对每个位置独立应用”与“同层共享参数”，并引用原文说明不同层参数不同，完整支持 o1 的逐位置与跨层参数要求。",
+          "locator": {
+            "section_id": "sec-position-wise"
+          },
+          "binding_id": "n5-ffn-pipeline:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-nonlinearity 说明 ReLU 引入非线性、去掉后两层线性可合并、d_ff=2048 为 d_model 的 4 倍增强表示能力，支持 o2 全部要点。",
+          "locator": {
+            "section_id": "sec-nonlinearity"
+          },
+          "binding_id": "n5-ffn-pipeline:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-pipeline 以六步流程和形状标注落实 o3 的完整前向串联，并说明两个子层分工与残差/层归一化作用。",
+          "locator": {
+            "section_id": "sec-pipeline"
+          },
+          "binding_id": "n5-ffn-pipeline:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-self-check 第 4、5 题要求复述六步流程与形状、说明注意力与 FFN 分工，与 o3 的检验目标一致，可作为该目标的核对点。",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "binding_id": "n5-ffn-pipeline:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "14222365843611491856c760013445647ff796d443f75229cca367a910e6c21b"
+    }
+  }
+}

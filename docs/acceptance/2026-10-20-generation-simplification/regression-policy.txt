@@ -1,0 +1,1125 @@
+...........F.FF.....FF..ss..sssF.FF.F.F.....FFFFFF...................... [ 87%]
+..........                                                               [100%]
+=================================== FAILURES ===================================
+_ test_invalid_writer_envelope_gets_bounded_correction_before_any_review[1-report] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:175: in test_invalid_writer_envelope_gets_bounded_correction_before_any_review
+    generate()
+backend/src/tests/course_preparation/test_generated_content_constraints.py:168: in generate
+    if kind=='report': return reviewed_report.generate_reviewed_report(payload(kind),gateway)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_report.py:208: in generate_reviewed_report
+    raw = reviewer.chat(messages, temperature=0.1, max_tokens=8000)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/tests/course_preparation/test_generated_content_constraints.py:157: in chat
+    data=json.loads(messages[-1]['content'])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../miniforge3/envs/edu-ai/lib/python3.12/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../miniforge3/envs/edu-ai/lib/python3.12/json/decoder.py:338: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../miniforge3/envs/edu-ai/lib/python3.12/json/decoder.py:356: in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+E   json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+_ test_final_report_order_follows_activities_without_outline_template[example_first-example] _
+backend/src/app/chat/harness/reviewed_report.py:211: in generate_reviewed_report
+    review = (PreparationReview.model_validate(restore_preparation_checks(decoded, metadata))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 7 validation errors for PreparationReview
+E   checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   blocking_issues
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   suggestions
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   preparation_checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   content
+E     Extra inputs are not permitted [type=extra_forbidden, input_value='<a id="example"></a>\n##...工具已经运行。', input_type=str]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   applied_requirements
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'requirement_id': 'req-...按本次顺序展开'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   objective_bindings
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'objective_id': 'tools:... 'role': 'explanation'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+
+The above exception was the direct cause of the following exception:
+backend/src/tests/course_preparation/test_generated_content_constraints.py:193: in test_final_report_order_follows_activities_without_outline_template
+    body,state=reviewed_report.generate_reviewed_report(payload(order=order),gateway)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_report.py:223: in generate_reviewed_report
+    raise generation_failure('REPORT_REVIEW_RESPONSE_INVALID', '报告审阅格式或覆盖不完整：' + review_format_error,
+E   app.course_preparation.generation_failures.GenerationFailure: REPORT_REVIEW_RESPONSE_INVALID: 报告审阅格式或覆盖不完整：checks: Field required; blocking_issues: Field required; suggestions: Field required; preparation_checks: Field required; content: Extra inputs are not permitted; applied_requirements: Extra inputs are not permitted; objective_bindings: Extra inputs are not permitted
+_ test_final_report_order_follows_activities_without_outline_template[theory_first-theory] _
+backend/src/app/chat/harness/reviewed_report.py:211: in generate_reviewed_report
+    review = (PreparationReview.model_validate(restore_preparation_checks(decoded, metadata))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 7 validation errors for PreparationReview
+E   checks
+E     Field required [type=missing, input_value={'content': '<a id="theor...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   blocking_issues
+E     Field required [type=missing, input_value={'content': '<a id="theor...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   suggestions
+E     Field required [type=missing, input_value={'content': '<a id="theor...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   preparation_checks
+E     Field required [type=missing, input_value={'content': '<a id="theor...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   content
+E     Extra inputs are not permitted [type=extra_forbidden, input_value='<a id="theory"></a>\n## ...根据结果回答。', input_type=str]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   applied_requirements
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'requirement_id': 'req-...按本次顺序展开'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   objective_bindings
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'objective_id': 'tools:... 'role': 'explanation'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+
+The above exception was the direct cause of the following exception:
+backend/src/tests/course_preparation/test_generated_content_constraints.py:193: in test_final_report_order_follows_activities_without_outline_template
+    body,state=reviewed_report.generate_reviewed_report(payload(order=order),gateway)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_report.py:223: in generate_reviewed_report
+    raise generation_failure('REPORT_REVIEW_RESPONSE_INVALID', '报告审阅格式或覆盖不完整：' + review_format_error,
+E   app.course_preparation.generation_failures.GenerationFailure: REPORT_REVIEW_RESPONSE_INVALID: 报告审阅格式或覆盖不完整：checks: Field required; blocking_issues: Field required; suggestions: Field required; preparation_checks: Field required; content: Extra inputs are not permitted; applied_requirements: Extra inputs are not permitted; objective_bindings: Extra inputs are not permitted
+_________________ test_teaching_context_accepts_A_strict_model _________________
+backend/src/app/chat/harness/reviewed_report.py:211: in generate_reviewed_report
+    review = (PreparationReview.model_validate(restore_preparation_checks(decoded, metadata))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 7 validation errors for PreparationReview
+E   checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   blocking_issues
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   suggestions
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   preparation_checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   content
+E     Extra inputs are not permitted [type=extra_forbidden, input_value='<a id="example"></a>\n##...工具已经运行。', input_type=str]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   applied_requirements
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'requirement_id': 'req-...按本次顺序展开'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   objective_bindings
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'objective_id': 'tools:... 'role': 'explanation'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+
+The above exception was the direct cause of the following exception:
+backend/src/tests/course_preparation/test_generated_content_constraints.py:244: in test_teaching_context_accepts_A_strict_model
+    body,state=reviewed_report.generate_reviewed_report(value,monkey)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_report.py:223: in generate_reviewed_report
+    raise generation_failure('REPORT_REVIEW_RESPONSE_INVALID', '报告审阅格式或覆盖不完整：' + review_format_error,
+E   app.course_preparation.generation_failures.GenerationFailure: REPORT_REVIEW_RESPONSE_INVALID: 报告审阅格式或覆盖不完整：checks: Field required; blocking_issues: Field required; suggestions: Field required; preparation_checks: Field required; content: Extra inputs are not permitted; applied_requirements: Extra inputs are not permitted; objective_bindings: Extra inputs are not permitted
+____ test_removing_preparation_metadata_cannot_downgrade_a_receipt[report] _____
+backend/src/app/chat/harness/reviewed_report.py:211: in generate_reviewed_report
+    review = (PreparationReview.model_validate(restore_preparation_checks(decoded, metadata))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 7 validation errors for PreparationReview
+E   checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   blocking_issues
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   suggestions
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   preparation_checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   content
+E     Extra inputs are not permitted [type=extra_forbidden, input_value='<a id="example"></a>\n##...工具已经运行。', input_type=str]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   applied_requirements
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'requirement_id': 'req-...按本次顺序展开'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   objective_bindings
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'objective_id': 'tools:... 'role': 'explanation'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+
+The above exception was the direct cause of the following exception:
+backend/src/tests/course_preparation/test_generated_content_constraints.py:252: in test_removing_preparation_metadata_cannot_downgrade_a_receipt
+    body,state=reviewed_report.generate_reviewed_report(payload(),gateway)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_report.py:223: in generate_reviewed_report
+    raise generation_failure('REPORT_REVIEW_RESPONSE_INVALID', '报告审阅格式或覆盖不完整：' + review_format_error,
+E   app.course_preparation.generation_failures.GenerationFailure: REPORT_REVIEW_RESPONSE_INVALID: 报告审阅格式或覆盖不完整：checks: Field required; blocking_issues: Field required; suggestions: Field required; preparation_checks: Field required; content: Extra inputs are not permitted; applied_requirements: Extra inputs are not permitted; objective_bindings: Extra inputs are not permitted
+___ test_A_payload_D_content_F_alignment_use_the_same_real_contract[report] ____
+backend/src/app/chat/harness/reviewed_report.py:211: in generate_reviewed_report
+    review = (PreparationReview.model_validate(restore_preparation_checks(decoded, metadata))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 7 validation errors for PreparationReview
+E   checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   blocking_issues
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   suggestions
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   preparation_checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   content
+E     Extra inputs are not permitted [type=extra_forbidden, input_value='<a id="example"></a>\n##...工具已经运行。', input_type=str]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   applied_requirements
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'requirement_id': 'req-...按本次顺序展开'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   objective_bindings
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'objective_id': 'tools:... 'role': 'explanation'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+
+The above exception was the direct cause of the following exception:
+backend/src/tests/course_preparation/test_generated_content_constraints.py:403: in test_A_payload_D_content_F_alignment_use_the_same_real_contract
+    body,state=reviewed_report.generate_reviewed_report(value,gateway)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_report.py:223: in generate_reviewed_report
+    raise generation_failure('REPORT_REVIEW_RESPONSE_INVALID', '报告审阅格式或覆盖不完整：' + review_format_error,
+E   app.course_preparation.generation_failures.GenerationFailure: REPORT_REVIEW_RESPONSE_INVALID: 报告审阅格式或覆盖不完整：checks: Field required; blocking_issues: Field required; suggestions: Field required; preparation_checks: Field required; content: Extra inputs are not permitted; applied_requirements: Extra inputs are not permitted; objective_bindings: Extra inputs are not permitted
+____ test_only_timed_preparation_repair_can_remove_redundant_question[None] ____
+backend/src/tests/course_preparation/test_generated_content_constraints.py:441: in test_only_timed_preparation_repair_can_remove_redundant_question
+    with pytest.raises(GenerationFailure, match='quiz_repair_changed_question_identity'): generate()
+                                                                                          ^^^^^^^^^^
+backend/src/tests/course_preparation/test_generated_content_constraints.py:438: in <lambda>
+    generate = lambda: reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:84: in generate_quiz
+    validate_submission(arguments)
+backend/src/app/chat/harness/quiz_policy.py:22: in validate_submission
+    Draft202012Validator(submission_schema()).validate(arguments)
+../miniforge3/envs/edu-ai/lib/python3.12/site-packages/jsonschema/validators.py:450: in validate
+    raise error
+E   jsonschema.exceptions.ValidationError: Additional properties are not allowed ('blocking_issues', 'checks', 'question_checks', 'suggestions' were unexpected)
+E   
+E   Failed validating 'additionalProperties' in schema:
+E       {'type': 'object',
+E        'properties': {'content': {'type': 'object',
+E                                   'properties': {'title': {'type': 'string',
+E                                                            'minLength': 1,
+E                                                            'pattern': '\\S'},
+E                                                  'questions': {'type': 'array',
+E                                                                'items': {'oneOf': [{'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'single_choice'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'pattern': '^[A-Z]$'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'minItems': 2,
+E                                                                                                                'maxItems': 26,
+E                                                                                                                'uniqueItems': True}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation',
+E                                                                                                  'options']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'multiple_choice'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'pattern': '^[A-Z](?:,[A-Z])*$'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'minItems': 2,
+E                                                                                                                'maxItems': 26,
+E                                                                                                                'uniqueItems': True}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation',
+E                                                                                                  'options']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'true_false'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'minLength': 1,
+E                                                                                                               'pattern': '\\S'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'maxItems': 0}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'short_answer'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'minLength': 1,
+E                                                                                                               'pattern': '\\S'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'maxItems': 0}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation']}]},
+E                                                                'minItems': 1}},
+E                                   'additionalProperties': False,
+E                                   'required': ['title', 'questions']}},
+E        'additionalProperties': False,
+E        'required': ['content']}
+E   
+E   On instance:
+E       {'checks': [{'criterion': 'completeness',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'correctness',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'examples',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'requirements',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'sources',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'teaching_structure',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'}],
+E        'blocking_issues': ['重复题占用学习时间，删除第二道重复题并保留目标覆盖。'],
+E        'suggestions': ['可适当补充练习。'],
+E        'question_checks': [{'question_index': 0,
+E                             'independent_solution': '模型提出调用，程序校验并执行工具，因此答案是A。',
+E                             'answer_matches': True,
+E                             'explanation_valid': True,
+E                             'calculation_checks': [],
+E                             'option_checks': [{'option_index': 0,
+E                                                'reasoning': '程序校验后负责实际执行',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': True,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'A '
+E                                                                       '正确，程序执行。'},
+E                                               {'option_index': 1,
+E                                                'reasoning': '模型只负责提出调用请求',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': False,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'B '
+E                                                                       '错误，模型只提出调用。'}]},
+E                            {'question_index': 1,
+E                             'independent_solution': '模型提出调用，程序校验并执行工具，因此答案是A。',
+E                             'answer_matches': True,
+E                             'explanation_valid': True,
+E                             'calculation_checks': [],
+E                             'option_checks': [{'option_index': 0,
+E                                                'reasoning': '程序校验后负责实际执行',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': True,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'A '
+E                                                                       '正确，程序执行。'},
+E                                               {'option_index': 1,
+E                                                'reasoning': '模型只负责提出调用请求',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': False,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'B '
+E                                                                       '错误，模型只提出调用。'}]}]}
+____ test_only_timed_preparation_repair_can_remove_redundant_question[2.0] _____
+backend/src/tests/course_preparation/test_generated_content_constraints.py:443: in test_only_timed_preparation_repair_can_remove_redundant_question
+    artifact = generate()['artifacts'][0]
+               ^^^^^^^^^^
+backend/src/tests/course_preparation/test_generated_content_constraints.py:438: in <lambda>
+    generate = lambda: reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:84: in generate_quiz
+    validate_submission(arguments)
+backend/src/app/chat/harness/quiz_policy.py:22: in validate_submission
+    Draft202012Validator(submission_schema()).validate(arguments)
+../miniforge3/envs/edu-ai/lib/python3.12/site-packages/jsonschema/validators.py:450: in validate
+    raise error
+E   jsonschema.exceptions.ValidationError: Additional properties are not allowed ('blocking_issues', 'checks', 'question_checks', 'suggestions' were unexpected)
+E   
+E   Failed validating 'additionalProperties' in schema:
+E       {'type': 'object',
+E        'properties': {'content': {'type': 'object',
+E                                   'properties': {'title': {'type': 'string',
+E                                                            'minLength': 1,
+E                                                            'pattern': '\\S'},
+E                                                  'questions': {'type': 'array',
+E                                                                'items': {'oneOf': [{'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'single_choice'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'pattern': '^[A-Z]$'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'minItems': 2,
+E                                                                                                                'maxItems': 26,
+E                                                                                                                'uniqueItems': True}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation',
+E                                                                                                  'options']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'multiple_choice'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'pattern': '^[A-Z](?:,[A-Z])*$'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'minItems': 2,
+E                                                                                                                'maxItems': 26,
+E                                                                                                                'uniqueItems': True}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation',
+E                                                                                                  'options']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'true_false'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'minLength': 1,
+E                                                                                                               'pattern': '\\S'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'maxItems': 0}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'short_answer'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'minLength': 1,
+E                                                                                                               'pattern': '\\S'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'maxItems': 0}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation']}]},
+E                                                                'minItems': 1}},
+E                                   'additionalProperties': False,
+E                                   'required': ['title', 'questions']}},
+E        'additionalProperties': False,
+E        'required': ['content']}
+E   
+E   On instance:
+E       {'checks': [{'criterion': 'completeness',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'correctness',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'examples',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'requirements',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'sources',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'teaching_structure',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'}],
+E        'blocking_issues': ['重复题占用学习时间，删除第二道重复题并保留目标覆盖。'],
+E        'suggestions': ['可适当补充练习。'],
+E        'question_checks': [{'question_index': 0,
+E                             'independent_solution': '模型提出调用，程序校验并执行工具，因此答案是A。',
+E                             'answer_matches': True,
+E                             'explanation_valid': True,
+E                             'calculation_checks': [],
+E                             'option_checks': [{'option_index': 0,
+E                                                'reasoning': '程序校验后负责实际执行',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': True,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'A '
+E                                                                       '正确，程序执行。'},
+E                                               {'option_index': 1,
+E                                                'reasoning': '模型只负责提出调用请求',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': False,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'B '
+E                                                                       '错误，模型只提出调用。'}]},
+E                            {'question_index': 1,
+E                             'independent_solution': '模型提出调用，程序校验并执行工具，因此答案是A。',
+E                             'answer_matches': True,
+E                             'explanation_valid': True,
+E                             'calculation_checks': [],
+E                             'option_checks': [{'option_index': 0,
+E                                                'reasoning': '程序校验后负责实际执行',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': True,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'A '
+E                                                                       '正确，程序执行。'},
+E                                               {'option_index': 1,
+E                                                'reasoning': '模型只负责提出调用请求',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': False,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'B '
+E                                                                       '错误，模型只提出调用。'}]}]}
+_ test_learning_duration_target_does_not_repeat_writing[resource_target_minutes-quiz] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:468: in test_learning_duration_target_does_not_repeat_writing
+    reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c'))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:84: in generate_quiz
+    validate_submission(arguments)
+backend/src/app/chat/harness/quiz_policy.py:22: in validate_submission
+    Draft202012Validator(submission_schema()).validate(arguments)
+../miniforge3/envs/edu-ai/lib/python3.12/site-packages/jsonschema/validators.py:450: in validate
+    raise error
+E   jsonschema.exceptions.ValidationError: Additional properties are not allowed ('blocking_issues', 'checks', 'question_checks', 'suggestions' were unexpected)
+E   
+E   Failed validating 'additionalProperties' in schema:
+E       {'type': 'object',
+E        'properties': {'content': {'type': 'object',
+E                                   'properties': {'title': {'type': 'string',
+E                                                            'minLength': 1,
+E                                                            'pattern': '\\S'},
+E                                                  'questions': {'type': 'array',
+E                                                                'items': {'oneOf': [{'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'single_choice'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'pattern': '^[A-Z]$'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'minItems': 2,
+E                                                                                                                'maxItems': 26,
+E                                                                                                                'uniqueItems': True}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation',
+E                                                                                                  'options']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'multiple_choice'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'pattern': '^[A-Z](?:,[A-Z])*$'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'minItems': 2,
+E                                                                                                                'maxItems': 26,
+E                                                                                                                'uniqueItems': True}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation',
+E                                                                                                  'options']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'true_false'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'minLength': 1,
+E                                                                                                               'pattern': '\\S'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'maxItems': 0}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'short_answer'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'minLength': 1,
+E                                                                                                               'pattern': '\\S'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'maxItems': 0}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation']}]},
+E                                                                'minItems': 1}},
+E                                   'additionalProperties': False,
+E                                   'required': ['title', 'questions']}},
+E        'additionalProperties': False,
+E        'required': ['content']}
+E   
+E   On instance:
+E       {'checks': [{'criterion': 'completeness',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'correctness',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'examples',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'requirements',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'sources',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'teaching_structure',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'}],
+E        'blocking_issues': [],
+E        'suggestions': ['可适当补充练习。'],
+E        'question_checks': [{'question_index': 0,
+E                             'independent_solution': '模型提出调用，程序校验并执行工具，因此答案是A。',
+E                             'answer_matches': True,
+E                             'explanation_valid': True,
+E                             'calculation_checks': [],
+E                             'option_checks': [{'option_index': 0,
+E                                                'reasoning': '程序校验后负责实际执行',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': True,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'A '
+E                                                                       '正确，程序执行。'},
+E                                               {'option_index': 1,
+E                                                'reasoning': '模型只负责提出调用请求',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': False,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'B '
+E                                                                       '错误，模型只提出调用。'}]}]}
+_ test_learning_duration_target_does_not_repeat_writing[resource_repair_target_minutes-quiz] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:468: in test_learning_duration_target_does_not_repeat_writing
+    reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c'))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_resource.py:490: in generate
+    return generate_quiz(self, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/quiz_policy.py:84: in generate_quiz
+    validate_submission(arguments)
+backend/src/app/chat/harness/quiz_policy.py:22: in validate_submission
+    Draft202012Validator(submission_schema()).validate(arguments)
+../miniforge3/envs/edu-ai/lib/python3.12/site-packages/jsonschema/validators.py:450: in validate
+    raise error
+E   jsonschema.exceptions.ValidationError: Additional properties are not allowed ('blocking_issues', 'checks', 'question_checks', 'suggestions' were unexpected)
+E   
+E   Failed validating 'additionalProperties' in schema:
+E       {'type': 'object',
+E        'properties': {'content': {'type': 'object',
+E                                   'properties': {'title': {'type': 'string',
+E                                                            'minLength': 1,
+E                                                            'pattern': '\\S'},
+E                                                  'questions': {'type': 'array',
+E                                                                'items': {'oneOf': [{'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'single_choice'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'pattern': '^[A-Z]$'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'minItems': 2,
+E                                                                                                                'maxItems': 26,
+E                                                                                                                'uniqueItems': True}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation',
+E                                                                                                  'options']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'multiple_choice'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'pattern': '^[A-Z](?:,[A-Z])*$'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'minItems': 2,
+E                                                                                                                'maxItems': 26,
+E                                                                                                                'uniqueItems': True}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation',
+E                                                                                                  'options']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'true_false'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'minLength': 1,
+E                                                                                                               'pattern': '\\S'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'maxItems': 0}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation']},
+E                                                                                    {'type': 'object',
+E                                                                                     'properties': {'id': {'type': 'string',
+E                                                                                                           'minLength': 1,
+E                                                                                                           'pattern': '\\S'},
+E                                                                                                    'type': {'const': 'short_answer'},
+E                                                                                                    'stem': {'type': 'string',
+E                                                                                                             'minLength': 1,
+E                                                                                                             'pattern': '\\S'},
+E                                                                                                    'answer': {'type': 'string',
+E                                                                                                               'minLength': 1,
+E                                                                                                               'pattern': '\\S'},
+E                                                                                                    'explanation': {'type': 'string',
+E                                                                                                                    'minLength': 1,
+E                                                                                                                    'pattern': '\\S'},
+E                                                                                                    'difficulty': {'type': 'string',
+E                                                                                                                   'enum': ['easy',
+E                                                                                                                            'medium',
+E                                                                                                                            'hard']},
+E                                                                                                    'options': {'type': 'array',
+E                                                                                                                'items': {'type': 'string',
+E                                                                                                                          'minLength': 1,
+E                                                                                                                          'pattern': '\\S'},
+E                                                                                                                'maxItems': 0}},
+E                                                                                     'additionalProperties': False,
+E                                                                                     'required': ['id',
+E                                                                                                  'type',
+E                                                                                                  'stem',
+E                                                                                                  'answer',
+E                                                                                                  'explanation']}]},
+E                                                                'minItems': 1}},
+E                                   'additionalProperties': False,
+E                                   'required': ['title', 'questions']}},
+E        'additionalProperties': False,
+E        'required': ['content']}
+E   
+E   On instance:
+E       {'checks': [{'criterion': 'completeness',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'correctness',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'examples',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'requirements',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'sources',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'},
+E                   {'criterion': 'teaching_structure',
+E                    'passed': True,
+E                    'reason': '已检查对应正文的位置与依据。'}],
+E        'blocking_issues': [],
+E        'suggestions': ['可适当补充练习。'],
+E        'question_checks': [{'question_index': 0,
+E                             'independent_solution': '模型提出调用，程序校验并执行工具，因此答案是A。',
+E                             'answer_matches': True,
+E                             'explanation_valid': True,
+E                             'calculation_checks': [],
+E                             'option_checks': [{'option_index': 0,
+E                                                'reasoning': '程序校验后负责实际执行',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': True,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'A '
+E                                                                       '正确，程序执行。'},
+E                                               {'option_index': 1,
+E                                                'reasoning': '模型只负责提出调用请求',
+E                                                'explanation_valid': True,
+E                                                'independent_correct': False,
+E                                                'explanation_reasoning': '已独立逐句检查解析中的主张是否对应原选项。',
+E                                                'explanation_excerpt': 'B '
+E                                                                       '错误，模型只提出调用。'}]}]}
+__ test_prepared_quiz_corrects_string_content_within_existing_writer_attempts __
+backend/src/tests/course_preparation/test_generated_content_constraints.py:510: in test_prepared_quiz_corrects_string_content_within_existing_writer_attempts
+    assert gateway.corrected and reviewed_resource.verified_resource(artifact, 'quiz')
+E   assert (False)
+E    +  where False = <test_generated_content_constraints.test_prepared_quiz_corrects_string_content_within_existing_writer_attempts.<locals>.Gateway object at 0x7f9248b37aa0>.corrected
+_ test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries[False] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:550: in test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries
+    assert gateway.writer_calls == 2 and gateway.review_calls == 1
+E   assert (0 == 2)
+E    +  where 0 = <test_generated_content_constraints.test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries.<locals>.Gateway object at 0x7f9242bb9160>.writer_calls
+_ test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries[True] _
+backend/src/tests/course_preparation/test_generated_content_constraints.py:545: in test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries
+    with pytest.raises(GenerationFailure, match='RESOURCE_REPAIR_FORMAT_INVALID'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE GenerationFailure
+_ test_report_saved_revision_keeps_feedback_and_accepts_full_fallback[missing_edits] _
+backend/src/app/chat/harness/reviewed_report.py:211: in generate_reviewed_report
+    review = (PreparationReview.model_validate(restore_preparation_checks(decoded, metadata))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 7 validation errors for PreparationReview
+E   checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   blocking_issues
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   suggestions
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   preparation_checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   content
+E     Extra inputs are not permitted [type=extra_forbidden, input_value='<a id="example"></a>\n##...工具已经运行。', input_type=str]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   applied_requirements
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'requirement_id': 'req-...按本次顺序展开'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   objective_bindings
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'objective_id': 'tools:... 'role': 'explanation'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+
+The above exception was the direct cause of the following exception:
+backend/src/tests/course_preparation/test_generated_content_constraints.py:580: in test_report_saved_revision_keeps_feedback_and_accepts_full_fallback
+    body, state = reviewed_report.generate_reviewed_report(value, gateway, checkpoint=port)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_report.py:223: in generate_reviewed_report
+    raise generation_failure('REPORT_REVIEW_RESPONSE_INVALID', '报告审阅格式或覆盖不完整：' + review_format_error,
+E   app.course_preparation.generation_failures.GenerationFailure: REPORT_REVIEW_RESPONSE_INVALID: 报告审阅格式或覆盖不完整：checks: Field required; blocking_issues: Field required; suggestions: Field required; preparation_checks: Field required; content: Extra inputs are not permitted; applied_requirements: Extra inputs are not permitted; objective_bindings: Extra inputs are not permitted
+_ test_report_saved_revision_keeps_feedback_and_accepts_full_fallback[bad_patch] _
+backend/src/app/chat/harness/reviewed_report.py:211: in generate_reviewed_report
+    review = (PreparationReview.model_validate(restore_preparation_checks(decoded, metadata))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 7 validation errors for PreparationReview
+E   checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   blocking_issues
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   suggestions
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   preparation_checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   content
+E     Extra inputs are not permitted [type=extra_forbidden, input_value='<a id="example"></a>\n##...工具已经运行。', input_type=str]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   applied_requirements
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'requirement_id': 'req-...按本次顺序展开'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   objective_bindings
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'objective_id': 'tools:... 'role': 'explanation'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+
+The above exception was the direct cause of the following exception:
+backend/src/tests/course_preparation/test_generated_content_constraints.py:580: in test_report_saved_revision_keeps_feedback_and_accepts_full_fallback
+    body, state = reviewed_report.generate_reviewed_report(value, gateway, checkpoint=port)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_report.py:223: in generate_reviewed_report
+    raise generation_failure('REPORT_REVIEW_RESPONSE_INVALID', '报告审阅格式或覆盖不完整：' + review_format_error,
+E   app.course_preparation.generation_failures.GenerationFailure: REPORT_REVIEW_RESPONSE_INVALID: 报告审阅格式或覆盖不完整：checks: Field required; blocking_issues: Field required; suggestions: Field required; preparation_checks: Field required; content: Extra inputs are not permitted; applied_requirements: Extra inputs are not permitted; objective_bindings: Extra inputs are not permitted
+_ test_report_saved_revision_keeps_feedback_and_accepts_full_fallback[full_envelope] _
+backend/src/app/chat/harness/reviewed_report.py:211: in generate_reviewed_report
+    review = (PreparationReview.model_validate(restore_preparation_checks(decoded, metadata))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 7 validation errors for PreparationReview
+E   checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   blocking_issues
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   suggestions
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   preparation_checks
+E     Field required [type=missing, input_value={'content': '<a id="examp...'role': 'explanation'}]}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   content
+E     Extra inputs are not permitted [type=extra_forbidden, input_value='<a id="example"></a>\n##...工具已经运行。', input_type=str]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   applied_requirements
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'requirement_id': 'req-...按本次顺序展开'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+E   objective_bindings
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=[{'objective_id': 'tools:... 'role': 'explanation'}], input_type=list]
+E       For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden
+
+The above exception was the direct cause of the following exception:
+backend/src/tests/course_preparation/test_generated_content_constraints.py:580: in test_report_saved_revision_keeps_feedback_and_accepts_full_fallback
+    body, state = reviewed_report.generate_reviewed_report(value, gateway, checkpoint=port)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/chat/harness/reviewed_report.py:223: in generate_reviewed_report
+    raise generation_failure('REPORT_REVIEW_RESPONSE_INVALID', '报告审阅格式或覆盖不完整：' + review_format_error,
+E   app.course_preparation.generation_failures.GenerationFailure: REPORT_REVIEW_RESPONSE_INVALID: 报告审阅格式或覆盖不完整：checks: Field required; blocking_issues: Field required; suggestions: Field required; preparation_checks: Field required; content: Extra inputs are not permitted; applied_requirements: Extra inputs are not permitted; objective_bindings: Extra inputs are not permitted
+=========================== short test summary info ============================
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_invalid_writer_envelope_gets_bounded_correction_before_any_review[1-report]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_final_report_order_follows_activities_without_outline_template[example_first-example]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_final_report_order_follows_activities_without_outline_template[theory_first-theory]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_teaching_context_accepts_A_strict_model
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_removing_preparation_metadata_cannot_downgrade_a_receipt[report]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_A_payload_D_content_F_alignment_use_the_same_real_contract[report]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_only_timed_preparation_repair_can_remove_redundant_question[None]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_only_timed_preparation_repair_can_remove_redundant_question[2.0]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_learning_duration_target_does_not_repeat_writing[resource_target_minutes-quiz]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_learning_duration_target_does_not_repeat_writing[resource_repair_target_minutes-quiz]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_prepared_quiz_corrects_string_content_within_existing_writer_attempts
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries[False]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_saved_quiz_patch_mismatch_falls_back_to_full_content_with_finite_retries[True]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_report_saved_revision_keeps_feedback_and_accepts_full_fallback[missing_edits]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_report_saved_revision_keeps_feedback_and_accepts_full_fallback[bad_patch]
+FAILED backend/src/tests/course_preparation/test_generated_content_constraints.py::test_report_saved_revision_keeps_feedback_and_accepts_full_fallback[full_envelope]
+16 failed, 61 passed, 5 skipped in 21.31s

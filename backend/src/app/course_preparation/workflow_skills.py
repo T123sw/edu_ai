@@ -4,6 +4,7 @@ from pathlib import Path
 
 SKILLS_ROOT = Path(__file__).parent / 'skills'
 CONTENT_PHASE_SKILLS = {
+    'hyperframes_brief': 'generate-ai-classroom',
     'resource_write': 'generate-learning-resource',
     'resource_repair': 'generate-learning-resource',
     'resource_review': 'review-learning-resource',

@@ -4,7 +4,6 @@ import { readFile } from "node:fs/promises";
 
 const migratedComponents = [
   "../components/teacher/ClassroomGenerationEntry.tsx",
-  "../openmaic/ClassroomVideoExportButton.tsx",
 ];
 
 test("classroom generation and video export use the global task source", async () => {

@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-19T16:00:57.779352+00:00",
+  "elapsed_seconds": 214.49,
+  "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda",
+  "status": "failed",
+  "stage": "research_nodes",
+  "error": "STEP_FAILED",
+  "delivery": null,
+  "resource_counts": {},
+  "planned_resources": 0,
+  "artifacts": []
+}

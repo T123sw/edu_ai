@@ -1,0 +1,27 @@
+{
+  "unit": {
+    "stepId": "quiz-shell",
+    "title": "搭建单题展示与进度",
+    "objective": "渲染第一题题干、三个选项与进度，并支持选择选项。",
+    "instructionsMarkdown": "这一步先做出小测验的“第一屏”：页面上只显示第一道题，以及当前进度。\n\n需要做到：\n\n- 显示进度文字，内容为 `第 1 题 / 共 3 题`。\n- 显示第一题题干，内容包含 `2+3 等于多少`。\n- 显示三个选项按钮，文字分别是 `4`、`5`、`6`。\n- 点击某个选项后，该选项被选中并高亮（例如加边框或背景色），同一时间只有一个选项被选中。\n\n本步还不需要提交按钮和判分，先把题目、选项和选择状态做出来。\n\n### 代码约定\n\n为了让系统能识别页面部件，请给以下元素加上 `data-testid`（只是标记，不影响外观）：\n\n- 进度文字：`data-testid=\"progress\"`\n- 题干文字：`data-testid=\"question\"`\n- 每个选项按钮：`data-testid=\"option\"`，并设置 `role=\"radio\"` 与 `aria-checked`（选中为 `\"true\"`，未选中为 `\"false\"`）。",
+    "explanationMarkdown": "可以把三道题写成一个数组，每道题包含题干、选项和正确答案。本步先用数组里的第一道题渲染页面。\n\n用 `useState` 保存“当前选中的选项”。点击选项时更新这个状态，并根据它决定按钮是否高亮。进度文字可以直接由“当前题号 + 1”拼出来，为后面切换题目打基础。",
+    "hints": [
+      "把题目数据写成数组，每项包含 question、options、answer 三个字段。",
+      "用 useState 保存当前题号（从 0 开始）和当前选中的选项。",
+      "选项按钮的 aria-checked 根据“当前选中值是否等于该选项”来设置。",
+      "高亮样式可以用一个额外的 className，例如 selected。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "first-question-shown",
+      "option-selectable"
+    ]
+  },
+  "referenceFiles": {
+    "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nconst QUESTIONS = [\n  { question: '2+3 等于多少？', options: ['4', '5', '6'], answer: '5' },\n  { question: '水的化学式是什么？', options: ['H2O', 'CO2', 'O2'], answer: 'H2O' },\n  { question: '一周有几天？', options: ['5', '6', '7'], answer: '7' },\n];\n\nexport default function App() {\n  const [current, setCurrent] = useState(0);\n  const [selected, setSelected] = useState(null);\n\n  const q = QUESTIONS[current];\n\n  return (\n    <main className=\"quiz\">\n      <p className=\"progress\" data-testid=\"progress\">\n        第 {current + 1} 题 / 共 {QUESTIONS.length} 题\n      </p>\n      <h1 className=\"question\" data-testid=\"question\">{q.question}</h1>\n      <div className=\"options\" role=\"radiogroup\">\n        {q.options.map((opt) => (\n          <button\n            key={opt}\n            type=\"button\"\n            role=\"radio\"\n            aria-checked={selected === opt ? 'true' : 'false'}\n            data-testid=\"option\"\n            className={'option' + (selected === opt ? ' selected' : '')}\n            onClick={() => setSelected(opt)}\n          >\n            {opt}\n          </button>\n        ))}\n      </div>\n    </main>\n  );\n}\n",
+    "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\nmain.quiz { padding: 24px; max-width: 480px; }\n.progress { color: #666; margin: 0 0 12px; }\n.question { font-size: 20px; margin: 0 0 16px; }\n.options { display: flex; flex-direction: column; gap: 10px; }\n.option {\n  padding: 10px 14px;\n  border: 1px solid #ccc;\n  border-radius: 8px;\n  background: #fff;\n  font-size: 16px;\n  text-align: left;\n  cursor: pointer;\n}\n.option.selected { border-color: #2f6fed; background: #e8f0ff; }\n"
+  }
+}

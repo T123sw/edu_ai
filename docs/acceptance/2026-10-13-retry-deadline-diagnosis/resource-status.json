@@ -1,0 +1,60 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "artifact_c6ae0f7630759815784f675754154b55",
+      "resource_type": "classroom",
+      "status": "failed"
+    },
+    {
+      "artifact_id": "artifact_7c13a2ef7b5044adc98e458253016de5",
+      "resource_type": "report",
+      "status": "draft"
+    },
+    {
+      "artifact_id": "artifact_602b78f8773eed5a9b51faea3b24bbdf",
+      "resource_type": "quiz",
+      "status": "draft"
+    }
+  ],
+  "jobs": [
+    {
+      "task_id": "generate_artifact_c6ae0f7630759815784f675754154b55",
+      "status": "failed",
+      "deadline_at": 1791916994.975915,
+      "result": null,
+      "error_code": "TASK_EXECUTION_FAILED",
+      "created_at": "2026-10-13T18:43:07.601321",
+      "updated_at": 1791917011.641615
+    },
+    {
+      "task_id": "generate_artifact_7c13a2ef7b5044adc98e458253016de5",
+      "status": "succeeded",
+      "deadline_at": 1791916994.975915,
+      "result": {
+        "saved": true,
+        "result_ref": {
+          "kind": "preparation_draft",
+          "artifact_id": "artifact_7c13a2ef7b5044adc98e458253016de5"
+        }
+      },
+      "error_code": null,
+      "created_at": "2026-10-13T18:42:32.932344",
+      "updated_at": 1791916988.734537
+    },
+    {
+      "task_id": "generate_artifact_602b78f8773eed5a9b51faea3b24bbdf",
+      "status": "succeeded",
+      "deadline_at": 1791916994.975915,
+      "result": {
+        "saved": true,
+        "result_ref": {
+          "kind": "preparation_draft",
+          "artifact_id": "artifact_602b78f8773eed5a9b51faea3b24bbdf"
+        }
+      },
+      "error_code": null,
+      "created_at": "2026-10-13T18:42:33.098691",
+      "updated_at": 1791916987.2266605
+    }
+  ]
+}

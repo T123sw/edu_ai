@@ -1,0 +1,233 @@
+{
+  "unit": {
+    "stepId": "seat-board",
+    "title": "搭出座位图与初始已售座位",
+    "objective": "渲染 2×3 座位网格，显示座位编号，A2 显示为已售且不可选。",
+    "instructionsMarkdown": "这一步先把选座页面的“座位图”搭出来。\n\n页面需要显示 6 个座位，编号分别是 A1、A2、A3、B1、B2、B3，按 2 行 3 列排列：第一行是 A1、A2、A3，第二行是 B1、B2、B3。每个座位都要能看到自己的编号。\n\n其中 A2 一开始就是“已售”状态，不能选择。请在 A2 上显示“已售”字样，并且点击它不会有任何变化。其余 5 个座位本步只需要能显示、能点击即可，点击暂时不需要产生效果。\n\n建议每个座位用一个按钮来呈现，方便后续步骤添加点击交互。\n\n**代码约定**\n\n- 每个座位按钮请加上 `data-testid`，值为 `seat-A1`、`seat-A2`、`seat-A3`、`seat-B1`、`seat-B2`、`seat-B3`，用来让系统识别对应座位。\n- 座位按钮的可访问名称（按钮文字）请包含座位编号，例如按钮上显示“A1”。\n- 已售座位请保留为可点击的按钮（不要使用原生 `disabled` 属性），这样点击它时页面不会有任何变化，同时系统仍能对它执行点击操作。\n- 这些标记只用于系统识别，不会改变页面外观。",
+    "explanationMarkdown": "可以把 6 个座位看成一个数据列表，每个座位有编号和状态（可选 / 已售）。用数组保存座位信息，再用 `map` 渲染成按钮，这样后续添加“已选”状态时只需扩展数据即可。\n\n布局上，外层容器用 CSS Grid 设置 3 列，就能自然形成 2 行 3 列。已售座位可以加一个不同的样式（例如灰色、禁用光标），并显示“已售”文字。\n\n注意预览区域可能很窄，使用 `box-sizing: border-box` 并让网格列可收缩，避免横向溢出。",
+    "hints": [
+      "用数组保存座位编号，例如 ['A1','A2','A3','B1','B2','B3']，再 map 成按钮。",
+      "已售状态可以先写成一个常量集合，例如包含 'A2'，渲染时判断当前座位是否在其中。",
+      "给座位按钮加 data-testid，格式为 `seat-` 加编号。",
+      "网格容器用 `display: grid; grid-template-columns: repeat(3, 1fr);` 即可得到 3 列。",
+      "已售座位不要加原生 disabled，改用样式和空点击处理来表现不可选。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "grid-seats-visible",
+      "grid-a2-sold"
+    ]
+  },
+  "behaviorCases": [
+    {
+      "requirementId": "seat-grid",
+      "setup": "初始页面，未做任何操作",
+      "action": "观察 6 个座位按钮",
+      "expected": "A1、A2、A3、B1、B2、B3 六个座位按钮均存在且可见",
+      "checkId": "grid-seats-visible"
+    },
+    {
+      "requirementId": "seat-grid",
+      "setup": "初始页面，未做任何操作",
+      "action": "读取 A1 座位按钮的文字",
+      "expected": "A1 按钮文字为“A1”，不显示“已售”",
+      "checkId": "grid-seats-visible"
+    },
+    {
+      "requirementId": "seat-grid",
+      "setup": "初始页面，未做任何操作",
+      "action": "读取 B3 座位按钮的文字",
+      "expected": "B3 按钮文字为“B3”，不显示“已售”",
+      "checkId": "grid-seats-visible"
+    },
+    {
+      "requirementId": "seat-grid",
+      "setup": "初始页面，未做任何操作",
+      "action": "读取 A2 座位按钮的文字",
+      "expected": "A2 按钮文字包含“已售”",
+      "checkId": "grid-a2-sold"
+    },
+    {
+      "requirementId": "seat-grid",
+      "setup": "初始页面，未做任何操作",
+      "action": "点击 A2 座位按钮",
+      "expected": "A2 仍显示“已售”，不出现“已选”",
+      "checkId": "grid-a2-sold"
+    }
+  ],
+  "checks": [
+    {
+      "id": "grid-seats-visible",
+      "label": "页面显示 A1/A2/A3/B1/B2/B3 六个座位按钮，均可见；A1 与 B3 显示各自编号且不是已售",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-A1"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-A2"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-A3"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-B1"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-B2"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-B3"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-A1"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "A1",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-B3"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "B3",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "grid-a2-sold",
+      "label": "A2 座位显示“已售”，点击后仍为已售且不出现“已选”",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-A2"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "A2已售",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-A2"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "seat-A2"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "A2已售",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "faultyFiles": {},
+  "faultyCheckId": null
+}

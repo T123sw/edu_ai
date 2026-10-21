@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-15T06:06:57.138671+00:00",
+  "typecheck": "passed in working tree and release source",
+  "lint": "0 errors; pre-existing Profile useEffect dependency warning remains",
+  "unitTestsPassed": 10,
+  "backendTestsPassed": 78,
+  "browserChecks": {
+    "workingTree": 12,
+    "release": 12,
+    "published": 12
+  },
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "covered": [
+    "Role-neutral account display across student/teacher/admin accounts",
+    "Profile update and reload",
+    "Avatar upload",
+    "Password change submission",
+    "Theme selection and reload (forest/ocean/dark)",
+    "No horizontal overflow",
+    "Configuration navigation and sign out",
+    "Deployment-managed TTS has no test/apply actions",
+    "Classroom has no unused model input",
+    "Model draft/verify/activate sequence and reload"
+  ],
+  "liveIndexStillMatches": true,
+  "limitations": "Browser auth/business APIs are mocked; backend tests use isolated stores and mock external HTTP. No real external AI generation was performed."
+}

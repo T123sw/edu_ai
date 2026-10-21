@@ -1,0 +1,10 @@
+{
+  "http": 200,
+  "after_seq": 30769,
+  "events": 4000,
+  "last_seq": 34769,
+  "result_found": true,
+  "synthesized_done": false,
+  "seconds": 0.66,
+  "scope": "real completed-turn tail replay after service restart; slow live-consumer race covered by regression test, not a second fresh 32-question generation"
+}

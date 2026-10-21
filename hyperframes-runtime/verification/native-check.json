@@ -1,0 +1,96 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 1
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "duration": 1,
+    "samples": [
+      0,
+      0.056,
+      0.167,
+      0.278,
+      0.389,
+      0.5,
+      0.611,
+      0.722,
+      0.833,
+      0.944,
+      1
+    ],
+    "transitionSamples": [
+      0,
+      0.5,
+      1
+    ],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 0,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      0,
+      0.167,
+      0.5,
+      0.722,
+      1
+    ],
+    "checked": 0,
+    "passed": 0
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "saved": {
+    "id": "b2b5d30e-a11b-44a8-acc5-a061d7e8d66a",
+    "revision": null,
+    "report": "/tmp/hf-native-smoke/.hyperframes/artifacts/checks/b2b5d30e-a11b-44a8-acc5-a061d7e8d66a.json",
+    "attribution": "unversioned"
+  },
+  "_meta": {
+    "version": "0.8.168",
+    "updateAvailable": false
+  }
+}

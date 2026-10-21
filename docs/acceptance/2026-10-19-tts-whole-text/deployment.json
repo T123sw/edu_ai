@@ -1,0 +1,19 @@
+{
+  "status": "deployed",
+  "deployed_at": "2026-10-19T05:23:43.559084+00:00",
+  "source": "services/local_tts/qwen_server.py",
+  "sha256": "57b34f8d6beb88262a1875740d17b10297b1bf47815a432f4d81563efee9efd3",
+  "service_pid": 2450992,
+  "change": "Removed punctuation/40-character splitting; one complete request per model call. Existing stats/header compatibility retained.",
+  "validation": [
+    "41/407/778/1500-character model-boundary checks with stub audio passed",
+    "Live 68-character request: one model input, batch_calls=0, 14.32 seconds audio, 40.19 seconds elapsed",
+    "MP3 decoded without errors"
+  ],
+  "limits": [
+    "Existing podcasts were not regenerated or overwritten",
+    "Long-form podcast generation and spoken-content accuracy were not validated",
+    "Whole-request synthesis is slower than previous batching. Existing client timeout is capped at 120 seconds, so long chapters may require a follow-up timeout/deadline adjustment."
+  ],
+  "deployment": "System service restart command required admin authentication. Recycled same-user worker after confirming no active durable jobs; configured systemd Restart=on-failure restarted it."
+}

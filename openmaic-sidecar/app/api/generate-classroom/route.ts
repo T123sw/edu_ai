@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     requirementSnippet = rawBody.requirement?.substring(0, 60);
     const body: GenerateClassroomInput = {
       requirement: rawBody.requirement || '',
+      ...(rawBody.capabilityPolicy === 'edu-ai' ? { capabilityPolicy: 'edu-ai' as const } : {}),
       ...(rawBody.pdfContent ? { pdfContent: rawBody.pdfContent } : {}),
 
       ...(rawBody.enableWebSearch != null ? { enableWebSearch: rawBody.enableWebSearch } : {}),

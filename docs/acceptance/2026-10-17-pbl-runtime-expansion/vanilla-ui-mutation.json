@@ -1,0 +1,105 @@
+{
+  "defect": "移除所有按钮事件监听，保留原有计算函数",
+  "check": {
+    "id": "convert-zero",
+    "label": "输入 0 点击换算后结果区域显示 32；输入框为空时点击换算，结果区域保持为空。",
+    "actions": [
+      {
+        "type": "fill",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "celsius-input"
+        },
+        "value": "0",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "convert-button"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "result"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "32",
+        "relativeTo": null
+      },
+      {
+        "type": "fill",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "celsius-input"
+        },
+        "value": "",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "convert-button"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "result"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "",
+        "relativeTo": null
+      }
+    ],
+    "viewport": "desktop"
+  },
+  "report": {
+    "passed": false,
+    "results": [
+      {
+        "caseId": "convert-zero",
+        "status": "failed",
+        "message": "✓ 1. 在 \"celsius-input\" 输入 \"0\"\n✓ 2. 点击 \"convert-button\"\n× 3. 检查 \"result\" 的显示文字\n预期：\"32\"\n实际：\"\""
+      }
+    ],
+    "durationMs": 12607.340074
+  }
+}

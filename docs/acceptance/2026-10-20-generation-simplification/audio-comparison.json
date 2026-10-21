@@ -1,0 +1,8 @@
+{
+  "samples": 5232000,
+  "seconds": 327.0,
+  "correlation": 0.9999888182059288,
+  "rms_error": 0.0006319558109961758,
+  "signal_to_error_db": 46.49419773982825,
+  "note": "Compare aligned decoded mono audio at 16 kHz over common 327 seconds; 1 fps outputs pad total duration to 328s versus native 327.5s at 30 fps."
+}

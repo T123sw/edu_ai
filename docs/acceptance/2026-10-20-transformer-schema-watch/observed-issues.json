@@ -1,0 +1,90 @@
+[
+  {
+    "id": "quiz-n1-source-binding",
+    "node": "n1-why-transformer",
+    "severity": "resource_failed",
+    "description": "习题审阅把 100*100=10000 作为复算断言，但绑定原文没有字面数值 10000，来源校验拒绝；不能由此认定题目算错。",
+    "evidence": "quiz-review-progress.json",
+    "resolution": "整课自动修复中新候选加入原文 100×100=10000，验证通过并开放；原失败产物保留。"
+  },
+  {
+    "id": "quiz-n3-duplicate",
+    "node": "n3-self-attention",
+    "severity": "resource_failed",
+    "description": "首版存在真实数值错误；末版数值已修正，但解析点积段落重复，三版后被拒。末版审阅自身将正确约 1.203 的输出写成 1.204，独立复算记录另存。",
+    "evidence": "content-spotcheck.json",
+    "resolution": "替代产物在 resource_repair 经协议纠正仍报 MODEL_PROTOCOL_ERROR；后续自动重试也未通过，最终未开放。"
+  },
+  {
+    "id": "quiz-n5-symbolic",
+    "node": "n5-positional-encoding-and-advantages",
+    "severity": "resource_failed",
+    "description": "sin(pos)、cos(pos)、n/d 等符号关系送入受限数值求值器，无法复算导致修订耗尽。",
+    "evidence": "quiz-review-progress.json",
+    "resolution": "两轮整课修复仍触发同类符号复算拒绝，最终未开放。"
+  },
+  {
+    "id": "report-contract-recovery",
+    "node": "n1-why-transformer",
+    "severity": "recovered",
+    "description": "首份报告首次提交的来源定位无效，在同一写作会话内纠正；未复现旧的缺失内容封装错误。",
+    "evidence": "write-contract-issues.json"
+  },
+  {
+    "id": "model-transport-retries",
+    "severity": "recovered",
+    "description": "结构化会话事件记录第二视频同一步两次 TRANSPORT 重试，第四视频一次；第二视频前两次长响应未形成工具执行，第三次后开始写文件。原因尚未做隔离复现，不将 TRANSPORT 直接等同于上游 API 失败。",
+    "evidence": [
+      "session-error-events.json",
+      "large-model-completions.json"
+    ]
+  },
+  {
+    "id": "native-packet-recovery",
+    "severity": "recovered",
+    "description": "第一视频蓝图名称被附加说明导致找不到蓝图；第一/第四视频任务包 59136/50623 字节超过原生 48000 字节限制，生成器自行调整后继续。",
+    "evidence": "nonzero-commands.json"
+  },
+  {
+    "id": "native-path-errors",
+    "severity": "recovered",
+    "description": "第三/第四视频各一次参考文件路径错误，第四视频检查图片时一次 UUID 路径拼写错误，后续继续。",
+    "evidence": "summary.json#resources.tool_failures"
+  },
+  {
+    "id": "n2-slow-scene",
+    "severity": "performance",
+    "description": "第二视频一个场景组排队约 282 秒，实际执行约 1129 秒；其中同一写文件步骤三次长模型响应累计输出 208527 token（含 175165 reasoning token）。模型调用用量记录不证明三次文件写入均已执行。",
+    "evidence": [
+      "concurrency-observations.json",
+      "large-model-completions.json"
+    ]
+  },
+  {
+    "id": "n2-render-tail",
+    "node": "n2-overall-architecture",
+    "severity": "performance",
+    "description": "第二视频画面采集出现长尾：原生 trace 在采集 240 秒时完成5694帧，360秒7402帧，480秒7981帧，600秒8257帧（共9825帧）。07:14 UTC采样40核机器load约1.93、内存充足，一个Chrome进程CPU平均约89.5%。符合渲染单进程瓶颈表现，但未做隔离性能实验。",
+    "evidence": [
+      "render-load-observations.jsonl",
+      "artifact_4b5bec1c9489d2abac62f21a4cb7dac5/commands/cd3b4eb86e3c4201a73dab9545c7fcfa.log"
+    ]
+  },
+  {
+    "id": "deferred-course-repair",
+    "severity": "performance",
+    "description": "首轮报告/习题约4分16秒执行结束，整课等待全部视频完成才触发修复。三个失败习题从失败到首个替代产物提交分别等待3140.933、3128.843、3077.512秒（约51–52分钟）。",
+    "evidence": "summary.json#automatic_replacement_delays"
+  },
+  {
+    "id": "n3-repair-protocol",
+    "node": "n3-self-attention",
+    "severity": "resource_failed",
+    "description": "替代习题的resource_repair在两次纠正后仍MODEL_PROTOCOL_ERROR，自动重试未恢复。审阅错误反馈还促使模型把正确1.203改为1.204；该候选未开放。局部参数对原失败候选的纯回放可通过，运行时拒绝的精确原因仍待隔离定位，不能直接归因为缺失op或JSON封装。",
+    "evidence": [
+      "action-audit.json",
+      "repair-contract-replay.json",
+      "artifact_64d6d85ccd4c0819ba5e098dc788f3e5/content.json"
+    ]
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "preparation_id": "prep_2afafafbdcbb413aa6c4777da255babd",
+  "attempt": 2,
+  "retry_of": "run-3",
+  "goal": "我想学习快速排序",
+  "seconds": 62.177,
+  "status": "canceled",
+  "stage": "produce",
+  "error": null,
+  "stopped_before_generation": true,
+  "passed": true,
+  "errors": [],
+  "httpErrors": []
+}

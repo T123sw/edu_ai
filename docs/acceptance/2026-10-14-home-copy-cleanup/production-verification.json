@@ -1,0 +1,65 @@
+[
+  {
+    "width": 1440,
+    "route": "/",
+    "removedCopy": true,
+    "formRetained": true,
+    "noOverflow": true
+  },
+  {
+    "width": 1440,
+    "route": "/practice",
+    "removedCopy": true,
+    "formRetained": true,
+    "noOverflow": true
+  },
+  {
+    "width": 1440,
+    "route": "/exam",
+    "removedCopy": true,
+    "formRetained": true,
+    "noOverflow": true
+  },
+  {
+    "width": 390,
+    "route": "/",
+    "removedCopy": true,
+    "formRetained": true,
+    "noOverflow": true
+  },
+  {
+    "width": 390,
+    "route": "/practice",
+    "removedCopy": true,
+    "formRetained": true,
+    "noOverflow": true
+  },
+  {
+    "width": 390,
+    "route": "/exam",
+    "removedCopy": true,
+    "formRetained": true,
+    "noOverflow": true
+  },
+  {
+    "width": 320,
+    "route": "/",
+    "removedCopy": true,
+    "formRetained": true,
+    "noOverflow": true
+  },
+  {
+    "width": 320,
+    "route": "/practice",
+    "removedCopy": true,
+    "formRetained": true,
+    "noOverflow": true
+  },
+  {
+    "width": 320,
+    "route": "/exam",
+    "removedCopy": true,
+    "formRetained": true,
+    "noOverflow": true
+  }
+]

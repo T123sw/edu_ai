@@ -1,0 +1,85 @@
+{
+  "wall_seconds": 383.95,
+  "baseline_job_wall_seconds": 911.1,
+  "speedup_vs_previous_job": 2.37,
+  "calls": [
+    {
+      "chars": 237,
+      "text_sha256": "be1a035532a2bf03bd53d2ffc61c621f0f752105266764f1e869fe09f350d4c9",
+      "started_at": 1792390444.5610793,
+      "elapsed_seconds": 211.27,
+      "http_status": 200,
+      "batch_id": "132de7bf0afc",
+      "batch_size": "4",
+      "fragments": "1",
+      "input_chars": "237"
+    },
+    {
+      "chars": 415,
+      "text_sha256": "9e47fdadd690587b89fc6a01f2654203a33599657a22fc1be1f123727fd154c3",
+      "started_at": 1792390444.5876498,
+      "elapsed_seconds": 211.26,
+      "http_status": 200,
+      "batch_id": "132de7bf0afc",
+      "batch_size": "4",
+      "fragments": "1",
+      "input_chars": "415"
+    },
+    {
+      "chars": 420,
+      "text_sha256": "fe74772a5e0d239ea6f8fa9982637f4da45c8102a2767f9f8f040802eea311cd",
+      "started_at": 1792390444.6103966,
+      "elapsed_seconds": 211.24,
+      "http_status": 200,
+      "batch_id": "132de7bf0afc",
+      "batch_size": "4",
+      "fragments": "1",
+      "input_chars": "420"
+    },
+    {
+      "chars": 330,
+      "text_sha256": "2108064ce86d5ad4ca8bc45709a8d51c776a3336fc532b6ecf0c7e16daad0fa9",
+      "started_at": 1792390444.6346576,
+      "elapsed_seconds": 211.22,
+      "http_status": 200,
+      "batch_id": "132de7bf0afc",
+      "batch_size": "4",
+      "fragments": "1",
+      "input_chars": "330"
+    },
+    {
+      "chars": 301,
+      "text_sha256": "fbe447f8bfcfa3506171eac106c5921d12a594747070318a1b5d87f30fd73ef9",
+      "started_at": 1792390444.657222,
+      "elapsed_seconds": 380.69,
+      "http_status": 200,
+      "batch_id": "6c592684f0ed",
+      "batch_size": "3",
+      "fragments": "1",
+      "input_chars": "301"
+    },
+    {
+      "chars": 265,
+      "text_sha256": "dd965edc719d0067ada2b2bc2bb2dd6d62cc88b0ce03fccb604d850632ca2d19",
+      "started_at": 1792390444.6798139,
+      "elapsed_seconds": 380.67,
+      "http_status": 200,
+      "batch_id": "6c592684f0ed",
+      "batch_size": "3",
+      "fragments": "1",
+      "input_chars": "265"
+    },
+    {
+      "chars": 207,
+      "text_sha256": "3d5a8671d814f4289f34b49de32108ce7369a006575f684793ec484af618575b",
+      "started_at": 1792390444.7022057,
+      "elapsed_seconds": 380.64,
+      "http_status": 200,
+      "batch_id": "6c592684f0ed",
+      "batch_size": "3",
+      "fragments": "1",
+      "input_chars": "207"
+    }
+  ],
+  "baseline_scope": "Previous production run of the same seven-chapter script; includes original script-writing and saving overhead."
+}

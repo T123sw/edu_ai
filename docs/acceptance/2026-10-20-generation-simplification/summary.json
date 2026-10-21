@@ -1,0 +1,232 @@
+{
+  "recorded_at": "2026-10-20T08:02:04.955884+00:00",
+  "status": "implementation_and_validation_complete_main_backend_restart_required",
+  "request": "习题只保留生成前固定结构及生成后本地展示校验；诊断优化长视频；删除刚生成课程，等待用户新课验证。",
+  "quiz": {
+    "policy": "quiz-structure-only-v1",
+    "writer": "typed content-only submission; schema validation before dispatch; at most two protocol corrections for malformed structure",
+    "removed": [
+      "model content review",
+      "numeric expression review",
+      "per-option independent audit",
+      "question time estimates",
+      "generated semantic mappings",
+      "node/course quiz content review",
+      "automatic content repair loop"
+    ],
+    "retained": [
+      "stable question IDs",
+      "nonempty stem/answer/explanation",
+      "type/options/answer format validation",
+      "version and ownership checks",
+      "course context and source input",
+      "native question rendering and answer records"
+    ],
+    "objective_coverage": "planned, not verified",
+    "real_native_harness_test": {
+      "seconds": 11.27,
+      "questions": 2,
+      "model_phases": [
+        "resource_write"
+      ],
+      "model_calls": 1
+    }
+  },
+  "video": {
+    "observed_original": {
+      "course_total_seconds": 3554.794,
+      "slow_video_total_seconds": 3182.6,
+      "slow_video_scene_stage_seconds": 1414.193,
+      "native_render_seconds": 1291.7,
+      "capture_seconds": 1178.703,
+      "encode_seconds": 93.074,
+      "transport_retries_n2": 2,
+      "transport_retries_n4": 1,
+      "slow_scene_output_tokens_across_three_attempts": 208527,
+      "slow_scene_reasoning_tokens": 175165
+    },
+    "causes_and_changes": [
+      {
+        "cause": "native SDK asks for SSE but proxy buffered upstream completion without sending headers/data; long responses caused about 300-second transport retries",
+        "change": "send SSE headers immediately and heartbeat comments every 10 seconds while buffering; model/tool output still validated and metered before delivery",
+        "verification": "delayed upstream exceeding downstream read timeout keeps one request; native SDK accepts comments; upstream failure still propagates"
+      },
+      {
+        "cause": "contiguous capture chunks leave heavy timeline region on a late worker; encoding originally follows capture",
+        "change": "enable native HF_CAPTURE_PARALLEL_STREAM=true interleaved capture and streaming encoding; same four workers and stage concurrency; explicit false override supported",
+        "verification": "same-source 1 fps controlled scheduling comparison plus full 1080p 30 fps render"
+      }
+    ],
+    "controlled_1fps": [
+      {
+        "name": "baseline",
+        "seconds": 86.83067015511915,
+        "exit_code": 0,
+        "log": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/baseline/.host/0b9d6441f6b441f586e474f7ebaa228c.log",
+        "video": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/baseline/video/renders/sample.mp4",
+        "fps": 1,
+        "note": "1 fps diagnostic sample, not production fps; identical source and parameters except native frame scheduling"
+      },
+      {
+        "name": "interleaved",
+        "seconds": 65.42236127192155,
+        "exit_code": 0,
+        "log": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/interleaved/.host/33f9fba8f5734753bbee85da8faba30c.log",
+        "video": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/interleaved/video/renders/sample.mp4",
+        "fps": 1,
+        "note": "1 fps diagnostic sample, not production fps; identical source and parameters except native frame scheduling"
+      }
+    ],
+    "full_30fps": {
+      "name": "interleaved-production",
+      "seconds": 686.3301241360605,
+      "exit_code": 0,
+      "log": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/interleaved-production/.host/8f378ed392894b8d9a1952088e16f11e.log",
+      "video": "/home/zxqs_ep/data/main-review/generation-simplification-20261020/interleaved-production/video/renders/sample.mp4",
+      "fps": 30,
+      "note": "30 fps full production timeline, native interleaved scheduling",
+      "native_seconds": 682.5,
+      "stages_seconds": {
+        "compile": 1.708,
+        "browser_probe": 0.4,
+        "video_extract": 0.001,
+        "audio_process": 13.617,
+        "file_server": 0.013,
+        "capture_streaming": 663.622,
+        "assemble": 2.801
+      },
+      "media": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080,
+            "avg_frame_rate": "30/1",
+            "duration": "327.500000",
+            "nb_frames": "9825"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "avg_frame_rate": "0/0",
+            "duration": "327.500000",
+            "nb_frames": "15353"
+          }
+        ],
+        "format": {
+          "duration": "327.500000",
+          "size": "28943139"
+        }
+      },
+      "sampled_visual_ssim_against_baseline_1fps": 0.999015,
+      "audio_comparison": {
+        "samples": 5232000,
+        "seconds": 327.0,
+        "correlation": 0.9999888182059288,
+        "rms_error": 0.0006319558109961758,
+        "signal_to_error_db": 46.49419773982825,
+        "note": "Compare aligned decoded mono audio at 16 kHz over common 327 seconds; 1 fps outputs pad total duration to 328s versus native 327.5s at 30 fps."
+      }
+    },
+    "limitations": [
+      "Production old run and isolated 30 fps run had different host load; 21m32s vs 11m22s is not a controlled speed guarantee.",
+      "No new full course was generated; user will validate after main backend restart.",
+      "Generation/reasoning, voice and source-dependent rendering still take time."
+    ]
+  },
+  "cleanup": {
+    "started_at": "2026-10-20T07:43:25.743778+00:00",
+    "apply": true,
+    "course_count": 1,
+    "preparation_count": 1,
+    "course_ids_including_orphans": [
+      "learn-4406eb8b05ec47bdb9b1609e35e31ab5"
+    ],
+    "rows_selected": {
+      "course_preparations": 1,
+      "course_preparation_attempts": 1,
+      "course_preparation_events": 933,
+      "learning_topic_sessions": 1,
+      "conversations": 1,
+      "self_learning_fact_revisions": 1,
+      "self_learning_events": 71,
+      "self_learning_resource_states": 1,
+      "self_learning_reading_streams": 2,
+      "preparation_executions": 1,
+      "preparation_budgets": 1,
+      "preparation_actions": 896,
+      "preparation_artifacts": 19,
+      "prepared_manifest_versions": 22,
+      "prepared_course_pointers": 1,
+      "courses": 1,
+      "durable_tasks": 955,
+      "materials": 13,
+      "course_memberships": 1,
+      "material_versions": 13,
+      "conversation_messages": 1,
+      "learning_progress_outbox": 71,
+      "agent_memory_dependencies": 1
+    },
+    "filesystem": [
+      "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/projects/hf_resource_00bc4c1ede6b9c01d23a0235ed0002d5",
+      "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/projects/hf_resource_1d6e26ea700cc8f3b7c72d8ee398c676",
+      "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/projects/hf_resource_4042b02585abd37afd61e9c2d9d136be",
+      "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/projects/hf_resource_4b5bec1c9489d2abac62f21a4cb7dac5",
+      "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/projects/hf_resource_aa836bc1306d9bb940c50175fb361e93",
+      "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/2a08290042a4035df9db68ef1cd6b5f555dc31f3271c834a817166e774c8f361",
+      "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4ff025441f82e0503d83e4bda74b8bb424f0e4aceb8fa0302ede8847db94fe79",
+      "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/8422e061f5d5fed31fae44fe841f4aa0c15c1f791f35324f5be0113948181831",
+      "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/b7a21eba44a74afa5a0671cd67bb915da01675978e16d6ea912e23ab8e500cce",
+      "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/e236e801a484a756543a26c670d1881377f0e2bc324832d7e2a238d3dd5caf33"
+    ],
+    "preserved_fingerprints": {
+      "users": "e1a2b7750421c69e29c2dfed8e192d5b378a421b921dce6bb1ee8a7d54a690fa",
+      "runtime_config": "bbf39fd7acf302291b1da0b46c93e4acf09c1e9630e82aa41469a5ff03d8d960"
+    },
+    "scope": "Only learn-4406eb8b05ec47bdb9b1609e35e31ab5 and prep_4406eb8b05ec47bdb9b1609e35e31ab5 with their associated records, projects and vectors; preserve other courses and accounts/config.",
+    "database_deleted": true,
+    "vector_chunks_deleted": {
+      "documents": 0
+    },
+    "filesystem_deleted": true,
+    "accounts_config_unchanged": true,
+    "completed_at": "2026-10-20T07:43:28.759792+00:00"
+  },
+  "cleanup_api": {
+    "courses_count": 0,
+    "preparations_count": 0,
+    "deleted_preparation_status": 404,
+    "health": 200
+  },
+  "tests": {
+    "regression-final.txt": "122 passed, 6 skipped in 24.19s",
+    "video-regression.txt": "21 passed in 11.16s",
+    "delivery-regression.txt": "82 passed, 18 skipped in 37.82s",
+    "transport-regression.txt": "49 passed in 76.82s (0:01:16)",
+    "review-scope-regression.txt": "16 passed, 1 skipped in 2.22s",
+    "real-quiz-test.txt": "1 passed, 48 deselected in 11.27s"
+  },
+  "tests_note": "Suites overlap; counts are not additive. Skips are opt-in provider tests and unavailable PostgreSQL-only competition checks.",
+  "deployment": {
+    "services": {
+      "edu-ai-backend": {
+        "MainPID": "2834406",
+        "ActiveState": "active",
+        "ActiveEnterTimestamp": "Tue 2026-10-20 06:16:40 UTC"
+      },
+      "edu-ai-durable-workers": {
+        "MainPID": "2916307",
+        "ActiveState": "active",
+        "ActiveEnterTimestamp": "Tue 2026-10-20 07:56:56 UTC"
+      }
+    },
+    "main_backend_restart": "systemctl --no-ask-password restart edu-ai-backend rejected: Interactive authentication required",
+    "worker_restart": "Completed at 07:56:56 UTC. Graceful stop did not exit; after confirming no queued/running tasks and no child processes, scoped user service was killed and restarted.",
+    "next_step": "User restarts main backend before creating the next course.",
+    "no_active_generation_tasks_before_restart": true
+  },
+  "evidence_scope": "Production course data removed; isolated copied video source, benchmarks and acceptance records retained outside production course storage."
+}

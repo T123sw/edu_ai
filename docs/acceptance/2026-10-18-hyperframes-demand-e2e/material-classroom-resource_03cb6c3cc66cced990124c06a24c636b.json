@@ -1,0 +1,1922 @@
+{
+  "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+  "format": "hyperframes/v1",
+  "status": "ready",
+  "content": {
+    "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_03cb6c3cc66cced990124c06a24c636b",
+      "entry": "index.html",
+      "digest": "bccae734d99b912d67400a03b68cbd9ea5e3bfea9d9cf16761be6019a02d711d"
+    },
+    "timeline": {
+      "duration": 224.544,
+      "segments": [
+        {
+          "id": "seg_intro_question",
+          "end": 23.568,
+          "start": 0,
+          "title": "开场：同一条斜率，为什么位置不同？",
+          "events": [
+            {
+              "end": 1.1,
+              "start": 0.3,
+              "target": "#s1-title",
+              "description": "标题「y = 2x + b 中的 b，做了什么？」从下方升起淡入"
+            },
+            {
+              "end": 3.2,
+              "start": 2.2,
+              "target": "#s1-legend",
+              "description": "右侧三条式子标签依次滑入"
+            },
+            {
+              "end": 5.2,
+              "start": 4,
+              "target": "#s1-l-cyan",
+              "description": "青色直线 y=2x 描线画出"
+            },
+            {
+              "end": 8.2,
+              "start": 7,
+              "target": "#s1-l-amber",
+              "description": "琥珀色直线 y=2x+2 描线画出，位于上方"
+            },
+            {
+              "end": 11.2,
+              "start": 10,
+              "target": "#s1-l-violet",
+              "description": "紫色直线 y=2x−2 描线画出，位于下方"
+            },
+            {
+              "end": 16,
+              "start": 15,
+              "target": "#s1-graph",
+              "description": "三条直线整体高亮一次，强调一样陡、位置不同"
+            }
+          ],
+          "narration": "先看一个现象。同一个坐标系里，我画三条直线：y 等于 2x，y 等于 2x 加 2，y 等于 2x 减 2。它们看起来一样陡，却停在不同的高度。这节课只解决一个问题：式子里的 b，到底让直线发生了什么变化。",
+          "audio_path": "assets/seg_intro_question.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o1",
+            "node_intercept_shift:o2"
+          ],
+          "visual_description": "深色背景，中央淡入一个空的平面直角坐标系，x 轴与 y 轴带箭头和刻度。标题「y = 2x + b 中的 b 做了什么」从下方升起。随后三条直线依次以描线动画画出：先 y=2x（青色），再 y=2x+2（琥珀色，位于上方），再 y=2x-2（紫色，位于下方），三条线保持平行。画面右侧出现三个小标签，分别对应三条式子，标签与直线同色。结尾处三条线整体轻微高亮一次，强调「一样陡、位置不同」。"
+        },
+        {
+          "id": "seg_yintercept_derive",
+          "end": 47.064,
+          "start": 23.568,
+          "title": "关键一步：让 x = 0",
+          "events": [
+            {
+              "end": 24.5,
+              "start": 23.8,
+              "target": "#s2-title",
+              "description": "标题「关键一步：让 x = 0」升起"
+            },
+            {
+              "end": 24.9,
+              "start": 24.2,
+              "target": "#s2-card",
+              "description": "右侧推导卡片滑入"
+            },
+            {
+              "end": 27.6,
+              "start": 27,
+              "target": "#s2-step1",
+              "description": "出现「当 x = 0 时」"
+            },
+            {
+              "end": 30.1,
+              "start": 29.5,
+              "target": "#s2-step2",
+              "description": "出现「y = 2×0 + b = b」"
+            },
+            {
+              "end": 32.7,
+              "start": 31.5,
+              "target": "#s2-dot",
+              "description": "y 轴上的高亮圆点从原点滑到 (0, b)"
+            },
+            {
+              "end": 35.6,
+              "start": 35,
+              "target": "#s2-term",
+              "description": "术语条「y 轴截距 = b」弹出"
+            }
+          ],
+          "narration": "为什么 b 能决定高度？回到式子里算一算。把 x 等于 0 代进去，2 乘 0 等于 0，所以 y 就等于 b。也就是说，直线和 y 轴的交点坐标永远是 0 逗号 b。这个点叫 y 轴截距，b 就是它的纵坐标。",
+          "audio_path": "assets/seg_yintercept_derive.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b",
+            "ev_c2df18f0d2342af2e38faa6c"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o1"
+          ],
+          "visual_description": "画面左侧保留坐标系，右侧出现推导卡片：y = 2x + b，下面一行逐步出现「当 x = 0 时，y = 2×0 + b = b」。同时坐标系中 y 轴上出现一个高亮圆点，从原点沿 y 轴滑动到 (0, b) 的位置，旁边浮出坐标标注 (0, b)。卡片下方出现术语条「y 轴截距 = b」，并用一条虚线把卡片和 y 轴上的点连起来。"
+        },
+        {
+          "id": "seg_b_zero",
+          "end": 59.76,
+          "start": 47.064,
+          "title": "情形一：b = 0，直线过原点",
+          "events": [
+            {
+              "end": 48,
+              "start": 47.3,
+              "target": "#s3-title",
+              "description": "标题「情形一：b = 0，直线过原点」升起"
+            },
+            {
+              "end": 48.8,
+              "start": 47.8,
+              "target": "#s3-line",
+              "description": "青色直线 y=2x 描线画出"
+            },
+            {
+              "end": 50,
+              "start": 49.4,
+              "target": "#s3-dot",
+              "description": "原点处圆点弹出，标注 (0, 0)"
+            },
+            {
+              "end": 51.3,
+              "start": 50.6,
+              "target": "#s3-card",
+              "description": "右侧式子卡片滑入，高亮 b = 0"
+            },
+            {
+              "end": 53.6,
+              "start": 53,
+              "target": "#s3-note",
+              "description": "出现「过原点 → 正比例函数的图象」"
+            }
+          ],
+          "narration": "先看 b 等于 0。这时式子就是 y 等于 2x，交点坐标是 0 逗号 0，直线正好穿过原点。这种过原点的直线，就是正比例函数的图象。",
+          "audio_path": "assets/seg_b_zero.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o1"
+          ],
+          "visual_description": "坐标系中只保留一条青色直线 y=2x，从原点出发向右上延伸。原点处出现一个脉动的圆点，标注 (0, 0)。右侧式子卡片显示 y = 2x + 0，即 y = 2x，并高亮「b = 0」。卡片下方出现一行小字「过原点 → 正比例函数图象」。"
+        },
+        {
+          "id": "seg_b_positive",
+          "end": 74.304,
+          "start": 59.76,
+          "title": "情形二：b = 2，整条线上移 2 格",
+          "events": [
+            {
+              "end": 60.7,
+              "start": 60,
+              "target": "#s4-title",
+              "description": "标题「情形二：b = 2，整条线上移 2 格」升起"
+            },
+            {
+              "end": 62.7,
+              "start": 61.6,
+              "target": "#s4-line",
+              "description": "琥珀色直线从青色位置整体上移 2 格"
+            },
+            {
+              "end": 62.9,
+              "start": 61.6,
+              "target": "#s4-q1",
+              "description": "三个采样点各自上移 2 格，显示每个点都平移"
+            },
+            {
+              "end": 64.1,
+              "start": 63.4,
+              "target": "#s4-arrow",
+              "description": "竖直双箭头标出 2 格平移距离"
+            },
+            {
+              "end": 65.5,
+              "start": 64.8,
+              "target": "#s4-card",
+              "description": "右侧卡片显示 y = 2x + 2 与交点 (0, 2)"
+            },
+            {
+              "end": 68,
+              "start": 67.4,
+              "target": "#s4-note",
+              "description": "强调「不是只有交点动了，是每个点都上移 2 格」"
+            }
+          ],
+          "narration": "现在把 b 改成 2。交点变成 0 逗号 2，直线整体向上平移 2 格。注意，不是只有交点动了，是直线上每一个点都向上挪了 2 格。",
+          "audio_path": "assets/seg_b_positive.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b",
+            "ev_c2df18f0d2342af2e38faa6c"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o2"
+          ],
+          "visual_description": "青色直线 y=2x 保持在原位并降低不透明度作为参照。一条琥珀色直线从青色直线位置整体向上平移：用一条竖直双箭头标出 2 格的平移距离，箭头从 (0,0) 指向 (0,2)。同时直线上取三个采样点（x = -1、0、1），每个点各自向上移动 2 格，留下淡淡的残影轨迹，直观显示「每个点都上移 2 格」。右侧卡片显示 y = 2x + 2，高亮「b = 2」，并显示交点 (0, 2)。"
+        },
+        {
+          "id": "seg_b_negative",
+          "end": 95.16,
+          "start": 74.304,
+          "title": "情形三：b = -2，整条线下移 2 格",
+          "events": [
+            {
+              "end": 75.3,
+              "start": 74.6,
+              "target": "#s5-title",
+              "description": "标题「情形三：b = −2，整条线下移 2 格」升起"
+            },
+            {
+              "end": 77.3,
+              "start": 76.2,
+              "target": "#s5-line",
+              "description": "紫色直线从青色位置整体下移 2 格"
+            },
+            {
+              "end": 78.7,
+              "start": 78,
+              "target": "#s5-arrow",
+              "description": "竖直双箭头从 (0,0) 指向 (0,−2)"
+            },
+            {
+              "end": 80,
+              "start": 79.4,
+              "target": "#s5-dot",
+              "description": "交点 (0, −2) 圆点弹出"
+            },
+            {
+              "end": 84.5,
+              "start": 84,
+              "target": "#s5-r1",
+              "description": "规律条「b 增大 → 直线上移」点亮"
+            },
+            {
+              "end": 86.1,
+              "start": 85.6,
+              "target": "#s5-r2",
+              "description": "规律条「b 减小 → 直线下移」点亮"
+            },
+            {
+              "end": 87.7,
+              "start": 87.2,
+              "target": "#s5-r3",
+              "description": "规律条「平移格数 = |b 的变化量|」点亮"
+            }
+          ],
+          "narration": "再把 b 改成负 2。交点变成 0 逗号负 2，直线整体向下平移 2 格。所以规律很清楚：b 变大，直线往上走；b 变小，直线往下走；平移的格数，正好等于 b 的变化量。",
+          "audio_path": "assets/seg_b_negative.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o1",
+            "node_intercept_shift:o2"
+          ],
+          "visual_description": "琥珀色直线淡出为参照，紫色直线从青色直线位置整体向下平移 2 格，竖直双箭头从 (0,0) 指向 (0,-2)。右侧卡片显示 y = 2x - 2，高亮「b = -2」，交点标注 (0, -2)。随后三条直线同时回到画面并排显示，右侧出现规律条：「b 增大 → 上移；b 减小 → 下移；平移格数 = |b 的变化量|」，逐条点亮。"
+        },
+        {
+          "id": "seg_slope_why",
+          "end": 116.664,
+          "start": 95.16,
+          "title": "为什么斜率始终是 2？",
+          "events": [
+            {
+              "end": 96.1,
+              "start": 95.4,
+              "target": "#s6-title",
+              "description": "标题「为什么斜率始终是 2？」升起"
+            },
+            {
+              "end": 100.2,
+              "start": 98.6,
+              "target": "#s6-t-cyan",
+              "description": "三条线上同时画出「水平 1 格、竖直 2 格」的斜率三角形"
+            },
+            {
+              "end": 100.9,
+              "start": 100.4,
+              "target": "#s6-dx",
+              "description": "标注 Δx = 1"
+            },
+            {
+              "end": 101.7,
+              "start": 101.2,
+              "target": "#s6-dy",
+              "description": "标注 Δy = 2"
+            },
+            {
+              "end": 103.6,
+              "start": 103,
+              "target": "#s6-calc",
+              "description": "出现计算式 Δy / Δx = 2 / 1 = 2"
+            },
+            {
+              "end": 107.6,
+              "start": 107,
+              "target": "#s6-split",
+              "description": "拆解式子：2 是变化率，b 只是起点高度"
+            }
+          ],
+          "narration": "有同学会问：平移之后，直线是不是变陡了？我们检验一下。在每条线上，x 从 0 增加到 1，y 都增加 2。变化量之比都是 2 比 1，也就是 2。b 只加在最后，它不参与这个变化量，所以斜率始终是 2。",
+          "audio_path": "assets/seg_slope_why.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b",
+            "ev_c2df18f0d2342af2e38faa6c"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o3"
+          ],
+          "visual_description": "三条直线并排显示。在每条线上画出「水平走 1 格、竖直升 2 格」的直角三角形（斜率三角形），三个三角形同时出现，标注「Δx = 1，Δy = 2」。右侧出现计算式：Δy / Δx = 2 / 1 = 2，三条线共用同一个结果。随后式子卡片拆解：y = 2x + b 中，2 是变化率，b 只是起点高度，用不同颜色区分「2」和「b」。"
+        },
+        {
+          "id": "seg_parallel",
+          "end": 132.96,
+          "start": 116.664,
+          "title": "结论：三条直线互相平行",
+          "events": [
+            {
+              "end": 117.6,
+              "start": 116.9,
+              "target": "#s7-title",
+              "description": "标题「结论：三条直线互相平行」升起"
+            },
+            {
+              "end": 120.3,
+              "start": 119.6,
+              "target": "#s7-m1",
+              "description": "x = −1 处竖直测量线出现，标出距离 2"
+            },
+            {
+              "end": 122.1,
+              "start": 121.4,
+              "target": "#s7-m2",
+              "description": "x = 2 处竖直测量线出现，距离同样为 2"
+            },
+            {
+              "end": 124.8,
+              "start": 124.2,
+              "target": "#s7-concl",
+              "description": "结论条「斜率相同 + 截距不同 → 平行」弹出"
+            }
+          ],
+          "narration": "斜率相同、截距不同的两条直线，一定互相平行，永远不会相交。所以这三条线，斜率都是 2，只是起点高度不同，它们彼此平行，竖直方向上的距离始终不变。",
+          "audio_path": "assets/seg_parallel.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o3"
+          ],
+          "visual_description": "三条直线同时高亮，两条竖直测量线在 x = -1 和 x = 2 处出现，标出相邻两条线之间的竖直距离都是 2 格，且两处距离相等。画面下方出现结论条：「斜率相同 + 截距不同 → 平行」。最后三条线整体轻微上移再回位，强调「整体平移、形状不变」。"
+        },
+        {
+          "id": "seg_misconception",
+          "end": 148.29600000000002,
+          "start": 132.96,
+          "title": "常见误解：b 不是斜率",
+          "events": [
+            {
+              "end": 133.9,
+              "start": 133.2,
+              "target": "#s8-title",
+              "description": "标题「常见误解：b 不是斜率」升起"
+            },
+            {
+              "end": 134.5,
+              "start": 133.8,
+              "target": "#s8-wrong",
+              "description": "左侧错误示例：把 b 当斜率，画出过陡的红线并打叉"
+            },
+            {
+              "end": 136.3,
+              "start": 135.6,
+              "target": "#s8-right",
+              "description": "右侧正确示例：与 y=2x 平行、上移 2 格"
+            },
+            {
+              "end": 139.6,
+              "start": 139,
+              "target": "#s8-bar",
+              "description": "对照条「陡不陡看 k，起点在哪看 b」"
+            }
+          ],
+          "narration": "这里有个常见错误要提醒：不要把 b 当成斜率。b 变大，直线只是往上挪，并不会变陡。判断陡不陡，看的是 x 前面的系数 2；判断起点在哪，看的是 b。",
+          "audio_path": "assets/seg_misconception.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o3",
+            "node_intercept_shift:o4"
+          ],
+          "visual_description": "画面左右对比两个错误示例。左侧：把 y = 2x + 2 误读成「斜率是 2 加 2 等于 4」，画出一条更陡的红色直线，并打上红色叉号。右侧：正确画法，琥珀色直线与青色直线平行，打上绿色对勾。下方出现对照条：「陡不陡 → 看 k；起点在哪 → 看 b」。"
+        },
+        {
+          "id": "seg_check1",
+          "end": 179.06400000000002,
+          "start": 148.29600000000002,
+          "title": "检查一：写出与 y 轴的交点",
+          "events": [
+            {
+              "end": 149.3,
+              "start": 148.6,
+              "target": "#s9-title",
+              "description": "标题「检查一：写出与 y 轴的交点」升起"
+            },
+            {
+              "end": 149.7,
+              "start": 149,
+              "target": "#s9-q",
+              "description": "题目卡片滑入，留出思考停顿"
+            },
+            {
+              "end": 158.7,
+              "start": 158,
+              "target": "#s9-a",
+              "description": "答案卡片滑入"
+            },
+            {
+              "end": 159.6,
+              "start": 159,
+              "target": "#s9-a1",
+              "description": "揭示交点 (0, 5) 与 (0, −3)"
+            },
+            {
+              "end": 163.6,
+              "start": 163,
+              "target": "#s9-a3",
+              "description": "结论「5 > −3，所以 y = 2x + 5 在上方」"
+            },
+            {
+              "end": 165.7,
+              "start": 165,
+              "target": "#s9-graph",
+              "description": "小坐标系中两条平行线一上一下，交点标出"
+            }
+          ],
+          "narration": "来检查一下。第一题：y 等于 2x 加 5，和 y 等于 2x 减 3，它们与 y 轴的交点分别是什么？哪一条在上方？先自己想一想。答案是 0 逗号 5 和 0 逗号负 3，因为 b 就是交点的纵坐标。5 大于负 3，所以 y 等于 2x 加 5 在上方。",
+          "audio_path": "assets/seg_check1.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o4"
+          ],
+          "visual_description": "画面切换为题目卡片，显示两行式子：y = 2x + 5 与 y = 2x - 3，下方留出思考停顿。随后答案逐条揭示：交点 (0, 5)、(0, -3)，并配一个小坐标系，两条平行直线一上一下，交点用圆点标出。最后一行结论「b 大 → 在上方」高亮。"
+        },
+        {
+          "id": "seg_check2",
+          "end": 202.24800000000002,
+          "start": 179.06400000000002,
+          "title": "检查二：平移方向与斜率",
+          "events": [
+            {
+              "end": 180.1,
+              "start": 179.4,
+              "target": "#s10-title",
+              "description": "标题「检查二：平移方向与斜率」升起"
+            },
+            {
+              "end": 180.5,
+              "start": 179.8,
+              "target": "#s10-q",
+              "description": "题目卡片滑入"
+            },
+            {
+              "end": 187.7,
+              "start": 187,
+              "target": "#s10-a",
+              "description": "答案卡片滑入"
+            },
+            {
+              "end": 188.4,
+              "start": 187.8,
+              "target": "#s10-a1",
+              "description": "揭示「向下平移 2 格」"
+            },
+            {
+              "end": 190.2,
+              "start": 189.6,
+              "target": "#s10-a2",
+              "description": "揭示「斜率仍然是 2」"
+            },
+            {
+              "end": 192,
+              "start": 191.4,
+              "target": "#s10-a3",
+              "description": "揭示「三条线互相平行」"
+            },
+            {
+              "end": 194.1,
+              "start": 193.4,
+              "target": "#s10-arrow",
+              "description": "坐标系中青色直线下移 2 格变紫色，箭头标注"
+            },
+            {
+              "end": 195.5,
+              "start": 195,
+              "target": "#s10-k",
+              "description": "标注「k 都是 2」"
+            }
+          ],
+          "narration": "第二题：把 y 等于 2x 改成 y 等于 2x 减 2，直线怎样移动？斜率是多少？它和 y 等于 2x 加 2、y 等于 2x 减 2 这三条线平行吗？答案是：向下平移 2 格，斜率仍然是 2，三条线互相平行。",
+          "audio_path": "assets/seg_check2.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o2",
+            "node_intercept_shift:o3",
+            "node_intercept_shift:o4"
+          ],
+          "visual_description": "题目卡片显示 y = 2x → y = 2x - 2，并列出三条式子 y = 2x、y = 2x + 2、y = 2x - 2。答案揭示时，坐标系中青色直线向下平移 2 格变成紫色直线，竖直箭头标注 2 格；随后三条线同屏显示，斜率三角形同时出现，标注「k 都是 2」，并打出「互相平行」的结论。"
+        },
+        {
+          "id": "seg_summary",
+          "end": 224.544,
+          "start": 202.24800000000002,
+          "title": "收束：一句话记住 b",
+          "events": [
+            {
+              "end": 203.2,
+              "start": 202.5,
+              "target": "#s11-title",
+              "description": "标题「一句话记住 b」升起"
+            },
+            {
+              "end": 203.8,
+              "start": 203,
+              "target": "#s11-graph",
+              "description": "三条直线与坐标系缩小移到左侧，标出三个交点"
+            },
+            {
+              "end": 205.6,
+              "start": 205,
+              "target": "#s11-k1",
+              "description": "要点①「x = 0 时 y = b，交点为 (0, b)」点亮"
+            },
+            {
+              "end": 208.6,
+              "start": 208,
+              "target": "#s11-k2",
+              "description": "要点②「b 增大上移、减小下移」点亮"
+            },
+            {
+              "end": 211.6,
+              "start": 211,
+              "target": "#s11-k3",
+              "description": "要点③「斜率 k 不变，直线平行」点亮"
+            },
+            {
+              "end": 216.7,
+              "start": 216,
+              "target": "#s11-saved",
+              "description": "底部提示「讲义 + 两道练习已保存，可反复观看」"
+            }
+          ],
+          "narration": "最后用一句话收束：x 等于 0 时 y 等于 b，所以交点是 0 逗号 b；b 变大上移、变小下移，平移格数等于 b 的变化量；而斜率 k 始终不变，所以这些直线互相平行。讲义和两道练习已经保存好，可以反复观看。",
+          "audio_path": "assets/seg_summary.mp3",
+          "source_ids": [
+            "ev_e37765b613e54e7b7f7f085b",
+            "ev_c2df18f0d2342af2e38faa6c"
+          ],
+          "objective_ids": [
+            "node_intercept_shift:o1",
+            "node_intercept_shift:o2",
+            "node_intercept_shift:o3",
+            "node_intercept_shift:o4"
+          ],
+          "visual_description": "三条直线与坐标系整体缩小并移到画面左侧，右侧出现三条要点卡片，逐条点亮：① x = 0 时 y = b，交点为 (0, b)；② b 增大上移、减小下移，平移格数 = |b 的变化量|；③ 斜率 k 不变（本题 k = 2），直线平行。最后画面底部出现「讲义 + 两道练习已保存」的提示条，整体淡出。"
+        }
+      ]
+    }
+  },
+  "exports": {
+    "video": "exports/lesson.mp4",
+    "project": "exports/project.zip",
+    "subtitles": "exports/lesson.srt"
+  },
+  "project": {
+    "id": "hf_resource_03cb6c3cc66cced990124c06a24c636b",
+    "entry": "index.html",
+    "digest": "bccae734d99b912d67400a03b68cbd9ea5e3bfea9d9cf16761be6019a02d711d"
+  },
+  "version": 1,
+  "scope_id": "node_intercept_shift",
+  "timeline": {
+    "duration": 224.544,
+    "segments": [
+      {
+        "id": "seg_intro_question",
+        "end": 23.568,
+        "start": 0,
+        "title": "开场：同一条斜率，为什么位置不同？",
+        "events": [
+          {
+            "end": 1.1,
+            "start": 0.3,
+            "target": "#s1-title",
+            "description": "标题「y = 2x + b 中的 b，做了什么？」从下方升起淡入"
+          },
+          {
+            "end": 3.2,
+            "start": 2.2,
+            "target": "#s1-legend",
+            "description": "右侧三条式子标签依次滑入"
+          },
+          {
+            "end": 5.2,
+            "start": 4,
+            "target": "#s1-l-cyan",
+            "description": "青色直线 y=2x 描线画出"
+          },
+          {
+            "end": 8.2,
+            "start": 7,
+            "target": "#s1-l-amber",
+            "description": "琥珀色直线 y=2x+2 描线画出，位于上方"
+          },
+          {
+            "end": 11.2,
+            "start": 10,
+            "target": "#s1-l-violet",
+            "description": "紫色直线 y=2x−2 描线画出，位于下方"
+          },
+          {
+            "end": 16,
+            "start": 15,
+            "target": "#s1-graph",
+            "description": "三条直线整体高亮一次，强调一样陡、位置不同"
+          }
+        ],
+        "narration": "先看一个现象。同一个坐标系里，我画三条直线：y 等于 2x，y 等于 2x 加 2，y 等于 2x 减 2。它们看起来一样陡，却停在不同的高度。这节课只解决一个问题：式子里的 b，到底让直线发生了什么变化。",
+        "audio_path": "assets/seg_intro_question.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o1",
+          "node_intercept_shift:o2"
+        ],
+        "visual_description": "深色背景，中央淡入一个空的平面直角坐标系，x 轴与 y 轴带箭头和刻度。标题「y = 2x + b 中的 b 做了什么」从下方升起。随后三条直线依次以描线动画画出：先 y=2x（青色），再 y=2x+2（琥珀色，位于上方），再 y=2x-2（紫色，位于下方），三条线保持平行。画面右侧出现三个小标签，分别对应三条式子，标签与直线同色。结尾处三条线整体轻微高亮一次，强调「一样陡、位置不同」。"
+      },
+      {
+        "id": "seg_yintercept_derive",
+        "end": 47.064,
+        "start": 23.568,
+        "title": "关键一步：让 x = 0",
+        "events": [
+          {
+            "end": 24.5,
+            "start": 23.8,
+            "target": "#s2-title",
+            "description": "标题「关键一步：让 x = 0」升起"
+          },
+          {
+            "end": 24.9,
+            "start": 24.2,
+            "target": "#s2-card",
+            "description": "右侧推导卡片滑入"
+          },
+          {
+            "end": 27.6,
+            "start": 27,
+            "target": "#s2-step1",
+            "description": "出现「当 x = 0 时」"
+          },
+          {
+            "end": 30.1,
+            "start": 29.5,
+            "target": "#s2-step2",
+            "description": "出现「y = 2×0 + b = b」"
+          },
+          {
+            "end": 32.7,
+            "start": 31.5,
+            "target": "#s2-dot",
+            "description": "y 轴上的高亮圆点从原点滑到 (0, b)"
+          },
+          {
+            "end": 35.6,
+            "start": 35,
+            "target": "#s2-term",
+            "description": "术语条「y 轴截距 = b」弹出"
+          }
+        ],
+        "narration": "为什么 b 能决定高度？回到式子里算一算。把 x 等于 0 代进去，2 乘 0 等于 0，所以 y 就等于 b。也就是说，直线和 y 轴的交点坐标永远是 0 逗号 b。这个点叫 y 轴截距，b 就是它的纵坐标。",
+        "audio_path": "assets/seg_yintercept_derive.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b",
+          "ev_c2df18f0d2342af2e38faa6c"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o1"
+        ],
+        "visual_description": "画面左侧保留坐标系，右侧出现推导卡片：y = 2x + b，下面一行逐步出现「当 x = 0 时，y = 2×0 + b = b」。同时坐标系中 y 轴上出现一个高亮圆点，从原点沿 y 轴滑动到 (0, b) 的位置，旁边浮出坐标标注 (0, b)。卡片下方出现术语条「y 轴截距 = b」，并用一条虚线把卡片和 y 轴上的点连起来。"
+      },
+      {
+        "id": "seg_b_zero",
+        "end": 59.76,
+        "start": 47.064,
+        "title": "情形一：b = 0，直线过原点",
+        "events": [
+          {
+            "end": 48,
+            "start": 47.3,
+            "target": "#s3-title",
+            "description": "标题「情形一：b = 0，直线过原点」升起"
+          },
+          {
+            "end": 48.8,
+            "start": 47.8,
+            "target": "#s3-line",
+            "description": "青色直线 y=2x 描线画出"
+          },
+          {
+            "end": 50,
+            "start": 49.4,
+            "target": "#s3-dot",
+            "description": "原点处圆点弹出，标注 (0, 0)"
+          },
+          {
+            "end": 51.3,
+            "start": 50.6,
+            "target": "#s3-card",
+            "description": "右侧式子卡片滑入，高亮 b = 0"
+          },
+          {
+            "end": 53.6,
+            "start": 53,
+            "target": "#s3-note",
+            "description": "出现「过原点 → 正比例函数的图象」"
+          }
+        ],
+        "narration": "先看 b 等于 0。这时式子就是 y 等于 2x，交点坐标是 0 逗号 0，直线正好穿过原点。这种过原点的直线，就是正比例函数的图象。",
+        "audio_path": "assets/seg_b_zero.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o1"
+        ],
+        "visual_description": "坐标系中只保留一条青色直线 y=2x，从原点出发向右上延伸。原点处出现一个脉动的圆点，标注 (0, 0)。右侧式子卡片显示 y = 2x + 0，即 y = 2x，并高亮「b = 0」。卡片下方出现一行小字「过原点 → 正比例函数图象」。"
+      },
+      {
+        "id": "seg_b_positive",
+        "end": 74.304,
+        "start": 59.76,
+        "title": "情形二：b = 2，整条线上移 2 格",
+        "events": [
+          {
+            "end": 60.7,
+            "start": 60,
+            "target": "#s4-title",
+            "description": "标题「情形二：b = 2，整条线上移 2 格」升起"
+          },
+          {
+            "end": 62.7,
+            "start": 61.6,
+            "target": "#s4-line",
+            "description": "琥珀色直线从青色位置整体上移 2 格"
+          },
+          {
+            "end": 62.9,
+            "start": 61.6,
+            "target": "#s4-q1",
+            "description": "三个采样点各自上移 2 格，显示每个点都平移"
+          },
+          {
+            "end": 64.1,
+            "start": 63.4,
+            "target": "#s4-arrow",
+            "description": "竖直双箭头标出 2 格平移距离"
+          },
+          {
+            "end": 65.5,
+            "start": 64.8,
+            "target": "#s4-card",
+            "description": "右侧卡片显示 y = 2x + 2 与交点 (0, 2)"
+          },
+          {
+            "end": 68,
+            "start": 67.4,
+            "target": "#s4-note",
+            "description": "强调「不是只有交点动了，是每个点都上移 2 格」"
+          }
+        ],
+        "narration": "现在把 b 改成 2。交点变成 0 逗号 2，直线整体向上平移 2 格。注意，不是只有交点动了，是直线上每一个点都向上挪了 2 格。",
+        "audio_path": "assets/seg_b_positive.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b",
+          "ev_c2df18f0d2342af2e38faa6c"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o2"
+        ],
+        "visual_description": "青色直线 y=2x 保持在原位并降低不透明度作为参照。一条琥珀色直线从青色直线位置整体向上平移：用一条竖直双箭头标出 2 格的平移距离，箭头从 (0,0) 指向 (0,2)。同时直线上取三个采样点（x = -1、0、1），每个点各自向上移动 2 格，留下淡淡的残影轨迹，直观显示「每个点都上移 2 格」。右侧卡片显示 y = 2x + 2，高亮「b = 2」，并显示交点 (0, 2)。"
+      },
+      {
+        "id": "seg_b_negative",
+        "end": 95.16,
+        "start": 74.304,
+        "title": "情形三：b = -2，整条线下移 2 格",
+        "events": [
+          {
+            "end": 75.3,
+            "start": 74.6,
+            "target": "#s5-title",
+            "description": "标题「情形三：b = −2，整条线下移 2 格」升起"
+          },
+          {
+            "end": 77.3,
+            "start": 76.2,
+            "target": "#s5-line",
+            "description": "紫色直线从青色位置整体下移 2 格"
+          },
+          {
+            "end": 78.7,
+            "start": 78,
+            "target": "#s5-arrow",
+            "description": "竖直双箭头从 (0,0) 指向 (0,−2)"
+          },
+          {
+            "end": 80,
+            "start": 79.4,
+            "target": "#s5-dot",
+            "description": "交点 (0, −2) 圆点弹出"
+          },
+          {
+            "end": 84.5,
+            "start": 84,
+            "target": "#s5-r1",
+            "description": "规律条「b 增大 → 直线上移」点亮"
+          },
+          {
+            "end": 86.1,
+            "start": 85.6,
+            "target": "#s5-r2",
+            "description": "规律条「b 减小 → 直线下移」点亮"
+          },
+          {
+            "end": 87.7,
+            "start": 87.2,
+            "target": "#s5-r3",
+            "description": "规律条「平移格数 = |b 的变化量|」点亮"
+          }
+        ],
+        "narration": "再把 b 改成负 2。交点变成 0 逗号负 2，直线整体向下平移 2 格。所以规律很清楚：b 变大，直线往上走；b 变小，直线往下走；平移的格数，正好等于 b 的变化量。",
+        "audio_path": "assets/seg_b_negative.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o1",
+          "node_intercept_shift:o2"
+        ],
+        "visual_description": "琥珀色直线淡出为参照，紫色直线从青色直线位置整体向下平移 2 格，竖直双箭头从 (0,0) 指向 (0,-2)。右侧卡片显示 y = 2x - 2，高亮「b = -2」，交点标注 (0, -2)。随后三条直线同时回到画面并排显示，右侧出现规律条：「b 增大 → 上移；b 减小 → 下移；平移格数 = |b 的变化量|」，逐条点亮。"
+      },
+      {
+        "id": "seg_slope_why",
+        "end": 116.664,
+        "start": 95.16,
+        "title": "为什么斜率始终是 2？",
+        "events": [
+          {
+            "end": 96.1,
+            "start": 95.4,
+            "target": "#s6-title",
+            "description": "标题「为什么斜率始终是 2？」升起"
+          },
+          {
+            "end": 100.2,
+            "start": 98.6,
+            "target": "#s6-t-cyan",
+            "description": "三条线上同时画出「水平 1 格、竖直 2 格」的斜率三角形"
+          },
+          {
+            "end": 100.9,
+            "start": 100.4,
+            "target": "#s6-dx",
+            "description": "标注 Δx = 1"
+          },
+          {
+            "end": 101.7,
+            "start": 101.2,
+            "target": "#s6-dy",
+            "description": "标注 Δy = 2"
+          },
+          {
+            "end": 103.6,
+            "start": 103,
+            "target": "#s6-calc",
+            "description": "出现计算式 Δy / Δx = 2 / 1 = 2"
+          },
+          {
+            "end": 107.6,
+            "start": 107,
+            "target": "#s6-split",
+            "description": "拆解式子：2 是变化率，b 只是起点高度"
+          }
+        ],
+        "narration": "有同学会问：平移之后，直线是不是变陡了？我们检验一下。在每条线上，x 从 0 增加到 1，y 都增加 2。变化量之比都是 2 比 1，也就是 2。b 只加在最后，它不参与这个变化量，所以斜率始终是 2。",
+        "audio_path": "assets/seg_slope_why.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b",
+          "ev_c2df18f0d2342af2e38faa6c"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o3"
+        ],
+        "visual_description": "三条直线并排显示。在每条线上画出「水平走 1 格、竖直升 2 格」的直角三角形（斜率三角形），三个三角形同时出现，标注「Δx = 1，Δy = 2」。右侧出现计算式：Δy / Δx = 2 / 1 = 2，三条线共用同一个结果。随后式子卡片拆解：y = 2x + b 中，2 是变化率，b 只是起点高度，用不同颜色区分「2」和「b」。"
+      },
+      {
+        "id": "seg_parallel",
+        "end": 132.96,
+        "start": 116.664,
+        "title": "结论：三条直线互相平行",
+        "events": [
+          {
+            "end": 117.6,
+            "start": 116.9,
+            "target": "#s7-title",
+            "description": "标题「结论：三条直线互相平行」升起"
+          },
+          {
+            "end": 120.3,
+            "start": 119.6,
+            "target": "#s7-m1",
+            "description": "x = −1 处竖直测量线出现，标出距离 2"
+          },
+          {
+            "end": 122.1,
+            "start": 121.4,
+            "target": "#s7-m2",
+            "description": "x = 2 处竖直测量线出现，距离同样为 2"
+          },
+          {
+            "end": 124.8,
+            "start": 124.2,
+            "target": "#s7-concl",
+            "description": "结论条「斜率相同 + 截距不同 → 平行」弹出"
+          }
+        ],
+        "narration": "斜率相同、截距不同的两条直线，一定互相平行，永远不会相交。所以这三条线，斜率都是 2，只是起点高度不同，它们彼此平行，竖直方向上的距离始终不变。",
+        "audio_path": "assets/seg_parallel.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o3"
+        ],
+        "visual_description": "三条直线同时高亮，两条竖直测量线在 x = -1 和 x = 2 处出现，标出相邻两条线之间的竖直距离都是 2 格，且两处距离相等。画面下方出现结论条：「斜率相同 + 截距不同 → 平行」。最后三条线整体轻微上移再回位，强调「整体平移、形状不变」。"
+      },
+      {
+        "id": "seg_misconception",
+        "end": 148.29600000000002,
+        "start": 132.96,
+        "title": "常见误解：b 不是斜率",
+        "events": [
+          {
+            "end": 133.9,
+            "start": 133.2,
+            "target": "#s8-title",
+            "description": "标题「常见误解：b 不是斜率」升起"
+          },
+          {
+            "end": 134.5,
+            "start": 133.8,
+            "target": "#s8-wrong",
+            "description": "左侧错误示例：把 b 当斜率，画出过陡的红线并打叉"
+          },
+          {
+            "end": 136.3,
+            "start": 135.6,
+            "target": "#s8-right",
+            "description": "右侧正确示例：与 y=2x 平行、上移 2 格"
+          },
+          {
+            "end": 139.6,
+            "start": 139,
+            "target": "#s8-bar",
+            "description": "对照条「陡不陡看 k，起点在哪看 b」"
+          }
+        ],
+        "narration": "这里有个常见错误要提醒：不要把 b 当成斜率。b 变大，直线只是往上挪，并不会变陡。判断陡不陡，看的是 x 前面的系数 2；判断起点在哪，看的是 b。",
+        "audio_path": "assets/seg_misconception.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o3",
+          "node_intercept_shift:o4"
+        ],
+        "visual_description": "画面左右对比两个错误示例。左侧：把 y = 2x + 2 误读成「斜率是 2 加 2 等于 4」，画出一条更陡的红色直线，并打上红色叉号。右侧：正确画法，琥珀色直线与青色直线平行，打上绿色对勾。下方出现对照条：「陡不陡 → 看 k；起点在哪 → 看 b」。"
+      },
+      {
+        "id": "seg_check1",
+        "end": 179.06400000000002,
+        "start": 148.29600000000002,
+        "title": "检查一：写出与 y 轴的交点",
+        "events": [
+          {
+            "end": 149.3,
+            "start": 148.6,
+            "target": "#s9-title",
+            "description": "标题「检查一：写出与 y 轴的交点」升起"
+          },
+          {
+            "end": 149.7,
+            "start": 149,
+            "target": "#s9-q",
+            "description": "题目卡片滑入，留出思考停顿"
+          },
+          {
+            "end": 158.7,
+            "start": 158,
+            "target": "#s9-a",
+            "description": "答案卡片滑入"
+          },
+          {
+            "end": 159.6,
+            "start": 159,
+            "target": "#s9-a1",
+            "description": "揭示交点 (0, 5) 与 (0, −3)"
+          },
+          {
+            "end": 163.6,
+            "start": 163,
+            "target": "#s9-a3",
+            "description": "结论「5 > −3，所以 y = 2x + 5 在上方」"
+          },
+          {
+            "end": 165.7,
+            "start": 165,
+            "target": "#s9-graph",
+            "description": "小坐标系中两条平行线一上一下，交点标出"
+          }
+        ],
+        "narration": "来检查一下。第一题：y 等于 2x 加 5，和 y 等于 2x 减 3，它们与 y 轴的交点分别是什么？哪一条在上方？先自己想一想。答案是 0 逗号 5 和 0 逗号负 3，因为 b 就是交点的纵坐标。5 大于负 3，所以 y 等于 2x 加 5 在上方。",
+        "audio_path": "assets/seg_check1.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o4"
+        ],
+        "visual_description": "画面切换为题目卡片，显示两行式子：y = 2x + 5 与 y = 2x - 3，下方留出思考停顿。随后答案逐条揭示：交点 (0, 5)、(0, -3)，并配一个小坐标系，两条平行直线一上一下，交点用圆点标出。最后一行结论「b 大 → 在上方」高亮。"
+      },
+      {
+        "id": "seg_check2",
+        "end": 202.24800000000002,
+        "start": 179.06400000000002,
+        "title": "检查二：平移方向与斜率",
+        "events": [
+          {
+            "end": 180.1,
+            "start": 179.4,
+            "target": "#s10-title",
+            "description": "标题「检查二：平移方向与斜率」升起"
+          },
+          {
+            "end": 180.5,
+            "start": 179.8,
+            "target": "#s10-q",
+            "description": "题目卡片滑入"
+          },
+          {
+            "end": 187.7,
+            "start": 187,
+            "target": "#s10-a",
+            "description": "答案卡片滑入"
+          },
+          {
+            "end": 188.4,
+            "start": 187.8,
+            "target": "#s10-a1",
+            "description": "揭示「向下平移 2 格」"
+          },
+          {
+            "end": 190.2,
+            "start": 189.6,
+            "target": "#s10-a2",
+            "description": "揭示「斜率仍然是 2」"
+          },
+          {
+            "end": 192,
+            "start": 191.4,
+            "target": "#s10-a3",
+            "description": "揭示「三条线互相平行」"
+          },
+          {
+            "end": 194.1,
+            "start": 193.4,
+            "target": "#s10-arrow",
+            "description": "坐标系中青色直线下移 2 格变紫色，箭头标注"
+          },
+          {
+            "end": 195.5,
+            "start": 195,
+            "target": "#s10-k",
+            "description": "标注「k 都是 2」"
+          }
+        ],
+        "narration": "第二题：把 y 等于 2x 改成 y 等于 2x 减 2，直线怎样移动？斜率是多少？它和 y 等于 2x 加 2、y 等于 2x 减 2 这三条线平行吗？答案是：向下平移 2 格，斜率仍然是 2，三条线互相平行。",
+        "audio_path": "assets/seg_check2.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o2",
+          "node_intercept_shift:o3",
+          "node_intercept_shift:o4"
+        ],
+        "visual_description": "题目卡片显示 y = 2x → y = 2x - 2，并列出三条式子 y = 2x、y = 2x + 2、y = 2x - 2。答案揭示时，坐标系中青色直线向下平移 2 格变成紫色直线，竖直箭头标注 2 格；随后三条线同屏显示，斜率三角形同时出现，标注「k 都是 2」，并打出「互相平行」的结论。"
+      },
+      {
+        "id": "seg_summary",
+        "end": 224.544,
+        "start": 202.24800000000002,
+        "title": "收束：一句话记住 b",
+        "events": [
+          {
+            "end": 203.2,
+            "start": 202.5,
+            "target": "#s11-title",
+            "description": "标题「一句话记住 b」升起"
+          },
+          {
+            "end": 203.8,
+            "start": 203,
+            "target": "#s11-graph",
+            "description": "三条直线与坐标系缩小移到左侧，标出三个交点"
+          },
+          {
+            "end": 205.6,
+            "start": 205,
+            "target": "#s11-k1",
+            "description": "要点①「x = 0 时 y = b，交点为 (0, b)」点亮"
+          },
+          {
+            "end": 208.6,
+            "start": 208,
+            "target": "#s11-k2",
+            "description": "要点②「b 增大上移、减小下移」点亮"
+          },
+          {
+            "end": 211.6,
+            "start": 211,
+            "target": "#s11-k3",
+            "description": "要点③「斜率 k 不变，直线平行」点亮"
+          },
+          {
+            "end": 216.7,
+            "start": 216,
+            "target": "#s11-saved",
+            "description": "底部提示「讲义 + 两道练习已保存，可反复观看」"
+          }
+        ],
+        "narration": "最后用一句话收束：x 等于 0 时 y 等于 b，所以交点是 0 逗号 b；b 变大上移、变小下移，平移格数等于 b 的变化量；而斜率 k 始终不变，所以这些直线互相平行。讲义和两道练习已经保存好，可以反复观看。",
+        "audio_path": "assets/seg_summary.mp3",
+        "source_ids": [
+          "ev_e37765b613e54e7b7f7f085b",
+          "ev_c2df18f0d2342af2e38faa6c"
+        ],
+        "objective_ids": [
+          "node_intercept_shift:o1",
+          "node_intercept_shift:o2",
+          "node_intercept_shift:o3",
+          "node_intercept_shift:o4"
+        ],
+        "visual_description": "三条直线与坐标系整体缩小并移到画面左侧，右侧出现三条要点卡片，逐条点亮：① x = 0 时 y = b，交点为 (0, b)；② b 增大上移、减小下移，平移格数 = |b 的变化量|；③ 斜率 k 不变（本题 k = 2），直线平行。最后画面底部出现「讲义 + 两道练习已保存」的提示条，整体淡出。"
+      }
+    ]
+  },
+  "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+  "created_at": "2026-10-18T06:13:11.625220+00:00",
+  "created_by": "hf_e2e_20261017160234",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-10-18T06:13:11.625220+00:00",
+  "visibility": "private",
+  "material_id": "resource_03cb6c3cc66cced990124c06a24c636b",
+  "origin_type": "personal",
+  "content_hash": "c14848c2280004ca1772f795802f0ec1561540f7288252344a3cc3d2c0cea8f2",
+  "material_type": "classroom",
+  "owner_user_id": "hf_e2e_20261017160234",
+  "preparation_id": "prep_f490a8326a334d33a472aa13e1f6c1c9",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe synthesized narration audio",
+        "value_minutes": 3.7424000000000004
+      },
+      "generator": "hyperframes-native",
+      "spec_digest": "ecf46e66881cfc6db9bdcfe5591471fffd9984ae25995715b971b01bdf82261d",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "native": true,
+        "passed": true
+      },
+      "content_digest": "0d07e44bdffc9160f528eb48f5acffefcc773cf88acd3e4f6c1a9b59fc69ff56",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe synthesized narration audio",
+        "value_minutes": 3.7424000000000004
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "8452d26eeebe1ac32df81c9753c8917452689c961ca7599d492b155ce2b457bb"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "0d07e44bdffc9160f528eb48f5acffefcc773cf88acd3e4f6c1a9b59fc69ff56",
+      "preparation_sha256": "e5c1ef6ffd632575c60664c4b4a2b335d2a1df385ccc8bcceef1dbb3c7243dcb"
+    }
+  },
+  "preparation_artifact": {
+    "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+    "content": {
+      "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+      "format": "hyperframes/v1",
+      "exports": {
+        "video": "exports/lesson.mp4",
+        "project": "exports/project.zip",
+        "subtitles": "exports/lesson.srt"
+      },
+      "project": {
+        "id": "hf_resource_03cb6c3cc66cced990124c06a24c636b",
+        "entry": "index.html",
+        "digest": "bccae734d99b912d67400a03b68cbd9ea5e3bfea9d9cf16761be6019a02d711d"
+      },
+      "timeline": {
+        "duration": 224.544,
+        "segments": [
+          {
+            "id": "seg_intro_question",
+            "end": 23.568,
+            "start": 0,
+            "title": "开场：同一条斜率，为什么位置不同？",
+            "events": [
+              {
+                "end": 1.1,
+                "start": 0.3,
+                "target": "#s1-title",
+                "description": "标题「y = 2x + b 中的 b，做了什么？」从下方升起淡入"
+              },
+              {
+                "end": 3.2,
+                "start": 2.2,
+                "target": "#s1-legend",
+                "description": "右侧三条式子标签依次滑入"
+              },
+              {
+                "end": 5.2,
+                "start": 4,
+                "target": "#s1-l-cyan",
+                "description": "青色直线 y=2x 描线画出"
+              },
+              {
+                "end": 8.2,
+                "start": 7,
+                "target": "#s1-l-amber",
+                "description": "琥珀色直线 y=2x+2 描线画出，位于上方"
+              },
+              {
+                "end": 11.2,
+                "start": 10,
+                "target": "#s1-l-violet",
+                "description": "紫色直线 y=2x−2 描线画出，位于下方"
+              },
+              {
+                "end": 16,
+                "start": 15,
+                "target": "#s1-graph",
+                "description": "三条直线整体高亮一次，强调一样陡、位置不同"
+              }
+            ],
+            "narration": "先看一个现象。同一个坐标系里，我画三条直线：y 等于 2x，y 等于 2x 加 2，y 等于 2x 减 2。它们看起来一样陡，却停在不同的高度。这节课只解决一个问题：式子里的 b，到底让直线发生了什么变化。",
+            "audio_path": "assets/seg_intro_question.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o1",
+              "node_intercept_shift:o2"
+            ],
+            "visual_description": "深色背景，中央淡入一个空的平面直角坐标系，x 轴与 y 轴带箭头和刻度。标题「y = 2x + b 中的 b 做了什么」从下方升起。随后三条直线依次以描线动画画出：先 y=2x（青色），再 y=2x+2（琥珀色，位于上方），再 y=2x-2（紫色，位于下方），三条线保持平行。画面右侧出现三个小标签，分别对应三条式子，标签与直线同色。结尾处三条线整体轻微高亮一次，强调「一样陡、位置不同」。"
+          },
+          {
+            "id": "seg_yintercept_derive",
+            "end": 47.064,
+            "start": 23.568,
+            "title": "关键一步：让 x = 0",
+            "events": [
+              {
+                "end": 24.5,
+                "start": 23.8,
+                "target": "#s2-title",
+                "description": "标题「关键一步：让 x = 0」升起"
+              },
+              {
+                "end": 24.9,
+                "start": 24.2,
+                "target": "#s2-card",
+                "description": "右侧推导卡片滑入"
+              },
+              {
+                "end": 27.6,
+                "start": 27,
+                "target": "#s2-step1",
+                "description": "出现「当 x = 0 时」"
+              },
+              {
+                "end": 30.1,
+                "start": 29.5,
+                "target": "#s2-step2",
+                "description": "出现「y = 2×0 + b = b」"
+              },
+              {
+                "end": 32.7,
+                "start": 31.5,
+                "target": "#s2-dot",
+                "description": "y 轴上的高亮圆点从原点滑到 (0, b)"
+              },
+              {
+                "end": 35.6,
+                "start": 35,
+                "target": "#s2-term",
+                "description": "术语条「y 轴截距 = b」弹出"
+              }
+            ],
+            "narration": "为什么 b 能决定高度？回到式子里算一算。把 x 等于 0 代进去，2 乘 0 等于 0，所以 y 就等于 b。也就是说，直线和 y 轴的交点坐标永远是 0 逗号 b。这个点叫 y 轴截距，b 就是它的纵坐标。",
+            "audio_path": "assets/seg_yintercept_derive.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b",
+              "ev_c2df18f0d2342af2e38faa6c"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o1"
+            ],
+            "visual_description": "画面左侧保留坐标系，右侧出现推导卡片：y = 2x + b，下面一行逐步出现「当 x = 0 时，y = 2×0 + b = b」。同时坐标系中 y 轴上出现一个高亮圆点，从原点沿 y 轴滑动到 (0, b) 的位置，旁边浮出坐标标注 (0, b)。卡片下方出现术语条「y 轴截距 = b」，并用一条虚线把卡片和 y 轴上的点连起来。"
+          },
+          {
+            "id": "seg_b_zero",
+            "end": 59.76,
+            "start": 47.064,
+            "title": "情形一：b = 0，直线过原点",
+            "events": [
+              {
+                "end": 48,
+                "start": 47.3,
+                "target": "#s3-title",
+                "description": "标题「情形一：b = 0，直线过原点」升起"
+              },
+              {
+                "end": 48.8,
+                "start": 47.8,
+                "target": "#s3-line",
+                "description": "青色直线 y=2x 描线画出"
+              },
+              {
+                "end": 50,
+                "start": 49.4,
+                "target": "#s3-dot",
+                "description": "原点处圆点弹出，标注 (0, 0)"
+              },
+              {
+                "end": 51.3,
+                "start": 50.6,
+                "target": "#s3-card",
+                "description": "右侧式子卡片滑入，高亮 b = 0"
+              },
+              {
+                "end": 53.6,
+                "start": 53,
+                "target": "#s3-note",
+                "description": "出现「过原点 → 正比例函数的图象」"
+              }
+            ],
+            "narration": "先看 b 等于 0。这时式子就是 y 等于 2x，交点坐标是 0 逗号 0，直线正好穿过原点。这种过原点的直线，就是正比例函数的图象。",
+            "audio_path": "assets/seg_b_zero.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o1"
+            ],
+            "visual_description": "坐标系中只保留一条青色直线 y=2x，从原点出发向右上延伸。原点处出现一个脉动的圆点，标注 (0, 0)。右侧式子卡片显示 y = 2x + 0，即 y = 2x，并高亮「b = 0」。卡片下方出现一行小字「过原点 → 正比例函数图象」。"
+          },
+          {
+            "id": "seg_b_positive",
+            "end": 74.304,
+            "start": 59.76,
+            "title": "情形二：b = 2，整条线上移 2 格",
+            "events": [
+              {
+                "end": 60.7,
+                "start": 60,
+                "target": "#s4-title",
+                "description": "标题「情形二：b = 2，整条线上移 2 格」升起"
+              },
+              {
+                "end": 62.7,
+                "start": 61.6,
+                "target": "#s4-line",
+                "description": "琥珀色直线从青色位置整体上移 2 格"
+              },
+              {
+                "end": 62.9,
+                "start": 61.6,
+                "target": "#s4-q1",
+                "description": "三个采样点各自上移 2 格，显示每个点都平移"
+              },
+              {
+                "end": 64.1,
+                "start": 63.4,
+                "target": "#s4-arrow",
+                "description": "竖直双箭头标出 2 格平移距离"
+              },
+              {
+                "end": 65.5,
+                "start": 64.8,
+                "target": "#s4-card",
+                "description": "右侧卡片显示 y = 2x + 2 与交点 (0, 2)"
+              },
+              {
+                "end": 68,
+                "start": 67.4,
+                "target": "#s4-note",
+                "description": "强调「不是只有交点动了，是每个点都上移 2 格」"
+              }
+            ],
+            "narration": "现在把 b 改成 2。交点变成 0 逗号 2，直线整体向上平移 2 格。注意，不是只有交点动了，是直线上每一个点都向上挪了 2 格。",
+            "audio_path": "assets/seg_b_positive.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b",
+              "ev_c2df18f0d2342af2e38faa6c"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o2"
+            ],
+            "visual_description": "青色直线 y=2x 保持在原位并降低不透明度作为参照。一条琥珀色直线从青色直线位置整体向上平移：用一条竖直双箭头标出 2 格的平移距离，箭头从 (0,0) 指向 (0,2)。同时直线上取三个采样点（x = -1、0、1），每个点各自向上移动 2 格，留下淡淡的残影轨迹，直观显示「每个点都上移 2 格」。右侧卡片显示 y = 2x + 2，高亮「b = 2」，并显示交点 (0, 2)。"
+          },
+          {
+            "id": "seg_b_negative",
+            "end": 95.16,
+            "start": 74.304,
+            "title": "情形三：b = -2，整条线下移 2 格",
+            "events": [
+              {
+                "end": 75.3,
+                "start": 74.6,
+                "target": "#s5-title",
+                "description": "标题「情形三：b = −2，整条线下移 2 格」升起"
+              },
+              {
+                "end": 77.3,
+                "start": 76.2,
+                "target": "#s5-line",
+                "description": "紫色直线从青色位置整体下移 2 格"
+              },
+              {
+                "end": 78.7,
+                "start": 78,
+                "target": "#s5-arrow",
+                "description": "竖直双箭头从 (0,0) 指向 (0,−2)"
+              },
+              {
+                "end": 80,
+                "start": 79.4,
+                "target": "#s5-dot",
+                "description": "交点 (0, −2) 圆点弹出"
+              },
+              {
+                "end": 84.5,
+                "start": 84,
+                "target": "#s5-r1",
+                "description": "规律条「b 增大 → 直线上移」点亮"
+              },
+              {
+                "end": 86.1,
+                "start": 85.6,
+                "target": "#s5-r2",
+                "description": "规律条「b 减小 → 直线下移」点亮"
+              },
+              {
+                "end": 87.7,
+                "start": 87.2,
+                "target": "#s5-r3",
+                "description": "规律条「平移格数 = |b 的变化量|」点亮"
+              }
+            ],
+            "narration": "再把 b 改成负 2。交点变成 0 逗号负 2，直线整体向下平移 2 格。所以规律很清楚：b 变大，直线往上走；b 变小，直线往下走；平移的格数，正好等于 b 的变化量。",
+            "audio_path": "assets/seg_b_negative.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o1",
+              "node_intercept_shift:o2"
+            ],
+            "visual_description": "琥珀色直线淡出为参照，紫色直线从青色直线位置整体向下平移 2 格，竖直双箭头从 (0,0) 指向 (0,-2)。右侧卡片显示 y = 2x - 2，高亮「b = -2」，交点标注 (0, -2)。随后三条直线同时回到画面并排显示，右侧出现规律条：「b 增大 → 上移；b 减小 → 下移；平移格数 = |b 的变化量|」，逐条点亮。"
+          },
+          {
+            "id": "seg_slope_why",
+            "end": 116.664,
+            "start": 95.16,
+            "title": "为什么斜率始终是 2？",
+            "events": [
+              {
+                "end": 96.1,
+                "start": 95.4,
+                "target": "#s6-title",
+                "description": "标题「为什么斜率始终是 2？」升起"
+              },
+              {
+                "end": 100.2,
+                "start": 98.6,
+                "target": "#s6-t-cyan",
+                "description": "三条线上同时画出「水平 1 格、竖直 2 格」的斜率三角形"
+              },
+              {
+                "end": 100.9,
+                "start": 100.4,
+                "target": "#s6-dx",
+                "description": "标注 Δx = 1"
+              },
+              {
+                "end": 101.7,
+                "start": 101.2,
+                "target": "#s6-dy",
+                "description": "标注 Δy = 2"
+              },
+              {
+                "end": 103.6,
+                "start": 103,
+                "target": "#s6-calc",
+                "description": "出现计算式 Δy / Δx = 2 / 1 = 2"
+              },
+              {
+                "end": 107.6,
+                "start": 107,
+                "target": "#s6-split",
+                "description": "拆解式子：2 是变化率，b 只是起点高度"
+              }
+            ],
+            "narration": "有同学会问：平移之后，直线是不是变陡了？我们检验一下。在每条线上，x 从 0 增加到 1，y 都增加 2。变化量之比都是 2 比 1，也就是 2。b 只加在最后，它不参与这个变化量，所以斜率始终是 2。",
+            "audio_path": "assets/seg_slope_why.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b",
+              "ev_c2df18f0d2342af2e38faa6c"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o3"
+            ],
+            "visual_description": "三条直线并排显示。在每条线上画出「水平走 1 格、竖直升 2 格」的直角三角形（斜率三角形），三个三角形同时出现，标注「Δx = 1，Δy = 2」。右侧出现计算式：Δy / Δx = 2 / 1 = 2，三条线共用同一个结果。随后式子卡片拆解：y = 2x + b 中，2 是变化率，b 只是起点高度，用不同颜色区分「2」和「b」。"
+          },
+          {
+            "id": "seg_parallel",
+            "end": 132.96,
+            "start": 116.664,
+            "title": "结论：三条直线互相平行",
+            "events": [
+              {
+                "end": 117.6,
+                "start": 116.9,
+                "target": "#s7-title",
+                "description": "标题「结论：三条直线互相平行」升起"
+              },
+              {
+                "end": 120.3,
+                "start": 119.6,
+                "target": "#s7-m1",
+                "description": "x = −1 处竖直测量线出现，标出距离 2"
+              },
+              {
+                "end": 122.1,
+                "start": 121.4,
+                "target": "#s7-m2",
+                "description": "x = 2 处竖直测量线出现，距离同样为 2"
+              },
+              {
+                "end": 124.8,
+                "start": 124.2,
+                "target": "#s7-concl",
+                "description": "结论条「斜率相同 + 截距不同 → 平行」弹出"
+              }
+            ],
+            "narration": "斜率相同、截距不同的两条直线，一定互相平行，永远不会相交。所以这三条线，斜率都是 2，只是起点高度不同，它们彼此平行，竖直方向上的距离始终不变。",
+            "audio_path": "assets/seg_parallel.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o3"
+            ],
+            "visual_description": "三条直线同时高亮，两条竖直测量线在 x = -1 和 x = 2 处出现，标出相邻两条线之间的竖直距离都是 2 格，且两处距离相等。画面下方出现结论条：「斜率相同 + 截距不同 → 平行」。最后三条线整体轻微上移再回位，强调「整体平移、形状不变」。"
+          },
+          {
+            "id": "seg_misconception",
+            "end": 148.29600000000002,
+            "start": 132.96,
+            "title": "常见误解：b 不是斜率",
+            "events": [
+              {
+                "end": 133.9,
+                "start": 133.2,
+                "target": "#s8-title",
+                "description": "标题「常见误解：b 不是斜率」升起"
+              },
+              {
+                "end": 134.5,
+                "start": 133.8,
+                "target": "#s8-wrong",
+                "description": "左侧错误示例：把 b 当斜率，画出过陡的红线并打叉"
+              },
+              {
+                "end": 136.3,
+                "start": 135.6,
+                "target": "#s8-right",
+                "description": "右侧正确示例：与 y=2x 平行、上移 2 格"
+              },
+              {
+                "end": 139.6,
+                "start": 139,
+                "target": "#s8-bar",
+                "description": "对照条「陡不陡看 k，起点在哪看 b」"
+              }
+            ],
+            "narration": "这里有个常见错误要提醒：不要把 b 当成斜率。b 变大，直线只是往上挪，并不会变陡。判断陡不陡，看的是 x 前面的系数 2；判断起点在哪，看的是 b。",
+            "audio_path": "assets/seg_misconception.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o3",
+              "node_intercept_shift:o4"
+            ],
+            "visual_description": "画面左右对比两个错误示例。左侧：把 y = 2x + 2 误读成「斜率是 2 加 2 等于 4」，画出一条更陡的红色直线，并打上红色叉号。右侧：正确画法，琥珀色直线与青色直线平行，打上绿色对勾。下方出现对照条：「陡不陡 → 看 k；起点在哪 → 看 b」。"
+          },
+          {
+            "id": "seg_check1",
+            "end": 179.06400000000002,
+            "start": 148.29600000000002,
+            "title": "检查一：写出与 y 轴的交点",
+            "events": [
+              {
+                "end": 149.3,
+                "start": 148.6,
+                "target": "#s9-title",
+                "description": "标题「检查一：写出与 y 轴的交点」升起"
+              },
+              {
+                "end": 149.7,
+                "start": 149,
+                "target": "#s9-q",
+                "description": "题目卡片滑入，留出思考停顿"
+              },
+              {
+                "end": 158.7,
+                "start": 158,
+                "target": "#s9-a",
+                "description": "答案卡片滑入"
+              },
+              {
+                "end": 159.6,
+                "start": 159,
+                "target": "#s9-a1",
+                "description": "揭示交点 (0, 5) 与 (0, −3)"
+              },
+              {
+                "end": 163.6,
+                "start": 163,
+                "target": "#s9-a3",
+                "description": "结论「5 > −3，所以 y = 2x + 5 在上方」"
+              },
+              {
+                "end": 165.7,
+                "start": 165,
+                "target": "#s9-graph",
+                "description": "小坐标系中两条平行线一上一下，交点标出"
+              }
+            ],
+            "narration": "来检查一下。第一题：y 等于 2x 加 5，和 y 等于 2x 减 3，它们与 y 轴的交点分别是什么？哪一条在上方？先自己想一想。答案是 0 逗号 5 和 0 逗号负 3，因为 b 就是交点的纵坐标。5 大于负 3，所以 y 等于 2x 加 5 在上方。",
+            "audio_path": "assets/seg_check1.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o4"
+            ],
+            "visual_description": "画面切换为题目卡片，显示两行式子：y = 2x + 5 与 y = 2x - 3，下方留出思考停顿。随后答案逐条揭示：交点 (0, 5)、(0, -3)，并配一个小坐标系，两条平行直线一上一下，交点用圆点标出。最后一行结论「b 大 → 在上方」高亮。"
+          },
+          {
+            "id": "seg_check2",
+            "end": 202.24800000000002,
+            "start": 179.06400000000002,
+            "title": "检查二：平移方向与斜率",
+            "events": [
+              {
+                "end": 180.1,
+                "start": 179.4,
+                "target": "#s10-title",
+                "description": "标题「检查二：平移方向与斜率」升起"
+              },
+              {
+                "end": 180.5,
+                "start": 179.8,
+                "target": "#s10-q",
+                "description": "题目卡片滑入"
+              },
+              {
+                "end": 187.7,
+                "start": 187,
+                "target": "#s10-a",
+                "description": "答案卡片滑入"
+              },
+              {
+                "end": 188.4,
+                "start": 187.8,
+                "target": "#s10-a1",
+                "description": "揭示「向下平移 2 格」"
+              },
+              {
+                "end": 190.2,
+                "start": 189.6,
+                "target": "#s10-a2",
+                "description": "揭示「斜率仍然是 2」"
+              },
+              {
+                "end": 192,
+                "start": 191.4,
+                "target": "#s10-a3",
+                "description": "揭示「三条线互相平行」"
+              },
+              {
+                "end": 194.1,
+                "start": 193.4,
+                "target": "#s10-arrow",
+                "description": "坐标系中青色直线下移 2 格变紫色，箭头标注"
+              },
+              {
+                "end": 195.5,
+                "start": 195,
+                "target": "#s10-k",
+                "description": "标注「k 都是 2」"
+              }
+            ],
+            "narration": "第二题：把 y 等于 2x 改成 y 等于 2x 减 2，直线怎样移动？斜率是多少？它和 y 等于 2x 加 2、y 等于 2x 减 2 这三条线平行吗？答案是：向下平移 2 格，斜率仍然是 2，三条线互相平行。",
+            "audio_path": "assets/seg_check2.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o2",
+              "node_intercept_shift:o3",
+              "node_intercept_shift:o4"
+            ],
+            "visual_description": "题目卡片显示 y = 2x → y = 2x - 2，并列出三条式子 y = 2x、y = 2x + 2、y = 2x - 2。答案揭示时，坐标系中青色直线向下平移 2 格变成紫色直线，竖直箭头标注 2 格；随后三条线同屏显示，斜率三角形同时出现，标注「k 都是 2」，并打出「互相平行」的结论。"
+          },
+          {
+            "id": "seg_summary",
+            "end": 224.544,
+            "start": 202.24800000000002,
+            "title": "收束：一句话记住 b",
+            "events": [
+              {
+                "end": 203.2,
+                "start": 202.5,
+                "target": "#s11-title",
+                "description": "标题「一句话记住 b」升起"
+              },
+              {
+                "end": 203.8,
+                "start": 203,
+                "target": "#s11-graph",
+                "description": "三条直线与坐标系缩小移到左侧，标出三个交点"
+              },
+              {
+                "end": 205.6,
+                "start": 205,
+                "target": "#s11-k1",
+                "description": "要点①「x = 0 时 y = b，交点为 (0, b)」点亮"
+              },
+              {
+                "end": 208.6,
+                "start": 208,
+                "target": "#s11-k2",
+                "description": "要点②「b 增大上移、减小下移」点亮"
+              },
+              {
+                "end": 211.6,
+                "start": 211,
+                "target": "#s11-k3",
+                "description": "要点③「斜率 k 不变，直线平行」点亮"
+              },
+              {
+                "end": 216.7,
+                "start": 216,
+                "target": "#s11-saved",
+                "description": "底部提示「讲义 + 两道练习已保存，可反复观看」"
+              }
+            ],
+            "narration": "最后用一句话收束：x 等于 0 时 y 等于 b，所以交点是 0 逗号 b；b 变大上移、变小下移，平移格数等于 b 的变化量；而斜率 k 始终不变，所以这些直线互相平行。讲义和两道练习已经保存好，可以反复观看。",
+            "audio_path": "assets/seg_summary.mp3",
+            "source_ids": [
+              "ev_e37765b613e54e7b7f7f085b",
+              "ev_c2df18f0d2342af2e38faa6c"
+            ],
+            "objective_ids": [
+              "node_intercept_shift:o1",
+              "node_intercept_shift:o2",
+              "node_intercept_shift:o3",
+              "node_intercept_shift:o4"
+            ],
+            "visual_description": "三条直线与坐标系整体缩小并移到画面左侧，右侧出现三条要点卡片，逐条点亮：① x = 0 时 y = b，交点为 (0, b)；② b 增大上移、减小下移，平移格数 = |b 的变化量|；③ 斜率 k 不变（本题 k = 2），直线平行。最后画面底部出现「讲义 + 两道练习已保存」的提示条，整体淡出。"
+          }
+        ]
+      }
+    },
+    "limitations": [],
+    "artifact_type": "classroom",
+    "generation_state": {
+      "preparation": {
+        "duration": {
+          "basis": "measured",
+          "method": "ffprobe synthesized narration audio",
+          "value_minutes": 3.7424000000000004
+        },
+        "generator": "hyperframes-native",
+        "spec_digest": "ecf46e66881cfc6db9bdcfe5591471fffd9984ae25995715b971b01bdf82261d",
+        "capabilities": {
+          "animation": true,
+          "narration": true,
+          "video_export": true,
+          "project_export": true
+        },
+        "render_checks": {
+          "issues": [],
+          "native": true,
+          "passed": true
+        },
+        "content_digest": "0d07e44bdffc9160f528eb48f5acffefcc773cf88acd3e4f6c1a9b59fc69ff56",
+        "media_duration": {
+          "basis": "measured",
+          "method": "ffprobe synthesized narration audio",
+          "value_minutes": 3.7424000000000004
+        },
+        "schema_version": 1,
+        "alignment_policy": "optional_native_classroom_v1",
+        "alignment_status": "not_generated",
+        "objective_bindings": [],
+        "applied_requirements": [],
+        "teaching_context_digest": "8452d26eeebe1ac32df81c9753c8917452689c961ca7599d492b155ce2b457bb"
+      },
+      "resource_review": {
+        "method": "structural_validation",
+        "policy": "classroom-no-extra-review-v1",
+        "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+        "decision": "skipped",
+        "resource_type": "classroom",
+        "content_sha256": "0d07e44bdffc9160f528eb48f5acffefcc773cf88acd3e4f6c1a9b59fc69ff56",
+        "preparation_sha256": "e5c1ef6ffd632575c60664c4b4a2b335d2a1df385ccc8bcceef1dbb3c7243dcb"
+      }
+    }
+  },
+  "learning_course_resource": true,
+  "standard_kind": null,
+  "generation_batch_id": null,
+  "current_review_status": "not_required",
+  "approved_version": null,
+  "approved_by": null,
+  "approved_at": null,
+  "source_job_id": null,
+  "is_pinned": false,
+  "pinned_at": null
+}

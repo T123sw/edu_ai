@@ -1,0 +1,22 @@
+{
+  "productionModified": false,
+  "model": "real configured default provider",
+  "storage": "/tmp/pbl-model-statement-real/storage",
+  "runtime": "real algorithm Worker and project browser checker",
+  "results": [
+    {
+      "kind": "algorithm",
+      "passed": false,
+      "errorType": "TimeoutError",
+      "message": "",
+      "elapsedSeconds": 300.28
+    },
+    {
+      "kind": "project",
+      "passed": false,
+      "errorType": "TimeoutError",
+      "message": "",
+      "elapsedSeconds": 300.37
+    }
+  ]
+}

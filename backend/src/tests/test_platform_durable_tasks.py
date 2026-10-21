@@ -53,6 +53,8 @@ def test_platform_commands_are_persisted_without_live_dependencies(tmp_path):
         "course_id": "course-1",
         "requirement": "Explain recursion",
         "enable_tts": True,
+        "deadline_seconds": 3600,
+        "execution_timeout_seconds": 3600,
     }
     store.close()
 

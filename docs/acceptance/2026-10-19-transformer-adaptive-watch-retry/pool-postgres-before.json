@@ -1,0 +1,18 @@
+{
+  "source": "/home/zxqs_ep/Edu_AI/backend/src",
+  "production_database_used": false,
+  "pool_capacity": 3,
+  "blocked_waiters_before_authorization": 2,
+  "checked_out_before_authorization": 3,
+  "holder": {
+    "status": "failed",
+    "error": "TimeoutError",
+    "message": "QueuePool limit of size 3 overflow 0 reached, connection timed out, timeout 0.50 (Background on this error at: https://sqlalche.me/e/20/3o7r)"
+  },
+  "waiters": [
+    "succeeded",
+    "succeeded"
+  ],
+  "seconds": 0.5243231360800564,
+  "checked_out_after": 0
+}

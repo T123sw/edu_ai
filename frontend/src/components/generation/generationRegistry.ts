@@ -24,7 +24,7 @@ export const generationRegistry: readonly GenerationRegistryItem[] = [
   { resourceType: "flashcard", canonicalType: "flashcard", actionHint: "generate.flashcard", label: "闪卡", description: "生成便于复习和课堂抽查的卡片", placeholder: "例如：生成 12 张操作系统进程与线程闪卡，每张只考一个概念，答案简洁。", icon: "fact_check", accent: "#8b4bc2", definition: flashcardDefinition },
   { resourceType: "mind_map", canonicalType: "graph", actionHint: "generate.graph", label: "思维导图", description: "梳理主题层级与概念关系", placeholder: "例如：生成一张细胞呼吸思维导图，按阶段组织，标明发生场所、输入、输出和关键条件。", icon: "account_tree", accent: "#c0448a", definition: mindMapDefinition },
   { resourceType: "game", canonicalType: "game", actionHint: "generate.game", label: "课堂小游戏", description: "生成分类、配对或记忆互动", placeholder: "例如：设计一个英语不规则动词配对游戏，面向初一学生，共 10 组，完成后给出反馈。", icon: "play_circle", accent: "#26765b", definition: gameDefinition },
-  { resourceType: "classroom", canonicalType: "classroom", actionHint: "generate.classroom", label: "AI 课堂", description: "生成包含讲解和互动场景的课堂", placeholder: "例如：创建一个 15 分钟的牛顿第二定律 AI 课堂，包含演示和一道互动检测题，不需要外部配图。", icon: "school", accent: "#126e82", definition: classroomDefinition },
+  { resourceType: "classroom", canonicalType: "classroom", actionHint: "generate.classroom", label: "AI 课堂", description: "根据需求生成教学视频", placeholder: "例如：用一段中文教学视频向初中生解释牛顿第二定律，展示力、质量和加速度的关系。", icon: "school", accent: "#126e82", definition: classroomDefinition },
 ] as const;
 
 export function getGenerationResource(type: GenerationResourceType) {
@@ -37,7 +37,7 @@ export function selectGenerationResources(allowedTools: readonly GenerationResou
   const seen = new Set<GenerationResourceType>();
   for (const toolId of allowedTools) {
     const item = definitions.get(toolId);
-    if (!item || seen.has(toolId)) continue;
+    if (!item || ["lesson_plan", "blog"].includes(toolId) || seen.has(toolId)) continue;
     seen.add(toolId);
     selected.push(item);
   }

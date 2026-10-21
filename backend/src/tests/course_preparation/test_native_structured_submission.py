@@ -67,7 +67,7 @@ def test_report_writer_and_independent_reviewer_use_native_object_submissions():
             assert not validator.is_valid(missing)
         return httpx.Response(200,json={'id':'report','object':'chat.completion','created':1,'model':body['model'],
             'choices':[{'index':0,'message':{'role':'assistant','content':None,'tool_calls':[
-                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps(replies[len(calls)-1] if len(calls) == len(replies) else {'value':replies[len(calls)-1]},ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
+                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps(replies[len(calls)-1],ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
             'usage':{'prompt_tokens':50,'completion_tokens':20,'total_tokens':70}})
     model,ledger=gateway(complete,sdk_factory=DeepSeekHarness,context={'artifact_id':'report','spec_digest':request.spec_digest})
     body,state=generate_reviewed_report(request,model)
@@ -82,6 +82,8 @@ def test_native_quiz_review_selects_original_explanation_spans_and_persists_cano
     from app.chat.harness.preparation_content import preparation_metadata
     from app.chat.harness.reviewed_resource import ReviewedResourceGenerator, verified_resource
     request=payload('quiz');envelope=quiz_envelope();calls=[]
+    envelope['content']['questions'][0]['difficulty']='easy'
+    envelope['question_time_estimates']=[{'question_id':'q-tools','thinking_seconds':30,'reason':'追踪调用与实际执行两个步骤'}]
     metadata=preparation_metadata('quiz',envelope['content'],envelope,request.teaching_context,request.spec_digest)
     review=completion_review({'preparation':metadata},'quiz')
     review['preparation_checks']=[{'binding_index':i,'passed':c['passed'],'reason':c['reason']}
@@ -106,7 +108,7 @@ def test_native_quiz_review_selects_original_explanation_spans_and_persists_cano
             assert not validator.is_valid(missing)
         return httpx.Response(200,json={'id':'quiz','object':'chat.completion','created':1,'model':body['model'],
             'choices':[{'index':0,'message':{'role':'assistant','content':None,'tool_calls':[
-                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps(replies[len(calls)-1] if len(calls) == len(replies) else {'value':replies[len(calls)-1]},ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
+                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps(replies[len(calls)-1],ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
             'usage':{'prompt_tokens':50,'completion_tokens':20,'total_tokens':70}})
     model,ledger=gateway(complete,sdk_factory=DeepSeekHarness,context={'artifact_id':'quiz','spec_digest':request.spec_digest})
     artifact=ReviewedResourceGenerator(model).generate(request,job_id='j',config_snapshot_id='c')['artifacts'][0]

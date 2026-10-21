@@ -5,7 +5,7 @@ set -Eeuo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly PROJECT_ROOT
 readonly STARTUP_TIMEOUT_SECONDS="${EDU_AI_STARTUP_TIMEOUT_SECONDS:-180}"
-readonly SERVICES=(postgresql edu-ai-openmaic edu-ai-backend nginx)
+readonly SERVICES=(postgresql edu-ai-tts edu-ai-backend nginx)
 
 if [[ "${EUID}" -eq 0 ]]; then
   SUDO=()
@@ -26,7 +26,7 @@ check_deployment_files() {
   local required_files=(
     "${PROJECT_ROOT}/.env"
     "${PROJECT_ROOT}/frontend/dist/index.html"
-    "${PROJECT_ROOT}/openmaic-sidecar/.next/BUILD_ID"
+    "${PROJECT_ROOT}/hyperframes-runtime/node_modules/hyperframes/bin/hyperframes.mjs"
   )
   local file
 
@@ -105,7 +105,7 @@ main() {
   done
 
   printf 'Checking application endpoints...\n'
-  wait_for_http 'OpenMAIC' 'http://127.0.0.1:3000/api/health'
+  wait_for_http 'Local Qwen3-TTS' 'http://127.0.0.1:8188/health'
   wait_for_http 'FastAPI' 'http://127.0.0.1:8001/health'
   wait_for_http 'Nginx frontend/backend route' 'http://127.0.0.1/backend/health'
 

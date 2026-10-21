@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-13",
+  "policy": "classroom-no-extra-review-v1",
+  "source_verification": "passed",
+  "behavior": {
+    "classroom_extra_model_review": "skipped",
+    "classroom_binding_model_review": "skipped",
+    "node_and_course_model_review": "excludes_classroom_content_and_bindings",
+    "structural_identity_and_locator_checks": "retained",
+    "report_and_quiz_model_review": "retained",
+    "persisted_native_candidate_recovery": "reuse_content_without_resetting_budget_or_deadline"
+  },
+  "tests": [
+    {
+      "scope": "course_preparation + chat/test_harness_resources.py + test_classroom_service.py",
+      "passed": 708,
+      "skipped": 152,
+      "failed": 3,
+      "note": "The three failures asserted the removed classroom review behavior; expectations were updated and the entire affected file rerun successfully below. This is not recorded as a clean single full-suite run."
+    },
+    {
+      "scope": "test_acceptance_recovery_regressions.py + test_classroom_no_extra_review.py after expectation updates",
+      "passed": 16,
+      "skipped": 4,
+      "failed": 0
+    },
+    {
+      "scope": "chat/test_harness_resources.py including structural receipt reporting regression",
+      "passed": 52,
+      "failed": 0
+    }
+  ],
+  "skipped_database_variants": "PostgreSQL-specific fixtures were not configured with an isolated test database; SQLite recovery cases passed.",
+  "static_validation": {
+    "git_diff_check": "passed",
+    "changed_python_compileall": "passed"
+  },
+  "real_candidate_replay": "candidate-replay.json",
+  "deployment": {
+    "status": "pending_backend_restart",
+    "restart_command": "systemctl --no-ask-password restart edu-ai-backend",
+    "restart_result": "Interactive authentication required",
+    "e2e_after_change": "not_run_against_reloaded_backend"
+  }
+}

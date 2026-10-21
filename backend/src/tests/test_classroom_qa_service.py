@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.integrations.openmaic import OpenMaicUnavailable
+from httpx import ReadTimeout
 from app.schemas.classroom_qa import ClassroomQaTurnRequest
 from app.services.classroom_qa_service import ClassroomQaError, ClassroomQaService
 from app.services.classroom_qa_store import ClassroomQaSessionStore
@@ -120,7 +120,7 @@ async def test_submit_turn_is_idempotent_across_repeated_client_turn_id(tmp_path
 
 async def test_tts_failure_preserves_answer_and_marks_degraded(tmp_path):
     service, _, _, tts, _ = create_service(tmp_path)
-    tts.error = OpenMaicUnavailable('offline')
+    tts.error = ReadTimeout('offline')
 
     result = await service.submit_turn(
         course_id='course-1',

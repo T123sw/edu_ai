@@ -1,0 +1,5 @@
+{
+  "home_loaded": true,
+  "task_progress_reopened": true,
+  "automation_note": "Initial driver attempted the background button while the automatically restored progress dialog was already open; resumed observation of the same task without re-submission."
+}

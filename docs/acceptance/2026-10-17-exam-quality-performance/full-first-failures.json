@@ -1,0 +1,84 @@
+[
+  {
+    "ordinal": 10,
+    "topic": "表达式转换为后缀表达式",
+    "issues": [
+      "independent_calculation_failed",
+      "calculation_unverified: expression node not allowed: Call",
+      "calculation_unverified: expression node not allowed: Call",
+      "calculation_unverified: expression node not allowed: Call",
+      "calculation_unverified: expression node not allowed: Call",
+      "calculation_unverified: expression node not allowed: Call",
+      "option_calculation_unverified: A: expression node not allowed: Call",
+      "option_calculation_unverified: B: expression node not allowed: Call",
+      "option_calculation_unverified: C: expression node not allowed: Call",
+      "option_calculation_unverified: D: expression node not allowed: Call"
+    ]
+  },
+  {
+    "ordinal": 15,
+    "topic": "单链表为空的判断",
+    "issues": [
+      "novel_question",
+      "requirements_met",
+      "no_substantive_task_change",
+      "新题仅添加图书馆借阅队列的情境包装，实际考查的仍是“带头结点单链表为空的判断条件”这一同一事实，未改变任务条件或所需推理。",
+      "题干与答案实质等同于原题，属于同一知识点的事实性重复，不满足“使用新的数据或情境”生成有意义新题的要求。"
+    ]
+  },
+  {
+    "ordinal": 21,
+    "topic": "字符串替换操作",
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "候选答案 Zaaba 错误：正确结果应为 ZZa。",
+      "解释中称剩余部分 aaaba 无法再匹配 aab，但原串位置4起的 aab 实际可匹配，导致漏掉第二次替换。",
+      "解释的推导过程与独立求解结果不一致，最终答案与推导均不正确。"
+    ]
+  },
+  {
+    "ordinal": 26,
+    "topic": "完全二叉树的性质",
+    "issues": [
+      "subquestion_count_mismatch"
+    ]
+  },
+  {
+    "ordinal": 27,
+    "topic": "哈希表的构建与查找长度",
+    "issues": [
+      "independent_calculation_failed",
+      "calculation_unverified: invalid loop"
+    ]
+  },
+  {
+    "ordinal": 30,
+    "topic": "Dijkstra算法",
+    "issues": [
+      "independent_calculation_failed",
+      "calculation_unverified: expression node not allowed: Call",
+      "calculation_unverified: expression node not allowed: Call",
+      "calculation_unverified: expression node not allowed: Call"
+    ]
+  },
+  {
+    "ordinal": 31,
+    "topic": "单链表的操作",
+    "issues": [
+      "independent_solution_unverified",
+      "Independent solver did not establish a well-posed answer"
+    ]
+  },
+  {
+    "ordinal": 32,
+    "topic": "二叉检索树的判定与ASL计算",
+    "issues": [
+      "novel_question",
+      "requirements_met",
+      "no_substantive_task_change",
+      "与原题考点、子题结构、任务要求完全一致，仅将根指针pBTree改名为root，属于变量重命名，未提供新的数据或情境",
+      "未满足“使用新的数据或情境、不照抄原题”的模拟卷生成要求"
+    ]
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "test_fixture_material_removed": "course-1/report/report-1",
+  "versions_created_in_run_removed": 5,
+  "test_fixture_job_restored_from_event": "job-1",
+  "restored_updated_at": "2026-10-13 19:45:36.587754+00:00",
+  "reason": "Initial regression invocation inherited PostgreSQL modes; subsequent suite explicitly isolated all persistence modes after Config import."
+}

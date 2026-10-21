@@ -36,7 +36,7 @@ def plain_text(value):
 
 
 def narration_sentences(text):
-    # Keep in sync with frontend/src/openmaic/narrationSentences.ts.
+    # Keep in sync with frontend/src/classroom/narrationSentences.ts.
     return [part.strip() for part in re.findall(r'[^。！？!?\n]+[。！？!?]*(?:[”’」』])?|[^\n]+', text) if part.strip()]
 
 
@@ -95,6 +95,9 @@ def find_scene(material, scene_id):
 
 
 def classroom_context(material, locator, playback=None):
+    from .hyperframes_context import native_content, classroom_timeline_context
+    if native_content(material):
+        return classroom_timeline_context(material, locator, playback)
     directory = [{'scene_id': s['id'], 'page': i + 1, 'title': s.get('title', ''), 'type': s.get('type')}
                  for i, s in enumerate(material.get('scenes', []))]
     result = {'title': material.get('title', ''), 'directory': directory,

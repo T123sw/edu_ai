@@ -1,0 +1,17 @@
+{
+  "boundary": "Exact old/new normalizer replay on valid JSON scalar answer values; deterministic test, no model.",
+  "cases": [
+    {
+      "input": false,
+      "kind": "concept",
+      "before": "",
+      "after": "false"
+    },
+    {
+      "input": 0,
+      "kind": "short_answer",
+      "before": "",
+      "after": "0"
+    }
+  ]
+}

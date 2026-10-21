@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "steps": [
+    {
+      "stepId": "step-input-form",
+      "checks": 4,
+      "nativeChecks": 4,
+      "passed": true
+    },
+    {
+      "stepId": "step-submit-reset",
+      "checks": 6,
+      "nativeChecks": 6,
+      "passed": true
+    }
+  ],
+  "runs": 5,
+  "serverErrors": [],
+  "tested": [
+    "empty starter fails",
+    "cumulative server execution",
+    "native browser execution",
+    "modified source invalidates results",
+    "broken source fails both runtimes",
+    "restore and refresh",
+    "320/390/1440 widths"
+  ],
+  "backend": "production Nginx + production PostgreSQL API, dedicated test account",
+  "generation": "actual model"
+}

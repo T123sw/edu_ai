@@ -1,0 +1,53 @@
+{
+  "performed": true,
+  "scope": "Read existing native contact sheets; no new render or playback was triggered by observer.",
+  "reviewed": [
+    {
+      "node": "n1-motivation",
+      "image": "previews/n1-motivation-7125e5bc-7654-449f-8046-941335907240-contact-sheet-1.jpg",
+      "observations": [
+        "Nine sampled images contain titles, labels or diagrams; no entirely blank sampled frame.",
+        "Dark blue/black theme; sampled Seq2Seq, attention weighting and encoder/decoder diagrams are present.",
+        "Some diagram labels occupy a small fraction of the frame; legibility at final display size has not been tested."
+      ]
+    },
+    {
+      "node": "n2-self-attention",
+      "image": "previews/n2-self-attention-2afc023a-aa9b-4dae-b03e-84a50cadf345-contact-sheet-1.jpg",
+      "observations": [
+        "Nine sampled images show Q/K/V projections, dot products, softmax, weighted sum, a three-token numerical demonstration and multi-head concatenation.",
+        "Dark blue grid theme; no entirely blank sampled frame; small secondary diagram labels require final-size inspection."
+      ]
+    },
+    {
+      "node": "n3-positional-encoding",
+      "image": "previews/n3-positional-encoding-d798efa2-0f4f-4895-beec-25a33d666568-contact-sheet-1.jpg",
+      "observations": [
+        "Nine sampled images show token order, permutation, sequential/parallel structure, input position addition and sine/cosine encoding.",
+        "Dark blue grid theme; no entirely blank sampled frame."
+      ]
+    },
+    {
+      "node": "n4-encoder",
+      "image": "previews/n4-encoder-aeb3814d-a6fe-42b6-8eae-ccf542fb0b7d-contact-sheet-1.jpg",
+      "observations": [
+        "Nine sampled images show stacked encoder layers, input addition, attention, residual connections, layer normalization and feed-forward structure.",
+        "Dark blue grid theme; no entirely blank sampled frame. Small labels remain a final-display legibility limitation."
+      ]
+    },
+    {
+      "node": "n5-decoder-and-flow",
+      "image": "previews/n5-decoder-and-flow-aee7790c-d11c-43e0-bb63-377a144270ea-contact-sheet-1.jpg",
+      "observations": [
+        "Nine sampled images show encoder/decoder comparison, causal and padding masks, shifted targets, cross-attention Q/K/V sources.",
+        "No entirely blank sampled frame. Cross-attention title wraps its final character onto a separate line; secondary labels are small in contact sheet.",
+        "All five reviewed sheets share a dark blue palette; spacing and title treatments vary."
+      ]
+    }
+  ],
+  "not_performed": [
+    "frame-by-frame playback",
+    "semantic/numeric review",
+    "interactive UI checks"
+  ]
+}

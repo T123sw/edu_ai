@@ -1,0 +1,605 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>正式生成前验证</title><style>body{font-family:system-ui,"Noto Sans CJK SC",sans-serif;max-width:1160px;margin:40px auto;padding:0 24px;color:#19302b;background:#f6f8f4;line-height:1.65}h1{font-size:30px}h2{margin-top:40px;font-size:22px}.lead{font-size:18px}.notice{padding:18px 22px;border-left:4px solid #b48735;background:#fff9e9}table{width:100%;border-collapse:collapse;background:white;margin:18px 0;font-size:14px}th,td{text-align:left;padding:11px;border:1px solid #dce3da;overflow-wrap:anywhere}th{background:#e7eee3}a{color:#19654e}details{margin:12px 0;background:white;border:1px solid #dce3da;padding:14px}summary{cursor:pointer;font-weight:600}pre{font-family:ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;max-height:620px;overflow:auto}img{width:100%;max-width:850px;border:1px solid #dce3da}</style><body><h1>课程准备：正式生成前端到端验证</h1><p class="lead">真实首页输入、真实模型和检索、独立 PostgreSQL、正式资源生成前强制停止。</p><div class="notice">边界：本记录验证准备链路到生成规格。没有生成报告正文、习题正文、AI 课堂、图片、视频或音频，也没有交付可学习课程。界面最终显示“已取消”是验证停止规则，不能记成正式课程成功。</div><h2>上下文预算</h2><p>48,000 原来是固定的 UTF-8 JSON 字节上限，既不是 48,000 个汉字，也不是 48,000 个 token。现改为软目标：优先去重；必需要求、结论与定位超出时按需扩展，默认最多 96,000 字节。可选正文不会触发扩容。完整请求（含提示词、工具、历史、输出余量）仍经过 128,000 保守上界检查，实际 token 消耗由接口 usage 记账。</p><p>当前实际调用模型配置为 deepseek-v4-flash，直连 DeepSeek 官方 API。<a href="https://www.deepseek.com/platform/">官方平台说明</a>标注支持 1M token 上下文；本轮没有做百万 token 极限测试，模型容量不等于应用预算。</p><h2>实际流程与每步使用的内容</h2><table><thead><tr><th>步骤</th><th>输入</th><th>执行方式</th><th>产物（主验证轮）</th></tr></thead><tbody><tr><td>用户提交</td><td>首页输入、默认开启 AI 课堂；登录用户身份、request_id</td><td>真实浏览器 → HTTP API → PostgreSQL；同一请求重复提交核对幂等</td><td><a href="run-5/request.json">request.json</a></td></tr><tr><td>需求理解</td><td>本次原始要求、学习偏好（本次新账号为空）、上传资料（本次无）</td><td>deepseek-v4-flash / understand-learning-request / save_preparation_brief</td><td><a href="run-5/brief.json">brief.json</a></td></tr><tr><td>上传解析</td><td>本次未上传文件</td><td>分支按实际条件跳过；没有调用 MinerU，不能算上传解析验收</td><td><a href="run-5/input_documents.json">input_documents.json</a></td></tr><tr><td>资料研究</td><td>原始要求、需求 brief、可用搜索能力、已读来源与预算</td><td>DeepSeek Harness / build-learning-path；Tavily 搜索与正文提取；record_evidence_finding、finalize_research_summary</td><td><a href="run-5/research_summary.json">research_summary.json</a></td></tr><tr><td>路径生成与检查</td><td>已核对的研究结论、需求覆盖、节点目标及先修关系</td><td>save_course_plan；全新 review-learning-path 会话调用 submit_path_review；引用身份由程序核对</td><td><a href="run-5/plan.json">plan.json</a></td></tr><tr><td>节点证据检查</td><td>每个节点目标、对应 finding、原文证据、偏好</td><td>每节点独立 assess_node_evidence；不足时回研究阶段，充分则复用已读材料</td><td><a href="run-5/node_research_checks.json">node_research_checks.json</a></td></tr><tr><td>生成规格装配</td><td>已检查路径、节点引文、需求约束、来源、活动、资源类型及配置版本</td><td>确定性 Python / prepare_specifications / build_teaching_context / ResourceSpec；不调用生成模型</td><td><a href="run-5/resource_specs.json">resource_specs.json</a></td></tr><tr><td>停止与核验</td><td>完整 resource_specs</td><td>验证专用停止器：保存检查点 → 验证生成数为 0 → 正常取消任务防止继续调度</td><td><a href="run-5/handoff.json">handoff.json</a></td></tr></tbody></table><h2>run-1 · 失败记录</h2><table><thead><tr><th>任务</th><th>耗时</th><th>真实模型调用</th><th>累计 token</th><th>节点 / 规格</th><th>状态</th></tr></thead><tbody><tr><td>prep_7e7c132ad8864ea293c97b527a0c76f6</td><td>29.18</td><td>4</td><td>25045</td><td>0 / 0</td><td>failed</td></tr></tbody></table><p>暴露的问题：需求 JSON 修正后已有合法结果，但单阶段执行器仍索要收尾回复，撞到 4 次调用上限而失败。已修复为结果提交后本地结束；已加载 Skill 不再重复挂载加载工具。另外，该轮临时环境关闭学习 Agent 却保留依赖开关，导致首页学习状态接口 500；后续恢复与线上一致的开关，复测无 HTTP 错误。此轮不计通过。</p><table><thead><tr><th>模型阶段</th><th>调用数</th><th>输入 token 累计</th><th>输出 token 累计</th><th>单次输入字节上界最大值</th><th>运行时 Skill</th></tr></thead><tbody><tr><td>intent</td><td>4</td><td>23611</td><td>1434</td><td>32163</td><td>understand-learning-request</td></tr></tbody></table><table><thead><tr><th>后端阶段</th><th>执行耗时</th><th>下一阶段</th><th>错误</th></tr></thead><tbody><tr><td>normalize</td><td>27.36s</td><td>None</td><td>{&#x27;code&#x27;: &#x27;BUDGET_EXHAUSTED&#x27;, &#x27;message&#x27;: &#x27;BUDGET_EXHAUSTED: Harness 当前决策调用次数或时间已耗尽&#x27;}</td></tr></tbody></table><p>证据：<a href="run-1/summary.json">汇总</a> · <a href="run-1/request-index.json">逐次模型请求索引</a> · <a href="run-1/actions.json">真实模型响应及检索动作</a> · <a href="run-1/events.json">状态事件</a> · <a href="run-1/checkpoint.json">完整最终检查点</a> · <a href="run-1/resource_specs.json">生成规格</a> · <a href="run-1/browser-result.json">浏览器结果</a> · <a href="run-1/idempotency.json">重复提交验证</a></p><h2>run-2 · 已到生成前停止点</h2><table><thead><tr><th>任务</th><th>耗时</th><th>真实模型调用</th><th>累计 token</th><th>节点 / 规格</th><th>状态</th></tr></thead><tbody><tr><td>prep_2116f6409bc3443088a18b7c52605f2c</td><td>130.047</td><td>19</td><td>350347</td><td>4 / 12</td><td>canceled</td></tr></tbody></table><p>浏览器刷新后任务可查询；重复提交复用原任务。实际读取 2 个来源页面、保存 6 个正文片段；连续研究会话换窗恢复 1 次。报告、习题、课堂仅形成规格，没有开始生成。</p><table><thead><tr><th>模型阶段</th><th>调用数</th><th>输入 token 累计</th><th>输出 token 累计</th><th>单次输入字节上界最大值</th><th>运行时 Skill</th></tr></thead><tbody><tr><td>intent</td><td>1</td><td>4582</td><td>465</td><td>20359</td><td>understand-learning-request</td></tr><tr><td>learning_path</td><td>13</td><td>295303</td><td>8953</td><td>117056</td><td>build-learning-path</td></tr><tr><td>review</td><td>1</td><td>11586</td><td>125</td><td>43976</td><td>review-learning-path</td></tr><tr><td>research_nodes</td><td>4</td><td>27626</td><td>1707</td><td>38908</td><td>review-learning-path</td></tr></tbody></table><table><thead><tr><th>后端阶段</th><th>执行耗时</th><th>下一阶段</th><th>错误</th></tr></thead><tbody><tr><td>normalize</td><td>4.55s</td><td>research_scope</td><td>无</td></tr><tr><td>research_scope</td><td>47.54s</td><td>None</td><td>无</td></tr><tr><td>research_scope</td><td>42.88s</td><td>plan</td><td>无</td></tr><tr><td>plan</td><td>3.56s</td><td>research_nodes</td><td>无</td></tr><tr><td>research_nodes</td><td>4.40s</td><td>None</td><td>无</td></tr><tr><td>research_nodes</td><td>4.97s</td><td>None</td><td>无</td></tr><tr><td>research_nodes</td><td>5.23s</td><td>None</td><td>无</td></tr><tr><td>research_nodes</td><td>4.99s</td><td>produce</td><td>无</td></tr><tr><td>produce</td><td>0.47s</td><td>None</td><td>无</td></tr></tbody></table><p>证据：<a href="run-2/summary.json">汇总</a> · <a href="run-2/request-index.json">逐次模型请求索引</a> · <a href="run-2/actions.json">真实模型响应及检索动作</a> · <a href="run-2/events.json">状态事件</a> · <a href="run-2/checkpoint.json">完整最终检查点</a> · <a href="run-2/resource_specs.json">生成规格</a> · <a href="run-2/browser-result.json">浏览器结果</a> · <a href="run-2/idempotency.json">重复提交验证</a></p><details><summary>需求分析产物</summary><pre>{
+  &quot;depth&quot;: &quot;introductory&quot;,
+  &quot;topic&quot;: &quot;快速排序&quot;,
+  &quot;audience&quot;: &quot;希望学习快速排序的算法学习者（具体编程背景未知）&quot;,
+  &quot;language&quot;: &quot;zh&quot;,
+  &quot;exclusions&quot;: [],
+  &quot;node_count&quot;: null,
+  &quot;assumptions&quot;: [
+    &quot;用户未指定课程总时长，采用默认 60 分钟&quot;,
+    &quot;用户未指定材料语言，按提问语言推断为中文&quot;,
+    &quot;用户未说明已有基础，按入门深度组织内容&quot;
+  ],
+  &quot;requirements&quot;: [
+    {
+      &quot;text&quot;: &quot;课程内容围绕快速排序算法展开&quot;,
+      &quot;source_ref&quot;: null,
+      &quot;source_quote&quot;: &quot;我想学习快速排序&quot;,
+      &quot;requirement_id&quot;: &quot;req-quicksort-topic&quot;,
+      &quot;source_document_id&quot;: null
+    }
+  ],
+  &quot;learning_goal&quot;: &quot;学习快速排序算法，理解其基本原理与执行过程。&quot;,
+  &quot;material_gaps&quot;: [],
+  &quot;source_policy&quot;: {
+    &quot;mode&quot;: &quot;open&quot;
+  },
+  &quot;total_minutes&quot;: 60,
+  &quot;prior_knowledge&quot;: &quot;未知（用户未说明编程语言基础、排序算法或递归/分治的已有掌握程度）&quot;,
+  &quot;desired_outcomes&quot;: [
+    &quot;能够说明快速排序的分治思想与基本步骤&quot;,
+    &quot;能够手工追踪快速排序在给定序列上的划分与递归过程&quot;,
+    &quot;能够理解快速排序的时间复杂度与常见优化方向&quot;
+  ],
+  &quot;node_count_quote&quot;: null,
+  &quot;source_policy_quote&quot;: null,
+  &quot;required_resource_types&quot;: [
+    &quot;report&quot;,
+    &quot;quiz&quot;,
+    &quot;classroom&quot;
+  ]
+}</pre></details><details><summary>正式生成前的课程路径</summary><pre>{
+  &quot;nodes&quot;: [
+    {
+      &quot;title&quot;: &quot;快速排序是什么：分治思想与三步过程&quot;,
+      &quot;minutes&quot;: 12,
+      &quot;node_key&quot;: &quot;qs-intuition&quot;,
+      &quot;objectives&quot;: [
+        &quot;用自己的话说明快速排序是一种基于分治的排序算法，并指出它与归并排序在“分”的方式上的关键区别&quot;,
+        &quot;复述快速排序的三个过程：划分并保证相对大小关系、递归排序两个子序列、无需合并&quot;,
+        &quot;解释为什么快速排序在递归完成后不需要额外的合并步骤&quot;
+      ],
+      &quot;self_check&quot;: &quot;能不看资料说出三步过程，并正确指出：与归并排序不同，快速排序在划分阶段就保证了左右两部分的相对大小关系，因此递归结束后整个数列已经有序，无需合并。&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_6f342177c7a4bf4a47c73ce3&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-definition&quot;,
+        &quot;f-quicksort-three-steps&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-quicksort-topic&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [],
+      &quot;learning_activities&quot;: [
+        &quot;阅读快速排序的定义与基本原理，标注“分治”在其中的具体含义&quot;,
+        &quot;对比快速排序与归并排序的第一步：前者在划分时保证前一个子数列的数都不大于后一个子数列，后者只是直接分成前后两段&quot;,
+        &quot;用一句话写出三步过程，并说明第三步为什么“不用合并”&quot;
+      ]
+    },
+    {
+      &quot;title&quot;: &quot;划分机制与主元选择：手工追踪划分与递归&quot;,
+      &quot;minutes&quot;: 18,
+      &quot;node_key&quot;: &quot;qs-partition&quot;,
+      &quot;objectives&quot;: [
+        &quot;描述划分过程中一前一后两个指针如何移动与交换，直到相遇&quot;,
+        &quot;说明为什么通常随机选择主元，以及固定选取首/末元素在有序输入下可能退化&quot;,
+        &quot;对给定的小规模序列，手工追踪一次划分并写出划分后左右两部分满足的不变式&quot;
+      ],
+      &quot;self_check&quot;: &quot;能正确追踪一次划分：划分结束后，主元左侧的所有元素都不大于主元、右侧的所有元素都不小于主元，主元处于其最终位置；并能说明固定选取首元素在已排序输入上会导致划分极不均匀。&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_6f342177c7a4bf4a47c73ce3&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-partition-mechanism&quot;,
+        &quot;f-quicksort-pivot-choice&quot;,
+        &quot;f-quicksort-steps-javaguide&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-quicksort-topic&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [
+        &quot;qs-intuition&quot;
+      ],
+      &quot;learning_activities&quot;: [
+        &quot;跟随资料描述，逐步模拟两个指针的移动：后指针遇到比主元小的数时与前一指针交换，并把前一指针后移一位&quot;,
+        &quot;取一个 6~8 个元素的小序列，选定一个主元，手工完成一次划分，标出主元最终位置&quot;,
+        &quot;对划分后的左右两个子序列继续写出递归调用，画出递归树的前两层&quot;,
+        &quot;讨论：如果每次都选到最值作为主元，划分会变成什么样&quot;
+      ]
+    },
+    {
+      &quot;title&quot;: &quot;时间复杂度、稳定性与空间复杂度&quot;,
+      &quot;minutes&quot;: 18,
+      &quot;node_key&quot;: &quot;qs-complexity&quot;,
+      &quot;objectives&quot;: [
+        &quot;区分快速排序的最优、平均与最坏时间复杂度，并说明各自对应的主元选择情形&quot;,
+        &quot;写出最优与最坏情形的递推式，并解释它们如何分别得到 Θ(n log n) 与 Θ(n^2)&quot;,
+        &quot;说明快速排序是不稳定排序，并解释其空间复杂度来自递归调用栈&quot;
+      ],
+      &quot;self_check&quot;: &quot;能写出最优与最坏情形的递推式并给出结论 Θ(n log n) 与 Θ(n^2)；能说明平均/期望复杂度为 O(n log n) 依赖随机化主元；能指出空间复杂度平均 O(log n)、最坏 O(n) 来自递归调用栈，且快速排序不稳定。&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_6f342177c7a4bf4a47c73ce3&quot;,
+        &quot;ev_0bfbb843b016d593b93f54ef&quot;,
+        &quot;ev_af57bbc54c5569b6139a114b&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-complexity&quot;,
+        &quot;f-quicksort-expected-proof&quot;,
+        &quot;f-quicksort-stability-space&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-quicksort-topic&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [
+        &quot;qs-partition&quot;
+      ],
+      &quot;learning_activities&quot;: [
+        &quot;对照资料整理一张表：最优/平均/最坏时间复杂度、空间复杂度、是否原地、是否稳定&quot;,
+        &quot;推导最优情形递推式 T(n)=2T(n/2)+Θ(n) 与最坏情形递推式 T(n)=T(n-1)+Θ(n)，说明各自结论&quot;,
+        &quot;阅读期望复杂度证明的思路：划分至多发生 n 次、总代价为 O(n+X)，以及 P(a_i 与 a_j 比较)=2/(j-i+1)&quot;,
+        &quot;举一个例子说明快速排序为什么不稳定&quot;
+      ]
+    },
+    {
+      &quot;title&quot;: &quot;常见优化方向：三数取中、小数组插入排序与三路快排&quot;,
+      &quot;minutes&quot;: 12,
+      &quot;node_key&quot;: &quot;qs-optimization&quot;,
+      &quot;objectives&quot;: [
+        &quot;列举三种常见的快速排序优化思路及其各自要解决的问题&quot;,
+        &quot;说明三路快速排序如何划分序列，以及它在大量重复元素场景下的优势&quot;,
+        &quot;针对给定输入特征（如近乎有序、大量重复值），选择合适的优化策略并说明理由&quot;
+      ],
+      &quot;self_check&quot;: &quot;能说出三种优化思路分别针对的问题：三数取中避免极端数据（升序/降序）退化；小数组用插入排序更高效；聚集相等元素避免大量重复值退化。能说明三路快排基于荷兰国旗问题思路，将序列分为小于/等于/大于主元三部分，处理重复值效率远高于原始快排，最佳时间复杂度为 O(n)。&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_6f342177c7a4bf4a47c73ce3&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-optimizations&quot;,
+        &quot;f-quicksort-three-way&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-quicksort-topic&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [
+        &quot;qs-complexity&quot;
+      ],
+      &quot;learning_activities&quot;: [
+        &quot;整理三种优化思路：三数取中、序列较短时改用插入排序、将与分界元素相等的元素聚集在分界元素周围&quot;,
+        &quot;描述三路快速排序如何把数列划分为小于、等于、大于主元三部分，并说明其最佳时间复杂度&quot;,
+        &quot;给出两个输入场景（近乎有序、大量重复值），分别选择一种优化并说明理由&quot;
+      ]
+    }
+  ],
+  &quot;title&quot;: &quot;快速排序入门：从分治思想到划分追踪与复杂度&quot;,
+  &quot;summary&quot;: &quot;一门 60 分钟的中文入门课程，围绕快速排序（Quicksort）展开。课程从分治思想与三步过程入手，深入讲解划分（partition）的指针机制与主元选择，通过手工追踪练习掌握划分与递归过程，最后理解最优/平均/最坏时间复杂度、稳定性与空间复杂度，并了解三数取中、小数组插入排序、三路快排等常见优化方向。内容依据 OI Wiki 与 JavaGuide 的中文权威资料，按入门深度组织，不假设特定编程语言基础。&quot;,
+  &quot;limitations&quot;: [
+    &quot;用户未说明编程语言基础与递归/分治的已有掌握程度，课程按入门深度组织，不假设具体语言实现能力，也不要求写出可运行代码。&quot;,
+    &quot;资料以中文权威算法资料（OI Wiki、JavaGuide）为主，未覆盖特定语言标准库实现细节或工程调优参数。&quot;,
+    &quot;60 分钟为默认时长（用户未指定），内容聚焦原理、追踪与复杂度，未展开完整代码实现与大规模性能实测。&quot;
+  ]
+}</pre></details><details><summary>节点材料充分性结果</summary><pre>{
+  &quot;qs-intuition&quot;: {
+    &quot;reason&quot;: &quot;节点 qs-intuition 的三个目标（分治思想与三步过程、与归并排序在“分”的方式上的区别、为何无需合并）在本次 evidence 中均有直接正文支撑：source_1 明确定义快速排序为“通过分治方式将一个数组排序”，列出三步过程（划分并保证相对大小关系、递归两个子序列、不用合并因为此时数列已完全有序），并说明与归并排序不同——第一步不是直接分成前后两段，而是在分的过程中保证前一个子数列的数都不大于后一个子数列，还给出“第三步中的序列已经分别有序且第一个序列中的数都不大于第二个序列中的数，所以直接拼接起来就好了”的解释。活动中的对比与一句话复述均可由该正文完成，自测结论与正文一致，未发现数值或状态矛盾。节点为入门定位，未要求代码实现细节，现有材料足够；后续节点所需的时间复杂度与优化内容在同一来源中亦有覆盖，但不在本节点审阅范围。&quot;,
+    &quot;node_key&quot;: &quot;qs-intuition&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_6f342177c7a4bf4a47c73ce3&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  },
+  &quot;qs-partition&quot;: {
+    &quot;reason&quot;: &quot;节点 qs-partition 的三个目标（双指针划分过程、随机主元与固定主元的退化风险、手工追踪一次划分并写出不变式）在本次发放的 source_1（OI Wiki 快速排序）中均有直接依据：正文明确描述\&quot;维护一前一后两个指针 p 和 q……如果后面的指针 q 遇到了一个比 m 小的数，那么可以交换 p 和 q 位置上的数，再把 p 向后移一位……直到两个指针相遇\&quot;，与活动 1 的模拟步骤一致；\&quot;为了保证平均时间复杂度，一般是随机选择一个数 m 来当做两个子数列的分界\&quot;以及\&quot;固定选取主元的基础实现……没有随机化选取主元，在有序输入等情况下可能退化为 O(n^2)\&quot;支撑目标 2 与讨论题；\&quot;第一步是要把数列分成两个部分，然后保证前一个子数列中的数都不大于后一个子数列的数\&quot;支撑划分后不变式的表述，且自测中\&quot;主元左侧不大于、右侧不小于、主元处于最终位置\&quot;与之一致。findings 的三条 claim 均能由 source_1 原文逐句对应，未超出证据范围。活动 2、3 要求的小规模手工划分与递归树前两层属于对已给机制的直接应用，所需定义（分治三步、递归到两个子序列、无需合并）在来源中已具备，不构成额外缺口。节点为入门深度、18 分钟，证据粒度与目标匹配，无需追加检索。&quot;,
+    &quot;node_key&quot;: &quot;qs-partition&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_6f342177c7a4bf4a47c73ce3&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  },
+  &quot;qs-complexity&quot;: {
+    &quot;reason&quot;: &quot;节点 qs-complexity 的三个目标（最优/平均/最坏时间复杂度及对应主元情形、最优与最坏递推式及 Θ(n log n)/Θ(n^2) 结论、不稳定与递归栈空间复杂度）在本次发放材料中均有直接依据。source_1（OI Wiki 快速排序）明确给出：最优情况每次分界值为中位数、递推式 T(n)=2T(n/2)+Θ(n)、由主定理得 Θ(n log n)；最坏情况每次分界值为最值、递推式 T(n)=T(n-1)+Θ(n)、累加得 Θ(n^2)；并明确\&quot;快速排序是一种不稳定的排序算法\&quot;。source_3（同一文档期望分析部分）给出随机化主元假设下期望 O(n log n) 的完整证明思路：划分至多发生 n 次、总代价 O(n+X)、P(a_i 与 a_j 比较)=2/(j-i+1) 及期望线性性求和，正好支撑\&quot;平均/期望复杂度依赖随机化主元\&quot;这一自测点。source_2（JavaGuide 十大经典排序算法）以表格形式给出快速排序平均 O(nlogn)、最差 O(n^2)、最好 O(nlogn)、空间复杂度平均 O(logn) 最坏 O(n)、原地、不稳定，与 source_1 相互印证，并可用于活动中的对照表整理。findings 中三条 claim 的 source_refs 均指向本次实际发放的正文片段，未出现引用标题或搜索摘要冒充正文的情况。活动\&quot;举一个例子说明为什么不稳定\&quot;属可由已读定义与划分过程自行构造的说明性示例，不构成额外检索需求；节点未涉及用户未要求的扩展主题。故依据充分，无需补充检索。&quot;,
+    &quot;node_key&quot;: &quot;qs-complexity&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_6f342177c7a4bf4a47c73ce3&quot;,
+      &quot;ev_af57bbc54c5569b6139a114b&quot;,
+      &quot;ev_0bfbb843b016d593b93f54ef&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  },
+  &quot;qs-optimization&quot;: {
+    &quot;reason&quot;: &quot;当前节点 qs-optimization 的三个目标（列举三种优化思路及各自针对的问题、说明三路快排的划分方式与重复元素场景优势、按输入特征选择优化策略）在本次发放的 evidence 中均有直接依据。source_1（OI Wiki 快速排序）正文含「优化」章节，明确列出朴素优化思想（三数取中：取首、尾、中间元素的中位数作为分界元素以避免极端数据退化；序列较短时改用插入排序；每趟排序后将与分界元素相等的元素聚集在其周围以避免大量重复元素退化），并单列「三路快速排序」小节，说明其基于荷兰国旗问题思路，随机选取分界点 m 后将数列划分为小于 m、等于 m、大于 m 三部分，处理含多个重复值的数组时效率远高于原始快排，最佳时间复杂度为 O(n)。findings 的两条 claim 与引文一致，未超出证据范围。节点自测中「三数取中避免升序/降序退化」「小数组用插入排序」「聚集相等元素避免重复值退化」以及三路快排 O(n) 最佳复杂度均可由该来源核对。节点为入门深度、12 分钟，目标与活动（整理三种思路、描述三路划分、给出两个输入场景并选择策略）属对已读材料的归纳与应用，不依赖未发放的代码实现细节；「近乎有序」「大量重复值」两类场景的判定依据（极端分界值导致 O(n^2) 退化、重复值导致划分失衡）在来源中已有说明。故依据充分，无需追加检索。&quot;,
+    &quot;node_key&quot;: &quot;qs-optimization&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_6f342177c7a4bf4a47c73ce3&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  }
+}</pre></details><p>来源：<a href="https://javaguide.cn/cs-basics/algorithms/10-classical-sorting-algorithms.html">https://javaguide.cn/cs-basics/algorithms/10-classical-sorting-algorithms.html</a>、<a href="https://oi-wiki.org/basic/quick-sort">https://oi-wiki.org/basic/quick-sort</a></p><img loading="lazy" src="run-2/02-submitted.png" alt="真实首页提交后的任务窗口"><h2>run-3 · 失败记录</h2><table><thead><tr><th>任务</th><th>耗时</th><th>真实模型调用</th><th>累计 token</th><th>节点 / 规格</th><th>状态</th></tr></thead><tbody><tr><td>prep_2afafafbdcbb413aa6c4777da255babd</td><td>77.931</td><td>9</td><td>168024</td><td>0 / 0</td><td>failed</td></tr></tbody></table><p>重复验证未通过：模型超过 12 条结论上限两次，随后汇总发明了需求编号；共用的连续错误计数使汇总首次出错就被终止。已增加需求编号枚举、结论剩余额度和逐工具有限纠错，后续 run-4 使用同一任务正常恢复。</p><table><thead><tr><th>模型阶段</th><th>调用数</th><th>输入 token 累计</th><th>输出 token 累计</th><th>单次输入字节上界最大值</th><th>运行时 Skill</th></tr></thead><tbody><tr><td>intent</td><td>1</td><td>4580</td><td>428</td><td>20359</td><td>understand-learning-request</td></tr><tr><td>learning_path</td><td>8</td><td>158392</td><td>4624</td><td>117678</td><td>build-learning-path</td></tr></tbody></table><table><thead><tr><th>后端阶段</th><th>执行耗时</th><th>下一阶段</th><th>错误</th></tr></thead><tbody><tr><td>normalize</td><td>4.38s</td><td>research_scope</td><td>无</td></tr><tr><td>research_scope</td><td>69.55s</td><td>None</td><td>{&#x27;code&#x27;: &#x27;AGENT_NO_PROGRESS&#x27;, &#x27;message&#x27;: &#x27;AGENT_NO_PROGRESS: coverage 必须逐项且不重复覆盖全部需求 ID：req-1&#x27;}</td></tr></tbody></table><p>证据：<a href="run-3/summary.json">汇总</a> · <a href="run-3/request-index.json">逐次模型请求索引</a> · <a href="run-3/actions.json">真实模型响应及检索动作</a> · <a href="run-3/events.json">状态事件</a> · <a href="run-3/checkpoint.json">完整最终检查点</a> · <a href="run-3/resource_specs.json">生成规格</a> · <a href="run-3/browser-result.json">浏览器结果</a> · <a href="run-3/idempotency.json">重复提交验证</a></p><h2>run-4 · 已到生成前停止点</h2><table><thead><tr><th>任务</th><th>耗时</th><th>真实模型调用</th><th>累计 token</th><th>节点 / 规格</th><th>状态</th></tr></thead><tbody><tr><td>prep_2afafafbdcbb413aa6c4777da255babd</td><td>62.177</td><td>18</td><td>318771</td><td>4 / 12</td><td>canceled</td></tr></tbody></table><p>通过真实前端“继续重试”恢复同一个失败任务，复用已保存的来源和检查点，到达生成规格停止点。没有提交新的课程准备任务。</p><table><thead><tr><th>模型阶段</th><th>调用数</th><th>输入 token 累计</th><th>输出 token 累计</th><th>单次输入字节上界最大值</th><th>运行时 Skill</th></tr></thead><tbody><tr><td>intent</td><td>1</td><td>4580</td><td>428</td><td>20359</td><td>understand-learning-request</td></tr><tr><td>learning_path</td><td>12</td><td>259926</td><td>8548</td><td>117678</td><td>build-learning-path</td></tr><tr><td>review</td><td>1</td><td>14886</td><td>122</td><td>56919</td><td>review-learning-path</td></tr><tr><td>research_nodes</td><td>4</td><td>28449</td><td>1832</td><td>28489</td><td>review-learning-path</td></tr></tbody></table><table><thead><tr><th>后端阶段</th><th>执行耗时</th><th>下一阶段</th><th>错误</th></tr></thead><tbody><tr><td>normalize</td><td>4.38s</td><td>research_scope</td><td>无</td></tr><tr><td>research_scope</td><td>69.55s</td><td>None</td><td>{&#x27;code&#x27;: &#x27;AGENT_NO_PROGRESS&#x27;, &#x27;message&#x27;: &#x27;AGENT_NO_PROGRESS: coverage 必须逐项且不重复覆盖全部需求 ID：req-1&#x27;}</td></tr><tr><td>research_scope</td><td>27.83s</td><td>plan</td><td>无</td></tr><tr><td>plan</td><td>2.98s</td><td>research_nodes</td><td>无</td></tr><tr><td>research_nodes</td><td>4.94s</td><td>None</td><td>无</td></tr><tr><td>research_nodes</td><td>5.13s</td><td>None</td><td>无</td></tr><tr><td>research_nodes</td><td>4.95s</td><td>None</td><td>无</td></tr><tr><td>research_nodes</td><td>4.89s</td><td>produce</td><td>无</td></tr><tr><td>produce</td><td>0.76s</td><td>None</td><td>无</td></tr></tbody></table><p>证据：<a href="run-4/summary.json">汇总</a> · <a href="run-4/request-index.json">逐次模型请求索引</a> · <a href="run-4/actions.json">真实模型响应及检索动作</a> · <a href="run-4/events.json">状态事件</a> · <a href="run-4/checkpoint.json">完整最终检查点</a> · <a href="run-4/resource_specs.json">生成规格</a> · <a href="run-4/browser-result.json">浏览器结果</a></p><p>本轮是 run-3 的第 2 次 attempt。模型调用与 token 表为同一任务累计，包含原失败消耗；实际恢复新增 9 次模型调用，未重新联网取资料。全部原文证据逐字保留，预算与截止时间未重置，见 <a href="recovery-verification.json">恢复核验</a>。</p><details><summary>需求分析产物</summary><pre>{
+  &quot;depth&quot;: &quot;introductory&quot;,
+  &quot;topic&quot;: &quot;快速排序&quot;,
+  &quot;audience&quot;: &quot;希望学习快速排序的初学者（具体背景未知）&quot;,
+  &quot;language&quot;: &quot;中文&quot;,
+  &quot;exclusions&quot;: [],
+  &quot;node_count&quot;: null,
+  &quot;assumptions&quot;: [
+    &quot;用户未指定课程总时长，默认采用 60 分钟&quot;,
+    &quot;用户未指定输出语言，按提问语言推断为中文&quot;,
+    &quot;用户未说明已有基础，按入门深度组织内容&quot;
+  ],
+  &quot;requirements&quot;: [
+    {
+      &quot;text&quot;: &quot;课程内容围绕快速排序展开&quot;,
+      &quot;source_ref&quot;: null,
+      &quot;source_quote&quot;: &quot;我想学习快速排序&quot;,
+      &quot;requirement_id&quot;: &quot;req-1&quot;,
+      &quot;source_document_id&quot;: null
+    }
+  ],
+  &quot;learning_goal&quot;: &quot;学习快速排序算法，理解其原理与实现方式。&quot;,
+  &quot;material_gaps&quot;: [],
+  &quot;source_policy&quot;: {
+    &quot;mode&quot;: &quot;open&quot;
+  },
+  &quot;total_minutes&quot;: 60,
+  &quot;prior_knowledge&quot;: &quot;未知&quot;,
+  &quot;desired_outcomes&quot;: [
+    &quot;能说明快速排序的分治思想与基本流程&quot;,
+    &quot;能描述分区（partition）过程与基准元素的作用&quot;,
+    &quot;能分析快速排序的时间复杂度与最坏情况&quot;,
+    &quot;能读懂并写出快速排序的实现&quot;
+  ],
+  &quot;node_count_quote&quot;: null,
+  &quot;source_policy_quote&quot;: null,
+  &quot;required_resource_types&quot;: [
+    &quot;report&quot;,
+    &quot;quiz&quot;,
+    &quot;classroom&quot;
+  ]
+}</pre></details><details><summary>正式生成前的课程路径</summary><pre>{
+  &quot;nodes&quot;: [
+    {
+      &quot;title&quot;: &quot;分治直觉与快速排序的定义&quot;,
+      &quot;minutes&quot;: 12,
+      &quot;node_key&quot;: &quot;n1-divide-conquer-intuition&quot;,
+      &quot;objectives&quot;: [
+        &quot;用自己的话说明快速排序是一种基于分治的排序算法，并指出它与归并排序在「分」这一步上的关键差别&quot;,
+        &quot;复述快速排序的三个过程：划分两部分、递归排序两个子序列、无需合并&quot;,
+        &quot;解释为什么「不用合并」——划分后前一段的数都不大于后一段的数，拼接即有序&quot;
+      ],
+      &quot;self_check&quot;: &quot;能不看资料说出快速排序的三个过程，并正确解释「不用合并」的原因；能指出快排与归并排序在划分步骤上的差别。&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_bbaa076f0fa4f001eadb5297&quot;,
+        &quot;ev_457b86f21b8e512ffdc522af&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-definition&quot;,
+        &quot;f-quicksort-three-steps&quot;,
+        &quot;f-quicksort-divide-conquer&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-1&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [],
+      &quot;learning_activities&quot;: [
+        &quot;课堂讲解（classroom）：用一副打乱的数字卡片演示「先分成两堆、再各自整理」的分治直觉，对照归并排序说明快排是在「分」的过程中就保证相对大小关系&quot;,
+        &quot;报告（report）：给出快速排序的三步骤流程，请学习者标注每一步的作用，并写出「为什么不需要合并」的一句话理由&quot;,
+        &quot;小组讨论：若划分后前一段的数都不大于后一段的数，能否直接拼接得到有序序列？说明理由&quot;
+      ]
+    },
+    {
+      &quot;title&quot;: &quot;分区过程与基准元素的作用&quot;,
+      &quot;minutes&quot;: 18,
+      &quot;node_key&quot;: &quot;n2-partition-and-pivot&quot;,
+      &quot;objectives&quot;: [
+        &quot;说明基准（pivot，主元）元素在分区中的作用，以及为什么通常随机选取基准以保证平均性能&quot;,
+        &quot;描述双指针分区过程：维护一前一后两个指针，当后指针遇到比基准小的数时交换两指针位置的数并把前指针后移，直到两指针相遇&quot;,
+        &quot;解释分区完成后「前一个子数列中的数都不大于后一个子数列中的数」这一不变式，并说明基准元素最终处于其最终位置&quot;
+      ],
+      &quot;self_check&quot;: &quot;能独立对一组数字完成一次分区并正确写出两个子区间；能说明基准选择影响性能但不影响正确性；能指出分区后基准元素已处于最终位置。&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_bbaa076f0fa4f001eadb5297&quot;,
+        &quot;ev_457b86f21b8e512ffdc522af&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-pivot-choice&quot;,
+        &quot;f-quicksort-partition-pointers&quot;,
+        &quot;f-inplace-quicksort-steps&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-1&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [
+        &quot;n1-divide-conquer-intuition&quot;
+      ],
+      &quot;learning_activities&quot;: [
+        &quot;课堂演示（classroom）：在黑板/白板上对一组具体数字逐步执行分区，标出前后两个指针的移动与每次交换，直到两指针相遇&quot;,
+        &quot;动手练习：给定一个数组与选定基准，手动完成一次分区，写出分区后两个子区间的元素，并指出基准的最终位置&quot;,
+        &quot;报告（report）：整理原地快速排序的完整步骤（区间少于两个元素直接返回；选择基准；分区；对两个子区间递归并排除已就位的中间部分）&quot;
+      ]
+    },
+    {
+      &quot;title&quot;: &quot;时间复杂度分析与最坏情况&quot;,
+      &quot;minutes&quot;: 15,
+      &quot;node_key&quot;: &quot;n3-complexity-and-worst-case&quot;,
+      &quot;objectives&quot;: [
+        &quot;说出快速排序的最优与平均时间复杂度为 O(n log n)、最坏时间复杂度为 O(n^2)&quot;,
+        &quot;解释最优情况（每次分界值都是中位数，递推式 T(n)=2T(n/2)+Θ(n)）与最坏情况（每次分界值都是最值，递推式 T(n)=T(n-1)+Θ(n)）的成因&quot;,
+        &quot;指出固定选取末元素作为基准时，在已排序或元素相同的数组上会退化为 O(n^2)，并说明随机化选取基准为何能改善平均表现&quot;,
+        &quot;说明快速排序是不稳定的排序算法&quot;
+      ],
+      &quot;self_check&quot;: &quot;能写出最优与最坏情况的递推式并解释其含义；能举出至少一种导致 O(n^2) 的输入；能说明快速排序不稳定。&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_bbaa076f0fa4f001eadb5297&quot;,
+        &quot;ev_694d2781384ef4891aca6971&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-complexity&quot;,
+        &quot;f-pivot-worst-case&quot;,
+        &quot;f-quicksort-stability&quot;,
+        &quot;f-lomuto-vs-hoare&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-1&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [
+        &quot;n2-partition-and-pivot&quot;
+      ],
+      &quot;learning_activities&quot;: [
+        &quot;课堂讲解（classroom）：对比最优与最坏两种划分形态，画出递归树说明为什么均衡划分得到 log n 层、极端划分退化为 n 层&quot;,
+        &quot;报告（report）：写出最优与最坏情况的递推式，并说明各自如何得到 Θ(n log n) 与 Θ(n^2)&quot;,
+        &quot;测验（quiz）：判断若干输入（已排序数组、全部元素相同、随机数组）在「固定取末元素为基准」下的表现，并说明理由&quot;
+      ]
+    },
+    {
+      &quot;title&quot;: &quot;读懂并写出快速排序的实现&quot;,
+      &quot;minutes&quot;: 15,
+      &quot;node_key&quot;: &quot;n4-implementation&quot;,
+      &quot;objectives&quot;: [
+        &quot;读懂固定选取主元的基础实现：partition 函数以区间首元素为 pivot，用 low/high 双指针交替填坑，最后把 pivot 放回并返回其位置&quot;,
+        &quot;写出主函数的递归结构：取得 pivot 位置后递归排序 (low, pivot-1) 与 (pivot+1, high)&quot;,
+        &quot;说明该基础实现未随机化选取主元，在有序输入等情况下可能退化为 O(n^2)，并说出至少一种改进方向（如随机化主元或三路划分）&quot;
+      ],
+      &quot;self_check&quot;: &quot;能独立写出可运行的递归版快速排序并正确排序一组测试数据；能解释 partition 返回值的含义与递归区间为何是 pivot-1 与 pivot+1；能说出该实现的一个局限与一种改进方向。&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_bbaa076f0fa4f001eadb5297&quot;,
+        &quot;ev_694d2781384ef4891aca6971&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-implementation&quot;,
+        &quot;f-quicksort-partition-pointers&quot;,
+        &quot;f-lomuto-vs-hoare&quot;,
+        &quot;f-quicksort-history&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-1&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [
+        &quot;n2-partition-and-pivot&quot;,
+        &quot;n3-complexity-and-worst-case&quot;
+      ],
+      &quot;learning_activities&quot;: [
+        &quot;课堂演示（classroom）：逐行走读一段递归版快速排序代码，标出 partition 中双指针交替填坑的每一步，以及主函数两次递归调用的区间&quot;,
+        &quot;动手练习：补全或默写 partition 函数与递归主函数，并用一组小数组手工跟踪执行，核对最终数组有序&quot;,
+        &quot;测验（quiz）：给出若干关于实现细节的判断（如 pivot 的选取位置、递归区间边界、返回值的含义），并说明 Hoare 与 Lomuto 分区方案在交换次数与重复元素表现上的差异&quot;
+      ]
+    }
+  ],
+  &quot;title&quot;: &quot;快速排序入门：从分治思想到实现&quot;,
+  &quot;summary&quot;: &quot;面向初学者的 60 分钟快速排序入门路径，共 4 个节点。路径从分治直觉与算法定义出发，先建立「划分—递归—无需合并」的整体流程认识；再深入分区（partition）过程与基准（pivot）元素的作用，理解双指针交换如何保证前一段不大于后一段；随后分析时间复杂度，说明最优/平均 O(n log n) 与最坏 O(n^2) 的成因及退化场景；最后落到实现，读懂并写出固定主元的基础版本，并了解 Hoare 与 Lomuto 分区方案的差异。每个节点含讲解、课堂演示、练习与自测，覆盖报告、测验与课堂三类活动。内容依据 OI Wiki 与英文维基百科 Quicksort 条目的正文结论。&quot;,
+  &quot;limitations&quot;: [
+    &quot;依据主要来自 OI Wiki 与英文维基百科 Quicksort 条目，未使用 Hoare 原始论文或正式教材正文作为逐字依据。&quot;,
+    &quot;实现示例为固定选取主元的基础版本（C++ 递归/非递归、Python），路径不覆盖随机化主元、三路快排、内省排序等优化实现的完整代码。&quot;,
+    &quot;平均时间复杂度 O(n log n) 的严格期望分析（引理与期望线性性推导）在资料中有展开，本路径按入门深度仅作结论性说明，未展开完整证明。&quot;,
+    &quot;60 分钟为默认时长假设（用户未指定），内容按入门深度组织，不承诺在此时长内全面掌握快速排序的所有变体与优化。&quot;
+  ]
+}</pre></details><details><summary>节点材料充分性结果</summary><pre>{
+  &quot;n4-implementation&quot;: {
+    &quot;reason&quot;: &quot;节点 n4-implementation 的三个目标均有本次已读正文直接支撑。目标1（固定主元基础实现、partition 以区间首元素为 pivot、low/high 双指针交替填坑、最后 A[low]=pivot 并返回 low）在 source_1 的递归 C++ 实现代码与 Python 实现中逐行可见，且正文明确说明\&quot;递归 C++ 实现和 Python 实现选取首元素\&quot;。目标2（主函数递归结构 quickSort(A, low, pivot-1) 与 quickSort(A, pivot+1, high)）同样在 source_1 代码中直接给出。目标3（未随机化主元、有序输入可能退化为 O(n^2)、改进方向）由 source_1 正文\&quot;它们没有随机化选取主元，在有序输入等情况下可能退化为 O(n^2)\&quot;以及\&quot;三路快速排序\&quot;\&quot;内省排序\&quot;等优化小节支撑；source_2 补充了 Lomuto 与 Hoare 分区方案的差异（Lomuto 平均多三倍交换、全等元素退化为 O(n^2)，Hoare 全等时仍均衡划分），可支撑测验中关于两种方案对比的判断项。活动中的课堂逐行走读、手工跟踪小数组、默写实现均属对上述已读代码的正常教学使用，不引入新主题。自测要求（写出可运行递归版、解释返回值与递归区间、说出局限与改进方向）与证据一一对应。节点为入门深度、15 分钟，证据量适中，无实质缺口。&quot;,
+    &quot;node_key&quot;: &quot;n4-implementation&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_bbaa076f0fa4f001eadb5297&quot;,
+      &quot;ev_694d2781384ef4891aca6971&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  },
+  &quot;n2-partition-and-pivot&quot;: {
+    &quot;reason&quot;: &quot;节点 n2「分区过程与基准元素的作用」的三条目标均有本次发放材料直接支撑。目标1（基准作用与随机选取保证平均性能）：source_1 明确「为了保证平均时间复杂度，一般是随机选择一个数 m 来当做两个子数列的分界」，并指出选择 m 与划分过程都有多种实现；source_2 说明「基准的选法极大影响性能但不影响正确性」，与自测中「基准选择影响性能但不影响正确性」一致。目标2（双指针分区过程）：source_1 完整描述维护一前一后指针 p、q，后指针遇到比 m 小的数即交换 p、q 位置并后移 p，直到两指针相遇，与活动中的课堂演示步骤逐条对应。目标3（分区不变式与基准就位）：source_1 给出「前一个子数列中的数都不大于后一个子数列中的数」这一不变式；source_2 给出原地快排五步流程，含「所有小于基准的值在第一个子区间、大于的在第二个」「排除已处于最终位置的中间子区间」，支撑「基准元素最终处于其最终位置」及 report 活动中的完整步骤整理。source_2 另提供 Lomuto 分区伪码与末元素取基准的退化说明，可作为动手练习的具体算例前提。三条目标均属入门深度，未超出材料范围，也未引入用户未要求的扩展主题。材料为 OI Wiki 与 Wikipedia 的已读正文摘录，来源可信且与目标相关，引文与 claim 对应。无实质缺口，故无需补充检索。&quot;,
+    &quot;node_key&quot;: &quot;n2-partition-and-pivot&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_bbaa076f0fa4f001eadb5297&quot;,
+      &quot;ev_457b86f21b8e512ffdc522af&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  },
+  &quot;n1-divide-conquer-intuition&quot;: {
+    &quot;reason&quot;: &quot;节点 n1「分治直觉与快速排序的定义」的三个目标均有本次已读正文直接支撑。目标1（分治定义、与归并排序在「分」上的差别）：source_1 明确「快速排序的工作原理是通过分治的方式来将一个数组排序」，并指出「和归并排序不同，第一步并不是直接分成前后两个序列，而是在分的过程中要保证相对大小关系……保证前一个子数列中的数都不大于后一个子数列中的数」；source_2 亦说明 quicksort 是基于分区例程的分治排序算法，分区产生两个连续非空子区间且第一子区间无元素大于第二子区间。目标2（三个过程）：source_1 逐条列出「1 将数列划分为两部分（要求保证相对大小关系）；2 递归到两个子序列中分别进行快速排序；3 不用合并，因为此时数列已经完全有序」，source_2 给出 in-place 快排的对应步骤（含 pivot 选择、分区、递归子区间并排除已定位元素）。目标3（为何不用合并）：source_1 明确「第三步中的序列已经分别有序且第一个序列中的数都不大于第二个序列中的数，所以直接拼接起来就好了」，与节点自测要求一致。活动设计（卡片演示分治直觉、标注三步骤并写「不用合并」理由、小组讨论拼接可行性）所需前提均落在上述已读范围内，未超出证据。节点为入门定位，未涉及复杂度推导或实现细节，故无需额外材料；证据不存在与目标冲突之处。&quot;,
+    &quot;node_key&quot;: &quot;n1-divide-conquer-intuition&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_bbaa076f0fa4f001eadb5297&quot;,
+      &quot;ev_457b86f21b8e512ffdc522af&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  },
+  &quot;n3-complexity-and-worst-case&quot;: {
+    &quot;reason&quot;: &quot;节点 n3「时间复杂度分析与最坏情况」的四条目标均有本次已读正文直接支撑。source_1（OI Wiki 快速排序）明确给出：最优与平均时间复杂度 O(n log n)、最坏 O(n^2)；最优情况递推式 T(n)=2T(n/2)+Θ(n) 由主定理得 Θ(n log n)；最坏情况递推式 T(n)=T(n-1)+Θ(n) 累加得 Θ(n^2)；并明确「快速排序是一种不稳定的排序算法」，同时指出固定选取主元（末元素/首元素）在有序输入等情况下可能退化为 O(n^2)。source_2（Wikipedia Quicksort）补充：总是选取分区末元素为基准会在已排序数组或元素相同数组上产生 O(n^2) 差性能，且大规模排序接近尾声时会出现大量已排序/相同元素子数组，故取中间元素为基准的版本更快；并说明 Lomuto 方案在所有元素相等时退化为 O(n^2)，而 Hoare 方案在所有值相等时仍能产生均衡划分。这些内容足以支撑「最优/最坏成因与递推式」「固定基准退化与随机化改善平均表现」「不稳定性」三项讲解，以及课堂画递归树、报告写递推式、测验判断三类输入表现的活动与自测。目标中未出现与来源冲突的数值或结论，也未要求超出本节点范围的扩展主题。随机化选取基准改善平均表现这一点，source_1 提到「为了保证平均时间复杂度，一般是随机选择一个数作为分界」，source_2 关于基准选择方案的分析亦与之相容，依据充分。&quot;,
+    &quot;node_key&quot;: &quot;n3-complexity-and-worst-case&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_bbaa076f0fa4f001eadb5297&quot;,
+      &quot;ev_694d2781384ef4891aca6971&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  }
+}</pre></details><p>来源：<a href="https://en.wikipedia.org/wiki/Quicksort">https://en.wikipedia.org/wiki/Quicksort</a>、<a href="https://oi-wiki.org/basic/quick-sort">https://oi-wiki.org/basic/quick-sort</a></p><img loading="lazy" src="run-4/02-submitted.png" alt="真实首页提交后的任务窗口"><h2>run-5 · 已到生成前停止点</h2><table><thead><tr><th>任务</th><th>耗时</th><th>真实模型调用</th><th>累计 token</th><th>节点 / 规格</th><th>状态</th></tr></thead><tbody><tr><td>prep_7e85f0dd8be64359a2461488d95a346a</td><td>75.05636548995972</td><td>13</td><td>204883</td><td>3 / 9</td><td>canceled</td></tr></tbody></table><p>浏览器刷新后任务可查询；重复提交复用原任务。实际读取 3 个来源页面、保存 4 个正文片段；连续研究会话换窗恢复 0 次。报告、习题、课堂仅形成规格，没有开始生成。</p><table><thead><tr><th>模型阶段</th><th>调用数</th><th>输入 token 累计</th><th>输出 token 累计</th><th>单次输入字节上界最大值</th><th>运行时 Skill</th></tr></thead><tbody><tr><td>intent</td><td>1</td><td>4579</td><td>443</td><td>20359</td><td>understand-learning-request</td></tr><tr><td>learning_path</td><td>8</td><td>156300</td><td>4288</td><td>98134</td><td>build-learning-path</td></tr><tr><td>review</td><td>1</td><td>11000</td><td>122</td><td>40666</td><td>review-learning-path</td></tr><tr><td>research_nodes</td><td>3</td><td>26908</td><td>1243</td><td>37912</td><td>review-learning-path</td></tr></tbody></table><table><thead><tr><th>后端阶段</th><th>执行耗时</th><th>下一阶段</th><th>错误</th></tr></thead><tbody><tr><td>normalize</td><td>4.21s</td><td>research_scope</td><td>无</td></tr><tr><td>research_scope</td><td>47.66s</td><td>plan</td><td>无</td></tr><tr><td>plan</td><td>3.42s</td><td>research_nodes</td><td>无</td></tr><tr><td>research_nodes</td><td>4.69s</td><td>None</td><td>无</td></tr><tr><td>research_nodes</td><td>4.74s</td><td>None</td><td>无</td></tr><tr><td>research_nodes</td><td>4.72s</td><td>produce</td><td>无</td></tr><tr><td>produce</td><td>0.34s</td><td>None</td><td>无</td></tr></tbody></table><p>证据：<a href="run-5/summary.json">汇总</a> · <a href="run-5/request-index.json">逐次模型请求索引</a> · <a href="run-5/actions.json">真实模型响应及检索动作</a> · <a href="run-5/events.json">状态事件</a> · <a href="run-5/checkpoint.json">完整最终检查点</a> · <a href="run-5/resource_specs.json">生成规格</a> · <a href="run-5/browser-result.json">浏览器结果</a> · <a href="run-5/idempotency.json">重复提交验证</a></p><p>最终完整新任务：后端首阶段至规格保存 75.06 秒，13 次真实模型调用、2 次搜索、3 次正文提取、4 个正文片段、6 条结论、3 个节点、9 份规格。没有模型工具校验错误，也没有上下文换窗。浏览器脚本曾尝试点击已被自动恢复进度窗口遮挡的后台按钮；重新连接观察同一任务，没有重新提交或干预业务结果。该自动化情况另存于 browser-error.json 和 refresh.json。</p><details><summary>需求分析产物</summary><pre>{
+  &quot;depth&quot;: &quot;introductory&quot;,
+  &quot;topic&quot;: &quot;快速排序&quot;,
+  &quot;audience&quot;: &quot;希望学习快速排序算法的自学者&quot;,
+  &quot;language&quot;: &quot;中文&quot;,
+  &quot;exclusions&quot;: [],
+  &quot;node_count&quot;: null,
+  &quot;assumptions&quot;: [
+    &quot;用户未指定课程总时长，采用默认 60 分钟&quot;,
+    &quot;用户未指定材料语言，按提问语言推断为中文&quot;,
+    &quot;用户未说明已有基础，按入门深度组织内容&quot;
+  ],
+  &quot;requirements&quot;: [
+    {
+      &quot;text&quot;: &quot;讲授快速排序算法本身（原理、划分过程与递归结构）&quot;,
+      &quot;source_ref&quot;: null,
+      &quot;source_quote&quot;: &quot;我想学习快速排序&quot;,
+      &quot;requirement_id&quot;: &quot;req-1&quot;,
+      &quot;source_document_id&quot;: null
+    }
+  ],
+  &quot;learning_goal&quot;: &quot;学习快速排序算法，理解其原理与执行过程。&quot;,
+  &quot;material_gaps&quot;: [],
+  &quot;source_policy&quot;: {
+    &quot;mode&quot;: &quot;open&quot;
+  },
+  &quot;total_minutes&quot;: 60,
+  &quot;prior_knowledge&quot;: &quot;未知&quot;,
+  &quot;desired_outcomes&quot;: [
+    &quot;能说明快速排序的分治思想与基本步骤&quot;,
+    &quot;能手工追踪快速排序在给定序列上的划分与递归过程&quot;,
+    &quot;能分析快速排序的时间复杂度与最坏情况&quot;
+  ],
+  &quot;node_count_quote&quot;: null,
+  &quot;source_policy_quote&quot;: null,
+  &quot;required_resource_types&quot;: [
+    &quot;report&quot;,
+    &quot;quiz&quot;,
+    &quot;classroom&quot;
+  ]
+}</pre></details><details><summary>正式生成前的课程路径</summary><pre>{
+  &quot;nodes&quot;: [
+    {
+      &quot;title&quot;: &quot;快速排序的分治思想与基本步骤&quot;,
+      &quot;minutes&quot;: 15,
+      &quot;node_key&quot;: &quot;qs-basics&quot;,
+      &quot;objectives&quot;: [
+        &quot;用自己的话说明快速排序属于分治算法，并指出它与归并排序在「划分」环节的关键差别&quot;,
+        &quot;复述快速排序的三个过程：划分成两部分并保证相对大小关系、递归排序两个子序列、无需合并&quot;,
+        &quot;说出通用算法步骤：选择基准（Pivot）→ 分区（Partition）→ 递归（Recurse），并说明递归在子数组长度为 1 或 0 时结束&quot;
+      ],
+      &quot;self_check&quot;: &quot;不看资料，能否写出快速排序的三个过程，并说明为什么它不需要像归并排序那样做合并步骤？&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_c931dfe69f97afb8f2b4c086&quot;,
+        &quot;ev_0e2f998744512c432d75aff3&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-divide-conquer&quot;,
+        &quot;f-quicksort-partition-steps&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-1&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [],
+      &quot;learning_activities&quot;: [
+        &quot;阅读 OI Wiki「快速排序—定义与基本原理」与 JavaGuide「快速排序」小节，梳理三步骤&quot;,
+        &quot;对照归并排序，用一句话写出两者在划分环节的差别（快排划分时即保证相对大小关系，归并只是对半切分）&quot;,
+        &quot;课堂讨论：为什么快速排序第三步「不用合并」？请结合「此时数列已经完全有序」作答&quot;
+      ]
+    },
+    {
+      &quot;title&quot;: &quot;手工追踪划分与递归过程&quot;,
+      &quot;minutes&quot;: 25,
+      &quot;node_key&quot;: &quot;qs-partition-trace&quot;,
+      &quot;objectives&quot;: [
+        &quot;说明划分过程中双指针 p、q 的移动与交换规则：q 遇到比分界值小的数就与 p 交换并把 p 后移，直到两指针相遇&quot;,
+        &quot;对给定序列手工完成一趟划分，指出基准的最终位置，并写出左右两个子序列&quot;,
+        &quot;对同一序列继续追踪递归，直到所有子数组长度为 1 或 0，得到完整有序序列&quot;
+      ],
+      &quot;self_check&quot;: &quot;对 [3, 1, 4, 2] 取末元素为基准，你能写出划分后基准落在哪个下标、左右子序列分别是什么，并继续递归得到最终有序序列吗？&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_c931dfe69f97afb8f2b4c086&quot;,
+        &quot;ev_0e2f998744512c432d75aff3&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-partition-pointer&quot;,
+        &quot;f-quicksort-partition-steps&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-1&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [
+        &quot;qs-basics&quot;
+      ],
+      &quot;learning_activities&quot;: [
+        &quot;阅读 OI Wiki 划分过程的指针描述，用自己的话写出 p、q 的移动与交换规则&quot;,
+        &quot;手工推演：对序列 [3, 1, 4, 2] 取末元素 2 为基准做一趟划分，写出每步数组状态与基准最终位置&quot;,
+        &quot;继续递归推演左右子序列，记录每次划分后的数组，直到得到完整有序序列&quot;,
+        &quot;课堂讨论：同一序列若改取首元素为基准，划分结果与递归树形状会怎样变化？&quot;
+      ]
+    },
+    {
+      &quot;title&quot;: &quot;时间复杂度分析与最坏情况&quot;,
+      &quot;minutes&quot;: 20,
+      &quot;node_key&quot;: &quot;qs-complexity&quot;,
+      &quot;objectives&quot;: [
+        &quot;写出最优情况递推式 T(n)=2T(n/2)+Θ(n) 并说明其结果为 Θ(n log n)&quot;,
+        &quot;写出最坏情况递推式 T(n)=T(n-1)+Θ(n) 并说明累加后为 Θ(n^2)&quot;,
+        &quot;指出最坏情况的触发条件：已排序输入配最左基准、逆序输入配最右基准、以及所有元素相同&quot;,
+        &quot;说明快速排序是不稳定排序，空间复杂度平均 O(log n)、最坏 O(n)，并解释随机化选基准为何能避免退化&quot;
+      ],
+      &quot;self_check&quot;: &quot;你能写出最优与最坏两种情况的递推式、说明各自结果，并列举至少两个导致最坏情况出现的输入特征吗？&quot;,
+      &quot;source_ids&quot;: [
+        &quot;ev_c931dfe69f97afb8f2b4c086&quot;,
+        &quot;ev_2e4d5958c12097193f8b55b7&quot;,
+        &quot;ev_0e2f998744512c432d75aff3&quot;
+      ],
+      &quot;finding_ids&quot;: [
+        &quot;f-quicksort-complexity&quot;,
+        &quot;f-quicksort-worst-case&quot;,
+        &quot;f-quicksort-stability-space&quot;
+      ],
+      &quot;requirement_ids&quot;: [
+        &quot;req-1&quot;
+      ],
+      &quot;prerequisite_keys&quot;: [
+        &quot;qs-partition-trace&quot;
+      ],
+      &quot;learning_activities&quot;: [
+        &quot;阅读 OI Wiki「性质—时间复杂度」与 Baeldung 最坏情况分析，抄写两个递推式并标注适用前提&quot;,
+        &quot;推导练习：把最坏情况的划分代价 N+(N-1)+…+2 求和，验证得到 N(N+1)/2 - 1 = O(N^2)&quot;,
+        &quot;课堂讨论：为什么「已排序数组 + 固定取最左元素为基准」会退化为 O(n^2)？随机化选基准如何改变这一情形？&quot;,
+        &quot;自测：判断快速排序是否稳定，并说出其平均与最坏空间复杂度&quot;
+      ]
+    }
+  ],
+  &quot;title&quot;: &quot;快速排序入门：分治思想、划分过程与复杂度分析&quot;,
+  &quot;summary&quot;: &quot;面向自学者的 60 分钟入门路径，围绕快速排序一个知识点展开。先建立分治思想与「划分—递归—无需合并」的整体框架，再通过具体序列手工追踪划分与递归过程，最后分析最优/平均 O(n log n) 与最坏 O(n^2) 的成因及触发条件。三个节点依次递进，含讲解、手工推演、课堂讨论与自测。&quot;,
+  &quot;limitations&quot;: [
+    &quot;证据以中文技术文档（OI Wiki、JavaGuide）与英文分析文章（Baeldung）为主，未引用 Hoare 1961 原始论文；对入门级目标无影响。&quot;,
+    &quot;未覆盖三路快速排序、内省排序等高级优化，仅说明随机化选主元可避免最坏情况退化。&quot;,
+    &quot;路径中的手工追踪示例由学习者按划分规则自行推演，未提供可运行代码的逐行执行验证。&quot;,
+    &quot;总时长按默认 60 分钟安排，若学习者基础较弱，建议延长划分追踪节点的练习时间。&quot;
+  ]
+}</pre></details><details><summary>节点材料充分性结果</summary><pre>{
+  &quot;qs-basics&quot;: {
+    &quot;reason&quot;: &quot;节点 qs-basics 的三个目标（分治定位与与归并排序的差别、三个过程、Pivot→Partition→Recurse 步骤及递归终止条件）在本次发放的两份材料中均有直接依据。source_1（OI Wiki）明确给出「快速排序分为三个过程」：划分并保证相对大小关系、递归两个子序列、不用合并（因数列已完全有序），并说明与归并排序的差别在于第一步不是直接分成前后两段而是在划分中保证相对大小关系，且为保证平均复杂度一般随机选分界值——这直接支撑目标 1、2 及活动中的对照与课堂讨论问题。source_2（JavaGuide）给出通用三步骤：选择基准（Pivot，为避免最坏情况通常随机选择）、分区（Partition，使小于基准的元素在前、大于基准的在后，操作结束后基准处于最终位置）、递归（Recurse），并说明递归到子数组长度为 1 或 0 时结束——直接支撑目标 3。findings 中的两条 claim 与 evidence 正文一致，未超出已读内容，也未把标题或背景知识冒充正文。节点为入门深度、15 分钟，材料粒度与目标匹配；本节点不涉及复杂度分析（属后续节点），故不因缺少该部分判不足。无实质缺口，无需追加检索。&quot;,
+    &quot;node_key&quot;: &quot;qs-basics&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_c931dfe69f97afb8f2b4c086&quot;,
+      &quot;ev_0e2f998744512c432d75aff3&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  },
+  &quot;qs-complexity&quot;: {
+    &quot;reason&quot;: &quot;节点 qs-complexity 的四个目标均有本次已读正文支撑。source_1（OI Wiki「性质—时间复杂度」）明确给出最优递推式 T(n)=2T(n/2)+Θ(n) 及主定理结果 Θ(n log n)、最坏递推式 T(n)=T(n-1)+Θ(n) 累加得 Θ(n^2)，并说明快排不稳定、固定取首/末元素主元在有序输入下可能退化为 O(n^2)。source_3（Baeldung 最坏情况分析）给出最坏情况触发条件：已排序输入配最左基准、逆序输入配最右基准、所有元素相同，并给出划分代价求和 N+(N-1)+…+2 = N(N+1)/2 - 1 = O(N^2)，与节点推导练习一致。source_2（JavaGuide 排序算法表）提供空间复杂度平均 O(log n)、最坏 O(n)、原地、不稳定等性质，可支撑自测项。目标、活动与自测之间数值与结论一致，无相互矛盾；随机化选基准避免退化的说明可由 source_1 关于随机选主元保证平均复杂度的论述与 source_3 的退化条件共同推出。未发现需要补充的定义、边界或练习前提缺口。&quot;,
+    &quot;node_key&quot;: &quot;qs-complexity&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_c931dfe69f97afb8f2b4c086&quot;,
+      &quot;ev_0e2f998744512c432d75aff3&quot;,
+      &quot;ev_2e4d5958c12097193f8b55b7&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  },
+  &quot;qs-partition-trace&quot;: {
+    &quot;reason&quot;: &quot;本节点目标为「手工追踪划分与递归过程」，三项目标（双指针 p/q 移动与交换规则、对给定序列完成一趟划分并指出基准最终位置、继续递归至子数组长度 1 或 0）在本次发放材料中均有直接依据。source_1（OI Wiki 快速排序）明确给出划分过程的具体实现：维护一前一后两个指针 p 和 q，若后面的指针 q 遇到比分界值 m 小的数，就交换 p 与 q 位置上的数并把 p 向后移一位，直到两指针相遇；并说明快速排序未规定第一步的具体实现，选择分界值与划分过程都有多种实现方法——这正好支撑「用自己的话写出 p、q 规则」这一活动，也支撑课堂讨论中「改取首元素为基准」的对比（source_1 指出非递归 C++ 实现取末元素、递归 C++ 与 Python 实现取首元素）。source_2（JavaGuide）给出通用三步：选基准、分区使基准落到最终位置、对左右子序列递归，递归到子数组长度为 1 或 0 结束，与节点第三项目标一致。节点活动中的算例 [3,1,4,2] 取末元素 2 为基准属材料所述方法的直接应用，可由 source_1 的末元素主元实现独立推演验证，不依赖材料未提供的额外结论。节点为入门深度、25 分钟，材料粒度匹配，无实质缺口。&quot;,
+    &quot;node_key&quot;: &quot;qs-partition-trace&quot;,
+    &quot;source_ids&quot;: [
+      &quot;ev_c931dfe69f97afb8f2b4c086&quot;,
+      &quot;ev_0e2f998744512c432d75aff3&quot;
+    ],
+    &quot;sufficient&quot;: true,
+    &quot;gap_queries&quot;: []
+  }
+}</pre></details><p>来源：<a href="https://javaguide.cn/cs-basics/algorithms/10-classical-sorting-algorithms.html">https://javaguide.cn/cs-basics/algorithms/10-classical-sorting-algorithms.html</a>、<a href="https://oi-wiki.org/basic/quick-sort">https://oi-wiki.org/basic/quick-sort</a>、<a href="https://www.baeldung.com/cs/quicksort-time-complexity-worst-case">https://www.baeldung.com/cs/quicksort-time-complexity-worst-case</a></p><img loading="lazy" src="run-5/02-submitted.png" alt="真实首页提交后的任务窗口"><h2>稳定性结论与限制</h2><p>本轮保留失败记录，并在修复后连续复验。同一句输入的模型输出允许不同，检查的是链路可推进、失败可解释、状态与产物一致、没有越过生成边界。通过有限样本不代表所有主题或第三方服务故障都不会失败。本轮未覆盖文件上传、用户历史偏好、正式资源生成与最终课堂播放。</p><p>课程准备、共享资源和课堂服务回归结果、部署状态见 <a href="verification.json">verification.json</a>。线上后端是否加载修改与隔离验证结果分别记录。</p></body></html>

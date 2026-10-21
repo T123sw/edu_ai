@@ -1,0 +1,448 @@
+{
+  "as_of": "2026-10-20T08:56:02.196676+00:00",
+  "resource_failures": [],
+  "protocol_recoveries": [
+    {
+      "action_id": "paction_732a1170281c4682859562b2894b3f9a",
+      "at": "2026-10-20 08:21:48.221772+00:00",
+      "status": "completed",
+      "phase": "learning_path",
+      "protocol_attempt": 1,
+      "usage": {
+        "total_tokens": 54807,
+        "prompt_tokens": 54054,
+        "completion_tokens": 753,
+        "prompt_tokens_details": {
+          "cached_tokens": 53632
+        },
+        "prompt_cache_hit_tokens": 53632,
+        "prompt_cache_miss_tokens": 422
+      },
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "node": null,
+      "resource_type": null
+    },
+    {
+      "action_id": "paction_c2840ae0b26b4a4e937deaa5ecc6613c",
+      "at": "2026-10-20 08:23:05.805101+00:00",
+      "status": "completed",
+      "phase": "resource_write",
+      "protocol_attempt": 1,
+      "usage": {
+        "total_tokens": 17730,
+        "prompt_tokens": 14559,
+        "completion_tokens": 3171,
+        "prompt_tokens_details": {
+          "cached_tokens": 14336
+        },
+        "prompt_cache_hit_tokens": 14336,
+        "prompt_cache_miss_tokens": 223
+      },
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "node": "n3-positional-encoding",
+      "resource_type": "report"
+    },
+    {
+      "action_id": "paction_29f70ae150814145a297a7405aeff957",
+      "at": "2026-10-20 08:32:15.314242+00:00",
+      "status": "completed",
+      "phase": "native_video",
+      "protocol_attempt": 1,
+      "usage": {
+        "total_tokens": 87198,
+        "prompt_tokens": 86791,
+        "completion_tokens": 407,
+        "prompt_tokens_details": {
+          "cached_tokens": 86656
+        },
+        "prompt_cache_hit_tokens": 86656,
+        "prompt_cache_miss_tokens": 135,
+        "completion_tokens_details": {
+          "reasoning_tokens": 216
+        }
+      },
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "node": "n1-motivation",
+      "resource_type": "classroom"
+    }
+  ],
+  "session_errors": [],
+  "native_tool_failures": [
+    {
+      "node": "n2-self-attention",
+      "session": "hyperframes-497d9fbc00934fe5a8e675c50051fec1.jsonl",
+      "tool": "read_file",
+      "called_at": 1792484664.563,
+      "returned_at": 1792484665.384,
+      "arguments": "{\"path\": \"/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md\"}",
+      "result": {
+        "ok": false,
+        "error": "[Errno 2] No such file or directory: '/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md'",
+        "command_id": null,
+        "exit_code": null,
+        "output_file": null
+      }
+    },
+    {
+      "node": "n4-encoder",
+      "session": "hyperframes-34565a572dcf4c2d94e064767f1c764c.jsonl",
+      "tool": "read_file",
+      "called_at": 1792484689.941,
+      "returned_at": 1792484690.463,
+      "arguments": "{\"path\": \"/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md\"}",
+      "result": {
+        "ok": false,
+        "error": "[Errno 2] No such file or directory: '/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md'",
+        "command_id": null,
+        "exit_code": null,
+        "output_file": null
+      }
+    }
+  ],
+  "nonzero_command_count": 17,
+  "nonzero_command_detail": "nonzero-commands.json",
+  "transport_log_scan": {
+    "scope": "Copied native command logs only; model retries without logged exceptions are not excluded",
+    "matches": []
+  },
+  "recovered_browser_check": {
+    "node": "n3-positional-encoding",
+    "failed_command": "2ca94ded56de47969d2173f85b6cd515",
+    "message": "Native browser check incomplete; no successful receipt saved",
+    "successful_followup_command": "eb8bde5240234d0685959f997a5f5b11",
+    "followup_exit_code": 0,
+    "status": "recovered_by_generator"
+  },
+  "other_command_errors": [
+    "Exploratory reads/listings used nonexistent reference files or not-yet-created scene directories.",
+    "One environment probe used the unavailable 'which' command (exit 127)."
+  ],
+  "narration_repetition": {
+    "node": "n4-encoder",
+    "prepare_narration_calls": 2,
+    "initial_audio_seconds": 245.832,
+    "later_audio_seconds": 291.936,
+    "note": "Repeated narration preparation after content changes; not evidence of HTTP throttling."
+  },
+  "layout_and_runtime_checks": [
+    {
+      "node": "n1-motivation",
+      "native_ok": false,
+      "sections": {
+        "lint": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 15,
+          "finding_codes": {
+            "studio_missing_editable_id": 10,
+            "overlapping_gsap_tweens": 4,
+            "composition_file_too_large": 1
+          }
+        },
+        "runtime": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 22,
+          "finding_codes": {
+            "console_warning": 12,
+            "clip_media_fit": 10
+          }
+        },
+        "layout": {
+          "ok": false,
+          "errors": 2,
+          "warnings": 0,
+          "finding_codes": {
+            "text_not_painted": 2,
+            "connector_orphan": 1,
+            "text_box_overflow": 7,
+            "canvas_overflow": 6,
+            "escaped_container": 3,
+            "container_overflow": 6,
+            "text_occluded": 1
+          }
+        },
+        "motion": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 0,
+          "finding_codes": {}
+        },
+        "contrast": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 2,
+          "finding_codes": {
+            "contrast_aa_failure": 2
+          }
+        }
+      }
+    },
+    {
+      "node": "n2-self-attention",
+      "native_ok": true,
+      "sections": {
+        "lint": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 11,
+          "finding_codes": {
+            "studio_missing_editable_id": 9,
+            "overlapping_gsap_tweens": 1,
+            "composition_file_too_large": 1
+          }
+        },
+        "runtime": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 9,
+          "finding_codes": {
+            "clip_media_fit": 9
+          }
+        },
+        "layout": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 0,
+          "finding_codes": {
+            "panel_out_of_canvas": 2,
+            "content_overlap": 12,
+            "text_box_overflow": 2,
+            "canvas_overflow": 2,
+            "connector_orphan": 3,
+            "container_overflow": 3
+          }
+        },
+        "motion": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 0,
+          "finding_codes": {}
+        },
+        "contrast": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 0,
+          "finding_codes": {}
+        }
+      }
+    },
+    {
+      "node": "n3-positional-encoding",
+      "native_ok": false,
+      "sections": {
+        "lint": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 22,
+          "finding_codes": {
+            "studio_missing_editable_id": 22
+          }
+        },
+        "runtime": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 0,
+          "finding_codes": {}
+        },
+        "layout": {
+          "ok": false,
+          "errors": 5,
+          "warnings": 0,
+          "finding_codes": {
+            "text_not_painted": 5,
+            "text_box_overflow": 7,
+            "canvas_overflow": 7,
+            "container_overflow": 7,
+            "content_overlap": 1,
+            "escaped_container": 1
+          }
+        },
+        "motion": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 0,
+          "finding_codes": {}
+        },
+        "contrast": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 3,
+          "finding_codes": {
+            "contrast_aa_failure": 3
+          }
+        }
+      }
+    },
+    {
+      "node": "n4-encoder",
+      "native_ok": false,
+      "sections": {
+        "lint": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 0,
+          "finding_codes": {}
+        },
+        "runtime": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 0,
+          "finding_codes": {}
+        },
+        "layout": {
+          "ok": false,
+          "errors": 5,
+          "warnings": 0,
+          "finding_codes": {
+            "text_not_painted": 5,
+            "text_occluded": 7,
+            "container_overflow": 6,
+            "canvas_overflow": 2,
+            "connector_orphan": 4,
+            "text_box_overflow": 1
+          }
+        },
+        "motion": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 0,
+          "finding_codes": {}
+        },
+        "contrast": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 3,
+          "finding_codes": {
+            "contrast_aa_failure": 3
+          }
+        }
+      }
+    },
+    {
+      "node": "n5-decoder-and-flow",
+      "native_ok": false,
+      "sections": {
+        "lint": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 19,
+          "finding_codes": {
+            "studio_missing_editable_id": 17,
+            "gsap_repeated_fromto_without_baseline": 1,
+            "composition_file_too_large": 1
+          }
+        },
+        "runtime": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 14,
+          "finding_codes": {
+            "clip_media_fit": 14
+          }
+        },
+        "layout": {
+          "ok": false,
+          "errors": 11,
+          "warnings": 0,
+          "finding_codes": {
+            "text_not_painted": 9,
+            "content_overlap": 2,
+            "container_overflow": 14,
+            "text_occluded": 3,
+            "text_box_overflow": 3,
+            "canvas_overflow": 3
+          }
+        },
+        "motion": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 0,
+          "finding_codes": {}
+        },
+        "contrast": {
+          "ok": true,
+          "errors": 0,
+          "warnings": 5,
+          "finding_codes": {
+            "contrast_aa_failure": 5
+          }
+        }
+      }
+    }
+  ],
+  "check_interpretation": "Native lint/runtime/layout findings are retained separately from the playback-first release decision. Native ok=false does not mean resource generation failed. Layout/contrast findings were advisory under the existing release policy; some refer to decorative ghost text. No claim that every finding is a visible defect or that every finished frame has been visually verified.",
+  "visual_spotcheck": {
+    "performed": true,
+    "scope": "Read existing native contact sheets; no new render or playback was triggered by observer.",
+    "reviewed": [
+      {
+        "node": "n1-motivation",
+        "image": "previews/n1-motivation-7125e5bc-7654-449f-8046-941335907240-contact-sheet-1.jpg",
+        "observations": [
+          "Nine sampled images contain titles, labels or diagrams; no entirely blank sampled frame.",
+          "Dark blue/black theme; sampled Seq2Seq, attention weighting and encoder/decoder diagrams are present.",
+          "Some diagram labels occupy a small fraction of the frame; legibility at final display size has not been tested."
+        ]
+      },
+      {
+        "node": "n2-self-attention",
+        "image": "previews/n2-self-attention-2afc023a-aa9b-4dae-b03e-84a50cadf345-contact-sheet-1.jpg",
+        "observations": [
+          "Nine sampled images show Q/K/V projections, dot products, softmax, weighted sum, a three-token numerical demonstration and multi-head concatenation.",
+          "Dark blue grid theme; no entirely blank sampled frame; small secondary diagram labels require final-size inspection."
+        ]
+      },
+      {
+        "node": "n3-positional-encoding",
+        "image": "previews/n3-positional-encoding-d798efa2-0f4f-4895-beec-25a33d666568-contact-sheet-1.jpg",
+        "observations": [
+          "Nine sampled images show token order, permutation, sequential/parallel structure, input position addition and sine/cosine encoding.",
+          "Dark blue grid theme; no entirely blank sampled frame."
+        ]
+      },
+      {
+        "node": "n4-encoder",
+        "image": "previews/n4-encoder-aeb3814d-a6fe-42b6-8eae-ccf542fb0b7d-contact-sheet-1.jpg",
+        "observations": [
+          "Nine sampled images show stacked encoder layers, input addition, attention, residual connections, layer normalization and feed-forward structure.",
+          "Dark blue grid theme; no entirely blank sampled frame. Small labels remain a final-display legibility limitation."
+        ]
+      },
+      {
+        "node": "n5-decoder-and-flow",
+        "image": "previews/n5-decoder-and-flow-aee7790c-d11c-43e0-bb63-377a144270ea-contact-sheet-1.jpg",
+        "observations": [
+          "Nine sampled images show encoder/decoder comparison, causal and padding masks, shifted targets, cross-attention Q/K/V sources.",
+          "No entirely blank sampled frame. Cross-attention title wraps its final character onto a separate line; secondary labels are small in contact sheet.",
+          "All five reviewed sheets share a dark blue palette; spacing and title treatments vary."
+        ]
+      }
+    ],
+    "not_performed": [
+      "frame-by-frame playback",
+      "semantic/numeric review",
+      "interactive UI checks"
+    ]
+  },
+  "limitations": [
+    "No semantic/numerical content review, extra model call, re-render, or interactive playback.",
+    "A successful generation status does not establish all educational content is correct.",
+    "Concurrency peaks use 30-second sampling and are lower bounds."
+  ],
+  "production_review_reported_limitations": {
+    "source": "manifests.json, final manifest v11 limitations",
+    "note": "Existing production review findings, not an independent observer content review.",
+    "examples": [
+      "n1 报告中“我爱学习”一句的“4 个词（按分词可能是 3 个）”表述自相矛盾，属润色级瑕疵，建议后续统一为 3 个词，不影响核心概念正确性。",
+      "习题与课堂正文按策略不在本轮内容审阅范围，其正确性未由本审阅确认。",
+      "报告正文中“我爱学习”一句被描述为“输入是 4 个词（我 / 爱 / 学习，按分词可能是 3 个）”，括号内自相矛盾，属表述瑕疵，不影响核心概念正确性，建议后续润色时统一为 3 个词。"
+    ]
+  }
+}

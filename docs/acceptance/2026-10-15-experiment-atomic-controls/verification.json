@@ -1,0 +1,437 @@
+{
+  "status": "published-and-verified",
+  "experimentId": "job_1f682b31a94146a6",
+  "protocol": "edu-experiment/2",
+  "generationSeconds": 110.331183,
+  "modelCalls": 6,
+  "callsExplanation": "正常五次调用；完整探索页包含一次已有机制允许的局部运行修复",
+  "attempts": {
+    "guided-attempt-1": {
+      "ok": true,
+      "scope": "basic-page-runtime",
+      "checks": [
+        "registered-and-initialized",
+        "reset",
+        "saved-state-restore",
+        "visible-content"
+      ],
+      "issues": [],
+      "diagnostics": {
+        "evidence_id": "a569b30b-1d1d-481d-a31d-e86cf6dde4df"
+      },
+      "scientific_certification": false
+    },
+    "explore-attempt-1": {
+      "ok": false,
+      "scope": "basic-page-runtime",
+      "checks": [],
+      "issues": [
+        "TypeError: Cannot read properties of undefined (reading 'includes')"
+      ],
+      "diagnostics": {
+        "evidence_id": "68df5f6f-30b6-4690-af34-5717feac0df7"
+      },
+      "scientific_certification": false
+    },
+    "explore-attempt-2": {
+      "ok": true,
+      "scope": "basic-page-runtime",
+      "checks": [
+        "registered-and-initialized",
+        "reset",
+        "saved-state-restore",
+        "visible-content"
+      ],
+      "issues": [],
+      "diagnostics": {
+        "evidence_id": "a3c39872-bf4e-4e43-9a01-f86436685351"
+      },
+      "scientific_certification": false
+    },
+    "demonstrate-attempt-1": {
+      "ok": true,
+      "scope": "basic-page-runtime",
+      "checks": [
+        "registered-and-initialized",
+        "demo-steps-and-replay",
+        "reset",
+        "saved-state-restore",
+        "visible-content"
+      ],
+      "issues": [],
+      "diagnostics": {
+        "evidence_id": "4dda37fc-deee-45c7-ace7-98bf01282331"
+      },
+      "scientific_certification": false
+    }
+  },
+  "sourceManifest": {
+    "backend/src/app/practice/skills/design-experiment/SKILL.md": "ae0cd97b66f9cec409a731c5aad37123814775ede99a436b7a0da7eef31de0fd",
+    "backend/src/app/practice/skills/design-experiment/references/pages-runtime.md": "3031791aa3bd549a12dfedec70015752dbb64a882df224256ea116d63bb8913a",
+    "frontend/scripts/pages-validation.mjs": "819013f9084ea9e5971fc5f5cebfa036fdcaff52c2538898ba7e179805638fc8"
+  },
+  "frontendBundleChanged": false,
+  "liveFrontendIndexSha256": "b432fd5ab721b560cd77c6ddfe6c44dae1cdba39e67ac0f199162fc6d4dfce14",
+  "requiresRestart": false,
+  "activation": "生成器每次读取 Skill 和页面约定文件；浏览器校验脚本每次以新子进程执行",
+  "regressionTestsPassed": 9,
+  "previousFailedTask": "practice_dbd01b5a0821a1b3d09e1c41a7194331",
+  "browser": [
+    {
+      "width": 1440,
+      "ok": true,
+      "checks": [
+        "all-demo-steps-at-most-one-comparison-and-one-adjacent-swap",
+        "demo-replay",
+        "custom-input-changes-computation-and-reset-baseline",
+        "invalid-input-visible-feedback-and-preserved-experiment",
+        "sorted-input-1-2-3-4",
+        "sorted-input-4-3-2-1",
+        "sorted-input-3-1-3-2",
+        "all-presets-mentioned-in-exploration-prompts-exist",
+        "fresh-browser-restores-custom-parameters-and-reset-baseline"
+      ],
+      "demo": [
+        {
+          "step": 1,
+          "comparisonsBefore": 0,
+          "comparisonsAfter": 1,
+          "before": [
+            4,
+            3,
+            2,
+            1
+          ],
+          "after": [
+            3,
+            4,
+            2,
+            1
+          ]
+        },
+        {
+          "step": 2,
+          "comparisonsBefore": 1,
+          "comparisonsAfter": 2,
+          "before": [
+            3,
+            4,
+            2,
+            1
+          ],
+          "after": [
+            3,
+            2,
+            4,
+            1
+          ]
+        },
+        {
+          "step": 3,
+          "comparisonsBefore": 2,
+          "comparisonsAfter": 3,
+          "before": [
+            3,
+            2,
+            4,
+            1
+          ],
+          "after": [
+            3,
+            2,
+            1,
+            4
+          ]
+        },
+        {
+          "step": 4,
+          "comparisonsBefore": 3,
+          "comparisonsAfter": 3,
+          "before": [
+            3,
+            2,
+            1,
+            4
+          ],
+          "after": [
+            3,
+            2,
+            1,
+            4
+          ]
+        },
+        {
+          "step": 5,
+          "comparisonsBefore": 3,
+          "comparisonsAfter": 4,
+          "before": [
+            3,
+            2,
+            1,
+            4
+          ],
+          "after": [
+            2,
+            3,
+            1,
+            4
+          ]
+        },
+        {
+          "step": 6,
+          "comparisonsBefore": 4,
+          "comparisonsAfter": 5,
+          "before": [
+            2,
+            3,
+            1,
+            4
+          ],
+          "after": [
+            2,
+            1,
+            3,
+            4
+          ]
+        },
+        {
+          "step": 7,
+          "comparisonsBefore": 5,
+          "comparisonsAfter": 5,
+          "before": [
+            2,
+            1,
+            3,
+            4
+          ],
+          "after": [
+            2,
+            1,
+            3,
+            4
+          ]
+        },
+        {
+          "step": 8,
+          "comparisonsBefore": 5,
+          "comparisonsAfter": 6,
+          "before": [
+            2,
+            1,
+            3,
+            4
+          ],
+          "after": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "step": 9,
+          "comparisonsBefore": 6,
+          "comparisonsAfter": 6,
+          "before": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "after": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "errors": [],
+      "mockedRequests": 0
+    },
+    {
+      "width": 390,
+      "ok": true,
+      "checks": [
+        "all-demo-steps-at-most-one-comparison-and-one-adjacent-swap",
+        "demo-replay",
+        "custom-input-changes-computation-and-reset-baseline",
+        "invalid-input-visible-feedback-and-preserved-experiment",
+        "sorted-input-1-2-3-4",
+        "sorted-input-4-3-2-1",
+        "sorted-input-3-1-3-2",
+        "all-presets-mentioned-in-exploration-prompts-exist",
+        "fresh-browser-restores-custom-parameters-and-reset-baseline"
+      ],
+      "demo": [
+        {
+          "step": 1,
+          "comparisonsBefore": 0,
+          "comparisonsAfter": 1,
+          "before": [
+            4,
+            3,
+            2,
+            1
+          ],
+          "after": [
+            3,
+            4,
+            2,
+            1
+          ]
+        },
+        {
+          "step": 2,
+          "comparisonsBefore": 1,
+          "comparisonsAfter": 2,
+          "before": [
+            3,
+            4,
+            2,
+            1
+          ],
+          "after": [
+            3,
+            2,
+            4,
+            1
+          ]
+        },
+        {
+          "step": 3,
+          "comparisonsBefore": 2,
+          "comparisonsAfter": 3,
+          "before": [
+            3,
+            2,
+            4,
+            1
+          ],
+          "after": [
+            3,
+            2,
+            1,
+            4
+          ]
+        },
+        {
+          "step": 4,
+          "comparisonsBefore": 3,
+          "comparisonsAfter": 3,
+          "before": [
+            3,
+            2,
+            1,
+            4
+          ],
+          "after": [
+            3,
+            2,
+            1,
+            4
+          ]
+        },
+        {
+          "step": 5,
+          "comparisonsBefore": 3,
+          "comparisonsAfter": 4,
+          "before": [
+            3,
+            2,
+            1,
+            4
+          ],
+          "after": [
+            2,
+            3,
+            1,
+            4
+          ]
+        },
+        {
+          "step": 6,
+          "comparisonsBefore": 4,
+          "comparisonsAfter": 5,
+          "before": [
+            2,
+            3,
+            1,
+            4
+          ],
+          "after": [
+            2,
+            1,
+            3,
+            4
+          ]
+        },
+        {
+          "step": 7,
+          "comparisonsBefore": 5,
+          "comparisonsAfter": 5,
+          "before": [
+            2,
+            1,
+            3,
+            4
+          ],
+          "after": [
+            2,
+            1,
+            3,
+            4
+          ]
+        },
+        {
+          "step": 8,
+          "comparisonsBefore": 5,
+          "comparisonsAfter": 6,
+          "before": [
+            2,
+            1,
+            3,
+            4
+          ],
+          "after": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "step": 9,
+          "comparisonsBefore": 6,
+          "comparisonsAfter": 6,
+          "before": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "after": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "errors": [],
+      "mockedRequests": 0
+    }
+  ],
+  "guidedRegression": {
+    "ok": true,
+    "checks": [
+      "choose-adjacent-pair-wrong-retry-correct",
+      "frozen-context",
+      "swap-decision-wrong-retry-correct",
+      "range-wrong-retry-pending-verification-pass"
+    ],
+    "errors": [],
+    "mockedRequests": 0
+  },
+  "backendProcess": "MainPID=427649\nActiveState=active"
+}

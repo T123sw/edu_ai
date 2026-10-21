@@ -18,6 +18,7 @@ class FailureDetail(Contract):
     retry_scope: Literal['none', 'provider', 'review', 'content']
     artifact_id: Identifier | None = None
     content_digest: ContentDigest | None = None
+    budget_metric: Literal['calls', 'tokens', 'cost_micro_usd'] | None = None
 
     @model_validator(mode='after')
     def validate_scope(self):

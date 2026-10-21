@@ -1,0 +1,221 @@
+{
+  "delayed_fixture": {
+    "old": {
+      "ok": false,
+      "issues": [
+        "调整参数并运行后，上报的结果没有变化"
+      ],
+      "checks": [
+        "initial-results",
+        "parameter-change-and-run",
+        "reset-button",
+        "responsive-layout",
+        "javascript-errors"
+      ],
+      "scope": "browser-smoke-not-scientific-certification"
+    },
+    "new": {
+      "ok": true,
+      "issues": [],
+      "checks": [
+        "initial-results",
+        "default-run",
+        "valid-parameter-change-and-run",
+        "reset-button",
+        "responsive-layout",
+        "javascript-errors"
+      ],
+      "scope": "browser-smoke-not-scientific-certification",
+      "diagnostics": {
+        "observation_ms": 8000,
+        "controls": [
+          {
+            "name": "size",
+            "type": "number",
+            "min": "2",
+            "max": "30",
+            "step": "",
+            "value": "5"
+          },
+          {
+            "name": "delay",
+            "type": "range",
+            "min": "100",
+            "max": "5000",
+            "step": "100",
+            "value": "1800"
+          }
+        ],
+        "initial": {
+          "parameters": {},
+          "results": {
+            "count": 0
+          }
+        },
+        "trials": [
+          {
+            "action": "run-with-defaults",
+            "before": {
+              "parameters": {},
+              "results": {
+                "count": 0
+              }
+            },
+            "after": {
+              "parameters": {},
+              "results": {
+                "count": 5
+              }
+            },
+            "changed": true
+          },
+          {
+            "action": "change-one-parameter-and-run",
+            "control": "size",
+            "parameters": {},
+            "before": {
+              "parameters": {},
+              "results": {
+                "count": 0
+              }
+            },
+            "after": {
+              "parameters": {},
+              "results": {
+                "count": 6
+              }
+            },
+            "changed": true
+          }
+        ],
+        "evidence_id": "38ffa522-7cd9-4b0a-9d57-036b5875707f"
+      }
+    }
+  },
+  "newly_generated_quicksort": {
+    "ok": true,
+    "issues": [],
+    "checks": [
+      "initial-results",
+      "default-run",
+      "valid-parameter-change-and-run",
+      "reset-button",
+      "responsive-layout",
+      "javascript-errors"
+    ],
+    "scope": "browser-smoke-not-scientific-certification",
+    "diagnostics": {
+      "observation_ms": 8000,
+      "controls": [
+        {
+          "name": "pivotStrategy",
+          "type": "select",
+          "value": "last"
+        },
+        {
+          "name": "speed",
+          "type": "range",
+          "min": "60",
+          "max": "900",
+          "step": "20",
+          "value": "300"
+        },
+        {
+          "name": "size",
+          "type": "number",
+          "min": "4",
+          "max": "16",
+          "step": "1",
+          "value": "8"
+        }
+      ],
+      "initial": {
+        "parameters": {
+          "pivotStrategy": "last",
+          "speed": "300",
+          "size": "8"
+        },
+        "results": {
+          "comparisons": 0,
+          "swaps": 0,
+          "maxDepth": 0,
+          "arraySize": 8,
+          "pivotStrategy": "last"
+        }
+      },
+      "trials": [
+        {
+          "action": "run-with-defaults",
+          "before": {
+            "parameters": {
+              "pivotStrategy": "last",
+              "speed": "300",
+              "size": "8"
+            },
+            "results": {
+              "comparisons": 0,
+              "swaps": 0,
+              "maxDepth": 0,
+              "arraySize": 8,
+              "pivotStrategy": "last"
+            }
+          },
+          "after": {
+            "parameters": {
+              "pivotStrategy": "last",
+              "speed": "300",
+              "size": "8"
+            },
+            "results": {
+              "comparisons": 18,
+              "swaps": 8,
+              "maxDepth": 6,
+              "arraySize": 8,
+              "pivotStrategy": "last"
+            }
+          },
+          "changed": true
+        },
+        {
+          "action": "change-one-parameter-and-run",
+          "control": "pivotStrategy",
+          "parameters": {
+            "pivotStrategy": "first",
+            "speed": "300",
+            "size": "8"
+          },
+          "before": {
+            "parameters": {
+              "pivotStrategy": "last",
+              "speed": "300",
+              "size": "8"
+            },
+            "results": {
+              "comparisons": 0,
+              "swaps": 0,
+              "maxDepth": 0,
+              "arraySize": 8,
+              "pivotStrategy": "last"
+            }
+          },
+          "after": {
+            "parameters": {
+              "pivotStrategy": "first",
+              "speed": "300",
+              "size": "8"
+            },
+            "results": {
+              "comparisons": 13,
+              "swaps": 14,
+              "maxDepth": 4,
+              "arraySize": 8,
+              "pivotStrategy": "first"
+            }
+          },
+          "changed": true
+        }
+      ],
+      "evidence_id": "1fae4aff-011a-4dd7-a59e-359ce34c0410"
+    }
+  }
+}

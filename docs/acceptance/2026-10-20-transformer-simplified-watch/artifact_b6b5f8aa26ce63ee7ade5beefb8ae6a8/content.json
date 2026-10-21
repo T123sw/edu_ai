@@ -1,0 +1,188 @@
+{
+  "title": "自注意力与多头注意力：QKV 与多子空间",
+  "content": {
+    "title": "自注意力与多头注意力：QKV 与多子空间",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_b6b5f8aa26ce63ee7ade5beefb8ae6a8",
+      "entry": "index.html",
+      "digest": "ab7fe0e5368d2eb692c5c370ab1be5e7b5f363a54ddea132a58dc7a18c99acdd"
+    },
+    "timeline": {
+      "duration": 327.5,
+      "segments": [
+        {
+          "id": "01-opening",
+          "end": 22.1,
+          "start": 0.0,
+          "title": "开场：从加权求和到自注意力",
+          "events": [],
+          "narration": "上一节点我们说过，注意力本质上是一次加权求和：用 Query 和 Key 算出权重，再用权重对 Value 加权。这一节把这个思路装进自注意力，从输入一路推到输出，最后再加一层多头。整个过程最后会落在一个公式上，我们一步一步把它写出来。",
+          "audio_path": "assets/audio/774dfec089037b26d67a532ef8b7cf6d64de350d4be67a1b77bc815f6b02d43a.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "深色黑板上的三步路线：权重 → 加权求和 → 一个公式"
+        },
+        {
+          "id": "02-qkv",
+          "end": 63.4,
+          "start": 22.1,
+          "title": "第一步：从 X 得到 Q、K、V",
+          "events": [],
+          "narration": "先看输入。一个长度为 n 的序列，每个词先变成一个 d 维向量，把这些向量堆起来，就得到矩阵 X，它有 n 行 d 列。接下来用三张不同的参数矩阵去乘它：X 乘 W_Q 得到 Q，X 乘 W_K 得到 K，X 乘 W_V 得到 V。这就是查询、键、值三个矩阵，形状都和 X 一样，只是每一行经过的映射不同。所以自注意力里，三者的来源是同一个 X，但数值完全不一样。资料里那句 key、value、query 相等，严格讲指的是同源，不是同一个数。",
+          "audio_path": "assets/audio/af70d19517cb86d947d11b8fe4076720227c7b8e8cfc0a8974d235d0ca14bc4c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "X 经三张参数矩阵分流成 Q、K、V 三个面板"
+        },
+        {
+          "id": "03-scoring",
+          "end": 97.8,
+          "start": 63.4,
+          "title": "第二步：点积打分与 √d_k 缩放",
+          "events": [],
+          "narration": "第二步是打分。第 i 个输出想看看第 j 个输入有多相关，就拿 Q 的第 i 行和 K 的第 j 行做点积。把所有组合一起算完，就是 Q 乘 K 的转置，得到一个 n 乘 n 的分数矩阵。注意这里 Q 和 K 的维度必须相同，否则点积对不上。还有一个细节：向量维度越长，点积的数值就越大，softmax 容易被推到饱和，所以再除以根号 d_k，把数值规模拉回稳定区间。这一步就是缩放。",
+          "audio_path": "assets/audio/f2e504db5bf50c9dd4c9474d10e5a7670d95bd0d2debd38c8e843037c32ebbdc.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "Q 与 Kᵀ 相乘铺出一张 n×n 分数格子，再除以 √d_k"
+        },
+        {
+          "id": "04-softmax",
+          "end": 126.6,
+          "start": 97.8,
+          "title": "第三步：softmax 按行归一化",
+          "events": [],
+          "narration": "分数还只是相似度，要变成比例，就得归一化。对分数矩阵按行做 softmax，也就是每一行内部独立做指数归一化。做完之后，每一行加起来正好等于一，每个元素都落在零到一之间。于是这个 n 乘 n 的矩阵有了明确的含义：第 i 行，就是第 i 个位置分配给所有输入位置的注意力权重。同行求和为一，说的就是它。",
+          "audio_path": "assets/audio/d39efff99a5685323e0526f08849d082001594b8f56aacbed1b6d9bab10add80.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "每一行单独归一化，行和都是 1.00"
+        },
+        {
+          "id": "05-output",
+          "end": 160.5,
+          "start": 126.6,
+          "title": "第四步：用权重对 V 加权求和",
+          "events": [],
+          "narration": "最后一步，用这组权重对 V 加权求和。输出的第 i 行，等于权重矩阵第 i 行乘上 V。所以输出序列里的每个向量，都是输入值向量的加权组合，权重由当前位置的 query 和其他位置 key 的相似度决定，等价于决定以多大比例继承其他位置的信息。把这四步串成一行公式，就是 softmax 括号里放 Q 乘 K 的转置、再除以根号 d_k，整个括号乘上 V。",
+          "audio_path": "assets/audio/a69f4681f22ce0253bbaa3a06e533f895a82ace36a96b73334777d719f99487b.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "权重行指向 V 的每一行，加权得到输出；公式补全"
+        },
+        {
+          "id": "06-example",
+          "end": 227.2,
+          "start": 160.5,
+          "title": "手算：三个词走一遍",
+          "events": [],
+          "narration": "用一个只有三个词的小例子走一遍。假设输入是 我、爱、你，注意力权重矩阵算出来是这样的：我这一行是 0.70、0.20、0.10，加起来 1.00；爱这一行是 0.15、0.65、0.20，也是 1.00；你这一行是 0.05、0.25、0.70，同样是 1.00。三行都归一化过了，所以每一行都是一个概率分布。再看输出怎么来的。取第一行，三个值向量分别是一零、零一、一一，加权求和：第一维是 0.7 乘 1 加 0.2 乘 0 加 0.1 乘 1，得 0.8；第二维是 0.7 乘 0 加 0.2 乘 1 加 0.1 乘 1，得 0.3。新的 我 就是 0.8 和 0.3，它不是原来那个向量，而是三个值向量按比例混合出来的。",
+          "audio_path": "assets/audio/127116dae9134795c59896071866da244ed8cf168cf892ffc85bcb8f0e382dd5.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "我爱你的 3×3 权重矩阵逐行亮起，行和为 1.00，再用第一行算出 o₁"
+        },
+        {
+          "id": "07-single-head",
+          "end": 250.6,
+          "start": 227.2,
+          "title": "设问：如果只有一个头会缺什么",
+          "events": [],
+          "narration": "讲到这里，先停一下，问一个问题：如果只有一个头，会缺什么？自注意力算出来的权重只有一套，这套权重只表达一种相关性模式。也许它偏向语法上的主谓关系，那就照顾不到指代，也照顾不到语义搭配。也就是说，一个查询，只能从一个角度看整句话。",
+          "audio_path": "assets/audio/b0936f0e64aa01a7b0a6f9ac27718c0e6bacc3cfd70d455bf994fcbb091f3ee7.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "单头的一次注意力被问住：一套权重只能用一种角度看句子"
+        },
+        {
+          "id": "08-multihead",
+          "end": 292.8,
+          "start": 250.6,
+          "title": "多头：多套参数、并行、拼接、输出投影",
+          "events": [],
+          "narration": "多头注意力的做法是同时用多套参数。第 m 个头有自己的 W_Q、W_K、W_V，各自算一遍缩放点积注意力，得到一个按权重加权求和后的向量。h 个头并行跑，每个头输出一个向量，把这些向量并排拼接，再乘一张输出投影矩阵 W_O，把维度降回模型维度。和单头比，差别在两处：参数上，多头有好几组投影矩阵，还有一张 W_O；输出上，单头直接给出一个 d 维结果，多头是拆成 h 个子空间分别算，再拼接合并。",
+          "audio_path": "assets/audio/e2fc16bbefb0a8421626e43ca1b99812fcc082d03ce2700c65352739e0847aab.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "X 分成三个头各自算一遍，输出拼接后经 W_O 合并"
+        },
+        {
+          "id": "09-wrapup",
+          "end": 327.5,
+          "start": 292.8,
+          "title": "收束：优势、位置编码衔接与自测",
+          "events": [],
+          "narration": "回到整体。自注意力可以替换卷积层和循环层，能建立长距离依赖，也能并行计算，这是它的优势。但它的权重只依赖 query 和 key 的相关性，位置信息是缺的，单独使用时需要位置编码来修正，这部分留给后面讲。本节的自测有两个点：能不能默写下缩放点积的公式，说清除以根号 d_k 和按行 softmax 各在哪一步；以及多头和单头，在参数和输出上到底差在哪里。",
+          "audio_path": "assets/audio/67eae2e3e74fd98377a7f00f77c953c4d0dd1655e9fc93eadca5b5eb32821e8e.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三点收束：优势、位置信息的缺口、两道自测"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 327.5
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.458333333333333
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "03e8b9517c98a031760c44765255d61c4a4f0fc93bfa5afb3e9996632fc054d4",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 327.5
+      },
+      "content_digest": "60122a1f1c835d414a45ced2042488ab0ad5901e032ef664647f6869f1506712",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.458333333333333
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "243284d5e0034c2eeb0b78a85b9fa0c07fd6f9a04e0643256c4b0c395aa314cb"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "354f5bed198d567fa964ce491e0509994b9f8d48826fe1cf421023b11ab2a30a",
+      "preparation_sha256": "10044f9984c444c2df5c65ff6ec65e7bc5c1e642bb3b0d52051af71dec06cf94"
+    }
+  }
+}

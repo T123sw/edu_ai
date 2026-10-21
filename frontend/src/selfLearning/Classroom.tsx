@@ -1,4 +1,5 @@
 import type { ReadingSnapshot } from '../liveLearning/agentTurns';
+import type { PlaybackCommand } from '../classroom/playbackTypes';
 import {
   useEffect,
   useMemo,
@@ -11,7 +12,6 @@ import {
   allResources,
   resourceEvidence,
   kindLabel,
-  resourceDurationLabel,
   updateEvidence,
   updateRoom,
   type Classroom as Room,
@@ -22,6 +22,7 @@ import { Icon } from "./ui";
 import { useLearningProgress, readingProgress } from '../liveLearning/learningState';
 import { resourceRef } from '../liveLearning/readingContext';
 import { LearningAgent } from "./LearningAgent";
+import { generationLabel } from '../liveLearning/progressiveCourse';
 import "./classroomEditorial.css";
 
 export function Classroom({
@@ -30,6 +31,7 @@ export function Classroom({
   setState,
   onSelect,
   onAsk,
+  onRetryNode,
 }: {
   room: Room;
   resourceId?: string;
@@ -37,6 +39,7 @@ export function Classroom({
   onSelect: (id: string) => void;
   workbenchHref?: string;
   onAsk?: (chapterId: string, resourceId: string, text: string) => Promise<void>;
+  onRetryNode?: (chapterId: string) => Promise<void>;
 }) {
   const facts = useLearningProgress(inputRoom);
   const room = facts.room;
@@ -51,13 +54,20 @@ export function Classroom({
   const [clearReferenceSignal, setClearReferenceSignal] = useState(0);
   const [panel, setPanel] = useState("learn");
   const [chatActive, setChatActive] = useState(false);
+  const [playbackRequest, setPlaybackRequest] = useState<{ scope: object; command: PlaybackCommand }>();
+  function requestPlayback(action: PlaybackCommand['action']) {
+    setPlaybackRequest(previous => ({ scope: readingScope, command: { action, sequence: (previous?.command.sequence ?? 0) + 1 } }));
+  }
   const [closedChapters, setClosedChapters] = useState<string[]>([]);
+  const [retryingNode, setRetryingNode] = useState('');
+  const [retryError, setRetryError] = useState('');
   const reading = useRef<HTMLDivElement>(null);
   const evidence = resourceEvidence(room, resource);
   const chapter = room.chapters.find(c => c.resources.some(r => r.id === resource.id))!;
   const currentRef = resourceRef(resource);
   const progress = readingProgress(room);
   const isPlayback = resource.kind === "video" || resource.remote?.materialType === "classroom";
+  const delivery = room.preparationDelivery;
   useEffect(() => {
     setState((s) =>
       updateRoom(s, room.id, (r) =>
@@ -105,22 +115,8 @@ export function Classroom({
           <a className="sl-icon-button" href="#/" aria-label="返回首页"><Icon name="back" size={18} /></a>
           <h2 title={room.title}>{room.title}</h2>
         </div>
-        <div className="sl-route-progress">
-          <div>
-            <span>学习进度</span>
-            <strong>
-              {progress.finished} <small>/ {progress.total}</small>
-            </strong>
-          </div>
-          <div className="sl-progress-track" role="progressbar" aria-label="学习进度" aria-valuemin={0} aria-valuemax={progress.total || 1} aria-valuenow={progress.finished} aria-valuetext={`已看完 ${progress.finished} / ${progress.total} 份资料`}>
-            <i
-              style={{
-                width: `${progress.percent}%`,
-              }}
-            />
-          </div>
-        </div>
         <div className="sl-directory-scroll">
+          {retryError && <p className="sl-node-retry-error" role="alert">{retryError}</p>}
           {room.chapters.map((chapter, n) => (
             <section key={chapter.id}>
               <button className="sl-chapter-heading" aria-expanded={!closedChapters.includes(chapter.id)} onClick={() => setClosedChapters(s => s.includes(chapter.id) ? s.filter(id => id !== chapter.id) : [...s, chapter.id])}>
@@ -128,6 +124,16 @@ export function Classroom({
                 {chapter.title}
                 <Icon name="chevron" size={13} />
               </button>
+              {chapter.generationState && <div className={`sl-node-generation is-${chapter.generationState}`}>
+                <span>{chapter.generationState !== 'ready' && chapter.resources.some(r => r.ready) ? '已有内容可学 · ' : ''}{generationLabel(chapter)}</span>
+                {['failed', 'stopped'].includes(chapter.generationState) && ['failed', 'canceled'].includes(delivery?.status || '') && onRetryNode &&
+                  <button disabled={Boolean(retryingNode)} onClick={async () => {
+                    setRetryingNode(chapter.id); setRetryError('');
+                    try { await onRetryNode(chapter.id); }
+                    catch (cause) { setRetryError(cause instanceof Error ? cause.message : '重试未提交，请稍后再试'); }
+                    finally { setRetryingNode(''); }
+                  }}>{retryingNode === chapter.id ? '正在提交…' : '重试本节'}</button>}
+              </div>}
               {!closedChapters.includes(chapter.id) && chapter.resources.map((r) => (
                 <button
                   key={r.id}
@@ -139,7 +145,7 @@ export function Classroom({
                   <Icon name={r.kind} size={17} />
                   <span>
                     {r.sourceResourceId ? r.title : kindLabel[r.kind]}
-                    <small>{r.ready ? resourceDurationLabel(r) : "正在准备"}</small>
+                    {!r.ready && <small>{generationLabel(chapter) || '正在准备'}</small>}
                   </span>
                   {progress.finishedIds.includes(r.id) ? (
                     <span className="sl-done">
@@ -155,6 +161,7 @@ export function Classroom({
         </div>
       </aside>
       <section className="sl-reader">
+            {isPlayback && chatActive && <button className="classroom-primary-button" onClick={() => { setChatActive(false); setPanel("learn"); requestPlayback('resume'); }}>继续课堂</button>}
         <div
           className="sl-reader-scroll"
           ref={reading}
@@ -172,12 +179,13 @@ export function Classroom({
             resource={resource}
             evidence={evidence}
             onEvidence={patch}
-            paused={chatActive || panel === "agent" || panel === "directory"}
+            paused={panel === "agent" || panel === "directory"}
+            playbackCommand={playbackRequest?.scope === readingScope ? playbackRequest.command : undefined}
           />
         </div>
         {room.progressPersistence && facts.error && <div role="alert">学习记录未同步：{facts.error}<button onClick={facts.retry}>重试保存</button>{facts.pending.some(p => p.blocked) && <button onClick={facts.discardConflicts}>放弃冲突操作并刷新</button>}<small>可以继续阅读其他资料。</small></div>}
       </section>
-      <LearningAgent referenceRequest={referenceRequest} onClearReference={() => { setClearReferenceSignal(n => n + 1); setSnapshotState(s => s?.scope === readingScope ? { ...s, snapshot: { ...s.snapshot, selected_text: '', practice: undefined, question_prompt: undefined, locator: s.snapshot.locator?.kind === 'document' ? { kind: 'document', scroll_top: s.snapshot.locator.scroll_top } : s.snapshot.locator?.kind === 'quiz' ? undefined : s.snapshot.locator } } : s); }} readingSnapshot={currentRef ? (snapshotState?.scope === readingScope ? snapshotState.snapshot : { resource_ref: currentRef, selected_text: "", locator: currentRef.material_type === "classroom" ? undefined : evidence.locator }) : undefined} room={room} resource={resource} setState={setState} onSelect={onSelect} onEngage={() => setChatActive(true)} onAsk={onAsk} onSelfAssessment={room.progressPersistence ? (value) => facts.enqueue(chapter.id, 'self_assessment_set', undefined, { value }) : undefined} selfAssessmentPending={facts.pending.some(p => p.topic === chapter.id && p.event.type === 'self_assessment_set')} />
+      <LearningAgent referenceRequest={referenceRequest} onClearReference={() => { setClearReferenceSignal(n => n + 1); setSnapshotState(s => s?.scope === readingScope ? { ...s, snapshot: { ...s.snapshot, selected_text: '', practice: undefined, question_prompt: undefined, locator: s.snapshot.locator?.kind === 'document' ? { kind: 'document', scroll_top: s.snapshot.locator.scroll_top } : s.snapshot.locator?.kind === 'quiz' ? undefined : s.snapshot.locator } } : s); }} readingSnapshot={currentRef ? (snapshotState?.scope === readingScope ? snapshotState.snapshot : { resource_ref: currentRef, selected_text: "", locator: currentRef.material_type === "classroom" ? undefined : evidence.locator }) : undefined} room={room} resource={resource} setState={setState} onSelect={onSelect} onEngage={() => { setChatActive(true); requestPlayback('pause'); }} onAsk={onAsk} onSelfAssessment={room.progressPersistence ? (value) => facts.enqueue(chapter.id, 'self_assessment_set', undefined, { value }) : undefined} selfAssessmentPending={facts.pending.some(p => p.topic === chapter.id && p.event.type === 'self_assessment_set')} />
     </main>
   );
 }

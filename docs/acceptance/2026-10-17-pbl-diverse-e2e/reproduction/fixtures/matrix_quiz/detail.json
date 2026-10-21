@@ -1,0 +1,38 @@
+{
+  "exerciseId": "pbl_6aab2d566ee5e9790a6cd68265f56725",
+  "job": {
+    "schema_version": 2,
+    "version": 16,
+    "edu_job_id": "pbl_6aab2d566ee5e9790a6cd68265f56725",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_quiz",
+    "owner": "matrix_quiz",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_6aab2d566ee5e9790a6cd68265f56725",
+    "input_summary": {
+      "title": "用 React 做三道固定题的单选小测验。题目分别为 2+3 等于多少（选项4/5/6，正确5）、水的化学式（H2O/CO2/O2，正确H2O）、一周几天（5/6/7，正确7）。每次只显示一题和进度；没选答案不能提交；提交后显示对错和正确答案，本题不能再改选或重复计分；点击下一题进入下一题，第三题提交后显示总分（满分3）。重新开始后分数、进度、选项和反馈全部恢复初始。完全本地，无额外依赖，分步实现。",
+      "topic": "用 React 做三道固定题的单选小测验。题目分别为 2+3 等于多少（选项4/5/6，正确5）、水的化学式（H2O/CO2/O2，正确H2O）、一周几天（5/6/7，正确7）。每次只显示一题和进度；没选答案不能提交；提交后显示对错和正确答案，本题不能再改选或重复计分；点击下一题进入下一题，第三题提交后显示总分（满分3）。重新开始后分数、进度、选项和反馈全部恢复初始。完全本地，无额外依赖，分步实现。",
+      "exercise_id": "pbl_6aab2d566ee5e9790a6cd68265f56725"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error_code": "PBL_VALIDATION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:20:54.432568+00:00",
+    "started_at": "2026-10-17T09:20:55.280339+00:00",
+    "finished_at": "2026-10-17T09:22:29.210330+00:00",
+    "updated_at": "2026-10-17T09:22:29.210330+00:00"
+  },
+  "artifact": null
+}

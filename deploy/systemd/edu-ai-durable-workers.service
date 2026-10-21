@@ -1,0 +1,20 @@
+# User unit: install under ~/.config/systemd/user/.
+[Unit]
+Description=Edu-AI concurrent generation and preparation workers
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/zxqs_ep/Edu_AI/backend/src
+EnvironmentFile=/home/zxqs_ep/Edu_AI/.env
+Environment=PYTHONUNBUFFERED=1
+Environment=PATH=/home/zxqs_ep/miniforge3/envs/edu-ai/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python -m app.services.durable_worker --workers 5 --control-workers 0 --light-workers 0
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=3700
+KillMode=mixed
+UMask=0027
+
+[Install]
+WantedBy=default.target

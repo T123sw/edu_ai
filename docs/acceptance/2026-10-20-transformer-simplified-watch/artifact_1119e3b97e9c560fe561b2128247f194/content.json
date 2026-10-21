@@ -1,0 +1,212 @@
+{
+  "title": "位置编码：并行结构如何知道词序",
+  "content": {
+    "title": "位置编码：并行结构如何知道词序",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_1119e3b97e9c560fe561b2128247f194",
+      "entry": "index.html",
+      "digest": "6bf592b05a6dd6dc7209fe530151de6088167213f392d4e28c4f64e5a675e567"
+    },
+    "timeline": {
+      "duration": 292.1,
+      "segments": [
+        {
+          "id": "01-opening",
+          "end": 25.18,
+          "start": 0.0,
+          "title": "开场：缺口在哪里",
+          "events": [],
+          "narration": "前面的课程里，我们已经把自注意力算过一遍：输入经过三个线性映射得到查询、键和值，用点积打分，再按行做 softmax 归一化，加权求和得到输出；多头注意力把这套计算放到多个子空间里并行地做。走到这里，Transformer 的核心零件基本齐了，但还缺一块，缺的就是词序。",
+          "audio_path": "assets/audio/769b027b1f7ceb85bc2866beb3c2073b91a2688e4282e7ba00ca2edf511a0353.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "标题「位置编码」压上深蓝板面，四个词牌落位后序号悄悄换成问号"
+        },
+        {
+          "id": "02-recall",
+          "end": 47.72,
+          "start": 25.18,
+          "title": "复习：权重只看相关性",
+          "events": [],
+          "narration": "先复习一句关键的话：自注意力的权重，只依赖查询和键之间的相关性。哪两个位置的打分高，它们之间的权重就大。也就是说，它回答的是这个词和那个词有多相关，而不是这个词排在第几个位置。位置信息从头到尾没有参与计算。",
+          "audio_path": "assets/audio/c389c29602ae8aae509e2e82316feeb1f04bdb8eba74eb69f108e340a889a90d.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "缩放点积公式落位，Q/K/V 同源，一张 4×4 权重表证明位置不参与"
+        },
+        {
+          "id": "03-scramble-demo",
+          "end": 77.14,
+          "start": 47.72,
+          "title": "实验：打乱词序，结果几乎不变",
+          "events": [],
+          "narration": "我们把这件事做成一个实验。先是「我 喜欢 学习 编码」这句话，每个词先变成一个向量。现在把词序打乱，变成「编码 我 学习 喜欢」，再算一遍每两个词之间的注意力权重。只要词的组合没变，权重矩阵只是被整体重排了一下，每个词看到的还是同样那几个伙伴。自注意力对这个变化几乎没有反应。",
+          "audio_path": "assets/audio/a4ca3dbd450359a5b9da444e723f09fe6d60e55b86c1142f613abf4c29791d07.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "两张权重表并排：打乱词序后权重矩阵只是整体重排，配同样几个伙伴"
+        },
+        {
+          "id": "04-permutation",
+          "end": 102.39,
+          "start": 77.14,
+          "title": "为什么：置换等变",
+          "events": [],
+          "narration": "为什么会这样？因为自注意力对输入做的是逐对打分，再加权求和，它没有「上一个时间步」这个概念。把输入打乱，等于把同一组向量换了个顺序排列，两两之间的点积完全一样，输出也只是跟着换了顺序。用一句话记住：自注意力是置换等变的，它知道有哪些词，却不知道谁先谁后。",
+          "audio_path": "assets/audio/b2f864c57081cff16255709ec6213c231e000fe2e09efa9c2ae17cf1a3f796f0.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "打乱输入 → 输出跟着换序：置换等变的方框图与结论卡"
+        },
+        {
+          "id": "05-rnn-vs-parallel",
+          "end": 126.37,
+          "start": 102.39,
+          "title": "对比：RNN 的天然顺序",
+          "events": [],
+          "narration": "对比一下 RNN。RNN 是一个时间步接一个时间步往前推的，第一个词处理完才轮到第二个词，循环结构本身就带着先后顺序，模型不需要额外提示，就知道谁在前面。Transformer 放弃了循环，所有时间步同时输入、并行推理。这正是它训练高效的代价：那份天然的先后顺序，没有了。",
+          "audio_path": "assets/audio/cc52c791378792d619286b7cbfe644de91d3e1b160844282f497ca0bba8eef4c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左 RNN 链式推进有前后，右 Transformer 同时输入丢掉顺序"
+        },
+        {
+          "id": "06-conclusion",
+          "end": 146.43,
+          "start": 126.37,
+          "title": "结论：修正发生在输入端",
+          "events": [],
+          "narration": "所以结论很清楚：自注意力单独使用时，一般需要加入位置编码信息来修正，Transformer 正是这么做的。特别注意修正发生的位置——不是在注意力内部打补丁，而是在输入进入模型之前，把位置信息融进每个时间步的特征里。",
+          "audio_path": "assets/audio/b13a269a60279324685f05fcd89ae7b18118ff822758f2e26193a7fc3ded7f67.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "一条三节点流程，位置编码的「+」被圈出来：修正点在输入端"
+        },
+        {
+          "id": "07-word-embedding",
+          "end": 166.01,
+          "start": 146.43,
+          "title": "加在哪一步：词向量 = 嵌入 + 位置编码",
+          "events": [],
+          "narration": "具体加在哪一步？看编码器栈。第一个编码器层的输入，是单词的嵌入向量加上位置编码，也就是图上 Input Embedding 和 Positional Encoding 相加之后的结果，我们把它叫做词向量。后面的编码器层再拿上一层的输出继续往下算。",
+          "audio_path": "assets/audio/7db41de85d37de4c3bd2e571ba770a79ecc647701df52d1626b1218b19381bbd.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "Input Embedding 与 Positional Encoding 汇入「+」，结果叫词向量，进入第一个编码器层"
+        },
+        {
+          "id": "08-elementwise-add",
+          "end": 195.26999999999998,
+          "start": 166.01,
+          "title": "逐元素相加，形状不变",
+          "events": [],
+          "narration": "这两个向量怎么相加？逐元素相加。假设词向量的维度是 d 维，位置编码也是同样的维度，那么第 pos 个位置的位置编码向量，就按位加到这个词的嵌入向量上，得到的还是一个 d 维向量。形状没有变，位置信息已经混进了这个时间步的特征里。后面的注意力仍然只处理向量，只不过这些向量现在自己带着「我是第几个词」的线索。",
+          "audio_path": "assets/audio/1c1056501229312b211e9fc80e31f280fe49c527eb9ab07690a6032f1881fe81.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "两行向量按位相加得到第三行，d_model 维度不变，位置信息已融合"
+        },
+        {
+          "id": "09-sinusoidal",
+          "end": 225.49,
+          "start": 195.27,
+          "title": "固定的正弦与余弦",
+          "events": [],
+          "narration": "论文里用的是固定的位置编码，用正弦和余弦函数预先定义：第 pos 个位置的编码向量的第 i 维，由不同频率的正弦值或余弦值给出。入门阶段不用推导公式，记住两件事就够了：第一，每个位置都有一个固定的向量指纹；第二，不同频率的波形让相邻位置在编码空间里平滑地移动，模型因此可以读出相对距离。",
+          "audio_path": "assets/audio/e2a1f51c0fc0f55ef715de404e08f7b757be6d800430e0a0e9866572c7ce7f87.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "公式、三条不同频率的波形、以及 12×6 的位置编码热力图"
+        },
+        {
+          "id": "10-learned-or-fixed",
+          "end": 258.59,
+          "start": 225.49,
+          "title": "课堂互动：是训练出来的参数吗",
+          "events": [],
+          "narration": "现在换你判断一个问题：位置编码是训练出来的参数吗？答案要分两种方案。可学习编码，把每个位置的向量当成参数，跟着训练一起更新；固定编码，正弦余弦算出来的值没有梯度，不参与训练，每个位置上的值始终固定。论文选择的是后者。取舍也很直观：可学习编码更灵活，但要靠数据学出位置感；固定编码不占参数、不依赖数据，还能用公式直接算到更长的位置。",
+          "audio_path": "assets/audio/9e3ad2fc0a31a6997e019a691136494a0648c1d300d2f6b7a7d4df4f43675e1f.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "抛出问题，固定编码与可学习编码两张卡对置，论文选择落在固定编码一侧"
+        },
+        {
+          "id": "11-summary",
+          "end": 292.09,
+          "start": 258.59,
+          "title": "小结：这条链子",
+          "events": [],
+          "narration": "最后把这条链子收一下：RNN 靠循环天然有顺序，Transformer 并行输入，把顺序丢掉了；自注意力只看查询和键的相关性，完全忽略位置；所以在输入进入第一个编码器层之前，我们把位置编码逐元素加到词向量上，形状不变，位置信息融合进时间步特征。论文用的是固定的正弦余弦编码，没有梯度，不参与训练。这就是并行结构知道词序的办法。",
+          "audio_path": "assets/audio/ad48298228518d1e92af42fff9fa3730fb041d4ba7db57257a589e36226d250a.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "四步链条累积、加法示意复现，最后停在「固定正弦/余弦 · 不参与训练」"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 292.1
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.868333333333334
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "d083c41fdea23b4942b7a6efc2c82db1b4dcdab61f781882d680dbf24fc15b95",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 292.1
+      },
+      "content_digest": "d93ea1aaab1bd553a935a7307e2c2c58b8a9c6246087ddf5f8871d1f6d559d01",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.868333333333334
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "5783d61cd4163272790e0e658c7147c820e1c201b8c070348084db01eec681bb"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "f6378cca3b730ea793edfe12d65ce88d746b6f4525d9cd6b6dbcb32211e7c013",
+      "preparation_sha256": "f3a136809204b06a917d77fea92b64e5412b05024b7b627bafe50e2f8efec986"
+    }
+  }
+}

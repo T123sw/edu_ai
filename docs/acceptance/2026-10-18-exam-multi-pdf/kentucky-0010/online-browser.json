@@ -1,0 +1,108 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "多PDF验收 kentucky-0010 1792300023238",
+  "startedAt": "2026-10-18T05:07:03.238Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/examgen_6d28353fd26897a08b75fe40ed915c67/retry",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-18T05:07:08.460Z",
+      "attempt": 0,
+      "generation_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "job_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:08:31.411Z",
+      "attempt": 0,
+      "generation_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "job_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:11:33.522Z",
+      "attempt": 0,
+      "generation_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "job_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "status": "running",
+      "progress": 1,
+      "message": "任务已由后台工作器接管",
+      "exam_ready": false,
+      "error_code": "EXAM_TRANSPORT_INTERRUPTED"
+    },
+    {
+      "at": "2026-10-18T05:14:33.112Z",
+      "attempt": 0,
+      "generation_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "job_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "status": "queued",
+      "progress": 0,
+      "message": "后台服务暂不可用，任务将自动重试",
+      "exam_ready": false,
+      "error_code": "EXAM_TRANSPORT_INTERRUPTED"
+    },
+    {
+      "at": "2026-10-18T05:14:38.220Z",
+      "attempt": 0,
+      "generation_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "job_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "status": "running",
+      "progress": 1,
+      "message": "任务已由后台工作器接管",
+      "exam_ready": false,
+      "error_code": "EXAM_TRANSPORT_INTERRUPTED"
+    },
+    {
+      "at": "2026-10-18T05:17:50.773Z",
+      "attempt": 0,
+      "generation_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "job_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务超过最大自动尝试次数",
+      "exam_ready": false,
+      "error_code": "MAX_ATTEMPTS_EXCEEDED"
+    },
+    {
+      "at": "2026-10-18T05:17:54.132Z",
+      "attempt": 1,
+      "generation_id": "examgen_d070c3d1080ca510725feeeb1bbd9765",
+      "job_id": "job_5e54c6c583ee4112",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_6d28353fd26897a08b75fe40ed915c67",
+    "examgen_d070c3d1080ca510725feeeb1bbd9765"
+  ],
+  "retries": 1,
+  "refresh_recovery": true,
+  "stopped_for_upgrade": true,
+  "completed": false,
+  "termination_reason": "Stopped dedicated test: source extraction duplicate/idle transport regression; preserved for next patch verification."
+}

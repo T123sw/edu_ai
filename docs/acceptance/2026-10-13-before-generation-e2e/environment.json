@@ -1,0 +1,10 @@
+{
+  "database_port": 54155,
+  "database": "edu_ai_preparation_test_before_generation",
+  "llm": {
+    "model": "deepseek-v4-flash",
+    "base_url": "https://api.deepseek.com/v1",
+    "_source": "environment"
+  },
+  "scope": "isolated PostgreSQL + real HTTP app + durable workers + real providers"
+}

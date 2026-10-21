@@ -1,0 +1,75 @@
+{
+  "observed_at": 1792303419.5594056,
+  "tag": "多PDF验收 kentucky-0010 1792300023238",
+  "generations": [
+    {
+      "generation_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "job_id": "examgen_6d28353fd26897a08b75fe40ed915c67",
+      "turn": {
+        "id": "turn_1792300107164_d8e14ace17",
+        "status": "cancelled",
+        "failure_code": "",
+        "created_at": 1792300107.2792335,
+        "updated_at": 1792301205.1725957
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4022,
+          "layout_blocks": 42,
+          "images": 1
+        }
+      ],
+      "blueprint_count": 0,
+      "local_events": 4,
+      "upstream_events": 6,
+      "done_received": false,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 9,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 9
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_d070c3d1080ca510725feeeb1bbd9765",
+      "job_id": "job_5e54c6c583ee4112",
+      "turn": {
+        "id": "turn_1792300684466_229d25d58c",
+        "status": "cancelled",
+        "failure_code": "",
+        "created_at": 1792300684.6191854,
+        "updated_at": 1792300712.7436793
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4022,
+          "layout_blocks": 42,
+          "images": 1
+        }
+      ],
+      "blueprint_count": 0,
+      "local_events": 4,
+      "upstream_events": 9,
+      "done_received": false,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 2,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 1,
+          "deepseek-v4-flash": 1
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 0,
+    "unchanged_in_latest": 0
+  }
+}

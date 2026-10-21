@@ -1,0 +1,22 @@
+{
+  "publishedAt": "20261014T045141Z",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "backup": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-studio-compact-20261014T045141Z",
+  "release": "/tmp/edu-studio-compact-20261014",
+  "previousIndexSha256": "2b11b9f78cdd8f47d035719304729ac0dc2444054eaf42c0844ffb54c7ef18ad",
+  "releaseIndexSha256": "f8f7483a67dd01563d82a27d509aaf3ddd03b5af620dfd731415ecd234227b38",
+  "checks": {
+    "frontendTypecheck": "tsconfig.self-learning.json passed",
+    "eslint": "StudioHome.tsx passed",
+    "build": "passed; existing large chunk warning",
+    "layout": "1440 and 390 pixels, mocked business responses"
+  },
+  "generalTypecheckNote": "Root tsconfig includes legacy tests and has unrelated existing type errors; current application typecheck passed.",
+  "publishedBrowserChecks": {
+    "passed": 3,
+    "seconds": 12.1,
+    "api": "mocked business responses"
+  },
+  "publishedLayoutVerified": true
+}

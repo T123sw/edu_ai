@@ -1,0 +1,31 @@
+{
+  "source_task": "prep_b2f06dd7d6344386936420c991931ae4",
+  "source_attempt": 2,
+  "new_isolated_attempt": 3,
+  "prior_error": "DEADLINE_EXCEEDED",
+  "resumed_stage": "produce",
+  "old_deadline": "2026-10-13T18:43:14.975915+00:00",
+  "new_deadline": "2026-10-13T19:59:38.368145+00:00",
+  "limits_consumed_reserved_preserved": true,
+  "source_evidence_preserved": true,
+  "completed_drafts_preserved": 2,
+  "resource_specs": 12,
+  "restarted_artifacts": [
+    "artifact_c6ae0f7630759815784f675754154b55"
+  ],
+  "new_jobs_prepared_without_execution": [
+    {
+      "id": "generate_artifact_e586d42aae5e7c085c8e77d16207c669",
+      "deadline_at": 1791921578.368145,
+      "status": "pending"
+    },
+    {
+      "id": "generate_artifact_8de6d8ef422ca8530e7a633c36ce324f",
+      "deadline_at": 1791921578.368145,
+      "status": "pending"
+    }
+  ],
+  "model_calls": 0,
+  "production_mutations": 0,
+  "scope": "Exact production task rows copied into a temporary isolated PostgreSQL schema. Normal retry, claim, draft readback, scheduling and real queue enqueue exercised. No generation worker or model executed. Memory validation not exercised in this replay."
+}

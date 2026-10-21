@@ -1,0 +1,20 @@
+{
+  "backend/src/app/pbl/generation_policy.py": "3608f33405099876021f5509f855e79dd159879d9ef298c927c77984eed9e836",
+  "backend/src/app/pbl/project_service.py": "ab9137da576987a717a6b604854ba4e98aa9ce60b8296a39c4bcdd9448e1743e",
+  "backend/src/app/pbl/project_generator.py": "6bfde3aed57bf3097c569ae49dfc2257c261688e3c47af10ba1e214743f1219e",
+  "backend/src/app/pbl/project_schemas.py": "21aaec893917d18f9785dbb77a773771b6f122aa7552b41dab92a81f6ab39f35",
+  "backend/src/app/pbl/project_workflow.py": "9f1247b0bbf5f3cd03f66e0f9086715f4f029236a4e60a3ab54c3c6c75d1fb53",
+  "backend/src/app/api/pbl.py": "f36eef744a6cdb74986ab31d2c3192189cc1b10c90461fc3e7df785dd3af356f",
+  "backend/src/app/services/job_retry_service.py": "8d6d8278bad90e8bf2db6cbe2a52e5fb535fb630c0511981611ea8c7251f1534",
+  "backend/src/app/services/durable_task_executor.py": "de4b9c97b2b207dc77cb7b40e88555008d535289bb8970239a5ea7fda6a27ba8",
+  "frontend/scripts/check-pbl-project.mjs": "cd82313a5d8f25d08dbabb07a7a76fa7e54207d464e3f08ee308f924bc6786ca",
+  "frontend/src/pbl/ProjectChecks.tsx": "18ba3c28f5bdef8bc16651fd4dbc03179089f87134d79bee8465c29b4a5fd243",
+  "frontend/src/pbl/projectTypes.ts": "e59e2aed6319065d5bfbccb328844a603b4d28bc3a8e732648eb8489dbd301f8",
+  "frontend/src/practice/PracticeGenerationProgress.tsx": "a99f6d4f197b50c9f460699317e09e4c606890c16177dab93e10ce7e68dc5c38",
+  "backend/src/app/pbl/skills/build-pbl-project-v3/SKILL.md": "0b01317769d6f494bc3c16f966c4231792b6e3f38b0f09f0361beea85bdd98b2",
+  "backend/src/app/pbl/skills/build-pbl-project-v3/references/step-unit.md": "ec92901e047fdbfe6e2e5ce1d2be5631736bbc91df93fd31cb7deea5118f5b77",
+  "backend/src/app/pbl/skills/build-pbl-project-v3/references/planning.md": "d548f28855a8bb1063fb47d068231701550e9e3215dcfc94aa2b063970876483",
+  "backend/src/app/pbl/skills/build-pbl-project-v3/references/verification.md": "1c3ffec91fe1c2240b661a202615af61a125e3770935cb909841968fb7b4f1cb",
+  "backend/src/app/pbl/skills/build-pbl-project-v3/references/integration.md": "12501e72d7dd88d9082f7233bc68ea39659f3405d3241d38712c50de604316a0",
+  "backend/src/app/pbl/skills/build-pbl-project-v3/references/acceptance.md": "dfcc0ddbbc89b70d9aef70f715fa1fd558ef4d1fb621702fcafd8f4e4ce89584"
+}

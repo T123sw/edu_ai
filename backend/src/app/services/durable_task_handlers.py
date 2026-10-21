@@ -25,6 +25,9 @@ class DurableExecutionContext:
     config_snapshot_id: str | None
     progress: Callable[[int, str, str], None]
     is_cancel_requested: Callable[[], bool]
+    lease_owner: str | None = None
+    attempt_count: int | None = None
+    is_lease_valid: Callable[[], bool] | None = None
 
 
 class DurableTaskHandler(Protocol):

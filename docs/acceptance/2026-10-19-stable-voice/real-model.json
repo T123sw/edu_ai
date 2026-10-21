@@ -1,0 +1,134 @@
+[
+  {
+    "name": "baseline-0.wav",
+    "text": "快速排序先选取一个基准值，再比较左右两边的元素。这个场景保留完整的讲稿，用来验证多个场景同时配音时，每个场景仍然拥有独立且完整的声音文件。",
+    "chars": 69,
+    "duration": 17.84,
+    "sample_rate": 24000,
+    "samples": 428160,
+    "sha256_float": "8088182e2f7aa002ae7c5bf959e3acca391ea5b179055a33b88401ff561cd4d9",
+    "peak": 0.70703125,
+    "elapsed_batch": 45.25
+  },
+  {
+    "name": "baseline-1.wav",
+    "text": "划分结束后，基准值左右两边的元素满足相对大小关系。两边内部还不一定有序，需要继续递归处理，不能把一次划分理解成整个排序过程已经结束。",
+    "chars": 66,
+    "duration": 13.6,
+    "sample_rate": 24000,
+    "samples": 326400,
+    "sha256_float": "1bd80961cf67d5e08cbdcfbcbd7318b1fe5ea059935274615cc777d3f8e4e8de",
+    "peak": 0.76171875,
+    "elapsed_batch": 45.25
+  },
+  {
+    "name": "baseline-2.wav",
+    "text": "递归处理的关键是让问题规模不断缩小。当区间只有零个或者一个元素时，就可以直接返回。每个场景的声音应该对应自己的文字，不能与其他场景混在一起。",
+    "chars": 70,
+    "duration": 15.84,
+    "sample_rate": 24000,
+    "samples": 380160,
+    "sha256_float": "856369a50eb42a83aac29abc13994c2a34547fde432ed61969f22915a4fae04b",
+    "peak": 0.6484375,
+    "elapsed_batch": 45.25
+  },
+  {
+    "name": "baseline-3.wav",
+    "text": "最后回顾整个流程：选择基准，划分区间，递归处理子序列。我们将四个完整场景并行送入配音服务，再按照原来的场景顺序组装，保持讲解的先后关系。",
+    "chars": 68,
+    "duration": 12.96,
+    "sample_rate": 24000,
+    "samples": 311040,
+    "sha256_float": "aefe3098d0b07801d9b197378c31759e3ebf82806e1668d3c53538876d3460ca",
+    "peak": 0.72265625,
+    "elapsed_batch": 45.25
+  },
+  {
+    "name": "stable-0.wav",
+    "text": "快速排序先选取一个基准值，再比较左右两边的元素。这个场景保留完整的讲稿，用来验证多个场景同时配音时，每个场景仍然拥有独立且完整的声音文件。",
+    "chars": 69,
+    "duration": 19.44,
+    "sample_rate": 24000,
+    "samples": 466560,
+    "sha256_float": "3fe5ae67d68af0c6f5d8fc75ba64cffda430e1d631a44898a8d7ccd601607e28",
+    "peak": 0.7265625,
+    "elapsed_batch": 56.02
+  },
+  {
+    "name": "stable-1.wav",
+    "text": "划分结束后，基准值左右两边的元素满足相对大小关系。两边内部还不一定有序，需要继续递归处理，不能把一次划分理解成整个排序过程已经结束。",
+    "chars": 66,
+    "duration": 24.32,
+    "sample_rate": 24000,
+    "samples": 583680,
+    "sha256_float": "ce52d69d43530ba452d85af5d17a0148f2904ec4f9fdf79e71a12c08bf6be522",
+    "peak": 0.40625,
+    "elapsed_batch": 56.02
+  },
+  {
+    "name": "stable-2.wav",
+    "text": "递归处理的关键是让问题规模不断缩小。当区间只有零个或者一个元素时，就可以直接返回。每个场景的声音应该对应自己的文字，不能与其他场景混在一起。",
+    "chars": 70,
+    "duration": 19.36,
+    "sample_rate": 24000,
+    "samples": 464640,
+    "sha256_float": "676de56e9f0462eb00b50797bc1b7171fe9d555f9ff4e55ee9ed02766db397db",
+    "peak": 0.6328125,
+    "elapsed_batch": 56.02
+  },
+  {
+    "name": "stable-3.wav",
+    "text": "最后回顾整个流程：选择基准，划分区间，递归处理子序列。我们将四个完整场景并行送入配音服务，再按照原来的场景顺序组装，保持讲解的先后关系。",
+    "chars": 68,
+    "duration": 16.32,
+    "sample_rate": 24000,
+    "samples": 391680,
+    "sha256_float": "033586bcaf5d00f4e58ac73849ee28ee8ee68b054449ee82aa643c5d0b19372e",
+    "peak": 0.6640625,
+    "elapsed_batch": 56.02
+  },
+  {
+    "name": "repeat-0.wav",
+    "text": "快速排序先选取一个基准值，再比较左右两边的元素。这个场景保留完整的讲稿，用来验证多个场景同时配音时，每个场景仍然拥有独立且完整的声音文件。",
+    "chars": 69,
+    "duration": 20.32,
+    "sample_rate": 24000,
+    "samples": 487680,
+    "sha256_float": "c833a3d19a03bd197f5ac6c40498e0b50bcc717d19a986499729e55783b0d8c4",
+    "peak": 0.625,
+    "elapsed_batch": 45.6
+  },
+  {
+    "name": "repeat-1.wav",
+    "text": "快速排序先选取一个基准值，再比较左右两边的元素。这个场景保留完整的讲稿，用来验证多个场景同时配音时，每个场景仍然拥有独立且完整的声音文件。",
+    "chars": 69,
+    "duration": 20.32,
+    "sample_rate": 24000,
+    "samples": 487680,
+    "sha256_float": "c833a3d19a03bd197f5ac6c40498e0b50bcc717d19a986499729e55783b0d8c4",
+    "peak": 0.625,
+    "elapsed_batch": 45.6
+  },
+  {
+    "name": "repeat-2.wav",
+    "text": "划分结束后，基准值左右两边的元素满足相对大小关系。两边内部还不一定有序，需要继续递归处理，不能把一次划分理解成整个排序过程已经结束。",
+    "chars": 66,
+    "duration": 17.36,
+    "sample_rate": 24000,
+    "samples": 416640,
+    "sha256_float": "38531a9bdac5f71e20248728ce54bb76366da95fd3c04bbe2c1522e3b49b30c7",
+    "peak": 0.609375,
+    "elapsed_batch": 45.6
+  },
+  {
+    "name": "long-0.wav",
+    "text": "大家好，这一节我们学习快速排序的代码。目标是：把已经会跟踪的划分过程，真正翻译成能读懂、也能跑起来的代码。快速排序的骨架只有三步：第一，选基准，也就是 pivot，从当前子序列里挑一个元素；第二，划分，英文叫 partition，比基准小的放左边，比基准大的放右边，一趟划分做完，基准就落到它在最终有序序列里的位置；第三，递归，左右两段各自重复前两步，当某一段长度小于等于一的时候直接返回，这就是递归出口。读代码时先找出口，再找谁负责让元素归位，最后看递归区间的边界怎么写。",
+    "chars": 237,
+    "duration": 54.24,
+    "sample_rate": 24000,
+    "samples": 1301760,
+    "sha256_float": "5109f4ade508ffe49188012e91bfc374c1f1c59de66ffc5130f47306b5a0acc7",
+    "peak": 0.515625,
+    "elapsed_batch": 113.61
+  }
+]

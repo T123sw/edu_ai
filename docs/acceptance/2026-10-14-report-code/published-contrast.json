@@ -1,0 +1,78 @@
+[
+  [
+    {
+      "width": 1440,
+      "text": "quicksort(数列):\n    如果 数列长度 ≤ 1:\n        直接返回（已经有序）\n    否则:\n        1. 划分：选基准值，把数列分成「较小」和「较",
+      "color": "rgb(212, 212, 212)",
+      "background": "rgb(15, 23, 42)",
+      "ownBackground": "rgba(0, 0, 0, 0)",
+      "contrast": 12.04408208798764,
+      "padding": "0px"
+    },
+    {
+      "width": 1440,
+      "text": "[1, 1, 2]  +  [3]  +  [4, 5, 9]  =  [1, 1, 2, 3, 4, 5, 9]",
+      "color": "rgb(212, 212, 212)",
+      "background": "rgb(15, 23, 42)",
+      "ownBackground": "rgba(0, 0, 0, 0)",
+      "contrast": 12.04408208798764,
+      "padding": "0px"
+    },
+    {
+      "width": 1440,
+      "text": "plain_code = 42\n",
+      "color": "rgb(32, 61, 51)",
+      "background": "rgb(245, 243, 235)",
+      "ownBackground": "rgb(245, 243, 235)",
+      "contrast": 10.638934446968369,
+      "padding": "14px"
+    },
+    {
+      "width": 1440,
+      "text": "[3, 1, 4, 1, 5, 9, 2]",
+      "color": "rgb(32, 61, 51)",
+      "background": "rgb(245, 243, 235)",
+      "ownBackground": "rgb(245, 243, 235)",
+      "contrast": 10.638934446968369,
+      "padding": "2.16px 5.04px"
+    }
+  ],
+  [
+    {
+      "width": 390,
+      "text": "quicksort(数列):\n    如果 数列长度 ≤ 1:\n        直接返回（已经有序）\n    否则:\n        1. 划分：选基准值，把数列分成「较小」和「较",
+      "color": "rgb(212, 212, 212)",
+      "background": "rgb(15, 23, 42)",
+      "ownBackground": "rgba(0, 0, 0, 0)",
+      "contrast": 12.04408208798764,
+      "padding": "0px"
+    },
+    {
+      "width": 390,
+      "text": "[1, 1, 2]  +  [3]  +  [4, 5, 9]  =  [1, 1, 2, 3, 4, 5, 9]",
+      "color": "rgb(212, 212, 212)",
+      "background": "rgb(15, 23, 42)",
+      "ownBackground": "rgba(0, 0, 0, 0)",
+      "contrast": 12.04408208798764,
+      "padding": "0px"
+    },
+    {
+      "width": 390,
+      "text": "plain_code = 42\n",
+      "color": "rgb(32, 61, 51)",
+      "background": "rgb(245, 243, 235)",
+      "ownBackground": "rgb(245, 243, 235)",
+      "contrast": 10.638934446968369,
+      "padding": "14px"
+    },
+    {
+      "width": 390,
+      "text": "[3, 1, 4, 1, 5, 9, 2]",
+      "color": "rgb(32, 61, 51)",
+      "background": "rgb(245, 243, 235)",
+      "ownBackground": "rgb(245, 243, 235)",
+      "contrast": 10.638934446968369,
+      "padding": "2.16px 5.04px"
+    }
+  ]
+]

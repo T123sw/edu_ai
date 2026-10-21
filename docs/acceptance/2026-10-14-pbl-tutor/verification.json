@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-14",
+  "scope": "PBL 编程辅导：快速排序与多步骤 React 项目共用，只读指导，不代替检查或修改工程。",
+  "implemented": [
+    "按账号、项目、材料版本和步骤隔离持久化问答；支持历史分页。",
+    "提问发送当时的未保存代码；后端只匹配同版本、同模板、同步骤、同代码哈希的已有运行报告。",
+    "公开教材、当前代码及最近六轮本步问答进入模型上下文；不读取生成检查点或参考答案。",
+    "页面支持分层提示、失败分析、修改后旧建议标记、失败后重试、切步迟到回答隔离。",
+    "请求编号相同且内容相同重用已存结果；数据库唯一键防止并发重复记录；模型失败不写入半轮对话。"
+  ],
+  "validation": {
+    "backend": {
+      "passed": 118,
+      "skipped": 0,
+      "command": "python scripts/pbl/isolated.py pytest backend/src/tests/pbl -q",
+      "database": "独立 edu_pbl_acceptance_20261013，随机 schema；包含 PostgreSQL 并发问答保存、JSON 检查记录匹配与 0039 升降级"
+    },
+    "frontendUnit": {
+      "passed": 12,
+      "scope": "protocol, draftStore, runtime runner, algorithm/project validators"
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "pnpm exec tsc -p tsconfig.self-learning.json"
+    },
+    "lint": {
+      "passed": true,
+      "scope": "PblTutor.tsx, PblWorkspace.tsx, ProjectWorkspace.tsx, api.ts, tutorTypes.ts；0 errors/0 warnings"
+    },
+    "build": {
+      "passed": true,
+      "directory": "/tmp/edu-pbl-tutor-build",
+      "apiBase": "/backend",
+      "warnings": [
+        "既有大于 500 kB 的资源包提示"
+      ]
+    },
+    "browser": {
+      "status": "passed",
+      "command": "pnpm exec playwright test -c playwright.pbl.config.ts pbl-tutor.spec.ts pbl-project.spec.ts pbl.spec.ts pbl-home.spec.ts",
+      "passed": 16,
+      "failed": 0,
+      "scope": "首页、快速排序、项目切步/真实 Sandpack 预览/保存/离线恢复、辅导快照/迟到回答/重试/刷新；业务 API 为隔离夹具",
+      "viewports": [
+        1440,
+        390
+      ],
+      "screenshots": [
+        "tutor-1440.png",
+        "tutor-390.png"
+      ]
+    },
+    "realModel": {
+      "technicalFlowPassed": true,
+      "artifactSource": "此前真实生成并已验收的计算器；本轮没有重新生成教材",
+      "identity": "固定验收身份，FastAPI 依赖注入，不验证实际登录",
+      "persistence": "独立临时 SQLite",
+      "browserChecks": "真实服务端浏览器检查，骨架失败",
+      "modelCalls": 2,
+      "results": "引用匹配的失败检查；代码变化后没有匹配报告，要求重新检查；重放请求复用已存回答；问答没有修改工作区或检查记录",
+      "evidence": "real-model.json",
+      "semanticReview": "非全量语义验收。旧教材将实际枚举的 17 个按钮写成 16 个，真实回答仍沿用笔误；已增加核对提示但该样本未纠正，不能声称回答完全正确。"
+    }
+  },
+  "limits": [
+    "检查报告的功能证据不等于掌握知识，辅导回答也不会改变通过状态。",
+    "完整回答返回后才保存问答；并发的同编号请求可能调用模型多次，但只保存一条结果。服务重启期间未完成的提问需重试。",
+    "本轮未新增主动教学、跨步骤长期记忆或自动改代码。"
+  ],
+  "deployment": {
+    "frontendPublished": true,
+    "backendRestarted": true,
+    "productionDatabaseModified": true,
+    "requiredMigration": "20261014_0039（依赖 20261013_0038）",
+    "next": "已发布并完成接口鉴权、发布资源哈希和页面回归检查。",
+    "migrationApplied": "20261014_0039",
+    "details": "deployment.json"
+  }
+}

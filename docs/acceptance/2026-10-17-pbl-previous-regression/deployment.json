@@ -1,0 +1,10 @@
+{
+  "timeUtc": "2026-10-17T04:50:53.719511+00:00",
+  "command": "sudo -n systemctl restart edu-ai-backend",
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "sudo: a password is required\n",
+  "before": "MainPID=892036\nActiveEnterTimestamp=Sat 2026-10-17 02:16:47 UTC\n",
+  "after": "MainPID=892036\nActiveEnterTimestamp=Sat 2026-10-17 02:16:47 UTC\n",
+  "restartSucceeded": false
+}

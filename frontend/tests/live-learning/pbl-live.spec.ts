@@ -1,0 +1,51 @@
+import {enterWorkbench} from './pblWorkbench';
+import {test,expect,type Page} from 'playwright/test';
+import {writeFile} from 'node:fs/promises';
+import {referenceSolution} from '../../src/pbl/fixtures/quicksort';
+const evidence='../docs/acceptance/2026-10-13-sandpack-algorithm-practice/';
+async function edit(page:Page,code:string){await enterWorkbench(page);const editor=page.locator('.cm-content[contenteditable=true]');await editor.click();await page.keyboard.press('ControlOrMeta+A');await page.keyboard.insertText(code);}
+test('真实模型与数据库：创建、实现、检查及刷新恢复',async({page,request})=>{
+  test.skip(process.env.PBL_LIVE!=='1','Set PBL_LIVE=1 with isolated real backend');test.setTimeout(420000);
+  const started=Date.now();
+  const login=await request.post('http://127.0.0.1:8017/api/auth/login',{data:{username:'pbl_learner',password:'pbl-isolated-acceptance-only'}});
+  expect(login.ok()).toBe(true);const auth=await login.json();
+  await page.addInitScript(auth=>localStorage.setItem('edu-ai-auth',JSON.stringify(auth)),auth);
+  await page.goto('/#/practice/code');
+  await page.getByLabel('实验主题与目标').fill('快速排序，我希望亲手实现算法，重点理解重复元素和递归终止。');
+  await page.getByRole('button',{name:'生成项目',exact:true}).click();
+  await page.getByRole('button',{name:'进入项目',exact:true}).click({timeout:300000});
+  await expect(page).toHaveURL(/practice\/code\/pbl_/);
+  const exerciseId=page.url().split('/practice/code/')[1];
+  await expect(page.locator('.pbl-directory h1')).toBeVisible({timeout:300000});
+  const detailResponse=await request.get(`http://127.0.0.1:8017/api/pbl/${exerciseId}`,{headers:{Authorization:`Bearer ${auth.token}`}});
+  const detail=await detailResponse.json();
+  expect(detail.artifact.validationSummary.passed).toBe(true);expect(JSON.stringify(detail)).not.toContain('referenceSolution');
+  await writeFile(evidence+'real-model-artifact.json',JSON.stringify(detail.artifact,null,2));
+  await expect(page.getByText('运行环境已就绪',{exact:true})).toBeVisible();
+  const runtime=page.frameLocator('.sp-preview iframe');
+  await edit(page,'export function quickSort(array) { return array.filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>a-b); }');
+  await runtime.getByRole('button',{name:'检查练习',exact:true}).click();
+  await expect(runtime.getByText('还需要调整',{exact:true})).toBeVisible();
+  await expect(runtime.locator('.case.failed').first()).toBeVisible();
+  await page.screenshot({path:evidence+'real-wrong-code.png',fullPage:true});
+  await edit(page,referenceSolution);await runtime.getByRole('button',{name:'检查练习',exact:true}).click();
+  await expect(page.getByTestId('task-status')).toHaveText('全部用例通过');
+  await edit(page,referenceSolution+'\n// 自己完成的快速排序');
+  await expect(page.getByTestId('task-status')).toHaveText('代码已修改，需重新检查');
+  await expect(page.getByTestId('save-status')).toHaveText('已保存');
+  await page.reload();await enterWorkbench(page);await expect(page.locator('.cm-content')).toContainText('自己完成的快速排序');
+  await expect(page.getByTestId('task-status')).toHaveText('代码已修改，需重新检查');
+  await expect(page.getByText('运行环境已就绪',{exact:true})).toBeVisible();
+  await runtime.getByRole('button',{name:'检查练习',exact:true}).click();await expect(page.getByTestId('task-status')).toHaveText('全部用例通过');
+  await expect(page.getByTestId('save-status')).toHaveText('已保存');
+  for(const width of [1440,1024,390]){
+    await page.setViewportSize({width,height:1000});
+    if(width===390)await page.getByRole('navigation',{name:'编程工作区视图'}).getByRole('button',{name:'运行结果',exact:true}).click();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    await page.screenshot({path:evidence+`real-${width}.png`,fullPage:true});
+  }
+  const runs=await (await request.get(`http://127.0.0.1:8017/api/pbl/${exerciseId}/runs`,{headers:{Authorization:`Bearer ${auth.token}`}})).json();
+  expect(runs.items.some((r:{status:string})=>r.status==='failed')).toBe(true);
+  expect(runs.items[0].status).toBe('passed');
+  await writeFile(evidence+'real-flow.json',JSON.stringify({passed:true,exerciseId,jobId:detail.job.edu_job_id,createdAt:new Date(started).toISOString(),durationMs:Date.now()-started,cases:detail.artifact.testCases.length,runs:runs.items.map((r:{status:string;codeHash:string;runId:string})=>({runId:r.runId,status:r.status,codeHash:r.codeHash})),auth:'real isolated user login',backend:'real PostgreSQL and durable task',runtime:'official hosted Sandpack',model:'actual configured provider; artifact generated during test'},null,2));
+});

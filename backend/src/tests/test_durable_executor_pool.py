@@ -161,3 +161,16 @@ def test_pool_reports_worker_that_misses_shared_shutdown_deadline(pool_fixture):
     assert len(stuck) == 1
     assert stuck[0] in pool.worker_ids
     assert pool.stop(timeout_seconds=2) == ()
+
+
+def test_supplemental_general_workers_can_exclude_control_without_own_control_lane(tmp_path):
+    from app.chat.tasks.task_store import TaskStore
+    from app.services.durable_task_handlers import DurableTaskHandlerRegistry
+    from app.services.job_completion_service import JobCompletionService
+    store = TaskStore(str(tmp_path/'tasks.db'))
+    try:
+        pool = DurableExecutorPool(task_store=store, handler_registry=DurableTaskHandlerRegistry(),
+            completion_service=JobCompletionService(task_store=store), worker_count=2,
+            control_worker_count=0, exclude_control_from_general=True)
+        assert all(executor.excluded_workflow_types == ('preparation_step',) for executor in pool.executors)
+    finally: store.close()

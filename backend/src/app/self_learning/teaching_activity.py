@@ -66,11 +66,25 @@ class TeachingActivityService:
             return None
         with Session(self.engine) as db:
             check = self.checks.owned(db, owner, check_id, allow_saved=True)
-            row = db.get(Activity, check_id)
-            latest = db.scalar(select(LearningCheckAttempt).where(LearningCheckAttempt.owner == owner,
-                LearningCheckAttempt.check_id == check_id).order_by(LearningCheckAttempt.created_at.desc()).limit(1))
-            event = db.scalar(select(Feedback).where(Feedback.owner == owner, Feedback.check_id == check_id)
-                              .order_by(Feedback.created_at.desc()).limit(1))
+            return self._views(db, owner, [check])[check_id]
+
+    def _views(self, db, owner, checks):
+        """Project already-authorized snapshots in one batch, within this request only."""
+        if not self.available or not self.learning.turns:
+            return {check.check_id: None for check in checks}
+        ids = [check.check_id for check in checks]
+        activities = {row.check_id: row for row in db.scalars(select(Activity).where(
+            Activity.owner == owner, Activity.check_id.in_(ids)))}
+        latest, events = {}, {}
+        for row in db.scalars(select(LearningCheckAttempt).where(LearningCheckAttempt.owner == owner,
+                LearningCheckAttempt.check_id.in_(ids)).order_by(LearningCheckAttempt.created_at.desc())):
+            latest.setdefault(row.check_id, row)
+        for row in db.scalars(select(Feedback).where(Feedback.owner == owner,
+                Feedback.check_id.in_(ids)).order_by(Feedback.created_at.desc())):
+            events.setdefault(row.check_id, row)
+        result = {}
+        for check in checks:
+            row, attempt, event = activities.get(check.check_id), latest.get(check.check_id), events.get(check.check_id)
             feedback = None
             if event:
                 feedback = {'attempt_id': event.attempt_id, 'status': event.status, 'turn_id': event.turn_id, 'error': event.error}
@@ -78,15 +92,16 @@ class TeachingActivityService:
                     turn = self.learning.turn_repository.get(owner, event.turn_id)
                     feedback.update(status=turn['status'], error=turn['error_code'])
             stage = 'waiting_answer'
-            if latest:
-                stage = 'skipped' if latest.payload['status'] == 'skipped' else 'answer_saved'
-                if latest.payload['status'] in ('pending_evaluation', 'evaluation_failed'):
-                    stage = latest.payload['status']
-                elif feedback and feedback['attempt_id'] == latest.attempt_id:
+            if attempt:
+                stage = 'skipped' if attempt.payload['status'] == 'skipped' else 'answer_saved'
+                if attempt.payload['status'] in ('pending_evaluation', 'evaluation_failed'):
+                    stage = attempt.payload['status']
+                elif feedback and feedback['attempt_id'] == attempt.attempt_id:
                     stage = 'feedback_ready' if feedback['status'] == 'succeeded' else 'feedback_failed' if feedback['status'] in ('failed', 'canceled') else 'feedback_pending'
-            return {'enabled': bool(row and row.enabled), 'revision': row.revision if row else 0, 'feedback': feedback,
-                    'stage': stage, 'check_id': check_id, 'topic_id': check.topic_id,
-                    'source_ref': check.source.get('resource_ref'), 'latest_attempt_id': latest.attempt_id if latest else None}
+            result[check.check_id] = {'enabled': bool(row and row.enabled), 'revision': row.revision if row else 0, 'feedback': feedback,
+                    'stage': stage, 'check_id': check.check_id, 'topic_id': check.topic_id,
+                    'source_ref': check.source.get('resource_ref'), 'latest_attempt_id': attempt.attempt_id if attempt else None}
+        return result
 
     def configure(self, owner, check_id, enabled, expected_revision):
         self.require_available()

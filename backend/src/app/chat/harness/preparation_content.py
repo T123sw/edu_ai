@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import json
 import re
 from copy import deepcopy
@@ -48,13 +49,15 @@ learning_activities 和 self_check 展开真实内容，教学顺序必须体现
 若要求先例后理，先完整展示一个例子的具体输入、逐步过程和结果，再解释概念或通用伪代码；开头承诺“先看例子”不算已经演示例子。
 遵守 exclusions 和 source_policy，只引用已给 evidence；不足就明确指出，不编造依据。
 不沿用固定面试模板；只有本次用户明确要求面试才安排面试话术。
-node_budget_minutes、resource_target_minutes 和 resource_repair_target_minutes 仅用于指导内容规模，
-不是交付上限。优先满足学习目标与内容正确性，避免重复；估算超出或未知不要求返工，也不能据此拒绝交付。
+不根据系统估算的学习时长反推字数、页数或题量配额；内容规模由本次明确要求、目标覆盖和必要推理决定。
+优先满足学习目标与内容正确性，避免重复；估算超出或未知不要求返工，也不能据此拒绝交付。
 各资源合计覆盖节点，不能各自扩写成一套完整课程。保留真实估算，不为贴合目标而改小数字。
 rejected_draft 是上一轮未通过内容或结构校验的输出，仅供纠错，不是已通过正文。
-本次写作直接返回 JSON {"content":原生正文,"applied_requirements":[{"requirement_id":"真实ID",
+初次写作提交对象为 {"content":原生正文,"applied_requirements":[{"requirement_id":"真实ID",
 "locator":定位对象,"explanation":"该位置如何落实要求"}],"objective_bindings":[{"objective_id":"真实ID",
-"locator":定位对象,"role":"explanation|practice|check"}]}，不要增加规划调用。
+"locator":定位对象,"role":"explanation|practice|check"}]}。局部修订用 edits 替代 content，
+同时提交完整映射，习题还需提交逐题时长估算。以本轮提交工具的 schema 为准，直接填写工具参数，
+不要把整个对象编码为字符串或再套 value 字段，不要增加规划调用。
 报告 content 为 Markdown，每个二级章节前放 <a id="稳定ID"></a>，locator 为 {"section_id":"该ID"}。
 习题 content 使用原生 quiz JSON，题目 id 为稳定 question_id，locator 为 {"question_id":"题目id"}。
 习题中对应真实作答题目的目标角色用 practice 或 check；解析属于该题反馈，不把整道题标为 explanation。
@@ -63,24 +66,15 @@ requirements 保留整课要求；requirement_ids 是当前节点分工。只标
 绑定具体目标到真正支持它的内容，不能机械给每题绑定所有目标。修订保留未受影响的内容和ID。
 习题同时返回 question_time_estimates:[{question_id,thinking_seconds,reason}]，逐题估计独立思考/作答秒数，
 不得把节点时间复制为估算；阅读题干、选项和解析的时间由程序另加。reason 解释所需推演步骤和基础。
-题量按当前节点时间、目标和其他配套资源控制，不机械生成固定数量。
+题量按目标和其他配套资源选择，不机械生成固定数量。
 选择题的 explanation 必须逐项说明每个正确选项和干扰项为何成立或不成立，不能遗漏任何选项。
 '''
 
 
 def duration_constraint(kind, context):
-    from app.course_preparation.teaching_context import resource_time_cap
-    cap = resource_time_cap(context)
-    if cap is None or kind not in {'report', 'quiz'}:
-        return None
-    return {'target_minutes': cap, 'enforcement': 'advisory',
-            'explicit_resource_limit_minutes': (context or {}).get('resource_target_minutes'),
-            'repair_target_minutes': (context or {}).get('resource_repair_target_minutes'),
-            'formula': ('non_whitespace_characters / 500' if kind == 'report' else
-                        'sum(thinking_seconds) / 60 + stem_options_explanation_non_whitespace_characters / 500'),
-            'suggested_reading_characters_before_thinking': int(cap * 500),
-            'instruction': ('报告所有正文、标题和标记均计入字数。' if kind == 'report' else
-                            '先扣除真实作答秒数，剩余时间才能容纳题干、选项和解析。减少冗余题目或简化推演，不能靠低报思考时间。')}
+    # Duration remains a display estimate, never an implicit writing quota.
+    # Explicit user requests remain available in teaching_context.requirements.
+    return None
 
 
 def parse_envelope(raw):
@@ -141,7 +135,8 @@ def resolve_locator(kind, content, locator):
     raise ValueError('preparation_locator_not_found_or_empty')
 
 
-def preparation_metadata(kind, content, envelope, context, spec_digest, *, enforce_repair_target=False):
+def preparation_metadata(kind, content, envelope, context, spec_digest, *, enforce_repair_target=False,
+                         allow_empty_bindings=False):
     if not isinstance(spec_digest, str) or not spec_digest:
         raise ValueError('preparation_spec_digest_missing')
     if kind == 'report':
@@ -160,7 +155,7 @@ def preparation_metadata(kind, content, envelope, context, spec_digest, *, enfor
     objectives = set(context['objective_ids'])
     applied = envelope.get('applied_requirements')
     bindings = envelope.get('objective_bindings')
-    if not isinstance(applied, list) or not isinstance(bindings, list) or not bindings:
+    if not isinstance(applied, list) or not isinstance(bindings, list) or (not bindings and not allow_empty_bindings):
         raise ValueError('preparation_bindings_missing')
     found = set()
     for item in applied:
@@ -189,7 +184,7 @@ def preparation_metadata(kind, content, envelope, context, spec_digest, *, enfor
         for estimate in estimates:
             thinking = estimate.get('thinking_seconds')
             if (isinstance(thinking, bool) or not isinstance(thinking, (int, float))
-                    or not 15 <= thinking <= 1800 or len(str(estimate.get('reason', '')).strip()) < 5):
+                    or not math.isfinite(thinking) or thinking <= 0 or len(str(estimate.get('reason', '')).strip()) < 5):
                 raise ValueError('quiz_time_estimate_invalid')
             seconds += thinking
         reading = sum(len(re.sub(r'\s', '', str(q.get('stem', '')) + ''.join(q.get('options') or [])

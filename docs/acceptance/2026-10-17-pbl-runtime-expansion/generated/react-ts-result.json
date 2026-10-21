@@ -1,0 +1,13 @@
+{
+  "name": "react-ts",
+  "id": "pbl_9f736436cd266927714e02f54ca39630",
+  "success": true,
+  "runtime": {
+    "template": "react-ts",
+    "entry": "/index.tsx",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  },
+  "seconds": 465.66,
+  "modelCalls": 7
+}

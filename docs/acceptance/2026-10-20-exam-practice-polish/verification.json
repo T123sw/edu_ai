@@ -1,0 +1,45 @@
+{
+  "status": "published-and-online-verified",
+  "verifiedAt": "2026-10-20T11:23:48.878029+00:00",
+  "changes": [
+    "Answer navigation with live empty/draft/submitted status and filled count",
+    "Exam-scoped full-row choice layout, aligned input, letter, text, selected and focus styles",
+    "Remove inspect-my-thinking shortcut and top history, finish and restart controls; retain autosave and per-question submit",
+    "Question click/focus capture and explicit keyboard-accessible association button; no viewport visibility threshold"
+  ],
+  "validation": {
+    "types": "passed",
+    "lint": "passed",
+    "build": "passed",
+    "previewBrowserPassed": 11,
+    "onlineBrowserPassed": 11,
+    "widths": [
+      1440,
+      390,
+      320
+    ],
+    "checks": [
+      "partial-visible tall question body click, clear and reassociate",
+      "keyboard question association",
+      "sent turn retains original question after switching",
+      "draft autosave and refresh recovery",
+      "offline recovery and conflict resolution",
+      "answer navigation follows draft and submit",
+      "existing completed answers preserved without empty replacement run",
+      "classroom quiz regression"
+    ]
+  },
+  "scope": {
+    "productionBusinessWrites": false,
+    "businessAPIsMocked": true,
+    "backendChanged": false,
+    "backendRestartRequired": false
+  },
+  "sourceSnapshot": "/tmp/edu-exam-practice-polish-source",
+  "release": "/tmp/edu-exam-practice-polish-release",
+  "sourceManifest": {
+    "frontend/src/exam/ExamWorkspace.tsx": "7e84a54d350cbcb3f8598ceb3fbb8756afce5a75862bfc14f0b2fe06217c8ff8",
+    "frontend/src/exam/ExamQuestion.tsx": "7e9ef006a4458e8912dafa556089a4f939534e5b59e84d8fff4aa52f507cc899",
+    "frontend/src/exam/examPractice.css": "e8bfeed3d34b0e4c1ca84730cfb7156709ba19813379e9c4e1132679ff670540"
+  }
+}

@@ -19,7 +19,7 @@ test('real login, report/classroom/quiz, answer and refresh', async ({ page }, i
   await page.goto(`/#/classroom/${room.id}?resource=${report.id}`);
   const frame = page.frameLocator('iframe.sl-live-material');
   await expect(frame.locator('[data-reading-end]')).toBeAttached();
-  await expect(page.getByRole('log', { name: '当前知识点对话记录' })).toBeVisible();
+  await expect(page.getByRole('log', { name: '当前课程对话记录' })).toBeVisible();
   await page.screenshot({ path: info.outputPath('report.png') });
   const before = await page.getByRole('log').locator('[data-message-kind="assistant_content"]').count();
   await page.getByRole('textbox', { name: '向学习 Agent 提问' }).fill('请基于这份资料解释模型与工具执行程序的职责，给一个天气查询的面试回答例子。不需要生成新资料。');

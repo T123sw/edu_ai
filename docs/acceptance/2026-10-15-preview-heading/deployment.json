@@ -1,0 +1,471 @@
+{
+  "publishedAt": "20261015T025012Z",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-preview-heading-20261015",
+  "backup": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-preview-heading-20261015T025012Z",
+  "baselineReproduced": true,
+  "baselineSource": "/tmp/edu-pbl-ai-sidebar-source/frontend; rebuilt byte-identical baseline, copied snapshot and changed StudioHome.tsx only",
+  "previousIndexSha256": "68eff5ae16f609d9b6b98be73297484f27fced46e31c5146a9eb396168b2e029",
+  "releaseIndexSha256": "2cab39ee5263880656e8f26fa5b0d4668f20e219f0c5dfe89a316702611d01e1",
+  "nginxIndexMatches": true,
+  "changes": [
+    "Use course title and knowledge-point title in resource preview header",
+    "Remove duplicate context row, return-to-course link and attach-to-directory controls",
+    "Retain original title for unbound historical resources"
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "previewChecks": {
+      "results": [
+        {
+          "mode": "library",
+          "kind": "report",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "report",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "quiz",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "quiz",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "flashcard",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "flashcard",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "graph",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "graph",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "podcast",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "podcast",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "scenario",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "scenario",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "report",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "report",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "quiz",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "quiz",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "flashcard",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "flashcard",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "graph",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "graph",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "podcast",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "podcast",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "scenario",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "scenario",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        }
+      ],
+      "legacyFallback": true,
+      "reportExportsUnchanged": true,
+      "errors": [],
+      "scope": "Real generated content copies, mocked business APIs"
+    },
+    "publishedChecks": {
+      "results": [
+        {
+          "mode": "library",
+          "kind": "report",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "report",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "quiz",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "quiz",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "flashcard",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "flashcard",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "graph",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "graph",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "podcast",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "podcast",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "scenario",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "library",
+          "kind": "scenario",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "report",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "report",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "quiz",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "quiz",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "flashcard",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "flashcard",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "graph",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "graph",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "podcast",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "podcast",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "scenario",
+          "width": 1440,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        },
+        {
+          "mode": "course",
+          "kind": "scenario",
+          "width": 390,
+          "headerDoesNotOverlapClose": true,
+          "bodyNoOverflow": true,
+          "pageNoOverflow": true,
+          "headerText": "快速排序入门：从分治思想到代码实现 · 快速排序是什么：分治思想与整体流程"
+        }
+      ],
+      "legacyFallback": true,
+      "reportExportsUnchanged": true,
+      "errors": [],
+      "scope": "Real generated content copies, mocked business APIs"
+    }
+  },
+  "verificationLimits": "Actual generated content copies with mocked business APIs; six resource types, two entry points and two viewport widths checked, including unbound title fallback and unchanged report exports. No production data changed."
+}

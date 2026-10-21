@@ -1,0 +1,33 @@
+Sorting exam. Section I: ten single-choice questions.
+
+1. Which statement about quicksort partition is true? A. All items become sorted. B. Items are grouped relative to a pivot. C. Every split is equal. D. The pivot must be the smallest item.
+
+2. Why is standard merge sort stable? A. It never compares keys. B. It uses a heap. C. Ties can be taken from the left half first. D. It uses random pivots.
+
+3. What does removing the maximum from a max-heap require? A. Remove any leaf. B. Reverse the whole heap. C. Sort all leaves. D. Replace the root by the last item and sift down.
+
+4. What does one complete left-to-right bubble-sort pass ensure? A. The smallest is last. B. Everything is sorted. C. The largest unsorted item reaches the right end. D. No swaps occur.
+
+5. Which input usually favors insertion sort? A. Nearly sorted input. B. Only reversed input. C. Only random input. D. Only all-distinct keys.
+
+6. What does selection sort do at each position? A. Pick a random pivot. B. Merge two halves. C. Build a frequency array. D. Select the minimum remaining item.
+
+7. What makes counting sort useful? A. Arbitrary real keys. B. A small bounded integer key range. C. No access to keys. D. Only linked lists.
+
+8. What does LSD radix sort need from each digit-sorting pass? A. Instability. B. Randomness. C. Stability. D. Recursion.
+
+9. What does stability mean in sorting records by key? A. Equal-key records keep their relative order. B. Values never move. C. Keys cannot repeat. D. The algorithm uses constant memory.
+
+10. What does an in-place sorting algorithm primarily minimize? A. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates.
+
+Section II: five fill-in-the-blank questions.
+
+11. The worst-case running time of standard merge sort is
+
+12. The worst case of quicksort with repeatedly unbalanced partitions is
+
+13. Bottom-up heap construction on n items takes time.
+
+14. Sorting n keys from a range of k integers with counting sort takes \_\_\_\_ time.
+
+15. Any comparison sort requires at least \_\_\_\_ comparisons in the worst case.

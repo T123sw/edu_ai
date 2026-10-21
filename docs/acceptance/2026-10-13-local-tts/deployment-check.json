@@ -1,0 +1,13 @@
+{
+  "backend_pid": 2978006,
+  "local_only_in_running_process": true,
+  "endpoint": "http://127.0.0.1:8188/v1/audio/speech",
+  "model": "qwen3-tts",
+  "voice": "vivian",
+  "synthesis_seconds": 14.7,
+  "audio": {
+    "duration": "4.464000",
+    "size": "71468"
+  },
+  "tts_enabled": true
+}

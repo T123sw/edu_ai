@@ -1,0 +1,954 @@
+{
+  "title": "取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界",
+  "content": {
+    "title": "取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界",
+    "questions": [
+      {
+        "id": "q1-complexity-table",
+        "stem": "设序列长度为 n、表示维度为 d。按原论文的逐层比较，下列哪一组“每层计算复杂度 / 最少顺序操作数 / 最大路径长度”完全对应自注意力层？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "O(n²·d) / O(1) / O(1)",
+          "O(n·d²) / O(n) / O(n)",
+          "O(k·n·d²) / O(1) / O(log_k(n))",
+          "O(r·n·d) / O(1) / O(n/r)"
+        ],
+        "difficulty": "medium",
+        "explanation": "自注意力层：每个位置要与全部 n 个位置算注意力分数，得到 n×n 的分数矩阵，每个分数涉及 d 维点积，故每层复杂度为 O(n²·d)；所有位置同时计算，顺序操作数为常数 O(1)；任意两个位置之间只隔一层注意力，最大路径长度为 O(1)。\nB 是循环层的组合：隐藏状态 h_t 依赖 h_{t−1}，每层 O(n·d²)，必须逐步推进 O(n) 个顺序操作，路径长度 O(n)。\nC 是卷积层（核宽 k）的组合：每层 O(k·n·d²)，可并行故顺序操作数 O(1)，但需堆叠膨胀卷积才能连通全部位置，路径长度 O(log_k(n))。\nD 是受限自注意力（只看邻域 r）的组合：复杂度降为 O(r·n·d)，但路径长度变长到 O(n/r)，不是完整自注意力。"
+      },
+      {
+        "id": "q2-n-less-than-d",
+        "stem": "原论文指出“当序列长度 n 小于表示维度 d 时，自注意力层比循环层更快”。按每层复杂度的表达式，这个结论的直接依据是什么？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "自注意力是 O(n²·d)，循环是 O(n·d²)，两者相除得 n/d，n<d 时该比值小于 1",
+          "自注意力是 O(n·d²)，循环是 O(n²·d)，n<d 时前者的 n 更小所以更快",
+          "自注意力每层顺序操作数为 O(1)，循环为 O(n)，所以只要 n>1 自注意力就一定更快",
+          "自注意力最大路径长度为 O(1)，路径短所以每层计算量必然更小"
+        ],
+        "difficulty": "medium",
+        "explanation": "把两个复杂度相除：O(n²·d) / O(n·d²) = n/d。当 n<d 时 n/d<1，即自注意力的每层计算量更小，这正是论文“n<d 时更快”的依据。\nB 把两个表达式对调了：循环层才是 O(n·d²)，自注意力是 O(n²·d)，方向反了。\nC 混淆了“顺序操作数”和“每层计算量”：顺序操作数 O(1) 说明可并行、不说明总计算量小；n 很大时自注意力每层计算量仍按 n² 增长，可能远大于循环层。\nD 路径长度衡量的是信号在网络中要经过的层数，影响长程依赖是否容易学习，与每层计算量的大小没有必然联系。"
+      },
+      {
+        "id": "q3-long-sequence-cost",
+        "stem": "某团队要建模超长文档（n 远大于 d）。按原论文的分析，直接使用完整自注意力会遇到什么主要问题，论文提出的缓解办法及其代价是什么？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "每层复杂度随 n 平方增长，计算与显存压力大；可限制为只看邻域 r 的受限自注意力，代价是最大路径长度变为 O(n/r)",
+          "每层复杂度随 d 平方增长，可减小 d 来缓解，代价是表示能力下降",
+          "顺序操作数随 n 增长导致无法并行，可改用受限自注意力把顺序操作数降为 O(1)，代价是精度略降",
+          "最大路径长度随 n 增长导致长程依赖难学，可改用受限自注意力把路径长度降为 O(1)，代价是复杂度上升"
+        ],
+        "difficulty": "medium",
+        "explanation": "完整自注意力每层复杂度为 O(n²·d)，n 远大于 d 时 n² 项主导，计算量和注意力矩阵的存储都随 n 平方增长，这是长序列的主要瓶颈。论文提出的缓解办法是把每个位置只与邻域 r 内的位置做注意力，复杂度降为 O(r·n·d)，但任意两位置间的最大路径长度从 O(1) 变为 O(n/r)，长程依赖需要跨更多层传递。\nB 说复杂度随 d 平方增长，与自注意力的 O(n²·d) 不符；随 d 平方增长的是循环层的 O(n·d²)。\nC 说顺序操作数随 n 增长，这是循环层的特征；自注意力顺序操作数本来就是 O(1)，受限自注意力并没有“把顺序操作数降为 O(1)”这回事。\nD 把问题与代价说反了：完整自注意力的路径长度本来就是 O(1)，受限自注意力使路径变长而不是变短，复杂度是下降而不是上升。"
+      },
+      {
+        "id": "q4-parallel-boundary",
+        "stem": "关于“Transformer 完全并行”这句话，下列哪些说法成立？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "编码器对整条输入序列的处理可以一次前向并行完成",
+          "训练时解码器借助教师强制与因果掩码，一次前向即可同时算出所有位置的预测",
+          "推理生成时，第 i 个词元必须等第 i−1 个词元选出后才能作为输入，生成 m 个词元仍需 m 次顺序前向",
+          "Transformer 同时消掉了训练和生成两个阶段的顺序步数"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 成立：编码器各位置之间没有先后依赖，整条输入可以并行处理。\nB 成立：训练时解码器输入是真实目标句右移一位的结果，因果掩码保证位置 i 只能看到位置 1 到 i，因此一次前向就能同时得到所有位置的预测。\nC 成立：推理时没有真实答案，第 i 个词元依赖第 i−1 个已选出的词元，生成 m 个词元需要 m 次顺序前向。\nD 不成立：Transformer 消掉的是训练阶段的顺序步数，生成阶段的顺序步数依然存在，这正是“完全并行”需要限定的原因。"
+      },
+      {
+        "id": "q5-true-false-parallel",
+        "stem": "判断：既然 Transformer 摒弃了循环结构，那么它在推理生成阶段也不再有任何顺序依赖，可以一次并行输出整条目标序列。",
+        "type": "true_false",
+        "answer": "错误",
+        "difficulty": "easy",
+        "explanation": "摒弃循环只消除了“隐藏状态 h_t 依赖 h_{t−1}”这种层内串行，并没有消除自回归生成本身的依赖：推理时第 i 个词元的输入是前面已经选出的词元，必须等第 i−1 个确定后才能计算，因此生成 m 个词元仍需 m 次顺序前向。可并行的部分是编码器处理与训练时解码器的一次前向。"
+      },
+      {
+        "id": "q6-two-sentences",
+        "stem": "请用两句话向同伴解释“Transformer 完全并行”这句话在什么范围内成立：第一句说明它成立的范围，第二句说明它不成立的范围及原因。",
+        "type": "short_answer",
+        "answer": "参考要点：第一句——对编码器处理整条输入、以及训练时的解码器（教师强制 + 因果掩码，一次前向算出所有位置预测）而言，序列内部没有顺序依赖，可以并行。第二句——推理生成时没有真实答案，第 i 个词元必须等第 i−1 个选出后才能作为输入，生成 m 个词元仍需 m 次顺序前向，所以 Transformer 消掉的是训练的顺序步数，而非生成的顺序步数。",
+        "difficulty": "medium",
+        "explanation": "评分看两点是否都说到：①成立范围要同时点出编码器与训练时解码器，并给出可并行的理由（无位置间依赖 / 教师强制加掩码）；②不成立范围要指出推理生成的自回归依赖，并说明“消掉的是训练顺序步数而非生成顺序步数”。只写“训练能并行、推理不能”而未说明原因，属于要点不全。"
+      },
+      {
+        "id": "q7-tradeoff-summary",
+        "stem": "不看资料，写出自注意力相对循环网络的两项优势和一项代价，并各用一句话说明理由。",
+        "type": "short_answer",
+        "answer": "参考要点：优势一——最少顺序操作数为 O(1)（循环为 O(n)），序列内部可并行，训练时不必逐步推进；优势二——最大路径长度为 O(1)（循环为 O(n)），任意两位置直接相连，长程依赖更容易学习；补充：当 n<d 时每层复杂度 O(n²·d) 小于循环的 O(n·d²)。代价——每层复杂度随 n 平方增长，长序列下计算与存储压力大，需要受限自注意力等改进，而受限后路径长度变为 O(n/r)。",
+        "difficulty": "medium",
+        "explanation": "两项优势应来自“顺序操作数”和“路径长度”两个维度（写出 n<d 时更快也算有效优势），代价应落在 n² 增长上。若把“完全并行”当作无条件的优势而不提推理仍串行，或只写“更快”而不给维度依据，说明尚未掌握三方面比较框架。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 10.72
+      },
+      "spec_digest": "5cd6a9868226ceac8ab33d7cb195a5040e60ab3867cdeba967f097e0de8ba75a",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1-complexity-table"
+          },
+          "objective_id": "n5-tradeoff:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q2-n-less-than-d"
+          },
+          "objective_id": "n5-tradeoff:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q3-long-sequence-cost"
+          },
+          "objective_id": "n5-tradeoff:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q4-parallel-boundary"
+          },
+          "objective_id": "n5-tradeoff:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q5-true-false-parallel"
+          },
+          "objective_id": "n5-tradeoff:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q6-two-sentences"
+          },
+          "objective_id": "n5-tradeoff:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q7-tradeoff-summary"
+          },
+          "objective_id": "n5-tradeoff:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q7-tradeoff-summary"
+          },
+          "objective_id": "n5-tradeoff:o2"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q1-complexity-table"
+          },
+          "explanation": "通过三方面对比表的选择题，落实“讲授 Transformer 核心组成”中自注意力与循环/卷积层的取舍关系。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q4-parallel-boundary"
+          },
+          "explanation": "通过编码器-解码器与掩码机制的多选题，检验对整体结构中并行边界的理解。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需回忆三行对比表并逐项核对四个选项的复杂度、顺序操作数、路径长度三元组，排除循环、卷积、受限自注意力三种混淆。",
+          "question_id": "q1-complexity-table",
+          "thinking_seconds": 45
+        },
+        {
+          "reason": "需写出两个复杂度表达式并做比值 n/d，再逐一判断其余选项是否混淆了顺序操作数与计算量。",
+          "question_id": "q2-n-less-than-d",
+          "thinking_seconds": 40
+        },
+        {
+          "reason": "需先判断 n 远大于 d 时哪一项主导，再回忆受限自注意力的复杂度与路径长度变化，并识别选项中被对调的因果。",
+          "question_id": "q3-long-sequence-cost",
+          "thinking_seconds": 50
+        },
+        {
+          "reason": "四个选项分别涉及编码器、训练解码器、推理生成与总体结论，需逐个判断并确认多选集合完整。",
+          "question_id": "q4-parallel-boundary",
+          "thinking_seconds": 55
+        },
+        {
+          "reason": "需区分“消除循环结构”与“消除自回归依赖”，判断推理阶段是否仍串行。",
+          "question_id": "q5-true-false-parallel",
+          "thinking_seconds": 20
+        },
+        {
+          "reason": "需组织两句表述，分别覆盖成立范围（编码器与训练解码器）和不成立范围（推理自回归），并给出原因。",
+          "question_id": "q6-two-sentences",
+          "thinking_seconds": 70
+        },
+        {
+          "reason": "需从三个维度中挑出两项优势并各配理由，再给出 n² 增长的代价及受限自注意力的路径代价，属于综合回忆。",
+          "question_id": "q7-tradeoff-summary",
+          "thinking_seconds": 80
+        }
+      ],
+      "teaching_context_digest": "33cfca6f697970bc4c7087b367240f9e4724838d43c8681478ea128b0b3724ca"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "7 道题覆盖本节点分工 req-transformer-basics 中自注意力与循环/卷积的取舍：q1 三方面对比表、q2 n<d 依据、q3 长序列代价与受限自注意力、q4/q5/q6 并行边界、q7 综合总结，均以中文、入门深度呈现，未越界到其他节点内容。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题独立求解：q1 自注意力为 O(n²·d)/O(1)/O(1) 对应 A；q2 比值 n/d<1 对应 A；q3 瓶颈为 n² 增长、受限后路径 O(n/r) 对应 A；q4 成立项为 A、B、C；q5 判断为错误；q6、q7 参考要点与论文 Table 1 及教师强制/自回归推理结论一致，未发现事实或推导错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "q3 以“超长文档 n 远大于 d”为具体场景，q6 以“向同伴用两句话解释”为任务，均与题干要求一致且答案可核；其余题为概念辨析，无需额外实例。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序为对比表→n<d 依据→长序列代价→并行边界多选→判断→简答→综合总结，由识记到应用再到综合，符合 8 分钟节点预算与入门受众；单选正确答案集中在 A，但选项内容本身为不同层类型的真实组合，非无意义凑数。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "q1–q3、q7 的复杂度与路径长度断言与所引 Vaswani 等 2017 论文第 4 节及 Table 1 一致；q4–q6 的并行边界与所引 llm_internals 1.4 节“训练时并行、生成时串行”表述一致，未发现与来源冲突的断言。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三个节点目标均有对应题目（o1: q1、q7；o2: q2、q3、q7；o3: q4、q5、q6），题型含单选、多选、判断、简答，每题均有答案与解析，无缺项。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "version": 1,
+          "decision": "revise",
+          "structural_issues": [
+            "本轮输出格式或映射校验失败：preparation_content_envelope_missing。按本轮格式重交完整封装及必需教学映射；原生题目 JSON 应放在 content 字段内。"
+          ]
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "7 道题覆盖本节点分工 req-transformer-basics 中自注意力与循环/卷积的取舍：q1 三方面对比表、q2 n<d 依据、q3 长序列代价与受限自注意力、q4/q5/q6 并行边界、q7 综合总结，均以中文、入门深度呈现，未越界到其他节点内容。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解：q1 自注意力为 O(n²·d)/O(1)/O(1) 对应 A；q2 比值 n/d<1 对应 A；q3 瓶颈为 n² 增长、受限后路径 O(n/r) 对应 A；q4 成立项为 A、B、C；q5 判断为错误；q6、q7 参考要点与论文 Table 1 及教师强制/自回归推理结论一致，未发现事实或推导错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q3 以“超长文档 n 远大于 d”为具体场景，q6 以“向同伴用两句话解释”为任务，均与题干要求一致且答案可核；其余题为概念辨析，无需额外实例。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为对比表→n<d 依据→长序列代价→并行边界多选→判断→简答→综合总结，由识记到应用再到综合，符合 8 分钟节点预算与入门受众；单选正确答案集中在 A，但选项内容本身为不同层类型的真实组合，非无意义凑数。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "q1–q3、q7 的复杂度与路径长度断言与所引 Vaswani 等 2017 论文第 4 节及 Table 1 一致；q4–q6 的并行边界与所引 llm_internals 1.4 节“训练时并行、生成时串行”表述一致，未发现与来源冲突的断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个节点目标均有对应题目（o1: q1、q7；o2: q2、q3、q7；o3: q4、q5、q6），题型含单选、多选、判断、简答，每题均有答案与解析，无缺项。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q1、q2、q3 三道单选的正确答案均为 A，建议打乱选项顺序，避免形成答案位置规律。",
+              "q1 的四个选项分别对应自注意力、循环、卷积、受限自注意力，选项本身已暗示层类型，可考虑在题干中不提示“完全对应自注意力层”以外的额外线索，或改为让学习者填写对比表以增强迁移。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1-complexity-table",
+                "option_checks": [
+                  {
+                    "reasoning": "O(n²·d)/O(1)/O(1) 正是自注意力层的三元组，与论文 Table 1 一致，为正确答案。",
+                    "option_text": "O(n²·d) / O(1) / O(1)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "自注意力层：每个位置要与全部 n 个位置算注意力分数，得到 n×n 的分数矩阵，每个分数涉及 d 维点积，故每层复杂度为 O(n²·d)；所有位置同时计算，顺序操作数为常数 O(1)；任意两个位置之间只隔一层注意力，最大路径长度为 O(1)。\n",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析分句说明 n×n 分数矩阵与 d 维点积给出 O(n²·d)、所有位置同时计算给出 O(1) 顺序操作、任意两位置只隔一层给出 O(1) 路径，三句均与论文一致，无错误。"
+                  },
+                  {
+                    "reasoning": "O(n·d²)/O(n)/O(n) 是循环层的三元组，不是自注意力，故错误。",
+                    "option_text": "O(n·d²) / O(n) / O(n)",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 是循环层的组合：隐藏状态 h_t 依赖 h_{t−1}，每层 O(n·d²)，必须逐步推进 O(n) 个顺序操作，路径长度 O(n)。\n",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 B 为循环层组合：h_t 依赖 h_{t−1}、每层 O(n·d²)、O(n) 顺序操作、路径 O(n)，与论文 Table 1 一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "O(k·n·d²)/O(1)/O(log_k n) 是卷积层（核宽 k）的三元组，故错误。",
+                    "option_text": "O(k·n·d²) / O(1) / O(log_k(n))",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 是卷积层（核宽 k）的组合：每层 O(k·n·d²)，可并行故顺序操作数 O(1)，但需堆叠膨胀卷积才能连通全部位置，路径长度 O(log_k(n))。\n",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称 C 为卷积层组合、需堆叠膨胀卷积连通全部位置、路径 O(log_k n)，与论文第 4 节关于卷积层的论述一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "O(r·n·d)/O(1)/O(n/r) 是受限自注意力的三元组，路径长度已变为 O(n/r)，不是完整自注意力，故错误。",
+                    "option_text": "O(r·n·d) / O(1) / O(n/r)",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 是受限自注意力（只看邻域 r）的组合：复杂度降为 O(r·n·d)，但路径长度变长到 O(n/r)，不是完整自注意力。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称 D 为受限自注意力、复杂度降为 O(r·n·d)、路径变长到 O(n/r)，与论文原文一致，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "按论文 Table 1：自注意力每层复杂度 O(n²·d)，最少顺序操作数 O(1)，最大路径长度 O(1)；循环层为 O(n·d²)/O(n)/O(n)；卷积层为 O(k·n·d²)/O(1)/O(log_k n)；受限自注意力为 O(r·n·d)/O(1)/O(n/r)。故完全对应自注意力的是选项 A。"
+              },
+              {
+                "question_id": "q2-n-less-than-d",
+                "option_checks": [
+                  {
+                    "reasoning": "正确给出两式并做比值 n/d，n<d 时小于 1，直接支持论文结论，为正确答案。",
+                    "option_text": "自注意力是 O(n²·d)，循环是 O(n·d²)，两者相除得 n/d，n<d 时该比值小于 1",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "把两个复杂度相除：O(n²·d) / O(n·d²) = n/d。当 n<d 时 n/d<1，即自注意力的每层计算量更小，这正是论文“n<d 时更快”的依据。\n",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析先做除法得 n/d，再说明 n<d 时 n/d<1 即每层计算量更小，推导与论文“n<d 时更快”一致，无错误。"
+                  },
+                  {
+                    "reasoning": "把自注意力写成 O(n·d²)、循环写成 O(n²·d) 与论文相反，故错误。",
+                    "option_text": "自注意力是 O(n·d²)，循环是 O(n²·d)，n<d 时前者的 n 更小所以更快",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 把两个表达式对调了：循环层才是 O(n·d²)，自注意力是 O(n²·d)，方向反了。\n",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 B 把两个表达式对调，循环层才是 O(n·d²)，与论文 Table 1 一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "顺序操作数 O(1) 只说明可并行，不说明每层总计算量小；n 很大时自注意力每层计算量按 n² 增长可能更大，故错误。",
+                    "option_text": "自注意力每层顺序操作数为 O(1)，循环为 O(n)，所以只要 n>1 自注意力就一定更快",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 混淆了“顺序操作数”和“每层计算量”：顺序操作数 O(1) 说明可并行、不说明总计算量小；n 很大时自注意力每层计算量仍按 n² 增长，可能远大于循环层。\n",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析区分“顺序操作数”与“每层计算量”，并指出 n 很大时自注意力每层计算量仍按 n² 增长，两句均成立，批评准确。"
+                  },
+                  {
+                    "reasoning": "路径长度衡量信号需经过的层数，影响长程依赖学习，与每层计算量无必然联系，故错误。",
+                    "option_text": "自注意力最大路径长度为 O(1)，路径短所以每层计算量必然更小",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 路径长度衡量的是信号在网络中要经过的层数，影响长程依赖是否容易学习，与每层计算量的大小没有必然联系。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析说明路径长度影响长程依赖是否易学、与每层计算量无必然联系，与论文第 4 节对路径长度的定位一致，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "自注意力每层 O(n²·d)，循环每层 O(n·d²)，比值 (n²·d)/(n·d²)=n/d；n<d 时比值小于 1，故自注意力每层计算量更小，即选项 A。B 把两式对调；C 混淆顺序操作数与计算量；D 混淆路径长度与计算量。"
+              },
+              {
+                "question_id": "q3-long-sequence-cost",
+                "option_checks": [
+                  {
+                    "reasoning": "准确指出 n² 增长瓶颈、受限自注意力缓解及路径长度变为 O(n/r) 的代价，与论文一致，为正确答案。",
+                    "option_text": "每层复杂度随 n 平方增长，计算与显存压力大；可限制为只看邻域 r 的受限自注意力，代价是最大路径长度变为 O(n/r)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "完整自注意力每层复杂度为 O(n²·d)，n 远大于 d 时 n² 项主导，计算量和注意力矩阵的存储都随 n 平方增长，这是长序列的主要瓶颈。论文提出的缓解办法是把每个位置只与邻域 r 内的位置做注意力，复杂度降为 O(r·n·d)，但任意两位置间的最大路径长度从 O(1) 变为 O(n/r)，长程依赖需要跨更多层传递。\n",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析先说明 O(n²·d) 中 n² 主导导致计算与存储瓶颈，再说明受限自注意力复杂度降为 O(r·n·d)、路径从 O(1) 变为 O(n/r)，与论文原文一致，无错误。"
+                  },
+                  {
+                    "reasoning": "自注意力复杂度是 O(n²·d)，随 d 一次方增长；随 d 平方增长的是循环层，故错误。",
+                    "option_text": "每层复杂度随 d 平方增长，可减小 d 来缓解，代价是表示能力下降",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 说复杂度随 d 平方增长，与自注意力的 O(n²·d) 不符；随 d 平方增长的是循环层的 O(n·d²)。\n",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 B 与 O(n²·d) 不符，并说明随 d 平方增长的是循环层 O(n·d²)，两句均正确，批评成立。"
+                  },
+                  {
+                    "reasoning": "自注意力顺序操作数本就是 O(1)，不存在“随 n 增长”的问题，也不存在“把顺序操作数降为 O(1)”的改进，故错误。",
+                    "option_text": "顺序操作数随 n 增长导致无法并行，可改用受限自注意力把顺序操作数降为 O(1)，代价是精度略降",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 说顺序操作数随 n 增长，这是循环层的特征；自注意力顺序操作数本来就是 O(1)，受限自注意力并没有“把顺序操作数降为 O(1)”这回事。\n",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出顺序操作数随 n 增长是循环层特征，且自注意力顺序操作数本来就是 O(1)，受限自注意力并无此改进，与论文一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "完整自注意力路径长度本就是 O(1)，受限自注意力使路径变长、复杂度下降，选项把两者说反，故错误。",
+                    "option_text": "最大路径长度随 n 增长导致长程依赖难学，可改用受限自注意力把路径长度降为 O(1)，代价是复杂度上升",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 把问题与代价说反了：完整自注意力的路径长度本来就是 O(1)，受限自注意力使路径变长而不是变短，复杂度是下降而不是上升。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出完整自注意力路径本为 O(1)、受限后路径变长而非变短、复杂度下降而非上升，与论文一致，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "完整自注意力每层 O(n²·d)，n 远大于 d 时 n² 主导，计算与显存随 n 平方增长；论文的缓解办法是限制邻域 r 的受限自注意力，复杂度降为 O(r·n·d)，但最大路径长度从 O(1) 变为 O(n/r)。故 A 正确。B 把 d² 增长错给自注意力；C 把顺序操作数增长错给自注意力；D 把路径与复杂度变化说反。"
+              },
+              {
+                "question_id": "q4-parallel-boundary",
+                "option_checks": [
+                  {
+                    "reasoning": "编码器各位置之间没有先后依赖，整条输入可并行处理，说法成立。",
+                    "option_text": "编码器对整条输入序列的处理可以一次前向并行完成",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 成立：编码器各位置之间没有先后依赖，整条输入可以并行处理。\n",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析称编码器各位置无先后依赖、整条输入可并行，与自注意力层 O(1) 顺序操作一致，判断准确。"
+                  },
+                  {
+                    "reasoning": "训练时解码器用教师强制，输入为真实目标右移一位，因果掩码保证位置 i 只看 1..i，一次前向可得所有位置预测，说法成立。",
+                    "option_text": "训练时解码器借助教师强制与因果掩码，一次前向即可同时算出所有位置的预测",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 成立：训练时解码器输入是真实目标句右移一位的结果，因果掩码保证位置 i 只能看到位置 1 到 i，因此一次前向就能同时得到所有位置的预测。\n",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析复述教师强制与因果掩码机制并得出一次前向同时得到所有预测，与所引资料一致，判断准确。"
+                  },
+                  {
+                    "reasoning": "推理时无真实答案，第 i 个词元依赖第 i−1 个已选词元，生成 m 个词元需 m 次顺序前向，说法成立。",
+                    "option_text": "推理生成时，第 i 个词元必须等第 i−1 个词元选出后才能作为输入，生成 m 个词元仍需 m 次顺序前向",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 成立：推理时没有真实答案，第 i 个词元依赖第 i−1 个已选出的词元，生成 m 个词元需要 m 次顺序前向。\n",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析说明推理时无真实答案、第 i 个词元依赖第 i−1 个、需 m 次顺序前向，与所引资料一致，判断准确。"
+                  },
+                  {
+                    "reasoning": "Transformer 只消掉训练阶段的顺序步数，生成阶段顺序步数依然存在，故“同时消掉两个阶段”不成立。",
+                    "option_text": "Transformer 同时消掉了训练和生成两个阶段的顺序步数",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 不成立：Transformer 消掉的是训练阶段的顺序步数，生成阶段的顺序步数依然存在，这正是“完全并行”需要限定的原因。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出消掉的是训练顺序步数、生成顺序步数仍在，正是“完全并行”需限定的原因，判断准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "编码器各位置无先后依赖，可一次前向并行（A 成立）；训练时解码器输入为真实目标右移一位，因果掩码使位置 i 只看 1..i，一次前向算出所有位置预测（B 成立）；推理时第 i 个词元需等第 i−1 个选出，生成 m 个词元需 m 次顺序前向（C 成立）；Transformer 只消掉训练顺序步数，生成顺序步数仍在（D 不成立）。答案 A,B,C。"
+              },
+              {
+                "question_id": "q5-true-false-parallel",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "该判断为错误。摒弃循环只消除层内隐藏状态的串行依赖，自回归生成时第 i 个词元仍需第 i−1 个已选词元作为输入，生成 m 个词元需 m 次顺序前向，不能一次并行输出整条序列。"
+              },
+              {
+                "question_id": "q6-two-sentences",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "参考作答：第一句——对编码器处理整条输入以及训练时解码器（教师强制加因果掩码，一次前向算出所有位置预测）而言，序列内部无顺序依赖，可以并行。第二句——推理生成时没有真实答案，第 i 个词元必须等第 i−1 个选出后才能作为输入，生成 m 个词元仍需 m 次顺序前向，因此 Transformer 消掉的是训练的顺序步数而非生成的顺序步数。与参考答案要点一致。"
+              },
+              {
+                "question_id": "q7-tradeoff-summary",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "两项优势：最少顺序操作数 O(1)（循环 O(n)），序列内部可并行；最大路径长度 O(1)（循环 O(n)），长程依赖更易学习；补充 n<d 时每层复杂度 O(n²·d) 小于 O(n·d²)。一项代价：每层复杂度随 n 平方增长，长序列计算与存储压力大，需受限自注意力等改进，受限后路径长度变为 O(n/r)。与参考答案要点一致。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 要求选出完全对应自注意力层的“复杂度/顺序操作数/路径长度”三元组，并解析循环、卷积、受限自注意力三种组合，真实落实 req-transformer-basics 中自注意力与循环/卷积的取舍关系。",
+                "locator": {
+                  "question_id": "q1-complexity-table"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 多选逐项判断编码器并行、训练解码器教师强制加掩码、推理串行与“同时消掉两阶段”的错误说法，确实检验整体结构中的并行边界。",
+                "locator": {
+                  "question_id": "q4-parallel-boundary"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 以三方面对比表形式考查 o1，选项分别对应自注意力、循环、卷积、受限自注意力，能检验三方面比较能力。",
+                "locator": {
+                  "question_id": "q1-complexity-table"
+                },
+                "binding_id": "n5-tradeoff:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 要求由 O(n²·d) 与 O(n·d²) 的比值 n/d 推出 n<d 时更快，作为 o2 的练习定位准确。",
+                "locator": {
+                  "question_id": "q2-n-less-than-d"
+                },
+                "binding_id": "n5-tradeoff:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 以超长文档场景考查 n² 增长代价与受限自注意力路径变长 O(n/r) 的取舍，检验 o2 中“平方增长”这一代价。",
+                "locator": {
+                  "question_id": "q3-long-sequence-cost"
+                },
+                "binding_id": "n5-tradeoff:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 覆盖训练并行与推理串行，并否定“同时消掉两阶段”，直接检验 o3 的并行边界。",
+                "locator": {
+                  "question_id": "q4-parallel-boundary"
+                },
+                "binding_id": "n5-tradeoff:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 判断题针对“摒弃循环即推理无顺序依赖”的误区，解析说明消掉的是训练顺序步数，作为 o3 练习定位准确。",
+                "locator": {
+                  "question_id": "q5-true-false-parallel"
+                },
+                "binding_id": "n5-tradeoff:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 要求两句话分别说明成立范围与不成立范围及原因，与节点活动“用两句话向同伴解释”一致，落实 o3。",
+                "locator": {
+                  "question_id": "q6-two-sentences"
+                },
+                "binding_id": "n5-tradeoff:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 要求写出两项优势并说明理由，解析以顺序操作数与路径长度两个维度评分，检验 o1 的三方面比较框架。",
+                "locator": {
+                  "question_id": "q7-tradeoff-summary"
+                },
+                "binding_id": "n5-tradeoff:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 的代价部分要求落在 n² 增长并提及受限自注意力路径 O(n/r)，与 o2 的“平方增长代价”对应。",
+                "locator": {
+                  "question_id": "q7-tradeoff-summary"
+                },
+                "binding_id": "n5-tradeoff:o2",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 2,
+          "decision": "pass",
+          "content_sha256": "746c5db7a72128b3b1a1de4143a5c3bd31bb48b29fcc839a6a33cfda73f20140"
+        }
+      ],
+      "version": 2,
+      "decision": "pass",
+      "suggestions": [
+        "q1、q2、q3 三道单选的正确答案均为 A，建议打乱选项顺序，避免形成答案位置规律。",
+        "q1 的四个选项分别对应自注意力、循环、卷积、受限自注意力，选项本身已暗示层类型，可考虑在题干中不提示“完全对应自注意力层”以外的额外线索，或改为让学习者填写对比表以增强迁移。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "746c5db7a72128b3b1a1de4143a5c3bd31bb48b29fcc839a6a33cfda73f20140",
+      "question_checks": [
+        {
+          "question_id": "q1-complexity-table",
+          "option_checks": [
+            {
+              "reasoning": "O(n²·d)/O(1)/O(1) 正是自注意力层的三元组，与论文 Table 1 一致，为正确答案。",
+              "option_text": "O(n²·d) / O(1) / O(1)",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "自注意力层：每个位置要与全部 n 个位置算注意力分数，得到 n×n 的分数矩阵，每个分数涉及 d 维点积，故每层复杂度为 O(n²·d)；所有位置同时计算，顺序操作数为常数 O(1)；任意两个位置之间只隔一层注意力，最大路径长度为 O(1)。\n",
+              "independent_correct": true,
+              "explanation_reasoning": "解析分句说明 n×n 分数矩阵与 d 维点积给出 O(n²·d)、所有位置同时计算给出 O(1) 顺序操作、任意两位置只隔一层给出 O(1) 路径，三句均与论文一致，无错误。"
+            },
+            {
+              "reasoning": "O(n·d²)/O(n)/O(n) 是循环层的三元组，不是自注意力，故错误。",
+              "option_text": "O(n·d²) / O(n) / O(n)",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 是循环层的组合：隐藏状态 h_t 依赖 h_{t−1}，每层 O(n·d²)，必须逐步推进 O(n) 个顺序操作，路径长度 O(n)。\n",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 B 为循环层组合：h_t 依赖 h_{t−1}、每层 O(n·d²)、O(n) 顺序操作、路径 O(n)，与论文 Table 1 一致，批评成立。"
+            },
+            {
+              "reasoning": "O(k·n·d²)/O(1)/O(log_k n) 是卷积层（核宽 k）的三元组，故错误。",
+              "option_text": "O(k·n·d²) / O(1) / O(log_k(n))",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 是卷积层（核宽 k）的组合：每层 O(k·n·d²)，可并行故顺序操作数 O(1)，但需堆叠膨胀卷积才能连通全部位置，路径长度 O(log_k(n))。\n",
+              "independent_correct": false,
+              "explanation_reasoning": "解析称 C 为卷积层组合、需堆叠膨胀卷积连通全部位置、路径 O(log_k n)，与论文第 4 节关于卷积层的论述一致，批评成立。"
+            },
+            {
+              "reasoning": "O(r·n·d)/O(1)/O(n/r) 是受限自注意力的三元组，路径长度已变为 O(n/r)，不是完整自注意力，故错误。",
+              "option_text": "O(r·n·d) / O(1) / O(n/r)",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 是受限自注意力（只看邻域 r）的组合：复杂度降为 O(r·n·d)，但路径长度变长到 O(n/r)，不是完整自注意力。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析称 D 为受限自注意力、复杂度降为 O(r·n·d)、路径变长到 O(n/r)，与论文原文一致，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "按论文 Table 1：自注意力每层复杂度 O(n²·d)，最少顺序操作数 O(1)，最大路径长度 O(1)；循环层为 O(n·d²)/O(n)/O(n)；卷积层为 O(k·n·d²)/O(1)/O(log_k n)；受限自注意力为 O(r·n·d)/O(1)/O(n/r)。故完全对应自注意力的是选项 A。"
+        },
+        {
+          "question_id": "q2-n-less-than-d",
+          "option_checks": [
+            {
+              "reasoning": "正确给出两式并做比值 n/d，n<d 时小于 1，直接支持论文结论，为正确答案。",
+              "option_text": "自注意力是 O(n²·d)，循环是 O(n·d²)，两者相除得 n/d，n<d 时该比值小于 1",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "把两个复杂度相除：O(n²·d) / O(n·d²) = n/d。当 n<d 时 n/d<1，即自注意力的每层计算量更小，这正是论文“n<d 时更快”的依据。\n",
+              "independent_correct": true,
+              "explanation_reasoning": "解析先做除法得 n/d，再说明 n<d 时 n/d<1 即每层计算量更小，推导与论文“n<d 时更快”一致，无错误。"
+            },
+            {
+              "reasoning": "把自注意力写成 O(n·d²)、循环写成 O(n²·d) 与论文相反，故错误。",
+              "option_text": "自注意力是 O(n·d²)，循环是 O(n²·d)，n<d 时前者的 n 更小所以更快",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 把两个表达式对调了：循环层才是 O(n·d²)，自注意力是 O(n²·d)，方向反了。\n",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 B 把两个表达式对调，循环层才是 O(n·d²)，与论文 Table 1 一致，批评成立。"
+            },
+            {
+              "reasoning": "顺序操作数 O(1) 只说明可并行，不说明每层总计算量小；n 很大时自注意力每层计算量按 n² 增长可能更大，故错误。",
+              "option_text": "自注意力每层顺序操作数为 O(1)，循环为 O(n)，所以只要 n>1 自注意力就一定更快",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 混淆了“顺序操作数”和“每层计算量”：顺序操作数 O(1) 说明可并行、不说明总计算量小；n 很大时自注意力每层计算量仍按 n² 增长，可能远大于循环层。\n",
+              "independent_correct": false,
+              "explanation_reasoning": "解析区分“顺序操作数”与“每层计算量”，并指出 n 很大时自注意力每层计算量仍按 n² 增长，两句均成立，批评准确。"
+            },
+            {
+              "reasoning": "路径长度衡量信号需经过的层数，影响长程依赖学习，与每层计算量无必然联系，故错误。",
+              "option_text": "自注意力最大路径长度为 O(1)，路径短所以每层计算量必然更小",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 路径长度衡量的是信号在网络中要经过的层数，影响长程依赖是否容易学习，与每层计算量的大小没有必然联系。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析说明路径长度影响长程依赖是否易学、与每层计算量无必然联系，与论文第 4 节对路径长度的定位一致，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "自注意力每层 O(n²·d)，循环每层 O(n·d²)，比值 (n²·d)/(n·d²)=n/d；n<d 时比值小于 1，故自注意力每层计算量更小，即选项 A。B 把两式对调；C 混淆顺序操作数与计算量；D 混淆路径长度与计算量。"
+        },
+        {
+          "question_id": "q3-long-sequence-cost",
+          "option_checks": [
+            {
+              "reasoning": "准确指出 n² 增长瓶颈、受限自注意力缓解及路径长度变为 O(n/r) 的代价，与论文一致，为正确答案。",
+              "option_text": "每层复杂度随 n 平方增长，计算与显存压力大；可限制为只看邻域 r 的受限自注意力，代价是最大路径长度变为 O(n/r)",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "完整自注意力每层复杂度为 O(n²·d)，n 远大于 d 时 n² 项主导，计算量和注意力矩阵的存储都随 n 平方增长，这是长序列的主要瓶颈。论文提出的缓解办法是把每个位置只与邻域 r 内的位置做注意力，复杂度降为 O(r·n·d)，但任意两位置间的最大路径长度从 O(1) 变为 O(n/r)，长程依赖需要跨更多层传递。\n",
+              "independent_correct": true,
+              "explanation_reasoning": "解析先说明 O(n²·d) 中 n² 主导导致计算与存储瓶颈，再说明受限自注意力复杂度降为 O(r·n·d)、路径从 O(1) 变为 O(n/r)，与论文原文一致，无错误。"
+            },
+            {
+              "reasoning": "自注意力复杂度是 O(n²·d)，随 d 一次方增长；随 d 平方增长的是循环层，故错误。",
+              "option_text": "每层复杂度随 d 平方增长，可减小 d 来缓解，代价是表示能力下降",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 说复杂度随 d 平方增长，与自注意力的 O(n²·d) 不符；随 d 平方增长的是循环层的 O(n·d²)。\n",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 B 与 O(n²·d) 不符，并说明随 d 平方增长的是循环层 O(n·d²)，两句均正确，批评成立。"
+            },
+            {
+              "reasoning": "自注意力顺序操作数本就是 O(1)，不存在“随 n 增长”的问题，也不存在“把顺序操作数降为 O(1)”的改进，故错误。",
+              "option_text": "顺序操作数随 n 增长导致无法并行，可改用受限自注意力把顺序操作数降为 O(1)，代价是精度略降",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 说顺序操作数随 n 增长，这是循环层的特征；自注意力顺序操作数本来就是 O(1)，受限自注意力并没有“把顺序操作数降为 O(1)”这回事。\n",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出顺序操作数随 n 增长是循环层特征，且自注意力顺序操作数本来就是 O(1)，受限自注意力并无此改进，与论文一致，批评成立。"
+            },
+            {
+              "reasoning": "完整自注意力路径长度本就是 O(1)，受限自注意力使路径变长、复杂度下降，选项把两者说反，故错误。",
+              "option_text": "最大路径长度随 n 增长导致长程依赖难学，可改用受限自注意力把路径长度降为 O(1)，代价是复杂度上升",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 把问题与代价说反了：完整自注意力的路径长度本来就是 O(1)，受限自注意力使路径变长而不是变短，复杂度是下降而不是上升。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出完整自注意力路径本为 O(1)、受限后路径变长而非变短、复杂度下降而非上升，与论文一致，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "完整自注意力每层 O(n²·d)，n 远大于 d 时 n² 主导，计算与显存随 n 平方增长；论文的缓解办法是限制邻域 r 的受限自注意力，复杂度降为 O(r·n·d)，但最大路径长度从 O(1) 变为 O(n/r)。故 A 正确。B 把 d² 增长错给自注意力；C 把顺序操作数增长错给自注意力；D 把路径与复杂度变化说反。"
+        },
+        {
+          "question_id": "q4-parallel-boundary",
+          "option_checks": [
+            {
+              "reasoning": "编码器各位置之间没有先后依赖，整条输入可并行处理，说法成立。",
+              "option_text": "编码器对整条输入序列的处理可以一次前向并行完成",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 成立：编码器各位置之间没有先后依赖，整条输入可以并行处理。\n",
+              "independent_correct": true,
+              "explanation_reasoning": "解析称编码器各位置无先后依赖、整条输入可并行，与自注意力层 O(1) 顺序操作一致，判断准确。"
+            },
+            {
+              "reasoning": "训练时解码器用教师强制，输入为真实目标右移一位，因果掩码保证位置 i 只看 1..i，一次前向可得所有位置预测，说法成立。",
+              "option_text": "训练时解码器借助教师强制与因果掩码，一次前向即可同时算出所有位置的预测",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 成立：训练时解码器输入是真实目标句右移一位的结果，因果掩码保证位置 i 只能看到位置 1 到 i，因此一次前向就能同时得到所有位置的预测。\n",
+              "independent_correct": true,
+              "explanation_reasoning": "解析复述教师强制与因果掩码机制并得出一次前向同时得到所有预测，与所引资料一致，判断准确。"
+            },
+            {
+              "reasoning": "推理时无真实答案，第 i 个词元依赖第 i−1 个已选词元，生成 m 个词元需 m 次顺序前向，说法成立。",
+              "option_text": "推理生成时，第 i 个词元必须等第 i−1 个词元选出后才能作为输入，生成 m 个词元仍需 m 次顺序前向",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 成立：推理时没有真实答案，第 i 个词元依赖第 i−1 个已选出的词元，生成 m 个词元需要 m 次顺序前向。\n",
+              "independent_correct": true,
+              "explanation_reasoning": "解析说明推理时无真实答案、第 i 个词元依赖第 i−1 个、需 m 次顺序前向，与所引资料一致，判断准确。"
+            },
+            {
+              "reasoning": "Transformer 只消掉训练阶段的顺序步数，生成阶段顺序步数依然存在，故“同时消掉两个阶段”不成立。",
+              "option_text": "Transformer 同时消掉了训练和生成两个阶段的顺序步数",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 不成立：Transformer 消掉的是训练阶段的顺序步数，生成阶段的顺序步数依然存在，这正是“完全并行”需要限定的原因。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出消掉的是训练顺序步数、生成顺序步数仍在，正是“完全并行”需限定的原因，判断准确。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "编码器各位置无先后依赖，可一次前向并行（A 成立）；训练时解码器输入为真实目标右移一位，因果掩码使位置 i 只看 1..i，一次前向算出所有位置预测（B 成立）；推理时第 i 个词元需等第 i−1 个选出，生成 m 个词元需 m 次顺序前向（C 成立）；Transformer 只消掉训练顺序步数，生成顺序步数仍在（D 不成立）。答案 A,B,C。"
+        },
+        {
+          "question_id": "q5-true-false-parallel",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "该判断为错误。摒弃循环只消除层内隐藏状态的串行依赖，自回归生成时第 i 个词元仍需第 i−1 个已选词元作为输入，生成 m 个词元需 m 次顺序前向，不能一次并行输出整条序列。"
+        },
+        {
+          "question_id": "q6-two-sentences",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "参考作答：第一句——对编码器处理整条输入以及训练时解码器（教师强制加因果掩码，一次前向算出所有位置预测）而言，序列内部无顺序依赖，可以并行。第二句——推理生成时没有真实答案，第 i 个词元必须等第 i−1 个选出后才能作为输入，生成 m 个词元仍需 m 次顺序前向，因此 Transformer 消掉的是训练的顺序步数而非生成的顺序步数。与参考答案要点一致。"
+        },
+        {
+          "question_id": "q7-tradeoff-summary",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "两项优势：最少顺序操作数 O(1)（循环 O(n)），序列内部可并行；最大路径长度 O(1)（循环 O(n)），长程依赖更易学习；补充 n<d 时每层复杂度 O(n²·d) 小于 O(n·d²)。一项代价：每层复杂度随 n 平方增长，长序列计算与存储压力大，需受限自注意力等改进，受限后路径长度变为 O(n/r)。与参考答案要点一致。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q1 要求选出完全对应自注意力层的“复杂度/顺序操作数/路径长度”三元组，并解析循环、卷积、受限自注意力三种组合，真实落实 req-transformer-basics 中自注意力与循环/卷积的取舍关系。",
+          "locator": {
+            "question_id": "q1-complexity-table"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 多选逐项判断编码器并行、训练解码器教师强制加掩码、推理串行与“同时消掉两阶段”的错误说法，确实检验整体结构中的并行边界。",
+          "locator": {
+            "question_id": "q4-parallel-boundary"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 以三方面对比表形式考查 o1，选项分别对应自注意力、循环、卷积、受限自注意力，能检验三方面比较能力。",
+          "locator": {
+            "question_id": "q1-complexity-table"
+          },
+          "binding_id": "n5-tradeoff:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 要求由 O(n²·d) 与 O(n·d²) 的比值 n/d 推出 n<d 时更快，作为 o2 的练习定位准确。",
+          "locator": {
+            "question_id": "q2-n-less-than-d"
+          },
+          "binding_id": "n5-tradeoff:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 以超长文档场景考查 n² 增长代价与受限自注意力路径变长 O(n/r) 的取舍，检验 o2 中“平方增长”这一代价。",
+          "locator": {
+            "question_id": "q3-long-sequence-cost"
+          },
+          "binding_id": "n5-tradeoff:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 覆盖训练并行与推理串行，并否定“同时消掉两阶段”，直接检验 o3 的并行边界。",
+          "locator": {
+            "question_id": "q4-parallel-boundary"
+          },
+          "binding_id": "n5-tradeoff:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 判断题针对“摒弃循环即推理无顺序依赖”的误区，解析说明消掉的是训练顺序步数，作为 o3 练习定位准确。",
+          "locator": {
+            "question_id": "q5-true-false-parallel"
+          },
+          "binding_id": "n5-tradeoff:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 要求两句话分别说明成立范围与不成立范围及原因，与节点活动“用两句话向同伴解释”一致，落实 o3。",
+          "locator": {
+            "question_id": "q6-two-sentences"
+          },
+          "binding_id": "n5-tradeoff:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 要求写出两项优势并说明理由，解析以顺序操作数与路径长度两个维度评分，检验 o1 的三方面比较框架。",
+          "locator": {
+            "question_id": "q7-tradeoff-summary"
+          },
+          "binding_id": "n5-tradeoff:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 的代价部分要求落在 n² 增长并提及受限自注意力路径 O(n/r)，与 o2 的“平方增长代价”对应。",
+          "locator": {
+            "question_id": "q7-tradeoff-summary"
+          },
+          "binding_id": "n5-tradeoff:o2",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "760f57211d840be3f3868d9d15475bf52f0544462c0c6397bf6623916d9b0aa6",
+      "numeric_verification": {
+        "version": 1,
+        "coverage": "source_bound_claims_and_literal_softmax",
+        "questions": [
+          {
+            "checks": [],
+            "question_index": 0
+          },
+          {
+            "checks": [],
+            "question_index": 1
+          },
+          {
+            "checks": [],
+            "question_index": 2
+          },
+          {
+            "checks": [],
+            "question_index": 3
+          },
+          {
+            "checks": [],
+            "question_index": 4
+          },
+          {
+            "checks": [],
+            "question_index": 5
+          },
+          {
+            "checks": [],
+            "question_index": 6
+          }
+        ]
+      },
+      "option_binding_version": 1
+    }
+  }
+}

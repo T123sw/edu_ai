@@ -9,11 +9,11 @@ import json
 import time
 from uuid import uuid4
 
-from sqlalchemy import select, text
+from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
 
 from app.database import Conversation, ConversationMessage
-from .db_models import LearningAgentTurn, LearningTopicSession
+from .db_models import LearningAgentTurn, LearningAnswerRun, LearningTopicSession
 from .repository import SessionMissing, SessionConflict
 
 
@@ -22,6 +22,8 @@ def payload_hash(question, resource_id):
 
 
 class SessionRepository:
+    COURSE_TOPIC = '__course_conversation__'
+
     def __init__(self, engine):
         self.engine = engine
 
@@ -61,8 +63,65 @@ class SessionRepository:
 
     def find(self, owner, course_id, topic_id):
         with Session(self.engine) as db:
-            record = db.get(LearningTopicSession, self.identity(owner, course_id, topic_id))
+            record = (db.get(LearningTopicSession, self.identity(owner, course_id, self.COURSE_TOPIC))
+                      or db.get(LearningTopicSession, self.identity(owner, course_id, topic_id)))
             return self._view(record) if record and record.owner == owner else None
+
+    def find_course(self, owner, course_id):
+        return self.find(owner, course_id, self.COURSE_TOPIC)
+
+    def ensure_course_session(self, owner, course_id, introduction):
+        """Consolidate existing topic histories atomically, retaining message IDs and sources."""
+        sid = self.identity(owner, course_id, self.COURSE_TOPIC)
+        # Answer acceptance/completion use this same lock. Never move a live answer.
+        with self._write('learning-answer-queue') as db:
+            record = db.get(LearningTopicSession, sid)
+            if record is not None:
+                return self._view(record)
+            sources = list(db.scalars(select(LearningTopicSession).where(
+                LearningTopicSession.owner == owner, LearningTopicSession.course_id == course_id)
+                .with_for_update()))
+            source_ids = [s.session_id for s in sources]
+            legacy_turns = list(db.scalars(select(LearningAgentTurn).where(
+                LearningAgentTurn.session_id.in_(source_ids))))
+            runs = []
+            if inspect(db.connection()).has_table('learning_answer_runs'):
+                runs = list(db.scalars(select(LearningAnswerRun).where(
+                    LearningAnswerRun.session_id.in_(source_ids))))
+            if any(t.status in {'accepted', 'running'} for t in [*legacy_turns, *runs]):
+                raise SessionConflict('原会话仍有答疑执行中，完成后将自动合并为课程会话')
+            for group in (legacy_turns, runs):
+                if len({t.request_id for t in group}) != len(group):
+                    raise SessionConflict('旧会话请求标识重复，原始记录已保留，请先核对')
+            now = datetime.now(timezone.utc)
+            db.add(Conversation(conversation_id=sid, owner=owner, title='课程学习对话',
+                course_id=course_id, scope_type='course', scope_id=course_id,
+                state={'learning_session': True}, raw_payload={}, created_at=now, updated_at=now))
+            db.flush()
+            metadata = {'completed': True, 'scope': 'course', 'merged_session_ids': source_ids}
+            if len(sources) == 1:
+                metadata = {**sources[0].import_metadata, **metadata}
+            record = LearningTopicSession(session_id=sid, owner=owner, course_id=course_id,
+                topic_id=self.COURSE_TOPIC, next_position=0, import_metadata=metadata)
+            db.add(record)
+            db.flush()
+            self._append(db, record, sid + ':intro', 'assistant', introduction, 'introduction')
+            topics = {s.session_id: s.topic_id for s in sources}
+            messages = list(db.scalars(select(ConversationMessage).where(
+                ConversationMessage.conversation_id.in_(source_ids),
+                ConversationMessage.message_kind != 'introduction')
+                .order_by(ConversationMessage.occurred_at, ConversationMessage.conversation_id,
+                          ConversationMessage.position)))
+            for message in messages:
+                message.raw_payload = {'topic_id': topics[message.conversation_id], **(message.raw_payload or {})}
+                message.conversation_id, message.position = sid, record.next_position
+                record.next_position += 1
+            for turn in [*legacy_turns, *runs]:
+                turn.session_id = sid
+            for source in sources:
+                source.import_metadata = {**source.import_metadata, 'merged_into': sid}
+            db.flush()
+            return self._view(record)
 
     @staticmethod
     def _append(db, record, message_id, role, content, kind, payload=None, occurred_at=None):
@@ -136,7 +195,7 @@ class SessionRepository:
             more = len(rows) > limit
             rows = list(reversed(rows[:limit]))
             items = [dict(id=m.message_id, role=m.role, text=m.content, kind=m.message_kind,
-                position=m.position, sessionId=session_id, chapterId=record.topic_id,
+                position=m.position, sessionId=session_id, chapterId=(m.raw_payload or {}).get('topic_id', record.topic_id),
                 resourceId=(m.raw_payload or {}).get('resource_id', ''), resourceTitle='',
                 createdAt=m.occurred_at.isoformat(), answerResult=(m.raw_payload or {}).get('answer_result')) for m in rows]
             cursor = base64.urlsafe_b64encode(json.dumps({'s': session_id, 'p': rows[0].position}).encode()).decode() if more else None
@@ -153,7 +212,7 @@ class SessionRepository:
             turns = [db.get(LearningAgentTurn, (session_id, m.raw_payload['request_id'])) for m in reversed(rows)]
             return [{'question': t.question, 'answer_text': t.answer} for t in turns if t and t.status == 'succeeded']
 
-    def begin_turn(self, owner, session_id, request_id, question, resource_id, now=None):
+    def begin_turn(self, owner, session_id, request_id, question, resource_id, now=None, *, topic_id=None):
         now = time.time() if now is None else now
         with self._write(session_id) as db:
             record = self._owned(db, owner, session_id)
@@ -168,14 +227,15 @@ class SessionRepository:
                 LearningAgentTurn.session_id == session_id, LearningAgentTurn.status == 'running')).all()
             for running in active:
                 if running.lease_until > now:
-                    raise SessionConflict('这个知识点的上一条回复仍在生成')
+                    raise SessionConflict('这门课程的上一条回复仍在生成')
                 running.status, running.error = 'failed', 'LEASE_EXPIRED'
             if turn is None:
                 turn = LearningAgentTurn(session_id=session_id, request_id=request_id, payload_hash=digest,
                     question=question, resource_id=resource_id, status='running', token='', lease_until=0, attempt=0)
                 db.add(turn)
                 self._append(db, record, session_id + ':' + hashlib.sha256(request_id.encode()).hexdigest() + ':user',
-                    'user', question, 'user_content', {'resource_id': resource_id, 'request_id': request_id})
+                    'user', question, 'user_content', {'resource_id': resource_id, 'request_id': request_id,
+                                                     'topic_id': topic_id or record.topic_id})
             turn.status, turn.token, turn.lease_until = 'running', uuid4().hex, now + 300
             turn.error = None
             turn.attempt += 1
@@ -194,7 +254,9 @@ class SessionRepository:
             else:
                 if not answer or not answer.strip():
                     raise ValueError('empty answer')
+                user_message = db.get(ConversationMessage, session_id + ':' + hashlib.sha256(request_id.encode()).hexdigest() + ':user')
                 self._append(db, record, session_id + ':' + hashlib.sha256(request_id.encode()).hexdigest() + ':assistant',
-                    'assistant', answer, 'assistant_content', {'resource_id': turn.resource_id, 'request_id': request_id})
+                    'assistant', answer, 'assistant_content', {'resource_id': turn.resource_id, 'request_id': request_id,
+                    'topic_id': (user_message.raw_payload or {}).get('topic_id', record.topic_id) if user_message else record.topic_id})
                 turn.status, turn.answer = 'succeeded', answer
             return True

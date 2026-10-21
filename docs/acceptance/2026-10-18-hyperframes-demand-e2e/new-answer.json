@@ -1,0 +1,51 @@
+{
+  "turn_id": "answer-c258a4a8434647c09593d57894aacee0",
+  "session_id": "learning-e338cda572a36b978a52dce2bcddfde8b34e90bdbfd70909e41e24d38fc720fa",
+  "request_id": "62995e72-e811-409c-ba9d-9505450f85eb",
+  "topic_id": "node_intercept_shift",
+  "status": "succeeded",
+  "stage": "succeeded",
+  "attempt": 1,
+  "result": {
+    "actions": [],
+    "citations": [
+      {
+        "title": "截距 b 让直线上下平移：y=2x+b 的三种情形",
+        "locator": {
+          "kind": "hyperframes",
+          "seconds": 27.51087483012271,
+          "segment_id": "seg_yintercept_derive",
+          "content_hash": "bccae734d99b912d67400a03b68cbd9ea5e3bfea9d9cf16761be6019a02d711d"
+        },
+        "visibility": "private",
+        "citation_id": "ctx_01",
+        "content_hash": "ff6d39163c63947b54f2a0fb42c540e304423809f3b654937d2c00553a90ef6f",
+        "resource_ref": {
+          "version": 1,
+          "course_id": "learn-f490a8326a334d33a472aa13e1f6c1c9",
+          "material_id": "resource_03cb6c3cc66cced990124c06a24c636b",
+          "material_type": "classroom"
+        }
+      }
+    ],
+    "observation": null,
+    "citation_ids": [
+      "ctx_01"
+    ],
+    "memory_epoch": 0,
+    "model_rounds": 1,
+    "role_version": "learning-role-v3",
+    "tool_attempts": 0,
+    "teaching_skill": {
+      "mode": "classroom",
+      "name": "teach-current-topic",
+      "version": "6426cc3a24b06e8da8147a43206c7bd080aa183056f1dcf8dd833e28e2899d54"
+    },
+    "answer_markdown": "你现在停在“关键一步：让 x = 0”这一段，正好是回答这个问题的起点。\n\n**1. 为什么 b 变大，直线就整体上移？**\n把 x = 0 代入 y = 2x + b：2×0 = 0，所以 y = b。也就是说，直线与 y 轴的交点永远是 (0, b)。b 从 0 变成 2，交点就从 (0,0) 升到 (0,2)；b 变成 -2，交点就落到 (0,-2)。整条线每个点都跟着抬高或降低同样的格数，所以是“整体平移”。\n\n**2. 用一个 x 的取值看：取 x = 3**\n- y = 2x：y = 2×3 = 6，点是 (3, 6)\n- y = 2x + 2：y = 2×3 + 2 = 8，点是 (3, 8)\n- y = 2x − 2：y = 2×3 − 2 = 4，点是 (3, 4)\n\n同一个 x = 3，三个 y 分别是 6、8、4：b 加 2，纵坐标就多 2；b 减 2，纵坐标就少 2。每个 x 都这样，所以整条线上下平移，平移格数正好等于 b 的变化量。\n\n**3. 为什么斜率还是 2？**\n斜率看的是“x 每增加 1，y 增加多少”。再取 x = 4：\n- y = 2x：从 6 到 8，增加 2\n- y = 2x + 2：从 8 到 10，增加 2\n- y = 2x − 2：从 4 到 6，增加 2\n\nb 只是给每个 y 都加上同一个常数，两次相减时这个常数被抵消了，所以“每走 1 格横、上升 2 格”的比例不变，斜率始终是 2，三条线互相平行。\n\n一句话：**b 管高度（与 y 轴交点），2 管陡度（斜率）。**",
+    "source_revision": 36,
+    "preparation_receipts": [],
+    "suggested_action_ids": []
+  },
+  "error_code": null,
+  "committed_effects": []
+}

@@ -1,0 +1,8 @@
+{
+  "command": "PYTHONPATH=backend/src pytest -q backend/src/tests/course_preparation/test_resource_heartbeat.py backend/src/tests/course_preparation/test_generation_adapter.py",
+  "passed": 17,
+  "skipped": 11,
+  "skip_reason": "Independent PostgreSQL test URL not configured",
+  "production_code_loaded": false,
+  "temporary_support": "Scoped lease renewal for this preparation only, while matching durable worker is leased and heartbeating; existing parent/token/expiry authorization preserved."
+}

@@ -1,0 +1,621 @@
+{
+  "phase": "build_step",
+  "data": {
+    "topic": "用 React 做本地记账表。输入备注、金额，选择餐饮或交通分类，添加一条支出。备注去首尾空格不能空白；金额必须是大于0且最多两位小数的数字，0、负数和超过两位小数要拒绝。列表能删除记录，按全部/餐饮/交通筛选。显示总支出和当前筛选支出，均保留两位小数；总支出不受筛选影响。0.10加0.20必须显示0.30。添加成功后清空备注金额，保留所选分类。无后台无持久化，分步实现。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "本地记账表",
+      "goal": "用 React 实现一个本地记账页面：可输入备注与金额并选择餐饮或交通分类添加支出；备注去首尾空格后不能为空，金额必须是大于 0 且最多两位小数的数字；列表可删除记录，可按全部/餐饮/交通筛选；显示总支出与当前筛选支出（均保留两位小数），总支出不受筛选影响，0.10 加 0.20 显示 0.30。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "add-expense",
+          "description": "输入备注、金额并选择餐饮或交通分类后，点击添加按钮可新增一条支出记录，记录出现在列表中并显示其备注、金额与分类。"
+        },
+        {
+          "id": "validate-note",
+          "description": "备注去除首尾空格后不能为空白；空白备注时拒绝添加，列表不新增记录，并给出可见的提示。"
+        },
+        {
+          "id": "validate-amount",
+          "description": "金额必须是大于 0 且最多两位小数的数字；0、负数、超过两位小数以及非数字输入都要拒绝添加，列表不新增记录，并给出可见的提示。"
+        },
+        {
+          "id": "reset-form",
+          "description": "添加成功后清空备注与金额输入框，保留当前所选分类。"
+        },
+        {
+          "id": "delete-record",
+          "description": "列表中的每条记录都能被删除，删除后该记录从列表消失，统计随之更新。"
+        },
+        {
+          "id": "filter-records",
+          "description": "可按全部/餐饮/交通筛选列表，只显示对应分类的记录；筛选不改变已有记录本身。"
+        },
+        {
+          "id": "totals",
+          "description": "显示总支出与当前筛选支出，均保留两位小数；总支出统计全部记录，不受筛选影响；当前筛选支出随筛选变化。0.10 加 0.20 显示 0.30。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "add-and-list",
+          "title": "添加支出并显示列表",
+          "objective": "搭出记账页面骨架，能输入备注、金额、选择分类并添加记录，记录显示在列表中。",
+          "dependsOn": [],
+          "entryCondition": "从初始工程开始，App.jsx 中只有一个占位组件。",
+          "deliverable": "页面包含备注输入框、金额输入框、分类选择（餐饮/交通）、添加按钮和支出列表。填写后点击添加，列表中出现一条包含该备注、金额和分类的记录。",
+          "requirementIds": [
+            "add-expense"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "add-food-record",
+            "add-transport-record"
+          ]
+        },
+        {
+          "id": "validate-input",
+          "title": "校验备注与金额",
+          "objective": "为添加操作加上备注与金额校验，非法输入被拒绝并给出提示。",
+          "dependsOn": [
+            "add-and-list"
+          ],
+          "entryCondition": "上一步已能添加记录并显示在列表中。",
+          "deliverable": "备注去首尾空格后为空、金额为 0、负数、超过两位小数或非数字时，点击添加不会新增记录，并显示可见的错误提示；合法输入仍能正常添加。",
+          "requirementIds": [
+            "add-expense",
+            "validate-note",
+            "validate-amount"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "reject-blank-note",
+            "reject-zero-amount",
+            "reject-negative-amount",
+            "reject-three-decimals",
+            "reject-non-numeric-amount"
+          ]
+        },
+        {
+          "id": "reset-form",
+          "title": "添加成功后重置表单",
+          "objective": "添加成功后清空备注与金额，保留所选分类。",
+          "dependsOn": [
+            "validate-input"
+          ],
+          "entryCondition": "上一步已能校验输入并添加合法记录。",
+          "deliverable": "选择交通分类并成功添加一条记录后，备注与金额输入框为空，分类仍为交通；随后可直接输入下一条交通支出。",
+          "requirementIds": [
+            "add-expense",
+            "reset-form"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "reset-after-add-keeps-category"
+          ]
+        },
+        {
+          "id": "delete-record",
+          "title": "删除记录",
+          "objective": "列表中的每条记录都能删除，删除后列表与统计同步更新。",
+          "dependsOn": [
+            "reset-form"
+          ],
+          "entryCondition": "上一步已能添加记录并在成功后重置表单。",
+          "deliverable": "每条记录旁有删除按钮，点击后该记录从列表消失，其他记录保留。",
+          "requirementIds": [
+            "add-expense",
+            "delete-record"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "delete-one-of-two-records"
+          ]
+        },
+        {
+          "id": "filter-records",
+          "title": "按分类筛选",
+          "objective": "提供全部/餐饮/交通筛选，列表只显示对应分类的记录。",
+          "dependsOn": [
+            "delete-record"
+          ],
+          "entryCondition": "上一步已能添加与删除记录。",
+          "deliverable": "页面有全部/餐饮/交通三个筛选选项；选择餐饮只显示餐饮记录，选择交通只显示交通记录，选择全部显示所有记录。",
+          "requirementIds": [
+            "add-expense",
+            "filter-records"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "filter-food-only",
+            "filter-transport-only",
+            "filter-back-to-all"
+          ]
+        },
+        {
+          "id": "totals",
+          "title": "显示总支出与筛选支出",
+          "objective": "显示总支出与当前筛选支出，均保留两位小数，总支出不受筛选影响。",
+          "dependsOn": [
+            "filter-records"
+          ],
+          "entryCondition": "上一步已能按分类筛选列表。",
+          "deliverable": "页面显示总支出与当前筛选支出，均为两位小数；添加 0.10 与 0.20 后总支出显示 0.30；切换筛选时总支出不变，当前筛选支出随筛选变化。",
+          "requirementIds": [
+            "add-expense",
+            "filter-records",
+            "totals"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "total-two-decimals",
+            "total-unaffected-by-filter",
+            "filtered-total-follows-filter"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "add-food-record",
+          "stepId": "add-and-list",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "add-expense"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“午餐”",
+            "在金额输入框填入“12.50”",
+            "在分类选择中选择“餐饮”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中出现一条备注为“午餐”、金额为 12.50、分类为餐饮的记录"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "add-transport-record",
+          "stepId": "add-and-list",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "add-expense"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“地铁”",
+            "在金额输入框填入“3”",
+            "在分类选择中选择“交通”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中出现一条备注为“地铁”、金额为 3.00、分类为交通的记录"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-blank-note",
+          "stepId": "validate-input",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "validate-note"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“   ”",
+            "在金额输入框填入“10”",
+            "在分类选择中选择“餐饮”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中没有新增记录",
+            "页面显示可见的错误提示"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-zero-amount",
+          "stepId": "validate-input",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "validate-amount"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“测试”",
+            "在金额输入框填入“0”",
+            "在分类选择中选择“餐饮”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中没有新增记录",
+            "页面显示可见的错误提示"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-negative-amount",
+          "stepId": "validate-input",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "validate-amount"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“测试”",
+            "在金额输入框填入“-5”",
+            "在分类选择中选择“交通”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中没有新增记录",
+            "页面显示可见的错误提示"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-three-decimals",
+          "stepId": "validate-input",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "validate-amount"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“测试”",
+            "在金额输入框填入“1.234”",
+            "在分类选择中选择“餐饮”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中没有新增记录",
+            "页面显示可见的错误提示"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-non-numeric-amount",
+          "stepId": "validate-input",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "validate-amount"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“测试”",
+            "在金额输入框填入“abc”",
+            "在分类选择中选择“餐饮”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中没有新增记录",
+            "页面显示可见的错误提示"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reset-after-add-keeps-category",
+          "stepId": "reset-form",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "reset-form"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“打车”",
+            "在金额输入框填入“20”",
+            "在分类选择中选择“交通”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "备注输入框为空",
+            "金额输入框为空",
+            "分类选择仍为交通",
+            "列表中出现该记录"
+          ],
+          "requiredAssertions": [
+            "value",
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "delete-one-of-two-records",
+          "stepId": "delete-record",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "delete-record"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“早餐”金额“8”分类“餐饮”的记录",
+            "添加备注“公交”金额“2”分类“交通”的记录",
+            "点击“早餐”这条记录的删除按钮"
+          ],
+          "expected": [
+            "“早餐”记录从列表消失",
+            "“公交”记录仍在列表中"
+          ],
+          "requiredAssertions": [
+            "count",
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-food-only",
+          "stepId": "filter-records",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter-records"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“午餐”金额“15”分类“餐饮”的记录",
+            "添加备注“地铁”金额“3”分类“交通”的记录",
+            "点击“餐饮”筛选"
+          ],
+          "expected": [
+            "列表只显示“午餐”记录",
+            "“地铁”记录不显示"
+          ],
+          "requiredAssertions": [
+            "count",
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-transport-only",
+          "stepId": "filter-records",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter-records"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“午餐”金额“15”分类“餐饮”的记录",
+            "添加备注“地铁”金额“3”分类“交通”的记录",
+            "点击“交通”筛选"
+          ],
+          "expected": [
+            "列表只显示“地铁”记录",
+            "“午餐”记录不显示"
+          ],
+          "requiredAssertions": [
+            "count",
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-back-to-all",
+          "stepId": "filter-records",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter-records"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“午餐”金额“15”分类“餐饮”的记录",
+            "添加备注“地铁”金额“3”分类“交通”的记录",
+            "点击“餐饮”筛选",
+            "点击“全部”筛选"
+          ],
+          "expected": [
+            "列表同时显示“午餐”和“地铁”两条记录"
+          ],
+          "requiredAssertions": [
+            "count",
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "total-two-decimals",
+          "stepId": "totals",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "totals"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“a”金额“0.10”分类“餐饮”的记录",
+            "添加备注“b”金额“0.20”分类“交通”的记录"
+          ],
+          "expected": [
+            "总支出显示为 0.30",
+            "当前筛选支出显示为 0.30"
+          ],
+          "requiredAssertions": [
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "total-unaffected-by-filter",
+          "stepId": "totals",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "totals",
+            "filter-records"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“午餐”金额“15”分类“餐饮”的记录",
+            "添加备注“地铁”金额“3”分类“交通”的记录",
+            "点击“餐饮”筛选"
+          ],
+          "expected": [
+            "总支出仍显示 18.00",
+            "当前筛选支出显示 15.00"
+          ],
+          "requiredAssertions": [
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filtered-total-follows-filter",
+          "stepId": "totals",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "totals",
+            "filter-records"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“午餐”金额“15”分类“餐饮”的记录",
+            "添加备注“地铁”金额“3”分类“交通”的记录",
+            "点击“交通”筛选",
+            "点击“全部”筛选"
+          ],
+          "expected": [
+            "交通筛选下当前筛选支出显示 3.00",
+            "全部筛选下当前筛选支出显示 18.00",
+            "总支出始终显示 18.00"
+          ],
+          "requiredAssertions": [
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        }
+      ]
+    },
+    "step": {
+      "id": "add-and-list",
+      "title": "添加支出并显示列表",
+      "objective": "搭出记账页面骨架，能输入备注、金额、选择分类并添加记录，记录显示在列表中。",
+      "dependsOn": [],
+      "entryCondition": "从初始工程开始，App.jsx 中只有一个占位组件。",
+      "deliverable": "页面包含备注输入框、金额输入框、分类选择（餐饮/交通）、添加按钮和支出列表。填写后点击添加，列表中出现一条包含该备注、金额和分类的记录。",
+      "requirementIds": [
+        "add-expense"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "add-food-record",
+        "add-transport-record"
+      ]
+    },
+    "requiredChecks": [
+      {
+        "id": "add-food-record",
+        "stepId": "add-and-list",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "add-expense"
+        ],
+        "setup": "打开页面，列表为空。",
+        "actions": [
+          "在备注输入框填入“午餐”",
+          "在金额输入框填入“12.50”",
+          "在分类选择中选择“餐饮”",
+          "点击添加按钮"
+        ],
+        "expected": [
+          "列表中出现一条备注为“午餐”、金额为 12.50、分类为餐饮的记录"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "add-transport-record",
+        "stepId": "add-and-list",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "add-expense"
+        ],
+        "setup": "打开页面，列表为空。",
+        "actions": [
+          "在备注输入框填入“地铁”",
+          "在金额输入框填入“3”",
+          "在分类选择中选择“交通”",
+          "点击添加按钮"
+        ],
+        "expected": [
+          "列表中出现一条备注为“地铁”、金额为 3.00、分类为交通的记录"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text"
+        ],
+        "viewport": null
+      }
+    ],
+    "previousFiles": {
+      "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+      "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+    },
+    "previousChecks": [],
+    "issues": [],
+    "priorCandidate": null,
+    "previousCheckReport": null
+  },
+  "startedAt": 1792228865.7407079
+}

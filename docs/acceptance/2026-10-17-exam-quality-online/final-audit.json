@@ -1,0 +1,167 @@
+{
+  "observed_at": 1792253964.7865028,
+  "generations": [
+    {
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "job_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "turn": {
+        "id": "turn_1792252817076_1899427d47",
+        "status": "failed",
+        "failure_code": "",
+        "created_at": 1792252817.1823184,
+        "updated_at": 1792253185.9181955
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4483,
+          "layout_blocks": 71,
+          "images": 16
+        }
+      ],
+      "blueprint_count": 32,
+      "local_event_count": 16125,
+      "upstream_persisted_event_count": 16125,
+      "separate_cursor": 16125,
+      "emitted_questions": 24,
+      "errors": [
+        "APITimeoutError: Request timed out.",
+        "Request timed out."
+      ],
+      "done_received": true,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 131,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 8,
+          "deepseek-v4-flash": 123
+        },
+        "status": {
+          "completed": 1,
+          "interrupted": 129,
+          "failed": 1
+        },
+        "note": "Ledger interrupted may reflect early stream closure at protocol finish; it is not by itself a failed question."
+      }
+    },
+    {
+      "generation_id": "examgen_cee3918f6e261eafdd101822d15e2df0",
+      "job_id": "job_df7d12c3e5194961",
+      "turn": {
+        "id": "turn_1792253362051_a668539874",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792253362.326141,
+        "updated_at": 1792253921.456727
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4483,
+          "layout_blocks": 71,
+          "images": 16
+        }
+      ],
+      "blueprint_count": 32,
+      "local_event_count": 50940,
+      "upstream_persisted_event_count": 50940,
+      "separate_cursor": 50940,
+      "emitted_questions": 32,
+      "errors": [],
+      "done_received": true,
+      "summary": {
+        "failed": 7,
+        "success": false,
+        "completed": 25,
+        "requested": 32,
+        "template_count": 32
+      },
+      "failed_questions": [
+        {
+          "ordinal": 12,
+          "issues": [
+            "novel_question",
+            "requirements_met",
+            "no_substantive_task_change",
+            "四个选项的数值序列与源题完全相同，未使用新的有效数据，属于照抄原题。",
+            "题干仅增加了层序存储与下标约定的说明，实际判定任务与源题一致，未构成有意义的新任务或新条件。"
+          ]
+        },
+        {
+          "ordinal": 14,
+          "issues": [
+            "independent_solution_unverified",
+            "拓扑排序要求对每条有向边 <u,v>，u 在序列中位于 v 之前。逐项检查：\n- A：1,3,2,5,4。位置：1→0，3→1，2→2，5→3，4→4。<1,3>：0<1；<1,2>：0<2；<2,5>：2<3；<3,5>：1<3；<5,4>：3<4。全部满足，A 是拓扑排序。\n- B：1,2,3,5,4。位置：1→0，2→1，3→2，5→3，4→4。<1,3>：0<2；<1,2>：0<1；<2,5>：1<3；<3,5>：2<3；<5,4>：3<4。全部满足，B 也是拓扑排序。\n- C：2,1,3,5,4。边 <1,2> 要求 1 在 2 前，但 2 在位置 0、1 在位置 1，不满足。\n- D：1,3,5,2,4。边 <2,5> 要求 2 在 5 前，但 5 在位置 2、2 在位置 3，不满足。\n因此 A 和 B 都满足拓扑排序定义，单选题出现两个正确选项，题目不唯一，well_posed=false。"
+          ]
+        },
+        {
+          "ordinal": 26,
+          "issues": [
+            "answer_valid",
+            "requirements_met",
+            "第(2)问答案错误：独立计算得T_R中排在S(1900)之前的叶子为1013至1899共887个，而候选答案给出143（子题中为130），其推导中把第10层叶子区间与第9层叶子数算错，且遗漏大量编号更小的叶子。",
+            "第(3)问条件自相矛盾：S=1900在以3为根的T_R中深度约为10，T_R层次数不可能为4；若指以S为根的子树，则S为叶子、层次数为1，也不为4，因此无法确定根结点编号与最大编号，候选答案“根为3、最大为2024”缺乏依据。",
+            "候选解释第(2)问内部算术不一致：正文先算得119+11=130，但总答案却写143，前后矛盾。"
+          ]
+        },
+        {
+          "ordinal": 27,
+          "issues": [
+            "answer_valid",
+            "requirements_met",
+            "候选答案(1)的哈希表构建错误：按线性探测法依次插入，52应放在地址0，63在1，74在2，85在3，96在4，107在5；候选答案却将74、85、96、107分别放在0、1、2、3，漏掉了52、63，且空单元位置错误。",
+            "候选答案(2)基于错误的哈希表计算ASL成功，虽然数值41/8=5.125巧合正确，但推导中比较次数与错误表布局不符。",
+            "候选答案(3)的ASL不成功计算错误：删除52后地址0为删除标记，空单元为6、7，从各初始地址探测到第一个空单元的比较次数应为0:7,1:6,2:5,3:4,4:3,5:2,6:1,7:1,8:10,9:9,10:8，总和56，ASL不成功=56/11≈5.09，而非39/11≈3.55。"
+          ]
+        },
+        {
+          "ordinal": 29,
+          "issues": [
+            "independent_solution_unverified",
+            "题目按字面条件存在矛盾：当 n=5 时，条件 n-1-i ≤ j ≤ n-i 对 i=0 给出 4≤j≤5，其中 j=5 超出 0..4 的列下标范围；对 i=4 给出 0≤j≤1，只有 2 个位置。按字面枚举，合法位置为 (0,4),(1,3),(1,4),(2,2),(2,3),(3,1),(3,2),(4,0),(4,1)，共 9 个，而不是 2n-1=9？注意 2n-1=9，恰好为 9；但题图显示两条相邻反对角线，通常应理解为 j=n-1-i 与 j=n-i 两条线，其中越界位置不存在，因此总数为 2n-1=9。若按“两条反对角线”理解，则 (0,5) 不存在，所以每行并非都恰有 2 个元素：i=0 只有 1 个，i=4 只有 2 个，总数为 9。原题要求 B[0..2n-2]=B[0..8]，共 9 个元素，与字面合法位置数 9 一致；但原解中把 (0,5) 当作非零位置，导致 10 个位置，与 B 长度矛盾。因此题目关于“每行 2 个”的隐含说法与边界条件不兼容，且 (2) 的分段公式若按每行 2 个元素推导，在 i=0 处会错位。\n\n按字面正确枚举（n=5）：非零位置为 (0,4),(1,3),(1,4),(2,2),(2,3),(3,1),(3,2),(4,0),(4,1)，共 9 个。行优先存储下标依次为：A[0][4]→B[0]，A[1][3]→B[1]，A[1][4]→B[2]，A[2][2]→B[3]，A[2][3]→B[4]，A[3][1]→B[5]，A[3][2]→B[6]，A[4][0]→B[7]，A[4][1]→B[8]。于是 A[1][3] 的 k=1，A[3][1] 的 k=5；B[4] 对应 (2,3)，B[5] 对应 (3,1)。列优先时，按列枚举：第 0 列 (4,0)→B[0]；第 1 列 (3,1)→B[1]，(4,1)→B[2]；第 2 列 (2,2)→B[3]，(3,2)→B[4]；第 3 列 (1,3)→B[5]，(2,3)→B[6]；第 4 列 (0,4)→B[7]，(1,4)→B[8]。因此 A[1][3] 的列优先下标为 5。\n\n但题目第 (2) 问要求写成“关于 i 的分段形式”，并声称 B 长度恰好 2n-1；若按字面边界，i=0 行只有 1 个元素，i=1..4 行各 2 个，分段公式为：i=0 时 j=4，k=0；i≥1 时 j=4-i 或 5-i，k=1+2(i-1)+[j-(4-i)]，即 j=4-i 时 k=2i-1，j=5-i 时 k=2i。这与原解给出的 k=2i 或 2i+1 不同。原解在 i=0 处把不存在的 j=5 计入，导致后续下标整体偏移。由于题目文字与常见“两条反对角线”图示及“每行 2 个”的推导存在边界歧义，且原解与字面条件不一致，判定题目按给定文字不够 well-posed。若采用“两条完整反对角线但越界不计”的字面解释，则上述字面答案成立；若采用原解解释，则 B 长度应为 10 而非 9，亦与题设矛盾。"
+          ]
+        },
+        {
+          "ordinal": 30,
+          "issues": [
+            "independent_calculation_failed",
+            "calculation_unverified: expression node not allowed: Call",
+            "calculation_unverified: expression node not allowed: Call",
+            "calculation_unverified: expression node not allowed: Call",
+            "calculation_unverified: expression node not allowed: Call"
+          ]
+        },
+        {
+          "ordinal": 32,
+          "issues": [
+            "novel_question",
+            "requirements_met",
+            "no_substantive_task_change",
+            "与原题考点、子题结构、任务要求完全相同，仅添加了“高校教务系统”等装饰性场景，未改变实际任务或条件",
+            "未使用任何新的有效数据或新的具体输入，属于对原题的复述而非新编题"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 106,
+        "models": {
+          "deepseek-v4-flash": 73,
+          "deepseek-v4-flash-vision-exp": 33
+        },
+        "status": {
+          "interrupted": 106
+        },
+        "note": "Ledger interrupted may reflect early stream closure at protocol finish; it is not by itself a failed question."
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "checkpoints": {
+    "first_passed": 18,
+    "current_passed": 25,
+    "first_unchanged": 18,
+    "first_emitted_content_unchanged": 18
+  }
+}

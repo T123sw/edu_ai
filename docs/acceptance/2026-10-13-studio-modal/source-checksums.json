@@ -1,0 +1,8 @@
+{
+  "frontend/src/studio/StudioHome.tsx": "713173a9afd7034485d7b65462445118759f66aa43adf939083f35c058ed8b06",
+  "frontend/src/studio/ResearchReader.tsx": "c636e116f3a3dc2200ba79606320a944d4d02f1f64b452fc51812a0790b900ac",
+  "frontend/src/studio/studio.css": "3d05ca94c9bb9180c0aeb5f75d11b8abc44f1bbac5552aaf4c282e28933b5dc3",
+  "backend/src/app/services/personal_studio.py": "33d2f4f72af613c1c664f96a58c7e489712e41c7e0a7da5b9ad97afdaa86749b",
+  "backend/src/app/api/personal_studio.py": "508a08505dcd14ae10ef2bbb76b82717ddc625d861cf7523aec98e315701a269",
+  "backend/src/app/services/deepsearch_service.py": "afc9ea17c1155ee65b0ec866fd6949f89cb49cfcec7bcd9959dff3fe1d2d0ff9"
+}

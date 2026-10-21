@@ -1,0 +1,1 @@
+Quick sort chooses a pivot and partitions the sequence, then recursively sorts the partitions. Its average time complexity is O(n log n), while worst case is O(n squared). Merge sort divides the sequence and merges sorted halves. It is stable and uses O(n) auxiliary space.

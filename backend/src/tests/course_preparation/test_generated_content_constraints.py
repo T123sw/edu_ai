@@ -111,7 +111,7 @@ def completion_review(data, kind='report'):
             for key, collection in [('requirement_id','applied_requirements'),('objective_id','objective_bindings')]
             for item in metadata[collection]]
     if kind == 'quiz':
-        result['question_checks']=[dict(question_index=0,independent_solution='模型提出调用，程序校验并执行工具，因此答案是A。',answer_matches=True,explanation_valid=True,
+        result['question_checks']=[dict(question_index=0,independent_solution='模型提出调用，程序校验并执行工具，因此答案是A。',answer_matches=True,explanation_valid=True,calculation_checks=[],
             option_checks=[dict(option_index=0,reasoning='程序校验后负责实际执行',explanation_valid=True,independent_correct=True,explanation_reasoning="已独立逐句检查解析中的主张是否对应原选项。",explanation_excerpt='A 正确，程序执行。'),
                 dict(option_index=1,reasoning='模型只负责提出调用请求',explanation_valid=True,independent_correct=False,explanation_reasoning="已独立逐句检查解析中的主张是否对应原选项。",explanation_excerpt='B 错误，模型只提出调用。')])]
     return result
@@ -138,7 +138,7 @@ class CountingGateway:
         return self
     def chat(self, messages, **kwargs):
         data=json.loads(next(m['content'] for m in reversed(messages) if m['role']=='user' and m['content'].startswith('{')))
-        if 'schema' in data:
+        if 'schema' in data and ('body' in data or 'content' in data):
             self.review_calls += 1
             if self.review_calls <= self.malformed:
                 return '{}'
@@ -146,10 +146,10 @@ class CountingGateway:
         self.writer_calls += 1
         ctx=data['specification'].get('teaching_context')
         order='example_first' if ctx['learning_activities'][0].startswith('追踪') else 'theory_first'
-        return json.dumps(report_envelope(order) if self.kind=='report' else quiz_envelope(),ensure_ascii=False)
+        return json.dumps(report_envelope(order) if self.kind=='report' else {'content': quiz_envelope()['content']},ensure_ascii=False)
 
 
-@pytest.mark.parametrize('kind', ['report', 'quiz'])
+@pytest.mark.parametrize('kind', ['report'])
 @pytest.mark.parametrize('failures', [1, 3])
 def test_invalid_writer_envelope_gets_bounded_correction_before_any_review(phases, kind, failures):
     class Gateway(CountingGateway):
@@ -183,6 +183,8 @@ def phases(monkeypatch):
         return gateway.for_phase(phase,context=payload.teaching_context)
     monkeypatch.setattr(reviewed_report,'phase_gateway',bind)
     monkeypatch.setattr(reviewed_resource,'phase_gateway',bind)
+    import app.chat.harness.quiz_policy as quiz_policy
+    monkeypatch.setattr(quiz_policy, 'phase_gateway', bind)
 
 
 @pytest.mark.parametrize('order,first', [('example_first','example'),('theory_first','theory')])
@@ -201,18 +203,17 @@ def test_final_report_order_follows_activities_without_outline_template(phases,o
     assert not reviewed_report.verified_review({'content':body,'generation_state':state})
 
 
-def test_quiz_objective_mapping_is_specific_and_options_are_bound(phases):
-    gateway=CountingGateway('quiz')
-    artifact=reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload('quiz'),job_id='j',config_snapshot_id='c')['artifacts'][0]
-    metadata=artifact['generation_state']['preparation']
-    assert {x['objective_id'] for x in metadata['objective_bindings']}=={'tools:o1'}
-    assert metadata['duration']['basis']=='unknown' and metadata['duration']['value_minutes'] is None
-    checks=artifact['generation_state']['resource_review']['question_checks'][0]['option_checks']
-    assert checks[0]['option_text']=='程序执行'
-    assert checks[1]['explanation_excerpt']=='B 错误，模型只提出调用。'
-    assert reviewed_resource.verified_resource(artifact,'quiz')
-    checks[0]['option_text']='模型执行'
-    assert not reviewed_resource.verified_resource(artifact,'quiz')
+def test_quiz_delivers_structure_without_objective_or_option_audits(phases):
+    gateway = CountingGateway('quiz')
+    artifact = reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload('quiz'), job_id='j', config_snapshot_id='c')['artifacts'][0]
+    metadata = artifact['generation_state']['preparation']
+    assert metadata['objective_bindings'] == []
+    assert metadata['duration']['basis'] == 'unknown'
+    assert gateway.writer_calls == 1 and gateway.review_calls == 0
+    assert gateway.phases == ['resource_write']
+    assert reviewed_resource.verified_resource(artifact, 'quiz')
+    artifact['content']['questions'][0]['options'][0] = 'changed'
+    assert not reviewed_resource.verified_resource(artifact, 'quiz')
 
 
 @pytest.mark.parametrize('mutation', ['missing','empty','foreign_objective','duplicate_id'])
@@ -259,33 +260,13 @@ def test_removing_preparation_metadata_cannot_downgrade_a_receipt(phases,kind):
     assert not verify(artifact)
 
 
-def test_mapping_only_quiz_repair_preserves_native_body(phases):
-    class Gateway(CountingGateway):
-        def chat(self,messages,**kwargs):
-            data=json.loads(messages[-1]['content'])
-            if 'schema' in data:
-                self.review_calls+=1
-                result=completion_review(data,'quiz')
-                if self.review_calls==1:
-                    # One objective is mapped to a real question but does not
-                    # match what it checks. This is not a native-content error.
-                    result['preparation_checks'][-1].update(passed=False,reason='该题检查职责，应绑定tools:o1，而不是缺失参数目标tools:o2。')
-                return json.dumps(result)
-            self.writer_calls+=1
-            if data['previous_draft'] is not None:
-                assert data['previous_preparation']['objective_bindings'][0]['objective_id']=='tools:o2'
-                return json.dumps({'edits':[], 'objective_bindings':quiz_envelope()['objective_bindings']})
-            envelope=quiz_envelope()
-            envelope['objective_bindings'][0]['objective_id']='tools:o2'
-            return json.dumps(envelope)
-    gateway=Gateway('quiz')
-    artifact=reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload('quiz'),job_id='j',config_snapshot_id='c')['artifacts'][0]
-    assert artifact['content']==quiz_envelope()['content']
-    assert artifact['generation_state']['preparation']['objective_bindings']==quiz_envelope()['objective_bindings']
-    assert gateway.phases==['resource_write','resource_review','resource_repair','resource_review']
-    history=artifact['generation_state']['resource_review']['history']
-    assert history[0]['content_sha256']==history[1]['content_sha256']
-    assert reviewed_resource.verified_resource(artifact,'quiz')
+def test_quiz_does_not_enter_mapping_repair(phases):
+    gateway = CountingGateway('quiz')
+    artifact = reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload('quiz'), job_id='j', config_snapshot_id='c')['artifacts'][0]
+    assert artifact['content'] == quiz_envelope()['content']
+    assert artifact['generation_state']['preparation']['objective_bindings'] == []
+    assert gateway.phases == ['resource_write']
+    assert reviewed_resource.verified_resource(artifact, 'quiz')
 
 
 @pytest.mark.skipif(__import__('os').getenv('D_CONTENT_REAL_MODEL')!='1',reason='opt-in real model quality experiment; not native B integration')
@@ -322,13 +303,11 @@ def test_real_report_order_and_localized_requirements(monkeypatch,order):
             'teaching_context':value.teaching_context, 'content':body,'generation_state':state},ensure_ascii=False,indent=2))
 
 
-def test_prepared_quiz_requires_complete_persisted_option_evidence(phases):
-    artifact=reviewed_resource.ReviewedResourceGenerator(CountingGateway('quiz')).generate(payload('quiz'),job_id='j',config_snapshot_id='c')['artifacts'][0]
-    for check in artifact['generation_state']['resource_review']['question_checks']:
-        for option in check['option_checks']:
-            for key in ['option_text','explanation_excerpt','independent_correct']:
-                option.pop(key)
-    assert not reviewed_resource.verified_resource(artifact,'quiz')
+def test_prepared_quiz_requires_a_version_bound_structure_receipt(phases):
+    artifact = reviewed_resource.ReviewedResourceGenerator(CountingGateway('quiz')).generate(payload('quiz'), job_id='j', config_snapshot_id='c')['artifacts'][0]
+    assert 'question_checks' not in artifact['generation_state']['resource_review']
+    artifact['generation_state']['resource_review'].pop('content_sha256')
+    assert not reviewed_resource.verified_resource(artifact, 'quiz')
 
 
 def test_report_repair_cannot_replace_stable_section_ids(phases):
@@ -396,7 +375,7 @@ def test_native_harness_generates_and_reviews_real_content(kind,order):
         assert reviewed_resource.verified_resource(artifact,'quiz')
         assert len(artifact['content']['questions'])==2
     phases={a['evidence']['phase'] for a in ledger.actions}
-    assert {'resource_write','resource_review'} <= phases
+    assert ({'resource_write', 'resource_review'} <= phases if kind == 'report' else phases == {'resource_write'})
     for action in ledger.actions:
         assert not action['failed']
         assert action['evidence']['runtime']=='deepseek-harness'
@@ -432,39 +411,14 @@ def test_A_payload_D_content_F_alignment_use_the_same_real_contract(phases,kind)
 
 
 @pytest.mark.parametrize('cap', [None, 2.0])
-def test_only_timed_preparation_repair_can_remove_redundant_question(phases, cap):
+def test_quiz_time_targets_do_not_trigger_rewriting(phases, cap):
     value = payload('quiz')
     value.teaching_context['resource_target_minutes'] = cap
-    envelope = quiz_envelope()
-    extra = {**copy.deepcopy(envelope['content']['questions'][0]), 'id': 'q-redundant'}
-    envelope['content']['questions'].append(extra)
-    estimates = [{'question_id': q['id'], 'thinking_seconds': 30, 'reason': '追踪角色职责后判断选项'}
-                 for q in envelope['content']['questions']]
-    envelope['question_time_estimates'] = estimates
-    class Gateway(CountingGateway):
-        def chat(self, messages, **kwargs):
-            data = json.loads(messages[-1]['content'])
-            if 'schema' in data:
-                self.review_calls += 1
-                result = completion_review(data, 'quiz')
-                if self.review_calls == 1:
-                    result['question_checks'].append({**copy.deepcopy(result['question_checks'][0]), 'question_index': 1})
-                    result['blocking_issues'] = ['重复题占用学习时间，删除第二道重复题并保留目标覆盖。']
-                return json.dumps(result)
-            self.writer_calls += 1
-            if self.writer_calls == 1: return json.dumps(envelope)
-            return json.dumps({'edits': [{'op': 'delete', 'path': ['questions', 1], 'before': extra, 'after': None}],
-                               'question_time_estimates': estimates[:1]})
-    gateway = Gateway('quiz')
-    generate = lambda: reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')
-    if cap is None:
-        from app.course_preparation.generation_failures import GenerationFailure
-        with pytest.raises(GenerationFailure, match='quiz_repair_changed_question_identity'): generate()
-    else:
-        artifact = generate()['artifacts'][0]
-        assert artifact['content'] == quiz_envelope()['content']
-        assert artifact['generation_state']['preparation']['question_time_estimates'] == estimates[:1]
-        assert reviewed_resource.verified_resource(artifact, 'quiz')
+    gateway = CountingGateway('quiz')
+    artifact = reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')['artifacts'][0]
+    assert artifact['content'] == quiz_envelope()['content']
+    assert gateway.writer_calls == 1 and gateway.review_calls == 0
+    assert artifact['generation_state']['preparation']['duration']['value_minutes'] is None
 
 
 @pytest.mark.parametrize('kind', ['report', 'quiz'])
@@ -479,18 +433,20 @@ def test_learning_duration_target_does_not_repeat_writing(phases, kind, field):
     class Gateway(CountingGateway):
         def chat(self, messages, **kwargs):
             data = json.loads(messages[-1]['content'])
-            if 'schema' in data:
+            if 'schema' in data and ('body' in data or 'content' in data):
                 self.review_calls += 1
                 return json.dumps(completion_review(data, kind))
             self.writer_calls += 1
-            return json.dumps(oversized)
+            return json.dumps(oversized if kind == 'report' else {'content': oversized['content']})
     gateway = Gateway(kind)
     result = (reviewed_report.generate_reviewed_report(value, gateway) if kind == 'report' else
               reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c'))
     artifact = {'content': result[0], 'generation_state': result[1]} if kind == 'report' else result['artifacts'][0]
-    assert gateway.writer_calls == 1 and gateway.review_calls >= 1
+    assert gateway.writer_calls == 1
+    assert gateway.review_calls == (1 if kind == 'report' else 0)
     assert artifact['content'] == oversized['content']
-    assert artifact['generation_state']['preparation']['duration']['value_minutes'] > .1
+    minutes = artifact['generation_state']['preparation']['duration']['value_minutes']
+    assert minutes > .1 if kind == 'report' else minutes is None
     assert reviewed_resource.verified_resource(artifact, kind) if kind == 'quiz' else reviewed_report.verified_review(artifact)
 
 
@@ -510,23 +466,59 @@ def test_prepared_quiz_shape_errors_have_actionable_feedback(invalid):
         preparation_metadata('quiz', invalid, value, payload('quiz').teaching_context, 'spec')
 
 
-def test_prepared_quiz_corrects_string_content_within_existing_writer_attempts(phases):
+def test_prepared_quiz_rejects_string_content_without_semantic_review(phases):
+    from jsonschema import ValidationError
     class Gateway(CountingGateway):
-        sent_invalid_content = False
-        corrected = False
+        def chat(self, messages, **kwargs):
+            self.writer_calls += 1
+            return json.dumps({'content': json.dumps(quiz_envelope()['content'])})
+    gateway = Gateway('quiz')
+    with pytest.raises(ValidationError):
+        reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload('quiz'), job_id='j', config_snapshot_id='c')
+    assert gateway.writer_calls == 1 and gateway.review_calls == 0
+
+
+def test_saved_quiz_ignores_old_review_feedback_without_rewriting(phases):
+    from tests.course_preparation.test_classroom_teaching_contract import Checkpoint
+    port = Checkpoint()
+    value = payload('quiz')
+    content = quiz_envelope()['content']
+    port.save_review_candidate(content=content, content_digest=value_digest(content),
+        spec_digest=value.spec_digest, review_state={'version': 3, 'history': [],
+            'needs_repair': True, 'feedback': ['旧数值审阅反馈']})
+    gateway = CountingGateway('quiz')
+    artifact = reviewed_resource.ReviewedResourceGenerator(gateway, checkpoint=port).generate(value, job_id='j', config_snapshot_id='c')['artifacts'][0]
+    assert artifact['content'] == content
+    assert gateway.writer_calls == gateway.review_calls == 0
+    assert reviewed_resource.verified_resource(artifact, 'quiz')
+
+
+@pytest.mark.parametrize('first_output', ['missing_edits', 'bad_patch', 'full_envelope'])
+def test_report_saved_revision_keeps_feedback_and_accepts_full_fallback(phases, first_output):
+    from tests.course_preparation.test_classroom_teaching_contract import Checkpoint
+    port = Checkpoint()
+    value = payload()
+    envelope = report_envelope()
+    metadata = preparation_metadata('report', envelope['content'], envelope, value.teaching_context, value.spec_digest)
+    port.save_review_candidate(content=envelope['content'], content_digest=value_digest(envelope['content']),
+        spec_digest=value.spec_digest, review_state={'version': 5, 'history': [], 'preparation': metadata,
+            'needs_repair': True, 'feedback': ['修正示例输出与代码不一致']})
+    class Gateway(CountingGateway):
         def chat(self, messages, **kwargs):
             data = json.loads(messages[-1]['content'])
-            if 'schema' not in data and not self.sent_invalid_content:
-                self.sent_invalid_content = True
-                envelope = quiz_envelope()
-                envelope['content'] = json.dumps(envelope['content'], ensure_ascii=False)
-                return json.dumps(envelope, ensure_ascii=False)
-            if 'schema' not in data:
-                assert 'content 必须是 JSON 对象' in str(data['feedback'])
-                self.corrected = True
-            return super().chat(messages, **kwargs)
-    gateway = Gateway('quiz')
-    artifact = reviewed_resource.ReviewedResourceGenerator(gateway).generate(
-        payload('quiz'), job_id='j', config_snapshot_id='c')['artifacts'][0]
-    assert gateway.corrected and reviewed_resource.verified_resource(artifact, 'quiz')
-    assert artifact['content'] == quiz_envelope()['content']
+            if 'schema' in data:
+                return super().chat(messages, **kwargs)
+            self.writer_calls += 1
+            assert any('示例输出与代码不一致' in f for f in data['feedback'])
+            if self.writer_calls == 1 and first_output == 'missing_edits':
+                return '{}'
+            if self.writer_calls == 1 and first_output == 'bad_patch':
+                return json.dumps({'edits': [{'path': [], 'before': '不存在的原文片段', 'after': '修正内容'}]})
+            if self.writer_calls > 1:
+                assert '修正后的完整内容封装' in messages[0]['content']
+            return json.dumps(report_envelope())
+    gateway = Gateway()
+    body, state = reviewed_report.generate_reviewed_report(value, gateway, checkpoint=port)
+    assert gateway.writer_calls == (1 if first_output == 'full_envelope' else 2)
+    assert gateway.review_calls == 1
+    assert reviewed_report.verified_review({'content': body, 'generation_state': state})

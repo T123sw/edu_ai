@@ -1,0 +1,741 @@
+{
+  "title": "为什么需要 Transformer：循环网络的串行瓶颈与设计决策",
+  "content": {
+    "title": "为什么需要 Transformer：循环网络的串行瓶颈与设计决策（自测题）",
+    "questions": [
+      {
+        "id": "q1-rnn-serial",
+        "stem": "按原始论文的描述，循环模型“沿符号位置分解计算”并生成隐藏状态序列 h_1, h_2, …, h_n，其中 h_t 由 h_{t−1} 与位置 t 的输入共同决定。这一结构对训练时并行化的直接限制是什么？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "同一个训练样本内部，各位置的计算必须按时间步依次进行，无法同时算出所有 h_t",
+          "不同训练样本之间完全不能组成批次，只能一次训练一个样本",
+          "循环模型的参数量随序列长度增长，长序列会超出显存",
+          "循环模型无法使用注意力机制，因此不能建模长距离依赖"
+        ],
+        "difficulty": "easy",
+        "explanation": "正确项 A：h_t 依赖 h_{t−1}，所以必须先算出 h_{t−1} 才能算 h_t，同一序列内的 n 个位置形成一条长度为 n 的依赖链，样本内部无法并行。B 不成立：论文说的是“样本内部”无法并行，跨样本批处理仍然可行，只是论文指出序列变长时内存限制会约束跨样本的批大小，这与“完全不能组批”是两回事。C 不成立：循环模型的参数在各时间步共享，参数量不随序列长度增长，长序列的困难在于串行步数与内存，而非参数膨胀。D 不成立：论文明确指出注意力机制此前大多与循环网络配合使用，循环模型本身并不排斥注意力。"
+      },
+      {
+        "id": "q2-arch-decision",
+        "stem": "关于 Transformer 的核心架构决策及其带来的效果，下列哪些说法符合本课材料？",
+        "type": "multiple_choice",
+        "answer": "A,B,C,D",
+        "options": [
+          "整个模型不用循环也不用卷积，只依赖注意力机制来建立输入与输出之间的全局依赖",
+          "去掉循环后，编码器与训练时解码器中所有位置的计算可以一次完成，顺序步数从 O(n) 降到 O(1)",
+          "自注意力让每个位置直接读取序列中的任意位置，任意两个位置之间的路径长度为 O(1)",
+          "模型由同构的层堆叠而成，每层只包含注意力子层与逐位置前馈子层两种部件",
+          "因为去掉了循环，Transformer 在推理时生成第 t 个输出也不需要任何顺序步骤"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：论文原文即“eschewing recurrence and instead relying entirely on an attention mechanism to draw global dependencies between input and output”。B 正确：这是去掉循环后的直接效果，编码器与训练时解码器各位置可一次并行计算，顺序步数由 O(n) 降为 O(1)。C 正确：自注意力使任意两位置直接相连，路径长度 O(1)，而循环网络需要沿时间步传递。D 正确：统一的计算模式即同构层堆叠，每层只有注意力子层与前馈子层。E 错误：材料中的“顺序步数 O(1)”针对编码器与训练时的解码器；自回归解码在推理时仍需逐位置生成，顺序计算这一根本约束并未被完全消除，论文也明确说“The fundamental constraint of sequential computation, however, remains”。"
+      },
+      {
+        "id": "q3-two-payments",
+        "stem": "拿掉循环之后，Transformer 必须补上两件事。下列哪一项准确概括了这两件事？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "显式注入顺序信息（如位置编码），以及用残差连接与归一化支撑深层堆叠的训练稳定性",
+          "增加卷积层以提取局部特征，以及扩大词表以覆盖更多符号",
+          "引入门控单元替代隐藏状态传递，以及用梯度裁剪替代归一化",
+          "把编码器与解码器合并成单一模块，以及用束搜索替代贪心解码"
+        ],
+        "difficulty": "medium",
+        "explanation": "正确项 A：循环结构本身隐含了顺序信息，去掉后必须显式注入；同时模型要堆叠多层，需要残差与归一化维持训练稳定，这正是材料所说的“两笔账”。B 错误：Transformer 的设计恰恰是不用卷积，扩大词表与顺序信息、深层稳定性都无关。C 错误：门控单元属于循环网络的部件，与“拿掉循环”的方向相反；梯度裁剪也不是归一化的替代品。D 错误：编码器-解码器结构在原始论文中保留，束搜索属于解码策略，二者都不解决顺序信息缺失与深层训练稳定性问题。"
+      },
+      {
+        "id": "q4-order-injection",
+        "stem": "判断：如果只把输入符号的词嵌入按原顺序送入一个纯自注意力层，而不加入任何位置信息，模型仍然能区分“狗咬人”和“人咬狗”这两个输入。",
+        "type": "true_false",
+        "answer": "错误",
+        "difficulty": "medium",
+        "explanation": "纯自注意力对输入位置的排列是对称的：它按内容计算各位置之间的权重，把同一组词换一个顺序，得到的是同一组输出向量的重新排列，模型无法据此判断谁在前谁在后。因此必须显式注入顺序信息（如原论文的正弦位置编码），这正是拿掉循环后要补的第一件事。若认为“按顺序送入”就自动保留了顺序，是把数据送入的次序与模型内部可用的位置信号混为一谈。"
+      },
+      {
+        "id": "q5-sequential-steps",
+        "stem": "设序列长度为 n。请分别说明：(1) 一个循环编码器处理该序列时，沿时间步需要多少顺序步；(2) 一个纯自注意力编码器在训练时处理同一序列，沿位置需要多少顺序步；(3) 为什么说“完全并行”这句话有适用范围。",
+        "type": "short_answer",
+        "answer": "(1) 循环编码器需要 n 个顺序步：h_1 先算，再依次算 h_2, …, h_n，每一步都依赖上一步的隐藏状态。(2) 纯自注意力编码器在训练时，所有位置可以一次算完，沿位置的顺序步数为 1，即 O(1)。(3) 因为“顺序步数 O(1)”针对的是编码器与训练时的解码器；自回归解码在推理时仍需逐位置生成，且论文明确指出顺序计算这一根本约束依然存在。",
+        "difficulty": "hard",
+        "explanation": "第 (1) 问的关键是 h_t 依赖 h_{t−1}，依赖链长度为 n，所以顺序步数是 n 而不是 1。第 (2) 问的关键是自注意力中每个位置直接读取所有位置，位置之间没有先后依赖，因此可一次并行计算，顺序步数为 1。第 (3) 问要区分训练与推理：训练时解码器可用掩码注意力一次处理已知的目标序列，推理时却必须先生成前一个符号才能生成下一个，所以“完全并行”只适用于编码器与训练阶段，不能推广为推理也无需顺序步骤。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 9.7
+      },
+      "spec_digest": "d5a6c0d8375b59ba1cc708b8586d8c2fcc16f6605095b4c5600956b237064518",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1-rnn-serial"
+          },
+          "objective_id": "n1-why-transformer:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q5-sequential-steps"
+          },
+          "objective_id": "n1-why-transformer:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q2-arch-decision"
+          },
+          "objective_id": "n1-why-transformer:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q3-two-payments"
+          },
+          "objective_id": "n1-why-transformer:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q4-order-injection"
+          },
+          "objective_id": "n1-why-transformer:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q2-arch-decision"
+          },
+          "explanation": "该题要求辨认 Transformer 的核心架构决策（不用循环也不用卷积、只用注意力与逐位置前馈网络）及其三项效果，落实本节点分工中“整体结构与核心组成”的架构决策部分。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q3-two-payments"
+          },
+          "explanation": "该题检查拿掉循环后必须补上的位置信息注入与残差/归一化两件事，对应整体结构中位置编码与残差归一化子层的必要性。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需回忆 h_t 依赖 h_{t−1} 的依赖链，再逐一排除“跨样本不能组批”“参数随长度增长”“不能使用注意力”三个常见误解，每个干扰项都要单独判断。",
+          "question_id": "q1-rnn-serial",
+          "thinking_seconds": 45
+        },
+        {
+          "reason": "五个选项需分别对照架构决策与三项效果，其中 E 要求区分训练时并行与推理时自回归生成，需要额外一步推演才能判定为错。",
+          "question_id": "q2-arch-decision",
+          "thinking_seconds": 90
+        },
+        {
+          "reason": "需回忆“两笔账”的具体内容，并识别 B、C、D 分别混入了卷积、门控循环单元与解码策略等无关概念。",
+          "question_id": "q3-two-payments",
+          "thinking_seconds": 40
+        },
+        {
+          "reason": "需构造换序反例，判断纯自注意力对位置排列的对称性，从而推出必须显式注入位置信息。",
+          "question_id": "q4-order-injection",
+          "thinking_seconds": 50
+        },
+        {
+          "reason": "三小问分别要求给出循环编码器的 n 步、自注意力编码器的 1 步，并说明“完全并行”在训练与推理之间的适用范围，需要组织完整表述。",
+          "question_id": "q5-sequential-steps",
+          "thinking_seconds": 120
+        }
+      ],
+      "teaching_context_digest": "d98eba356eaa88f09d39e0426ed0071b6a1fae524727f4a3b103d7ca8b872f31"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "本节点分工为“为什么需要 Transformer”，5 题分别覆盖循环串行瓶颈（q1、q5）、架构决策与三项效果（q2）、拿掉循环后补的两件事（q3、q4），与 req-transformer-basics 中整体结构与核心组成部分真实对应，未越界到其他节点。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "q1 的 h_t 依赖 h_{t−1}、q2 的“不用循环不用卷积、只用注意力与逐位置前馈”、q3 的位置编码与残差归一化、q4 的纯自注意力对位置排列对称、q5 的 n 步与 1 步及推理阶段仍需自回归，均与论文摘要/第 1 节及材料一致；q2 的 E 项正确指出“完全并行”不适用于推理。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "q4 用“狗咬人/人咬狗”换序反例检验位置信息缺失，q5 用长度 n 的序列对比循环与自注意力的顺序步数，均为可独立推演的具体实例，无错误算式。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序为“问题（串行瓶颈）→ 决策与效果 → 代价（两件事）→ 反例判断 → 综合简答”，与节点活动（读论文原句、写架构决策、画依赖链对比）一致；难度 easy/medium/medium/medium/hard 递进，语言为中文，符合入门深度。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "q1、q2 的解析直接引用论文原文（eschewing recurrence…、The fundamental constraint…），q3、q4 依据材料中“两笔账”与位置编码说明，来源为提供的 NeurIPS 论文与 GitBook 章节，未虚构外部依据。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "5 题覆盖三个节点目标（o1 由 q1/q5、o2 由 q2、o3 由 q3/q4），题型含单选、多选、判断、简答，每题均有答案与逐步解析，无缺项；未包含其他节点内容属正常分工。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本节点分工为“为什么需要 Transformer”，5 题分别覆盖循环串行瓶颈（q1、q5）、架构决策与三项效果（q2）、拿掉循环后补的两件事（q3、q4），与 req-transformer-basics 中整体结构与核心组成部分真实对应，未越界到其他节点。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "q1 的 h_t 依赖 h_{t−1}、q2 的“不用循环不用卷积、只用注意力与逐位置前馈”、q3 的位置编码与残差归一化、q4 的纯自注意力对位置排列对称、q5 的 n 步与 1 步及推理阶段仍需自回归，均与论文摘要/第 1 节及材料一致；q2 的 E 项正确指出“完全并行”不适用于推理。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q4 用“狗咬人/人咬狗”换序反例检验位置信息缺失，q5 用长度 n 的序列对比循环与自注意力的顺序步数，均为可独立推演的具体实例，无错误算式。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为“问题（串行瓶颈）→ 决策与效果 → 代价（两件事）→ 反例判断 → 综合简答”，与节点活动（读论文原句、写架构决策、画依赖链对比）一致；难度 easy/medium/medium/medium/hard 递进，语言为中文，符合入门深度。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "q1、q2 的解析直接引用论文原文（eschewing recurrence…、The fundamental constraint…），q3、q4 依据材料中“两笔账”与位置编码说明，来源为提供的 NeurIPS 论文与 GitBook 章节，未虚构外部依据。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "5 题覆盖三个节点目标（o1 由 q1/q5、o2 由 q2、o3 由 q3/q4），题型含单选、多选、判断、简答，每题均有答案与逐步解析，无缺项；未包含其他节点内容属正常分工。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q2 为多选且正确答案为 A,B,C,D，仅 E 为错项，四个正确项并列略显冗长，可考虑把其中一项效果改写为更贴近真实误区的干扰项，以增强区分度。",
+              "q1 的干扰项 B、C、D 均为“完全不能/随长度增长/无法使用注意力”的绝对化表述，可加入一个更接近“跨样本批大小受内存限制”这类半对半错的选项，提高辨析难度。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1-rnn-serial",
+                "option_checks": [
+                  {
+                    "reasoning": "h_t 依赖 h_{t−1}，同一序列内形成串行依赖链，样本内部无法同时算出所有 h_t，表述准确。",
+                    "option_text": "同一个训练样本内部，各位置的计算必须按时间步依次进行，无法同时算出所有 h_t",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "正确项 A：h_t 依赖 h_{t−1}，所以必须先算出 h_{t−1} 才能算 h_t，同一序列内的 n 个位置形成一条长度为 n 的依赖链，样本内部无法并行。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段正确指出 h_t 依赖 h_{t−1}、依赖链长度为 n、样本内部无法并行，与题干一致。"
+                  },
+                  {
+                    "reasoning": "论文说的是样本内部无法并行，跨样本批处理仍可行，只是长序列时内存限制批大小，故“完全不能组批”错误。",
+                    "option_text": "不同训练样本之间完全不能组成批次，只能一次训练一个样本",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 不成立：论文说的是“样本内部”无法并行，跨样本批处理仍然可行，只是论文指出序列变长时内存限制会约束跨样本的批大小，这与“完全不能组批”是两回事。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 1 段准确区分“样本内部不可并行”与“跨样本不能组批”，并说明内存限制批大小，批评成立。"
+                  },
+                  {
+                    "reasoning": "循环模型参数跨时间步共享，参数量与序列长度无关，长序列困难在于串行步数与内存，故该项错误。",
+                    "option_text": "循环模型的参数量随序列长度增长，长序列会超出显存",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 不成立：循环模型的参数在各时间步共享，参数量不随序列长度增长，长序列的困难在于串行步数与内存，而非参数膨胀。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段正确指出参数共享、参数量不随长度增长，并指出真实困难所在，批评成立。"
+                  },
+                  {
+                    "reasoning": "论文指出注意力此前大多与循环网络配合使用，循环模型并不排斥注意力，故该项错误。",
+                    "option_text": "循环模型无法使用注意力机制，因此不能建模长距离依赖",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 不成立：论文明确指出注意力机制此前大多与循环网络配合使用，循环模型本身并不排斥注意力。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3 段引用论文“注意力大多与循环网络配合使用”，正确否定“无法使用注意力”，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "循环模型 h_t = f(h_{t−1}, x_t)，同一序列内 n 个位置构成长度 n 的依赖链，必须先算 h_{t−1} 才能算 h_t，因此样本内部无法并行；跨样本仍可组批（仅受内存限制），参数在各时间步共享不随长度增长，循环模型也可与注意力配合。故只有 A 成立。"
+              },
+              {
+                "question_id": "q2-arch-decision",
+                "option_checks": [
+                  {
+                    "reasoning": "与论文原句一致：摒弃循环、完全依赖注意力建立输入输出全局依赖，正确。",
+                    "option_text": "整个模型不用循环也不用卷积，只依赖注意力机制来建立输入与输出之间的全局依赖",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文原文即“eschewing recurrence and instead relying entirely on an attention mechanism to draw global dependencies between input and output”。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0 段引用论文原句，与选项 A 内容逐字对应，说明准确。"
+                  },
+                  {
+                    "reasoning": "去掉循环后编码器与训练时解码器各位置可并行，顺序步数由 O(n) 降为 O(1)，正确。",
+                    "option_text": "去掉循环后，编码器与训练时解码器中所有位置的计算可以一次完成，顺序步数从 O(n) 降到 O(1)",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：这是去掉循环后的直接效果，编码器与训练时解码器各位置可一次并行计算，顺序步数由 O(n) 降为 O(1)。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 1 段说明该效果来自去掉循环，并限定为编码器与训练时解码器，与材料一致。"
+                  },
+                  {
+                    "reasoning": "自注意力使任意两位置直接相连，路径长度 O(1)，对比循环网络需沿时间步传递，正确。",
+                    "option_text": "自注意力让每个位置直接读取序列中的任意位置，任意两个位置之间的路径长度为 O(1)",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 正确：自注意力使任意两位置直接相连，路径长度 O(1)，而循环网络需要沿时间步传递。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 2 段正确说明路径长度 O(1) 及与循环网络的对比，批评与说明均成立。"
+                  },
+                  {
+                    "reasoning": "统一计算模式即同构层堆叠，每层只有注意力子层与前馈子层，正确。",
+                    "option_text": "模型由同构的层堆叠而成，每层只包含注意力子层与逐位置前馈子层两种部件",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：统一的计算模式即同构层堆叠，每层只有注意力子层与前馈子层。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 3 段与材料“同构的层堆叠，每层只有注意力子层与前馈子层”一致。"
+                  },
+                  {
+                    "reasoning": "推理时自回归解码必须先生成前一个符号，仍需顺序步骤，故“推理也不需要任何顺序步骤”错误。",
+                    "option_text": "因为去掉了循环，Transformer 在推理时生成第 t 个输出也不需要任何顺序步骤",
+                    "option_index": 4,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "E 错误：材料中的“顺序步数 O(1)”针对编码器与训练时的解码器；自回归解码在推理时仍需逐位置生成，顺序计算这一根本约束并未被完全消除，论文也明确说“The fundamental constraint of sequential computation, however, remains”。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 4–5 段正确限定 O(1) 只针对编码器与训练时解码器，并引用论文“根本约束依然存在”，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "A 对应论文“eschewing recurrence and instead relying entirely on an attention mechanism”，正确；B 为去掉循环后编码器与训练时解码器各位置可一次计算、顺序步数 O(n)→O(1)，正确；C 自注意力任意两位置路径长度 O(1)，正确；D 同构层堆叠、每层注意力子层+前馈子层，正确；E 推理时自回归解码仍需逐位置生成，论文明确“The fundamental constraint of sequential computation, however, remains”，错误。答案 A,B,C,D。"
+              },
+              {
+                "question_id": "q3-two-payments",
+                "option_checks": [
+                  {
+                    "reasoning": "显式注入顺序信息 + 残差与归一化支撑深层堆叠，正是材料所说的“两笔账”，正确。",
+                    "option_text": "显式注入顺序信息（如位置编码），以及用残差连接与归一化支撑深层堆叠的训练稳定性",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "正确项 A：循环结构本身隐含了顺序信息，去掉后必须显式注入；同时模型要堆叠多层，需要残差与归一化维持训练稳定，这正是材料所说的“两笔账”。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析第 0–1 段分别说明顺序信息缺失与深层稳定性两点，与材料表述一致。"
+                  },
+                  {
+                    "reasoning": "Transformer 恰恰不用卷积，扩大词表与顺序信息、深层稳定性无关，错误。",
+                    "option_text": "增加卷积层以提取局部特征，以及扩大词表以覆盖更多符号",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：Transformer 的设计恰恰是不用卷积，扩大词表与顺序信息、深层稳定性都无关。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 2 段正确指出设计上不用卷积，且扩大词表与两件事无关，批评成立。"
+                  },
+                  {
+                    "reasoning": "门控单元属循环网络部件，与拿掉循环方向相反；梯度裁剪也不是归一化的替代，错误。",
+                    "option_text": "引入门控单元替代隐藏状态传递，以及用梯度裁剪替代归一化",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：门控单元属于循环网络的部件，与“拿掉循环”的方向相反；梯度裁剪也不是归一化的替代品。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 3–4 段分别否定门控单元与梯度裁剪，理由具体成立。"
+                  },
+                  {
+                    "reasoning": "原论文保留编码器-解码器结构，束搜索属解码策略，均不解决顺序信息与深层稳定性，错误。",
+                    "option_text": "把编码器与解码器合并成单一模块，以及用束搜索替代贪心解码",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：编码器-解码器结构在原始论文中保留，束搜索属于解码策略，二者都不解决顺序信息缺失与深层训练稳定性问题。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析第 5 段正确说明编解码结构保留、束搜索属解码策略，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "拿掉循环后循环结构隐含的顺序信息消失，必须显式注入（位置编码）；同时深层堆叠需残差与归一化维持训练稳定。B 引入卷积与扩大词表、C 门控单元与梯度裁剪、D 合并编解码器与束搜索均与这两件事无关。答案 A。"
+              },
+              {
+                "question_id": "q4-order-injection",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "纯自注意力按内容计算权重，对位置排列等变：把同一组词换序，输出只是同一组向量的重新排列，模型无法区分“狗咬人”与“人咬狗”。故题干判断错误，必须显式注入位置信息。"
+              },
+              {
+                "question_id": "q5-sequential-steps",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "(1) 循环编码器 h_t 依赖 h_{t−1}，需 n 个顺序步；(2) 纯自注意力编码器训练时各位置无先后依赖，可一次算完，顺序步数 1（O(1)）；(3) “完全并行”只适用于编码器与训练阶段，推理时自回归解码仍需逐位置生成，论文也指出顺序计算的根本约束依然存在。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q2 要求辨认“不用循环也不用卷积、只用注意力与逐位置前馈”的架构决策及三项效果，确实落实 req-transformer-basics 中整体结构与核心组成部分。",
+                "locator": {
+                  "question_id": "q2-arch-decision"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 直接检查位置信息注入与残差/归一化两件事，对应整体结构中位置编码与残差归一化子层的必要性，定位真实。",
+                "locator": {
+                  "question_id": "q3-two-payments"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 以 h_t 依赖 h_{t−1} 的串行依赖链为考点，作为 o1 的 check 定位准确。",
+                "locator": {
+                  "question_id": "q1-rnn-serial"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 要求给出循环编码器 n 个顺序步，作为 o1 的 practice 与目标一致。",
+                "locator": {
+                  "question_id": "q5-sequential-steps"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 覆盖架构决策与三项效果，作为 o2 的 check 内容对应。",
+                "locator": {
+                  "question_id": "q2-arch-decision"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 覆盖“两笔账”，作为 o3 的 check 内容对应。",
+                "locator": {
+                  "question_id": "q3-two-payments"
+                },
+                "binding_id": "n1-why-transformer:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 通过换序反例推出必须显式注入位置信息，作为 o3 的 practice 定位准确。",
+                "locator": {
+                  "question_id": "q4-order-injection"
+                },
+                "binding_id": "n1-why-transformer:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "9cf825379e16ede9ffdbf56764c0e59789ad78093df21c9e90018d3e1b01c580"
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "suggestions": [
+        "q2 为多选且正确答案为 A,B,C,D，仅 E 为错项，四个正确项并列略显冗长，可考虑把其中一项效果改写为更贴近真实误区的干扰项，以增强区分度。",
+        "q1 的干扰项 B、C、D 均为“完全不能/随长度增长/无法使用注意力”的绝对化表述，可加入一个更接近“跨样本批大小受内存限制”这类半对半错的选项，提高辨析难度。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "9cf825379e16ede9ffdbf56764c0e59789ad78093df21c9e90018d3e1b01c580",
+      "question_checks": [
+        {
+          "question_id": "q1-rnn-serial",
+          "option_checks": [
+            {
+              "reasoning": "h_t 依赖 h_{t−1}，同一序列内形成串行依赖链，样本内部无法同时算出所有 h_t，表述准确。",
+              "option_text": "同一个训练样本内部，各位置的计算必须按时间步依次进行，无法同时算出所有 h_t",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "正确项 A：h_t 依赖 h_{t−1}，所以必须先算出 h_{t−1} 才能算 h_t，同一序列内的 n 个位置形成一条长度为 n 的依赖链，样本内部无法并行。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 0 段正确指出 h_t 依赖 h_{t−1}、依赖链长度为 n、样本内部无法并行，与题干一致。"
+            },
+            {
+              "reasoning": "论文说的是样本内部无法并行，跨样本批处理仍可行，只是长序列时内存限制批大小，故“完全不能组批”错误。",
+              "option_text": "不同训练样本之间完全不能组成批次，只能一次训练一个样本",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 不成立：论文说的是“样本内部”无法并行，跨样本批处理仍然可行，只是论文指出序列变长时内存限制会约束跨样本的批大小，这与“完全不能组批”是两回事。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 1 段准确区分“样本内部不可并行”与“跨样本不能组批”，并说明内存限制批大小，批评成立。"
+            },
+            {
+              "reasoning": "循环模型参数跨时间步共享，参数量与序列长度无关，长序列困难在于串行步数与内存，故该项错误。",
+              "option_text": "循环模型的参数量随序列长度增长，长序列会超出显存",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 不成立：循环模型的参数在各时间步共享，参数量不随序列长度增长，长序列的困难在于串行步数与内存，而非参数膨胀。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 2 段正确指出参数共享、参数量不随长度增长，并指出真实困难所在，批评成立。"
+            },
+            {
+              "reasoning": "论文指出注意力此前大多与循环网络配合使用，循环模型并不排斥注意力，故该项错误。",
+              "option_text": "循环模型无法使用注意力机制，因此不能建模长距离依赖",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 不成立：论文明确指出注意力机制此前大多与循环网络配合使用，循环模型本身并不排斥注意力。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 3 段引用论文“注意力大多与循环网络配合使用”，正确否定“无法使用注意力”，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "循环模型 h_t = f(h_{t−1}, x_t)，同一序列内 n 个位置构成长度 n 的依赖链，必须先算 h_{t−1} 才能算 h_t，因此样本内部无法并行；跨样本仍可组批（仅受内存限制），参数在各时间步共享不随长度增长，循环模型也可与注意力配合。故只有 A 成立。"
+        },
+        {
+          "question_id": "q2-arch-decision",
+          "option_checks": [
+            {
+              "reasoning": "与论文原句一致：摒弃循环、完全依赖注意力建立输入输出全局依赖，正确。",
+              "option_text": "整个模型不用循环也不用卷积，只依赖注意力机制来建立输入与输出之间的全局依赖",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：论文原文即“eschewing recurrence and instead relying entirely on an attention mechanism to draw global dependencies between input and output”。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 0 段引用论文原句，与选项 A 内容逐字对应，说明准确。"
+            },
+            {
+              "reasoning": "去掉循环后编码器与训练时解码器各位置可并行，顺序步数由 O(n) 降为 O(1)，正确。",
+              "option_text": "去掉循环后，编码器与训练时解码器中所有位置的计算可以一次完成，顺序步数从 O(n) 降到 O(1)",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：这是去掉循环后的直接效果，编码器与训练时解码器各位置可一次并行计算，顺序步数由 O(n) 降为 O(1)。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 1 段说明该效果来自去掉循环，并限定为编码器与训练时解码器，与材料一致。"
+            },
+            {
+              "reasoning": "自注意力使任意两位置直接相连，路径长度 O(1)，对比循环网络需沿时间步传递，正确。",
+              "option_text": "自注意力让每个位置直接读取序列中的任意位置，任意两个位置之间的路径长度为 O(1)",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 正确：自注意力使任意两位置直接相连，路径长度 O(1)，而循环网络需要沿时间步传递。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 2 段正确说明路径长度 O(1) 及与循环网络的对比，批评与说明均成立。"
+            },
+            {
+              "reasoning": "统一计算模式即同构层堆叠，每层只有注意力子层与前馈子层，正确。",
+              "option_text": "模型由同构的层堆叠而成，每层只包含注意力子层与逐位置前馈子层两种部件",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 正确：统一的计算模式即同构层堆叠，每层只有注意力子层与前馈子层。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 3 段与材料“同构的层堆叠，每层只有注意力子层与前馈子层”一致。"
+            },
+            {
+              "reasoning": "推理时自回归解码必须先生成前一个符号，仍需顺序步骤，故“推理也不需要任何顺序步骤”错误。",
+              "option_text": "因为去掉了循环，Transformer 在推理时生成第 t 个输出也不需要任何顺序步骤",
+              "option_index": 4,
+              "explanation_valid": true,
+              "explanation_excerpt": "E 错误：材料中的“顺序步数 O(1)”针对编码器与训练时的解码器；自回归解码在推理时仍需逐位置生成，顺序计算这一根本约束并未被完全消除，论文也明确说“The fundamental constraint of sequential computation, however, remains”。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 4–5 段正确限定 O(1) 只针对编码器与训练时解码器，并引用论文“根本约束依然存在”，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "A 对应论文“eschewing recurrence and instead relying entirely on an attention mechanism”，正确；B 为去掉循环后编码器与训练时解码器各位置可一次计算、顺序步数 O(n)→O(1)，正确；C 自注意力任意两位置路径长度 O(1)，正确；D 同构层堆叠、每层注意力子层+前馈子层，正确；E 推理时自回归解码仍需逐位置生成，论文明确“The fundamental constraint of sequential computation, however, remains”，错误。答案 A,B,C,D。"
+        },
+        {
+          "question_id": "q3-two-payments",
+          "option_checks": [
+            {
+              "reasoning": "显式注入顺序信息 + 残差与归一化支撑深层堆叠，正是材料所说的“两笔账”，正确。",
+              "option_text": "显式注入顺序信息（如位置编码），以及用残差连接与归一化支撑深层堆叠的训练稳定性",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "正确项 A：循环结构本身隐含了顺序信息，去掉后必须显式注入；同时模型要堆叠多层，需要残差与归一化维持训练稳定，这正是材料所说的“两笔账”。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析第 0–1 段分别说明顺序信息缺失与深层稳定性两点，与材料表述一致。"
+            },
+            {
+              "reasoning": "Transformer 恰恰不用卷积，扩大词表与顺序信息、深层稳定性无关，错误。",
+              "option_text": "增加卷积层以提取局部特征，以及扩大词表以覆盖更多符号",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：Transformer 的设计恰恰是不用卷积，扩大词表与顺序信息、深层稳定性都无关。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 2 段正确指出设计上不用卷积，且扩大词表与两件事无关，批评成立。"
+            },
+            {
+              "reasoning": "门控单元属循环网络部件，与拿掉循环方向相反；梯度裁剪也不是归一化的替代，错误。",
+              "option_text": "引入门控单元替代隐藏状态传递，以及用梯度裁剪替代归一化",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：门控单元属于循环网络的部件，与“拿掉循环”的方向相反；梯度裁剪也不是归一化的替代品。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 3–4 段分别否定门控单元与梯度裁剪，理由具体成立。"
+            },
+            {
+              "reasoning": "原论文保留编码器-解码器结构，束搜索属解码策略，均不解决顺序信息与深层稳定性，错误。",
+              "option_text": "把编码器与解码器合并成单一模块，以及用束搜索替代贪心解码",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：编码器-解码器结构在原始论文中保留，束搜索属于解码策略，二者都不解决顺序信息缺失与深层训练稳定性问题。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析第 5 段正确说明编解码结构保留、束搜索属解码策略，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "拿掉循环后循环结构隐含的顺序信息消失，必须显式注入（位置编码）；同时深层堆叠需残差与归一化维持训练稳定。B 引入卷积与扩大词表、C 门控单元与梯度裁剪、D 合并编解码器与束搜索均与这两件事无关。答案 A。"
+        },
+        {
+          "question_id": "q4-order-injection",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "纯自注意力按内容计算权重，对位置排列等变：把同一组词换序，输出只是同一组向量的重新排列，模型无法区分“狗咬人”与“人咬狗”。故题干判断错误，必须显式注入位置信息。"
+        },
+        {
+          "question_id": "q5-sequential-steps",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "(1) 循环编码器 h_t 依赖 h_{t−1}，需 n 个顺序步；(2) 纯自注意力编码器训练时各位置无先后依赖，可一次算完，顺序步数 1（O(1)）；(3) “完全并行”只适用于编码器与训练阶段，推理时自回归解码仍需逐位置生成，论文也指出顺序计算的根本约束依然存在。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q2 要求辨认“不用循环也不用卷积、只用注意力与逐位置前馈”的架构决策及三项效果，确实落实 req-transformer-basics 中整体结构与核心组成部分。",
+          "locator": {
+            "question_id": "q2-arch-decision"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 直接检查位置信息注入与残差/归一化两件事，对应整体结构中位置编码与残差归一化子层的必要性，定位真实。",
+          "locator": {
+            "question_id": "q3-two-payments"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 以 h_t 依赖 h_{t−1} 的串行依赖链为考点，作为 o1 的 check 定位准确。",
+          "locator": {
+            "question_id": "q1-rnn-serial"
+          },
+          "binding_id": "n1-why-transformer:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 要求给出循环编码器 n 个顺序步，作为 o1 的 practice 与目标一致。",
+          "locator": {
+            "question_id": "q5-sequential-steps"
+          },
+          "binding_id": "n1-why-transformer:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 覆盖架构决策与三项效果，作为 o2 的 check 内容对应。",
+          "locator": {
+            "question_id": "q2-arch-decision"
+          },
+          "binding_id": "n1-why-transformer:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 覆盖“两笔账”，作为 o3 的 check 内容对应。",
+          "locator": {
+            "question_id": "q3-two-payments"
+          },
+          "binding_id": "n1-why-transformer:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 通过换序反例推出必须显式注入位置信息，作为 o3 的 practice 定位准确。",
+          "locator": {
+            "question_id": "q4-order-injection"
+          },
+          "binding_id": "n1-why-transformer:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "cb2a51b92a881b1518d039f2fb478f005b3597fa65a691100ea01de7fc10f0c3",
+      "numeric_verification": {
+        "version": 1,
+        "coverage": "source_bound_claims_and_literal_softmax",
+        "questions": [
+          {
+            "checks": [],
+            "question_index": 0
+          },
+          {
+            "checks": [],
+            "question_index": 1
+          },
+          {
+            "checks": [],
+            "question_index": 2
+          },
+          {
+            "checks": [],
+            "question_index": 3
+          },
+          {
+            "checks": [],
+            "question_index": 4
+          }
+        ]
+      },
+      "option_binding_version": 1
+    }
+  }
+}

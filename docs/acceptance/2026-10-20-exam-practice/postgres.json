@@ -1,0 +1,6 @@
+{
+  "isolatedPostgres": true,
+  "rollbackIncludesAnswerAndQueue": true,
+  "lightLaneClaimsExamBeforeVideo": true,
+  "productionBusinessWrites": false
+}

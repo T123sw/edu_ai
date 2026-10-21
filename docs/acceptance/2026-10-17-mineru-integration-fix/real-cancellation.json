@@ -1,0 +1,8 @@
+{
+  "code": "CANCELED",
+  "receipt": {
+    "provider": "mineru-local",
+    "task_id": "job_3d84ae6542ccd9ae555f2855"
+  },
+  "remote_status": "canceled"
+}

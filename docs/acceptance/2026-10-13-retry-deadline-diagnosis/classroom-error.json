@@ -1,0 +1,10 @@
+[
+  {
+    "task_id": "generate_artifact_c6ae0f7630759815784f675754154b55",
+    "status": "failed",
+    "error_code": "TASK_EXECUTION_FAILED",
+    "error": "BUDGET_EXHAUSTED: 备课父任务时限耗尽",
+    "started_at": 1791916987.7667513,
+    "finished_at": 1791917011.641615
+  }
+]

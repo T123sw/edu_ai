@@ -1,0 +1,5 @@
+{
+  "message": "{\"status\":\"failed\",\"stage\":\"research_nodes\",\"error_code\":\"STEP_FAILED\",\"result_ref\":null}\n+ actual - expected\n\n+ 'failed'\n- 'succeeded'\n",
+  "errors": [],
+  "failures": []
+}

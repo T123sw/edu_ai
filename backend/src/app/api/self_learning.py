@@ -58,7 +58,7 @@ def state(user=Depends(get_current_user), svc=Depends(service)):
     value = svc.overview(user['username'])
     jobs = list_job_page(owner_user_id=user['username'], limit=100)
     from app.api.jobs import _public_job
-    value['serverJobs'] = [{k: v for k, v in _public_job(j).items() if k in {'edu_job_id', 'kind', 'status', 'progress', 'message', 'course_id', 'scope_id', 'retryable', 'error_message', 'error_code', 'result_ref'}} for j in jobs.items]
+    value['serverJobs'] = [{k: v for k, v in _public_job(j).items() if k in {'edu_job_id', 'kind', 'status', 'progress', 'message', 'course_id', 'scope_id', 'retryable', 'error_message', 'error_code', 'result_ref', 'created_at'}} for j in jobs.items]
     return value
 
 @router.get('/courses/{course_id}')
@@ -103,7 +103,7 @@ async def create(payload: CreateLearning, user=Depends(get_current_user), svc=De
     for leaf in graph_leaves(svc.manager.get_knowledge_graph(course_id)):
         await submit_classroom_generation_job(course_id=course_id, requirement=payload.goal + '\n本节仅讲解：' + leaf['title'], owner=owner,
             course_storage_manager=svc.manager, source_mode='none', topic=leaf['title'], scope_type='knowledge_point', scope_id=leaf['id'],
-            scene_count=3, duration_minutes=5, enable_tts=True, include_visuals=False,
+            enable_tts=True, include_visuals=False,
             material_id='lesson-' + leaf['id'], idempotency_key='initial-' + leaf['id'],
             material_metadata={'learning_course_resource': True})
     return svc.room(course_id, owner)
@@ -144,8 +144,8 @@ def attach(course_id: str, payload: Attach, user=Depends(get_current_user), svc=
 @router.post('/courses/{course_id}/publish')
 def publish(course_id: str, user=Depends(get_current_user), svc=Depends(service)):
     _, membership = svc.require(course_id, user['username'])
-    if user['role'] not in {'teacher', 'admin'} or membership.role != 'owner':
-        raise HTTPException(403, '仅课堂所有者教师可以共享课堂')
+    if membership.role != 'owner':
+        raise HTTPException(403, '仅课堂所有者可以共享课堂')
     owned = svc.manager.list_generated_materials(course_id, owner_user_id=user['username'], space='mine', aggregate=True)
     originals = [m for m in owned if m.get('learning_course_resource') and m.get('visibility') == 'private']
     shared = svc.manager.list_generated_materials(course_id, owner_user_id=user['username'], space='course', aggregate=True)
@@ -234,6 +234,33 @@ def version_material(course_id: str, kind: str, material_id: str, version: int, 
         raise HTTPException(422, '无效版本')
     material = exact_material(svc, user['username'], ResourceRef(course_id=course_id, material_type=kind, material_id=material_id, version=version))
     return {key: value for key, value in material.items() if key != 'revision_history'}
+
+
+@router.post('/courses/{course_id}/materials/classroom/{material_id}/versions/{version}/narration/{scene_id}/{action_id}')
+async def classroom_narration(course_id: str, material_id: str, version: int, scene_id: str, action_id: str,
+                              segment: int = Query(ge=0), user=Depends(get_current_user), svc=Depends(service)):
+    from fastapi.responses import FileResponse
+    from app.self_learning.classroom_context import find_scene
+    from app.services.classroom_narration import narration_audio, narration_segments
+    if version < 1:
+        raise HTTPException(422, '无效版本')
+    # Resolve permission and exact version before looking at even a cached file.
+    material = await anyio.to_thread.run_sync(lambda: exact_material(svc, user['username'],
+        ResourceRef(course_id=course_id, material_type='classroom', material_id=material_id, version=version)))
+    scene = find_scene(material, scene_id)
+    action = next((a for a in scene.get('actions', []) if a.get('id') == action_id and a.get('type') == 'speech'), None)
+    if not action or not str(action.get('text') or '').strip():
+        raise HTTPException(404, '这一段没有讲解内容')
+    segments = narration_segments(action['text'])
+    if segment >= len(segments):
+        raise HTTPException(404, '这一段讲解不存在')
+    try:
+        path = await narration_audio(action={**action, 'text': segments[segment]},
+            audio_dir=svc.manager.get_classroom_audio_dir(course_id, material_id) / f'v{version}')
+    except Exception as exc:
+        logging.getLogger(__name__).warning('classroom_narration_failed error_type=%s', type(exc).__name__)
+        raise HTTPException(503, '这一段配音暂时无法生成，可以先阅读课件和字幕，稍后重新播放。') from exc
+    return FileResponse(path, media_type='audio/mpeg', headers={'Cache-Control': 'private, no-store'})
 
 # P4 routes use explicit persistent receipts; P3-only installations return 503.
 from app.self_learning.check_service import CheckSubmission

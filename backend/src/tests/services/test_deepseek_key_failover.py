@@ -134,6 +134,19 @@ def test_revision_model_client_uses_key_failover(upstream):
     assert [c[0] for c in calls] == ['primary', 'backup']
 
 
+@pytest.mark.parametrize('model_name', ['deepseek-v4-flash', 'deepseek-v4-pro', 'deepseek-flash'])
+def test_resource_model_disables_thinking_in_actual_request(upstream, model_name):
+    from app.chat.agents.report_generation import _chat_model
+    base, calls, _ = upstream
+    model = _chat_model(api_key='primary', base_url=base, model=model_name, timeout_seconds=10)
+    assert model.invoke('生成学习资料').content == 'hello'
+    assert len(calls) == 2
+    for _, body in calls:
+        request = json.loads(body)
+        assert request['model'] == model_name
+        assert request['thinking'] == {'type': 'disabled'}
+
+
 def test_generation_gateway_uses_key_failover(upstream):
     from app.chat.model_gateway import ChatModelGateway
     base, calls, _ = upstream

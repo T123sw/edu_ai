@@ -1,0 +1,14 @@
+{
+  "source_snapshot": "/tmp/edu-quiz-speed/source/frontend",
+  "published_at": "20261014T003450Z",
+  "uncommitted_source_changes": true,
+  "task": "quiz-read-performance-and-actions",
+  "backend_status": "optimized source verified against production data read-only; running service still requires administrator restart",
+  "previous_index_sha256": "6dd50403cd85e9bc99e1a612acf8fa78e9e3199dae6eed91e102671c8459c6f6",
+  "backup": "/tmp/edu-quiz-speed/dist-backup-20261014T003450Z",
+  "http_verified": true,
+  "assets": [
+    "/assets/index-Cvv6jgTJ.js",
+    "/assets/index-8vDhdg1F.css"
+  ]
+}

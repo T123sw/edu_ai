@@ -6,11 +6,12 @@ import json
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator, model_serializer
+from app.schemas.video_preferences import VideoPreferences
 
 
 Identifier = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
-ShortText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)]
+ShortText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 PositiveVersion = Annotated[int, Field(strict=True, ge=1)]
 ResourceType = Literal['report', 'quiz', 'classroom', 'lesson_plan', 'blog', 'flashcard', 'graph', 'game', 'video']
 Operation = Literal['create_course', 'supplement_node', 'revise_resource', 'adjust_course']
@@ -31,11 +32,19 @@ class SourcePolicy(Contract):
 
 
 class PreparationOverrides(Contract):
+    video_preferences: VideoPreferences | None = None
     include_classroom: bool = Field(default=True, strict=True, description='新建课程是否生成 AI 课堂；以此设置为准，不从需求文字推断')
     language: Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=40)] | None = None
-    total_minutes: Annotated[int, Field(strict=True, ge=1, le=100000)] | None = None
+    total_minutes: Annotated[int, Field(strict=True, ge=1)] | None = None
     depth: Literal['introductory', 'intermediate', 'advanced'] | None = None
-    required_resource_types: tuple[ResourceType, ...] = Field(default=(), max_length=9)
+    required_resource_types: tuple[ResourceType, ...] = Field(default=())
+
+    @model_serializer(mode='wrap')
+    def preserve_old_requests(self, handler):
+        value = handler(self)
+        if 'video_preferences' not in self.model_fields_set:
+            value.pop('video_preferences', None)
+        return value
 
 
 class PreparationTarget(Contract):
@@ -54,7 +63,7 @@ class OriginRef(Contract):
 
 class LearningContext(Contract):
     difficulty_summary: ShortText | None = None
-    evidence_refs: tuple[Identifier, ...] = Field(default=(), max_length=20)
+    evidence_refs: tuple[Identifier, ...] = Field(default=())
 
 
 class PreparationRequest(Contract):
@@ -65,8 +74,8 @@ class PreparationRequest(Contract):
     target: PreparationTarget | None = None
     origin: OriginRef | None = None
     learning_context: LearningContext | None = None
-    requested_changes: tuple[ShortText, ...] = Field(default=(), max_length=30)
-    uploads: tuple[UploadRef, ...] = Field(default=(), max_length=30)
+    requested_changes: tuple[ShortText, ...] = Field(default=())
+    uploads: tuple[UploadRef, ...] = Field(default=())
     overrides: PreparationOverrides = Field(default_factory=PreparationOverrides)
     source_policy: SourcePolicy
 

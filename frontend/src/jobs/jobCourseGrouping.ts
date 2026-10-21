@@ -30,13 +30,16 @@ export function buildJobCourseGroups(
   options: JobCourseGroupingOptions,
 ): JobCourseGroup[] {
   if (options.currentCourseId) {
-    return [
+    const groups: JobCourseGroup[] = [
       {
         courseId: options.currentCourseId,
         title: courseTitle(options.currentCourseId, options),
-        jobs: jobs.filter((job) => job.course_id === options.currentCourseId),
+        jobs: jobs.filter((job) => !job.preparation && job.course_id === options.currentCourseId),
       },
     ];
+    const preparations = jobs.filter(job => job.preparation);
+    if (preparations.length) groups.push({ courseId: null, title: '课程准备', jobs: preparations });
+    return groups;
   }
 
   const groups = new Map<string, JobCourseGroup>();

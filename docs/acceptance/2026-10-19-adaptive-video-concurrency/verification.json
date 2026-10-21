@@ -1,0 +1,170 @@
+{
+  "as_of": "2026-10-19T15:55:38.801212+00:00",
+  "test_suites": [
+    {
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "file": "claims-render-tests.xml",
+      "passed": 17
+    },
+    {
+      "tests": 75,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "file": "indexed-numeric-final.xml",
+      "passed": 75
+    },
+    {
+      "tests": 74,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "file": "numeric-review-final.xml",
+      "passed": 74
+    },
+    {
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "file": "numeric-tts-final.xml",
+      "passed": 27
+    },
+    {
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 6,
+      "file": "pool-final.xml",
+      "passed": 14
+    },
+    {
+      "tests": 285,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 16,
+      "file": "pytest.xml",
+      "passed": 269
+    },
+    {
+      "tests": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "file": "supplemental-tests.xml",
+      "passed": 28
+    }
+  ],
+  "counts_overlap": true,
+  "native_render": {
+    "real_native_cli": true,
+    "seconds": 7.311,
+    "duration_seconds": 1,
+    "audio_stream": true,
+    "video_stream": true,
+    "gate_queued_and_running_observed": true
+  },
+  "live_numeric_review": {
+    "claims": 34,
+    "computed_failures": 9,
+    "seconds": 183.6165,
+    "format_retry": true
+  },
+  "deployment": {
+    "at": "2026-10-19T15:55:38.801212+00:00",
+    "status": "online_verified",
+    "restart_performed_by": "user",
+    "health_http_status": 200,
+    "backend": {
+      "pid": 2738224,
+      "cwd": "/home/zxqs_ep/Edu_AI/backend/src",
+      "uid": 1009,
+      "environment": {
+        "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "DURABLE_JOB_WORKERS": "3",
+        "DURABLE_JOB_LIGHT_WORKERS": "2",
+        "DURABLE_JOB_CONTROL_WORKERS": "2",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "HYPERFRAMES_RENDER_WORKERS": "4",
+        "HYPERFRAMES_RENDER_MIN_FREE_MB": "2048",
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+      },
+      "started_at": "2026-10-19T15:53:18Z"
+    },
+    "supplemental": {
+      "pid": 2738435,
+      "cwd": "/home/zxqs_ep/Edu_AI/backend/src",
+      "uid": 1009,
+      "environment": {
+        "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "DURABLE_JOB_WORKERS": "3",
+        "DURABLE_JOB_LIGHT_WORKERS": "2",
+        "DURABLE_JOB_CONTROL_WORKERS": "2",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "HYPERFRAMES_RENDER_WORKERS": "4",
+        "HYPERFRAMES_RENDER_MIN_FREE_MB": "2048",
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+      },
+      "started_at": "2026-10-19T15:53:47Z",
+      "build_id_from_startup_log": "25b83b0444ee7b5f1504",
+      "workers_ready_from_log": 5,
+      "control_workers_from_log": 0,
+      "light_workers_cli_default": 0
+    },
+    "source": {
+      "build_id": "25b83b0444ee7b5f1504",
+      "latest_mtime": 1792422090.9340003
+    },
+    "main_build_verification": "same source directory; process started after source modification; environment verified; main INFO fingerprint not present in journal",
+    "shared_stage_lock_namespace": {
+      "same_uid": 1009,
+      "private_tmp": false,
+      "tmp_device": 64769,
+      "tmp_inode": 262145
+    },
+    "configured_worker_layout": {
+      "main_general": 3,
+      "main_light": 2,
+      "main_control": 2,
+      "supplemental_general": 5
+    },
+    "full_five_video_course_retest": false
+  },
+  "stock_quiz_status": "published_and_verified",
+  "stock_quiz": {
+    "status": "succeeded",
+    "method": "authorized_targeted_numeric_data_repair",
+    "preparation_id": null,
+    "resource_version": 3,
+    "manifest_version": 23,
+    "exact_replacements_match": null,
+    "mismatches": [],
+    "same_question_ids": true,
+    "changed_questions": [
+      "q6-hand-calc-weights",
+      "q7-hand-calc-output"
+    ],
+    "other_resources_unchanged": true,
+    "route_version_unchanged": true,
+    "original_objective_bindings_restored": true,
+    "obsolete_intermediate_values_absent": true,
+    "numeric_errors": []
+  },
+  "corrected_quiz_live_review": {
+    "feedback": [],
+    "seconds": 235.94549897499382,
+    "checks": 31,
+    "format_retry": true
+  }
+}

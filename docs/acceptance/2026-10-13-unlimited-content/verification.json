@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-13T20:13:54.373785+00:00",
+  "scope": "Production course preparation and native OpenMAIC delivery",
+  "source_verification": "passed",
+  "removed": [
+    "home course goal 2000-character cap",
+    "requirements/findings/citations/nodes/objectives/activities/specification/manifest content count caps",
+    "content text field maxima",
+    "research finding hard stop at 12",
+    "node-research 60-call stop under retry-only policy",
+    "task cumulative calls/tokens/cost/total deadline caps including active legacy adoption",
+    "UTF-8-byte-as-token admission rejection in production",
+    "48/96KB and fraction-of-window production research quotas",
+    "per-phase 6k/12k/65k output quotas",
+    "mandatory native-classroom page mapping model pass and mapping-dependent delivery gate"
+  ],
+  "retained": [
+    "request/session timeouts",
+    "transport body/media/frame bounds",
+    "finite protocol/source/content/worker retries",
+    "provider actual capacity",
+    "cancellation/leases/authorization/idempotency/digests/native structural validation",
+    "report and quiz independent content review and supplied locator validation",
+    "explicit user requirements"
+  ],
+  "model_capacity_policy": {
+    "known_official_deepseek_output_limit": 384000,
+    "unknown_provider_output_limit": "max_tokens omitted; provider default",
+    "local_context_estimate": "telemetry only under retry_only",
+    "legacy_bounded_compatibility": "retained for callers outside production course preparation"
+  },
+  "classroom_alignment": {
+    "automatic_model_mapping": false,
+    "background_mapping_job_created": false,
+    "status": "not_generated",
+    "manifest_objective_coverage": "planned",
+    "fake_page_locators_or_checks_created": false,
+    "missing_optional_labels_do_not_trigger_report_or_quiz_repair": true
+  },
+  "tests": [
+    {
+      "scope": "entire course_preparation baseline",
+      "passed": 819,
+      "skipped": 16,
+      "failed": 2,
+      "note": "Both failures asserted deliberately removed phase output and citation-count quotas. Assertions were updated and affected test files rerun below. Not a clean single full-suite pass."
+    },
+    {
+      "scope": "generation/delivery/local manifests + new policy",
+      "passed": 74,
+      "skipped": 2,
+      "failed": 0
+    },
+    {
+      "scope": "research/API/constraints/research harness after assertion update",
+      "passed": 91,
+      "skipped": 5,
+      "failed": 0
+    },
+    {
+      "scope": "final classroom aggregation/delivery/no-extra-review/new-policy",
+      "passed": 65,
+      "skipped": 1,
+      "failed": 0
+    },
+    {
+      "scope": "final lifecycle/long HTTP input/retry-only policy",
+      "passed": 20,
+      "skipped": 0,
+      "failed": 0
+    },
+    {
+      "scope": "real native Harness SDK with mocked upstream: long full input, known and unknown model output policy",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "scope": "desktop/mobile browser against published frontend assets; API mocked",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "scope": "frontend self-learning TypeScript and lint, production build, git diff --check",
+      "status": "passed"
+    }
+  ],
+  "test_counts_overlap": true,
+  "real_failed_task_replay": {
+    "record": "real-checkpoint-replay.json",
+    "isolation": "temporary PostgreSQL schema; source production connection read-only",
+    "pages": 8,
+    "content_unchanged": true,
+    "classroom_saved_as_draft": true,
+    "other_completed_drafts_preserved": 4,
+    "model_calls": 0,
+    "production_mutations": 0
+  },
+  "deployment": {
+    "frontend": "published and browser rechecked",
+    "backend": "pending administrator restart; sudo requires password",
+    "command": "sudo systemctl restart edu-ai-backend",
+    "database_migration_required": false
+  },
+  "limits_of_verification": [
+    "No whole-course live model regeneration or production task retry in this turn.",
+    "Browser checks mocked APIs; long request acceptance separately exercised through FastAPI and SQLite/PostgreSQL.",
+    "Provider or transport limits and request timeouts can still produce bounded failures."
+  ]
+}

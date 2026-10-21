@@ -2,7 +2,7 @@
 from typing import Annotated, Literal
 from uuid import UUID
 from pydantic import Field, model_validator
-from .contracts import Contract, Identifier, Locator, ResourceRef
+from .contracts import Contract, Identifier, Locator, ResourceRef, Nonnegative
 
 
 class LecturePosition(Contract):
@@ -15,9 +15,21 @@ class LecturePosition(Contract):
     highlighted_element_ids: list[Identifier] = Field(default_factory=list, max_length=20)
 
 
+class TimelinePosition(Contract):
+    seconds: Nonnegative
+    segment_id: Identifier | None = None
+
+
 class ClassroomReadingContext(Contract):
     status: Literal['idle', 'playing', 'paused', 'interrupted', 'completed']
     lecture: LecturePosition | None = None
+    position: TimelinePosition | None = None
+
+    @model_validator(mode='after')
+    def single_position(self):
+        if self.lecture is not None and self.position is not None:
+            raise ValueError('choose a legacy lecture or a native timeline position')
+        return self
 
 
 class PracticeDraft(Contract):

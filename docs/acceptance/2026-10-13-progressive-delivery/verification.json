@@ -1,0 +1,88 @@
+{
+  "preparation_id": "prep_f13e2b0434204729a7835fff8298595e",
+  "failure": {
+    "node": "划分过程：基准值选取与一趟划分的跟踪",
+    "resource_type": "quiz",
+    "initial_problem": "答案与解析不一致，选项中没有与解析完全一致的正确答案",
+    "repair_problem": "局部修复片段未唯一匹配原文",
+    "old_parent_error": "PREPARATION_CONTENT_CONTRACT",
+    "saved_resources": 11,
+    "planned_resources": 12
+  },
+  "changes": [
+    "新建课程逐份发布已有校验回执的资源；失败或生成中不隐藏课程入口",
+    "部分课程明确标记未完成，缺失内容不虚报学习完成",
+    "有限次数修复片段失配时回退完整封装，保留题目 ID 和原反馈",
+    "重试保留已交付资料及课程入口，最终完成递增同一课程版本",
+    "提供旧失败任务资料恢复脚本，不触发模型或重生成"
+  ],
+  "verification": {
+    "progressive_and_legacy_resource_tests": {
+      "passed": 70
+    },
+    "delivery_retry_quality_lifecycle_pipeline": {
+      "passed": 112,
+      "skipped": 3
+    },
+    "prepared_content_and_recovery": {
+      "passed": 73,
+      "skipped": 20
+    },
+    "learning_reader_and_projections": {
+      "passed": 13
+    },
+    "frontend_task_unit_tests": {
+      "passed": 6
+    },
+    "browser_preview": {
+      "passed": 2,
+      "viewports": [
+        1440,
+        390
+      ],
+      "backend": "mocked"
+    },
+    "browser_deployed_frontend": {
+      "passed": 2,
+      "viewports": [
+        1440,
+        390
+      ],
+      "backend": "mocked"
+    },
+    "typescript_lint": "passed",
+    "production_build": "passed",
+    "real_task_isolated_postgresql": "11 份发布并读取成功；重试保留 11 份规格，只更新 1 份失败规格",
+    "progressive_final_suite": {
+      "passed": 20,
+      "databases": [
+        "SQLite",
+        "PostgreSQL"
+      ]
+    },
+    "production_http": "首页包含课程、课程详情及 11 份资源读取均返回 200",
+    "production_browser": {
+      "read_api_mocked": false,
+      "write_requests_suppressed": true,
+      "course_visible": true,
+      "report_rendered": true,
+      "entry_and_retry_buttons_visible": true,
+      "page_errors": 0,
+      "partial_notice_layout": "block"
+    }
+  },
+  "deployment": {
+    "frontend": "published",
+    "backend": "loaded",
+    "backend_pid_at_verification": 3469882,
+    "production_resources_recovered": true,
+    "backend_started_at": "2026-10-13 20:52:01 UTC",
+    "production_available_resources": 11
+  },
+  "boundaries": [
+    "尚未对本次失败习题进行新的真实模型生成",
+    "原任务 11 份资料已恢复到正式课程，剩余 1 份习题仍待用户选择重试",
+    "已有课程局部修改仍保留原子版本更新约定",
+    "浏览器读取使用正式接口；学习记录写入和辅导调用在验收浏览器中阻止，避免写入测试学习记录。"
+  ]
+}

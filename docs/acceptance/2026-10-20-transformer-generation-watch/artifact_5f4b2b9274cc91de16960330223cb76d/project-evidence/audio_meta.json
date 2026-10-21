@@ -1,0 +1,100 @@
+{
+ "tts_provider": "host",
+ "voice_id": null,
+ "voices": [
+  {
+   "frame": 1,
+   "id": "01",
+   "path": "assets/audio/4a7368ab10b2ad25727c194a48fb9a415c80f23713f9023cf9cc4b9a4683124f.mp3",
+   "duration_s": 13.248,
+   "words": []
+  },
+  {
+   "frame": 2,
+   "id": "02",
+   "path": "assets/audio/83fcefd0a00f19eb215e013a932b9f9e4f18abeaf7445ac7b437c7f348df350f.mp3",
+   "duration_s": 24.288,
+   "words": []
+  },
+  {
+   "frame": 3,
+   "id": "03",
+   "path": "assets/audio/66254b2171a897fd226b523a6348740872a5130f5200b4e44a06ce1627aba21f.mp3",
+   "duration_s": 21.744,
+   "words": []
+  },
+  {
+   "frame": 4,
+   "id": "04",
+   "path": "assets/audio/be88ac70396a7dbcb753a4060f17cdcc4c731cf7d396a668fa050d377905067a.mp3",
+   "duration_s": 30.288,
+   "words": []
+  },
+  {
+   "frame": 5,
+   "id": "05",
+   "path": "assets/audio/fd61eca6911fc6572ecccb805a938a5172eb4183d439157f7ff4328d467b2f06.mp3",
+   "duration_s": 29.496,
+   "words": []
+  },
+  {
+   "frame": 6,
+   "id": "06",
+   "path": "assets/audio/1b661402060f8344df97d23d72c62888f5fb1a651e2cda30f6df280fc363d8b9.mp3",
+   "duration_s": 26.208,
+   "words": []
+  },
+  {
+   "frame": 7,
+   "id": "07",
+   "path": "assets/audio/b7bbebf927b3c55e918e857aa03cf7d9d4cfd36b9747e88fef27680679d69bc9.mp3",
+   "duration_s": 11.664,
+   "words": []
+  },
+  {
+   "frame": 8,
+   "id": "08",
+   "path": "assets/audio/0cc41101c6bc5b52445d7cda53a1eaba057da15d9cea7e92d733f467d3a14bb9.mp3",
+   "duration_s": 19.968,
+   "words": []
+  },
+  {
+   "frame": 9,
+   "id": "09",
+   "path": "assets/audio/0c630f6055572e0935f75b8c7d6202ecc820d99aa31129ff3a9396df10dad36c.mp3",
+   "duration_s": 26.376,
+   "words": []
+  },
+  {
+   "frame": 10,
+   "id": "10",
+   "path": "assets/audio/bc0ef924d5bceee35cb47998d6e38b18bbfc7362b760411a05c1d5388bb22585.mp3",
+   "duration_s": 25.008,
+   "words": []
+  },
+  {
+   "frame": 11,
+   "id": "11",
+   "path": "assets/audio/8d711d770031d4c86eb5afca01cd2318c6cf88014cbd5c4417797ff2b8e24398.mp3",
+   "duration_s": 28.128,
+   "words": []
+  },
+  {
+   "frame": 12,
+   "id": "12",
+   "path": "assets/audio/aa681f173c3509d8f3a696f3f92bb7540a247dc0b4b25c731f8094bac6a74f7e.mp3",
+   "duration_s": 21.984,
+   "words": []
+  },
+  {
+   "frame": 13,
+   "id": "13",
+   "path": "assets/audio/5717ab46a4aca5a7282842b91366d932fedd9d6141a08dcb0e056432b93c80bb.mp3",
+   "duration_s": 17.808,
+   "words": []
+  }
+ ],
+ "total_duration_s": 296.20799999999997,
+ "bgm": null,
+ "sfx": []
+}

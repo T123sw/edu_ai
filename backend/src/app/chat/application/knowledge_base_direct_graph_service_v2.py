@@ -12,6 +12,15 @@ from app.chat.application.knowledge_base_document_content_provider import (
 from app.workspace_scope import SCOPE_TYPE_COURSE
 from core.course_storage import storage_manager as default_course_storage_manager
 
+GRAPH_WRITING_GUIDANCE = (
+    "导图用于快速看清知识结构。节点标题使用简短、明确的概念名；"
+    "summary 由你按语义直接概括为一个短语或短句，只说明该节点最核心的作用、区别或关系。"
+    "不要重复标题，不铺陈背景，不罗列多个知识点，不放长例子、代码或完整推导。"
+    "标题已能表达含义时，summary 可以留空。父节点说明不要重复子节点内容；"
+    "必要的知识点放在合适的子节点中。请自行提炼并写出完整意思，"
+    "不要截取原文首句或用省略号代替概括。例如“划分”的说明可写“把小于基准的元素移到左侧”。"
+)
+
 
 def _clean(value: Any) -> str:
     return str(value or "").strip()
@@ -82,7 +91,7 @@ class KnowledgeBaseDirectGraphServiceV2:
                     "content": (
                         f"{grounding_instruction}只返回 JSON。"
                         '结构固定为 {"title":"根节点","children":[{"title":"节点","summary":"说明","children":[]}]}。'
-                        "节点标题非空、同级不重复。"
+                        "节点标题非空、同级不重复。" + GRAPH_WRITING_GUIDANCE
                     ),
                 },
                 {
@@ -180,4 +189,3 @@ class KnowledgeBaseDirectGraphServiceV2:
 
 def build_default_knowledge_base_direct_graph_service_v2():
     return KnowledgeBaseDirectGraphServiceV2()
-

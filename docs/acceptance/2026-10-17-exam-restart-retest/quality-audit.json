@@ -1,0 +1,64 @@
+{
+  "sample_size": 4,
+  "scope": "independent computation on selected generated questions, not full quality approval",
+  "quality_approved": false,
+  "checks": [
+    {
+      "ordinal": 7,
+      "passed": true,
+      "expected_comparisons": 4,
+      "trace": [
+        50,
+        24,
+        37,
+        43
+      ],
+      "generated_comparisons": 4
+    },
+    {
+      "ordinal": 8,
+      "passed": true,
+      "expected_partition": [
+        "bp",
+        "mb",
+        "kf",
+        "ae",
+        "qc",
+        "th",
+        "xd",
+        "wj"
+      ],
+      "generated_option": "A"
+    },
+    {
+      "ordinal": 20,
+      "passed": false,
+      "answer_correct": true,
+      "expected_address_delta": 328,
+      "expected_bytes": 4,
+      "generated_explanation_delta": 276,
+      "reason": "Explanation says 2328-2000=276 and 276/82=4; answer 4 is correct but arithmetic explanation is false."
+    },
+    {
+      "ordinal": 26,
+      "passed": false,
+      "expected_subtree_nodes": [
+        399,
+        799,
+        800,
+        1599
+      ],
+      "expected_subtree_leaves": [
+        800,
+        1599
+      ],
+      "generated_node_count": 6,
+      "generated_leaves": [
+        1598,
+        1599,
+        1600
+      ],
+      "reason": "Invalid child indices and includes index 1600 outside a 1600-node zero-indexed tree."
+    }
+  ]
+}

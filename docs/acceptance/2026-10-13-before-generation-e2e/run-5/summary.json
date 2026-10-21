@@ -1,0 +1,186 @@
+{
+  "preparation_id": "prep_7e85f0dd8be64359a2461488d95a346a",
+  "action_counts": {
+    "model_completion": 13,
+    "search": 2,
+    "extract": 3
+  },
+  "model_phases": {
+    "intent": {
+      "calls": 1,
+      "total_tokens": 5022,
+      "prompt_tokens": 4579,
+      "completion_tokens": 443,
+      "max_input_bytes_upper_bound": 20359,
+      "tools": {
+        "mcp__preparation__save_preparation_brief": 1
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "understand-learning-request"
+      ]
+    },
+    "learning_path": {
+      "calls": 8,
+      "total_tokens": 160588,
+      "prompt_tokens": 156300,
+      "completion_tokens": 4288,
+      "max_input_bytes_upper_bound": 98134,
+      "tools": {
+        "mcp__preparation__search_sources": 2,
+        "mcp__preparation__fetch_source": 4,
+        "mcp__preparation__record_evidence_finding": 6,
+        "mcp__preparation__finalize_research_summary": 1,
+        "mcp__preparation__save_course_plan": 1
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "build-learning-path"
+      ]
+    },
+    "review": {
+      "calls": 1,
+      "total_tokens": 11122,
+      "prompt_tokens": 11000,
+      "completion_tokens": 122,
+      "max_input_bytes_upper_bound": 40666,
+      "tools": {
+        "mcp__preparation__submit_path_review": 1
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "review-learning-path"
+      ]
+    },
+    "research_nodes": {
+      "calls": 3,
+      "total_tokens": 28151,
+      "prompt_tokens": 26908,
+      "completion_tokens": 1243,
+      "max_input_bytes_upper_bound": 37912,
+      "tools": {
+        "mcp__preparation__assess_node_evidence": 3
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "review-learning-path"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "stage": "normalize",
+      "started_at": 1791915338.395552,
+      "seconds": 4.211630344390869,
+      "next_stage": "research_scope",
+      "error": null
+    },
+    {
+      "stage": "research_scope",
+      "started_at": 1791915343.2446542,
+      "seconds": 47.662270307540894,
+      "next_stage": "plan",
+      "error": null
+    },
+    {
+      "stage": "plan",
+      "started_at": 1791915391.7599924,
+      "seconds": 3.422917127609253,
+      "next_stage": "research_nodes",
+      "error": null
+    },
+    {
+      "stage": "research_nodes",
+      "started_at": 1791915395.7607,
+      "seconds": 4.68958306312561,
+      "next_stage": null,
+      "error": null
+    },
+    {
+      "stage": "research_nodes",
+      "started_at": 1791915401.78744,
+      "seconds": 4.739567995071411,
+      "next_stage": null,
+      "error": null
+    },
+    {
+      "stage": "research_nodes",
+      "started_at": 1791915407.2318447,
+      "seconds": 4.720548868179321,
+      "next_stage": "produce",
+      "error": null
+    },
+    {
+      "stage": "produce",
+      "started_at": 1791915413.2660677,
+      "seconds": 0.3370659351348877,
+      "next_stage": null,
+      "error": null
+    }
+  ],
+  "nodes": 3,
+  "findings": 6,
+  "sources": 4,
+  "resource_spec_count": 9,
+  "resources_generated": {
+    "preparation_artifacts": 0,
+    "prepared_manifest_versions": 0
+  },
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 18,
+      "tokens": 204883,
+      "cost_micro_usd": 2048830
+    },
+    "deadline": "2026-10-13 19:15:38.136119+00:00"
+  },
+  "status": {
+    "preparation_id": "prep_7e85f0dd8be64359a2461488d95a346a",
+    "attempt_no": 1,
+    "status": "canceled",
+    "stage": "produce",
+    "revision": 76,
+    "error_code": null,
+    "result_ref": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 18,
+        "tokens": 204883,
+        "cost_micro_usd": 2048830
+      },
+      "deadline": "2026-10-13T19:15:38.136119+00:00"
+    }
+  },
+  "context_restarts": 0,
+  "node_research_repairs": 0
+}

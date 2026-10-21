@@ -1,0 +1,3195 @@
+{
+  "lint": {
+    "ok": true,
+    "findings": [
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "composition_file_too_large",
+        "time": 0,
+        "fixHint": "Split coherent scenes or layers into separate .html files under compositions/, then mount them from the parent with data-composition-src so each file stays small enough to inspect, revise, and validate independently.",
+        "message": "This HTML composition file has 603 lines. Smaller sub-compositions are easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "timeline_track_too_dense",
+        "time": 0,
+        "fixHint": "Move coherent scene groups into separate .html files under compositions/ and mount them from the parent with data-composition-src so the timeline stays easier to inspect, revise, and validate.",
+        "message": "Track 0 has 11 timed elements in this HTML file. Smaller sub-compositions keep timelines easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s1\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s1\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s1",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s2\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s2\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s2",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s3\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s3\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s3",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s4\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s4\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s4",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s5\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s5\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s5",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s6\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s6\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s6",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s7\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s7\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s7",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s8\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s8\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s8",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s9\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s9\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s9",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s10\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s10\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s10",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"s11\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"s11\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#s11",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "duplicate_audio_track",
+        "time": 0,
+        "fixHint": "Use non-overlapping time windows or different track indices.",
+        "message": "Multiple audible <audio>/<video> elements on track 5 overlap (assets/seg_misconception.mp3 at 132.96-148.3s, assets/seg_check1.mp3 at 148.296-179.1s). This causes layered audio playback.",
+        "selector": "[data-composition-id]",
+        "severity": "warning",
+        "sourceFile": "index.html",
+        "dataAttributes": {}
+      }
+    ],
+    "infoCount": 0,
+    "errorCount": 0,
+    "filesScanned": 1,
+    "warningCount": 14
+  },
+  "check": {
+    "ok": false,
+    "hdr": {
+      "inspection": "available",
+      "autoPromotion": null
+    },
+    "lint": {
+      "ok": true,
+      "findings": [
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "composition_file_too_large",
+          "time": 0,
+          "fixHint": "Split coherent scenes or layers into separate .html files under compositions/, then mount them from the parent with data-composition-src so each file stays small enough to inspect, revise, and validate independently.",
+          "message": "This HTML composition file has 603 lines. Smaller sub-compositions are easier to read, iterate on, and diff.",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "timeline_track_too_dense",
+          "time": 0,
+          "fixHint": "Move coherent scene groups into separate .html files under compositions/ and mount them from the parent with data-composition-src so the timeline stays easier to inspect, revise, and validate.",
+          "message": "Track 0 has 11 timed elements in this HTML file. Smaller sub-compositions keep timelines easier to read, iterate on, and diff.",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s1\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s1\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s1",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s2\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s2\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s2",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s3\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s3\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s3",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s4\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s4\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s4",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s5\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s5\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s5",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s6\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s6\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s6",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s7\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s7\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s7",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s8\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s8\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s8",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s9\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s9\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s9",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s10\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s10\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s10",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"s11\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"s11\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#s11",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-vpa1nm6f/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "duplicate_audio_track",
+          "time": 0,
+          "fixHint": "Use non-overlapping time windows or different track indices.",
+          "message": "Multiple audible <audio>/<video> elements on track 5 overlap (assets/seg_misconception.mp3 at 132.96-148.3s, assets/seg_check1.mp3 at 148.296-179.1s). This causes layered audio playback.",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {}
+        }
+      ],
+      "infoCount": 0,
+      "errorCount": 0,
+      "filesScanned": 1,
+      "warningCount": 14
+    },
+    "_meta": {
+      "version": "0.8.168",
+      "updateAvailable": false
+    },
+    "saved": {
+      "id": "8c7c5576-11ff-40b5-bd0a-59633c496a95",
+      "report": "/tmp/edu-hyperframes-vpa1nm6f/.hyperframes/artifacts/checks/8c7c5576-11ff-40b5-bd0a-59633c496a95.json",
+      "revision": "57199d16-cc84-4d15-820b-28b40c9a31ee",
+      "attribution": "recorded-revision"
+    },
+    "layout": {
+      "ok": false,
+      "samples": [
+        12.475,
+        37.424,
+        62.373,
+        87.323,
+        112.272,
+        137.221,
+        162.171,
+        187.12,
+        212.069
+      ],
+      "duration": 224.544,
+      "findings": [
+        {
+          "bbox": {
+            "x": 600,
+            "y": 651,
+            "width": 17.33,
+            "height": 25
+          },
+          "code": "content_overlap",
+          "rect": {
+            "top": 651,
+            "left": 600,
+            "right": 617.33,
+            "width": 17.33,
+            "bottom": 676,
+            "height": 25
+          },
+          "text": "O",
+          "time": 50.177,
+          "times": [
+            50.177,
+            50.677,
+            51.432,
+            52.686,
+            53.941,
+            55.195,
+            56.45,
+            57.704,
+            58.958
+          ],
+          "heldMs": 1255.0000000000025,
+          "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+          "message": "Two text blocks overlap and may render unreadable.",
+          "lastSeen": 58.958,
+          "selector": "#s3-graph > text:nth-of-type(3)",
+          "severity": "error",
+          "firstSeen": 50.177,
+          "sourceFile": "index.html",
+          "occurrences": 9,
+          "dataAttributes": {},
+          "containerSelector": "#s3-pt"
+        },
+        {
+          "bbox": {
+            "x": 680,
+            "y": 651,
+            "width": 14,
+            "height": 25
+          },
+          "code": "content_overlap",
+          "rect": {
+            "top": 651,
+            "left": 680,
+            "right": 694,
+            "width": 14,
+            "bottom": 676,
+            "height": 25
+          },
+          "text": "1",
+          "time": 50.177,
+          "times": [
+            50.177,
+            50.677,
+            51.432,
+            52.686,
+            53.941,
+            55.195,
+            56.45,
+            57.704,
+            58.958
+          ],
+          "heldMs": 1255.0000000000025,
+          "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+          "message": "Two text blocks overlap and may render unreadable.",
+          "lastSeen": 58.958,
+          "selector": "#s3-graph > text:nth-of-type(4)",
+          "severity": "error",
+          "firstSeen": 50.177,
+          "sourceFile": "index.html",
+          "occurrences": 9,
+          "dataAttributes": {},
+          "containerSelector": "#s3-pt"
+        },
+        {
+          "bbox": {
+            "x": 220,
+            "y": 180,
+            "width": 800,
+            "height": 600
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 180,
+            "left": 220,
+            "right": 1020,
+            "width": 800,
+            "bottom": 780,
+            "height": 600
+          },
+          "time": 12.475,
+          "times": [
+            12.475
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 12.475,
+          "overflow": {
+            "top": 120
+          },
+          "selector": "#s1-l-cyan",
+          "severity": "info",
+          "firstSeen": 12.475,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 300,
+            "left": 120,
+            "right": 1120,
+            "width": 1000,
+            "bottom": 1060,
+            "height": 760
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s1-graph"
+        },
+        {
+          "bbox": {
+            "x": 220,
+            "y": 580,
+            "width": 800,
+            "height": 600
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 580,
+            "left": 220,
+            "right": 1020,
+            "width": 800,
+            "bottom": 1180,
+            "height": 600
+          },
+          "time": 12.475,
+          "times": [
+            12.475
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 12.475,
+          "overflow": {
+            "bottom": 120
+          },
+          "selector": "#s1-l-violet",
+          "severity": "info",
+          "firstSeen": 12.475,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 300,
+            "left": 120,
+            "right": 1120,
+            "width": 1000,
+            "bottom": 1060,
+            "height": 760
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s1-graph"
+        },
+        {
+          "bbox": {
+            "x": 160,
+            "y": 50,
+            "width": 700,
+            "height": 800
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 50,
+            "left": 160,
+            "right": 860,
+            "width": 700,
+            "bottom": 850,
+            "height": 800
+          },
+          "time": 37.424,
+          "times": [
+            37.424
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 37.424,
+          "overflow": {
+            "top": 200
+          },
+          "selector": "#s2-line",
+          "severity": "info",
+          "firstSeen": 37.424,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 250,
+            "left": 100,
+            "right": 920,
+            "width": 820,
+            "bottom": 950,
+            "height": 700
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s2-graph"
+        },
+        {
+          "bbox": {
+            "x": 180,
+            "y": 30,
+            "width": 780,
+            "height": 800
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 30,
+            "left": 180,
+            "right": 960,
+            "width": 780,
+            "bottom": 830,
+            "height": 800
+          },
+          "time": 62.373,
+          "times": [
+            62.373
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 62.373,
+          "overflow": {
+            "top": 200
+          },
+          "selector": "#s4-ref",
+          "severity": "info",
+          "firstSeen": 62.373,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 230,
+            "left": 120,
+            "right": 1020,
+            "width": 900,
+            "bottom": 950,
+            "height": 720
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s4-graph"
+        },
+        {
+          "bbox": {
+            "x": 180,
+            "y": -147.74,
+            "width": 780,
+            "height": 800
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": -147.74,
+            "left": 180,
+            "right": 960,
+            "width": 780,
+            "bottom": 652.26,
+            "height": 800
+          },
+          "time": 62.373,
+          "times": [
+            62.373
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 62.373,
+          "overflow": {
+            "top": 377.74
+          },
+          "selector": "#s4-line",
+          "severity": "info",
+          "firstSeen": 62.373,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 230,
+            "left": 120,
+            "right": 1020,
+            "width": 900,
+            "bottom": 950,
+            "height": 720
+          },
+          "dataAttributes": {
+            "data-svg-origin": "60 -400"
+          },
+          "containerSelector": "#s4-graph"
+        },
+        {
+          "bbox": {
+            "x": 180,
+            "y": 30,
+            "width": 780,
+            "height": 800
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 30,
+            "left": 180,
+            "right": 960,
+            "width": 780,
+            "bottom": 830,
+            "height": 800
+          },
+          "time": 87.323,
+          "times": [
+            87.323
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 87.323,
+          "overflow": {
+            "top": 200
+          },
+          "selector": "#s5-ref",
+          "severity": "info",
+          "firstSeen": 87.323,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 230,
+            "left": 120,
+            "right": 1020,
+            "width": 900,
+            "bottom": 950,
+            "height": 720
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s5-graph"
+        },
+        {
+          "bbox": {
+            "x": 180,
+            "y": 230,
+            "width": 780,
+            "height": 800
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 230,
+            "left": 180,
+            "right": 960,
+            "width": 780,
+            "bottom": 1030,
+            "height": 800
+          },
+          "time": 87.323,
+          "times": [
+            87.323
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 87.323,
+          "overflow": {
+            "bottom": 80
+          },
+          "selector": "#s5-line",
+          "severity": "info",
+          "firstSeen": 87.323,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 230,
+            "left": 120,
+            "right": 1020,
+            "width": 900,
+            "bottom": 950,
+            "height": 720
+          },
+          "dataAttributes": {
+            "data-svg-origin": "60 0"
+          },
+          "containerSelector": "#s5-graph"
+        },
+        {
+          "bbox": {
+            "x": 180,
+            "y": -170,
+            "width": 780,
+            "height": 800
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": -170,
+            "left": 180,
+            "right": 960,
+            "width": 780,
+            "bottom": 630,
+            "height": 800
+          },
+          "time": 112.272,
+          "times": [
+            112.272
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 112.272,
+          "overflow": {
+            "top": 400
+          },
+          "selector": "#s6-l-amber",
+          "severity": "info",
+          "firstSeen": 112.272,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 230,
+            "left": 120,
+            "right": 1020,
+            "width": 900,
+            "bottom": 950,
+            "height": 720
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s6-graph"
+        },
+        {
+          "bbox": {
+            "x": 180,
+            "y": 30,
+            "width": 780,
+            "height": 800
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 30,
+            "left": 180,
+            "right": 960,
+            "width": 780,
+            "bottom": 830,
+            "height": 800
+          },
+          "time": 112.272,
+          "times": [
+            112.272
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 112.272,
+          "overflow": {
+            "top": 200
+          },
+          "selector": "#s6-l-cyan",
+          "severity": "info",
+          "firstSeen": 112.272,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 230,
+            "left": 120,
+            "right": 1020,
+            "width": 900,
+            "bottom": 950,
+            "height": 720
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s6-graph"
+        },
+        {
+          "bbox": {
+            "x": 180,
+            "y": 230,
+            "width": 780,
+            "height": 800
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 230,
+            "left": 180,
+            "right": 960,
+            "width": 780,
+            "bottom": 1030,
+            "height": 800
+          },
+          "time": 112.272,
+          "times": [
+            112.272
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 112.272,
+          "overflow": {
+            "bottom": 80
+          },
+          "selector": "#s6-l-violet",
+          "severity": "info",
+          "firstSeen": 112.272,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 230,
+            "left": 120,
+            "right": 1020,
+            "width": 900,
+            "bottom": 950,
+            "height": 720
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s6-graph"
+        },
+        {
+          "bbox": {
+            "x": 191,
+            "y": 6,
+            "width": 640,
+            "height": 640
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 6,
+            "left": 191,
+            "right": 831,
+            "width": 640,
+            "bottom": 646,
+            "height": 640
+          },
+          "time": 137.221,
+          "times": [
+            137.221
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 137.221,
+          "overflow": {
+            "top": 320
+          },
+          "selector": "#s8-wrong > svg:nth-of-type(1) > line:nth-of-type(7)",
+          "severity": "info",
+          "firstSeen": 137.221,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 326,
+            "left": 151,
+            "right": 871,
+            "width": 720,
+            "bottom": 746,
+            "height": 420
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s8-wrong > svg:nth-of-type(1)"
+        },
+        {
+          "bbox": {
+            "x": 191,
+            "y": -794,
+            "width": 640,
+            "height": 1440
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": -794,
+            "left": 191,
+            "right": 831,
+            "width": 640,
+            "bottom": 646,
+            "height": 1440
+          },
+          "time": 137.221,
+          "times": [
+            137.221
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 137.221,
+          "overflow": {
+            "top": 1120
+          },
+          "selector": "line.line-red",
+          "severity": "info",
+          "firstSeen": 137.221,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 326,
+            "left": 151,
+            "right": 871,
+            "width": 720,
+            "bottom": 746,
+            "height": 420
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s8-wrong > svg:nth-of-type(1)"
+        },
+        {
+          "bbox": {
+            "x": 1091,
+            "y": 6,
+            "width": 640,
+            "height": 640
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 6,
+            "left": 1091,
+            "right": 1731,
+            "width": 640,
+            "bottom": 646,
+            "height": 640
+          },
+          "time": 137.221,
+          "times": [
+            137.221
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 137.221,
+          "overflow": {
+            "top": 320
+          },
+          "selector": "#s8-right > svg:nth-of-type(1) > line:nth-of-type(7)",
+          "severity": "info",
+          "firstSeen": 137.221,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 326,
+            "left": 1051,
+            "right": 1771,
+            "width": 720,
+            "bottom": 746,
+            "height": 420
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s8-right > svg:nth-of-type(1)"
+        },
+        {
+          "bbox": {
+            "x": 1091,
+            "y": -154,
+            "width": 640,
+            "height": 640
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": -154,
+            "left": 1091,
+            "right": 1731,
+            "width": 640,
+            "bottom": 486,
+            "height": 640
+          },
+          "time": 137.221,
+          "times": [
+            137.221
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 137.221,
+          "overflow": {
+            "top": 480
+          },
+          "selector": "#s8-right > svg:nth-of-type(1) > line:nth-of-type(8)",
+          "severity": "info",
+          "firstSeen": 137.221,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 326,
+            "left": 1051,
+            "right": 1771,
+            "width": 720,
+            "bottom": 746,
+            "height": 420
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s8-right > svg:nth-of-type(1)"
+        },
+        {
+          "bbox": {
+            "x": 150,
+            "y": -180,
+            "width": 680,
+            "height": 760
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": -180,
+            "left": 150,
+            "right": 830,
+            "width": 680,
+            "bottom": 580,
+            "height": 760
+          },
+          "time": 212.069,
+          "times": [
+            212.069
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 212.069,
+          "overflow": {
+            "top": 430
+          },
+          "selector": "#s11-graph > line:nth-of-type(3)",
+          "severity": "info",
+          "firstSeen": 212.069,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 250,
+            "left": 110,
+            "right": 870,
+            "width": 760,
+            "bottom": 870,
+            "height": 620
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s11-graph"
+        },
+        {
+          "bbox": {
+            "x": 150,
+            "y": -180,
+            "width": 680,
+            "height": 760
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": -180,
+            "left": 150,
+            "right": 830,
+            "width": 680,
+            "bottom": 580,
+            "height": 760
+          },
+          "time": 212.069,
+          "times": [
+            212.069
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 212.069,
+          "overflow": {
+            "top": 430
+          },
+          "selector": "#s11-l-cyan",
+          "severity": "info",
+          "firstSeen": 212.069,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 250,
+            "left": 110,
+            "right": 870,
+            "width": 760,
+            "bottom": 870,
+            "height": 620
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s11-graph"
+        },
+        {
+          "bbox": {
+            "x": 150,
+            "y": 20,
+            "width": 680,
+            "height": 760
+          },
+          "code": "container_overflow",
+          "rect": {
+            "top": 20,
+            "left": 150,
+            "right": 830,
+            "width": 680,
+            "bottom": 780,
+            "height": 760
+          },
+          "time": 212.069,
+          "times": [
+            212.069
+          ],
+          "heldMs": 0,
+          "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+          "message": "Element extends outside a clipping layout container.",
+          "lastSeen": 212.069,
+          "overflow": {
+            "top": 230
+          },
+          "selector": "#s11-l-violet",
+          "severity": "info",
+          "firstSeen": 212.069,
+          "sourceFile": "index.html",
+          "occurrences": 1,
+          "containerRect": {
+            "top": 250,
+            "left": 110,
+            "right": 870,
+            "width": 760,
+            "bottom": 870,
+            "height": 620
+          },
+          "dataAttributes": {},
+          "containerSelector": "#s11-graph"
+        }
+      ],
+      "infoCount": 17,
+      "tolerance": 2,
+      "truncated": false,
+      "errorCount": 2,
+      "warningCount": 0,
+      "totalIssueCount": 19,
+      "transitionSamples": [],
+      "transitionSamplesDropped": 0
+    },
+    "motion": {
+      "ok": true,
+      "enabled": true,
+      "samples": 300,
+      "findings": [],
+      "specPath": "/tmp/edu-hyperframes-vpa1nm6f/index.motion.json",
+      "infoCount": 0,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    "strict": false,
+    "runtime": {
+      "ok": true,
+      "findings": [
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 0,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 4.506,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 4.506,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 7.51,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 7.51,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 10.514,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 10.514,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 24.782,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 24.782,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 31.541,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 31.541,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 48.063,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 48.063,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 63.834,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 63.834,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 78.102,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 78.102,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 99.13,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 99.13,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 99.13,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 99.13,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 99.13,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 99.13,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 120.157,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 120.157,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 121.659,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 121.659,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 193.754,
+          "message": "Invalid property drawSVG set to 0 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:41795/",
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+          },
+          "code": "console_warning",
+          "line": 67,
+          "time": 193.754,
+          "message": "Invalid property drawSVG set to 1 Missing plugin? gsap.registerPlugin()",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {
+            "data-start": "0",
+            "data-width": "1920",
+            "data-height": "1080",
+            "data-duration": "224.544",
+            "data-composition-id": "main"
+          }
+        }
+      ],
+      "infoCount": 0,
+      "errorCount": 0,
+      "warningCount": 42
+    },
+    "contrast": {
+      "ok": true,
+      "passed": 56,
+      "checked": 56,
+      "enabled": true,
+      "samples": [
+        12.475,
+        62.373,
+        112.272,
+        162.171,
+        212.069
+      ],
+      "findings": [],
+      "infoCount": 0,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    "snapshots": {
+      "files": [],
+      "times": [],
+      "enabled": false,
+      "findingFiles": []
+    },
+    "browserSkipped": false
+  },
+  "issues": [
+    {
+      "bbox": {
+        "x": 600,
+        "y": 651,
+        "width": 17.33,
+        "height": 25
+      },
+      "code": "content_overlap",
+      "rect": {
+        "top": 651,
+        "left": 600,
+        "right": 617.33,
+        "width": 17.33,
+        "bottom": 676,
+        "height": 25
+      },
+      "text": "O",
+      "time": 50.177,
+      "times": [
+        50.177,
+        50.677,
+        51.432,
+        52.686,
+        53.941,
+        55.195,
+        56.45,
+        57.704,
+        58.958
+      ],
+      "heldMs": 1255.0000000000025,
+      "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+      "message": "Two text blocks overlap and may render unreadable.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 58.958,
+      "selector": "#s3-graph > text:nth-of-type(3)",
+      "severity": "error",
+      "firstSeen": 50.177,
+      "sourceFile": "index.html",
+      "occurrences": 9,
+      "dataAttributes": {},
+      "containerSelector": "#s3-pt"
+    },
+    {
+      "bbox": {
+        "x": 680,
+        "y": 651,
+        "width": 14,
+        "height": 25
+      },
+      "code": "content_overlap",
+      "rect": {
+        "top": 651,
+        "left": 680,
+        "right": 694,
+        "width": 14,
+        "bottom": 676,
+        "height": 25
+      },
+      "text": "1",
+      "time": 50.177,
+      "times": [
+        50.177,
+        50.677,
+        51.432,
+        52.686,
+        53.941,
+        55.195,
+        56.45,
+        57.704,
+        58.958
+      ],
+      "heldMs": 1255.0000000000025,
+      "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+      "message": "Two text blocks overlap and may render unreadable.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 58.958,
+      "selector": "#s3-graph > text:nth-of-type(4)",
+      "severity": "error",
+      "firstSeen": 50.177,
+      "sourceFile": "index.html",
+      "occurrences": 9,
+      "dataAttributes": {},
+      "containerSelector": "#s3-pt"
+    },
+    {
+      "bbox": {
+        "x": 220,
+        "y": 180,
+        "width": 800,
+        "height": 600
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 180,
+        "left": 220,
+        "right": 1020,
+        "width": 800,
+        "bottom": 780,
+        "height": 600
+      },
+      "time": 12.475,
+      "times": [
+        12.475
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 12.475,
+      "overflow": {
+        "top": 120
+      },
+      "selector": "#s1-l-cyan",
+      "severity": "info",
+      "firstSeen": 12.475,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 300,
+        "left": 120,
+        "right": 1120,
+        "width": 1000,
+        "bottom": 1060,
+        "height": 760
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s1-graph"
+    },
+    {
+      "bbox": {
+        "x": 220,
+        "y": 580,
+        "width": 800,
+        "height": 600
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 580,
+        "left": 220,
+        "right": 1020,
+        "width": 800,
+        "bottom": 1180,
+        "height": 600
+      },
+      "time": 12.475,
+      "times": [
+        12.475
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 12.475,
+      "overflow": {
+        "bottom": 120
+      },
+      "selector": "#s1-l-violet",
+      "severity": "info",
+      "firstSeen": 12.475,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 300,
+        "left": 120,
+        "right": 1120,
+        "width": 1000,
+        "bottom": 1060,
+        "height": 760
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s1-graph"
+    },
+    {
+      "bbox": {
+        "x": 160,
+        "y": 50,
+        "width": 700,
+        "height": 800
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 50,
+        "left": 160,
+        "right": 860,
+        "width": 700,
+        "bottom": 850,
+        "height": 800
+      },
+      "time": 37.424,
+      "times": [
+        37.424
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 37.424,
+      "overflow": {
+        "top": 200
+      },
+      "selector": "#s2-line",
+      "severity": "info",
+      "firstSeen": 37.424,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 250,
+        "left": 100,
+        "right": 920,
+        "width": 820,
+        "bottom": 950,
+        "height": 700
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s2-graph"
+    },
+    {
+      "bbox": {
+        "x": 180,
+        "y": 30,
+        "width": 780,
+        "height": 800
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 30,
+        "left": 180,
+        "right": 960,
+        "width": 780,
+        "bottom": 830,
+        "height": 800
+      },
+      "time": 62.373,
+      "times": [
+        62.373
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 62.373,
+      "overflow": {
+        "top": 200
+      },
+      "selector": "#s4-ref",
+      "severity": "info",
+      "firstSeen": 62.373,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 230,
+        "left": 120,
+        "right": 1020,
+        "width": 900,
+        "bottom": 950,
+        "height": 720
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s4-graph"
+    },
+    {
+      "bbox": {
+        "x": 180,
+        "y": -147.74,
+        "width": 780,
+        "height": 800
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": -147.74,
+        "left": 180,
+        "right": 960,
+        "width": 780,
+        "bottom": 652.26,
+        "height": 800
+      },
+      "time": 62.373,
+      "times": [
+        62.373
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 62.373,
+      "overflow": {
+        "top": 377.74
+      },
+      "selector": "#s4-line",
+      "severity": "info",
+      "firstSeen": 62.373,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 230,
+        "left": 120,
+        "right": 1020,
+        "width": 900,
+        "bottom": 950,
+        "height": 720
+      },
+      "dataAttributes": {
+        "data-svg-origin": "60 -400"
+      },
+      "containerSelector": "#s4-graph"
+    },
+    {
+      "bbox": {
+        "x": 180,
+        "y": 30,
+        "width": 780,
+        "height": 800
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 30,
+        "left": 180,
+        "right": 960,
+        "width": 780,
+        "bottom": 830,
+        "height": 800
+      },
+      "time": 87.323,
+      "times": [
+        87.323
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 87.323,
+      "overflow": {
+        "top": 200
+      },
+      "selector": "#s5-ref",
+      "severity": "info",
+      "firstSeen": 87.323,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 230,
+        "left": 120,
+        "right": 1020,
+        "width": 900,
+        "bottom": 950,
+        "height": 720
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s5-graph"
+    },
+    {
+      "bbox": {
+        "x": 180,
+        "y": 230,
+        "width": 780,
+        "height": 800
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 230,
+        "left": 180,
+        "right": 960,
+        "width": 780,
+        "bottom": 1030,
+        "height": 800
+      },
+      "time": 87.323,
+      "times": [
+        87.323
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 87.323,
+      "overflow": {
+        "bottom": 80
+      },
+      "selector": "#s5-line",
+      "severity": "info",
+      "firstSeen": 87.323,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 230,
+        "left": 120,
+        "right": 1020,
+        "width": 900,
+        "bottom": 950,
+        "height": 720
+      },
+      "dataAttributes": {
+        "data-svg-origin": "60 0"
+      },
+      "containerSelector": "#s5-graph"
+    },
+    {
+      "bbox": {
+        "x": 180,
+        "y": -170,
+        "width": 780,
+        "height": 800
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": -170,
+        "left": 180,
+        "right": 960,
+        "width": 780,
+        "bottom": 630,
+        "height": 800
+      },
+      "time": 112.272,
+      "times": [
+        112.272
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 112.272,
+      "overflow": {
+        "top": 400
+      },
+      "selector": "#s6-l-amber",
+      "severity": "info",
+      "firstSeen": 112.272,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 230,
+        "left": 120,
+        "right": 1020,
+        "width": 900,
+        "bottom": 950,
+        "height": 720
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s6-graph"
+    },
+    {
+      "bbox": {
+        "x": 180,
+        "y": 30,
+        "width": 780,
+        "height": 800
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 30,
+        "left": 180,
+        "right": 960,
+        "width": 780,
+        "bottom": 830,
+        "height": 800
+      },
+      "time": 112.272,
+      "times": [
+        112.272
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 112.272,
+      "overflow": {
+        "top": 200
+      },
+      "selector": "#s6-l-cyan",
+      "severity": "info",
+      "firstSeen": 112.272,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 230,
+        "left": 120,
+        "right": 1020,
+        "width": 900,
+        "bottom": 950,
+        "height": 720
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s6-graph"
+    },
+    {
+      "bbox": {
+        "x": 180,
+        "y": 230,
+        "width": 780,
+        "height": 800
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 230,
+        "left": 180,
+        "right": 960,
+        "width": 780,
+        "bottom": 1030,
+        "height": 800
+      },
+      "time": 112.272,
+      "times": [
+        112.272
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 112.272,
+      "overflow": {
+        "bottom": 80
+      },
+      "selector": "#s6-l-violet",
+      "severity": "info",
+      "firstSeen": 112.272,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 230,
+        "left": 120,
+        "right": 1020,
+        "width": 900,
+        "bottom": 950,
+        "height": 720
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s6-graph"
+    },
+    {
+      "bbox": {
+        "x": 191,
+        "y": 6,
+        "width": 640,
+        "height": 640
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 6,
+        "left": 191,
+        "right": 831,
+        "width": 640,
+        "bottom": 646,
+        "height": 640
+      },
+      "time": 137.221,
+      "times": [
+        137.221
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 137.221,
+      "overflow": {
+        "top": 320
+      },
+      "selector": "#s8-wrong > svg:nth-of-type(1) > line:nth-of-type(7)",
+      "severity": "info",
+      "firstSeen": 137.221,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 326,
+        "left": 151,
+        "right": 871,
+        "width": 720,
+        "bottom": 746,
+        "height": 420
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s8-wrong > svg:nth-of-type(1)"
+    },
+    {
+      "bbox": {
+        "x": 191,
+        "y": -794,
+        "width": 640,
+        "height": 1440
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": -794,
+        "left": 191,
+        "right": 831,
+        "width": 640,
+        "bottom": 646,
+        "height": 1440
+      },
+      "time": 137.221,
+      "times": [
+        137.221
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 137.221,
+      "overflow": {
+        "top": 1120
+      },
+      "selector": "line.line-red",
+      "severity": "info",
+      "firstSeen": 137.221,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 326,
+        "left": 151,
+        "right": 871,
+        "width": 720,
+        "bottom": 746,
+        "height": 420
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s8-wrong > svg:nth-of-type(1)"
+    },
+    {
+      "bbox": {
+        "x": 1091,
+        "y": 6,
+        "width": 640,
+        "height": 640
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 6,
+        "left": 1091,
+        "right": 1731,
+        "width": 640,
+        "bottom": 646,
+        "height": 640
+      },
+      "time": 137.221,
+      "times": [
+        137.221
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 137.221,
+      "overflow": {
+        "top": 320
+      },
+      "selector": "#s8-right > svg:nth-of-type(1) > line:nth-of-type(7)",
+      "severity": "info",
+      "firstSeen": 137.221,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 326,
+        "left": 1051,
+        "right": 1771,
+        "width": 720,
+        "bottom": 746,
+        "height": 420
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s8-right > svg:nth-of-type(1)"
+    },
+    {
+      "bbox": {
+        "x": 1091,
+        "y": -154,
+        "width": 640,
+        "height": 640
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": -154,
+        "left": 1091,
+        "right": 1731,
+        "width": 640,
+        "bottom": 486,
+        "height": 640
+      },
+      "time": 137.221,
+      "times": [
+        137.221
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 137.221,
+      "overflow": {
+        "top": 480
+      },
+      "selector": "#s8-right > svg:nth-of-type(1) > line:nth-of-type(8)",
+      "severity": "info",
+      "firstSeen": 137.221,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 326,
+        "left": 1051,
+        "right": 1771,
+        "width": 720,
+        "bottom": 746,
+        "height": 420
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s8-right > svg:nth-of-type(1)"
+    },
+    {
+      "bbox": {
+        "x": 150,
+        "y": -180,
+        "width": 680,
+        "height": 760
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": -180,
+        "left": 150,
+        "right": 830,
+        "width": 680,
+        "bottom": 580,
+        "height": 760
+      },
+      "time": 212.069,
+      "times": [
+        212.069
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 212.069,
+      "overflow": {
+        "top": 430
+      },
+      "selector": "#s11-graph > line:nth-of-type(3)",
+      "severity": "info",
+      "firstSeen": 212.069,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 250,
+        "left": 110,
+        "right": 870,
+        "width": 760,
+        "bottom": 870,
+        "height": 620
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s11-graph"
+    },
+    {
+      "bbox": {
+        "x": 150,
+        "y": -180,
+        "width": 680,
+        "height": 760
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": -180,
+        "left": 150,
+        "right": 830,
+        "width": 680,
+        "bottom": 580,
+        "height": 760
+      },
+      "time": 212.069,
+      "times": [
+        212.069
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 212.069,
+      "overflow": {
+        "top": 430
+      },
+      "selector": "#s11-l-cyan",
+      "severity": "info",
+      "firstSeen": 212.069,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 250,
+        "left": 110,
+        "right": 870,
+        "width": 760,
+        "bottom": 870,
+        "height": 620
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s11-graph"
+    },
+    {
+      "bbox": {
+        "x": 150,
+        "y": 20,
+        "width": 680,
+        "height": 760
+      },
+      "code": "container_overflow",
+      "rect": {
+        "top": 20,
+        "left": 150,
+        "right": 830,
+        "width": 680,
+        "bottom": 780,
+        "height": 760
+      },
+      "time": 212.069,
+      "times": [
+        212.069
+      ],
+      "heldMs": 0,
+      "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+      "message": "Element extends outside a clipping layout container.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 212.069,
+      "overflow": {
+        "top": 230
+      },
+      "selector": "#s11-l-violet",
+      "severity": "info",
+      "firstSeen": 212.069,
+      "sourceFile": "index.html",
+      "occurrences": 1,
+      "containerRect": {
+        "top": 250,
+        "left": 110,
+        "right": 870,
+        "width": 760,
+        "bottom": 870,
+        "height": 620
+      },
+      "dataAttributes": {},
+      "containerSelector": "#s11-graph"
+    }
+  ],
+  "passed": true,
+  "policy": "playback-first"
+}

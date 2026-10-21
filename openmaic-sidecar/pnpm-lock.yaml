@@ -299,6 +299,9 @@ importers:
       tokenlens:
         specifier: ^1.3.1
         version: 1.3.1
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
@@ -375,9 +378,6 @@ importers:
       tslib:
         specifier: ^2.8.0
         version: 2.8.1
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
       typescript:
         specifier: ^5
         version: 5.9.3

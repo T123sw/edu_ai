@@ -1,0 +1,11 @@
+{
+  "backend": "production",
+  "read_api_mocked": false,
+  "write_requests_suppressed": true,
+  "course_visible": true,
+  "partial_notice_visible": true,
+  "report_rendered": true,
+  "entry_button_visible": true,
+  "retry_button_visible": true,
+  "page_errors": []
+}

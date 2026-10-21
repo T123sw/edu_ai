@@ -1,0 +1,578 @@
+[
+  {
+    "pid": 2753433,
+    "state": "idle in transaction",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": "60.896963",
+    "query_seconds": "29.765295",
+    "blocked_by": [],
+    "query": "SELECT users.user_id AS users_user_id, users.username AS users_username, users.password_hash AS users_password_hash, users.role AS users_role, users.is_disabled AS users_is_disabled, users.created_at AS users_created_at, users.updated_at AS users_updated_at, users.raw_payload AS users_raw_payload \nFROM users \nWHERE users.user_id = $1::VARCHAR"
+  },
+  {
+    "pid": 2753054,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "transactionid",
+    "transaction_seconds": "60.785197",
+    "query_seconds": "60.772640",
+    "blocked_by": [
+      2753433
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2752941,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.642368",
+    "query_seconds": "60.632123",
+    "blocked_by": [
+      2753054
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2751728,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.603673",
+    "query_seconds": "60.596294",
+    "blocked_by": [
+      2753054,
+      2752941
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2753472,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.300485",
+    "query_seconds": "60.292859",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2751781,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.165745",
+    "query_seconds": "60.155136",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728,
+      2753472
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2753866,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.165066",
+    "query_seconds": "60.147952",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728,
+      2753472,
+      2751781,
+      2753133
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2753133,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.160090",
+    "query_seconds": "60.148843",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728,
+      2753472,
+      2751781
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2753878,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.096222",
+    "query_seconds": "60.074971",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728,
+      2753472,
+      2751781,
+      2753133,
+      2753866,
+      2753879
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2753879,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.095577",
+    "query_seconds": "60.078139",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728,
+      2753472,
+      2751781,
+      2753133,
+      2753866
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2753880,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.049766",
+    "query_seconds": "60.042030",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728,
+      2753472,
+      2751781,
+      2753133,
+      2753866,
+      2753879,
+      2753878
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2753881,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.048521",
+    "query_seconds": "60.037776",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728,
+      2753472,
+      2751781,
+      2753133,
+      2753866,
+      2753879,
+      2753878,
+      2753880
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2753882,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.043234",
+    "query_seconds": "60.034856",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728,
+      2753472,
+      2751781,
+      2753133,
+      2753866,
+      2753879,
+      2753878,
+      2753880,
+      2753881
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2753087,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "60.023048",
+    "query_seconds": "60.016925",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728,
+      2753472,
+      2751781,
+      2753133,
+      2753866,
+      2753879,
+      2753878,
+      2753880,
+      2753881,
+      2753882
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2753019,
+    "state": "active",
+    "wait_event_type": "Lock",
+    "wait_event": "tuple",
+    "transaction_seconds": "29.661272",
+    "query_seconds": "29.652149",
+    "blocked_by": [
+      2753054,
+      2752941,
+      2751728,
+      2753472,
+      2751781,
+      2753133,
+      2753866,
+      2753879,
+      2753878,
+      2753880,
+      2753881,
+      2753882,
+      2753087
+    ],
+    "query": "SELECT agent_memory_epochs.subject_user_id, agent_memory_epochs.epoch \nFROM agent_memory_epochs \nWHERE agent_memory_epochs.subject_user_id = $1::VARCHAR FOR UPDATE"
+  },
+  {
+    "pid": 2747322,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "18.478078",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747489,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "550.851443",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747499,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "368.992860",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747498,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.572746",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747546,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.399692",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747548,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.285022",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747544,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.110197",
+    "blocked_by": [],
+    "query": "DEALLOCATE ALL"
+  },
+  {
+    "pid": 2747106,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "18.451172",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747845,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "16.794794",
+    "blocked_by": [],
+    "query": "ROLLBACK"
+  },
+  {
+    "pid": 2748094,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "14.075781",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2752764,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.228816",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2752867,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "1.125362",
+    "blocked_by": [],
+    "query": "ROLLBACK"
+  },
+  {
+    "pid": 2750512,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.650808",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2753209,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.113712",
+    "blocked_by": [],
+    "query": "ROLLBACK"
+  },
+  {
+    "pid": 2753342,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "3.149456",
+    "blocked_by": [],
+    "query": "ROLLBACK"
+  },
+  {
+    "pid": 2753206,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "2.137827",
+    "blocked_by": [],
+    "query": "ROLLBACK"
+  },
+  {
+    "pid": 2753215,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "4.163731",
+    "blocked_by": [],
+    "query": "ROLLBACK"
+  },
+  {
+    "pid": 2747550,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.339437",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747107,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "587.972058",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747108,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "18.476526",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747184,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "28.087951",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747185,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.463415",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747186,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "60.877785",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747192,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.068043",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747488,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "551.775947",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747202,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.135327",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747207,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.131909",
+    "blocked_by": [],
+    "query": "ROLLBACK"
+  },
+  {
+    "pid": 2747471,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.968291",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747206,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.232007",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747244,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "60.615603",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747245,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "60.869973",
+    "blocked_by": [],
+    "query": "COMMIT"
+  },
+  {
+    "pid": 2747269,
+    "state": "idle",
+    "wait_event_type": "Client",
+    "wait_event": "ClientRead",
+    "transaction_seconds": null,
+    "query_seconds": "0.007597",
+    "blocked_by": [],
+    "query": "ROLLBACK"
+  }
+]

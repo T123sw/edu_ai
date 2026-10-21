@@ -8,7 +8,12 @@ from .documents import DocumentParser, DocumentUnreadable
 
 
 def _legacy_parse(parsed):
-    return parsed is not None and parsed.get('parser') in {
+    if parsed is None:
+        return False
+    if parsed.get('parser') == 'mineru-local':
+        from app.integrations.pdf.mineru_local import LocalMinerUProvider
+        return parsed.get('parser_revision') != LocalMinerUProvider.adapter_revision
+    return parsed.get('parser') in {
         'antiword-text-v1', 'rag-docx-text-v1', 'libreoffice+rag-docx-text-v1',
     }
 
@@ -40,12 +45,15 @@ class DocumentStore:
 
     def authorize(self,owner,ref):
         with Session(self.engine) as session:
-            row=session.get(Version,(owner,ref.document_id,ref.version))
-            if row is None: raise PermissionError('DOCUMENT_VERSION_UNAVAILABLE')
-            _,data=self.reader.read_bytes(self._username(session,owner),ref.document_id)
-            if hashlib.sha256(data).hexdigest()!=row.content_sha256:
-                raise PermissionError('DOCUMENT_VERSION_CHANGED')
-            return {'filename':row.filename,'content_sha256':row.content_sha256}
+            return self.authorize_in_session(session,owner,ref)
+
+    def authorize_in_session(self,session,owner,ref):
+        row=session.get(Version,(owner,ref.document_id,ref.version),populate_existing=True)
+        if row is None: raise PermissionError('DOCUMENT_VERSION_UNAVAILABLE')
+        _,data=self.reader.read_bytes(self._username(session,owner),ref.document_id)
+        if hashlib.sha256(data).hexdigest()!=row.content_sha256:
+            raise PermissionError('DOCUMENT_VERSION_CHANGED')
+        return {'filename':row.filename,'content_sha256':row.content_sha256}
 
     def parse_controlled(self, owner, ref, **controls):
         return self.parse(owner, ref, **controls)

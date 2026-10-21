@@ -1,0 +1,12 @@
+{
+  "backend/src/app/services/classroom_narration.py": "e4f9c7e7417e86534c3eea8a370e079fa5d9eed86146e54bb2511a56d25b4462",
+  "backend/src/app/services/tts_service.py": "0c3efc5400cf31385a64e4ea407a822d564808ff5c25897ea2c03b6d06b716a0",
+  "backend/src/app/services/job_retry_service.py": "b017b18e92cdb4c20ca2f41e827634f79f4b1fa1d641b441a6b2ad653dd88923",
+  "backend/src/app/services/studio_learning_resources.py": "0ff7bbe187ff4cddb7db97865639e5570dd67468adf3e4fd075b3e9dc92c356d",
+  "backend/src/app/services/platform_task_handlers.py": "eeb1ead071aaf628bd5859a853a2bac0ea8232aae7b65267922989a202beb529",
+  "backend/src/app/integrations/hyperframes/workflow_audio.py": "24bf429a6c618cf1c81bf6e5b75a2bbfe9e6d5c5c85da1d500730598c23abdcc",
+  "backend/src/app/integrations/hyperframes/generation.py": "32be1e0420a16eb2dfa1bd727175a6d13d4378772462926e2b762f97fc346852",
+  "backend/src/app/services/podcast_generation_policy.py": "a2ca09ef86f6def9a3c03fecfd8fbe91f9333614cd791a910853fe9d18466fa8",
+  "backend/src/tests/test_narration_whole_utterance.py": "4f03c1dcd1ce176122f157b3ecf6fd3f44d3ab898b5df1520255910c4fd6dd9f",
+  "services/local_tts/qwen_server.py": "57b34f8d6beb88262a1875740d17b10297b1bf47815a432f4d81563efee9efd3"
+}

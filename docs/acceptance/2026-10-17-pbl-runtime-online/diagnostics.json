@@ -1,0 +1,29 @@
+{
+  "uiEngineFailure": {
+    "projectId": "pbl_8d8b532ba6fd7c103d7aa1878232ff91",
+    "phase": "acceptance parsing",
+    "reason": "engine=ui was rejected as an extra field before executing valid UI checks",
+    "fix": "normalize explicit ui discriminator to the existing wire shape; clarify generated fields",
+    "sourceTests": "242 passed, 6 skipped",
+    "backendReloadRequired": true
+  },
+  "concurrency": {
+    "projectId": "pbl_5dc671faa1ff0e5d2f3fa966627ab4c1",
+    "status": 503,
+    "reason": "two generation checks occupied the bounded browser capacity",
+    "falsePass": false
+  },
+  "unsupportedInitial": {
+    "id": "pbl_447bc9fe9b715ff47354e03868f3fd47",
+    "status": "failed",
+    "errorCode": "PBL_RUNTIME_UNAVAILABLE",
+    "message": "浏览器检查环境暂不可用，请稍后重试",
+    "artifactPublished": false
+  },
+  "emptyTextFailure": {
+    "reason": "zero-area empty inline text was treated as a missing/hidden element",
+    "fix": "accept attached, unique empty text targets unless CSS hides them",
+    "originalCodeAndChecksRetestPassed": 3,
+    "runtimeRegressionPassed": 15
+  }
+}

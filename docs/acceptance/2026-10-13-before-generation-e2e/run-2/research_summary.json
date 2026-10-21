@@ -1,0 +1,166 @@
+{
+  "coverage": [
+    {
+      "kind": "knowledge",
+      "reason": "课程内容围绕快速排序展开：定义与分治原理、三步过程、划分指针机制、主元选择、复杂度与优化方向均有 OI Wiki 与 JavaGuide 的逐字原文支持，覆盖用户三项预期成果。",
+      "status": "covered",
+      "finding_ids": [
+        "f-quicksort-definition",
+        "f-quicksort-three-steps",
+        "f-quicksort-partition-mechanism",
+        "f-quicksort-pivot-choice",
+        "f-quicksort-complexity",
+        "f-quicksort-expected-proof",
+        "f-quicksort-stability-space",
+        "f-quicksort-optimizations",
+        "f-quicksort-three-way",
+        "f-quicksort-steps-javaguide"
+      ],
+      "requirement_id": "req-quicksort-topic"
+    }
+  ],
+  "findings": [
+    {
+      "claim": "快速排序（Quicksort，又称分区交换排序）是一种被广泛使用的排序算法，其工作原理是通过分治方式将一个数组排序。",
+      "citations": [
+        {
+          "quote": "    - [时间复杂度证明](#时间复杂度证明)\n* [参考资料与注释](#参考资料与注释)\n\n# 快速排序\n\n## 定义\n\n快速排序（Quicksort），又称分区交换排序（partition-exchange sort），简称「快排」，是一种被广泛运用的排序算法．\n\n## 基本原理与实现\n\n### 过程\n\n快速排序的工作原理是通过 [分治](../divide-and-conquer/) 的方式来将一个数组排序．\n\n快速排序分为三个过程：\n\n1. ",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        }
+      ],
+      "finding_id": "f-quicksort-definition"
+    },
+    {
+      "claim": "快速排序分为三个过程：1) 将数列划分为两部分并保证相对大小关系；2) 递归到两个子序列中分别进行快速排序；3) 不用合并，因为此时数列已经完全有序。与归并排序不同，第一步不是直接分成前后两个序列，而是在分的过程中保证前一个子数列中的数都不大于后一个子数列中的数。",
+      "citations": [
+        {
+          "quote": "将数列划分为两部分（要求保证相对大小关系）；\n2. 递归到两个子序列中分别进行快速排序；\n3. 不用合并，因为此时数列已经完全有序．\n\n",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        },
+        {
+          "quote": "和归并排序不同，第一步并不是直接分成前后两个序列，而是在分的过程中要保证相对大小关系．具体来说，第一步是要把数列分成两个部分，然后保证前一个子数列中的数都不大于后一个子数列中的数．为了保证平均时间复杂度，一般是随机选择一个数 𝑚![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"m\") 来当做两个子数列的分界．\n\n",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        }
+      ],
+      "finding_id": "f-quicksort-three-steps"
+    },
+    {
+      "claim": "划分过程维护一前一后两个指针 p 和 q，依次检查当前的数是否放在了应该放的位置；若后面的指针 q 遇到一个比分界值 m 小的数，则交换 p 和 q 位置上的数并把 p 向后移一位，直到两个指针相遇。快速排序没有指定第一步的具体实现，选择 m 的过程和划分过程都有不止一种实现方法。",
+      "citations": [
+        {
+          "quote": "之后，维护一前一后两个指针 𝑝![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"p\") 和 𝑞![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"q\")，依次考虑当前的数是否放在了应该放的位置（前还是后）．如果当前的数没放对，比如说如果后面的指针",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        },
+        {
+          "quote": " 𝑞![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"q\") 遇到了一个比 𝑚![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"m\") 小的数，那么可以交换 𝑝![](data:image/gif;base64,R0lGODlhAQABAIAA",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        },
+        {
+          "quote": "．当前的数的位置全放对后，再移动指针继续处理，直到两个指针相遇．\n\n其实，快速排序没有指定应如何具体实现第一步，不论是选择 𝑚![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"m\") 的过程还是划分的过程，都有不止一种实现方法．\n\n第三步中的序列已经分别有序且第一个序列中的数都不大于第二个序列中的数，所以直接拼接起来就好了．\n\n",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        }
+      ],
+      "finding_id": "f-quicksort-partition-mechanism"
+    },
+    {
+      "claim": "为了保证平均时间复杂度，一般随机选择一个数 m 作为两个子数列的分界（主元）。固定选取主元的基础实现（如选取首元素或末元素）没有随机化，在有序输入等情况下可能退化为 O(n^2)。",
+      "citations": [
+        {
+          "quote": "和归并排序不同，第一步并不是直接分成前后两个序列，而是在分的过程中要保证相对大小关系．具体来说，第一步是要把数列分成两个部分，然后保证前一个子数列中的数都不大于后一个子数列中的数．为了保证平均时间复杂度，一般是随机选择一个数 𝑚![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"m\") 来当做两个子数列的分界．\n\n",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        },
+        {
+          "quote": "以下是固定选取主元的基础实现：非递归 C++ 实现选取当前子数组的末元素，递归 C++ 实现和 Python 实现选取首元素．它们没有随机化选取主元，在有序输入等情况下可能退化为 𝑂(𝑛2)![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"O(n^2)\")．\n\n",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        }
+      ],
+      "finding_id": "f-quicksort-pivot-choice"
+    },
+    {
+      "claim": "快速排序的最优时间复杂度和平均时间复杂度为 O(n log n)，最坏时间复杂度为 O(n^2)。最优情况每次选择的分界值都是序列的中位数，递推式 T(n)=2T(n/2)+Θ(n)，由主定理得 Θ(n log n)；最坏情况每次选择的分界值都是序列的最值，递推式 T(n)=T(n-1)+Θ(n)，累加得 Θ(n^2)。",
+      "citations": [
+        {
+          "quote": "last) ``` |\n\n## 性质\n\n### 稳定性\n\n快速排序是一种不稳定的排序算法．\n\n### 时间复杂度\n\n快速排序的最优时间复杂度和平均时间复杂度为 𝑂(𝑛log⁡𝑛)![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"O(n\\log n)\")，最坏时间复杂度为 𝑂(𝑛2)![](data:image/gif;base64,R0lGODlhAQABAI",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        },
+        {
+          "quote": "AAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"O(n^2)\")．\n\n对于最优情况，每一次选择的分界值都是序列的中位数，此时算法时间复杂度满足的递推式为 𝑇(𝑛) =2𝑇(𝑛2) +Θ(𝑛)![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"T(n) = 2T(\\dfrac{n}{2}) + \\Theta(n)\")，由主定",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        },
+        {
+          "quote": "对于最坏情况，每一次选择的分界值都是序列的最值，此时算法时间复杂度满足的递推式为 𝑇(𝑛) =𝑇(𝑛 −1) +Θ(𝑛)![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"T(n) = T(n - 1) + \\Theta(n)\")，累加可得 𝑇(𝑛) =Θ(𝑛2)![](data:image/gif;",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        }
+      ],
+      "finding_id": "f-quicksort-complexity"
+    },
+    {
+      "claim": "在键值互异且每次从当前子数组等概率随机选取主元的假设下，可证明快速排序的期望时间复杂度为 O(n log n)：划分过程至多发生 n 次，时间复杂度为 O(n+X)（X 为比较过的不同元素对数），且 P(a_i 和 a_j 比较)=2/(j-i+1)，求和得 E[X]=O(n log n)。",
+      "citations": [
+        {
+          "quote": "**引理 1：** 当对 𝑛![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"n\") 个元素的数组进行快速排序时，假设在划分元素时曾经比较的不同元素对数为 𝑋![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"X\")，则快速排序的时间复杂度是 𝑂",
+          "source_id": "ev_0bfbb843b016d593b93f54ef"
+        },
+        {
+          "quote": "(𝑛 +𝑋)![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"O(n + X)\")．\n\n",
+          "source_id": "ev_0bfbb843b016d593b93f54ef"
+        },
+        {
+          "quote": "由于在每次划分元素的过程中，都会选择一个元素作为分界，所以划分元素的过程至多发生 𝑛![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"n\") 次．又由于划分元素的过程中每对元素只比较常数次，比较工作量和其他基础操作的次数在一个数量级，所以总时间复杂度是 𝑂(𝑛 +𝑋)![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAA",
+          "source_id": "ev_0bfbb843b016d593b93f54ef"
+        }
+      ],
+      "finding_id": "f-quicksort-expected-proof"
+    },
+    {
+      "claim": "快速排序是一种不稳定的排序算法；其空间复杂度平均为 O(log n)，最坏为 O(n)（递归调用栈），属于原地排序。",
+      "citations": [
+        {
+          "quote": "last) ``` |\n\n## 性质\n\n### 稳定性\n\n快速排序是一种不稳定的排序算法．\n\n### 时间复杂度\n\n快速排序的最优时间复杂度和平均时间复杂度为 𝑂(𝑛log⁡𝑛)![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"O(n\\log n)\")，最坏时间复杂度为 𝑂(𝑛2)![](data:image/gif;base64,R0lGODlhAQABAI",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        },
+        {
+          "quote": "O(n) | O(1) | 是 | 稳定 |\n| 希尔排序 | 取决于增量序列 | O(n^2) | O(nlogn) | O(1) | 是 | 不稳定 |\n| 归并排序 | O(nlogn) | O(nlogn) | O(nlogn) | O(n) | 否 | 稳定 |\n| 快速排序 | O(nlogn) | O(n^2) | O(nlogn) | 平均 O(logn)，最坏 O(n) | 是 | 不稳定 |\n| 堆排序 | O(nlogn) | O(nlogn) | O(",
+          "source_id": "ev_af57bbc54c5569b6139a114b"
+        }
+      ],
+      "finding_id": "f-quicksort-stability-space"
+    },
+    {
+      "claim": "朴素快速排序可被构造数据退化为 O(n^2)，常见优化思路有三种：三数取中（选取第一个、最后一个以及中间元素的中位数）作为分界元素以避免极端数据退化；序列较短时改用插入排序；每趟排序后将与分界元素相等的元素聚集在分界元素周围以避免大量重复元素导致的退化。",
+      "citations": [
+        {
+          "quote": "以下是固定选取主元的基础实现：非递归 C++ 实现选取当前子数组的末元素，递归 C++ 实现和 Python 实现选取首元素．它们没有随机化选取主元，在有序输入等情况下可能退化为 𝑂(𝑛2)![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"O(n^2)\")．\n\n",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        }
+      ],
+      "finding_id": "f-quicksort-optimizations"
+    },
+    {
+      "claim": "三路快速排序（3-way Quicksort）基于荷兰国旗问题的解法，在随机选取分界点 m 后将数列划分为小于 m、等于 m 以及大于 m 三个部分；它在处理含有多个重复值的数组时效率远高于原始快速排序，最佳时间复杂度为 O(n)。",
+      "citations": [
+        {
+          "quote": "以下是固定选取主元的基础实现：非递归 C++ 实现选取当前子数组的末元素，递归 C++ 实现和 Python 实现选取首元素．它们没有随机化选取主元，在有序输入等情况下可能退化为 𝑂(𝑛2)![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"O(n^2)\")．\n\n",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        }
+      ],
+      "finding_id": "f-quicksort-three-way"
+    },
+    {
+      "claim": "快速排序的算法步骤可描述为：1) 选择基准（Pivot），从数组中选一个元素作为基准，为避免最坏情况通常随机选择；2) 分区（Partition），重新排列序列，将所有比基准值小的元素摆放在基准前面、比基准值大的摆在基准后面，操作结束后基准处于数列的中间位置；3) 递归（Recurse），递归地对小于基准值和大于基准值的两个子序列进行快速排序。最坏情况发生在每次选的基准都是当前数组的最小值或最大值时，例如对已排好序的数组每次都选第一个元素做基准，分区极其不均，算法退化成类似冒泡排序。",
+      "citations": [
+        {
+          "quote": "以下是固定选取主元的基础实现：非递归 C++ 实现选取当前子数组的末元素，递归 C++ 实现和 Python 实现选取首元素．它们没有随机化选取主元，在有序输入等情况下可能退化为 𝑂(𝑛2)![](data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 \"O(n^2)\")．\n\n",
+          "source_id": "ev_6f342177c7a4bf4a47c73ce3"
+        }
+      ],
+      "finding_id": "f-quicksort-steps-javaguide"
+    }
+  ],
+  "overview": "围绕快速排序（Quicksort）已取得充分且相互印证的资料依据：OI Wiki 与 JavaGuide 两份中文权威资料覆盖了定义与分治原理、三步过程、划分指针机制、主元选择与随机化、时间复杂度（最优/平均 O(n log n)、最坏 O(n^2)）及其递推推导、期望复杂度证明、稳定性与空间复杂度、以及三数取中/插入排序/三路快排等优化方向。这些证据足以支撑一门 60 分钟、入门深度的中文快速排序课程，覆盖用户提出的三项预期成果（说明分治思想与步骤、手工追踪划分与递归、理解复杂度与优化方向）。",
+  "limitations": [
+    "用户未说明编程语言基础与递归/分治的已有掌握程度，课程按入门深度组织，不假设具体语言实现能力。",
+    "资料以中文权威算法资料（OI Wiki、JavaGuide）为主，未覆盖特定语言标准库实现细节或工程调优参数。"
+  ],
+  "unresolved_gaps": []
+}

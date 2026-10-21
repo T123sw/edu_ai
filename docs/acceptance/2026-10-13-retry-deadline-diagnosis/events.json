@@ -1,0 +1,347 @@
+[
+  {
+    "sequence": 1,
+    "event_type": "accepted",
+    "payload": {
+      "operation": "create_course"
+    },
+    "occurred_at": "2026-10-13 17:43:14.966215+00:00"
+  },
+  {
+    "sequence": 2,
+    "event_type": "stage_changed",
+    "payload": {
+      "stage": "normalize"
+    },
+    "occurred_at": "2026-10-13 17:43:15.287053+00:00"
+  },
+  {
+    "sequence": 3,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_483a2169ce6a4081a8ac37b81d4e8608"
+    },
+    "occurred_at": "2026-10-13 17:43:17.400519+00:00"
+  },
+  {
+    "sequence": 4,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_055397c58f3e46b8af7b842011ed741f"
+    },
+    "occurred_at": "2026-10-13 17:43:21.794551+00:00"
+  },
+  {
+    "sequence": 5,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_1d9ba26b6e01471d86eacf2dfde2babe"
+    },
+    "occurred_at": "2026-10-13 17:43:24.231332+00:00"
+  },
+  {
+    "sequence": 6,
+    "event_type": "stage_changed",
+    "payload": {
+      "stage": "research_scope",
+      "reason": "NO_UPLOADS"
+    },
+    "occurred_at": "2026-10-13 17:43:24.919037+00:00"
+  },
+  {
+    "sequence": 7,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_919b3c2aa96346ca87e995ce9d254975"
+    },
+    "occurred_at": "2026-10-13 17:43:27.636166+00:00"
+  },
+  {
+    "sequence": 8,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_4e8db1b165b340e5a37489cb671455a6"
+    },
+    "occurred_at": "2026-10-13 17:43:32.077198+00:00"
+  },
+  {
+    "sequence": 9,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_d5cac994599a4b8bb91228fb31a6821f"
+    },
+    "occurred_at": "2026-10-13 17:43:33.868501+00:00"
+  },
+  {
+    "sequence": 10,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_d57fa62298714c088f8a7ded0d3b82ab"
+    },
+    "occurred_at": "2026-10-13 17:43:36.476239+00:00"
+  },
+  {
+    "sequence": 11,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_361eb671c75b4f669c7c75fe6a5139b6"
+    },
+    "occurred_at": "2026-10-13 17:43:39.188347+00:00"
+  },
+  {
+    "sequence": 12,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_56ce7b032b8a4e8aa24ccb5256fa84ad"
+    },
+    "occurred_at": "2026-10-13 17:43:41.333696+00:00"
+  },
+  {
+    "sequence": 13,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_f61a06f65bf6463ea0f706607e5e69af"
+    },
+    "occurred_at": "2026-10-13 17:43:44.994632+00:00"
+  },
+  {
+    "sequence": 14,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_37bc0d12b8b64f09ad0e32703e864c63"
+    },
+    "occurred_at": "2026-10-13 17:43:49.787431+00:00"
+  },
+  {
+    "sequence": 15,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_7a07c2ef798e48198906aa2e29175d30"
+    },
+    "occurred_at": "2026-10-13 17:43:55.437404+00:00"
+  },
+  {
+    "sequence": 16,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_805db32af74542dfb4c1090e075700ba"
+    },
+    "occurred_at": "2026-10-13 17:44:02.795141+00:00"
+  },
+  {
+    "sequence": 17,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_fba780eed35c4084ae0e5e66a914b164"
+    },
+    "occurred_at": "2026-10-13 17:44:06.063368+00:00"
+  },
+  {
+    "sequence": 18,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_7dd23349575345279e7f7439bd62809f"
+    },
+    "occurred_at": "2026-10-13 17:44:16.789028+00:00"
+  },
+  {
+    "sequence": 19,
+    "event_type": "stage_changed",
+    "payload": {
+      "stage": "plan",
+      "reason": null
+    },
+    "occurred_at": "2026-10-13 17:44:17.995373+00:00"
+  },
+  {
+    "sequence": 20,
+    "event_type": "failed",
+    "payload": {
+      "code": "RESEARCH_CONTEXT_BUDGET"
+    },
+    "occurred_at": "2026-10-13 17:44:19.128283+00:00"
+  },
+  {
+    "sequence": 21,
+    "event_type": "accepted",
+    "payload": {
+      "retry_of": 1
+    },
+    "occurred_at": "2026-10-13 18:42:03.555349+00:00"
+  },
+  {
+    "sequence": 22,
+    "event_type": "stage_changed",
+    "payload": {
+      "stage": "plan"
+    },
+    "occurred_at": "2026-10-13 18:42:03.827150+00:00"
+  },
+  {
+    "sequence": 23,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_54d8ff79bb1846d4b630c3cf31d129a7"
+    },
+    "occurred_at": "2026-10-13 18:42:06.596359+00:00"
+  },
+  {
+    "sequence": 24,
+    "event_type": "stage_changed",
+    "payload": {
+      "stage": "research_nodes",
+      "reason": null
+    },
+    "occurred_at": "2026-10-13 18:42:07.281442+00:00"
+  },
+  {
+    "sequence": 25,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_37b4f00dc9a345ab8989535ab3a74f63"
+    },
+    "occurred_at": "2026-10-13 18:42:12.534384+00:00"
+  },
+  {
+    "sequence": 26,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_faf17acebd644175ae03450e454035b8"
+    },
+    "occurred_at": "2026-10-13 18:42:19.981862+00:00"
+  },
+  {
+    "sequence": 27,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_42e2c3f461e4452c9d6ff6b625bf9efd"
+    },
+    "occurred_at": "2026-10-13 18:42:26.029507+00:00"
+  },
+  {
+    "sequence": 28,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_8a2c25b9c8044ac88692fde38931a1f9"
+    },
+    "occurred_at": "2026-10-13 18:42:31.428247+00:00"
+  },
+  {
+    "sequence": 29,
+    "event_type": "stage_changed",
+    "payload": {
+      "stage": "produce",
+      "reason": null
+    },
+    "occurred_at": "2026-10-13 18:42:32.116782+00:00"
+  },
+  {
+    "sequence": 30,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_32cc4fb3ac4145d0b3673e03b3231fce"
+    },
+    "occurred_at": "2026-10-13 18:42:32.978198+00:00"
+  },
+  {
+    "sequence": 31,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_1982257447d54279a9d3676b6c744c8b"
+    },
+    "occurred_at": "2026-10-13 18:42:33.184488+00:00"
+  },
+  {
+    "sequence": 32,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_abcc5b8868434e0e95c741f2b9148bf8"
+    },
+    "occurred_at": "2026-10-13 18:42:46.338802+00:00"
+  },
+  {
+    "sequence": 33,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_5e10b1969d1e41928d140aefe10a82b6"
+    },
+    "occurred_at": "2026-10-13 18:42:48.307782+00:00"
+  },
+  {
+    "sequence": 34,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_df88477dc63c468991c279aad8e1bed8"
+    },
+    "occurred_at": "2026-10-13 18:42:57.835759+00:00"
+  },
+  {
+    "sequence": 35,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_89d6eca255734da5b4035424e09c3515"
+    },
+    "occurred_at": "2026-10-13 18:43:06.692977+00:00"
+  },
+  {
+    "sequence": 36,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_8ffa5fe8ad3f4edea943be1257264721"
+    },
+    "occurred_at": "2026-10-13 18:43:07.672430+00:00"
+  },
+  {
+    "sequence": 37,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "completed",
+      "action_id": "paction_ec821261827a4a228431a70b515ad2eb"
+    },
+    "occurred_at": "2026-10-13 18:43:08.089363+00:00"
+  },
+  {
+    "sequence": 38,
+    "event_type": "child_updated",
+    "payload": {
+      "status": "failed",
+      "action_id": "paction_9494ff8b523e41b681d9ca404e63bda7"
+    },
+    "occurred_at": "2026-10-13 18:43:15.387519+00:00"
+  },
+  {
+    "sequence": 39,
+    "event_type": "failed",
+    "payload": {
+      "code": "DEADLINE_EXCEEDED"
+    },
+    "occurred_at": "2026-10-13 18:43:16.637060+00:00"
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 13.22565221786499,
+  "decisions": {
+    "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置中仅有 defaults.target_minutes=5.0、duration_mode=target、narration=true、aspect=16:9，故按默认约 5 分钟（300s）安排，并说明这是默认值而非用户指定。节点学习预算 12 分钟包含阅读与练习，不作为成片时长。本节点为常规教学解释（入门级架构原理讲解，无产品/网站捕获、无音乐驱动、非幻灯片、非纯动效短片），按原生路由走 general-video，flow: automation、storyboard: no。配音默认启用，中文讲解；画幅沿用默认 16:9 与课程视觉规范。视频只覆盖教师演示部分（整体流程、自回归、数据流顺序、栈结构、掩码、权重共享），自测与练习留给习题，详细阅读留给报告。缺失信息假设：用户未说明已有基础与用途，按入门深度、通用架构原理组织；无用户素材，故 Assets 只列公开来源依据，不写假素材路径。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792477941.3839757,
+  "brief_sha256": "f1ead8a48672cbc1e5f64807d4a0f72a92eaafcc25f0693dc07b61cfcb967b47",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"Transformer 用编码器把输入序列压成连续表示 z，再由解码器基于 z 自回归地逐符号生成输出\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\naudience: \"希望系统学习 Transformer 架构的学习者（具体背景未知，按入门深度组织）\"\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n这是课程节点「整体结构：编码器-解码器与端到端数据流」的教学视频，面向希望系统学习 Transformer 架构的学习者，前置节点已讲清循环网络的顺序性瓶颈与注意力思路。本视频要讲清 Transformer 的整体骨架与数据流：编码器把输入符号表示序列 (x1..xn) 映射为连续表示 z，解码器基于 z 自回归地一次生成一个输出符号；并沿「分词与词表索引 → 词嵌入 → 加位置编码 → 编码器栈 → 解码器栈 → 线性层与 softmax 输出下一个词元概率」的顺序把每一步的输入输出形态讲明白。语气清晰、克制、以结构图讲解为主，入门深度，不追求公式推导的完备性。\n\n## Assets\n\n- 无用户上传素材；不使用任何虚构素材路径。\n- 可引用的公开来源（仅作为内容依据，不是待放置的媒体文件）：\n  - 《Attention Is All You Need》(Vaswani et al., NeurIPS 2017), https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf —— 第 3 节 Model Architecture、3.1 Encoder and Decoder Stacks、3.4 Embeddings and Softmax 为本节点主要依据。\n  - 中文技术讲解文章 https://cloud.tencent.com/developer/article/2608139 —— 提供「Transformer is powerful.」→「Transformer很强大。」的贯穿案例与 Q/K/V 对齐讲解。\n\n## Customizations\n\n- 贯穿案例：以「Transformer is powerful.」译为「Transformer很强大。」为例，逐步标注每个阶段的数据形态（词元 ID → 向量 → 上下文表示 → 概率分布）。\n- 架构图讲解：在架构图上依次点亮编码器栈、解码器栈、嵌入层、位置编码、线性+softmax 的位置，配合口述数据流。\n- 视觉规范（课程统一）：画布 1920x1080，字体 Noto Sans SC，背景 #0f172a，前景 #f8fafc，强调色 #38bdf8；正文最小 32px，图示标签最小 28px，标题最小 48px。密集图示分步呈现，不要靠缩小字号塞进一屏。\n\n## Notes\n\n必须讲清的内容与演示深度：\n\n1. 整体流程：编码器把输入符号表示序列 (x1..xn) 映射为连续表示 z = (z1..zn)；给定 z，解码器生成输出符号序列 (y1..ym)，一次一个元素。\n2. 自回归：解码器每一步都把此前已生成的符号作为额外输入，用于生成下一个符号——这是「自回归」的确切含义，需明确演示（例如生成到「Transformer很」时预测「强」）。\n3. 数据流顺序：分词与词表索引 → 词嵌入（可学习嵌入，把输入/输出词元转为 dmodel 维向量）→ 加位置编码（并行处理导致模型本身不感知词序，位置编码补上顺序信息，可举「狗咬人」与「人咬狗」）→ 编码器栈 → 解码器栈 → 线性变换 + softmax 得到下一个词元的预测概率。\n4. 编码器/解码器栈的构成：各为 N=6 个相同层的堆叠；编码器每层含多头自注意力与逐位置全连接前馈网络两个子层；解码器每层在此之上插入第三个子层，对编码器栈输出做多头注意力；每个子层外围有残差连接并接层归一化，即 LayerNorm(x + Sublayer(x))；为使残差可加，所有子层与嵌入层输出维度均为 dmodel = 512。\n5. 解码器掩码：解码器自注意力子层被修改为禁止位置关注其后的位置，配合输出嵌入偏移一位，保证位置 i 的预测只依赖小于 i 的已知输出。\n6. 权重共享细节：两个嵌入层与 softmax 前的线性变换共享同一权重矩阵，且嵌入层权重乘以 √dmodel。\n7. 注意力接口（点到即可，细节留给后续节点）：解码器生成下一个词时，用已生成序列产生查询 Q，用编码器输出提供键 K 和值 V，计算注意力权重后对 V 加权求和得到上下文向量，从而把源语言词与目标语言词对齐。\n\n来源与限制：\n\n- 用户未上传资料，全部知识依据为上述公开论文与中文技术文章；不得引入未在来源中出现的架构细节或数字。\n- N=6、dmodel=512、h=8、dff=2048 属 2017 年原始 base 模型设定，须说明不代表所有后续变体。\n- 入门级原理理解：不涉及从零实现可运行代码、训练与调参；不展开多头注意力的完整公式推导与位置编码的具体函数形式（留给后续节点）。\n- 不把节点自测题搬进视频：视频只做教师演示式讲解；「独立画出数据流图并标注输入输出」「口述数据流并互相纠错」等练习与自测留给习题与课堂活动。\n- 不规划其他节点的内容，不固定场景数量。\n\n语音与画幅：中文配音讲解（默认启用），16:9 横屏，目标时长约 5 分钟（300s）；节点学习预算 12 分钟包含阅读与练习，不等同视频时长。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

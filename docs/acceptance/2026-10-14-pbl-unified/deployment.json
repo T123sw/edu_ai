@@ -1,0 +1,127 @@
+{
+  "publishedAt": "20261014T061438Z",
+  "frontendPublished": true,
+  "checkerPublished": false,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-pbl-unified-final",
+  "backup": "/tmp/edu-pbl-unified-backup-20261014T061438Z",
+  "previousIndexSha256": "661035a3a31c2a176e6d237ac76e088956f22e1d21a14265b8a701f5b0787d28",
+  "releaseIndexSha256": "c80c5c77dc865ad3a32aa69b3d023412ed3f18210f4aec014234a7586023cd24",
+  "nginxIndexMatches": true,
+  "sourceManifest": {
+    "src/pbl/PblWorkspace.tsx": {
+      "previous": "b25d6363c9ff39c9d26d48bc1982eeb23d593fcf1e222e433852327a5adaad1a",
+      "new": "2519aaa8ae1427c7902b24a4347c4a754972380cb5b730d61237ec566db904bc"
+    },
+    "src/pbl/SandpackWorkspace.tsx": {
+      "previous": "c636647769c0a02a6d583f2544703e68df80ba07dbdc569e5fbf385b30c20e42",
+      "new": "e76c1cbc8d86dd203d9b60d887ab70a8ed06de242bae735dafe82a2f0f8b0768"
+    },
+    "src/pbl/ProjectWorkspace.tsx": {
+      "previous": "42c28d6e3013007324b126f0efb7eaf4385ab2bd2d3b160b864918fc739c947d",
+      "new": "46cccb0e0093289df03398dccf6c2322151aca04e412b4ef5dc540a8ef324478"
+    },
+    "src/pbl/WorkbenchChrome.tsx": {
+      "previous": null,
+      "new": "690d306f2bce3af5dce8ff059b607b278ec8f7785dc30a5bdbed5b642f8c4923"
+    },
+    "src/pbl/AlgorithmWorkspace.tsx": {
+      "previous": null,
+      "new": "4a41f8713f52ab186e774b71bbc5359eb60e72dec92a0e25d57b5212fb85b676"
+    },
+    "src/pbl/WorkbenchPanels.tsx": {
+      "previous": null,
+      "new": "a04e00cc1350edad159a0a753f39e86ceb20b859fc19170002df9120f86f8ec1"
+    },
+    "src/pbl/ProjectEditor.tsx": {
+      "previous": "b60240158de6e825e34019c22c0441d93f58f57c8fed78ea4cbf0c02db4dc11d",
+      "new": "74a7403f882f14e48f62617d939198acb74ae1c66cabf4a01167a848e27cbc44"
+    },
+    "src/pbl/runtime/index.js": {
+      "previous": "bccd92d13c3083166221520b45630e059d224c95da2a6e595be0b9c9d08c70e3",
+      "new": "68b3b80a3d4e1efa916f58740d26351566ac622a85fbb098db9a06de4bfafb9d"
+    },
+    "tests/live-learning/pbl.spec.ts": {
+      "previous": "7e44d06b21bac1f1adfa4f0da0c02bf4d4ddf0b96ee6419725db9984543a91ce",
+      "new": "244910d0edbc5e5238bc35a7b9a39b5d8abda7de222d8ec712982a48bac9859a"
+    }
+  },
+  "baselineReproduced": true,
+  "sharedComponents": [
+    "WorkbenchHeading",
+    "WorkbenchFooter",
+    "WorkbenchPanels"
+  ],
+  "verificationLimits": "Browser tests mock business/auth/storage APIs and use real Sandpack/algorithm Worker execution. Actual calculator replay is read-only; no production learner code or progress was changed.",
+  "backendChanges": false,
+  "productionLayout": {
+    "results": [
+      {
+        "width": 1440,
+        "overflow": false,
+        "preview": {
+          "x": 728,
+          "y": 308.59375,
+          "width": 687,
+          "height": 524.40625
+        }
+      },
+      {
+        "width": 1024,
+        "overflow": false,
+        "preview": {
+          "x": 520,
+          "y": 308.59375,
+          "width": 479,
+          "height": 524.40625
+        }
+      },
+      {
+        "width": 768,
+        "overflow": false,
+        "preview": {
+          "x": 392,
+          "y": 304.59375,
+          "width": 359,
+          "height": 530.40625
+        }
+      },
+      {
+        "width": 700,
+        "overflow": false,
+        "preview": {
+          "x": 13,
+          "y": 376.390625,
+          "width": 674,
+          "height": 462.609375
+        }
+      },
+      {
+        "width": 390,
+        "overflow": false,
+        "preview": {
+          "x": 13,
+          "y": 376.390625,
+          "width": 364,
+          "height": 462.609375
+        }
+      },
+      {
+        "width": 320,
+        "overflow": false,
+        "preview": {
+          "x": 13,
+          "y": 376.390625,
+          "width": 294,
+          "height": 462.609375
+        }
+      }
+    ],
+    "limits": "Production shell geometry only; business APIs mocked and external runtime deliberately blocked. Actual execution verified separately in release tests."
+  },
+  "allPublishedAssetsMatch": true,
+  "preservedConcurrentReleases": [
+    "report-export",
+    "report-export-size"
+  ]
+}

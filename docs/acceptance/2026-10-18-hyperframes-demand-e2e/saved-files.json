@@ -1,0 +1,137 @@
+[
+  {
+    "file": "classroom-resource_03cb6c3cc66cced990124c06a24c636b.json",
+    "bytes": 80972,
+    "sha256": "6efac0441b233b7b4b26812f84e455a32597c6700e35ef64a7f42138850601bd"
+  },
+  {
+    "file": "frames/segment-1.png",
+    "bytes": 111254,
+    "sha256": "055afbcc91c190d815db29fd01d85cd0f8e8eaa66c666d0c993c357279da0475"
+  },
+  {
+    "file": "frames/segment-10.png",
+    "bytes": 55483,
+    "sha256": "b55d29313915eaf88147005a3b9dc58004962f40f51bc5a6159866fa3109be30"
+  },
+  {
+    "file": "frames/segment-11.png",
+    "bytes": 89791,
+    "sha256": "b661dcf86c5aa62a2919e1a29bdcfc1c9e84809d39a74b54a49794ce32ae7568"
+  },
+  {
+    "file": "frames/segment-2.png",
+    "bytes": 77069,
+    "sha256": "fdbd3fbe379f784c69afae62a48b56a9ffa7aa3b085795e2955f1eac89422fdf"
+  },
+  {
+    "file": "frames/segment-3.png",
+    "bytes": 63316,
+    "sha256": "92900f489ca6711dfbc9313e11e383d518063c98dfc2bc178f568e205c7a9006"
+  },
+  {
+    "file": "frames/segment-4.png",
+    "bytes": 63147,
+    "sha256": "139607aa5173da92d3f617708a6c8190962cc72bf35ff0469497431aabe4547f"
+  },
+  {
+    "file": "frames/segment-5.png",
+    "bytes": 73213,
+    "sha256": "10aa3e6424816f690a41fec721be156e05a277a2c81e69aa0a7a54bcb58f34fd"
+  },
+  {
+    "file": "frames/segment-6.png",
+    "bytes": 83799,
+    "sha256": "3f7395a1eac0bbfbab65bc79aeb0c20cc5fda713ecfa50d09e6ba8f618df604b"
+  },
+  {
+    "file": "frames/segment-7.png",
+    "bytes": 81115,
+    "sha256": "71d8ee4b51ab5d1ade2482241d0ad69270f1f65cb6ce0c6cffa6d225a9087f93"
+  },
+  {
+    "file": "frames/segment-8.png",
+    "bytes": 70477,
+    "sha256": "8175dcbc0cad03b05161e567483cf09da96c7f229e73c89b47969cd09f99a11b"
+  },
+  {
+    "file": "frames/segment-9.png",
+    "bytes": 65589,
+    "sha256": "6f3867e97e7b5b39ad510017896bdf3580f99a4f567ca69d806b803df7108879"
+  },
+  {
+    "file": "lesson.mp4",
+    "bytes": 11229511,
+    "sha256": "4ff181b564d4ca3c80d7f8ce73e13bbe64a06794c93ec308ca46299e163e4b1c"
+  },
+  {
+    "file": "lesson.srt",
+    "bytes": 2907,
+    "sha256": "bc0cadedcf25c2a4ab3e9819d270fdcca2a41fdca7d7a474f5804cdc842f905d"
+  },
+  {
+    "file": "lesson.vtt",
+    "bytes": 2915,
+    "sha256": "5434fa500daacc83f80ecc545833b31e0c94a132f2ac2b3dd4b5a14f01dbd23e"
+  },
+  {
+    "file": "project.zip",
+    "bytes": 3752243,
+    "sha256": "b649b84494c60a9a4dbc6528b222d63ade2000362cf3d0023df8c17eb090be3e"
+  },
+  {
+    "file": "quiz-resource_a6cc47691be8d2af7e445bf63bdbf248.json",
+    "bytes": 75356,
+    "sha256": "5f6904e2fb7eb63d2a915c734a90bcf0be42f640d21edadfa7598cc99200951b"
+  },
+  {
+    "file": "report-resource_d882fe11f0c1252a4f8b5ff23e972fe4.json",
+    "bytes": 57226,
+    "sha256": "5c6500f9f4e3e59525359ffa8e2579215ddde60332b4f4ca3b8fcb8cbbc255f1"
+  },
+  {
+    "file": "练习与解析.md",
+    "bytes": 2401,
+    "sha256": "15973fecc2a0f41af66383b411248f04a04323d23d3bb75fe832317095d610c5"
+  },
+  {
+    "file": "结果说明.md",
+    "bytes": 1780,
+    "sha256": "8acbe468a628fb5e3778280c76125615a26261d7846bbb6939f2e7608f904c07"
+  },
+  {
+    "file": "讲义.md",
+    "bytes": 6641,
+    "sha256": "8cabc2b3f720be330ec7228f0eee13dbf008fdee034db15f6a645d2b0b6e2d41"
+  },
+  {
+    "file": "讲稿与时间轴.json",
+    "bytes": 22692,
+    "sha256": "f7c2358daf5d8b0f3e889e3ddda4242de89bc71e2a2606c36c57ad1d05d92b94"
+  },
+  {
+    "file": "课堂问答.md",
+    "bytes": 1655,
+    "sha256": "9fa1c7c83890343b7651266c5f58909aee504066068f56694f6efd0745239ca9"
+  },
+  {
+    "file": "课程成果.zip",
+    "bytes": 14942161,
+    "sha256": "af6589115dc5128ab48ddfffd6aee8ddfe4e98f74bb3e4b5227e6d123e60e41c"
+  },
+  {
+    "file": "课程结果.html",
+    "bytes": 18275,
+    "sha256": "ee6f11beb4edb20741d097f440e42bb0cad4b15c2dee01e47f3420587f70e054"
+  },
+  {
+    "file": "需求.txt",
+    "bytes": 565,
+    "sha256": "1a221987fc3a4b09617d114270f07febdd1784c668789e0ed8c71ad5f2ec5aa9"
+  },
+  {
+    "file": "验收记录.md",
+    "bytes": 3231,
+    "sha256": "29ca779ad29f80b8c50b959311f806eba5b25474c2ef4d3e38e17c5b7f3ff12e"
+  }
+]

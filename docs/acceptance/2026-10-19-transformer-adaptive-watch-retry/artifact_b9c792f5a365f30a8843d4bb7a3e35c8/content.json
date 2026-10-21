@@ -1,0 +1,493 @@
+{
+  "title": "位置编码、残差连接与层归一化",
+  "content": "# 位置编码、残差连接与层归一化\n\n> 本节是 Transformer 入门课程的第四个节点。前置知识：你已经知道 Transformer 由编码器与解码器各 6 层堆叠而成，每层里有自注意力子层和前馈网络子层。本节只回答两个问题：**模型怎么知道词的先后顺序？** 以及**每个子层外面那圈 Add&Norm 到底在做什么？**\n\n<a id=\"why-position\"></a>\n## 一、为什么 Transformer 必须显式注入位置信息\n\n### 1.1 自注意力本身是“无序”的\n\n先回忆自注意力在做什么：对每个位置的向量，用它与所有位置的向量算相似度，得到权重，再对所有位置的值向量加权求和。整个过程只用到“向量之间的相似度”，**没有任何一步用到“这个向量排在第几个”**。\n\n这意味着：如果把输入序列里的词打乱顺序，自注意力算出来的仍然是一组同样形状的输出，只是跟着词一起换了位置——它无法区分“狗咬人”和“人咬狗”。用一句更直白的话说：**没有位置信息时，Transformer 看到的输入等价于一个“词袋”（bag of words）**，只保留有哪些词、不保留它们的次序。\n\n### 1.2 循环和卷积为什么不需要额外注入\n\n- **循环网络（RNN）**：按时间步一个接一个地读入词，第 3 步的隐藏状态天然包含了“前面已经读过 2 个词”这一事实，顺序信息被结构本身编码进去了。\n- **卷积网络**：卷积核在序列上滑动，相邻位置被同一个核按固定偏移量组合，局部顺序也由结构保证。\n\nTransformer 为了并行，把这两样都去掉了：所有 token 同时进入网络，没有“第几步”的概念。**并行换来了速度，代价是丢掉了顺序**，所以必须把位置信息当作额外的输入“补”回去。\n\n### 1.3 补在哪一步、怎么补\n\n原始论文的做法是：在**编码器和解码器堆栈的底部**，把位置编码加到输入嵌入上，即\n\n```\n输入到第一层编码器的向量 = 词嵌入(token embedding) + 位置编码(positional encoding)\n```\n\n这里有一个关键约束：**位置编码的维度必须与词嵌入相同，都是 d_model**（原论文 d_model = 512），因为两者要做逐元素相加。相加而不是拼接，是为了不改变后续所有子层“输入输出都是 d_model 维”的统一约定，从而让残差连接可以顺利工作。\n\n> 注意：位置编码只在最底部加一次，不是每层都加。它随词嵌入一起流经 6 层堆叠，被注意力机制反复使用。\n\n<a id=\"sinusoidal\"></a>\n## 二、正弦位置编码：形式、多频率设计与相对位置性质\n\n### 2.1 公式\n\n原论文用不同频率的正弦、余弦函数生成**固定的**（不参与训练的）位置编码。对位置 pos 和维度下标 i：\n\n```\nPE(pos, 2i)   = sin( pos / 10000^(2i/d_model) )\nPE(pos, 2i+1) = cos( pos / 10000^(2i/d_model) )\n```\n\n读法要点：\n\n- **偶数维用 sin，奇数维用 cos**，成对出现，所以 d_model 维向量可以看成 d_model/2 个二维 (sin, cos) 对。\n- 每个维度对应一条正弦波，**不同维度的频率不同**：i 越大，分母 10000^(2i/d_model) 越大，频率越低、波长越长。\n- 波长从 2π 到 10000·2π 形成**几何级数**：低维是快速振荡的“细刻度”，高维是缓慢变化的“粗刻度”，合起来像时钟的秒针、分针、时针，能同时表达“很近的差别”和“很远的距离”。\n\n### 2.2 为什么选这个形式：PE(pos+k) 是 PE(pos) 的线性函数\n\n这是正弦编码最核心的设计动机。利用三角恒等式\n\n```\nsin(x + y) = sin(x)cos(y) + cos(x)sin(y)\ncos(x + y) = cos(x)cos(y) − sin(x)sin(y)\n```\n\n对任意**固定偏移量 k**，把 x 换成 ω·pos、y 换成 ω·k，就有\n\n```\nPE(pos + k, 2i)   = sin(ω_i·pos)cos(ω_i·k) + cos(ω_i·pos)sin(ω_i·k)\nPE(pos + k, 2i+1) = cos(ω_i·pos)cos(ω_i·k) − sin(ω_i·pos)sin(ω_i·k)\n```\n\n其中 ω_i = 1 / 10000^(2i/d_model)。也就是说，**位置 pos+k 的编码，可以由位置 pos 的编码经过一个只依赖 k、不依赖 pos 的线性变换（旋转）得到**。\n\n这对模型意味着什么？注意力打分是 query 与 key 的点积。如果模型想学“关注我前面第 3 个词”这种**相对位置**规则，那么由于 PE(pos+k) 与 PE(pos) 之间是固定线性关系，这个规则在所有 pos 上都能用同一套权重表达，不必为每个绝对位置单独学一遍。论文正是以此作为选择正弦形式的理由，并指出它**可能**允许模型外推到比训练时更长的序列。\n\n### 2.3 一个具体的小例子\n\n设 d_model = 4，则 i 取 0、1，两个频率：\n\n- i = 0：ω_0 = 1/10000^0 = 1，波长 2π ≈ 6.28\n- i = 1：ω_1 = 1/10000^(2/4) = 1/100，波长 200π ≈ 628\n\n于是位置 pos 的 4 维编码为：\n\n```\nPE(pos) = [ sin(pos),  cos(pos),  sin(pos/100),  cos(pos/100) ]\n```\n\n取几个位置算一下（保留三位小数）：\n\n| pos | sin(pos) | cos(pos) | sin(pos/100) | cos(pos/100) |\n|---|---|---|---|---|\n| 0 | 0.000 | 1.000 | 0.000 | 1.000 |\n| 1 | 0.841 | 0.540 | 0.010 | 1.000 |\n| 2 | 0.909 | −0.416 | 0.020 | 1.000 |\n| 3 | 0.141 | −0.990 | 0.030 | 1.000 |\n\n观察两件事：\n\n1. **前两维变化剧烈**，pos 从 0 到 3 就转了大半圈；**后两维几乎不动**，因为波长约 628，走 3 步只挪了一点点。这正是“多频率”的含义：细刻度负责区分相邻位置，粗刻度负责在长距离上保持可分辨。\n2. 验证 2.2 的结论：从 pos=1 到 pos=2 偏移 k=1，前两维由 (0.841, 0.540) 变成 (0.909, −0.416)，这恰好是把原向量旋转 1 弧度；同样的旋转对 pos=2→3 也成立。**同一个 k 对应同一个变换**，与 pos 无关。\n\n再把它和词嵌入相加：假设位置 1 的词嵌入是 [0.5, −0.2, 0.1, 0.3]，那么送进第一层编码器的向量就是\n\n```\n[0.5 + 0.841, −0.2 + 0.540, 0.1 + 0.010, 0.3 + 1.000] = [1.341, 0.340, 0.110, 1.300]\n```\n\n语义信息在词嵌入里，顺序信息在位置编码里，相加后两者一起进入注意力。\n\n### 2.4 小实验：打乱词序会怎样\n\n拿一句话“猫 追 老鼠”，三个词嵌入分别是 e_猫、e_追、e_老鼠。\n\n- **不加位置编码**：自注意力对三个向量算相似度矩阵，输出是三个向量的加权组合。把输入换成“老鼠 追 猫”，相似度矩阵只是行列跟着重排，每个词得到的输出向量**与原来完全相同**（只是换了位置）。模型无法从输出中判断谁在前。\n- **加位置编码**：位置 0 的向量变成 e_猫 + PE(0)，位置 2 的变成 e_老鼠 + PE(2)。打乱后 e_猫 配的是 PE(2)，向量变了，相似度矩阵随之改变，注意力权重也改变。**顺序信息真正进入了计算**。\n\n这就是为什么位置编码必须“加”在注意力之前，而不是事后处理。\n\n<a id=\"add-norm\"></a>\n## 三、Add&Norm：LayerNorm(x + Sublayer(x))\n\n### 3.1 表达式与两个组成部分\n\n编码器每层有两个子层（多头自注意力、前馈网络），解码器有三个（多了一个掩蔽自注意力）。**每个子层外面都套一层 Add&Norm**，其输出为：\n\n```\noutput = LayerNorm( x + Sublayer(x) )\n```\n\n- **x**：进入这个子层之前的输入向量（子层的输入，也是残差连接的“旁路”）。\n- **Sublayer(x)**：子层本身算出来的结果，比如多头自注意力的输出，或前馈网络的输出。\n- **x + Sublayer(x)**：残差连接（Add），把输入原样加到子层输出上。\n- **LayerNorm(...)**：对相加后的向量做层归一化（Norm）。\n\n为了让 x 与 Sublayer(x) 能相加，所有子层和嵌入层的输出维度都统一为 d_model = 512。\n\n### 3.2 残差连接解决什么\n\n深层网络里，梯度要一层层往回传。每经过一个子层，梯度都要乘上该子层的雅可比矩阵，层数一多就容易**梯度消失或爆炸**，前面的层学不动。\n\n残差连接给梯度提供了一条“高速公路”：因为输出里直接含有 x，反向传播时梯度可以沿恒等路径几乎原样传回，不必穿过子层的全部非线性变换。于是即使子层本身学得不好，信息也不会被完全破坏，深层堆叠变得可训练。原论文明确把残差连接的作用表述为**有助于缓解深层网络训练中的梯度消失或爆炸问题**。\n\n直观理解：每个子层只需要学“在当前表示上做多大的修正”，而不是从零重建整个表示，学习任务变轻了。\n\n### 3.3 层归一化解决什么\n\nLayerNorm 对**单个样本的单个位置向量**做归一化：先算这个向量在 d_model 个维度上的均值 μ 和标准差 σ，再变换为\n\n```\nLayerNorm(z) = γ ⊙ (z − μ) / sqrt(σ² + ε) + β\n```\n\n其中 γ、β 是可学习的缩放和偏移参数，ε 是防止除零的小常数。\n\n它的作用是**稳定训练**：把每个位置向量的数值尺度拉回均值 0、方差 1 附近，避免某些维度数值过大导致 softmax 饱和或梯度剧烈波动；γ、β 又让模型保留调整尺度的自由。\n\n和 BatchNorm 的区别值得记一句：BatchNorm 在**批次维度**上统计，依赖 batch 大小和序列填充；LayerNorm 在**特征维度**上统计，每个位置独立计算，因此不受 batch 大小影响，特别适合变长序列和并行处理。\n\n### 3.4 把两者合起来看\n\n以编码器第一层为例，完整流程是：\n\n```\nz1 = LayerNorm( x + MultiHeadSelfAttention(x) )\nz2 = LayerNorm( z1 + FeedForward(z1) )\n```\n\n注意第二个子层的输入是 z1 而不是 x——**每个子层都有自己的残差旁路**，Add&Norm 是逐子层套的，不是每层只套一次。\n\n> 补充说明：上式这种“先让数据通过子层，再把子层输出与输入相加并归一化”的顺序，就是通常所说的 **Post-LN**（后归一化），也是原始论文采用的写法。后来的很多实现改用 Pre-LN（先对输入做归一化，再进子层，最后只做残差相加），训练更稳定，但那是后续演进，本节不展开。\n\n<a id=\"summary\"></a>\n## 四、小结与自检\n\n三句话概括本节：\n\n1. Transformer 并行处理、无循环无卷积，自注意力对顺序不敏感，所以必须在堆栈底部把**同维度的位置编码加到词嵌入上**，否则模型等价于词袋。\n2. 正弦位置编码用**不同频率的 sin/cos 对**构成几何级数的波长，其关键性质是 **PE(pos+k) 可表示为 PE(pos) 的线性函数**，便于模型学习相对位置，并可能外推到更长序列。\n3. 每个子层输出 **LayerNorm(x + Sublayer(x))**：残差连接缓解深层梯度问题，层归一化稳定训练，两者共同保证 6 层堆叠可训练。\n\n自检问题（先自己回答，再看提示）：\n\n- 位置编码加在哪一步？为什么维度必须与词嵌入相同？\n  → 加在编码器/解码器堆栈底部的输入嵌入上；因为要做逐元素相加，且要保持 d_model 维度一致以便残差连接。\n- LayerNorm(x + Sublayer(x)) 中 x 和 Sublayer(x) 分别指什么？\n  → x 是该子层的输入（残差旁路），Sublayer(x) 是该子层（如多头自注意力或前馈网络）的输出。\n- 为什么说没有位置编码就等价于词袋？\n  → 自注意力只用向量相似度加权求和，打乱输入只会让输出跟着重排，每个词的输出不变，顺序信息无法被利用。\n\n**本节边界**：只讲原始 Transformer 的固定正弦位置编码与 Post-LN 结构；RoPE、相对位置偏置、Pre-LN 等现代变体仅作提及，不展开。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 9.9
+      },
+      "sections": [
+        {
+          "section_id": "why-position",
+          "content_sha256": "2cdb2cd18b82124940cd3f7bbbdf9c37e3dc9240d41996d52fa7d7df5a369033"
+        },
+        {
+          "section_id": "sinusoidal",
+          "content_sha256": "9b829e2968c7300f39e32380bfdc59f3c4e93eb6c18662b19c8b69c4a50e5ece"
+        },
+        {
+          "section_id": "add-norm",
+          "content_sha256": "6736a4d87ac98be7f9c562e79c4f34b539ccb5c32f473b7521a73bcf67d03266"
+        },
+        {
+          "section_id": "summary",
+          "content_sha256": "195e98395aea57064e62afe5cb3ad9c61a8e873cd7f8651846eac4b846167d3c"
+        }
+      ],
+      "spec_digest": "0caf0ee9a1d4a71afe022d565ed6cd157e8db2d213a04b18064d353d37a8c195",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "objective_id": "n4-positional-addnorm:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sinusoidal"
+          },
+          "objective_id": "n4-positional-addnorm:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "add-norm"
+          },
+          "objective_id": "n4-positional-addnorm:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "summary"
+          },
+          "objective_id": "n4-positional-addnorm:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "summary"
+          },
+          "objective_id": "n4-positional-addnorm:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "summary"
+          },
+          "objective_id": "n4-positional-addnorm:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "why-position"
+          },
+          "explanation": "落实“位置编码”这一核心机制：说明 Transformer 无循环无卷积、并行处理导致顺序缺失，必须在堆栈底部把同维位置编码加到词嵌入上，否则等价于词袋。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sinusoidal"
+          },
+          "explanation": "给出正弦/余弦位置编码公式、多频率几何级数波长设计、PE(pos+k) 为 PE(pos) 线性函数的推导与数值例子，并演示打乱词序的小实验。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "add-norm"
+          },
+          "explanation": "落实“残差连接与层归一化”：写出 LayerNorm(x + Sublayer(x))，分别解释残差连接缓解深层梯度问题、层归一化稳定训练，并给出编码器一层的完整流程。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "teaching_context_digest": "7d36c72f46a783b89f0824d018bea3757008b6a925325c1e7084f38e0200e6a7"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文三节分别对应本节点三项要求：一、why-position 说明并行/无循环卷积导致顺序缺失、否则等价词袋、在堆栈底部同维相加；二、sinusoidal 给出 sin/cos 公式、几何级数波长、PE(pos+k) 线性性推导与数值例子；三、add-norm 写出 LayerNorm(x + Sublayer(x)) 并分别解释残差与层归一化。未越界讲授其他节点内容，仅提及 Pre-LN/RoPE 作边界说明。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "公式 PE(pos,2i)=sin(pos/10000^(2i/d_model))、PE(pos,2i+1)=cos(...) 与原文一致；2.3 节 d_model=4 时 ω_0=1、ω_1=1/100、波长 2π 与 200π 计算正确，表中 sin(1)=0.841、cos(1)=0.540、sin(2)=0.909、cos(2)=−0.416、sin(3)=0.141、cos(3)=−0.990 均正确；相加示例 [0.5+0.841, −0.2+0.540, 0.1+0.010, 0.3+1.000]=[1.341,0.340,0.110,1.300] 正确；LayerNorm 公式含 γ、β、ε 正确；Post-LN 与 Pre-LN 的区分表述准确。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "2.3 数值表与词嵌入相加示例可逐步复算；2.4“猫 追 老鼠”打乱词序实验正确说明无位置编码时相似度矩阵仅行列重排、每词输出不变，加位置编码后向量改变；3.4 编码器第一层 z1/z2 流程示例正确体现逐子层残差旁路。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：必要性（1.1 自注意力无序→1.2 RNN/卷积对比→1.3 加在哪）→正弦编码（公式→线性性动机→数值例子→打乱实验）→Add&Norm（表达式→残差→层归一化→合并流程）→小结自检，与节点活动顺序一致，先讲为何再讲形式再讲实现细节，符合入门深度。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文主张（无循环卷积需注入位置、同维相加、波长几何级数、PE(pos+k) 线性性、外推可能、LayerNorm(x+Sublayer(x))、d_model=512、残差缓解梯度问题）均可在提供的 ev_8dae6a19e0d295ee3a9aa2fa、ev_361653a1654a2a53ca4704ba、ev_7f07ada805f7ff3393abfa9b 等依据中找到对应原文；正文未引用未提供的来源，也未声称核查外部全文。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三项目标均有解释与小结自检覆盖；自检问题对应 self_check（加在哪一步、维度为何相同、x 与 Sublayer(x) 含义）；正文明确标注边界（只讲固定正弦编码与 Post-LN，RoPE/Pre-LN 不展开），与 limitations 一致；中文、入门深度符合要求。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文按节点分工覆盖三项要求：why-position 节说明并行/无循环卷积导致顺序缺失、否则等价词袋；sinusoidal 节给出 sin/cos 公式、同维相加、几何级数波长与 PE(pos+k) 线性性；add-norm 节给出 LayerNorm(x + Sublayer(x)) 并分别解释残差与层归一化。未越界讲授其他节点内容，也未伪称整门课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": false,
+                "reason": "3.4 节末尾称“原论文采用‘先 Add&Norm 再进子层’的 Post-LN 顺序（即上式写法）”，表述自相矛盾：Post-LN 是先子层再 Add&Norm，正文公式 z1 = LayerNorm(x + MHSA(x)) 本身正确，但“先 Add&Norm 再进子层”的描述错误，会误导学习者。其余内容（PE 公式、ω_i=1/10000^(2i/d_model)、d_model=4 时 ω_1=1/100、LayerNorm 公式、BatchNorm/LayerNorm 区别）经推演正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "2.3 节 d_model=4 的数值表经复核正确（sin1≈0.841、cos1≈0.540、sin2≈0.909、cos2≈−0.416、sin3≈0.141、cos3≈−0.990，sin(pos/100) 各值正确），旋转 1 弧度结论成立；词嵌入相加示例 [1.341, 0.340, 0.110, 1.300] 计算正确；2.4 节打乱词序实验与节点活动一致，边界（位置编码只在底部加一次）已说明。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：必要性→正弦编码形式与相对位置性质→数值例子→打乱词序实验→Add&Norm 表达式→残差→层归一化→合并流程→小结自检，与节点活动顺序（阅读必要性、小实验、写 Add&Norm 表达式）一致，非仅口头声称；小结自检问题对应 self_check。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文主张（无循环卷积需注入位置、同维相加、波长 2π 到 10000·2π 几何级数、PE(pos+k) 线性、LayerNorm(x+Sublayer(x))、d_model=512）均可在提供的 ev_8dae6a19e0d295ee3a9aa2fa、ev_361653a1654a2a53ca4704ba、ev_7f07ada805f7ff3393abfa9b 等依据中找到对应原文；正文未虚构外部引用，常数采用 10000 与原始论文一致。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三项节点目标均有解释与自检，含“为何维度必须相同”“x 与 Sublayer(x) 分别指什么”等自检答案；明确本节边界（不展开 RoPE、Pre-LN），与 limitations 一致；估时 9.8 分钟在 12 分钟预算内，仅作参考。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "2.2 节可补一句说明“线性变换”具体是每个 (sin, cos) 对上的二维旋转矩阵，使“只依赖 k”的结论更直观。",
+              "3.3 节 LayerNorm 公式中 σ 与 σ² 混用，建议统一写作 sqrt(σ² + ε) 并说明 σ 为方差或标准差，避免歧义。",
+              "小结自检可增加一问“位置编码是否参与训练”，呼应 2.1 节“固定、不参与训练”的要点。"
+            ],
+            "blocking_issues": [
+              "3.4 节补充说明称“原论文采用‘先 Add&Norm 再进子层’的 Post-LN 顺序（即上式写法）”，与 Post-LN 定义及本节公式 z1 = LayerNorm(x + MultiHeadSelfAttention(x)) 矛盾，属事实性错误，需改为“先子层再 Add&Norm（Post-LN）”。"
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "why-position 节 1.1–1.3 实际说明自注意力只用相似度、打乱顺序输出仅重排、等价词袋，并指出在堆栈底部把同维位置编码加到词嵌入，真实支持该要求。",
+                "locator": {
+                  "section_id": "why-position"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sinusoidal 节 2.1–2.4 给出 sin/cos 公式、几何级数波长、三角恒等式推导 PE(pos+k) 为 PE(pos) 线性函数，并有数值表与打乱词序实验，支持该要求。",
+                "locator": {
+                  "section_id": "sinusoidal"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "add-norm 节 3.1–3.4 写出 LayerNorm(x + Sublayer(x))，分别解释残差缓解梯度问题与层归一化稳定训练，并给出编码器一层完整流程，支持该要求。",
+                "locator": {
+                  "section_id": "add-norm"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-position 节 1.1–1.2 解释并行处理、无循环卷积导致顺序缺失、否则等价词袋，对应目标 o1。",
+                "locator": {
+                  "section_id": "why-position"
+                },
+                "binding_id": "n4-positional-addnorm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sinusoidal 节 2.1–2.3 说明同维相加、不同频率 sin/cos、PE(pos+k) 线性性及相对位置学习意义，对应目标 o2。",
+                "locator": {
+                  "section_id": "sinusoidal"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "add-norm 节 3.1–3.3 说明 Add&Norm 含义、残差与层归一化各自作用，对应目标 o3；3.4 节 Post-LN 描述有误但不影响该定位主体内容。",
+                "locator": {
+                  "section_id": "add-norm"
+                },
+                "binding_id": "n4-positional-addnorm:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "summary 节小结第 1 条与自检“为什么说没有位置编码就等价于词袋”给出答案，检查目标 o1。",
+                "locator": {
+                  "section_id": "summary"
+                },
+                "binding_id": "n4-positional-addnorm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "summary 节小结第 2 条复述多频率 sin/cos 与 PE(pos+k) 线性性，检查目标 o2。",
+                "locator": {
+                  "section_id": "summary"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "summary 节小结第 3 条与自检“x 和 Sublayer(x) 分别指什么”给出答案，检查目标 o3。",
+                "locator": {
+                  "section_id": "summary"
+                },
+                "binding_id": "n4-positional-addnorm:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "revise",
+          "content_sha256": "e1685fd6bf7a6f78e27f751a36867ed416c5faea2c37d1d4405b39d9b2e2e07a",
+          "structural_issues": []
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文三节分别对应本节点三项要求：一、why-position 说明并行/无循环卷积导致顺序缺失、否则等价词袋、在堆栈底部同维相加；二、sinusoidal 给出 sin/cos 公式、几何级数波长、PE(pos+k) 线性性推导与数值例子；三、add-norm 写出 LayerNorm(x + Sublayer(x)) 并分别解释残差与层归一化。未越界讲授其他节点内容，仅提及 Pre-LN/RoPE 作边界说明。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "公式 PE(pos,2i)=sin(pos/10000^(2i/d_model))、PE(pos,2i+1)=cos(...) 与原文一致；2.3 节 d_model=4 时 ω_0=1、ω_1=1/100、波长 2π 与 200π 计算正确，表中 sin(1)=0.841、cos(1)=0.540、sin(2)=0.909、cos(2)=−0.416、sin(3)=0.141、cos(3)=−0.990 均正确；相加示例 [0.5+0.841, −0.2+0.540, 0.1+0.010, 0.3+1.000]=[1.341,0.340,0.110,1.300] 正确；LayerNorm 公式含 γ、β、ε 正确；Post-LN 与 Pre-LN 的区分表述准确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "2.3 数值表与词嵌入相加示例可逐步复算；2.4“猫 追 老鼠”打乱词序实验正确说明无位置编码时相似度矩阵仅行列重排、每词输出不变，加位置编码后向量改变；3.4 编码器第一层 z1/z2 流程示例正确体现逐子层残差旁路。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：必要性（1.1 自注意力无序→1.2 RNN/卷积对比→1.3 加在哪）→正弦编码（公式→线性性动机→数值例子→打乱实验）→Add&Norm（表达式→残差→层归一化→合并流程）→小结自检，与节点活动顺序一致，先讲为何再讲形式再讲实现细节，符合入门深度。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文主张（无循环卷积需注入位置、同维相加、波长几何级数、PE(pos+k) 线性性、外推可能、LayerNorm(x+Sublayer(x))、d_model=512、残差缓解梯度问题）均可在提供的 ev_8dae6a19e0d295ee3a9aa2fa、ev_361653a1654a2a53ca4704ba、ev_7f07ada805f7ff3393abfa9b 等依据中找到对应原文；正文未引用未提供的来源，也未声称核查外部全文。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三项目标均有解释与小结自检覆盖；自检问题对应 self_check（加在哪一步、维度为何相同、x 与 Sublayer(x) 含义）；正文明确标注边界（只讲固定正弦编码与 Post-LN，RoPE/Pre-LN 不展开），与 limitations 一致；中文、入门深度符合要求。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "2.2 节可补一句说明“线性变换”具体是分块旋转矩阵，帮助入门读者理解为何称其为旋转。",
+              "3.3 节提到 softmax 饱和，可顺带指出它出现在注意力打分处，避免读者误以为 LayerNorm 直接作用于 softmax 输入。",
+              "小结自检可增加一问“位置编码是否参与训练”，呼应 2.1 中“固定、不参与训练”的表述。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "why-position 节 1.1–1.3 实际说明自注意力只用相似度、打乱顺序输出仅重排、等价词袋，并指出在编码器/解码器堆栈底部把同维位置编码加到词嵌入上，真实支持该要求。",
+                "locator": {
+                  "section_id": "why-position"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sinusoidal 节给出 sin/cos 公式、偶数/奇数维成对、波长 2π 到 10000·2π 几何级数，并用三角恒等式推导 PE(pos+k) 为 PE(pos) 的线性（旋转）变换，附数值表与打乱实验，真实支持该要求。",
+                "locator": {
+                  "section_id": "sinusoidal"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "add-norm 节写出 output = LayerNorm(x + Sublayer(x))，逐项解释 x、Sublayer(x)、Add、Norm，说明残差缓解梯度消失/爆炸、LayerNorm 稳定训练，并给出编码器一层 z1/z2 流程，真实支持该要求。",
+                "locator": {
+                  "section_id": "add-norm"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-position 节 1.1–1.2 解释并行处理与无循环卷积导致顺序缺失、否则等价词袋，直接对应目标 o1 的解释角色。",
+                "locator": {
+                  "section_id": "why-position"
+                },
+                "binding_id": "n4-positional-addnorm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sinusoidal 节 2.1–2.3 说明与词嵌入同维相加、不同频率 sin/cos、PE(pos+k) 线性性便于学习相对位置，对应目标 o2。",
+                "locator": {
+                  "section_id": "sinusoidal"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "add-norm 节 3.1–3.4 说明 LayerNorm(x + Sublayer(x)) 含义、残差缓解深层梯度问题、层归一化稳定训练，对应目标 o3。",
+                "locator": {
+                  "section_id": "add-norm"
+                },
+                "binding_id": "n4-positional-addnorm:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "summary 节小结第 1 条与自检“为什么说没有位置编码就等价于词袋”实际复述并检验目标 o1 的要点。",
+                "locator": {
+                  "section_id": "summary"
+                },
+                "binding_id": "n4-positional-addnorm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "summary 节小结第 2 条复述多频率 sin/cos 与 PE(pos+k) 线性性，自检“位置编码加在哪一步、为何维度相同”检验目标 o2 相关内容。",
+                "locator": {
+                  "section_id": "summary"
+                },
+                "binding_id": "n4-positional-addnorm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "summary 节小结第 3 条与自检“x 和 Sublayer(x) 分别指什么”实际检验目标 o3 的 Add&Norm 含义。",
+                "locator": {
+                  "section_id": "summary"
+                },
+                "binding_id": "n4-positional-addnorm:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 3,
+          "decision": "pass",
+          "content_sha256": "b2ff60b335b8298133f01c4a404f591662081fa0b5a5cc2aad1fb6bcee7faab9",
+          "structural_issues": []
+        }
+      ],
+      "version": 3,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "2.2 节可补一句说明“线性变换”具体是分块旋转矩阵，帮助入门读者理解为何称其为旋转。",
+        "3.3 节提到 softmax 饱和，可顺带指出它出现在注意力打分处，避免读者误以为 LayerNorm 直接作用于 softmax 输入。",
+        "小结自检可增加一问“位置编码是否参与训练”，呼应 2.1 中“固定、不参与训练”的表述。"
+      ],
+      "content_sha256": "b2ff60b335b8298133f01c4a404f591662081fa0b5a5cc2aad1fb6bcee7faab9",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "why-position 节 1.1–1.3 实际说明自注意力只用相似度、打乱顺序输出仅重排、等价词袋，并指出在编码器/解码器堆栈底部把同维位置编码加到词嵌入上，真实支持该要求。",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sinusoidal 节给出 sin/cos 公式、偶数/奇数维成对、波长 2π 到 10000·2π 几何级数，并用三角恒等式推导 PE(pos+k) 为 PE(pos) 的线性（旋转）变换，附数值表与打乱实验，真实支持该要求。",
+          "locator": {
+            "section_id": "sinusoidal"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "add-norm 节写出 output = LayerNorm(x + Sublayer(x))，逐项解释 x、Sublayer(x)、Add、Norm，说明残差缓解梯度消失/爆炸、LayerNorm 稳定训练，并给出编码器一层 z1/z2 流程，真实支持该要求。",
+          "locator": {
+            "section_id": "add-norm"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-position 节 1.1–1.2 解释并行处理与无循环卷积导致顺序缺失、否则等价词袋，直接对应目标 o1 的解释角色。",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "binding_id": "n4-positional-addnorm:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sinusoidal 节 2.1–2.3 说明与词嵌入同维相加、不同频率 sin/cos、PE(pos+k) 线性性便于学习相对位置，对应目标 o2。",
+          "locator": {
+            "section_id": "sinusoidal"
+          },
+          "binding_id": "n4-positional-addnorm:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "add-norm 节 3.1–3.4 说明 LayerNorm(x + Sublayer(x)) 含义、残差缓解深层梯度问题、层归一化稳定训练，对应目标 o3。",
+          "locator": {
+            "section_id": "add-norm"
+          },
+          "binding_id": "n4-positional-addnorm:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "summary 节小结第 1 条与自检“为什么说没有位置编码就等价于词袋”实际复述并检验目标 o1 的要点。",
+          "locator": {
+            "section_id": "summary"
+          },
+          "binding_id": "n4-positional-addnorm:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "summary 节小结第 2 条复述多频率 sin/cos 与 PE(pos+k) 线性性，自检“位置编码加在哪一步、为何维度相同”检验目标 o2 相关内容。",
+          "locator": {
+            "section_id": "summary"
+          },
+          "binding_id": "n4-positional-addnorm:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "summary 节小结第 3 条与自检“x 和 Sublayer(x) 分别指什么”实际检验目标 o3 的 Add&Norm 含义。",
+          "locator": {
+            "section_id": "summary"
+          },
+          "binding_id": "n4-positional-addnorm:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "b7caffb2aee381675b2c983d226e108b744cb02b792616772c430d678c4b820a"
+    }
+  }
+}

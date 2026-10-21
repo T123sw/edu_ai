@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "checks": {
+    "typescript": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "previewBrowserTests": 4,
+    "cleanBuildMatchesTestedAssets": true,
+    "publishedBrowserTests": 4
+  },
+  "interactions": [
+    "Click node title, summary, or card to toggle",
+    "Root collapse and restore",
+    "Retain child expansion state",
+    "Leaf click does not change tree",
+    "Drag from node pans without toggling; next click works",
+    "Touch activation at 390px",
+    "Enter and Space activation",
+    "Fit all nodes, zoom, fullscreen, export and legacy preview"
+  ],
+  "verificationLimits": "Real frontend browser interactions with mocked business APIs; no model generation changes.",
+  "releaseFilesVerified": 480
+}

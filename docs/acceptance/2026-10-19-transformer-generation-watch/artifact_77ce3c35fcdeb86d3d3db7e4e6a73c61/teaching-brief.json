@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 12.771433115005493,
+  "decisions": {
+    "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），节点 18 分钟是含阅读与手算练习的学习预算，不等同成片时长，故采用 defaults 的约 5 分钟目标，围绕 Q/K/V 分工、公式逐步拆解、√dk 缩放原因与 3-token 手算演示安排充分解释。配音采用 defaults.narration=true（用户未要求无配音），画幅 16:9 亦来自 defaults。语言按用户提问语言推断为中文，深度按入门处理，受众背景未知按通用原理入门假设。路由：约 5 分钟常规教学解释，无网站捕获、无既有素材、非演示文稿，故走 general-video，flow: automation、storyboard: no。手算练习与自测题留给习题，详细背景阅读留给报告，视频只承担教师演示部分。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792410875.1029785,
+  "brief_sha256": "73459b1650fae61988d7cf667f64e256b252971e80e3ac995e3ac42e367ef2d1",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力就是让每个词用 Query 去匹配所有 Key，再把 softmax 权重乘到 Value 上做加权和\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\naudience: \"希望入门学习 Transformer 的学习者（具体背景未知，按入门深度处理）\"\nangle: concept\n---\n\n## Intent\n\n这是「Transformer 入门」课程中的第二个节点视频，标题为《自注意力与缩放点积：Q、K、V 如何算出加权和》。学习者刚看完上一节点「为什么需要 Transformer：循环结构的瓶颈与注意力的登场」，已经知道 Transformer 完全摒弃循环与卷积、仅靠注意力建立全局依赖，但还不知道注意力具体怎么算。本视频要补上这一步：把自注意力从“一个说法”变成“一条可以手算的流水线”。\n\n语气：清晰、克制、以板书式讲解为主，像一位耐心的助教在白板前一步步推演，而不是念论文。中文讲解，入门深度，不假设学习者有线性代数或深度学习框架经验。\n\n## Assets\n\n- 无用户上传素材。全部视觉为自制示意图形（向量、矩阵、权重条形、公式排版），不写假素材路径。\n\n## Customizations\n\n- 公式 Attention(Q,K,V)=softmax(QK^T/√dk)V 需以可读的排版呈现，并逐项高亮：QK^T（相似度矩阵）、√dk（缩放）、softmax（归一化成权重）、乘 V（加权求和）。\n- 需要一个 3 个 token、2 维 Q/K/V 的简化数值例子，在画面中逐步演算：3×3 打分矩阵 → 逐行 softmax → 每行权重和为 1 → 加权求和得到输出向量。\n- 需要一个代词指代直觉示例（“他”把大部分注意力投向“小明”），用权重条形/连线动画表现，并明确标注“示例数值仅作示意，非论文实验数据”。\n\n## Notes\n\n必须讲清的内容（教师演示部分，视频必须覆盖）：\n\n1. 自注意力的定义：关联同一序列不同位置以计算该序列表示的注意力机制（intra-attention）；注意力函数把查询和一组键值对映射为输出，输出是值的加权和，权重由查询与对应键的相容性函数算出。\n2. Q/K/V 三个角色的分工：Query = 我想找什么，Key = 我是什么，Value = 我的内容；三者由同一输入经三个不同线性变换得到。\n3. 三步流程：线性变换生成 Q/K/V → Q 与所有 K 点积并除以 √dk → softmax 得权重后对 V 加权求和。\n4. 相似度计算（Q·K）与信息传递（V）解耦，模型可分别学习“该关注谁”和“关注后取什么信息”。\n5. 缩放的原因：dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域，故除以 √dk。\n6. 演示深度：至少完整走一遍 3-token 简化例子的打分、softmax 归一化与加权求和，让学习者看到每行权重之和为 1；不要求视频内出题或让学习者作答。\n\n留给其他资源的内容（视频不承担）：\n\n- 手算练习（给定 3 个 token 的 2 维 Q/K/V 数值独立算出打分矩阵、权重与输出）属于习题，不在视频中布置或讲解答案。\n- 自测题“如果去掉 √dk，dk=64 时打分矩阵会发生什么变化”留给习题/自测，视频只讲清缩放原理。\n- 多头注意力、位置编码、残差与层归一化、编码器-解码器结构、训练/推理流程属于其他节点，本视频不展开，最多一句带过“后面再讲”。\n\n来源与限制：\n\n- 依据公开来源：原始论文《Attention Is All You Need》(NIPS 2017) 第 3.2、3.2.1 节，以及两篇中文教学材料（个人博客、Datawhale Easy-Vibe 教程）。\n- 中文教程中的注意力权重数值（如“余额”与“账户”0.35、“他”对“小明”65%）为教学示意，非原论文实验数据，画面中必须标注为示意。\n- 原论文超参数（N=6、dmodel=512、h=8 等）为 2017 年 base/big 配置，本视频不引用为通用事实。\n- 本视频为原理理解层面，不含可运行代码实现。\n\n语音与画幅：\n\n- 需要中文配音讲解（默认开启）。\n- 16:9 横屏，适合课程播放。\n- 目标时长约 5 分钟（300s），围绕上述内容安排充分解释与示例，不为凑时长加入无关内容。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

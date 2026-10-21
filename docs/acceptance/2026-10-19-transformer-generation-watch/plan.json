@@ -1,0 +1,186 @@
+{
+  "nodes": [
+    {
+      "title": "为什么需要 Transformer：循环结构的瓶颈与注意力的登场",
+      "minutes": 10,
+      "node_key": "n1-why-transformer",
+      "objectives": [
+        "用自己的话说明循环模型沿位置逐步计算隐藏状态为何导致训练无法并行、长序列受限",
+        "说出 Transformer 完全摒弃循环与卷积、仅靠注意力建立全局依赖这一核心主张",
+        "用“顺序操作数”和“任意两位置路径长度”两个指标对比自注意力层与循环层"
+      ],
+      "self_check": "不看材料，用 3 句话向同伴解释：RNN 慢在哪、Transformer 快在哪、代价是什么；能同时说出“顺序操作数”和“路径长度”两个理由即通过。",
+      "source_ids": [
+        "ev_6620b2677ead538fb749358f",
+        "ev_43a8e293a651f5515edcb291",
+        "ev_07d4076146beb1adbf0871a7"
+      ],
+      "finding_ids": [
+        "f-rnn-limits",
+        "f-rnn-cn",
+        "f-why-self-attn"
+      ],
+      "requirement_ids": [
+        "req-goal-transformer"
+      ],
+      "prerequisite_keys": [],
+      "learning_activities": [
+        "阅读/听讲：循环模型 h_t 依赖 h_{t-1} 的顺序性，以及它如何限制样本内并行与批处理",
+        "对照表格：自注意力层 O(1) 顺序操作、最大路径长度 O(1)、每层复杂度 O(n²·d)；循环层 O(n) 顺序操作、路径长度 O(n)、复杂度 O(n·d²)",
+        "讨论：为什么“路径更短”有利于学习长程依赖；并指出自注意力在长序列下的 O(n²) 代价"
+      ]
+    },
+    {
+      "title": "自注意力与缩放点积：Q、K、V 如何算出加权和",
+      "minutes": 18,
+      "node_key": "n2-self-attention",
+      "objectives": [
+        "解释 Query（我想找什么）、Key（我是什么）、Value（我的内容）三个角色的分工，以及相似度计算与信息传递为何解耦",
+        "写出 Attention(Q,K,V)=softmax(QK^T/√dk)V 并说明每一步在做什么",
+        "说明除以 √dk 的原因：dk 大时点积幅值变大，会把 softmax 推入梯度极小的区域",
+        "对一个 3 个 token 的简化例子手工完成打分、softmax 归一化与加权求和"
+      ],
+      "self_check": "能独立完成手算练习并得到每行权重和为 1 的输出；能回答“如果去掉 √dk，dk=64 时打分矩阵会发生什么变化”。",
+      "source_ids": [
+        "ev_d2326186e8e5ed07b75cf1ea",
+        "ev_43a8e293a651f5515edcb291",
+        "ev_6c0b57c1a14f68e95fadf6cc"
+      ],
+      "finding_ids": [
+        "f-self-attn-def",
+        "f-qkv-intuition",
+        "f-scaled-dot",
+        "f-attn-example"
+      ],
+      "requirement_ids": [
+        "req-goal-transformer"
+      ],
+      "prerequisite_keys": [
+        "n1-why-transformer"
+      ],
+      "learning_activities": [
+        "概念讲解：自注意力是关联同一序列不同位置以计算该序列表示的机制；注意力函数把查询与键值对映射为值的加权和",
+        "三步拆解：线性变换生成 Q/K/V → Q 与所有 K 点积并除以 √dk → softmax 得权重后对 V 加权求和",
+        "手算练习：给定 3 个 token 的 2 维 Q、K、V 数值，算出 3×3 打分矩阵、逐行 softmax 权重、加权求和输出，并核对每行权重之和为 1",
+        "对照直觉示例：代词“他”把大部分注意力投向“小明”，说明权重由数据学得而非人工规定（示例数值仅作示意）"
+      ]
+    },
+    {
+      "title": "多头注意力：多个子空间并行关注",
+      "minutes": 10,
+      "node_key": "n3-multihead",
+      "objectives": [
+        "写出 MultiHead(Q,K,V)=Concat(head_1..head_h)W^O 与 head_i=Attention(QW_i^Q, KW_i^K, VW_i^V)",
+        "说明多头为何优于单头：可同时关注不同表示子空间、不同位置的信息，而单头平均会抑制这一点",
+        "复述原论文配置 h=8、dk=dv=dmodel/h=64，并解释为何总计算量与全维单头相近"
+      ],
+      "self_check": "能画出多头注意力的数据流图（投影→并行注意力→拼接→输出投影），并解释“为什么 8 个头各 64 维不比 1 个头 512 维更贵”。",
+      "source_ids": [
+        "ev_6c0b57c1a14f68e95fadf6cc",
+        "ev_1fba05e38bee69d3b8cb60eb"
+      ],
+      "finding_ids": [
+        "f-multihead",
+        "f-ablations"
+      ],
+      "requirement_ids": [
+        "req-goal-transformer"
+      ],
+      "prerequisite_keys": [
+        "n2-self-attention"
+      ],
+      "learning_activities": [
+        "公式讲解：h 组不同可学习投影 → 各自并行做缩放点积注意力 → 拼接 → 乘 W^O 融合",
+        "维度推演：dmodel=512、h=8 时每个头 dk=dv=64，验证拼接后回到 512 维",
+        "读消融结论：单头比最佳设置低 0.9 BLEU，头数过多质量也下降；讨论“头越多越好吗”"
+      ]
+    },
+    {
+      "title": "位置编码、残差与层归一化、前馈网络：让注意力真正可用",
+      "minutes": 12,
+      "node_key": "n4-position-ffn-norm",
+      "objectives": [
+        "说明自注意力本身位置无关，因此必须把位置编码加到输入嵌入上，且两者维度同为 dmodel 才能相加",
+        "写出正弦余弦位置编码公式并说明其设计意图（相对位置可线性表示、可能外推到更长序列）",
+        "解释残差连接与层归一化的作用：子层输出为 LayerNorm(x + Sublayer(x))，保证深层网络训练稳定",
+        "说明逐位置前馈网络 FFN(x)=max(0, xW1+b1)W2+b2 对每个位置独立做非线性变换，位置间共享参数、层间不共享"
+      ],
+      "self_check": "能回答三个问题：位置编码为什么是“加”而不是“拼接”？残差与层归一化解决什么问题？前馈网络与注意力层在“是否跨位置交互”上有何区别？",
+      "source_ids": [
+        "ev_6c0b57c1a14f68e95fadf6cc",
+        "ev_07d4076146beb1adbf0871a7",
+        "ev_6f1914c42e75dd30c762cf51",
+        "ev_d2326186e8e5ed07b75cf1ea"
+      ],
+      "finding_ids": [
+        "f-positional-encoding",
+        "f-pe-modern",
+        "f-encoder-stack",
+        "f-ffn",
+        "f-stack-cn"
+      ],
+      "requirement_ids": [
+        "req-goal-transformer"
+      ],
+      "prerequisite_keys": [
+        "n2-self-attention"
+      ],
+      "learning_activities": [
+        "反例引入：“我爱你”与“你爱我”词集合相同，说明位置信息为何不可缺",
+        "公式讲解：PE(pos,2i)=sin(pos/10000^(2i/dmodel))、PE(pos,2i+1)=cos(...)，波长从 2π 到 10000·2π 等比排列",
+        "组件配对练习：把“残差连接”“层归一化”“前馈网络”“位置编码”与各自解决的问题连线并说明理由",
+        "延伸了解：可学习位置编码、相对位置编码、RoPE、ALiBi 属于后续演进，原论文用的是固定正弦编码"
+      ]
+    },
+    {
+      "title": "编码器-解码器结构与训练/推理流程",
+      "minutes": 10,
+      "node_key": "n5-encoder-decoder",
+      "objectives": [
+        "描述编码器把输入序列映射为连续表示、解码器据此自回归逐元素生成输出的整体流程",
+        "列出编码器每层两个子层与解码器每层三个子层，并说明三种多头注意力用法中 Q/K/V 的来源",
+        "解释解码器掩码（softmax 输入非法连接设为 −∞）配合输出右移如何保证位置 i 只依赖小于 i 的已知输出",
+        "概述训练与推理的基本轮廓：Adam + warmup 学习率、dropout 与标签平滑、推理用束搜索"
+      ],
+      "self_check": "能在一张空白结构图上标出所有子层与三处注意力的 Q/K/V 来源；能解释“为什么训练时可以并行、推理时却要一步步生成”。",
+      "source_ids": [
+        "ev_d2326186e8e5ed07b75cf1ea",
+        "ev_6c0b57c1a14f68e95fadf6cc",
+        "ev_1fba05e38bee69d3b8cb60eb",
+        "ev_6f1914c42e75dd30c762cf51"
+      ],
+      "finding_ids": [
+        "f-enc-dec-flow",
+        "f-encoder-stack",
+        "f-decoder-stack",
+        "f-three-attn-uses",
+        "f-training-inference",
+        "f-variants",
+        "f-stack-cn"
+      ],
+      "requirement_ids": [
+        "req-goal-transformer"
+      ],
+      "prerequisite_keys": [
+        "n3-multihead",
+        "n4-position-ffn-norm"
+      ],
+      "learning_activities": [
+        "结构走查：按图从输入嵌入+位置编码出发，逐层经过编码器两个子层，再进入解码器三个子层，最后 Linear+Softmax 输出概率分布",
+        "三处注意力对照表：编码器自注意力（Q/K/V 同源）、解码器掩码自注意力（只看 ≤ 当前位置）、编码器-解码器注意力（Q 来自解码器、K/V 来自编码器）",
+        "掩码推演：给定 3 步解码，画出 3×3 掩码矩阵，标出被设为 −∞ 的位置并说明右移一位的作用",
+        "流程梳理：训练时并行喂入右移目标序列并用掩码防泄漏；推理时逐步生成，原论文用 beam size=4、长度惩罚 0.6 的束搜索",
+        "延伸了解：仅编码器（BERT）、仅解码器（GPT/LLaMA）、编码器-解码器（T5/BART）三类现代变体"
+      ]
+    }
+  ],
+  "title": "Transformer 入门：从自注意力到编码器-解码器",
+  "summary": "面向零基础学习者的 60 分钟 Transformer 原理入门课，共 5 个节点。先用循环结构的顺序性瓶颈说明 Transformer 为何出现，再拆解自注意力的 Q/K/V 与缩放点积计算（含可手工追踪的小例子），接着讲多头注意力、位置编码、残差与层归一化、前馈网络各自的作用，最后把组件拼成编码器-解码器结构并梳理训练与推理流程。全程以中文讲解，配合概念对照、手算练习与自测，不要求编程实现。",
+  "limitations": [
+    "未上传任何资料，全部依据来自公开来源：原始论文《Attention Is All You Need》(NIPS 2017) 与两篇中文教学材料（个人博客、Datawhale Easy-Vibe 教程）。",
+    "中文教程中的注意力权重数值（如“余额”与“账户”0.35）为教学示意，非原论文实验数据，仅用于建立直觉。",
+    "现代位置编码（RoPE、ALiBi、相对位置编码）与仅编码器/仅解码器变体来自中文教程概述，未逐项核对原始论文，仅作延伸了解。",
+    "原论文超参数（N=6、dmodel=512、h=8、dff=2048、warmup 4000 步等）为 2017 年 base/big 模型配置，不代表所有后续 Transformer 实现。",
+    "本路径为原理理解层面，不含可运行代码实现；60 分钟为入门概览，不承诺全面掌握。"
+  ]
+}

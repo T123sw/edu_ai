@@ -1,0 +1,1279 @@
+{
+  "preparation_id": "prep_593ea484dc7c4247bacf13fcaddf8c5d",
+  "attempt": 1,
+  "status": "failed",
+  "as_of": "2026-10-20T05:54:16.799115+00:00",
+  "started_at": "2026-10-20T05:17:41.657974+00:00",
+  "finished_at": "2026-10-20T05:54:13.612184+00:00",
+  "seconds_since_start": 2191.954,
+  "original_started_at": "2026-10-20T05:17:41.657974+00:00",
+  "original_error": null,
+  "prior_attempts": [],
+  "timing_note": "Fresh attempt 1. Resource phases overlap and should not be added across videos. This is an observational run, not a controlled speed benchmark.",
+  "observation_note": "Entire observation is read-only; no retry, cancellation, restart or production changes. Previews are copied existing native snapshots.",
+  "delivery": {
+    "course_id": "learn-593ea484dc7c4247bacf13fcaddf8c5d",
+    "signature": "34d9afaa47a6d944615c698e96c2c77f00492b4f2406c539c0fa318c310cf26f",
+    "manifest_id": "manifest_938f3f90640b7b0c6036c99cfd4c2621",
+    "course_ready": false,
+    "path_available": true,
+    "course_available": true,
+    "manifest_version": 10,
+    "planned_resources": 15,
+    "available_resources": 13,
+    "excluded_artifact_ids": []
+  },
+  "error": "PREPARATION_CONTENT_CONTRACT",
+  "counts": {
+    "draft": 13,
+    "failed": 2
+  },
+  "stages": [
+    {
+      "stage": "normalize",
+      "started_at": "2026-10-20T05:17:42.010420+00:00",
+      "seconds": 9.471,
+      "complete": true
+    },
+    {
+      "stage": "research_scope",
+      "started_at": "2026-10-20T05:17:51.481621+00:00",
+      "seconds": 56.11,
+      "complete": true
+    },
+    {
+      "stage": "plan",
+      "started_at": "2026-10-20T05:18:47.592026+00:00",
+      "seconds": 3.811,
+      "complete": true
+    },
+    {
+      "stage": "research_nodes",
+      "started_at": "2026-10-20T05:18:51.403129+00:00",
+      "seconds": 27.212,
+      "complete": true
+    },
+    {
+      "stage": "produce",
+      "started_at": "2026-10-20T05:19:18.614768+00:00",
+      "seconds": 2092.114,
+      "complete": true
+    },
+    {
+      "stage": "review",
+      "started_at": "2026-10-20T05:54:10.729104+00:00",
+      "seconds": 2.883,
+      "complete": true
+    }
+  ],
+  "availability": [
+    {
+      "version": 1,
+      "at": "2026-10-20 05:19:19.764789+00:00",
+      "seconds_since_start": 98.107,
+      "resources": 0
+    },
+    {
+      "version": 2,
+      "at": "2026-10-20 05:19:31.248435+00:00",
+      "seconds_since_start": 109.59,
+      "resources": 0
+    },
+    {
+      "version": 3,
+      "at": "2026-10-20 05:20:02.674970+00:00",
+      "seconds_since_start": 141.017,
+      "resources": 4
+    },
+    {
+      "version": 4,
+      "at": "2026-10-20 05:20:29.083112+00:00",
+      "seconds_since_start": 167.425,
+      "resources": 5
+    },
+    {
+      "version": 5,
+      "at": "2026-10-20 05:20:42.538955+00:00",
+      "seconds_since_start": 180.881,
+      "resources": 6
+    },
+    {
+      "version": 6,
+      "at": "2026-10-20 05:20:54.225449+00:00",
+      "seconds_since_start": 192.567,
+      "resources": 7
+    },
+    {
+      "version": 7,
+      "at": "2026-10-20 05:21:35.012512+00:00",
+      "seconds_since_start": 233.355,
+      "resources": 8
+    },
+    {
+      "version": 8,
+      "at": "2026-10-20 05:44:52.208854+00:00",
+      "seconds_since_start": 1630.551,
+      "resources": 11
+    },
+    {
+      "version": 9,
+      "at": "2026-10-20 05:45:33.350266+00:00",
+      "seconds_since_start": 1671.692,
+      "resources": 12
+    },
+    {
+      "version": 10,
+      "at": "2026-10-20 05:54:09.907738+00:00",
+      "seconds_since_start": 2188.25,
+      "resources": 13
+    }
+  ],
+  "resources": [
+    {
+      "id": "artifact_5738c863f8ed92df828e79604c6ddd25",
+      "node": "n1-why-transformer",
+      "type": "classroom",
+      "status": "draft",
+      "created_at": "2026-10-20T05:19:20.039889+00:00",
+      "started_at": 1792473560.3956027,
+      "finished_at": 1792475007.6124127,
+      "execution_seconds": 1447.22,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 98.738,
+      "scheduler_delay_after_produce_seconds": 1.425,
+      "durable_queue_seconds": 0.356,
+      "first_opened_at": "2026-10-20 05:44:52.208854+00:00",
+      "open_after_task_start_seconds": 1630.551,
+      "brief_seconds": 12.694303512573242,
+      "scene_worker_groups": 3,
+      "tool_failures": [
+        {
+          "at": 1792473613.9251168,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0005954219959676266,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md"
+        },
+        {
+          "at": 1792473614.0670576,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0007443190552294254,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/rules-index.md"
+        }
+      ],
+      "runtime": {
+        "build_id": "25b83b0444ee7b5f1504",
+        "loaded_at": 1792473435.6524785,
+        "pid": 2797423,
+        "stage_limits_scope": "shared-host",
+        "configuration": {
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "history": [
+          {
+            "build_id": "25b83b0444ee7b5f1504",
+            "loaded_at": 1792473435.6524785,
+            "pid": 2797423,
+            "stage_limits_scope": "shared-host",
+            "configuration": {
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+            }
+          }
+        ]
+      },
+      "native_preparation_including_brief_seconds": 284.626,
+      "scene_span_including_queue_seconds": 544.419,
+      "scene_workers": [
+        {
+          "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+          "status": "succeeded",
+          "submitted_at": 1792473846.8392925,
+          "started_at": 1792473848.029542,
+          "finished_at": 1792474389.4413893,
+          "error": null
+        },
+        {
+          "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+          "status": "succeeded",
+          "submitted_at": 1792473845.0220387,
+          "started_at": 1792473847.0463624,
+          "finished_at": 1792474180.0137463,
+          "error": null
+        },
+        {
+          "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+          "status": "succeeded",
+          "submitted_at": 1792473845.9895265,
+          "started_at": 1792473847.662894,
+          "finished_at": 1792474176.8435018,
+          "error": null
+        }
+      ],
+      "scene_phase_outcome": "succeeded",
+      "renders": [
+        {
+          "command_id": "3802791efe2f49e3b7647bae5a7e5e44",
+          "started_at": 1792474482.2552834,
+          "finished_at": 1792474990.242966,
+          "exit_code": 0,
+          "seconds_including_admission_and_poll": 507.988,
+          "admission_wait_seconds": 0.0,
+          "native_phase_seconds": {
+            "compile": 1.198,
+            "browser_probe": 0.346,
+            "video_extract": 0.002,
+            "audio_process": 11.437,
+            "file_server": 0.01,
+            "capture_disk": 348.283,
+            "encode": 119.593,
+            "assemble": 22.048
+          }
+        }
+      ],
+      "assembly_and_check_seconds": 92.814,
+      "post_render_seconds": 17.369,
+      "video_seconds": 286.3,
+      "scenes": 9,
+      "narrated_scenes": 9,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 286.3
+      },
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck",
+          "audio_seconds": 274.296,
+          "audio_lines": 9,
+          "frame_files": 9,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 42230263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artifact_208758fe00919cc4b4e8e048107ce4fb",
+      "node": "n1-why-transformer",
+      "type": "report",
+      "status": "draft",
+      "created_at": "2026-10-20T05:19:20.252300+00:00",
+      "started_at": 1792473560.3422368,
+      "finished_at": 1792473592.728991,
+      "execution_seconds": 32.39,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 98.684,
+      "scheduler_delay_after_produce_seconds": 1.638,
+      "durable_queue_seconds": 0.09,
+      "first_opened_at": "2026-10-20 05:20:02.674970+00:00",
+      "open_after_task_start_seconds": 141.017
+    },
+    {
+      "id": "artifact_1583723044c05155fb5990fe6c495f47",
+      "node": "n1-why-transformer",
+      "type": "quiz",
+      "status": "draft",
+      "created_at": "2026-10-20T05:19:20.605859+00:00",
+      "started_at": 1792473560.9082468,
+      "finished_at": 1792473596.7770507,
+      "execution_seconds": 35.87,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 99.25,
+      "scheduler_delay_after_produce_seconds": 1.991,
+      "durable_queue_seconds": 0.302,
+      "first_opened_at": "2026-10-20 05:20:02.674970+00:00",
+      "open_after_task_start_seconds": 141.017,
+      "questions": 5
+    },
+    {
+      "id": "artifact_210f78512e03ef5e8d4372f08cc457ee",
+      "node": "n2-overall-architecture",
+      "type": "report",
+      "status": "draft",
+      "created_at": "2026-10-20T05:19:21.003703+00:00",
+      "started_at": 1792473561.0609262,
+      "finished_at": 1792473593.8682091,
+      "execution_seconds": 32.81,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 99.403,
+      "scheduler_delay_after_produce_seconds": 2.389,
+      "durable_queue_seconds": 0.057,
+      "first_opened_at": "2026-10-20 05:20:02.674970+00:00",
+      "open_after_task_start_seconds": 141.017
+    },
+    {
+      "id": "artifact_fc15b32071f2d3cfe2a58dfcd2d8418a",
+      "node": "n2-overall-architecture",
+      "type": "quiz",
+      "status": "draft",
+      "created_at": "2026-10-20T05:19:21.367308+00:00",
+      "started_at": 1792473561.4195535,
+      "finished_at": 1792473625.5211573,
+      "execution_seconds": 64.1,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 99.762,
+      "scheduler_delay_after_produce_seconds": 2.753,
+      "durable_queue_seconds": 0.052,
+      "first_opened_at": "2026-10-20 05:20:29.083112+00:00",
+      "open_after_task_start_seconds": 167.425,
+      "questions": 8
+    },
+    {
+      "id": "artifact_e21ca5a786cd8b876c441271447904a3",
+      "node": "n3-self-attention",
+      "type": "report",
+      "status": "draft",
+      "created_at": "2026-10-20T05:19:21.732037+00:00",
+      "started_at": 1792473561.9668827,
+      "finished_at": 1792473645.6047685,
+      "execution_seconds": 83.64,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 100.309,
+      "scheduler_delay_after_produce_seconds": 3.117,
+      "durable_queue_seconds": 0.235,
+      "first_opened_at": "2026-10-20 05:20:54.225449+00:00",
+      "open_after_task_start_seconds": 192.567
+    },
+    {
+      "id": "artifact_57481ae5c9b34371d5d5d0d766322461",
+      "node": "n3-self-attention",
+      "type": "quiz",
+      "status": "failed",
+      "created_at": "2026-10-20T05:19:22.285090+00:00",
+      "started_at": 1792473562.581117,
+      "finished_at": 1792473611.662661,
+      "execution_seconds": 49.08,
+      "task_error": "PREPARATION_CONTENT_CONTRACT: preparation_content_envelope_missing",
+      "error": "PREPARATION_CONTENT_CONTRACT",
+      "start_after_task_start_seconds": 100.923,
+      "scheduler_delay_after_produce_seconds": 3.67,
+      "durable_queue_seconds": 0.296,
+      "first_opened_at": null,
+      "open_after_task_start_seconds": null,
+      "questions": 0
+    },
+    {
+      "id": "artifact_ab69c876e677d30eefe9b1703b17c6b7",
+      "node": "n4-position-ffn",
+      "type": "report",
+      "status": "draft",
+      "created_at": "2026-10-20T05:19:22.737090+00:00",
+      "started_at": 1792473563.0991757,
+      "finished_at": 1792473593.7863376,
+      "execution_seconds": 30.69,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 101.441,
+      "scheduler_delay_after_produce_seconds": 4.122,
+      "durable_queue_seconds": 0.362,
+      "first_opened_at": "2026-10-20 05:20:02.674970+00:00",
+      "open_after_task_start_seconds": 141.017
+    },
+    {
+      "id": "artifact_b245004f7483dfb671d66c6dee9774f3",
+      "node": "n4-position-ffn",
+      "type": "quiz",
+      "status": "failed",
+      "created_at": "2026-10-20T05:20:03.658999+00:00",
+      "started_at": 1792473603.9697657,
+      "finished_at": 1792473691.038503,
+      "execution_seconds": 87.07,
+      "task_error": "RESOURCE_CONTENT_REJECTED: q-pe-handcalc 解析第 4 段（explanation_segments 索引 4）：“常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001”自相矛盾：漏掉因子 2 时指数为 i/d_model=1/4，角频率为 10000^(-1/4)≈0.1，pos=1 得 sin(0.1)≈0.0998；而 1/10000 与 sin(0.0001) 对应的是把指数算成 2i/d_model=1 的另一类错误。应改为与所述错误算式一致的数值，或改写错误描述。; q-pe-handcalc 的解析第 4 段把“漏掉因子 2”的错误结果写成 sin(0.0001)≈0.0001，但漏掉因子 2 时 i=1 的角频率应为 1/10000^0.25≈0.1，pos=1 时得到 sin(0.1)≈0.0998，而非 0.0001；0.0001 对应的是把指数算成 2i/d_model=1 的情形，错误归因不成立。其余题目事实与数值（sin1≈0.8415、cos1≈0.5403、sin0.01≈0.0100、cos0.01≈0.99995、波长 2π 与 200π）均正确。; 第 4 题：数值断言无法复算：pos=1 时：第 0 维 i=0，角频率 1/10000^0=1，PE(1,0)=sin1≈0.8415；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 1 维 PE(1,1)=cos1≈0.5403；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 2 维 i=1，角频率 1/10000^(2/4)=1/100，PE(1,2)=sin0.01≈0.0100；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 3 维 PE(1,3)=cos0.01≈0.99995。；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001。；请提供受支持的算式或明确其验证限制; 第 4 题：d_model=4，i∈{0,1}。i=0：角频率 10000^0=1，波长 2π≈6.2832；i=1：指数 2i/d_model=0.5，角频率 10000^(-0.5)=0.01，波长 200π≈628.32。pos=0：PE=(sin0,cos0,sin0,cos0)=(0,1,0,1)。pos=1：PE=(sin1,cos1,sin0.01,cos0.01)≈(0.8415,0.5403,0.0100,0.99995)。参考答案正确；但解析中“漏掉因子 2 会得到 sin(0.0001)≈0.0001”的归因错误：漏掉因子 2 时角频率为 10000^(-0.25)≈0.1，得 sin(0.1)≈0.0998。",
+      "error": "RESOURCE_CONTENT_REJECTED",
+      "start_after_task_start_seconds": 142.312,
+      "scheduler_delay_after_produce_seconds": 45.044,
+      "durable_queue_seconds": 0.311,
+      "first_opened_at": null,
+      "open_after_task_start_seconds": null,
+      "questions": 0
+    },
+    {
+      "id": "artifact_f3eb04047ca0834be22ae65775d1b213",
+      "node": "n5-tradeoff",
+      "type": "report",
+      "status": "draft",
+      "created_at": "2026-10-20T05:20:04.521552+00:00",
+      "started_at": 1792473604.636973,
+      "finished_at": 1792473637.9268596,
+      "execution_seconds": 33.29,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 142.979,
+      "scheduler_delay_after_produce_seconds": 45.907,
+      "durable_queue_seconds": 0.115,
+      "first_opened_at": "2026-10-20 05:20:42.538955+00:00",
+      "open_after_task_start_seconds": 180.881
+    },
+    {
+      "id": "artifact_d3e0da639a7506dea3f70af055da0e96",
+      "node": "n5-tradeoff",
+      "type": "quiz",
+      "status": "draft",
+      "created_at": "2026-10-20T05:20:05.389089+00:00",
+      "started_at": 1792473605.5122907,
+      "finished_at": 1792473675.2416065,
+      "execution_seconds": 69.73,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 143.854,
+      "scheduler_delay_after_produce_seconds": 46.774,
+      "durable_queue_seconds": 0.123,
+      "first_opened_at": "2026-10-20 05:21:35.012512+00:00",
+      "open_after_task_start_seconds": 233.355,
+      "questions": 7
+    },
+    {
+      "id": "artifact_b90915a9d51a2faa28953d6b203c0562",
+      "node": "n2-overall-architecture",
+      "type": "classroom",
+      "status": "draft",
+      "created_at": "2026-10-20T05:20:06.080067+00:00",
+      "started_at": 1792473606.5394905,
+      "finished_at": 1792475124.2669897,
+      "execution_seconds": 1517.73,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 144.882,
+      "scheduler_delay_after_produce_seconds": 47.465,
+      "durable_queue_seconds": 0.459,
+      "first_opened_at": "2026-10-20 05:45:33.350266+00:00",
+      "open_after_task_start_seconds": 1671.692,
+      "brief_seconds": 12.231963157653809,
+      "scene_worker_groups": 4,
+      "tool_failures": [
+        {
+          "at": 1792473638.570244,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0005034590139985085,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/references/production-loop.md"
+        },
+        {
+          "at": 1792473945.1573422,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.00046635791659355164,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/rules/grid-card-assemble.md",
+          "worker_id": "5ae81ddd93a14601a8d281b3ad78f11e"
+        }
+      ],
+      "runtime": {
+        "build_id": "25b83b0444ee7b5f1504",
+        "loaded_at": 1792473435.6524785,
+        "pid": 2797423,
+        "stage_limits_scope": "shared-host",
+        "configuration": {
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "history": [
+          {
+            "build_id": "25b83b0444ee7b5f1504",
+            "loaded_at": 1792473435.6524785,
+            "pid": 2797423,
+            "stage_limits_scope": "shared-host",
+            "configuration": {
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+            }
+          }
+        ]
+      },
+      "native_preparation_including_brief_seconds": 313.339,
+      "scene_span_including_queue_seconds": 617.203,
+      "scene_workers": [
+        {
+          "worker_id": "7eb21d6a0e5245e2a4b2282a96da555f",
+          "status": "succeeded",
+          "submitted_at": 1792473921.0621262,
+          "started_at": 1792473923.0455897,
+          "finished_at": 1792474352.319788,
+          "error": null
+        },
+        {
+          "worker_id": "86ea9032142e41b8b5e4d0850aa61231",
+          "status": "succeeded",
+          "submitted_at": 1792473919.8783963,
+          "started_at": 1792473921.6276023,
+          "finished_at": 1792474537.081223,
+          "error": null
+        },
+        {
+          "worker_id": "1330d6cfb7dd4e56b1aa35c93e868806",
+          "status": "succeeded",
+          "submitted_at": 1792473921.7534604,
+          "started_at": 1792473923.8936305,
+          "finished_at": 1792474343.6956756,
+          "error": null
+        },
+        {
+          "worker_id": "5ae81ddd93a14601a8d281b3ad78f11e",
+          "status": "succeeded",
+          "submitted_at": 1792473922.7792332,
+          "started_at": 1792473924.6271265,
+          "finished_at": 1792474193.0555975,
+          "error": null
+        }
+      ],
+      "scene_phase_outcome": "succeeded",
+      "renders": [
+        {
+          "command_id": "b36eeafafb7146cd8250d92158bfe4d1",
+          "started_at": 1792474658.9821632,
+          "finished_at": 1792475113.4739637,
+          "exit_code": 0,
+          "seconds_including_admission_and_poll": 454.492,
+          "admission_wait_seconds": 0.0,
+          "native_phase_seconds": {
+            "compile": 1.632,
+            "browser_probe": 0.412,
+            "video_extract": 0.001,
+            "audio_process": 13.924,
+            "file_server": 0.015,
+            "capture_disk": 295.627,
+            "encode": 122.829,
+            "assemble": 14.126
+          }
+        }
+      ],
+      "assembly_and_check_seconds": 121.901,
+      "post_render_seconds": 10.793,
+      "video_seconds": 296.0,
+      "scenes": 10,
+      "narrated_scenes": 10,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 296.0
+      },
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/662ba27468512e487c028a88bac28a9611778c0eebd498151548770abc88afe6/videos/transformer-overall-architecture",
+          "audio_seconds": 289.176,
+          "audio_lines": 10,
+          "frame_files": 10,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 24174664
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artifact_5f4b2b9274cc91de16960330223cb76d",
+      "node": "n3-self-attention",
+      "type": "classroom",
+      "status": "draft",
+      "created_at": "2026-10-20T05:20:30.312009+00:00",
+      "started_at": 1792473630.4408665,
+      "finished_at": 1792475079.1038876,
+      "execution_seconds": 1448.66,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 168.783,
+      "scheduler_delay_after_produce_seconds": 71.697,
+      "durable_queue_seconds": 0.129,
+      "first_opened_at": "2026-10-20 05:44:52.208854+00:00",
+      "open_after_task_start_seconds": 1630.551,
+      "brief_seconds": 15.269920110702515,
+      "scene_worker_groups": 4,
+      "tool_failures": [],
+      "runtime": {
+        "build_id": "25b83b0444ee7b5f1504",
+        "loaded_at": 1792473435.6524785,
+        "pid": 2797423,
+        "stage_limits_scope": "shared-host",
+        "configuration": {
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "history": [
+          {
+            "build_id": "25b83b0444ee7b5f1504",
+            "loaded_at": 1792473435.6524785,
+            "pid": 2797423,
+            "stage_limits_scope": "shared-host",
+            "configuration": {
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+            }
+          }
+        ]
+      },
+      "native_preparation_including_brief_seconds": 287.638,
+      "scene_span_including_queue_seconds": 517.323,
+      "scene_workers": [
+        {
+          "worker_id": "ccf7da357fb44874bf6ea2350e828fa0",
+          "status": "succeeded",
+          "submitted_at": 1792473918.428275,
+          "started_at": 1792473919.694362,
+          "finished_at": 1792474368.4688065,
+          "error": null
+        },
+        {
+          "worker_id": "6e618bf38fcc4ca2b00161eea6298a5f",
+          "status": "succeeded",
+          "submitted_at": 1792473918.0788538,
+          "started_at": 1792473918.635856,
+          "finished_at": 1792474382.9007754,
+          "error": null
+        },
+        {
+          "worker_id": "c4b6bd583ca54a4aa54a5f6a7b54b004",
+          "status": "succeeded",
+          "submitted_at": 1792473918.7855434,
+          "started_at": 1792473919.994302,
+          "finished_at": 1792474399.3820353,
+          "error": null
+        },
+        {
+          "worker_id": "7d2f0aecc1f1436f86706d2ec9f5ca2a",
+          "status": "succeeded",
+          "submitted_at": 1792473919.570893,
+          "started_at": 1792473921.3695238,
+          "finished_at": 1792474435.4023511,
+          "error": null
+        }
+      ],
+      "scene_phase_outcome": "succeeded",
+      "renders": [
+        {
+          "command_id": "51d19c3f5d13498f90c029439e16a7ce",
+          "started_at": 1792474612.110243,
+          "finished_at": 1792475067.7330298,
+          "exit_code": 0,
+          "seconds_including_admission_and_poll": 455.623,
+          "admission_wait_seconds": 0.0,
+          "native_phase_seconds": {
+            "compile": 1.749,
+            "browser_probe": 0.458,
+            "video_extract": 0.001,
+            "audio_process": 14.222,
+            "file_server": 0.011,
+            "capture_disk": 299.597,
+            "encode": 112.354,
+            "assemble": 21.081
+          }
+        }
+      ],
+      "assembly_and_check_seconds": 176.708,
+      "post_render_seconds": 11.371,
+      "video_seconds": 305.2,
+      "scenes": 13,
+      "narrated_scenes": 13,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 305.2
+      },
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/13921f99179dbdc3dec619b7b8e000fd258bde8b937167b70bfdcf24d10e3bb1/videos/n3-self-attention",
+          "audio_seconds": 296.20799999999997,
+          "audio_lines": 13,
+          "frame_files": 13,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 28229797
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artifact_f389a890295c6fa609e053a92da5f28b",
+      "node": "n4-position-ffn",
+      "type": "classroom",
+      "status": "draft",
+      "created_at": "2026-10-20T05:20:31.313454+00:00",
+      "started_at": 1792473631.402818,
+      "finished_at": 1792475647.2620146,
+      "execution_seconds": 2015.86,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 169.745,
+      "scheduler_delay_after_produce_seconds": 72.699,
+      "durable_queue_seconds": 0.089,
+      "first_opened_at": "2026-10-20 05:54:09.907738+00:00",
+      "open_after_task_start_seconds": 2188.25,
+      "brief_seconds": 15.42010498046875,
+      "scene_worker_groups": 3,
+      "tool_failures": [],
+      "runtime": {
+        "build_id": "25b83b0444ee7b5f1504",
+        "loaded_at": 1792473437.330568,
+        "pid": 2797413,
+        "stage_limits_scope": "shared-host",
+        "configuration": {
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "history": [
+          {
+            "build_id": "25b83b0444ee7b5f1504",
+            "loaded_at": 1792473437.330568,
+            "pid": 2797413,
+            "stage_limits_scope": "shared-host",
+            "configuration": {
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+            }
+          }
+        ]
+      },
+      "native_preparation_including_brief_seconds": 381.484,
+      "scene_span_including_queue_seconds": 744.166,
+      "scene_workers": [
+        {
+          "worker_id": "26d2d55d470c4c6caecb2eb125b836c7",
+          "status": "succeeded",
+          "submitted_at": 1792474013.7607224,
+          "started_at": 1792474016.1271942,
+          "finished_at": 1792474556.0071373,
+          "error": null
+        },
+        {
+          "worker_id": "36fcbbb0445d4ab6aca5bbd9b1ce2acc",
+          "status": "succeeded",
+          "submitted_at": 1792474012.8863766,
+          "started_at": 1792474014.6686027,
+          "finished_at": 1792474427.539612,
+          "error": null
+        },
+        {
+          "worker_id": "aa4f755718774a9999bbc0288c5e93e0",
+          "status": "succeeded",
+          "submitted_at": 1792474014.893476,
+          "started_at": 1792474179.122129,
+          "finished_at": 1792474757.052616,
+          "error": null
+        }
+      ],
+      "scene_phase_outcome": "succeeded",
+      "renders": [
+        {
+          "command_id": "5563952844fd4b98832eae92e0684b1f",
+          "started_at": 1792474885.0581584,
+          "finished_at": 1792475628.0875053,
+          "exit_code": 0,
+          "seconds_including_admission_and_poll": 743.029,
+          "admission_wait_seconds": 104.718,
+          "native_phase_seconds": {
+            "compile": 1.478,
+            "browser_probe": 0.446,
+            "video_extract": 0.002,
+            "audio_process": 16.446,
+            "file_server": 0.016,
+            "capture_disk": 502.657,
+            "encode": 98.417,
+            "assemble": 13.235
+          }
+        }
+      ],
+      "assembly_and_check_seconds": 128.006,
+      "post_render_seconds": 19.175,
+      "video_seconds": 295.566667,
+      "scenes": 9,
+      "narrated_scenes": 9,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 295.566667
+      },
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/1cab0e1b7ecece1cdb9e3a60387edcc88f47614f904791f7a7af033ad5f34e1d/videos/transformer-position-ffn",
+          "audio_seconds": 284.736,
+          "audio_lines": 9,
+          "frame_files": 9,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 36370417
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artifact_57380f90897ff79c7dc7dd394a430802",
+      "node": "n5-tradeoff",
+      "type": "classroom",
+      "status": "draft",
+      "created_at": "2026-10-20T05:20:44.294188+00:00",
+      "started_at": 1792473644.483879,
+      "finished_at": 1792475016.0225408,
+      "execution_seconds": 1371.54,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 182.826,
+      "scheduler_delay_after_produce_seconds": 85.679,
+      "durable_queue_seconds": 0.19,
+      "first_opened_at": "2026-10-20 05:44:52.208854+00:00",
+      "open_after_task_start_seconds": 1630.551,
+      "brief_seconds": 15.617408990859985,
+      "scene_worker_groups": 3,
+      "tool_failures": [],
+      "runtime": {
+        "build_id": "25b83b0444ee7b5f1504",
+        "loaded_at": 1792473437.330568,
+        "pid": 2797413,
+        "stage_limits_scope": "shared-host",
+        "configuration": {
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "history": [
+          {
+            "build_id": "25b83b0444ee7b5f1504",
+            "loaded_at": 1792473437.330568,
+            "pid": 2797413,
+            "stage_limits_scope": "shared-host",
+            "configuration": {
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+            }
+          }
+        ]
+      },
+      "native_preparation_including_brief_seconds": 344.129,
+      "scene_span_including_queue_seconds": 443.799,
+      "scene_workers": [
+        {
+          "worker_id": "95adecefbc9748768ef97d8033c3263a",
+          "status": "succeeded",
+          "submitted_at": 1792473989.561878,
+          "started_at": 1792473990.570088,
+          "finished_at": 1792474396.7806554,
+          "error": null
+        },
+        {
+          "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+          "status": "succeeded",
+          "submitted_at": 1792473988.6128883,
+          "started_at": 1792473989.2286494,
+          "finished_at": 1792474205.1904318,
+          "error": null
+        },
+        {
+          "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+          "status": "succeeded",
+          "submitted_at": 1792473988.9705572,
+          "started_at": 1792473990.0271819,
+          "finished_at": 1792474432.4117234,
+          "error": null
+        }
+      ],
+      "scene_phase_outcome": "succeeded",
+      "renders": [
+        {
+          "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a",
+          "started_at": 1792474572.901536,
+          "finished_at": 1792475002.3171804,
+          "exit_code": 0,
+          "seconds_including_admission_and_poll": 429.416,
+          "admission_wait_seconds": 0.0,
+          "native_phase_seconds": {
+            "compile": 1.123,
+            "browser_probe": 0.308,
+            "video_extract": 0.002,
+            "audio_process": 12.765,
+            "file_server": 0.009,
+            "capture_disk": 281.522,
+            "encode": 105.96,
+            "assemble": 22.375
+          }
+        }
+      ],
+      "assembly_and_check_seconds": 140.49,
+      "post_render_seconds": 13.705,
+      "video_seconds": 289.6,
+      "scenes": 9,
+      "narrated_scenes": 9,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 289.6
+      },
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention",
+          "audio_seconds": 284.28,
+          "audio_lines": 9,
+          "frame_files": 9,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 15126394
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "concurrency_observations": {
+    "observed_resource_running_peak": {
+      "count": 8,
+      "at": "2026-10-20T05:19:48.678537+00:00"
+    },
+    "observed_video_running_peak": {
+      "count": 5,
+      "at": "2026-10-20T05:20:49.073403+00:00"
+    },
+    "scene_group_peak_from_exact_worker_intervals": 16,
+    "scene_worker_groups": 17,
+    "scene_queue_seconds": [
+      {
+        "node": "n1-why-transformer",
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "seconds": 1.19
+      },
+      {
+        "node": "n1-why-transformer",
+        "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+        "seconds": 2.024
+      },
+      {
+        "node": "n1-why-transformer",
+        "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+        "seconds": 1.673
+      },
+      {
+        "node": "n2-overall-architecture",
+        "worker_id": "7eb21d6a0e5245e2a4b2282a96da555f",
+        "seconds": 1.983
+      },
+      {
+        "node": "n2-overall-architecture",
+        "worker_id": "86ea9032142e41b8b5e4d0850aa61231",
+        "seconds": 1.749
+      },
+      {
+        "node": "n2-overall-architecture",
+        "worker_id": "1330d6cfb7dd4e56b1aa35c93e868806",
+        "seconds": 2.14
+      },
+      {
+        "node": "n2-overall-architecture",
+        "worker_id": "5ae81ddd93a14601a8d281b3ad78f11e",
+        "seconds": 1.848
+      },
+      {
+        "node": "n3-self-attention",
+        "worker_id": "ccf7da357fb44874bf6ea2350e828fa0",
+        "seconds": 1.266
+      },
+      {
+        "node": "n3-self-attention",
+        "worker_id": "6e618bf38fcc4ca2b00161eea6298a5f",
+        "seconds": 0.557
+      },
+      {
+        "node": "n3-self-attention",
+        "worker_id": "c4b6bd583ca54a4aa54a5f6a7b54b004",
+        "seconds": 1.209
+      },
+      {
+        "node": "n3-self-attention",
+        "worker_id": "7d2f0aecc1f1436f86706d2ec9f5ca2a",
+        "seconds": 1.799
+      },
+      {
+        "node": "n4-position-ffn",
+        "worker_id": "26d2d55d470c4c6caecb2eb125b836c7",
+        "seconds": 2.366
+      },
+      {
+        "node": "n4-position-ffn",
+        "worker_id": "36fcbbb0445d4ab6aca5bbd9b1ce2acc",
+        "seconds": 1.782
+      },
+      {
+        "node": "n4-position-ffn",
+        "worker_id": "aa4f755718774a9999bbc0288c5e93e0",
+        "seconds": 164.229
+      },
+      {
+        "node": "n5-tradeoff",
+        "worker_id": "95adecefbc9748768ef97d8033c3263a",
+        "seconds": 1.008
+      },
+      {
+        "node": "n5-tradeoff",
+        "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+        "seconds": 0.616
+      },
+      {
+        "node": "n5-tradeoff",
+        "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+        "seconds": 1.057
+      }
+    ],
+    "note": "Video and resource status peaks use 30-second samples. Scene peak uses worker started/finished events, render admission separately in summary."
+  },
+  "content_spotcheck": "content-spotcheck.json",
+  "visual_spotcheck": "visual-spotcheck.json",
+  "media_probe": [
+    {
+      "node": "n1-why-transformer",
+      "file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/renders/video.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080,
+            "duration": "286.300000"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "286.300000"
+          }
+        ],
+        "format": {
+          "duration": "286.300000",
+          "size": "42230263"
+        }
+      }
+    },
+    {
+      "node": "n2-overall-architecture",
+      "file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/662ba27468512e487c028a88bac28a9611778c0eebd498151548770abc88afe6/videos/transformer-overall-architecture/renders/video.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080,
+            "duration": "296.000000"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "296.000000"
+          }
+        ],
+        "format": {
+          "duration": "296.000000",
+          "size": "24174664"
+        }
+      }
+    },
+    {
+      "node": "n3-self-attention",
+      "file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/13921f99179dbdc3dec619b7b8e000fd258bde8b937167b70bfdcf24d10e3bb1/videos/n3-self-attention/renders/video.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080,
+            "duration": "305.200000"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "305.200000"
+          }
+        ],
+        "format": {
+          "duration": "305.200000",
+          "size": "28229797"
+        }
+      }
+    },
+    {
+      "node": "n4-position-ffn",
+      "file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/1cab0e1b7ecece1cdb9e3a60387edcc88f47614f904791f7a7af033ad5f34e1d/videos/transformer-position-ffn/renders/video.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080,
+            "duration": "295.566667"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "295.566667"
+          }
+        ],
+        "format": {
+          "duration": "295.566667",
+          "size": "36370417"
+        }
+      }
+    },
+    {
+      "node": "n5-tradeoff",
+      "file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/renders/video.mp4",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1920,
+            "height": 1080,
+            "duration": "289.600000"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "duration": "289.600000"
+          }
+        ],
+        "format": {
+          "duration": "289.600000",
+          "size": "15126394"
+        }
+      }
+    }
+  ],
+  "playback_checks": "playback-checks.json",
+  "observed_issues": {
+    "terminal_resources": [
+      {
+        "node": "n3-self-attention",
+        "type": "quiz",
+        "error": "PREPARATION_CONTENT_CONTRACT",
+        "detail": "PREPARATION_CONTENT_CONTRACT: preparation_content_envelope_missing"
+      },
+      {
+        "node": "n4-position-ffn",
+        "type": "quiz",
+        "error": "RESOURCE_CONTENT_REJECTED",
+        "detail": "RESOURCE_CONTENT_REJECTED: q-pe-handcalc 解析第 4 段（explanation_segments 索引 4）：“常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001”自相矛盾：漏掉因子 2 时指数为 i/d_model=1/4，角频率为 10000^(-1/4)≈0.1，pos=1 得 sin(0.1)≈0.0998；而 1/10000 与 sin(0.0001) 对应的是把指数算成 2i/d_model=1 的另一类错误。应改为与所述错误算式一致的数值，或改写错误描述。; q-pe-handcalc 的解析第 4 段把“漏掉因子 2”的错误结果写成 sin(0.0001)≈0.0001，但漏掉因子 2 时 i=1 的角频率应为 1/10000^0.25≈0.1，pos=1 时得到 sin(0.1)≈0.0998，而非 0.0001；0.0001 对应的是把指数算成 2i/d_model=1 的情形，错误归因不成立。其余题目事实与数值（sin1≈0.8415、cos1≈0.5403、sin0.01≈0.0100、cos0.01≈0.99995、波长 2π 与 200π）均正确。; 第 4 题：数值断言无法复算：pos=1 时：第 0 维 i=0，角频率 1/10000^0=1，PE(1,0)=sin1≈0.8415；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 1 维 PE(1,1)=cos1≈0.5403；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 2 维 i=1，角频率 1/10000^(2/4)=1/100，PE(1,2)=sin0.01≈0.0100；；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：第 3 维 PE(1,3)=cos0.01≈0.99995。；请提供受支持的算式或明确其验证限制; 第 4 题：数值断言无法复算：常见错误是漏掉 2i/d_model 中的因子 2，把 i=1 的角频率算成 1/10000，从而得到 sin(0.0001)≈0.0001。；请提供受支持的算式或明确其验证限制; 第 4 题：d_model=4，i∈{0,1}。i=0：角频率 10000^0=1，波长 2π≈6.2832；i=1：指数 2i/d_model=0.5，角频率 10000^(-0.5)=0.01，波长 200π≈628.32。pos=0：PE=(sin0,cos0,sin0,cos0)=(0,1,0,1)。pos=1：PE=(sin1,cos1,sin0.01,cos0.01)≈(0.8415,0.5403,0.0100,0.99995)。参考答案正确；但解析中“漏掉因子 2 会得到 sin(0.0001)≈0.0001”的归因错误：漏掉因子 2 时角频率为 10000^(-0.25)≈0.1，得 sin(0.1)≈0.0998。"
+      }
+    ],
+    "pool_timeout_observed": false,
+    "http_429_observed": false,
+    "mixed_builds_observed": false,
+    "recovered_video_errors": [
+      {
+        "node": "n5-tradeoff",
+        "kind": "3 null querySelector composition errors",
+        "recovery": "Native generator repaired and playback check passed before render.",
+        "evidence": "playback-checks.json"
+      },
+      {
+        "nodes": [
+          "n1-why-transformer",
+          "n2-overall-architecture"
+        ],
+        "kind": "4 failed reference-file reads in total",
+        "recovery": "Generator continued by locating paths; all videos completed."
+      },
+      {
+        "node": "n3-self-attention",
+        "kind": "requestAnimationFrame in composition rejected by lint",
+        "recovery": "Generator fixed scene; subsequent lint and playback check passed.",
+        "evidence": "artifact_5f4b2b9274cc91de16960330223cb76d/commands/0b9f6de7e7f74002a38880b8f9763b65.log"
+      }
+    ],
+    "content_errors": "content-spotcheck.json",
+    "limits": "Media stream and timeline checks passed; no full human playback or exhaustive correctness review. Observed content errors remain in generated artifacts."
+  },
+  "fix": "../2026-10-19-preparation-pool-starvation/summary.json"
+}

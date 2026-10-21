@@ -1,0 +1,56 @@
+{
+  "checkedAt": "2026-10-19T06:35:17.253441+00:00",
+  "ttsHealth": {
+    "status": "ok",
+    "service": "local-tts",
+    "model_loaded": true,
+    "model": "qwen3-tts",
+    "device": "cuda:1",
+    "formats": [
+      "mp3",
+      "wav"
+    ]
+  },
+  "ttsStats": {
+    "batch_size": 4,
+    "cache_size": 256,
+    "cache_entries": 11,
+    "active_requests": 0,
+    "queued_requests": 0,
+    "requests": 11,
+    "cache_hits": 1,
+    "batch_calls": 3,
+    "fallback_calls": 0,
+    "sentences": 11,
+    "audio_ms": 506880,
+    "infer_ms": 424807,
+    "model_calls": 3,
+    "max_batch_observed": 4
+  },
+  "backend": "MainPID=2503545\nActiveState=active\nActiveEnterTimestamp=Mon 2026-10-19 06:25:01 UTC\n",
+  "supplementalWorkers": "MainPID=2475382\nActiveState=deactivating\nSubState=stop-sigterm\n",
+  "reviewed": [
+    "services/local_tts/qwen_server.py",
+    "services/local_tts/batching.py",
+    "backend/src/app/integrations/hyperframes/workflow_audio.py",
+    "docs/acceptance/2026-10-19-tts-concurrency/live-result.json",
+    "docs/acceptance/2026-10-19-tts-concurrency/effective-route-check.json"
+  ],
+  "findings": [
+    "Full utterance passed to synthesis; failed batches shrink by requests without fragmenting utterances.",
+    "Video narration requests submitted concurrently, results restored in input order; measured durations passed to native timeline.",
+    "New tasks routed to 8191/GPU1; old supplemental workers still draining existing jobs.",
+    "Existing validation includes 7-chapter/4-scene real synthesis and decode. No new synthesis, full-video generation, or word-by-word listening performed in this review."
+  ],
+  "resources": {
+    "preparationId": "prep_4abecf6908d242b5bbed483aff8a17de",
+    "briefRequiredTypes": [
+      "classroom"
+    ],
+    "plannedResources": 4,
+    "availableResourcesAtCheck": 2,
+    "reportQuizStatus": "not scheduled; not hidden or failed",
+    "cause": "Course intake instructions and defaults select only explicit deliverables; default classroom switch requests classroom only.",
+    "defaultsChanged": false
+  }
+}

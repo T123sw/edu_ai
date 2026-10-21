@@ -122,6 +122,7 @@ class OpenMaicClient:
         jobId/pollUrl）；等待完成用 `wait_job`（SPEC-05 §6）。"""
         body: dict[str, Any] = {
             "requirement": requirement,
+            "capabilityPolicy": "edu-ai",
             "enableWebSearch": enable_web_search,
             "enableImageGeneration": enable_image,
             "enableVideoGeneration": enable_video,

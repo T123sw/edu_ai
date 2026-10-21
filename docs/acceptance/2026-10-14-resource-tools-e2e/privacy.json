@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "kind": "scenario",
+      "audio": false,
+      "otherUserStatus": 404
+    },
+    {
+      "kind": "podcast",
+      "audio": false,
+      "otherUserStatus": 404
+    },
+    {
+      "kind": "podcast",
+      "audio": true,
+      "otherUserStatus": 404
+    },
+    {
+      "kind": "report",
+      "audio": false,
+      "otherUserStatus": 404
+    },
+    {
+      "kind": "graph",
+      "audio": false,
+      "otherUserStatus": 404
+    },
+    {
+      "kind": "quiz",
+      "audio": false,
+      "otherUserStatus": 404
+    },
+    {
+      "kind": "flashcard",
+      "audio": false,
+      "otherUserStatus": 404
+    }
+  ],
+  "diagnosticRemoved": true
+}

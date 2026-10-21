@@ -1,0 +1,42 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/zxqs_ep/data/main-review/hyperframes-online-preview/lesson.mp4':
+  Metadata:
+    minor_version   : 512;512
+    major_brand     : isom;isom
+    compatible_brands: isomiso2avc1mp41;isomiso2avc1mp41
+    hyperframes_version: 0.8.168
+    hyperframes_renderer: hyperframes
+    encoder         : Lavf63.1.101
+  Duration: 00:00:35.97, start: 0.000000, bitrate: 735 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1920x1080 [SAR 1:1 DAR 16:9], 534 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      encoder         : Lavc63.1.101 libx264
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 193 kb/s (default)
+    Metadata:
+      handler_name    : SoundHandler
+[Parsed_volumedetect_0 @ 0x556599ad5f80] n_samples: 0
+Stream mapping:
+  Stream #0:1 -> #0:0 (aac (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, null, to 'pipe:':
+  Metadata:
+    minor_version   : 512;512
+    major_brand     : isom;isom
+    compatible_brands: isomiso2avc1mp41;isomiso2avc1mp41
+    hyperframes_version: 0.8.168
+    hyperframes_renderer: hyperframes
+    encoder         : Lavf63.1.101
+  Stream #0:0(und): Audio: pcm_s16le, 48000 Hz, stereo, s16, 1536 kb/s (default)
+    Metadata:
+      encoder         : Lavc63.1.101 pcm_s16le
+      handler_name    : SoundHandler
+[Parsed_volumedetect_0 @ 0x7fdf700037c0] n_samples: 3452800
+[Parsed_volumedetect_0 @ 0x7fdf700037c0] mean_volume: -19.8 dB
+[Parsed_volumedetect_0 @ 0x7fdf700037c0] max_volume: -2.3 dB
+[Parsed_volumedetect_0 @ 0x7fdf700037c0] histogram_2db: 34
+[Parsed_volumedetect_0 @ 0x7fdf700037c0] histogram_3db: 110
+[Parsed_volumedetect_0 @ 0x7fdf700037c0] histogram_4db: 636
+[Parsed_volumedetect_0 @ 0x7fdf700037c0] histogram_5db: 2134
+[Parsed_volumedetect_0 @ 0x7fdf700037c0] histogram_6db: 3932
+[out#0/null @ 0x556599a98380] video:0KiB audio:6744KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+size=N/A time=00:00:35.96 bitrate=N/A speed= 541x elapsed=0:00:00.06    

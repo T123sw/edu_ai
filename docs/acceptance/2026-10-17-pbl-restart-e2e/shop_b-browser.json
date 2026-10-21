@@ -1,0 +1,104 @@
+{
+  "name": "shop_b",
+  "exerciseId": "pbl_805d41af6b4b874116a055337cb6385a",
+  "steps": [
+    {
+      "id": "add-and-guard",
+      "passed": true,
+      "cumulative": 3
+    },
+    {
+      "id": "quantity",
+      "passed": true,
+      "cumulative": 7
+    },
+    {
+      "id": "toggle-and-delete",
+      "passed": true,
+      "cumulative": 11
+    },
+    {
+      "id": "filter-and-stats",
+      "passed": true,
+      "cumulative": 17
+    }
+  ],
+  "checks": 17,
+  "errors": [],
+  "requestFailures": [
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://col.csbops.io/data/sandpack",
+      "error": "net::ERR_TIMED_OUT"
+    },
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://col.csbops.io/data/sandpack",
+      "error": "net::ERR_TIMED_OUT"
+    }
+  ],
+  "emptyStarterRejected": true,
+  "previewText": "购物清单\n添加\n全部\n待购买\n已购买\n商品种类数：0\n待购买总件数：0",
+  "previewRendered": true,
+  "previewControls": [
+    {
+      "tag": "INPUT",
+      "text": "",
+      "label": null,
+      "testId": "item-input",
+      "type": "text"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "添加",
+      "label": null,
+      "testId": "add-button",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "全部",
+      "label": null,
+      "testId": "filter-all",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "待购买",
+      "label": null,
+      "testId": "filter-pending",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "已购买",
+      "label": null,
+      "testId": "filter-purchased",
+      "type": "button"
+    }
+  ],
+  "refreshPreservesCodeAndStep": true,
+  "regressionRejected": true,
+  "repairedCodePasses": true,
+  "mobileNoPageOverflow": true,
+  "previewViewports": [
+    {
+      "outerWidth": 390,
+      "width": 349,
+      "scrollWidth": 349
+    },
+    {
+      "outerWidth": 320,
+      "width": 279,
+      "scrollWidth": 279
+    }
+  ],
+  "privateAnswersExcluded": true,
+  "passed": true
+}

@@ -1,0 +1,114 @@
+[
+  {
+    "name": "form-old-error-retained",
+    "case": "form",
+    "requirement": "修改姓名清除旧错误",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "empty-name-error",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"name-input\" 的输入值\n   实际：\"\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的可见状态\n   实际：true\n✓ 4. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "whitespace-name-error",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"   \"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "valid-name-success",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：张三\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "trimmed-name-success",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"  李四  \"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：李四\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "clear-message-on-edit",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"王五\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：王五\"\n✓ 4. 在 \"name-input\" 输入 \"王五五\"\n✓ 5. 检查 \"message\" 的显示文字\n   实际：\"\"\n✓ 6. 点击 \"submit-button\"\n✓ 7. 检查 \"message\" 的显示文字\n   实际：\"报名成功：王五五\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "error-then-valid-success",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"submit-button\"\n✓ 2. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n✓ 3. 在 \"name-input\" 输入 \"赵六\"\n× 4. 检查 \"message\" 的显示文字\n预期：\"\"\n实际：\"请输入姓名\""
+        }
+      ],
+      "durationMs": 3182.9031190000005
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "form-old-error-retained",
+          "status": "failed",
+          "message": "✓ 1. 点击 \"submit-button\"\n✓ 2. 在 \"name-input\" 输入 \"小明\"\n× 3. 检查 \"message\" 的显示文字\n预期：\"\"\n实际：\"请输入姓名\""
+        }
+      ],
+      "durationMs": 1779.0485719999997
+    }
+  },
+  {
+    "name": "form-trim-omitted",
+    "case": "form",
+    "requirement": "空格姓名不能报名",
+    "baselinePasses": true,
+    "generatedAcceptancePasses": false,
+    "independentRequirementPasses": false,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "empty-name-error",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"name-input\" 的输入值\n   实际：\"\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的可见状态\n   实际：true\n✓ 4. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "whitespace-name-error",
+          "status": "failed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"   \"\n✓ 2. 点击 \"submit-button\"\n× 3. 检查 \"message\" 的显示文字\n预期：\"请输入姓名\"\n实际：\"报名成功：\""
+        },
+        {
+          "caseId": "valid-name-success",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：张三\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "trimmed-name-success",
+          "status": "failed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"  李四  \"\n✓ 2. 点击 \"submit-button\"\n× 3. 检查 \"message\" 的显示文字\n预期：\"报名成功：李四\"\n实际：\"报名成功：  李四\""
+        },
+        {
+          "caseId": "clear-message-on-edit",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"王五\"\n✓ 2. 点击 \"submit-button\"\n✓ 3. 检查 \"message\" 的显示文字\n   实际：\"报名成功：王五\"\n✓ 4. 在 \"name-input\" 输入 \"王五五\"\n✓ 5. 检查 \"message\" 的显示文字\n   实际：\"\"\n✓ 6. 点击 \"submit-button\"\n✓ 7. 检查 \"message\" 的显示文字\n   实际：\"报名成功：王五五\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "error-then-valid-success",
+          "status": "passed",
+          "message": "✓ 1. 点击 \"submit-button\"\n✓ 2. 检查 \"message\" 的显示文字\n   实际：\"请输入姓名\"\n✓ 3. 在 \"name-input\" 输入 \"赵六\"\n✓ 4. 检查 \"message\" 的显示文字\n   实际：\"\"\n✓ 5. 点击 \"submit-button\"\n✓ 6. 检查 \"message\" 的显示文字\n   实际：\"报名成功：赵六\"\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 4368.930039999999
+    },
+    "oracle": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "form-trim-omitted",
+          "status": "failed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"   \"\n✓ 2. 点击 \"submit-button\"\n× 3. 检查 \"message\" 的显示文字\n预期：\"请输入姓名\"\n实际：\"报名成功：\""
+        }
+      ],
+      "durationMs": 1773.0049720000006
+    }
+  }
+]

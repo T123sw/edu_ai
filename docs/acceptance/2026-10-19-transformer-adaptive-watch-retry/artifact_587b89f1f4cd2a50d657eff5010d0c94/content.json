@@ -1,0 +1,345 @@
+{
+  "title": "多头注意力：多子空间并行与三种使用方式",
+  "content": "# 多头注意力：多子空间并行与三种使用方式\n\n上一节你已经知道：自注意力就是拿每个位置的查询 Q 去和所有位置的键 K 做点积、除以 √d_k、softmax 归一化，再对值 V 加权求和。这一节要回答三个问题：为什么要做好几个“头”而不是一个？多头在实现上到底怎么算？Transformer 里这三处注意力各自从哪里取 Q、K、V？\n\n<a id=\"why-multi-head\"></a>\n## 一、为什么一个头不够：单头只学一种相似度模式\n\n单头自注意力里，每个位置只产生**一组** Q、K、V，于是 softmax 之后只有**一张**注意力权重矩阵。这张矩阵刻画的是“位置 i 该关注哪些位置 j”的**一种**相似度模式。\n\n问题在于，一句话里同时存在多种关系：局部句法搭配（比如形容词紧挨名词）、长距离语义依赖、指代与共指（“它”指前面的哪个名词）。这些关系需要的“关注方式”并不相同。如果只有一个头，模型只能把这些需求压进同一张权重矩阵里，最后得到的是一个折中结果——原始论文的说法是：**使用单个注意力头时，平均操作会抑制这种能力**。\n\n多头的做法是把表示空间切成 h 份，每一份在**独立的表示子空间**里做一次注意力，于是模型可以**在不同的表示子空间中联合关注不同位置的信息**。CS336 学习笔记里有一句很好记的概括：单头注意力只学习**一种**相似度模式；多头将 d 切为 h 份，每份在独立子空间做 Attention，再拼接/投影，能同时捕获句法局部模式、语义依赖、指代与共指等。\n\n一个直观类比（这是教学类比，不是论文结论）：多头像一组“专家”同时读同一句话，有人盯语法、有人盯语义、有人盯指代，最后把各自的笔记汇总。The AI Edge 的解读也把多头注意力比作自注意力的“集成”，类似随机森林之于单棵决策树。\n\n<a id=\"how-multi-head-works\"></a>\n## 二、多头注意力的实现：投影 → 并行注意力 → 拼接 → 输出投影\n\n### 2.1 四步流程\n\n原始论文的表述是：不使用单个 d_model 维的键、值和查询执行单一注意力函数，而是把查询、键、值分别通过 **h 个不同的、学习得到的线性投影**，映射到 d_k、d_k、d_v 维；然后在每一组投影后的 Q、K、V 上**并行**执行注意力函数，得到 d_v 维输出；这些输出被**拼接**起来，再**做一次投影**得到最终输出。\n\n写成公式就是：\n\n```\nhead_i = Attention(Q·W_i^Q, K·W_i^K, V·W_i^V)      i = 1..h\nMultiHead(Q,K,V) = Concat(head_1, ..., head_h) · W^O\n```\n\n其中投影矩阵的维度是：W_i^Q ∈ R^(d_model×d_k)，W_i^K ∈ R^(d_model×d_k)，W_i^V ∈ R^(d_model×d_v)，W^O ∈ R^(h·d_v×d_model)。注意 W^O 的输入维度是 h·d_v——因为拼接后长度是 h 份 d_v 首尾相接，输出投影把它压回 d_model 维，同时**混合来自不同头的信息**。\n\n四个步骤可以这样记：\n\n1. **投影**：h 组独立的 W_i^Q、W_i^K、W_i^V，把 d_model 维输入分别压到 d_k / d_k / d_v 维；\n2. **并行注意力**：每个头内部就是上一节学过的缩放点积注意力 softmax(QK^T/√d_k)V，h 个头互不共享参数、可以同时算；\n3. **拼接**：把 h 个 d_v 维输出首尾相接，得到 h·d_v 维；\n4. **输出投影**：乘 W^O 回到 d_model 维，让不同头的信息真正融合，而不是简单并列。\n\n### 2.2 每头维度：d_head = d_model / h\n\n原始论文取 **h = 8**，并设置 **d_k = d_v = d_model / h = 64**（对应 d_model = 512）。一般地：\n\n```\nd_head = d_model / h\n```\n\n这也意味着 d_model 必须能被 h 整除。The AI Edge 的解读明确写了这一点：隐藏维度要选成能被头数整除。\n\n**算一算**：d_model = 512、h = 8 时，d_head = 512 / 8 = **64**。若改成 h = 16，则 d_head = 32；若 h = 4，则 d_head = 128。\n\n### 2.3 为什么总计算成本与全维单头注意力相近\n\n关键在“每个头的维度降低了”。单头时 Q、K 的点积要在 512 维上做；多头时每个头只在 64 维上做，但要做 8 次。点积的计算量大致与维度成正比，8 × 64 = 512，所以总量级相当。原始论文的原话是：**由于每个头的维度降低了，所以总的计算成本与全维度的单头注意力相似**。The AI Edge 的解读也强调，为了让计算的时间复杂度不随头数增长，必须缩小层内向量尺寸。\n\n换句话说，多头不是“把注意力算 8 遍变得更贵”，而是“把同样大小的预算切成 8 份，分别花在不同的子空间上”。\n\n### 2.4 实现细节：概念上是 h 个矩阵，代码里是 3 个大矩阵\n\nThe AI Edge 的解读提醒了一个容易误解的点：为了充分利用 GPU 的并行能力，实际实现里 W^K、W^Q、W^V 并不是 h 个彼此独立存放的小矩阵，而是**三个大矩阵**，在概念上按头数切开使用。具体做法是：先用 W^K、W^Q、W^V 把隐藏状态 H 投影成 d_model×N 的 K、Q、V（N 是 token 数），再 reshape 成 n_head × d_head × N 的三维张量，让每个头处理全部 token 但只操作自己那一段特征。\n\n所以“h 个独立线性投影”说的是**参数不共享、各头看到不同的特征子段**，不是说必须写成 h 个 for 循环。\n\n<a id=\"three-usages\"></a>\n## 三、Transformer 里多头注意力的三种用法\n\n同一个多头注意力模块，在 Transformer 中被用在三个位置，区别只在 **Q、K、V 从哪里来**，以及**有没有掩码**。\n\n### 3.1 编码器自注意力\n\n编码器里的自注意力层，**所有的键、值和查询都来自同一个地方，即编码器前一层的输出**。编码器中的每个位置都可以关注编码器前一层中的所有位置——没有掩码，是双向的全局可见。\n\n- Q：编码器前一层输出\n- K：编码器前一层输出\n- V：编码器前一层输出\n\n### 3.2 编码器-解码器注意力（交叉注意力）\n\n在编码器-解码器注意力层中，**查询来自前一层解码器，而键和值来自编码器的输出**。这使得解码器中的每个位置都能关注输入序列中的所有位置。\n\n- Q：解码器前一层的输出\n- K：编码器的输出\n- V：编码器的输出\n\n这是最容易被记混的一处，请记牢：**Q 来自解码器，K 和 V 来自编码器**。直觉上，解码器在“问”（我现在要生成这个词，需要什么信息），编码器提供的输出是“被查的档案”。\n\n### 3.3 带掩码的解码器自注意力\n\n解码器中的自注意力允许每个位置关注解码器中**包括该位置在内**的所有位置。但生成是自回归的：预测第 t 个词时不能偷看第 t+1 个词。所以需要**防止解码器中的信息向左流动**，以保持自回归属性。\n\n实现方式是：**把 softmax 输入中对应非法连接的所有值掩盖掉（设为 -∞）**。因为 e^(-∞) = 0，softmax 之后这些位置的权重就变成 0，等于完全看不到。注意掩码作用在 **softmax 之前**，作用对象是 QK^T/√d_k 得到的分数矩阵中 j > i 的那些位置。\n\n- Q：解码器前一层输出\n- K：解码器前一层输出\n- V：解码器前一层输出\n- 额外：上三角（未来位置）分数置 -∞\n\n### 3.4 三处对比表\n\n| 位置 | Q 来源 | K 来源 | V 来源 | 掩码 |\n| --- | --- | --- | --- | --- |\n| 编码器自注意力 | 编码器前一层输出 | 编码器前一层输出 | 编码器前一层输出 | 无（双向） |\n| 编码器-解码器注意力 | 解码器前一层输出 | 编码器输出 | 编码器输出 | 无 |\n| 解码器自注意力 | 解码器前一层输出 | 解码器前一层输出 | 解码器前一层输出 | 有（未来位置置 -∞） |\n\n原始论文的总结是：Transformer 利用三种方式应用多头注意力机制，包括编码器-解码器间的全局关注、编码器内部的自交互以及解码器的自回归关注。\n\n<a id=\"practice\"></a>\n## 四、动手练一练\n\n**练习 1（计算）**：d_model = 512、h = 8，每头维度是多少？如果 h 改成 16 呢？并说明为什么多头总计算成本与全维单头注意力相近。\n\n参考思路：d_head = 512/8 = 64；h = 16 时 d_head = 32。每个头的点积维度从 512 降到 64，但要做 8 次，8 × 64 = 512，量级相当；原始论文正是因此说总计算成本与全维单头注意力相似。\n\n**练习 2（画图）**：在 Transformer 骨架图上标出三处注意力，分别写出 Q、K、V 的来源，并说明解码器掩码把非法位置置为 -∞ 的作用。\n\n参考思路：编码器自注意力三处同源（编码器前一层输出）；编码器-解码器注意力 Q 来自解码器前一层、K/V 来自编码器输出；解码器自注意力三处同源（解码器前一层输出）但加掩码。掩码把 j > i 的分数置 -∞，softmax 后权重为 0，从而阻止信息向左（未来）流动，保持自回归属性。\n\n<a id=\"self-check\"></a>\n## 五、自查\n\n合上材料，试着回答：\n\n1. 多头注意力相比单头，解决了什么问题？为什么说单头会“抑制”这种能力？\n2. 说出多头注意力的四步流程，并指出 W^O 的输入维度为什么是 h·d_v。\n3. 编码器-解码器注意力中，Q 来自哪里？K 和 V 来自哪里？\n4. 解码器自注意力的掩码作用在 softmax 之前还是之后？把什么置成 -∞？\n\n如果第 3 题你能毫不犹豫地答出“Q 来自解码器前一层，K/V 来自编码器输出”，这一节的核心就抓住了。\n\n<a id=\"sources\"></a>\n## 六、依据与边界\n\n本节内容依据以下已给材料：\n\n- 原始论文中文逐段解读（火山引擎开发者社区，https://developer.volcengine.com/articles/7382260814868119578）：多头注意力的定义、投影矩阵维度、h=8 与 d_k=d_v=64、计算成本说明、三种使用方式与掩码描述。\n- CS336 学习笔记（https://github.com/bcefghj/learn-cs336/blob/main/docs/04-多头注意力与RoPE.md）：单头只学一种相似度模式、多头切分与拼接投影的概括。\n- The AI Edge 对原始论文的解读（https://newsletter.theaiedge.io/p/attention-is-all-you-need-the-original）：d_head = d_model / n_head、拼接后经 W^O 混合、张量实现方式、多头作为“集成”的类比。\n\n边界说明：本节为入门级原理讲解，代码仅作示意，不包含从零实现可运行 Transformer 的训练；未深入覆盖 RoPE、GQA/MQA、FlashAttention 等现代变体。材料以中文解读与博客为主，未直接引用 arXiv 英文原文，公式细节以原始论文表述为准。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 8.8
+      },
+      "sections": [
+        {
+          "section_id": "why-multi-head",
+          "content_sha256": "f40ba1ea77c0dd96a80a1bc7a89e4ff56ee7a695e3e69e4e2e0bcb116baade34"
+        },
+        {
+          "section_id": "how-multi-head-works",
+          "content_sha256": "590eb5dea1454a740314e37bd9dcd347e79fbd186c765fc267171084b358c28b"
+        },
+        {
+          "section_id": "three-usages",
+          "content_sha256": "4004ab7f5749dc93395423e99a05c2bb4e0bc548d90b8e7ee112b300e86e3228"
+        },
+        {
+          "section_id": "practice",
+          "content_sha256": "584550f2dc007561f586e9816b8772ce9afc64bf8a03bba74b52b07c4fdd6f60"
+        },
+        {
+          "section_id": "self-check",
+          "content_sha256": "2e8f86737a2131c545e23abc7a20716c6ae3ead5974a9f71e6a1a3038e28b315"
+        },
+        {
+          "section_id": "sources",
+          "content_sha256": "7c6adc408f8c42d6f094fae467ac3d7cde5fe57b4b51eb8eccea7b23c1a75610"
+        }
+      ],
+      "spec_digest": "b4e0a1b04128f3332d807e5915aac1d9695a8eb0ca6d2ab47c982e29b4fc48a0",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "why-multi-head"
+          },
+          "objective_id": "n3-multi-head:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "how-multi-head-works"
+          },
+          "objective_id": "n3-multi-head:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "practice"
+          },
+          "objective_id": "n3-multi-head:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "three-usages"
+          },
+          "objective_id": "n3-multi-head:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n3-multi-head:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "how-multi-head-works"
+          },
+          "explanation": "落实“多头注意力”这一核心机制：给出 h 个独立线性投影 → 并行缩放点积注意力 → 拼接 → 输出投影 W_O 的完整流程、投影矩阵维度与 d_head=d_model/h 的计算。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "why-multi-head"
+          },
+          "explanation": "解释多头注意力为何有用：单头只学一种相似度模式、平均操作抑制多模式能力，多头在不同表示子空间中并行关注不同位置信息。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "three-usages"
+          },
+          "explanation": "区分 Transformer 中多头注意力的三种用法，并用对比表明确各自 Q/K/V 来源与解码器掩码置 -∞ 的作用。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "teaching_context_digest": "b8ed9a2c4a0c2baa2b19beaaf2afb46757d617995c971930891ce1425ef1eadd"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文按节点分工覆盖三条目标：第一节（why-multi-head）解释单头只学一种相似度模式、多头在不同子空间并行关注；第二节（how-multi-head-works）给出 h 个投影→并行注意力→拼接→W_O 投影流程与 d_head=d_model/h 计算；第三节（three-usages）区分三种用法并给出 Q/K/V 来源对比表。未越界讲授位置编码、前馈网络等其他节点内容，也未伪称整门课已满足。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "2.1 节投影矩阵维度 W_i^Q∈R^(d_model×d_k)、W^O∈R^(h·d_v×d_model) 与依据一致；2.2 节 h=8、d_k=d_v=64、d_model=512 及 512/8=64、h=16→32、h=4→128 计算正确；2.3 节 8×64=512 的量级论证与原文“总计算成本相似”一致；3.3 节掩码在 softmax 之前、j>i 置 -∞、e^(-∞)=0 表述正确；3.2 节 Q 来自解码器、K/V 来自编码器无误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "2.2 节“算一算”给出 d_model=512、h=8/16/4 三组具体数值并正确；第四节练习 1 与参考思路一致（64、32、8×64=512）；练习 2 画图题给出三处 Q/K/V 来源与掩码作用的参考思路，与 3.4 对比表一致，无错误分支。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为“为何多头→如何实现→三种用法→练习→自查→依据”，先动机后机制再应用，符合入门深度与节点活动顺序；开头回顾上一节自注意力 QKV 与 √d_k，衔接先修节点 n2；结尾自查第 3 题直接对应 self_check 要求。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "第六节列出火山引擎中文解读、CS336 笔记、The AI Edge 解读三个来源，与 evidence 中 source_id 对应；正文对“平均操作会抑制”“总计算成本相似”“d_head=d_model/n_head”“集成类比”等主张均标注出处，并明确说明未直接引用 arXiv 原文、类比为教学类比而非论文结论。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三条目标均有解释与练习/自查支撑：o1 由第一节与自查第 1 题覆盖，o2 由第二节与练习 1 覆盖，o3 由第三节、练习 2 与自查第 3、4 题覆盖；边界说明交代了不含实现训练与现代变体，与 limitations 一致。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文按节点分工覆盖三条目标：第一节（why-multi-head）解释单头只学一种相似度模式、多头在不同子空间并行关注；第二节（how-multi-head-works）给出 h 个投影→并行注意力→拼接→W_O 投影流程与 d_head=d_model/h 计算；第三节（three-usages）区分三种用法并给出 Q/K/V 来源对比表。未越界讲授位置编码、前馈网络等其他节点内容，也未伪称整门课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "2.1 节投影矩阵维度 W_i^Q∈R^(d_model×d_k)、W^O∈R^(h·d_v×d_model) 与依据一致；2.2 节 h=8、d_k=d_v=64、d_model=512 及 512/8=64、h=16→32、h=4→128 计算正确；2.3 节 8×64=512 的量级论证与原文“总计算成本相似”一致；3.3 节掩码在 softmax 之前、j>i 置 -∞、e^(-∞)=0 表述正确；3.2 节 Q 来自解码器、K/V 来自编码器无误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "2.2 节“算一算”给出 d_model=512、h=8/16/4 三组具体数值并正确；第四节练习 1 与参考思路一致（64、32、8×64=512）；练习 2 画图题给出三处 Q/K/V 来源与掩码作用的参考思路，与 3.4 对比表一致，无错误分支。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为“为何多头→如何实现→三种用法→练习→自查→依据”，先动机后机制再应用，符合入门深度与节点活动顺序；开头回顾上一节自注意力 QKV 与 √d_k，衔接先修节点 n2；结尾自查第 3 题直接对应 self_check 要求。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "第六节列出火山引擎中文解读、CS336 笔记、The AI Edge 解读三个来源，与 evidence 中 source_id 对应；正文对“平均操作会抑制”“总计算成本相似”“d_head=d_model/n_head”“集成类比”等主张均标注出处，并明确说明未直接引用 arXiv 原文、类比为教学类比而非论文结论。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三条目标均有解释与练习/自查支撑：o1 由第一节与自查第 1 题覆盖，o2 由第二节与练习 1 覆盖，o3 由第三节、练习 2 与自查第 3、4 题覆盖；边界说明交代了不含实现训练与现代变体，与 limitations 一致。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "2.4 节提到“reshape 成 n_head × d_head × N 的三维张量”，可补一句说明这是实现视角，与 2.1 的“h 个独立投影”概念模型等价，避免初学者误以为两者矛盾。",
+              "3.3 节“防止信息向左流动”是原文直译，建议补一句白话解释（阻止看到未来位置），减少歧义。",
+              "第四节练习 2 依赖“n1 的骨架图”，正文未附该图，可提示学习者回看上一节图示或自行手绘编码器-解码器结构。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "how-multi-head-works 节 2.1 给出四步流程与 W_i^Q/W_i^K/W_i^V/W^O 维度，2.2 给出 d_head=d_model/h 及 512/8=64 计算，真实支持“多头注意力”这一核心机制要求。",
+                "locator": {
+                  "section_id": "how-multi-head-works"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-multi-head 节说明单头只有一张权重矩阵、只能刻画一种相似度模式，并引用“平均操作会抑制这种能力”，明确多头在不同表示子空间并行关注不同位置，真实支持动机要求。",
+                "locator": {
+                  "section_id": "why-multi-head"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "three-usages 节 3.1–3.4 分别说明编码器自注意力、编码器-解码器注意力、带掩码解码器自注意力的 Q/K/V 来源与掩码置 -∞ 作用，并以对比表汇总，真实支持三种用法区分要求。",
+                "locator": {
+                  "section_id": "three-usages"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-multi-head 节以“单头只学一种相似度模式”“不同表示子空间中联合关注不同位置信息”直接解释多头为何有用，对应 o1 的解释角色。",
+                "locator": {
+                  "section_id": "why-multi-head"
+                },
+                "binding_id": "n3-multi-head:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "how-multi-head-works 节完整给出投影→并行缩放点积注意力→拼接→W_O 投影流程及 d_head=d_model/h，对应 o2 的实现说明。",
+                "locator": {
+                  "section_id": "how-multi-head-works"
+                },
+                "binding_id": "n3-multi-head:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "practice 节练习 1 要求计算 d_model=512、h=8 与 h=16 的每头维度并解释成本相近，参考思路给出 64、32 与 8×64=512，落实 o2 的计算练习。",
+                "locator": {
+                  "section_id": "practice"
+                },
+                "binding_id": "n3-multi-head:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "three-usages 节 3.1–3.4 逐项区分三种用法并给出 Q/K/V 来源与掩码差异，对应 o3 的区分目标。",
+                "locator": {
+                  "section_id": "three-usages"
+                },
+                "binding_id": "n3-multi-head:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 节第 3 题要求答出编码器-解码器注意力中 Q 来自解码器前一层、K/V 来自编码器输出，第 4 题核对掩码时机与置 -∞ 对象，作为 o3 的检查点有效。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n3-multi-head:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "b58f0a162747be72833a0c74917dbc3cbab65c85a79fe33803d3829e7c0f2c7a",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "2.4 节提到“reshape 成 n_head × d_head × N 的三维张量”，可补一句说明这是实现视角，与 2.1 的“h 个独立投影”概念模型等价，避免初学者误以为两者矛盾。",
+        "3.3 节“防止信息向左流动”是原文直译，建议补一句白话解释（阻止看到未来位置），减少歧义。",
+        "第四节练习 2 依赖“n1 的骨架图”，正文未附该图，可提示学习者回看上一节图示或自行手绘编码器-解码器结构。"
+      ],
+      "content_sha256": "b58f0a162747be72833a0c74917dbc3cbab65c85a79fe33803d3829e7c0f2c7a",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "how-multi-head-works 节 2.1 给出四步流程与 W_i^Q/W_i^K/W_i^V/W^O 维度，2.2 给出 d_head=d_model/h 及 512/8=64 计算，真实支持“多头注意力”这一核心机制要求。",
+          "locator": {
+            "section_id": "how-multi-head-works"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-multi-head 节说明单头只有一张权重矩阵、只能刻画一种相似度模式，并引用“平均操作会抑制这种能力”，明确多头在不同表示子空间并行关注不同位置，真实支持动机要求。",
+          "locator": {
+            "section_id": "why-multi-head"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "three-usages 节 3.1–3.4 分别说明编码器自注意力、编码器-解码器注意力、带掩码解码器自注意力的 Q/K/V 来源与掩码置 -∞ 作用，并以对比表汇总，真实支持三种用法区分要求。",
+          "locator": {
+            "section_id": "three-usages"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-multi-head 节以“单头只学一种相似度模式”“不同表示子空间中联合关注不同位置信息”直接解释多头为何有用，对应 o1 的解释角色。",
+          "locator": {
+            "section_id": "why-multi-head"
+          },
+          "binding_id": "n3-multi-head:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "how-multi-head-works 节完整给出投影→并行缩放点积注意力→拼接→W_O 投影流程及 d_head=d_model/h，对应 o2 的实现说明。",
+          "locator": {
+            "section_id": "how-multi-head-works"
+          },
+          "binding_id": "n3-multi-head:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "practice 节练习 1 要求计算 d_model=512、h=8 与 h=16 的每头维度并解释成本相近，参考思路给出 64、32 与 8×64=512，落实 o2 的计算练习。",
+          "locator": {
+            "section_id": "practice"
+          },
+          "binding_id": "n3-multi-head:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "three-usages 节 3.1–3.4 逐项区分三种用法并给出 Q/K/V 来源与掩码差异，对应 o3 的区分目标。",
+          "locator": {
+            "section_id": "three-usages"
+          },
+          "binding_id": "n3-multi-head:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 节第 3 题要求答出编码器-解码器注意力中 Q 来自解码器前一层、K/V 来自编码器输出，第 4 题核对掩码时机与置 -∞ 对象，作为 o3 的检查点有效。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n3-multi-head:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "22146d133b53fa259854ba3b4dd9ed35cad4f1f2ec5638d742229a8c37459c13"
+    }
+  }
+}

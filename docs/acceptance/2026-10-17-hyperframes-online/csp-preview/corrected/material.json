@@ -1,0 +1,282 @@
+{
+  "format": "hyperframes/v1",
+  "content": {
+    "title": "神经元的偏置：平移直线与降低启动阈值",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_online_bias_reviewed",
+      "entry": "index.html",
+      "digest": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+    },
+    "timeline": {
+      "duration": 32.112,
+      "segments": [
+        {
+          "id": "seg-01",
+          "end": 12.768,
+          "start": 0.0,
+          "title": "偏置 b 让直线上下平移",
+          "events": [
+            {
+              "end": 0.8,
+              "start": 0.1,
+              "target": "#s1-left",
+              "description": "坐标系淡入并从左侧滑入"
+            },
+            {
+              "end": 0.95,
+              "start": 0.25,
+              "target": "#s1-right",
+              "description": "公式面板从右侧滑入"
+            },
+            {
+              "end": 4.6,
+              "start": 2.4,
+              "target": "#s1-line",
+              "description": "b 从 0 增到 2，直线向上平移，截距点上移"
+            },
+            {
+              "end": 9.0,
+              "start": 6.0,
+              "target": "#s1-line",
+              "description": "b 从 2 减到 -2，直线向下平移，截距点下移"
+            },
+            {
+              "end": 11.6,
+              "start": 9.6,
+              "target": "#s1-line",
+              "description": "b 回到 0，直线回到过原点位置"
+            }
+          ],
+          "narration": "先看直线 y 等于 w 乘 x 加 b。保持 w 不变，增大 b，直线向上平移；减小 b，直线向下平移。偏置改变截距，不改变斜率。",
+          "audio_path": "assets/seg-01.mp3",
+          "source_ids": [],
+          "objective_ids": [
+            "理解偏置与启动阈值的反向关系"
+          ],
+          "visual_description": "1920×1080 深色底（#0b0f14）。左侧 60% 为坐标系：白色 x/y 轴带箭头，刻度每格标注，原点 O 标注。一条主直线 y = w·x + b 以青色（#66d9ef）绘制，斜率固定 w=1，初始 b=0，过原点。右侧 40% 为公式面板：大号公式 y = w·x + b，下方两行小字“w 固定不变”“b 改变截距，不改变斜率”。动画：b 从 0 增到 2，直线整体向上平移（y 方向 -2 格），截距点沿 y 轴同步上移并留下淡色残影；随后 b 从 2 减到 -2，直线向下平移，截距点下移。全程斜率不变，用一条虚线参考线固定显示原斜率以强调“斜率不动”。公式面板中 b 的数值实时高亮变化（0 → 2 → -2），截距数值同步显示。结尾 b 回到 0，直线回到过原点位置，画面停留 0.5 秒。"
+        },
+        {
+          "id": "seg-02",
+          "end": 32.112,
+          "start": 12.768,
+          "title": "正偏置降低启动阈值",
+          "events": [
+            {
+              "end": 13.568,
+              "start": 12.868,
+              "target": "#s2-formula",
+              "description": "公式 T − 30 + b > 0 出现"
+            },
+            {
+              "end": 13.868,
+              "start": 13.268,
+              "target": "#s2-derive",
+              "description": "推导 阈值 = 30 − b 出现"
+            },
+            {
+              "end": 14.768,
+              "start": 14.168,
+              "target": "#s2-axis-wrap",
+              "description": "温度数轴出现，30°C 参考虚线标出"
+            },
+            {
+              "end": 14.868,
+              "start": 14.168,
+              "target": "#s2-card0",
+              "description": "左卡 b=0，阈值 30°C，风扇灰色未启动"
+            },
+            {
+              "end": 20.768,
+              "start": 19.168,
+              "target": "#s2-marker",
+              "description": "b 从 0 变为 2，阈值标记从 30 平滑左移到 28"
+            },
+            {
+              "end": 20.468,
+              "start": 19.768,
+              "target": "#s2-card2",
+              "description": "右卡 b=2，阈值 28°C 出现"
+            },
+            {
+              "end": 21.268,
+              "start": 20.768,
+              "target": "#s2-fan2",
+              "description": "风扇由灰变青并转动，表示更容易激活"
+            },
+            {
+              "end": 25.468,
+              "start": 24.768,
+              "target": "#s2-conclusion",
+              "description": "结论：正偏置降低阈值，负偏置相反"
+            }
+          ],
+          "narration": "风扇是否启动，用温度减三十再加 b 是否大于零来判断。b 等于零，超过三十度才启动。b 增加到二，超过二十八度就启动。所以正偏置降低启动阈值，让激活更容易；负偏置则相反。",
+          "audio_path": "assets/seg-02.mp3",
+          "source_ids": [],
+          "objective_ids": [
+            "理解偏置与启动阈值的反向关系"
+          ],
+          "visual_description": "1920×1080 深色底，延续同一配色。顶部中央大号公式：T − 30 + b > 0，其下方一行推导：阈值 = 30 − b（用等号对齐，字号略小，颜色浅灰）。中部为温度数轴：0 到 40 摄氏度，每 5 度一个刻度并标注数字，30 处有一条竖直虚线标“30°C”。下方并排两个状态卡片。左卡：b = 0，显示“阈值 = 30 − 0 = 30°C”，数轴上阈值标记落在 30，风扇图标灰色（未启动），标注“超过 30°C 才启动”。右卡：b = 2，显示“阈值 = 30 − 2 = 28°C”，数轴上阈值标记左移到 28，风扇图标亮起（青色），标注“超过 28°C 就启动”。动画顺序：先出现公式与推导；再出现左卡，阈值标记落在 30，风扇保持灰色；随后 b 从 0 变为 2，右卡出现，阈值标记从 30 平滑左移到 28，风扇由灰变青并轻微转动；最后底部出现一行结论“正偏置 → 阈值降低 → 更容易激活”，负偏置方向用一个小箭头示意相反。所有数字、刻度、公式与讲稿一致，偏置 b 与阈值始终分开标注，不混称。"
+        }
+      ]
+    }
+  },
+  "scope_type": "knowledge_point",
+  "timeline": {
+    "duration": 32.112,
+    "segments": [
+      {
+        "id": "seg-01",
+        "end": 12.768,
+        "start": 0.0,
+        "title": "偏置 b 让直线上下平移",
+        "events": [
+          {
+            "end": 0.8,
+            "start": 0.1,
+            "target": "#s1-left",
+            "description": "坐标系淡入并从左侧滑入"
+          },
+          {
+            "end": 0.95,
+            "start": 0.25,
+            "target": "#s1-right",
+            "description": "公式面板从右侧滑入"
+          },
+          {
+            "end": 4.6,
+            "start": 2.4,
+            "target": "#s1-line",
+            "description": "b 从 0 增到 2，直线向上平移，截距点上移"
+          },
+          {
+            "end": 9.0,
+            "start": 6.0,
+            "target": "#s1-line",
+            "description": "b 从 2 减到 -2，直线向下平移，截距点下移"
+          },
+          {
+            "end": 11.6,
+            "start": 9.6,
+            "target": "#s1-line",
+            "description": "b 回到 0，直线回到过原点位置"
+          }
+        ],
+        "narration": "先看直线 y 等于 w 乘 x 加 b。保持 w 不变，增大 b，直线向上平移；减小 b，直线向下平移。偏置改变截距，不改变斜率。",
+        "audio_path": "assets/seg-01.mp3",
+        "source_ids": [],
+        "objective_ids": [
+          "理解偏置与启动阈值的反向关系"
+        ],
+        "visual_description": "1920×1080 深色底（#0b0f14）。左侧 60% 为坐标系：白色 x/y 轴带箭头，刻度每格标注，原点 O 标注。一条主直线 y = w·x + b 以青色（#66d9ef）绘制，斜率固定 w=1，初始 b=0，过原点。右侧 40% 为公式面板：大号公式 y = w·x + b，下方两行小字“w 固定不变”“b 改变截距，不改变斜率”。动画：b 从 0 增到 2，直线整体向上平移（y 方向 -2 格），截距点沿 y 轴同步上移并留下淡色残影；随后 b 从 2 减到 -2，直线向下平移，截距点下移。全程斜率不变，用一条虚线参考线固定显示原斜率以强调“斜率不动”。公式面板中 b 的数值实时高亮变化（0 → 2 → -2），截距数值同步显示。结尾 b 回到 0，直线回到过原点位置，画面停留 0.5 秒。"
+      },
+      {
+        "id": "seg-02",
+        "end": 32.112,
+        "start": 12.768,
+        "title": "正偏置降低启动阈值",
+        "events": [
+          {
+            "end": 13.568,
+            "start": 12.868,
+            "target": "#s2-formula",
+            "description": "公式 T − 30 + b > 0 出现"
+          },
+          {
+            "end": 13.868,
+            "start": 13.268,
+            "target": "#s2-derive",
+            "description": "推导 阈值 = 30 − b 出现"
+          },
+          {
+            "end": 14.768,
+            "start": 14.168,
+            "target": "#s2-axis-wrap",
+            "description": "温度数轴出现，30°C 参考虚线标出"
+          },
+          {
+            "end": 14.868,
+            "start": 14.168,
+            "target": "#s2-card0",
+            "description": "左卡 b=0，阈值 30°C，风扇灰色未启动"
+          },
+          {
+            "end": 20.768,
+            "start": 19.168,
+            "target": "#s2-marker",
+            "description": "b 从 0 变为 2，阈值标记从 30 平滑左移到 28"
+          },
+          {
+            "end": 20.468,
+            "start": 19.768,
+            "target": "#s2-card2",
+            "description": "右卡 b=2，阈值 28°C 出现"
+          },
+          {
+            "end": 21.268,
+            "start": 20.768,
+            "target": "#s2-fan2",
+            "description": "风扇由灰变青并转动，表示更容易激活"
+          },
+          {
+            "end": 25.468,
+            "start": 24.768,
+            "target": "#s2-conclusion",
+            "description": "结论：正偏置降低阈值，负偏置相反"
+          }
+        ],
+        "narration": "风扇是否启动，用温度减三十再加 b 是否大于零来判断。b 等于零，超过三十度才启动。b 增加到二，超过二十八度就启动。所以正偏置降低启动阈值，让激活更容易；负偏置则相反。",
+        "audio_path": "assets/seg-02.mp3",
+        "source_ids": [],
+        "objective_ids": [
+          "理解偏置与启动阈值的反向关系"
+        ],
+        "visual_description": "1920×1080 深色底，延续同一配色。顶部中央大号公式：T − 30 + b > 0，其下方一行推导：阈值 = 30 − b（用等号对齐，字号略小，颜色浅灰）。中部为温度数轴：0 到 40 摄氏度，每 5 度一个刻度并标注数字，30 处有一条竖直虚线标“30°C”。下方并排两个状态卡片。左卡：b = 0，显示“阈值 = 30 − 0 = 30°C”，数轴上阈值标记落在 30，风扇图标灰色（未启动），标注“超过 30°C 才启动”。右卡：b = 2，显示“阈值 = 30 − 2 = 28°C”，数轴上阈值标记左移到 28，风扇图标亮起（青色），标注“超过 28°C 就启动”。动画顺序：先出现公式与推导；再出现左卡，阈值标记落在 30，风扇保持灰色；随后 b 从 0 变为 2，右卡出现，阈值标记从 30 平滑左移到 28，风扇由灰变青并轻微转动；最后底部出现一行结论“正偏置 → 阈值降低 → 更容易激活”，负偏置方向用一个小箭头示意相反。所有数字、刻度、公式与讲稿一致，偏置 b 与阈值始终分开标注，不混称。"
+      }
+    ]
+  },
+  "scenes_count": 2,
+  "video_status": "not_generated",
+  "scope_id": "bias",
+  "exports": {
+    "video": "exports/lesson.mp4",
+    "project": "exports/project.zip",
+    "subtitles": "exports/lesson.srt"
+  },
+  "title": "神经元的偏置：平移直线与降低启动阈值",
+  "project": {
+    "id": "hf_online_bias_reviewed",
+    "entry": "index.html",
+    "digest": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+  },
+  "status": "ready",
+  "created_by": "hf_e2e_20261017160234",
+  "published_by": "hf_e2e_20261017160234",
+  "published_at": "2026-10-17T17:40:01.673786",
+  "published_from_material_id": "classroom_job_dd5ecd5ca1334446",
+  "published_from_owner_user_id": "hf_e2e_20261017160234",
+  "published_from_version": 2,
+  "publication_status": "published",
+  "artifact_paths": [],
+  "file_path": null,
+  "schema_version": 2,
+  "version": 2,
+  "material_id": "published-c3b736d8ac969ce79217",
+  "material_type": "classroom",
+  "course_id": "hf-e2e-20261017160234",
+  "visibility": "course",
+  "owner_user_id": null,
+  "created_at": "2026-10-17T17:34:53.367744+00:00",
+  "updated_at": "2026-10-17T17:40:01.678825",
+  "is_pinned": false,
+  "pinned_at": null,
+  "source_job_id": null,
+  "config_snapshot_id": null,
+  "source": {}
+}

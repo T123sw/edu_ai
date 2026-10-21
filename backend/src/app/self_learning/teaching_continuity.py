@@ -28,7 +28,8 @@ def teaching_notes(learning, owner, course, topic, *, limit=8, active_only=False
             sources = list(db.scalars(select(ConversationMessage).join(LearningTopicSession,
                 LearningTopicSession.session_id == ConversationMessage.conversation_id).where(
                 ConversationMessage.message_id.in_(source_ids), LearningTopicSession.owner == owner,
-                LearningTopicSession.course_id == course, LearningTopicSession.topic_id == topic,
+                LearningTopicSession.course_id == course,
+                func.coalesce(ConversationMessage.raw_payload['topic_id'].as_string(), LearningTopicSession.topic_id) == topic,
                 ConversationMessage.role == 'user')))
             if len(sources) != len(set(source_ids)):
                 continue

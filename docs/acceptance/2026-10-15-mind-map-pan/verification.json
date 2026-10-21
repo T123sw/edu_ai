@@ -1,0 +1,33 @@
+{
+  "status": "published-and-verified",
+  "published": true,
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "previewBrowserTests": 4,
+    "publishedBrowserTests": 4,
+    "onlineEntryAssets": "passed",
+    "backendHealth": "ok"
+  },
+  "viewportWidths": [
+    1440,
+    920,
+    390
+  ],
+  "covered": [
+    "expanded nodes fit",
+    "large white map-only preview",
+    "other report preview retains 920px width",
+    "pointer drag moves diagram by pointer delta",
+    "wheel zoom in/out",
+    "zoom anchor stays at cursor after pan",
+    "wheel does not scroll modal or page",
+    "fullscreen and resize fit",
+    "overview reset",
+    "complete JSON export",
+    "legacy individual expansion and resource switching"
+  ],
+  "scope": "Real application UI with mocked business APIs; no production learner data writes or model calls.",
+  "deploymentRecord": "deployment.json"
+}

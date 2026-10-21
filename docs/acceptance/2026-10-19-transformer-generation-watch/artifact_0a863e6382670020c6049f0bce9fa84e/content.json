@@ -1,0 +1,474 @@
+{
+  "title": "编码器-解码器结构与训练/推理流程",
+  "content": "# 编码器-解码器结构与训练/推理流程\n\n前面几个节点你已经拆开了 Transformer 的零件：自注意力、多头注意力、位置编码、残差与层归一化、前馈网络。这一节把它们装回整机，回答四个问题：整体流程怎么走、每层有哪些子层、三种注意力各自的 Q/K/V 从哪来、掩码和右移如何防止“偷看答案”，最后看一眼训练和推理分别怎么跑。\n\n<a id=\"sec-overall-flow\"></a>\n## 一、整体流程：先理解，再逐词生成\n\nTransformer 沿用序列到序列模型常见的编码器-解码器结构。原论文的表述是：编码器把输入符号表示序列 $(x_1,\\dots,x_n)$ 映射为连续表示序列 $z=(z_1,\\dots,z_n)$；给定 $z$，解码器一次一个元素地生成输出序列 $(y_1,\\dots,y_m)$，每一步都是**自回归**的——把先前生成的符号作为额外输入，用来生成下一个。编码器和解码器都由堆叠的自注意力层与逐点全连接层构成。\n\n用一句大白话说：**编码器负责“读懂输入”，解码器负责“照着理解逐词写出来”**。以中译英为例，输入是中文句子，编码器输出每个输入位置一个 512 维向量（$d_{model}=512$）；解码器每写一个英文词，就把已经写出的部分连同编码器的表示一起再算一遍，决定下一个词。\n\n走查一遍数据流（对应本节点的结构走查活动）：\n\n1. 输入 token 查嵌入表得到向量，加上位置编码，进入编码器第 1 层；\n2. 编码器每层：多头自注意力 → Add & Norm → 前馈网络 → Add & Norm；\n3. 堆叠 $N=6$ 层后，得到编码器输出 $z$，它被送到解码器每一层的交叉注意力里；\n4. 解码器输入是“右移一位”的目标序列（见第三节），同样先嵌入加位置编码；\n5. 解码器每层：掩码多头自注意力 → Add & Norm → 编码器-解码器注意力 → Add & Norm → 前馈网络 → Add & Norm；\n6. 堆叠 $N=6$ 层后，接一个 Linear 层映射到词表大小，再 Softmax 得到下一个词的概率分布。\n\n注意第 3 步和第 5 步的关系：编码器只跑一次，它的输出被解码器每一层反复使用；解码器则要跑 $N$ 层，每层都要“回看”编码器。\n\n<a id=\"sec-sublayers\"></a>\n## 二、每层有哪些子层\n\n原论文的配置是编码器和解码器各由 $N=6$ 个相同层堆叠。\n\n**编码器每层两个子层：**\n\n| 子层 | 作用 |\n| --- | --- |\n| 多头自注意力 | 让每个输入位置关注上一层所有位置，捕获输入内部依赖 |\n| 逐位置前馈网络 | 对每个位置独立做非线性变换 |\n\n**解码器每层三个子层：**\n\n| 子层 | 作用 |\n| --- | --- |\n| 掩码多头自注意力 | 每个位置只能看到“到并包括自己”的位置，防止看到未来 |\n| 编码器-解码器注意力（交叉注意力） | 对编码器堆栈输出做多头注意力，让解码器关注输入序列 |\n| 逐位置前馈网络 | 与编码器相同 |\n\n每个子层外面都套残差连接再做层归一化，即输出为 $\\mathrm{LayerNorm}(x + \\mathrm{Sublayer}(x))$。为了让残差能直接相加，所有子层以及嵌入层的输出维度都是 $d_{model}=512$。\n\n一个容易记的对照：**编码器 2 个子层，解码器 3 个，多出来的那个就是“看编码器”的交叉注意力**。\n\n<a id=\"sec-three-attention\"></a>\n## 三、三种多头注意力：Q/K/V 从哪来\n\n原论文明确列出多头注意力的三种用法。判断“这是哪一种”，只需问一句：**Q 从哪来，K 和 V 从哪来？**\n\n| 用法 | Q 来源 | K、V 来源 | 可见范围 |\n| --- | --- | --- | --- |\n| 编码器自注意力 | 上一层编码器输出 | 上一层编码器输出（同源） | 上一层所有位置 |\n| 解码器掩码自注意力 | 上一层解码器输出 | 上一层解码器输出（同源） | 到并包括当前位置 |\n| 编码器-解码器注意力 | 上一层解码器输出 | 编码器堆栈输出 | 输入序列所有位置 |\n\n三点补充：\n\n- **编码器自注意力**：Q、K、V 全部来自同一处，所以叫“自”注意力；每个位置都能看到上一层所有位置，没有遮挡。\n- **解码器掩码自注意力**：同样同源，但加了掩码，每个位置只能关注到并包括自身的位置。\n- **编码器-解码器注意力**：Q 来自解码器（“我现在想写什么”），K、V 来自编码器（“输入里有什么可查”）。这使解码器每个位置都能关注输入序列所有位置，和传统序列到序列模型的注意力机制思路一致。\n\n<a id=\"sec-mask-shift\"></a>\n## 四、掩码 + 右移：位置 i 只能依赖小于 i 的已知输出\n\n### 4.1 为什么需要掩码\n\n训练时我们希望一次把整条目标序列喂进去并行计算（这正是 Transformer 相对循环网络的速度优势）。但如果解码器自注意力不加限制，位置 1 就能看到位置 2、3 的真实答案，模型会直接抄答案，学不到“根据前文预测下一个词”。原论文的说法是：要阻止解码器中的信息向左流动，以保持自回归性质。\n\n### 4.2 怎么实现：把非法连接设为 −∞\n\n实现方式是在缩放点积注意力内部，把 softmax 输入中所有对应“非法连接”的值设为 $-\\infty$。因为 $e^{-\\infty}=0$，这些位置在 softmax 后权重恰好为 0，等于完全屏蔽。\n\n以 3 步解码为例，掩码矩阵（行 = 查询位置 $i$，列 = 被关注位置 $j$，✓ 表示允许）：\n\n| | j=1 | j=2 | j=3 |\n| --- | --- | --- | --- |\n| **i=1** | ✓ | −∞ | −∞ |\n| **i=2** | ✓ | ✓ | −∞ |\n| **i=3** | ✓ | ✓ | ✓ |\n\n对角线及左下方允许，右上方全部设为 $-\\infty$。于是位置 2 的注意力权重只在位置 1、2 上分配，位置 3 只在 1、2、3 上分配。\n\n### 4.3 右移一位在做什么\n\n光有掩码还不够，还要保证“位置 $i$ 的输入里不包含位置 $i$ 的答案”。做法是把输出嵌入整体右移一位：解码器在位置 $i$ 看到的输入是 $y_{<i}$（即 $y_1,\\dots,y_{i-1}$），要预测的是 $y_i$。原论文的结论是：这种掩码，加上输出嵌入偏移一位，共同保证位置 $i$ 的预测只能依赖位置小于 $i$ 的已知输出。\n\n把两件事合起来看：\n\n- **右移**保证“输入里没有未来答案”；\n- **掩码**保证“注意力不会去连未来位置”。\n\n两者缺一不可：只右移不掩码，位置 1 仍能通过注意力看到位置 2 的输入（也就是 $y_2$ 之前的真实信息）；只掩码不右移，位置 $i$ 的输入本身就含 $y_i$，等于把答案喂进去了。\n\n### 4.4 训练并行、推理串行的原因\n\n训练时整条右移后的目标序列一次送入，掩码让每个位置的计算都“看起来只看到左边”，所以所有位置的预测可以同时算、同时和真实标签比对损失——**并行**。\n\n推理时没有真实答案可喂，只能先生成 $y_1$，再把它接到输入后面生成 $y_2$，如此逐步推进——**串行**。这就是“训练可并行、推理要一步步生成”的根源：不是模型结构变了，而是推理时“左边的已知输出”必须由模型自己产生。\n\n<a id=\"sec-train-infer\"></a>\n## 五、训练与推理的基本轮廓\n\n**优化器与学习率。** 原论文用 Adam，$\\beta_1=0.9$、$\\beta_2=0.98$、$\\epsilon=10^{-9}$。学习率不是常数，而是先线性 warmup 再衰减：\n\n$$\\text{lrate} = d_{model}^{-0.5}\\cdot \\min(\\text{step\\_num}^{-0.5},\\ \\text{step\\_num}\\cdot \\text{warmup\\_steps}^{-1.5})$$\n\n前 $\\text{warmup\\_steps}$ 步学习率线性上升，之后按步数平方根的倒数下降；原论文取 $\\text{warmup\\_steps}=4000$。直观理解：训练初期参数还很随机，梯度方向不稳，先用小学习率“热身”，再逐步放开。\n\n**正则化。** 原论文用了三类：\n\n- 残差 dropout：施加在每个子层输出上，位置是在加到子层输入并归一化**之前**；\n- 嵌入与位置编码之和上的 dropout；\n- base 模型 dropout 率 $P_{drop}=0.1$。\n\n此外使用标签平滑 $\\epsilon_{ls}=0.1$。原论文指出这会让困惑度变差（模型学会“不那么确定”），但提升准确率和 BLEU。\n\n**推理。** 原论文用束搜索，beam size 为 4、长度惩罚 $\\alpha=0.6$，最大输出长度为输入长度 + 50，能提前结束就提前结束。束搜索的含义是：每一步不只保留概率最高的 1 个候选，而是保留 4 条累计得分最好的部分序列，最后再挑整体最优的一条，避免贪心地一步走错就回不来。\n\n**规模参考。** base 模型在 8 块 P100 上训练约 12 小时（10 万步），每步约 0.4 秒。这些数字是 2017 年 base/big 模型的配置，不代表所有后续实现。\n\n<a id=\"sec-variants\"></a>\n## 六、延伸了解：现代变体\n\n原始 Transformer 同时含编码器和解码器，但现代模型常只用其中一半（以下来自中文教程的概述，未逐项核对原始论文，仅作延伸了解）：\n\n| 架构类型 | 代表模型 | 典型任务 |\n| --- | --- | --- |\n| 仅编码器 | BERT、RoBERTa | 文本分类、命名实体识别、问答 |\n| 仅解码器 | GPT、LLaMA、Claude | 文本生成、对话、代码补全 |\n| 编码器-解码器 | T5、BART | 翻译、摘要、改写 |\n\n仅解码器架构天然适合自回归逐词预测，结构也更简洁，便于扩展到很大规模。\n\n<a id=\"sec-self-check\"></a>\n## 七、自检\n\n合上材料，试着完成两件事：\n\n1. 在一张空白结构图上标出编码器的 2 个子层、解码器的 3 个子层，并在三处注意力旁写出 Q/K/V 的来源。\n2. 用自己的话解释：为什么训练时可以并行、推理时却要一步步生成？提示：从“右移 + 掩码让每个位置只看到左边”和“推理时左边内容必须自己生成”两个角度说。\n\n如果第 1 项里你能毫不犹豫地写出“交叉注意力：Q 来自解码器，K/V 来自编码器”，第 2 项能说出掩码把未来位置设为 $-\\infty$ 后权重为 0，说明本节点的核心已经掌握。\n\n---\n\n**材料说明**：本节依据公开来源——原始论文《Attention Is All You Need》(NIPS 2017) 与 Datawhale Easy-Vibe 中文教程。文中超参数（$N=6$、$d_{model}=512$、warmup 4000 步、beam size 4 等）均为原论文 base/big 模型配置；现代变体部分来自中文教程概述，未逐项核对原始论文。本节为原理理解层面，不含可运行代码。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 8.5
+      },
+      "sections": [
+        {
+          "section_id": "sec-overall-flow",
+          "content_sha256": "b33551dfb62afdfa37b46a89c64335d6cbf5fca64cf1a951c2edb9e74a069e42"
+        },
+        {
+          "section_id": "sec-sublayers",
+          "content_sha256": "237d24d511c717f62f2adfd3b055ee06d3a6fed19f6ba41c617e8812387cddc2"
+        },
+        {
+          "section_id": "sec-three-attention",
+          "content_sha256": "d32604aee226c87f15eeaa84f5c2d84d8eb1c911be9b471b52ab84d8c1acc9ee"
+        },
+        {
+          "section_id": "sec-mask-shift",
+          "content_sha256": "a5647f97d993b1ff19e33f4383b8c8e6323a96e50bf6e4ab78f797b88b49b1a0"
+        },
+        {
+          "section_id": "sec-train-infer",
+          "content_sha256": "3c6b34faf3eebc2902594cf9d3d4017c3f71b28edc23695e7b0ccac42b3cb05e"
+        },
+        {
+          "section_id": "sec-variants",
+          "content_sha256": "24d40e73bc70c0603d9ea9b9b1aac99ac158cecfe449f2569df0aef6eba0c29e"
+        },
+        {
+          "section_id": "sec-self-check",
+          "content_sha256": "1bb630b9dacc7bbce555fbce199186b69cb2a87050917141c7d6b6acc598704e"
+        }
+      ],
+      "spec_digest": "25b001246448f8200f709cb9d96eb9841db413232a2003da995ae299222d6da4",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-overall-flow"
+          },
+          "objective_id": "n5-encoder-decoder:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-sublayers"
+          },
+          "objective_id": "n5-encoder-decoder:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-three-attention"
+          },
+          "objective_id": "n5-encoder-decoder:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-mask-shift"
+          },
+          "objective_id": "n5-encoder-decoder:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-train-infer"
+          },
+          "objective_id": "n5-encoder-decoder:o4"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "objective_id": "n5-encoder-decoder:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "objective_id": "n5-encoder-decoder:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "objective_id": "n5-encoder-decoder:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec-overall-flow"
+          },
+          "explanation": "以编码器映射输入为连续表示、解码器自回归逐元素生成为主线，串起整机流程，落实“讲授 Transformer 核心概念与结构”的整课要求在本节点的部分。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "sec-sublayers"
+          },
+          "explanation": "用两张表列出编码器 2 个子层与解码器 3 个子层及各自作用，并说明残差+层归一化与 d_model=512 的约束。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "sec-three-attention"
+          },
+          "explanation": "用对照表说明三种多头注意力用法中 Q/K/V 的来源与可见范围，把前面节点的多头注意力知识接到整体结构上。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "sec-mask-shift"
+          },
+          "explanation": "给出 3×3 掩码矩阵、−∞ 设为 0 权重的机制、右移一位的作用，并解释训练并行与推理串行的原因。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "sec-train-infer"
+          },
+          "explanation": "概述 Adam 超参、warmup 学习率公式、dropout 与标签平滑、束搜索推理配置，形成训练/推理轮廓。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "teaching_context_digest": "6c908e1b0fa20a5f89cacee0705e35633f9fd87f9c7edc1e91d336813beb2764"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文覆盖本节点分工的四项目标：第一节（sec-overall-flow）给出编码器映射输入为 z、解码器自回归逐元素生成；第二节列出编码器 2 子层/解码器 3 子层；第三节给出三种注意力 Q/K/V 来源表；第四节讲掩码+右移；第五节概述 Adam+warmup、dropout、标签平滑与束搜索。整课要求 req-goal-transformer 在本节点得到真实局部贡献，未伪称整课已满足。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "关键事实与原论文一致：N=6、d_model=512、LayerNorm(x+Sublayer(x))、掩码把 softmax 输入非法连接设为 −∞ 使权重为 0、warmup 4000 步、Adam β1=0.9/β2=0.98/ε=1e-9、Pdrop=0.1、标签平滑 0.1、beam size 4 与长度惩罚 0.6、最大输出长度输入长度+50。4.2 节 3×3 掩码矩阵对角线及左下允许、右上 −∞ 正确；4.3 节“右移保证输入无未来答案、掩码保证注意力不连未来位置”的互补论证成立。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "4.2 节给出 3 步解码的 3×3 掩码矩阵并逐行说明位置 2 只在 1、2 上分配权重；4.3 节用“只右移不掩码/只掩码不右移”两种反例说明缺一不可；第一节以中译英为例说明编码器只跑一次、解码器逐词生成。示例与边界推演具体且与公式一致。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为整体流程→子层→三种注意力 Q/K/V→掩码与右移→训练/推理→现代变体→自检，与节点活动（结构走查、三处注意力对照、掩码推演、流程梳理、延伸了解）顺序一致，且建立在 n3 多头注意力与 n4 位置编码/残差归一化/FFN 前提之上（开头明确回顾零件）。第七节自检对应节点 self_check 两项。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文末尾材料说明标注依据原始论文《Attention Is All You Need》(NIPS 2017) 与 Datawhale Easy-Vibe 中文教程，与 evidence 中两个来源一致；第六节现代变体明确标注“来自中文教程概述，未逐项核对原始论文，仅作延伸了解”，超参数标注为 2017 base/big 配置，未夸大外部核查。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "四个目标均有对应章节与自检项；语言为中文、深度为入门（含大白话解释与直观理解），未引入排除项或面试模板；正文为原理理解层面并声明不含可运行代码，与 limitations 一致。估时 8.5 分钟在 10 分钟节点预算内，仅作参考。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文覆盖本节点分工的四项目标：第一节（sec-overall-flow）给出编码器映射输入为 z、解码器自回归逐元素生成；第二节列出编码器 2 子层/解码器 3 子层；第三节给出三种注意力 Q/K/V 来源表；第四节讲掩码+右移；第五节概述 Adam+warmup、dropout、标签平滑与束搜索。整课要求 req-goal-transformer 在本节点得到真实局部贡献，未伪称整课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "关键事实与原论文一致：N=6、d_model=512、LayerNorm(x+Sublayer(x))、掩码把 softmax 输入非法连接设为 −∞ 使权重为 0、warmup 4000 步、Adam β1=0.9/β2=0.98/ε=1e-9、Pdrop=0.1、标签平滑 0.1、beam size 4 与长度惩罚 0.6、最大输出长度输入长度+50。4.2 节 3×3 掩码矩阵对角线及左下允许、右上 −∞ 正确；4.3 节“右移保证输入无未来答案、掩码保证注意力不连未来位置”的互补论证成立。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "4.2 节给出 3 步解码的 3×3 掩码矩阵并逐行说明位置 2 只在 1、2 上分配权重；4.3 节用“只右移不掩码/只掩码不右移”两种反例说明缺一不可；第一节以中译英为例说明编码器只跑一次、解码器逐词生成。示例与边界推演具体且与公式一致。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为整体流程→子层→三种注意力 Q/K/V→掩码与右移→训练/推理→现代变体→自检，与节点活动（结构走查、三处注意力对照、掩码推演、流程梳理、延伸了解）顺序一致，且建立在 n3 多头注意力与 n4 位置编码/残差归一化/FFN 前提之上（开头明确回顾零件）。第七节自检对应节点 self_check 两项。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文末尾材料说明标注依据原始论文《Attention Is All You Need》(NIPS 2017) 与 Datawhale Easy-Vibe 中文教程，与 evidence 中两个来源一致；第六节现代变体明确标注“来自中文教程概述，未逐项核对原始论文，仅作延伸了解”，超参数标注为 2017 base/big 配置，未夸大外部核查。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个目标均有对应章节与自检项；语言为中文、深度为入门（含大白话解释与直观理解），未引入排除项或面试模板；正文为原理理解层面并声明不含可运行代码，与 limitations 一致。估时 8.5 分钟在 10 分钟节点预算内，仅作参考。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第五节“正则化”把三类正则化列为“残差 dropout / 嵌入与位置编码之和的 dropout / base 模型 dropout 率 0.1”，第三项其实是前两项共用的比率而非独立类型，可改为“两类 dropout + 标签平滑”以免读者误解。",
+              "4.3 节“只右移不掩码，位置 1 仍能通过注意力看到位置 2 的输入（也就是 y_2 之前的真实信息）”表述略绕，可简化为“位置 1 会看到 y_2 的嵌入，从而泄漏答案”。",
+              "第六节现代变体可补一句“仅解码器模型通常省略交叉注意力子层”，与第二节解码器三子层的对照更连贯。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-overall-flow 首段确实写出编码器把 (x1..xn) 映射为 z、解码器自回归逐元素生成 (y1..ym)，并给出 6 步数据流走查，真实支持该要求在本节点的贡献。",
+                "locator": {
+                  "section_id": "sec-overall-flow"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-sublayers 用两张表分别列出编码器 2 个子层与解码器 3 个子层及作用，并说明 LayerNorm(x+Sublayer(x)) 与 d_model=512 约束，与定位说明一致。",
+                "locator": {
+                  "section_id": "sec-sublayers"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-three-attention 的对照表逐行给出三种用法的 Q 来源、K/V 来源与可见范围，并附三点补充，真实支持“说明 Q/K/V 来源”的贡献。",
+                "locator": {
+                  "section_id": "sec-three-attention"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-mask-shift 含 4.1 为何需要掩码、4.2 的 3×3 掩码矩阵与 −∞→0 权重、4.3 右移作用、4.4 训练并行/推理串行，覆盖定位说明的全部内容。",
+                "locator": {
+                  "section_id": "sec-mask-shift"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-train-infer 给出 Adam 超参、warmup 学习率公式与 4000 步、dropout 与标签平滑 0.1、beam size 4 与长度惩罚 0.6，形成训练/推理轮廓。",
+                "locator": {
+                  "section_id": "sec-train-infer"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-overall-flow 以“编码器读懂输入、解码器逐词写出”为主线描述整体流程，直接解释目标 o1。",
+                "locator": {
+                  "section_id": "sec-overall-flow"
+                },
+                "binding_id": "n5-encoder-decoder:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-sublayers 的两张表列出编码器 2 子层与解码器 3 子层，支持目标 o2 中“列出子层”的部分。",
+                "locator": {
+                  "section_id": "sec-sublayers"
+                },
+                "binding_id": "n5-encoder-decoder:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-three-attention 的表格与补充说明给出三种注意力 Q/K/V 来源，支持目标 o2 中“说明 Q/K/V 来源”的部分。",
+                "locator": {
+                  "section_id": "sec-three-attention"
+                },
+                "binding_id": "n5-encoder-decoder:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-mask-shift 解释 −∞ 掩码配合右移如何保证位置 i 只依赖小于 i 的已知输出，并给出反例论证，直接解释目标 o3。",
+                "locator": {
+                  "section_id": "sec-mask-shift"
+                },
+                "binding_id": "n5-encoder-decoder:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-train-infer 概述 Adam+warmup、dropout 与标签平滑、束搜索推理，直接解释目标 o4。",
+                "locator": {
+                  "section_id": "sec-train-infer"
+                },
+                "binding_id": "n5-encoder-decoder:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-self-check 第 2 项要求解释训练并行/推理串行，并提示从右移+掩码与推理自生成两角度作答，检查目标 o1 的整体流程理解。",
+                "locator": {
+                  "section_id": "sec-self-check"
+                },
+                "binding_id": "n5-encoder-decoder:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-self-check 第 1 项要求在空白结构图标出编码器 2 子层、解码器 3 子层及三处注意力 Q/K/V 来源，检查目标 o2。",
+                "locator": {
+                  "section_id": "sec-self-check"
+                },
+                "binding_id": "n5-encoder-decoder:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-self-check 末段以“掩码把未来位置设为 −∞ 后权重为 0”作为掌握标准，检查目标 o3 的掩码机制理解。",
+                "locator": {
+                  "section_id": "sec-self-check"
+                },
+                "binding_id": "n5-encoder-decoder:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "b5f0718bdf1c1699e682621c7b0ff8cf905b778ba3f50ef6d8f8f949f304ea08",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第五节“正则化”把三类正则化列为“残差 dropout / 嵌入与位置编码之和的 dropout / base 模型 dropout 率 0.1”，第三项其实是前两项共用的比率而非独立类型，可改为“两类 dropout + 标签平滑”以免读者误解。",
+        "4.3 节“只右移不掩码，位置 1 仍能通过注意力看到位置 2 的输入（也就是 y_2 之前的真实信息）”表述略绕，可简化为“位置 1 会看到 y_2 的嵌入，从而泄漏答案”。",
+        "第六节现代变体可补一句“仅解码器模型通常省略交叉注意力子层”，与第二节解码器三子层的对照更连贯。"
+      ],
+      "content_sha256": "b5f0718bdf1c1699e682621c7b0ff8cf905b778ba3f50ef6d8f8f949f304ea08",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec-overall-flow 首段确实写出编码器把 (x1..xn) 映射为 z、解码器自回归逐元素生成 (y1..ym)，并给出 6 步数据流走查，真实支持该要求在本节点的贡献。",
+          "locator": {
+            "section_id": "sec-overall-flow"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-sublayers 用两张表分别列出编码器 2 个子层与解码器 3 个子层及作用，并说明 LayerNorm(x+Sublayer(x)) 与 d_model=512 约束，与定位说明一致。",
+          "locator": {
+            "section_id": "sec-sublayers"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-three-attention 的对照表逐行给出三种用法的 Q 来源、K/V 来源与可见范围，并附三点补充，真实支持“说明 Q/K/V 来源”的贡献。",
+          "locator": {
+            "section_id": "sec-three-attention"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-mask-shift 含 4.1 为何需要掩码、4.2 的 3×3 掩码矩阵与 −∞→0 权重、4.3 右移作用、4.4 训练并行/推理串行，覆盖定位说明的全部内容。",
+          "locator": {
+            "section_id": "sec-mask-shift"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-train-infer 给出 Adam 超参、warmup 学习率公式与 4000 步、dropout 与标签平滑 0.1、beam size 4 与长度惩罚 0.6，形成训练/推理轮廓。",
+          "locator": {
+            "section_id": "sec-train-infer"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-overall-flow 以“编码器读懂输入、解码器逐词写出”为主线描述整体流程，直接解释目标 o1。",
+          "locator": {
+            "section_id": "sec-overall-flow"
+          },
+          "binding_id": "n5-encoder-decoder:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-sublayers 的两张表列出编码器 2 子层与解码器 3 子层，支持目标 o2 中“列出子层”的部分。",
+          "locator": {
+            "section_id": "sec-sublayers"
+          },
+          "binding_id": "n5-encoder-decoder:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-three-attention 的表格与补充说明给出三种注意力 Q/K/V 来源，支持目标 o2 中“说明 Q/K/V 来源”的部分。",
+          "locator": {
+            "section_id": "sec-three-attention"
+          },
+          "binding_id": "n5-encoder-decoder:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-mask-shift 解释 −∞ 掩码配合右移如何保证位置 i 只依赖小于 i 的已知输出，并给出反例论证，直接解释目标 o3。",
+          "locator": {
+            "section_id": "sec-mask-shift"
+          },
+          "binding_id": "n5-encoder-decoder:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-train-infer 概述 Adam+warmup、dropout 与标签平滑、束搜索推理，直接解释目标 o4。",
+          "locator": {
+            "section_id": "sec-train-infer"
+          },
+          "binding_id": "n5-encoder-decoder:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-self-check 第 2 项要求解释训练并行/推理串行，并提示从右移+掩码与推理自生成两角度作答，检查目标 o1 的整体流程理解。",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "binding_id": "n5-encoder-decoder:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-self-check 第 1 项要求在空白结构图标出编码器 2 子层、解码器 3 子层及三处注意力 Q/K/V 来源，检查目标 o2。",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "binding_id": "n5-encoder-decoder:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-self-check 末段以“掩码把未来位置设为 −∞ 后权重为 0”作为掌握标准，检查目标 o3 的掩码机制理解。",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "binding_id": "n5-encoder-decoder:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "de5e593fe1e9d33b6d30871ecb94d5451b669c873d6c37574c9cef2b66ec7f93"
+    }
+  }
+}

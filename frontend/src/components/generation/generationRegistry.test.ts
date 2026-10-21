@@ -30,3 +30,7 @@ test("rendered generation resources require an explicit allowlist", () => {
     ["report", "flashcard"],
   );
 });
+
+test("retired creation tools stay hidden even with a stale allowlist", () => {
+  assert.deepEqual(selectGenerationResources(["lesson_plan", "blog", "report"]).map(item => item.resourceType), ["report"]);
+});

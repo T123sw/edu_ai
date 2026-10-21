@@ -22,7 +22,8 @@ class GenerationGateway:
         if maximum+max_tokens>128000: raise ResearchError('CONTEXT_BUDGET_EXCEEDED','生成规格超过上下文预算')
         for candidate in self.configured.candidates:
             if self.canceled(): raise ResearchError('CANCELED','生成已取消')
-            remaining=(datetime.fromisoformat(self.deadline)-datetime.now(timezone.utc)).total_seconds()
+            from .runtime_contracts import remaining_seconds
+            remaining = remaining_seconds(self.deadline)
             if remaining<=1: raise ResearchError('BUDGET_EXHAUSTED','父任务总时限耗尽')
             timeout=min(120,remaining)
             action=self.meter.start(input_upper_bound=maximum,output_limit=max_tokens,model=candidate['model_name'])

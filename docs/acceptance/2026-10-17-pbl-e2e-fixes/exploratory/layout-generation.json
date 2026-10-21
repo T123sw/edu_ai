@@ -1,0 +1,124 @@
+{
+  "case": "layout",
+  "topic": "用 React 做一个个人作品展示页，只需要一个页面布局步骤。页面有标题“我的作品”、简介“记录我的学习成果”，下方展示三件作品，每件含标题和一句介绍。作品标题分别是“天气卡片”“读书笔记”“像素画”。桌面标题在简介上方，作品区域在简介下方；手机页面不横向溢出。无需按钮、输入框或交互功能，不要图片或外部资源。",
+  "exerciseId": "pbl_723357a37e4766f6ae40b91c450c7bd4",
+  "generationPassed": false,
+  "job": {
+    "schema_version": 2,
+    "version": 11,
+    "edu_job_id": "pbl_723357a37e4766f6ae40b91c450c7bd4",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_layout",
+    "owner": "matrix_layout",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_723357a37e4766f6ae40b91c450c7bd4",
+    "input_summary": {
+      "title": "用 React 做一个个人作品展示页，只需要一个页面布局步骤。页面有标题“我的作品”、简介“记录我的学习成果”，下方展示三件作品，每件含标题和一句介绍。作品标题分别是“天气卡片”“读书笔记”“像素画”。桌面标题在简介上方，作品区域在简介下方；手机页面不横向溢出。无需按钮、输入框或交互功能，不要图片或外部资源。",
+      "topic": "用 React 做一个个人作品展示页，只需要一个页面布局步骤。页面有标题“我的作品”、简介“记录我的学习成果”，下方展示三件作品，每件含标题和一句介绍。作品标题分别是“天气卡片”“读书笔记”“像素画”。桌面标题在简介上方，作品区域在简介下方；手机页面不横向溢出。无需按钮、输入框或交互功能，不要图片或外部资源。",
+      "exercise_id": "pbl_723357a37e4766f6ae40b91c450c7bd4"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error_code": "PBL_VALIDATION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T07:52:03.194315+00:00",
+    "started_at": "2026-10-17T07:53:17.687643+00:00",
+    "finished_at": "2026-10-17T07:54:32.439636+00:00",
+    "updated_at": "2026-10-17T07:54:32.439636+00:00"
+  },
+  "events": [
+    {
+      "seconds": 1.98,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 75.91,
+      "state": [
+        "running",
+        "running",
+        "任务已由后台工作器接管"
+      ]
+    },
+    {
+      "seconds": 77.99,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 82.23,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：搭建作品展示页"
+      ]
+    },
+    {
+      "seconds": 86.38,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：搭建作品展示页"
+      ]
+    },
+    {
+      "seconds": 105.11,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：搭建作品展示页"
+      ]
+    },
+    {
+      "seconds": 109.26,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：搭建作品展示页"
+      ]
+    },
+    {
+      "seconds": 127.99,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：搭建作品展示页"
+      ]
+    },
+    {
+      "seconds": 132.17,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：搭建作品展示页"
+      ]
+    },
+    {
+      "seconds": 150.93,
+      "state": [
+        "failed",
+        "failed",
+        "任务执行失败"
+      ]
+    }
+  ],
+  "seconds": 150.93,
+  "idempotentCreate": true
+}

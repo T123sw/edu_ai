@@ -1,0 +1,28 @@
+[
+  {
+    "width": 1440,
+    "tables": 3,
+    "rows": 11,
+    "headings": 27,
+    "h1Size": "28px",
+    "h2Size": "17px",
+    "cellBorder": "0px",
+    "cellPadding": "1px",
+    "bodyWidth": 918,
+    "bodyScrollWidth": 918,
+    "listMarker": "decimal"
+  },
+  {
+    "width": 390,
+    "tables": 3,
+    "rows": 11,
+    "headings": 27,
+    "h1Size": "28px",
+    "h2Size": "16px",
+    "cellBorder": "0px",
+    "cellPadding": "1px",
+    "bodyWidth": 364,
+    "bodyScrollWidth": 364,
+    "listMarker": "decimal"
+  }
+]

@@ -1,0 +1,137 @@
+{
+  "case": "csv",
+  "topic": "用 React 做本地成绩文本分析器。多行输入，每个非空行格式为 姓名,分数；不含引号或姓名内逗号。姓名去首尾空格不能空；分数必须为0到100的数字。点分析后显示有效行表格和有效人数、平均分（两位小数）、最高分；无有效记录时人数0、平均分和最高分显示—。无效行显示原始行号和原因，但不妨碍其他有效行统计。允许重复姓名。再次分析替换旧结果，清空按钮清除输入与所有结果。仅页面处理，不上传文件，不联网，分步实现。",
+  "exerciseId": "pbl_8c2f998b556807e9dfec062461c2ff34",
+  "generationPassed": true,
+  "job": {
+    "schema_version": 2,
+    "version": 14,
+    "edu_job_id": "pbl_8c2f998b556807e9dfec062461c2ff34",
+    "kind": "generate_pbl",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "编程项目已就绪，可以开始实现",
+    "owner_user_id": "matrix_csv",
+    "owner": "matrix_csv",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_8c2f998b556807e9dfec062461c2ff34",
+    "input_summary": {
+      "title": "用 React 做本地成绩文本分析器。多行输入，每个非空行格式为 姓名,分数；不含引号或姓名内逗号。姓名去首尾空格不能空；分数必须为0到100的数字。点分析后显示有效行表格和有效人数、平均分（两位小数）、最高分；无有效记录时人数0、平均分和最高分显示—。无效行显示原始行号和原因，但不妨碍其他有效行统计。允许重复姓名。再次分析替换旧结果，清空按钮清除输入与所有结果。仅页面处理，不上传文件，不联网，分步实现。",
+      "topic": "用 React 做本地成绩文本分析器。多行输入，每个非空行格式为 姓名,分数；不含引号或姓名内逗号。姓名去首尾空格不能空；分数必须为0到100的数字。点分析后显示有效行表格和有效人数、平均分（两位小数）、最高分；无有效记录时人数0、平均分和最高分显示—。无效行显示原始行号和原因，但不妨碍其他有效行统计。允许重复姓名。再次分析替换旧结果，清空按钮清除输入与所有结果。仅页面处理，不上传文件，不联网，分步实现。",
+      "exercise_id": "pbl_8c2f998b556807e9dfec062461c2ff34"
+    },
+    "result_ref": {
+      "exercise_id": "pbl_8c2f998b556807e9dfec062461c2ff34",
+      "resource_type": "pbl_exercise"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:20:54.468881+00:00",
+    "started_at": "2026-10-17T09:22:31.129799+00:00",
+    "finished_at": "2026-10-17T09:24:01.986481+00:00",
+    "updated_at": "2026-10-17T09:24:01.986481+00:00"
+  },
+  "events": [
+    {
+      "seconds": 4.19,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 100.0,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 108.84,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：搭建输入区并解析有效记录"
+      ]
+    },
+    {
+      "seconds": 115.49,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：搭建输入区并解析有效记录"
+      ]
+    },
+    {
+      "seconds": 126.47,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：显示无效行与统计结果"
+      ]
+    },
+    {
+      "seconds": 135.33,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：显示无效行与统计结果"
+      ]
+    },
+    {
+      "seconds": 137.58,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：显示无效行与统计结果"
+      ]
+    },
+    {
+      "seconds": 153.43,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：再次分析与清空"
+      ]
+    },
+    {
+      "seconds": 162.29,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：再次分析与清空"
+      ]
+    },
+    {
+      "seconds": 164.49,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：再次分析与清空"
+      ]
+    },
+    {
+      "seconds": 191.33,
+      "state": [
+        "succeeded",
+        "completed",
+        "编程项目已就绪，可以开始实现"
+      ]
+    }
+  ],
+  "seconds": 191.37,
+  "idempotentCreate": true,
+  "stepCount": 3,
+  "checkCount": 7
+}

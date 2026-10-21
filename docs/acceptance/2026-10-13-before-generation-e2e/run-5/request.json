@@ -1,0 +1,9 @@
+{
+  "operation": "create_course",
+  "goal": "我想学习快速排序",
+  "uploads": [],
+  "overrides": {
+    "include_classroom": true
+  },
+  "request_id": "bb706124-b1e2-492c-b265-08779b9b5db6"
+}

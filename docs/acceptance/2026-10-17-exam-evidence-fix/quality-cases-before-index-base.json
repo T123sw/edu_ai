@@ -1,0 +1,123 @@
+[
+  {
+    "case": "old_binary",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "computed_choice_answer_mismatch: unique computed correct option is A"
+    ],
+    "seconds": 2.49
+  },
+  {
+    "case": "old_partition",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_calculation_failed",
+      "single_choice_not_unique: computed correct options []",
+      "independent_solution_unverified: recheck the claimed contradiction against ONLY explicit conditions",
+      "Solver statement (must be checked, not blindly copied): 题目要求以第一个元素 47 为枢轴，使用两端向中间扫描、把小于枢轴的元素换到左边、大于枢轴的元素换到右边的划分法。按题面描述执行 partition_hole([47,23,68,35,56,19,74,31])，实际得到 [31,23,19,35,47,56,74,68]，即枢轴 47 位于下标 4，左侧为 (31,23,19,35)，右侧为 (56,74,68)。\n\n逐项核对：\n- A 的右侧为 (56,68,74)，与计算结果 (56,74,68) 不符；\n- B 的左侧为 (31,23,35,19)，与计算结果 (31,23,19,35) 不符；\n- C 的左侧为 (19,23,35,31)，与计算结果不符；\n- D 的左侧为 (23,31,35,19)，与计算结果不符。\n\n四个选项均与按题面约定得到的划分结果不一致，故不存在唯一正确选项，题目按给定约定无匹配答案，well_posed=false。",
+      "Executed calculator evidence: [{\"expression\": \"partition_hole([47,23,68,35,56,19,74,31])\", \"actual\": [31, 23, 19, 35, 47, 56, 74, 68], \"matches\": null, \"name\": \"part\"}, {\"expression\": \"part == [31,23,35,19,47,56,68,74]\", \"actual\": false, \"matches\": null, \"name\": \"check_A\"}, {\"expression\": \"part == [31,23,35,19,47,56,74,68]\", \"actual\": false, \"matches\": null, \"name\": \"check_B\"}, {\"expression\": \"part == [19,23,35,31,47,74,56,68]\", \"actual\": false, \"matches\": null, \"name\": \"check_C\"}, {\"expression\": \"part == [23,31,35,19,47,56,68,74]\", \"actual\": false, \"matches\": null, \"name\": \"check_D\"}, {\"expression\": \"sum([check_A, check_B, check_C, check_D])\", \"actual\": 0, \"matches\": null, \"name\": \"num_correct\"}]"
+    ],
+    "seconds": 4.71
+  },
+  {
+    "case": "new_arithmetic",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2328-2000 = 328, not 276",
+      "arithmetic_claim_invalid: 276 / 82 = 3.3658536585365852, not 4"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "new_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2**(11) = 2048, not 2047"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "old_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "candidate_tree_claim_false",
+      "calculation_mismatch: facts['top_subtree_root']==2 = False, claimed True",
+      "calculation_mismatch: path[1]==2 = False, claimed True",
+      "calculation_mismatch: facts['leaves_before_by_label']==0 = False, claimed True",
+      "calculation_mismatch: facts['leaves_to_left']==0 = False, claimed True",
+      "calculation_mismatch: complete_tree_subtree(1500,2)==[2,5,6,11,12,13,14,23,24,25,26,27,28,29,30] = False, claimed True",
+      "calculation_mismatch: len(complete_tree_subtree(1500,2))==15 = False, claimed True",
+      "calculation_mismatch: complete_tree_facts(1500,2,0)['top_subtree_height']==4 = False, claimed True",
+      "calculation_mismatch: len(complete_tree_subtree(1500,2))==2**4-1 = False, claimed True",
+      "tree_answer_unverified: q_8b9ac018b987840ee562",
+      "tree_answer_unverified: q_6f07f9dc0a2e8d47c1be",
+      "tree_answer_unverified: q_1547df775d7cc57ea1d9",
+      "Executed comparisons to candidate answers: [{\"expression\": \"complete_tree_facts(1500,1024,0)\", \"actual\": {\"node_count\": 1500, \"index_base\": 0, \"target\": 1024, \"path\": [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1024], \"top_subtree_root\": 1, \"top_subtree_side\": \"left\", \"top_subtree_count\": 988, \"top_subtree_height\": 10, \"top_subtree_max_label\": 1499, \"target_is_leaf\": true, \"leaves_before_by_label\": 18, \"leaves_to_left\": 1, \"top_subtree_leaf_count\": 494}, \"matches\": null, \"name\": \"facts\"}, {\"expression\": \"facts['path']\", \"actual\": [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1024], \"matches\": null, \"name\": \"path\"}, {\"expression\": \"facts['top_subtree_root']\", \"actual\": 1, \"matches\": null, \"name\": \"top_root\"}, {\"expression\": \"facts['top_subtree_root']\", \"actual\": 1, \"matches\": null, \"name\": \"top_side\"}, {\"expression\": \"facts['leaves_before_by_label']\", \"actual\": 18, \"matches\": null, \"name\": \"leaves_before\"}, {\"expression\": \"facts['leaves_to_left']\", \"actual\": 1, \"matches\": null, \"name\": \"leaves_left\"}, {\"expression\": \"facts['top_subtree_root']==2\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"path[1]==2\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['leaves_before_by_label']==0\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"facts['leaves_to_left']==0\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"complete_tree_subtree(1500,2)==[2,5,6,11,12,13,14,23,24,25,26,27,28,29,30]\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"len(complete_tree_subtree(1500,2))==15\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"complete_tree_facts(1500,2,0)['top_subtree_height']==4\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"len(complete_tree_subtree(1500,2))==2**4-1\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_1547df775d7cc57ea1d9\"}]"
+    ],
+    "seconds": 5.85
+  },
+  {
+    "case": "correct_binary",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 4.38
+  },
+  {
+    "case": "correct_partition",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 4.62
+  },
+  {
+    "case": "fresh_heap_multiple_answers",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_calculation_failed",
+      "single_choice_not_unique: computed correct options ['A', 'D']",
+      "independent_solution_unverified: recheck the claimed contradiction against ONLY explicit conditions",
+      "Solver statement (must be checked, not blindly copied): 按完全二叉树层序存储，零基下标 i 的左右孩子为 2i+1、2i+2，最小堆要求每个父结点不大于其孩子。逐项检查：\nA：[15,45,25,60,50,30,40,70]。父结点：下标0的15≤45、25；下标1的45≤60、50；下标2的25≤30、40；下标3的60≤70。全部满足，A 是最小堆。\nB：[12,20,18,35,40,15,25,30]。下标2的18有孩子下标5的15，18>15，不满足。\nC：[8,24,16,40,32,20,12,48]。下标2的16有孩子下标6的12，16>12，不满足。\nD：[9,27,18,45,36,24,30,54]。父结点：下标0的9≤27、18；下标1的27≤45、36；下标2的18≤24、30；下标3的45≤54。全部满足，D 也是最小堆。\n因此 A 与 D 均能构成最小堆，单选题存在两个正确选项，题目不能唯一确定，well_posed=false。",
+      "Executed calculator evidence: [{\"expression\": \"is_heap([15,45,25,60,50,30,40,70], minimum=True)\", \"actual\": true, \"matches\": null, \"name\": \"A\"}, {\"expression\": \"is_heap([12,20,18,35,40,15,25,30], minimum=True)\", \"actual\": false, \"matches\": null, \"name\": \"B\"}, {\"expression\": \"is_heap([8,24,16,40,32,20,12,48], minimum=True)\", \"actual\": false, \"matches\": null, \"name\": \"C\"}, {\"expression\": \"is_heap([9,27,18,45,36,24,30,54], minimum=True)\", \"actual\": true, \"matches\": null, \"name\": \"D\"}, {\"expression\": \"[A, B, C, D].count(True)\", \"actual\": 2, \"matches\": null, \"name\": \"正确选项个数\"}]"
+    ],
+    "seconds": 5.1
+  },
+  {
+    "case": "fresh_tree_false_acceptance",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "candidate_tree_claim_false",
+      "calculation_mismatch: left_leaves==249 = False, claimed True",
+      "tree_answer_unverified: q_6f07f9dc0a2e8d47c1be",
+      "Executed comparisons to candidate answers: [{\"expression\": \"complete_tree_facts(1000,999,0)\", \"actual\": {\"node_count\": 1000, \"index_base\": 0, \"target\": 999, \"path\": [0, 2, 6, 14, 30, 61, 124, 249, 499, 999], \"top_subtree_root\": 2, \"top_subtree_side\": \"right\", \"top_subtree_count\": 488, \"top_subtree_height\": 9, \"top_subtree_max_label\": 999, \"target_is_leaf\": true, \"leaves_before_by_label\": 243, \"leaves_to_left\": 232, \"top_subtree_leaf_count\": 244}, \"matches\": null, \"name\": \"facts\"}, {\"expression\": \"facts['top_subtree_side']\", \"actual\": \"right\", \"matches\": null, \"name\": \"side\"}, {\"expression\": \"side=='right'\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['leaves_to_left']\", \"actual\": 232, \"matches\": null, \"name\": \"left_leaves\"}, {\"expression\": \"left_leaves==249\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"facts['top_subtree_height']\", \"actual\": 9, \"matches\": null, \"name\": \"height\"}, {\"expression\": \"height==9\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_1547df775d7cc57ea1d9\"}]"
+    ],
+    "seconds": 3.97
+  },
+  {
+    "case": "correct_tree_variant",
+    "expected_accept": true,
+    "accepted": false,
+    "issues": [
+      "tree_answer_unverified",
+      "calculation_mismatch: sorted(subtree) == [3,6,7,12,13,14,15,24,25,26,27] = False, claimed True",
+      "calculation_mismatch: sorted(subtree_leaves) == [14,15,24,25,26,27] = False, claimed True",
+      "calculation_mismatch: len([x for x in subtree_leaves if x<25]) == 3 = False, claimed True",
+      "Executed comparisons to candidate answers: [{\"expression\": \"complete_tree_facts(27,25,1)\", \"actual\": {\"node_count\": 27, \"index_base\": 1, \"target\": 25, \"path\": [1, 3, 6, 12, 25], \"top_subtree_root\": 3, \"top_subtree_side\": \"right\", \"top_subtree_count\": 11, \"top_subtree_height\": 4, \"top_subtree_max_label\": 27, \"target_is_leaf\": true, \"leaves_before_by_label\": 3, \"leaves_to_left\": 1, \"top_subtree_leaf_count\": 6}, \"matches\": null, \"name\": \"facts\"}, {\"expression\": \"facts['top_subtree_side']\", \"actual\": \"right\", \"matches\": null, \"name\": \"side\"}, {\"expression\": \"side == 'right'\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}, {\"expression\": \"facts['leaves_before_by_label']\", \"actual\": 3, \"matches\": null, \"name\": \"leaves_before\"}, {\"expression\": \"leaves_before == 3\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"facts['top_subtree_root']\", \"actual\": 3, \"matches\": null, \"name\": \"top_root\"}, {\"expression\": \"facts['top_subtree_max_label']\", \"actual\": 27, \"matches\": null, \"name\": \"max_label\"}, {\"expression\": \"top_root == 3 and max_label == 27\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"complete_tree_subtree(27,3)\", \"actual\": [3, 7, 8, 15, 16, 17, 18], \"matches\": null, \"name\": \"subtree\"}, {\"expression\": \"sorted(subtree) == [3,6,7,12,13,14,15,24,25,26,27]\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"[x for x in subtree if 2*x>27]\", \"actual\": [15, 16, 17, 18], \"matches\": null, \"name\": \"subtree_leaves\"}, {\"expression\": \"sorted(subtree_leaves) == [14,15,24,25,26,27]\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"len([x for x in subtree_leaves if x<25]) == 3\", \"actual\": false, \"expected\": true, \"matches\": false, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"facts['leaves_to_left'] == 1\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_6f07f9dc0a2e8d47c1be\"}, {\"expression\": \"facts['top_subtree_height'] == 4\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"facts['top_subtree_count'] == 11\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_1547df775d7cc57ea1d9\"}, {\"expression\": \"facts['path'] == [1,3,6,12,25]\", \"actual\": true, \"expected\": true, \"matches\": true, \"question_id\": \"q_8b9ac018b987840ee562\"}]"
+    ],
+    "seconds": 7.54
+  },
+  {
+    "case": "correct_matrix_boundary",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 5.86
+  }
+]

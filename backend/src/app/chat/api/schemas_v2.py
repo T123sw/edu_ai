@@ -51,6 +51,8 @@ GenerationPreflightResourceType = Literal[
     "classroom",
 ]
 GenerationToolIdV2 = Literal[
+    "podcast",
+    "scenario",
     "report",
     "mind_map",
     "quiz",

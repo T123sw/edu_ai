@@ -1,0 +1,40 @@
+{
+  "real_course": true,
+  "real_tts": true,
+  "api_responses_mocked": false,
+  "new_narration_endpoint": "isolated process, production data read-only",
+  "playing": [
+    {
+      "duration": 4.128,
+      "currentTime": 4.128,
+      "paused": true,
+      "muted": false,
+      "volume": 1
+    },
+    {
+      "duration": 7.896,
+      "currentTime": 0.606634,
+      "paused": false,
+      "muted": false,
+      "volume": 1
+    }
+  ],
+  "paused": true,
+  "nextPage": "2 / 6",
+  "browser_speech_calls": 0,
+  "errors": [],
+  "requests": [
+    {
+      "path": "/backend/api/self-learning/courses/learn-f13e2b0434204729a7835fff8298595e/materials/classroom/resource_e430b696a7531691d58c5f10fb281c5c/versions/1/narration/scene_8JGzyL4jWq/action_l_VfCr3I?segment=0",
+      "status": 200,
+      "bytes": 66092,
+      "seconds": 0.064
+    },
+    {
+      "path": "/backend/api/self-learning/courses/learn-f13e2b0434204729a7835fff8298595e/materials/classroom/resource_e430b696a7531691d58c5f10fb281c5c/versions/1/narration/scene_8JGzyL4jWq/action_l_VfCr3I?segment=1",
+      "status": 200,
+      "bytes": 126380,
+      "seconds": 17.273
+    }
+  ]
+}

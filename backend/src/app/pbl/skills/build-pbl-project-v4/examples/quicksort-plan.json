@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "title": "实现快速排序",
+  "goal": "实现返回升序新数组且保留重复元素的快速排序函数",
+  "runtimeKind": "js_function",
+  "editableFiles": [
+    "/src/algorithm.js"
+  ],
+  "requirements": [
+    {
+      "id": "sort",
+      "description": "按数值升序排序，保留重复元素，不修改输入并返回新数组"
+    }
+  ],
+  "steps": [
+    {
+      "id": "implement-sort",
+      "title": "实现 quickSort",
+      "objective": "完成分区、递归和终止条件",
+      "dependsOn": [],
+      "entryCondition": "已有可运行骨架，目标函数抛出 NOT_IMPLEMENTED",
+      "deliverable": "通过普通和边界输入的 quickSort 函数",
+      "requirementIds": [
+        "sort"
+      ],
+      "focusFiles": [
+        "/src/algorithm.js"
+      ],
+      "newCheckIds": [
+        "array-cases"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "array-cases",
+      "stepId": "implement-sort",
+      "kind": "function_case",
+      "requirementIds": [
+        "sort"
+      ],
+      "setup": "每次调用前重新建立输入数组与副本",
+      "actions": [
+        "分别调用空数组、单元素、重复元素、负数、已排序、逆序、普通乱序以及 [10,2,1] 和 [1.5,-0.5,0]"
+      ],
+      "expected": [
+        "结果按数值升序，元素及重复次数保留，输入与副本一致，结果不是原数组对象；运行器按每个输入展开独立用例"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+--- explore-before.html
++++ explore-after.html
+@@ -224,6 +224,16 @@
+     lastAction: "就绪"
+   };
+ 
++  var comparisons = 0, swaps = 0;
++  var lastTransition = null, completionEvidence = null;
++  var stateMeanings = [
++    {path:['swappedInPass'], meaning:'当前轮是否有交换；轮末先保存旧值再清零，终态 false 不代表刚结束的轮没有交换', scope:'当前轮局部标记', reset_when:'每轮结束、初始化或重置时设为 false'},
++    {path:['pass'], meaning:'已经完成的轮数；尚在进行的轮显示为 pass+1', scope:'本次输入的累计已完成轮数', reset_when:'初始化、重置或应用新数组时清零'},
++    {path:['sortedFrom'], meaning:'未排序区间为 [0, sortedFrom)，值小于等于1时无需再比较', scope:'当前边界', reset_when:'初始化、重置或应用新数组时设为数组长度'},
++    {path:['comparisons'], meaning:'实际执行相邻比较的累计次数', scope:'本次输入的实际累计次数', reset_when:'初始化、重置或应用新数组时清零'},
++    {path:['swaps'], meaning:'实际发生交换的累计次数', scope:'本次输入的实际累计次数', reset_when:'初始化、重置或应用新数组时清零'}
++  ];
++
+   // 动画/运行控制
+   var running = false;
+   var timer = null;
+@@ -258,6 +268,7 @@
+     st.done = false;
+     st.comparing = null;
+     st.lastAction = "就绪";
++    comparisons = 0; swaps = 0; lastTransition = null; completionEvidence = null;
+   }
+ 
+   function stopTimer(){
+@@ -413,6 +424,7 @@
+     var left = arr[i];
+     var right = arr[i + 1];
+     var swapped = false;
++    comparisons += 1;
+ 
+     st.comparing = [i, i + 1];
+ 
+@@ -420,6 +432,7 @@
+       arr[i] = right;
+       arr[i + 1] = left;
+       swapped = true;
++      swaps += 1;
+       st.swappedInPass = true;
+     }
+ 
+@@ -444,12 +457,21 @@
+     st.lastAction = "比较 a[" + i + "]=" + left + " 与 a[" + (i + 1) + "]=" + right +
+       (swapped ? "，交换" : "，不交换");
+ 
++    lastTransition = {id:String(comparisons), kind:'comparison', observations:facts, resets:[]};
++    completionEvidence = {status:'in_progress', code:'continue', reason:'仍有必要的比较待执行', basis:{comparisons:comparisons, swaps:swaps}};
++
+     // 推进索引 / 轮次
+     var passEnd = st.sortedFrom - 1; // 本轮最后一个左索引
+     if (i >= passEnd - 1){
+       // 本轮结束
+       st.sortedFrom = st.sortedFrom - 1;
+-      var noSwap = !st.swappedInPass;
++      var swappedBeforeReset = st.swappedInPass;
++      var noSwap = !swappedBeforeReset;
++      lastTransition.kind = 'comparison_and_round_end';
++      lastTransition.observations.completedPass = st.pass + 1;
++      lastTransition.observations.swappedBeforeReset = swappedBeforeReset;
++      lastTransition.observations.remainingAfter = st.sortedFrom;
++      lastTransition.resets = [{path:['swappedInPass'], before:swappedBeforeReset, after:false, reason:'轮末局部标记复位'}];
+       st.pass = st.pass + 1;
+       st.i = 0;
+       st.swappedInPass = false;
+@@ -457,7 +479,12 @@
+ 
+       if (noSwap || st.sortedFrom <= 1){
+         st.done = true;
+-        st.lastAction = "第 " + st.pass + " 轮结束，无交换 → 排序完成";
++        completionEvidence = {
++          status:'complete', code:st.sortedFrom <= 1 ? 'remaining_region_complete' : 'no_swaps_in_completed_pass',
++          reason:st.sortedFrom <= 1 ? '未排序区只剩一个元素，排序完成' : '刚结束的完整一轮没有交换，数组已有序',
++          basis:{completedPass:st.pass, swappedBeforeReset:swappedBeforeReset, remainingAfter:st.sortedFrom, comparisons:comparisons, swaps:swaps}
++        };
++        st.lastAction = "第 " + st.pass + " 轮结束，" + completionEvidence.reason;
+       } else {
+         st.lastAction = "第 " + st.pass + " 轮结束，最大值已就位";
+       }
+@@ -623,6 +650,8 @@
+       snapshot: function(){
+         return {
+           arr: cloneArr(arr),
++          comparisons: comparisons, swaps: swaps,
++          _teaching: {version:'edu-state-evidence/1', fields:stateMeanings, transition:lastTransition, completion:completionEvidence},
+           baseArray: cloneArr(baseArray),
+           pass: st.pass,
+           i: st.i,
+@@ -645,6 +674,10 @@
+         st.pass = typeof state.pass === "number" ? state.pass : 0;
+         st.i = typeof state.i === "number" ? state.i : 0;
+         st.sortedFrom = typeof state.sortedFrom === "number" ? state.sortedFrom : N;
++        comparisons = typeof state.comparisons === 'number' ? state.comparisons : 0;
++        swaps = typeof state.swaps === 'number' ? state.swaps : 0;
++        lastTransition = state._teaching && state._teaching.transition ? JSON.parse(JSON.stringify(state._teaching.transition)) : null;
++        completionEvidence = state._teaching && state._teaching.completion ? JSON.parse(JSON.stringify(state._teaching.completion)) : null;
+         st.swappedInPass = !!state.swappedInPass;
+         st.done = !!state.done;
+         st.comparing = Array.isArray(state.comparing) ? state.comparing.slice() : null;

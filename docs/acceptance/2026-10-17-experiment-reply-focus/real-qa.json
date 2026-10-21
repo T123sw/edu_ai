@@ -1,0 +1,8 @@
+{
+  "question": "请用一句话概括你刚才这条回答最重要的结论。",
+  "answer": "最重要的结论是：这次 `[4, 3, 2, 1]` 的最后一轮确实交换了（2 和 1 互换），终态看到的 `swappedInPass = false` 只是轮末复位后的值；排序结束是因为未排序区只剩 1 个元素，全程共 3 轮、比较 6 次、交换 6 次。",
+  "status": "complete",
+  "replyToCorrect": true,
+  "firstTextMs": 1786,
+  "finishedMs": 2250
+}

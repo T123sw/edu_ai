@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 14.275837898254395,
+  "decisions": {
+    "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置为空，有效偏好为空，故采用 defaults.target_minutes=5 分钟（300s），这是默认值而非用户指定。节点学习预算 15 分钟包含阅读与手算练习，不作为成片时长。用户未要求无配音，defaults.narration=true，且本节点为概念讲解，采用中文旁白配合图示。画幅沿用 defaults 的 16:9，并叠加课程统一视觉规范。视频只覆盖教师演示部分（QKV 角色、五步计算链、softmax 按行归一化、除以 √d_k 的原因），手算小矩阵练习留给习题、详细阅读留给报告，视频内不设题目。约 5 分钟常规教学解释按原生路由走 general-video，flow: automation、storyboard: no。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792428833.422309,
+  "brief_sha256": "9445b806ef220e4abc3dc2c52ac659d3ee6bd860ae4b3f91ef3435d6f5b57cd8",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力就是一次软检索：用 Q 去匹配 K 得到权重，再按权重取走 V\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\naudience: \"希望系统学习 Transformer 的初学者（具体背景未知，按零基础入门处理）\"\nangle: concept\n---\n\n## Intent\n\n这是一节面向 Transformer 初学者的入门讲解视频，属于整门课程中的第 2 个节点「自注意力：QKV 与缩放点积的计算过程」。学习者刚看完第 1 节点「Transformer 是什么：编码器-解码器整体结构」，已经知道编码器/解码器各 6 层堆叠、编码器 2 个子层、解码器 3 个子层的位置，现在要钻进编码器第一个子层——自注意力——把它的计算过程真正看懂。\n\n用户原话是「我想学习一下transformer」，没有指定视频时长、画幅或风格；语气按清晰、克制、以图示和公式为主的课堂讲解处理，不做营销式包装。\n\n本视频必须让学习者看完后能做到三件事：\n\n1. 说明 Q、K、V 三个线性投影各自的角色——查询在找什么、键提供什么标签、值是被取走的信息；\n2. 按顺序复述自注意力计算步骤：线性投影得 Q/K/V → 计算 QK^T → 除以 √d_k → softmax 归一化 → 加权求和 V；\n3. 解释除以 √d_k 的原因，并说明 softmax 是在 key 维（每一行）上归一化。\n\n## Assets\n\n- 无用户提供的本地素材。所有图示（QKV 检索示意、矩阵维度图、softmax 按行归一化示意）需在视频内用图形与文字现场构建，不引用外部图片路径。\n\n## Customizations\n\n- 视觉规范（课程统一，来自 course_visual_contract）：画布 1920×1080，字体 Noto Sans SC，背景 #0f172a，前景 #f8fafc，强调色 #38bdf8；正文最小 32px，图示标签最小 28px，标题最小 48px。\n- 密集图示要拆成步骤逐步呈现，不要靠缩小字号塞进一屏。\n- 中文配音讲解（旁白），术语首次出现时给出中英文对照（Query/Key/Value、Scaled Dot-Product Attention）。\n\n## Notes\n\n### 必须讲清的内容（教师演示部分，视频必须覆盖）\n\n- **QKV 的检索式直觉**：用「The cat sat because it was tired」这类例子说明——「it」的 Query 在找先行词，「cat」的 Key 表明自己是候选先行词，Value 是真正被取走的信息向量。要讲清 Q/K/V 由同一个输入序列 X 经三个可学习线性映射矩阵 W_Q、W_K、W_V 得到（Q = XW_Q，K = XW_K，V = XW_V），并说明 Q 与 K 的维度相同（d_k）。\n- **完整计算链条，按顺序演示**：输入序列 → 三个线性投影得 Q/K/V → 计算打分矩阵 QK^T（n×n）→ 除以 √d_k → softmax 按行归一化得到注意力权重 A → 用 A 对 V 加权求和得到输出。要给出完整公式 Attention(Q,K,V) = softmax(QK^T/√d_k)V，并说明输出再经输出投影回到 d 维。\n- **softmax 沿哪一维做**：明确强调 softmax 在 key 维（最后一维）上做，每一行对应「位置 i 对所有位置 j 的注意力分布」，每行权重之和为 1。这是本节点自测的核心考点，必须显式讲出并配图。\n- **为什么除以 √d_k**：给出直觉与简化推导——设 q、k 各分量独立、零均值、方差为 1，则点积 q^T k 的方差随 d_k 线性增长，幅度约为 √d_k 量级；不缩放会让 softmax 输入过大而近似 one-hot、进入梯度极小的饱和区，除以 √d_k 使点积方差回到 O(1)，softmax 温度适中。可顺带一句：这相当于隐式设定温度。\n- **演示深度**：入门级原理讲解，公式要写全但推导只到「方差线性增长 → 幅度约 √d_k」这一步，不做完整概率论证明。\n\n### 留给习题与报告的内容（视频不承担）\n\n- 给定 n=3、d_k=2 的小矩阵手算 QK^T、除以 √d_k、按行 softmax 并检查每行和为 1 —— 这是独立动手推演，交给习题，视频里最多用一句话提示「课后可以自己手算一遍」。\n- 更详细的阅读材料（原始论文中文逐段解读、CS336 笔记、Illustrated Transformer）交给报告。\n- 本视频不设视频内题目，不把自测题做成视频里的提问环节；自测标准只用于确定讲解重点。\n\n### 来源\n\n- 主要依据：邱锡鹏《神经网络与深度学习》自注意力章节的中文解读博客（kangshitao.github.io/2020/11/15/transformer）、CS336 学习笔记（多头注意力与 RoPE 一章）、The AI Edge 对 Attention Is All You Need 的解读、火山引擎技术文章。\n- 未直接引用 arXiv 英文原文；公式细节以原始论文表述为准。\n\n### 排除项与边界\n\n- 不深入多头注意力的拼接与投影细节（下一节点内容），最多一句过渡。\n- 不深入位置编码、残差连接、层归一化、前馈网络（后续节点内容）。\n- 不覆盖现代变体（RoPE、GQA/MQA、FlashAttention）。\n- 不包含从零实现可运行 Transformer 的代码；如需代码只作示意。\n- 不规划其他节点内容，不固定场景数量。\n\n### 时长与配音\n\n- 用户未指定视频时长，按默认约 5 分钟（300s）安排，围绕上述必须讲清的内容做充分解释与示例，不为凑时长加无关内容，也不压成一分钟概述。\n- 节点学习预算 15 分钟包含阅读与练习，不等同于视频时长。\n- 使用中文配音旁白。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

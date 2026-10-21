@@ -1,0 +1,27 @@
+{
+  "changes": [
+    "习题独立 Markdown 渲染与样式；有语言/无语言代码块统一保留原始缩进、换行、比较符号，不再套用行内代码背景",
+    "保护代码片段，正文规范化仅作用于正文；数学公式、表格及鉴权插图保留",
+    "从原版本题型选择单选/多选/判断/简答控件；补充题型标签及选项字母",
+    "新旧练习、等待预览、选项及已提交反馈统一渲染"
+  ],
+  "checks": {
+    "typescript": "passed",
+    "eslint": "passed",
+    "vite": "passed with existing large-chunk advisory",
+    "unit_tests": 2,
+    "browser_tests": 4,
+    "captured_course_questions": 23,
+    "viewports": [
+      1440,
+      390
+    ],
+    "production_static_smoke": "passed"
+  },
+  "boundaries": [
+    "三份实际课程响应为上轮真实接口读取后的回放；浏览器回归使用隔离模拟 API",
+    "本轮未修改后端、未向用户正式习题提交答案、未触发真实模型批改",
+    "未知题型继续兼容原多选策略；单选/判断语义仅采用原版本明确声明的题型",
+    "发布从线上来源快照加入本轮文件，未发布并行窗口尚未部署的 Sandpack 功能"
+  ]
+}

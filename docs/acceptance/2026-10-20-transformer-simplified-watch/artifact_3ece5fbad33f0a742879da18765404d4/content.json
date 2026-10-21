@@ -1,0 +1,191 @@
+{
+  "title": "为什么需要 Transformer：Seq2Seq 与注意力动机",
+  "content": {
+    "title": "为什么需要 Transformer：Seq2Seq 与注意力动机",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_3ece5fbad33f0a742879da18765404d4",
+      "entry": "index.html",
+      "digest": "e0337a14af7cfddf9743ed26e0cb6388f4f7ca01996a8816664bef72ec555a93"
+    },
+    "timeline": {
+      "duration": 291.6,
+      "segments": [
+        {
+          "id": "01-why-transformer",
+          "end": 25.8,
+          "start": 0.0,
+          "title": "为什么需要 Transformer",
+          "events": [],
+          "narration": "我们先用一句话开始：我想学 Transformer。为什么它值得学？因为在 2017 年，谷歌团队用一篇《Attention Is All You Need》，给出了一个全新的序列模型。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "深色教学画布上「Transformer」标题弹出，2017 / Google / 论文标题依次落位，RNN 与 CNN 被划掉，只剩注意力"
+        },
+        {
+          "id": "02-seq2seq-problem",
+          "end": 57.0,
+          "start": 25.8,
+          "title": "序列到序列问题",
+          "events": [],
+          "narration": "先从最常见的问题说起。把一句中文翻译成英文，输入是一个序列，输出也是一个序列，而且两边的长度往往不一样……这类任务叫 Seq2Seq。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "中文输入四个 token 与英文输出五个 token 上下对照，「长度不一定相同」括号标注，下方列出机器翻译、问答、文档摘要"
+        },
+        {
+          "id": "03-encoder-decoder",
+          "end": 86.9,
+          "start": 57.0,
+          "title": "编码器与解码器",
+          "events": [],
+          "narration": "过去处理这类问题，用的是一种叫编码器-解码器的结构。编码器负责读懂输入……解码器负责写出输出……结构不变，换的只是里面的零件。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左侧编码器面板把输入序列压成语义向量，箭头送入右侧解码器面板，逐词吐出译文；下方标注内部零件可替换为 RNN/CNN/GRU/LSTM"
+        },
+        {
+          "id": "04-rnn-limits",
+          "end": 120.7,
+          "start": 86.9,
+          "title": "RNN 的两个麻烦",
+          "events": [],
+          "narration": "如果用 RNN 做编码器，就会遇到麻烦。第一，RNN 必须一个时间步一个时间步地读……第二是长距离依赖……",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "五个时间步串成一条必须按顺序点亮的链；长句中「他」与句首之间用危险的红色虚线标出十步距离；下方两个编号痛点"
+        },
+        {
+          "id": "05-attention-intuition",
+          "end": 150.3,
+          "start": 120.7,
+          "title": "注意力的直觉：Q、K、V",
+          "events": [],
+          "narration": "注意力机制换了个思路：不要一步一步传，而是让每个词直接去看整句话……你拿 Query 去和每个 Key 比对，越匹配，就从对应的 Value 里取越多的信息。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "图书馆检索类比：紫色 Query 需求卡、三张琥珀 Key 索引卡与绿色 Value 内容卡；Query 与最匹配的 Key 之间亮起最粗的连线"
+        },
+        {
+          "id": "06-two-steps",
+          "end": 178.8,
+          "start": 150.3,
+          "title": "两步计算：权重与加权求和",
+          "events": [],
+          "narration": "具体只有两步。第一步，用 Query 和每一个 Key 计算相似度……第二步，用这些权重对 Value 加权求和……所以一句话记住：注意力就是加权求和。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "步骤 1 用 Q 与 K 算相似度得到权重条，softmax 归一化后总和为 1；步骤 2 用权重乘 V 求和得到输出向量；结尾大字「注意力 = 加权求和」"
+        },
+        {
+          "id": "07-self-attention",
+          "end": 206.8,
+          "start": 178.8,
+          "title": "自注意力：Q、K、V 同源",
+          "events": [],
+          "narration": "如果 Query、Key、Value 全都来自同一个输入序列，这就叫自注意力……处理「苹果」这个词时，模型会给「吃」和「红」较高的权重……",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "五个词共享同一输入序列，同时生成 Q、K、V 三路；聚焦「苹果」时，它与「吃」「红」之间亮起最粗的连线"
+        },
+        {
+          "id": "08-parallel-distance",
+          "end": 232.20000000000002,
+          "start": 206.8,
+          "title": "并行与长距离依赖",
+          "events": [],
+          "narration": "这样带来两个直接好处。第一是并行……第二是长距离依赖……RNN 要走十步才能连上的信息，注意力一次就能看到。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左右对照：左侧 RNN 时间步必须逐个点亮、距离标 n 步；右侧注意力所有词同时连到中心，距离标 1 步"
+        },
+        {
+          "id": "09-transformer-overview",
+          "end": 266.0,
+          "start": 232.20000000000002,
+          "title": "Transformer 全貌",
+          "events": [],
+          "narration": "把这些拼起来，就是 Transformer。2017 年，谷歌在《Attention Is All You Need》里提出它……因为注意力本身不看顺序，还需要位置编码把词序补回去……",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "编码器与解码器两块竖直堆叠面板并立，中间连接箭头；标注 2017、Google、论文名、无 CNN 无 RNN；底部位置编码提示条"
+        },
+        {
+          "id": "10-question-recap",
+          "end": 291.6,
+          "start": 266.0,
+          "title": "课堂互动与收束",
+          "events": [],
+          "narration": "最后留一个问题给你：请用一句话说出，「注意力就是加权求和」里，权重是从哪里来的，加权的对象又是什么。提示一下：权重来自 Query 和 Key 的相似度，被加权的对象是 Value。想清楚这一句，Transformer 的大门就打开了。下一节，我们拆开自注意力，看看它在向量层面到底怎么算。",
+          "audio_path": "assets/audio/2b0a0c7c270f2dcafbe58805c449f016a7d30a3922d476fb0413d8642f05f64e.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "中央提出问题：权重的来源与被加权的对象；随后给出两条提示，最后落到下一节预告"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 291.6
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.86
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "88b68d19f2d1b61d47467b5a365c133dc193389200d2f39be4436bb0d63b47cf",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 291.6
+      },
+      "content_digest": "e14601abf7164007da30ff39e0b8fcad6a67fd068dd2823adeff6cbc1616a6b4",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.86
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "3c0491795017bf63c77d52d1aee57bcca7b9a635fd9a649c92c4a2fa29bc8490"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "c364871746068f44c7e73c7df93d5a63b9f4d374724d1bfe0c100bf3a36faf57",
+      "preparation_sha256": "19cc2bf8c70d6a2c5ecc16e8b715f74fda61115d349df5367aa5f238d4101954"
+    }
+  }
+}

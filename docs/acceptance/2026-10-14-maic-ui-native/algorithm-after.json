@@ -1,0 +1,22 @@
+{
+  "singleStep": "1",
+  "before": [
+    5,
+    3,
+    8,
+    4,
+    2
+  ],
+  "after": {
+    "array": [
+      2,
+      3,
+      4,
+      5,
+      8
+    ],
+    "comparisons": 8,
+    "swaps": 4
+  },
+  "correct": true
+}

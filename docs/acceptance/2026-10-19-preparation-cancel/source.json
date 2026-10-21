@@ -1,0 +1,9 @@
+{
+  "baseSource": "/tmp/edu-progressive-course-source",
+  "source": "/tmp/edu-preparation-cancel-source",
+  "files": {
+    "frontend/src/liveLearning/PreparationProgress.tsx": "beae53d021df06602d5903893450052a6901d0ad95e9eac5074d89734666cc1b",
+    "frontend/src/liveLearning/usePreparationProgress.ts": "7df2ce14c2196e56ec061c99393cb18191c0d4d525b2775ec20fa625a1f51270",
+    "frontend/src/liveLearning/preparationProgress.ts": "365d9a34be9e71a98b79780c86af52e5a539ed3e28eb713267930af0f14188ee"
+  }
+}

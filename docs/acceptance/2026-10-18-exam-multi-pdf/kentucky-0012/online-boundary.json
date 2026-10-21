@@ -1,0 +1,36 @@
+{
+  "generation_checks": [
+    {
+      "generation_id": "examgen_7cd4cd536e24e1cef418fdef720e1532",
+      "paper_http": 409,
+      "anonymous_http": 401,
+      "answer_fields": [],
+      "blueprint_count": 17,
+      "blueprint_types": {
+        "coding": 1,
+        "short_answer": 13,
+        "choice": 2,
+        "written": 1
+      },
+      "blueprint_child_counts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

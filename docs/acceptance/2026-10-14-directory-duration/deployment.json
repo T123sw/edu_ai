@@ -1,0 +1,66 @@
+{
+  "publishedAt": "20261014T085616Z",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-directory-duration-20261014",
+  "backup": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-directory-duration-20261014T085616Z",
+  "baselineReproduced": false,
+  "baselineSource": "/tmp/edu-quiz-loading-source/frontend; exact previous published source snapshot with only Classroom.tsx directory duration labels removed",
+  "previousIndexSha256": "c8786c991d438f2f511b47632dee86c631fec245879fdc4f3aa73e6ff1a06e71",
+  "releaseIndexSha256": "16dcba0c9ec786b00ca8fb54bd640b9e0a457bb3c410e0e71a55c5aab9b6ce04",
+  "nginxIndexMatches": true,
+  "changes": [
+    "Remove estimated, measured and unknown duration labels from classroom directory",
+    "Preserve pending preparation status, navigation and completion indicators"
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "directoryChecks": {
+      "base": "http://127.0.0.1:4195",
+      "checks": [
+        {
+          "width": 1440,
+          "noDuration": true,
+          "pendingStatusPreserved": true,
+          "navigation": true,
+          "chapterCollapse": true,
+          "completionMarker": true
+        },
+        {
+          "width": 390,
+          "noDuration": true,
+          "pendingStatusPreserved": true,
+          "navigation": true,
+          "chapterCollapse": true,
+          "completionMarker": true
+        }
+      ],
+      "scope": "Built frontend with mocked business APIs; no production data mutations"
+    },
+    "publishedDirectoryChecks": {
+      "base": "http://127.0.0.1",
+      "checks": [
+        {
+          "width": 1440,
+          "noDuration": true,
+          "pendingStatusPreserved": true,
+          "navigation": true,
+          "chapterCollapse": true,
+          "completionMarker": true
+        },
+        {
+          "width": 390,
+          "noDuration": true,
+          "pendingStatusPreserved": true,
+          "navigation": true,
+          "chapterCollapse": true,
+          "completionMarker": true
+        }
+      ],
+      "scope": "Built frontend with mocked business APIs; no production data mutations"
+    }
+  },
+  "verificationLimits": "Seeded classroom with mocked business APIs, desktop/mobile navigation and chapter collapse verified. No production data changed. Pending guided-practice release must reconcile its baseline before future publication."
+}

@@ -128,6 +128,14 @@ def build_classroom_learning_manifest(
 
     manifest_scenes: list[ManifestScene] = []
     manifest_questions: list[ManifestQuestion] = []
+    from app.self_learning.hyperframes_context import native_content
+    native = native_content(payload)
+    if native:
+        from app.integrations.hyperframes.contracts import validate_content
+        validate_content(native)
+        manifest_scenes.extend(ManifestScene(scene_id=s['id'], kind='explanation',
+            expected_duration_ms=round((s['end']-s['start'])*1000), required_action_ids=(s['id'],),
+            required_question_ids=()) for s in native['timeline']['segments'])
     for raw_scene in _as_sequence(payload.get("scenes")):
         scene = _as_mapping(raw_scene)
         scene_id = str(scene.get("id") or "").strip()

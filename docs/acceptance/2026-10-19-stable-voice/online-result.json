@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "health": {
+    "status": "ok",
+    "service": "local-tts",
+    "model_loaded": true,
+    "model": "qwen3-tts",
+    "device": "cuda:1",
+    "voice_profile": "stable-narration-v1",
+    "formats": [
+      "mp3",
+      "wav"
+    ]
+  },
+  "results": [
+    {
+      "index": 0,
+      "chars": 69,
+      "file": "scene-1.wav",
+      "batch_id": "fc57fd4d9421",
+      "batch_size": 4,
+      "elapsed_seconds": 78.99,
+      "pitch_median_hz": 245.09,
+      "duration": 19.44
+    },
+    {
+      "index": 1,
+      "chars": 66,
+      "file": "scene-2.wav",
+      "batch_id": "fc57fd4d9421",
+      "batch_size": 4,
+      "elapsed_seconds": 79.0,
+      "pitch_median_hz": 239.49,
+      "duration": 24.243166666666667
+    },
+    {
+      "index": 2,
+      "chars": 70,
+      "file": "scene-3.wav",
+      "batch_id": "fc57fd4d9421",
+      "batch_size": 4,
+      "elapsed_seconds": 78.99,
+      "pitch_median_hz": 243.68,
+      "duration": 19.346791666666668
+    },
+    {
+      "index": 3,
+      "chars": 68,
+      "file": "scene-4.wav",
+      "batch_id": "fc57fd4d9421",
+      "batch_size": 4,
+      "elapsed_seconds": 78.99,
+      "pitch_median_hz": 240.88,
+      "duration": 16.32
+    }
+  ]
+}

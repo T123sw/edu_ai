@@ -1,0 +1,221 @@
+{
+  "course": "learn-4abecf6908d242b5bbed483aff8a17de",
+  "nodes": [
+    {
+      "node_id": "n1-idea-and-rules",
+      "title": "冒泡排序的排序思想与相邻交换规则",
+      "status": "succeeded",
+      "request": {
+        "request_id": "42e86f4f-8788-495f-a1ac-63b14b20ed05",
+        "operation": "supplement_node",
+        "goal": "为当前冒泡排序课程的「冒泡排序的排序思想与相邻交换规则」知识点补齐独立报告和配套习题。沿用本节点既有学习目标、语言和基础，报告讲清知识并给出例子，习题用于检验这些目标且包含答案和解析。保留原学习路径、节点目标和全部已有资料，只补齐缺失的报告和习题，不重新生成视频。",
+        "target": {
+          "course_id": "learn-4abecf6908d242b5bbed483aff8a17de",
+          "node_id": "n1-idea-and-rules",
+          "base_manifest_version": 7
+        },
+        "overrides": {
+          "include_classroom": false,
+          "required_resource_types": [
+            "report",
+            "quiz"
+          ]
+        }
+      },
+      "preparation_id": "prep_3966d907a24c455db778c0abadcd0626",
+      "stage": "commit",
+      "result_ref": {
+        "course_id": "learn-4abecf6908d242b5bbed483aff8a17de",
+        "manifest_id": "manifest_924a965c1346b2f232c0842ec594a287",
+        "course_ready": true,
+        "manifest_version": 8
+      },
+      "error_code": null
+    },
+    {
+      "node_id": "n2-trace-and-early-exit",
+      "title": "手工追踪完整排序过程与提前结束条件",
+      "status": "succeeded",
+      "request": {
+        "request_id": "31325deb-d3b8-48ab-86ca-eeb3dacff70c",
+        "operation": "supplement_node",
+        "goal": "为当前冒泡排序课程的「手工追踪完整排序过程与提前结束条件」知识点补齐独立报告和配套习题。沿用本节点既有学习目标、语言和基础，报告讲清知识并给出例子，习题用于检验这些目标且包含答案和解析。保留原学习路径、节点目标和全部已有资料，只补齐缺失的报告和习题，不重新生成视频。",
+        "target": {
+          "course_id": "learn-4abecf6908d242b5bbed483aff8a17de",
+          "node_id": "n2-trace-and-early-exit",
+          "base_manifest_version": 8
+        },
+        "overrides": {
+          "include_classroom": false,
+          "required_resource_types": [
+            "report",
+            "quiz"
+          ]
+        }
+      },
+      "preparation_id": "prep_0bce924f6fd9446bac457a86d03e05b6",
+      "stage": "commit",
+      "result_ref": {
+        "course_id": "learn-4abecf6908d242b5bbed483aff8a17de",
+        "manifest_id": "manifest_924a965c1346b2f232c0842ec594a287",
+        "course_ready": true,
+        "manifest_version": 9
+      },
+      "error_code": null
+    },
+    {
+      "node_id": "n3-implementation",
+      "title": "读懂并写出带标志位的冒泡排序实现",
+      "status": "succeeded",
+      "request": {
+        "request_id": "a0bb35ab-8653-4254-bc87-3f28f0f929f2",
+        "operation": "supplement_node",
+        "goal": "为当前冒泡排序课程的「读懂并写出带标志位的冒泡排序实现」知识点补齐独立报告和配套习题。沿用本节点既有学习目标、语言和基础，报告讲清知识并给出例子，习题用于检验这些目标且包含答案和解析。保留原学习路径、节点目标和全部已有资料，只补齐缺失的报告和习题，不重新生成视频。",
+        "target": {
+          "course_id": "learn-4abecf6908d242b5bbed483aff8a17de",
+          "node_id": "n3-implementation",
+          "base_manifest_version": 9
+        },
+        "overrides": {
+          "include_classroom": false,
+          "required_resource_types": [
+            "report",
+            "quiz"
+          ]
+        }
+      },
+      "preparation_id": "prep_23c0a1f3160d4c45843f9264c6efc8e8",
+      "stage": "commit",
+      "result_ref": {
+        "course_id": "learn-4abecf6908d242b5bbed483aff8a17de",
+        "manifest_id": "manifest_924a965c1346b2f232c0842ec594a287",
+        "course_ready": true,
+        "manifest_version": 10
+      },
+      "error_code": null
+    },
+    {
+      "node_id": "n4-correctness-complexity",
+      "title": "正确性依据、复杂度与稳定性",
+      "status": "succeeded",
+      "request": {
+        "request_id": "4335406c-c962-495d-840b-abac2e2719e9",
+        "operation": "supplement_node",
+        "goal": "为当前冒泡排序课程的「正确性依据、复杂度与稳定性」知识点补齐独立报告和配套习题。沿用本节点既有学习目标、语言和基础，报告讲清知识并给出例子，习题用于检验这些目标且包含答案和解析。保留原学习路径、节点目标和全部已有资料，只补齐缺失的报告和习题，不重新生成视频。",
+        "target": {
+          "course_id": "learn-4abecf6908d242b5bbed483aff8a17de",
+          "node_id": "n4-correctness-complexity",
+          "base_manifest_version": 10
+        },
+        "overrides": {
+          "include_classroom": false,
+          "required_resource_types": [
+            "report",
+            "quiz"
+          ]
+        }
+      },
+      "preparation_id": "prep_1f1f41057c80403ab9a3c478d73ff680",
+      "stage": "commit",
+      "result_ref": {
+        "course_id": "learn-4abecf6908d242b5bbed483aff8a17de",
+        "manifest_id": "manifest_924a965c1346b2f232c0842ec594a287",
+        "course_ready": true,
+        "manifest_version": 11
+      },
+      "error_code": null
+    }
+  ],
+  "status": "succeeded",
+  "originalVideos": [
+    {
+      "id": "resource_a24c275bf74ec4d9c1b5a08456375920",
+      "title": "冒泡排序的排序思想与相邻交换规则",
+      "topic": "冒泡排序的排序思想与相邻交换规则",
+      "kind": "video",
+      "ready": true,
+      "minutes": 1.1588888833333333,
+      "minutesBasis": "measured",
+      "createdAt": 1792390970770,
+      "courseId": "learn-4abecf6908d242b5bbed483aff8a17de",
+      "chapterId": "n1-idea-and-rules",
+      "version": 1,
+      "pinned": false,
+      "remote": {
+        "materialType": "classroom",
+        "materialId": "resource_a24c275bf74ec4d9c1b5a08456375920",
+        "courseId": "learn-4abecf6908d242b5bbed483aff8a17de",
+        "version": 1,
+        "visibility": "private"
+      }
+    },
+    {
+      "id": "resource_2af5634bedb6b112e47c33b0f945fcdc",
+      "title": "手工追踪完整排序过程与提前结束条件",
+      "topic": "手工追踪完整排序过程与提前结束条件",
+      "kind": "video",
+      "ready": true,
+      "minutes": 1.7,
+      "minutesBasis": "measured",
+      "createdAt": 1792391782906,
+      "courseId": "learn-4abecf6908d242b5bbed483aff8a17de",
+      "chapterId": "n2-trace-and-early-exit",
+      "version": 1,
+      "pinned": false,
+      "remote": {
+        "materialType": "classroom",
+        "materialId": "resource_2af5634bedb6b112e47c33b0f945fcdc",
+        "courseId": "learn-4abecf6908d242b5bbed483aff8a17de",
+        "version": 1,
+        "visibility": "private"
+      }
+    },
+    {
+      "id": "resource_253128949c9f539f09fee8e21e827215",
+      "title": "读懂并写出带标志位的冒泡排序实现",
+      "topic": "读懂并写出带标志位的冒泡排序实现",
+      "kind": "video",
+      "ready": true,
+      "minutes": 1.4655555500000002,
+      "minutesBasis": "measured",
+      "createdAt": 1792391712303,
+      "courseId": "learn-4abecf6908d242b5bbed483aff8a17de",
+      "chapterId": "n3-implementation",
+      "version": 1,
+      "pinned": false,
+      "remote": {
+        "materialType": "classroom",
+        "materialId": "resource_253128949c9f539f09fee8e21e827215",
+        "courseId": "learn-4abecf6908d242b5bbed483aff8a17de",
+        "version": 1,
+        "visibility": "private"
+      }
+    },
+    {
+      "id": "resource_047b87bf19f1720d6baa0e0e5af5cd00",
+      "title": "正确性依据、复杂度与稳定性",
+      "topic": "正确性依据、复杂度与稳定性",
+      "kind": "video",
+      "ready": true,
+      "minutes": 1.43055555,
+      "minutesBasis": "measured",
+      "createdAt": 1792391216096,
+      "courseId": "learn-4abecf6908d242b5bbed483aff8a17de",
+      "chapterId": "n4-correctness-complexity",
+      "version": 1,
+      "pinned": false,
+      "remote": {
+        "materialType": "classroom",
+        "materialId": "resource_047b87bf19f1720d6baa0e0e5af5cd00",
+        "courseId": "learn-4abecf6908d242b5bbed483aff8a17de",
+        "version": 1,
+        "visibility": "private"
+      }
+    }
+  ],
+  "videoIdentitiesPreserved": true,
+  "manifestRef": {
+    "manifest_id": "manifest_924a965c1346b2f232c0842ec594a287",
+    "version": 11
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "seconds": 24.21,
+  "stages": [
+    {
+      "progress": 10,
+      "step": "planning_visuals",
+      "seconds": 0.0
+    },
+    {
+      "progress": 25,
+      "step": "retrieving_visuals",
+      "seconds": 9.79
+    },
+    {
+      "progress": 55,
+      "step": "writing",
+      "seconds": 11.04
+    },
+    {
+      "progress": 90,
+      "step": "saving",
+      "seconds": 24.17
+    }
+  ],
+  "characters": 5518,
+  "visuals": {
+    "requested": true,
+    "selected_count": 2,
+    "candidate_count": 36,
+    "error": null
+  },
+  "storage": "/tmp/edu-report-fixed-7i7cko8c",
+  "original_job": "studio_8bd56d08e64357ca2150d4b2d19d",
+  "production_user_data_modified": false
+}

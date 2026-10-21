@@ -1,0 +1,27 @@
+{
+  "real_course": true,
+  "real_tts": true,
+  "api_responses_mocked": false,
+  "new_narration_endpoint": "isolated process, production data read-only",
+  "playing": [
+    {
+      "duration": 4.128,
+      "currentTime": 0.619461,
+      "paused": false,
+      "muted": false,
+      "volume": 1
+    }
+  ],
+  "paused": true,
+  "nextPage": "2 / 6",
+  "browser_speech_calls": 0,
+  "errors": [],
+  "requests": [
+    {
+      "path": "/backend/api/self-learning/courses/learn-f13e2b0434204729a7835fff8298595e/materials/classroom/resource_e430b696a7531691d58c5f10fb281c5c/versions/1/narration/scene_8JGzyL4jWq/action_l_VfCr3I",
+      "status": 200,
+      "bytes": 66092,
+      "seconds": 9.29
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "status": "comparison_complete",
+  "local_model": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+  "local_voice": "vivian",
+  "cloud_model": "qwen-audio-3.1-tts-flash",
+  "cloud_voice": "longanhuan_v3.1",
+  "same_inputs_chars": [
+    237,
+    207
+  ],
+  "local_batch_size": 2,
+  "cloud_concurrent_requests": 2,
+  "local_load_seconds": 3.077891674824059,
+  "local_generation_seconds": {
+    "A_official": 134.14425340667367,
+    "B_official_with_instruction": 120.65142356976867,
+    "C_current_raw": 130.66479121893644
+  },
+  "cloud_batch_seconds": 6.802100922912359,
+  "postprocess_seconds": 8.281551530119032,
+  "findings": [
+    "Serving model loads once and stays on GPU; no per-request reload.",
+    "Default sampling still shows different median pitch across these two paragraphs.",
+    "Current sampling yields closer pitch medians on this pair, so this run does not establish that custom sampling causes timbre drift.",
+    "Pitch processing shifts both current samples about 2.5 semitones; perceptual effect remains for listening.",
+    "Local default inference remains much slower than remote for the same text."
+  ],
+  "limits": [
+    "One batch per condition, two full chapters from an earlier real podcast.",
+    "No manual listening, ASR, or speaker-similarity evaluation. Pitch is not timbre.",
+    "Cloud has a different model and voice; this is not an isolated model-size comparison.",
+    "Official and custom sampling consume randomness differently.",
+    "No new inference backend benchmark; FlashAttention 2 is absent, SDPA is active."
+  ],
+  "sources": [
+    "https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice/raw/main/generation_config.json",
+    "https://github.com/QwenLM/Qwen3-TTS/blob/main/README.md",
+    "https://github.com/QwenLM/Qwen3-TTS/blob/main/qwen_tts/inference/qwen3_tts_model.py"
+  ],
+  "production_changed": false
+}

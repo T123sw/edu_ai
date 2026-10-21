@@ -1,0 +1,760 @@
+{
+  "lint": {
+    "ok": true,
+    "findings": [
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "composition_file_too_large",
+        "time": 0,
+        "fixHint": "Split coherent scenes or layers into separate .html files under compositions/, then mount them from the parent with data-composition-src so each file stays small enough to inspect, revise, and validate independently.",
+        "message": "This HTML composition file has 460 lines. Smaller sub-compositions are easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "timeline_track_too_dense",
+        "time": 0,
+        "fixHint": "Move coherent scene groups into separate .html files under compositions/ and mount them from the parent with data-composition-src so the timeline stays easier to inspect, revise, and validate.",
+        "message": "Track 0 has 7 timed elements in this HTML file. Smaller sub-compositions keep timelines easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-intro\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"scene-intro\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-intro",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-yint\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"scene-yint\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-yint",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-translate\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"scene-translate\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-translate",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-slope\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"scene-slope\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-slope",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-mis\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"scene-mis\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-mis",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-practice\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"scene-practice\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-practice",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "nested_structure_needs_subcomposition",
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-summary\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+        "message": "<section id=\"scene-summary\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-summary",
+        "severity": "warning",
+        "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "duplicate_audio_track",
+        "time": 0,
+        "fixHint": "Use non-overlapping time windows or different track indices.",
+        "message": "Multiple audible <audio>/<video> elements on track 5 overlap (assets/seg_y_intercept.mp3 at 27.504-64.0s, assets/seg_translate.mp3 at 63.96-103.4s). This causes layered audio playback.",
+        "selector": "[data-composition-id]",
+        "severity": "warning",
+        "sourceFile": "index.html",
+        "dataAttributes": {}
+      },
+      {
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "code": "duplicate_audio_track",
+        "time": 0,
+        "fixHint": "Use non-overlapping time windows or different track indices.",
+        "message": "Multiple audible <audio>/<video> elements on track 5 overlap (assets/seg_misconception.mp3 at 133.752-153.5s, assets/seg_practice.mp3 at 153.48-215.6s). This causes layered audio playback.",
+        "selector": "[data-composition-id]",
+        "severity": "warning",
+        "sourceFile": "index.html",
+        "dataAttributes": {}
+      }
+    ],
+    "infoCount": 0,
+    "errorCount": 0,
+    "filesScanned": 1,
+    "warningCount": 11
+  },
+  "check": {
+    "ok": false,
+    "hdr": {
+      "inspection": "available",
+      "autoPromotion": null
+    },
+    "lint": {
+      "ok": true,
+      "findings": [
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "composition_file_too_large",
+          "time": 0,
+          "fixHint": "Split coherent scenes or layers into separate .html files under compositions/, then mount them from the parent with data-composition-src so each file stays small enough to inspect, revise, and validate independently.",
+          "message": "This HTML composition file has 460 lines. Smaller sub-compositions are easier to read, iterate on, and diff.",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "timeline_track_too_dense",
+          "time": 0,
+          "fixHint": "Move coherent scene groups into separate .html files under compositions/ and mount them from the parent with data-composition-src so the timeline stays easier to inspect, revise, and validate.",
+          "message": "Track 0 has 7 timed elements in this HTML file. Smaller sub-compositions keep timelines easier to read, iterate on, and diff.",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"scene-intro\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"scene-intro\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#scene-intro",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"scene-yint\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"scene-yint\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#scene-yint",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"scene-translate\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"scene-translate\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#scene-translate",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"scene-slope\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"scene-slope\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#scene-slope",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"scene-mis\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"scene-mis\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#scene-mis",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"scene-practice\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"scene-practice\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#scene-practice",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "nested_structure_needs_subcomposition",
+          "time": 0,
+          "fixHint": "Move <section id=\"scene-summary\"> and its contents into a sub-composition file and mount it with data-composition-src.",
+          "message": "<section id=\"scene-summary\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+          "selector": "#scene-summary",
+          "severity": "warning",
+          "sourceFile": "/tmp/edu-hyperframes-s75b88tz/index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "duplicate_audio_track",
+          "time": 0,
+          "fixHint": "Use non-overlapping time windows or different track indices.",
+          "message": "Multiple audible <audio>/<video> elements on track 5 overlap (assets/seg_y_intercept.mp3 at 27.504-64.0s, assets/seg_translate.mp3 at 63.96-103.4s). This causes layered audio playback.",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {}
+        },
+        {
+          "bbox": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0
+          },
+          "code": "duplicate_audio_track",
+          "time": 0,
+          "fixHint": "Use non-overlapping time windows or different track indices.",
+          "message": "Multiple audible <audio>/<video> elements on track 5 overlap (assets/seg_misconception.mp3 at 133.752-153.5s, assets/seg_practice.mp3 at 153.48-215.6s). This causes layered audio playback.",
+          "selector": "[data-composition-id]",
+          "severity": "warning",
+          "sourceFile": "index.html",
+          "dataAttributes": {}
+        }
+      ],
+      "infoCount": 0,
+      "errorCount": 0,
+      "filesScanned": 1,
+      "warningCount": 11
+    },
+    "_meta": {
+      "version": "0.8.168",
+      "updateAvailable": false
+    },
+    "saved": {
+      "id": "9d5bc2e1-c6d6-42a9-9924-388a19a9736d",
+      "report": "/tmp/edu-hyperframes-s75b88tz/.hyperframes/artifacts/checks/9d5bc2e1-c6d6-42a9-9924-388a19a9736d.json",
+      "revision": "e5374991-9cba-419a-a8da-a0f8252e5aa4",
+      "attribution": "recorded-revision"
+    },
+    "layout": {
+      "ok": false,
+      "samples": [
+        13.301,
+        39.904,
+        66.507,
+        93.109,
+        119.712,
+        146.315,
+        172.917,
+        199.52,
+        226.123
+      ],
+      "duration": 239.424,
+      "findings": [
+        {
+          "bbox": {
+            "x": 582,
+            "y": 463,
+            "width": 14,
+            "height": 25
+          },
+          "code": "content_overlap",
+          "rect": {
+            "top": 463,
+            "left": 582,
+            "right": 596,
+            "width": 14,
+            "bottom": 488,
+            "height": 25
+          },
+          "text": "2",
+          "time": 70.891,
+          "times": [
+            70.891,
+            71.391,
+            72.228,
+            73.566,
+            74.904,
+            76.241,
+            77.579
+          ],
+          "heldMs": 1336.999999999989,
+          "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+          "message": "Two text blocks overlap and may render unreadable.",
+          "lastSeen": 77.579,
+          "selector": "#tr-svg > text:nth-of-type(4)",
+          "severity": "error",
+          "firstSeen": 70.891,
+          "sourceFile": "index.html",
+          "occurrences": 7,
+          "dataAttributes": {},
+          "containerSelector": "#tr-arrow-up > text:nth-of-type(1)"
+        },
+        {
+          "bbox": {
+            "x": 656,
+            "y": 541,
+            "width": 14,
+            "height": 25
+          },
+          "code": "content_overlap",
+          "rect": {
+            "top": 541,
+            "left": 656,
+            "right": 670,
+            "width": 14,
+            "bottom": 566,
+            "height": 25
+          },
+          "text": "1",
+          "time": 119.712,
+          "times": [
+            109.68,
+            110.18,
+            111.018,
+            112.355,
+            113.693,
+            115.031,
+            116.368,
+            117.706,
+            119.043,
+            119.712,
+            120.381,
+            121.718,
+            123.056,
+            124.393,
+            125.731,
+            127.069,
+            128.406,
+            129.744,
+            131.081,
+            132.419,
+            133.756
+          ],
+          "heldMs": 1337.9999999999939,
+          "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+          "message": "Two text blocks overlap and may render unreadable.",
+          "lastSeen": 133.756,
+          "selector": "#sl-tri-0 > text:nth-of-type(1)",
+          "severity": "error",
+          "firstSeen": 109.68,
+          "sourceFile": "index.html",
+          "occurrences": 21,
+          "dataAttributes": {},
+          "containerSelector": "#sl-tri-m2 > text:nth-of-type(2)"
+        },
+        {
+          "bbox": {
+            "x": 656,
+            "y": 431,
+            "width": 14,
+            "height": 25
+          },
+          "code": "content_overlap",
+          "rect": {
+            "top": 431,
+            "left": 656,
+            "right": 670,
+            "width": 14,
+            "bottom": 456,
+            "height": 25
+          },
+          "text": "2",
+          "time": 119.712,
+          "times": [
+            108.343,
+            108.843,
+            109.68,
+            110.18,
+            111.018,
+            112.355,
+            113.693,
+            115.031,
+            116.368,
+            117.706,
+            119.043,
+            119.712,
+            120.381,
+            121.718,
+            123.056,
+            124.393,
+            125.731,
+            127.069,
+            128.406,
+            129.744,
+            131.081,
+            132.419,
+            133.756
+          ],
+          "heldMs": 2674.9999999999973,
+          "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+          "message": "Two text blocks overlap and may render unreadable.",
+          "lastSeen": 133.756,
+          "selector": "#sl-tri-0 > text:nth-of-type(2)",
+          "severity": "error",
+          "firstSeen": 108.343,
+          "sourceFile": "index.html",
+          "occurrences": 23,
+          "dataAttributes": {},
+          "containerSelector": "#sl-tri-2 > text:nth-of-type(1)"
+        }
+      ],
+      "infoCount": 0,
+      "tolerance": 2,
+      "truncated": false,
+      "errorCount": 3,
+      "warningCount": 0,
+      "totalIssueCount": 3,
+      "transitionSamples": [],
+      "transitionSamplesDropped": 0
+    },
+    "motion": {
+      "ok": true,
+      "enabled": true,
+      "samples": 300,
+      "findings": [],
+      "specPath": "/tmp/edu-hyperframes-s75b88tz/index.motion.json",
+      "infoCount": 0,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    "strict": false,
+    "runtime": {
+      "ok": true,
+      "findings": [],
+      "infoCount": 0,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    "contrast": {
+      "ok": true,
+      "passed": 61,
+      "checked": 61,
+      "enabled": true,
+      "samples": [
+        13.301,
+        66.507,
+        119.712,
+        172.917,
+        226.123
+      ],
+      "findings": [],
+      "infoCount": 0,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    "snapshots": {
+      "files": [],
+      "times": [],
+      "enabled": false,
+      "findingFiles": []
+    },
+    "browserSkipped": false
+  },
+  "issues": [
+    {
+      "bbox": {
+        "x": 582,
+        "y": 463,
+        "width": 14,
+        "height": 25
+      },
+      "code": "content_overlap",
+      "rect": {
+        "top": 463,
+        "left": 582,
+        "right": 596,
+        "width": 14,
+        "bottom": 488,
+        "height": 25
+      },
+      "text": "2",
+      "time": 70.891,
+      "times": [
+        70.891,
+        71.391,
+        72.228,
+        73.566,
+        74.904,
+        76.241,
+        77.579
+      ],
+      "heldMs": 1336.999999999989,
+      "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+      "message": "Two text blocks overlap and may render unreadable.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 77.579,
+      "selector": "#tr-svg > text:nth-of-type(4)",
+      "severity": "error",
+      "firstSeen": 70.891,
+      "sourceFile": "index.html",
+      "occurrences": 7,
+      "dataAttributes": {},
+      "containerSelector": "#tr-arrow-up > text:nth-of-type(1)"
+    },
+    {
+      "bbox": {
+        "x": 656,
+        "y": 541,
+        "width": 14,
+        "height": 25
+      },
+      "code": "content_overlap",
+      "rect": {
+        "top": 541,
+        "left": 656,
+        "right": 670,
+        "width": 14,
+        "bottom": 566,
+        "height": 25
+      },
+      "text": "1",
+      "time": 119.712,
+      "times": [
+        109.68,
+        110.18,
+        111.018,
+        112.355,
+        113.693,
+        115.031,
+        116.368,
+        117.706,
+        119.043,
+        119.712,
+        120.381,
+        121.718,
+        123.056,
+        124.393,
+        125.731,
+        127.069,
+        128.406,
+        129.744,
+        131.081,
+        132.419,
+        133.756
+      ],
+      "heldMs": 1337.9999999999939,
+      "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+      "message": "Two text blocks overlap and may render unreadable.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 133.756,
+      "selector": "#sl-tri-0 > text:nth-of-type(1)",
+      "severity": "error",
+      "firstSeen": 109.68,
+      "sourceFile": "index.html",
+      "occurrences": 21,
+      "dataAttributes": {},
+      "containerSelector": "#sl-tri-m2 > text:nth-of-type(2)"
+    },
+    {
+      "bbox": {
+        "x": 656,
+        "y": 431,
+        "width": 14,
+        "height": 25
+      },
+      "code": "content_overlap",
+      "rect": {
+        "top": 431,
+        "left": 656,
+        "right": 670,
+        "width": 14,
+        "bottom": 456,
+        "height": 25
+      },
+      "text": "2",
+      "time": 119.712,
+      "times": [
+        108.343,
+        108.843,
+        109.68,
+        110.18,
+        111.018,
+        112.355,
+        113.693,
+        115.031,
+        116.368,
+        117.706,
+        119.043,
+        119.712,
+        120.381,
+        121.718,
+        123.056,
+        124.393,
+        125.731,
+        127.069,
+        128.406,
+        129.744,
+        131.081,
+        132.419,
+        133.756
+      ],
+      "heldMs": 2674.9999999999973,
+      "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+      "message": "Two text blocks overlap and may render unreadable.",
+      "section": "layout",
+      "blocking": false,
+      "lastSeen": 133.756,
+      "selector": "#sl-tri-0 > text:nth-of-type(2)",
+      "severity": "error",
+      "firstSeen": 108.343,
+      "sourceFile": "index.html",
+      "occurrences": 23,
+      "dataAttributes": {},
+      "containerSelector": "#sl-tri-2 > text:nth-of-type(1)"
+    }
+  ],
+  "passed": true,
+  "policy": "playback-first"
+}

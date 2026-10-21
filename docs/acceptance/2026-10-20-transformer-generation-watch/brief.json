@@ -1,0 +1,43 @@
+{
+  "depth": "introductory",
+  "topic": "Transformer 模型",
+  "audience": "希望系统学习 Transformer 的初学者（具体背景未知）",
+  "language": "中文",
+  "exclusions": [],
+  "node_count": null,
+  "assumptions": [
+    "用户未给出总学习时长，默认按 60 分钟安排",
+    "用户未指定材料语言，按提问语言推断为中文",
+    "用户未说明已有基础，按入门深度组织内容"
+  ],
+  "requirements": [
+    {
+      "text": "讲授 Transformer 的基本原理与整体结构，包括编码器-解码器、自注意力、位置编码与前馈网络等核心组成",
+      "source_ref": null,
+      "source_quote": "我想学习transformer",
+      "requirement_id": "req-transformer-basics",
+      "source_document_id": null
+    }
+  ],
+  "learning_goal": "系统学习 Transformer 的基本原理与结构，理解其核心机制与工作方式",
+  "material_gaps": [
+    "用户未提供任何附件资料，Transformer 的原理、结构与机制说明需由研究阶段检索补充"
+  ],
+  "source_policy": {
+    "mode": "open"
+  },
+  "total_minutes": 60,
+  "prior_knowledge": "未知",
+  "desired_outcomes": [
+    "能说明 Transformer 的整体结构与数据流",
+    "能解释自注意力等核心机制的作用与计算思路",
+    "能判断 Transformer 相对循环网络的取舍"
+  ],
+  "node_count_quote": null,
+  "source_policy_quote": null,
+  "required_resource_types": [
+    "report",
+    "quiz",
+    "classroom"
+  ]
+}

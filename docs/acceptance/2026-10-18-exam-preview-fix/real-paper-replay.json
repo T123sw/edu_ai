@@ -1,0 +1,81 @@
+{
+  "boundary": "Three existing generated papers from the Kentucky PDF, no fresh upload or model calls",
+  "papers": 3,
+  "parents": 12,
+  "children": 51,
+  "reducedParents": 8,
+  "results": [
+    {
+      "generation_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "before": 501,
+      "after": 7,
+      "children": 4
+    },
+    {
+      "generation_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "before": 599,
+      "after": 599,
+      "children": 4
+    },
+    {
+      "generation_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "before": 650,
+      "after": 422,
+      "children": 5
+    },
+    {
+      "generation_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "before": 589,
+      "after": 190,
+      "children": 4
+    },
+    {
+      "generation_id": "examgen_f3da64103fac8f78318f586b71fa152c",
+      "before": 158,
+      "after": 158,
+      "children": 4
+    },
+    {
+      "generation_id": "examgen_f3da64103fac8f78318f586b71fa152c",
+      "before": 540,
+      "after": 184,
+      "children": 4
+    },
+    {
+      "generation_id": "examgen_f3da64103fac8f78318f586b71fa152c",
+      "before": 402,
+      "after": 402,
+      "children": 5
+    },
+    {
+      "generation_id": "examgen_f3da64103fac8f78318f586b71fa152c",
+      "before": 581,
+      "after": 33,
+      "children": 4
+    },
+    {
+      "generation_id": "examgen_53be1b2e50bfc226d1dc76ee6008801e",
+      "before": 546,
+      "after": 401,
+      "children": 4
+    },
+    {
+      "generation_id": "examgen_53be1b2e50bfc226d1dc76ee6008801e",
+      "before": 351,
+      "after": 19,
+      "children": 4
+    },
+    {
+      "generation_id": "examgen_53be1b2e50bfc226d1dc76ee6008801e",
+      "before": 57,
+      "after": 57,
+      "children": 5
+    },
+    {
+      "generation_id": "examgen_53be1b2e50bfc226d1dc76ee6008801e",
+      "before": 539,
+      "after": 37,
+      "children": 4
+    }
+  ]
+}

@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 test('ask second question preserves location and citation opens the same question', async ({ page }) => {
   await page.goto('/#/classroom/learning-fixture?resource=a-quiz');
   const frame = page.frameLocator('iframe.sl-live-material');
-  await frame.getByRole('button', { name: '询问第 2 题' }).click();
+  await frame.locator('[data-quiz-question="1"]').getByRole('button', { name: '讲解', exact: true }).click();
   const composer = page.getByRole('textbox', { name: '向学习 Agent 提问' });
   await expect(composer).toBeFocused();
   await composer.fill('慢回答：解释这道乘法题');
@@ -16,7 +16,7 @@ test('ask second question preserves location and citation opens the same questio
   const snapshot = (await sending).postDataJSON().reading_context;
   expect(snapshot.locator).toEqual({ kind: 'quiz', question_index: 1 });
   expect(snapshot.selected_text).toContain('第二题乘法');
-  await frame.getByRole('button', { name: '询问第 1 题' }).click();
+  await frame.locator('[data-quiz-question="0"]').getByRole('button', { name: '讲解', exact: true }).click();
   const citation = page.getByRole('link', { name: /来源：定位练习/ }).last();
   await expect(citation).toHaveAttribute('href', /question_index=1/);
   const popupPromise = page.waitForEvent('popup');

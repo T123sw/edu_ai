@@ -1,0 +1,12 @@
+{
+  "published_at_utc": "2026-10-13T19:15:35.737402+00:00",
+  "frontend_root": "/home/zxqs_ep/Edu_AI/frontend/dist",
+  "backup": "/home/zxqs_ep/preparation-validation-before-generation-20261013/frontend-before-readable-errors",
+  "previous_index_sha256": "01cef94a86557eedc5938a107d11e18f1c7c3e0af82a4fcd8ecb21a806c528f7",
+  "new_index_sha256": "6676468dde6bd8bcbb608a8204df17331baaa4581136e6e9513e2802b5fb74fc",
+  "copied_files": 60,
+  "old_hashed_assets_retained": true,
+  "backend_restart": "pending administrator restart; prior systemctl restart required interactive authentication",
+  "backend_current_pid": 3317359,
+  "backend_current_fixes_loaded": false
+}

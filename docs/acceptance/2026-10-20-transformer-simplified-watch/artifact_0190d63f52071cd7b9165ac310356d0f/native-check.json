@@ -1,0 +1,1089 @@
+{
+  "ok": false,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 13
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": false,
+    "errorCount": 5,
+    "warningCount": 0,
+    "infoCount": 20,
+    "findings": [
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 82.427,
+        "selector": "#f04-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 804.18,
+          "top": 240,
+          "right": 1897.64,
+          "bottom": 628,
+          "width": 1093.45,
+          "height": 388
+        },
+        "text": "自注意力",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f04-mha.html",
+        "bbox": {
+          "x": 804.18,
+          "y": 240,
+          "width": 1093.45,
+          "height": 388
+        },
+        "firstSeen": 82.427,
+        "lastSeen": 82.427,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          82.427
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 115.397,
+        "selector": "#f05-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1325.64,
+          "top": 267,
+          "right": 1908.05,
+          "bottom": 673,
+          "width": 582.41,
+          "height": 406
+        },
+        "text": "残差",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f05-residual.html",
+        "bbox": {
+          "x": 1325.64,
+          "y": 267,
+          "width": 582.41,
+          "height": 406
+        },
+        "firstSeen": 115.397,
+        "lastSeen": 115.397,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          115.397
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 148.368,
+        "selector": "#f07-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1153.29,
+          "top": 324,
+          "right": 1835.68,
+          "bottom": 816,
+          "width": 682.39,
+          "height": 492
+        },
+        "text": "FFN",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f07-ffn.html",
+        "bbox": {
+          "x": 1153.29,
+          "y": 324,
+          "width": 682.39,
+          "height": 492
+        },
+        "firstSeen": 148.368,
+        "lastSeen": 148.368,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          148.368
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 181.339,
+        "selector": "#f08-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1155.56,
+          "top": 284,
+          "right": 1849.17,
+          "bottom": 776,
+          "width": 693.61,
+          "height": 492
+        },
+        "text": "对比",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f08-contrast.html",
+        "bbox": {
+          "x": 1155.56,
+          "y": 284,
+          "width": 693.61,
+          "height": 492
+        },
+        "firstSeen": 181.339,
+        "lastSeen": 181.339,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          181.339
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 214.309,
+        "selector": "#f09-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1130.95,
+          "top": -16,
+          "right": 1824.56,
+          "bottom": 476,
+          "width": 693.61,
+          "height": 492
+        },
+        "text": "顺序",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f09-flow.html",
+        "bbox": {
+          "x": 1130.95,
+          "y": -16,
+          "width": 693.61,
+          "height": 492
+        },
+        "firstSeen": 214.309,
+        "lastSeen": 214.309,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          214.309
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 16.485,
+        "selector": "#f02-ghost",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 532.05,
+          "top": 508,
+          "right": 1205.65,
+          "bottom": 971,
+          "width": 673.61,
+          "height": 463
+        },
+        "containerSelector": "#f02-card1",
+        "text": "N ×",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.22,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f02-stack.html",
+        "bbox": {
+          "x": 532.05,
+          "y": 508,
+          "width": 673.61,
+          "height": 463
+        },
+        "firstSeen": 16.485,
+        "lastSeen": 16.485,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          16.485
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 49.456,
+        "selector": "#f03-ghost",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 148.45,
+          "top": 551,
+          "right": 1451.47,
+          "bottom": 841,
+          "width": 1303.02,
+          "height": 290
+        },
+        "containerSelector": "#f03-row-out > div:nth-of-type(2)",
+        "text": "EMBEDDING",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.11,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f03-input.html",
+        "bbox": {
+          "x": 148.45,
+          "y": 551,
+          "width": 1303.02,
+          "height": 290
+        },
+        "firstSeen": 49.456,
+        "lastSeen": 49.456,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          49.456
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 82.427,
+        "selector": "#f04-ghost",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 804.18,
+          "top": 240,
+          "right": 1897.64,
+          "bottom": 628,
+          "width": 1093.45,
+          "height": 388
+        },
+        "containerSelector": "#f04-in-2",
+        "text": "自注意力",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.22,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f04-mha.html",
+        "bbox": {
+          "x": 804.18,
+          "y": 240,
+          "width": 1093.45,
+          "height": 388
+        },
+        "firstSeen": 82.427,
+        "lastSeen": 82.427,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          82.427
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 82.427,
+        "selector": "#f04-halo",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 250,
+          "top": -180,
+          "right": 1670,
+          "bottom": 840,
+          "width": 1420,
+          "height": 1020
+        },
+        "containerSelector": "#f04-bg",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "top": 180
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f04-mha.html",
+        "bbox": {
+          "x": 250,
+          "y": -180,
+          "width": 1420,
+          "height": 1020
+        },
+        "firstSeen": 82.427,
+        "lastSeen": 82.427,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          82.427
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 82.427,
+        "selector": "#f04-grid",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -119.27,
+          "top": -119.27,
+          "right": 2120.73,
+          "bottom": 1280.73,
+          "width": 2240,
+          "height": 1400
+        },
+        "containerSelector": "#f04-bg",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 119.27,
+          "right": 200.73,
+          "top": 119.27,
+          "bottom": 200.73
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f04-mha.html",
+        "bbox": {
+          "x": -119.27,
+          "y": -119.27,
+          "width": 2240,
+          "height": 1400
+        },
+        "firstSeen": 82.427,
+        "lastSeen": 82.427,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          82.427
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 115.397,
+        "selector": "#f05-halo",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 220,
+          "top": -200,
+          "right": 1700,
+          "bottom": 880,
+          "width": 1480,
+          "height": 1080
+        },
+        "containerSelector": "#f05-bg",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "top": 200
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f05-residual.html",
+        "bbox": {
+          "x": 220,
+          "y": -200,
+          "width": 1480,
+          "height": 1080
+        },
+        "firstSeen": 115.397,
+        "lastSeen": 115.397,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          115.397
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 115.397,
+        "selector": "#f05-grid",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -121.03,
+          "top": -121.03,
+          "right": 2118.97,
+          "bottom": 1278.97,
+          "width": 2240,
+          "height": 1400
+        },
+        "containerSelector": "#f05-bg",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 121.03,
+          "right": 198.97,
+          "top": 121.03,
+          "bottom": 198.97
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f05-residual.html",
+        "bbox": {
+          "x": -121.03,
+          "y": -121.03,
+          "width": 2240,
+          "height": 1400
+        },
+        "firstSeen": 115.397,
+        "lastSeen": 115.397,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          115.397
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 181.339,
+        "selector": "#f08-ghost",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 1155.56,
+          "top": 284,
+          "right": 1849.17,
+          "bottom": 776,
+          "width": 693.61,
+          "height": 492
+        },
+        "containerSelector": "#f08-card-right > div:nth-of-type(1) > div:nth-of-type(1)",
+        "text": "对比",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.89,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f08-contrast.html",
+        "bbox": {
+          "x": 1155.56,
+          "y": 284,
+          "width": 693.61,
+          "height": 492
+        },
+        "firstSeen": 181.339,
+        "lastSeen": 181.339,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          181.339
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 214.309,
+        "selector": "#f09-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 1130.95,
+          "top": -16,
+          "right": 1824.56,
+          "bottom": 476,
+          "width": 693.61,
+          "height": 492
+        },
+        "containerSelector": "#root",
+        "text": "顺序",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "top": 16
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f09-flow.html",
+        "bbox": {
+          "x": 1130.95,
+          "y": -16,
+          "width": 693.61,
+          "height": 492
+        },
+        "firstSeen": 214.309,
+        "lastSeen": 214.309,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          214.309
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 214.309,
+        "selector": "#f09-ghost",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 1130.95,
+          "top": -16,
+          "right": 1824.56,
+          "bottom": 476,
+          "width": 693.61,
+          "height": 492
+        },
+        "containerSelector": "#f09-norm",
+        "text": "顺序",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.07,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f09-flow.html",
+        "bbox": {
+          "x": 1130.95,
+          "y": -16,
+          "width": 693.61,
+          "height": 492
+        },
+        "firstSeen": 214.309,
+        "lastSeen": 214.309,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          214.309
+        ]
+      },
+      {
+        "code": "connector_orphan",
+        "severity": "info",
+        "time": 214.309,
+        "selector": "#f09-u1",
+        "message": "Connector shaft is visible while its endpoint #f01-open-title is not on stage.",
+        "rect": {
+          "left": 440,
+          "top": 410,
+          "right": 556,
+          "bottom": 410,
+          "width": 116,
+          "height": 0
+        },
+        "containerSelector": "svg.f09-wires",
+        "fixHint": "Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f09-flow.html",
+        "bbox": {
+          "x": 440,
+          "y": 410,
+          "width": 116,
+          "height": 0
+        },
+        "firstSeen": 214.309,
+        "lastSeen": 214.309,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          214.309
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 247.28,
+        "selector": "#f10-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 1430.77,
+          "top": 120,
+          "right": 1990.78,
+          "bottom": 598,
+          "width": 560.01,
+          "height": 478
+        },
+        "containerSelector": "#f10-bg",
+        "text": "N×",
+        "fixHint": "Text is 560px x 478px inside 1920px x 1080px and overflows by up to 71px; widen the container to at least ~1991px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 70.78
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f10-stackable.html",
+        "bbox": {
+          "x": 1430.77,
+          "y": 120,
+          "width": 560.01,
+          "height": 478
+        },
+        "firstSeen": 247.28,
+        "lastSeen": 247.28,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          247.28
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 247.28,
+        "selector": "#f10-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 1430.77,
+          "top": 120,
+          "right": 1990.78,
+          "bottom": 598,
+          "width": 560.01,
+          "height": 478
+        },
+        "containerSelector": "#root",
+        "text": "N×",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 70.78
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f10-stackable.html",
+        "bbox": {
+          "x": 1430.77,
+          "y": 120,
+          "width": 560.01,
+          "height": 478
+        },
+        "firstSeen": 247.28,
+        "lastSeen": 247.28,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          247.28
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 247.28,
+        "selector": "#f10-ghost",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 1430.77,
+          "top": 120,
+          "right": 1990.78,
+          "bottom": 598,
+          "width": 560.02,
+          "height": 478
+        },
+        "containerSelector": "#f10-box-top",
+        "text": "N×",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.15,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f10-stackable.html",
+        "bbox": {
+          "x": 1430.77,
+          "y": 120,
+          "width": 560.02,
+          "height": 478
+        },
+        "firstSeen": 247.28,
+        "lastSeen": 247.28,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          247.28
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 247.28,
+        "selector": "#f10-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 784.6,
+          "top": 33.6,
+          "right": 2035.4,
+          "bottom": 966.4,
+          "width": 1250.8,
+          "height": 932.8
+        },
+        "containerSelector": "#f10-bg",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 115.4
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f10-stackable.html",
+        "bbox": {
+          "x": 784.6,
+          "y": 33.6,
+          "width": 1250.8,
+          "height": 932.8
+        },
+        "firstSeen": 247.28,
+        "lastSeen": 247.28,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          247.28
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 280.251,
+        "selector": "#f11-ghost",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 878.55,
+          "top": 60,
+          "right": 1860.11,
+          "bottom": 407,
+          "width": 981.56,
+          "height": 347
+        },
+        "containerSelector": "#f11-cell1",
+        "text": "memory",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.11,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f11-memory.html",
+        "bbox": {
+          "x": 878.55,
+          "y": 60,
+          "width": 981.56,
+          "height": 347
+        },
+        "firstSeen": 280.251,
+        "lastSeen": 280.251,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          280.251
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 280.251,
+        "selector": "#f11-glow-top",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 32.5,
+          "top": -159,
+          "right": 1187.5,
+          "bottom": 639,
+          "width": 1155,
+          "height": 798
+        },
+        "containerSelector": "#f11-bg",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "top": 159
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f11-memory.html",
+        "bbox": {
+          "x": 32.5,
+          "y": -159,
+          "width": 1155,
+          "height": 798
+        },
+        "firstSeen": 280.251,
+        "lastSeen": 280.251,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          280.251
+        ]
+      },
+      {
+        "code": "connector_orphan",
+        "severity": "info",
+        "time": 280.251,
+        "selector": "#f11-arrow2",
+        "message": "Connector shaft is visible while its endpoint #f01-open-title is not on stage.",
+        "rect": {
+          "left": 280,
+          "top": 431,
+          "right": 443,
+          "bottom": 432,
+          "width": 163,
+          "height": 1
+        },
+        "containerSelector": "#f11-arrows",
+        "fixHint": "Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f11-memory.html",
+        "bbox": {
+          "x": 280,
+          "y": 431,
+          "width": 163,
+          "height": 1
+        },
+        "firstSeen": 280.251,
+        "lastSeen": 280.251,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          280.251
+        ]
+      },
+      {
+        "code": "connector_orphan",
+        "severity": "info",
+        "time": 280.251,
+        "selector": "#f11-arrow3",
+        "message": "Connector shaft is visible while its endpoint #f01-open-sub is not on stage.",
+        "rect": {
+          "left": 280,
+          "top": 516,
+          "right": 443,
+          "bottom": 523,
+          "width": 163,
+          "height": 7
+        },
+        "containerSelector": "#f11-arrows",
+        "fixHint": "Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f11-memory.html",
+        "bbox": {
+          "x": 280,
+          "y": 516,
+          "width": 163,
+          "height": 7
+        },
+        "firstSeen": 280.251,
+        "lastSeen": 280.251,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          280.251
+        ]
+      },
+      {
+        "code": "connector_orphan",
+        "severity": "info",
+        "time": 280.251,
+        "selector": "#f11-arrow4",
+        "message": "Connector shaft is visible while its endpoint #f03-ghost is not on stage.",
+        "rect": {
+          "left": 280,
+          "top": 600,
+          "right": 443,
+          "bottom": 615,
+          "width": 163,
+          "height": 15
+        },
+        "containerSelector": "#f11-arrows",
+        "fixHint": "Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f11-memory.html",
+        "bbox": {
+          "x": 280,
+          "y": 600,
+          "width": 163,
+          "height": 15
+        },
+        "firstSeen": 280.251,
+        "lastSeen": 280.251,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          280.251
+        ]
+      }
+    ],
+    "duration": 296.736,
+    "samples": [
+      16.485,
+      49.456,
+      82.427,
+      115.397,
+      148.368,
+      181.339,
+      214.309,
+      247.28,
+      280.251
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 25,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 3,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.09:1; WCAG AA requires 3:1.",
+        "text": "自注意力",
+        "fg": "rgb(24,38,59)",
+        "bg": "rgb(17,31,52)",
+        "ratio": 1.09,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(96,106,120)",
+        "large": true,
+        "selector": "#f04-ghost",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f04-mha.html",
+        "bbox": {
+          "x": 804.1847534179688,
+          "y": 300,
+          "width": 1093.453125,
+          "height": 268
+        },
+        "time": 82.427,
+        "times": [
+          82.427
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.08:1; WCAG AA requires 3:1.",
+        "text": "FFN",
+        "fg": "rgb(17,31,52)",
+        "bg": "rgb(15,23,42)",
+        "ratio": 1.08,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(92,101,116)",
+        "large": true,
+        "selector": "#f07-ghost",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f07-ffn.html",
+        "bbox": {
+          "x": 1153.28515625,
+          "y": 400,
+          "width": 682.390625,
+          "height": 340
+        },
+        "time": 148.368,
+        "times": [
+          148.368
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.08:1; WCAG AA requires 3:1.",
+        "text": "顺序",
+        "fg": "rgb(17,31,52)",
+        "bg": "rgb(15,23,42)",
+        "ratio": 1.08,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(92,101,116)",
+        "large": true,
+        "selector": "#f09-ghost",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f09-flow.html",
+        "bbox": {
+          "x": 1130.9512939453125,
+          "y": 60,
+          "width": 693.609375,
+          "height": 340
+        },
+        "time": 214.309,
+        "times": [
+          214.309
+        ]
+      }
+    ],
+    "enabled": true,
+    "samples": [
+      16.485,
+      82.427,
+      148.368,
+      214.309,
+      280.251
+    ],
+    "checked": 78,
+    "passed": 75
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "saved": {
+    "id": "6bc38400-94a9-4bee-88b3-3219531dd6de",
+    "revision": null,
+    "report": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/videos/transformer-encoder-structure/.hyperframes/artifacts/checks/6bc38400-94a9-4bee-88b3-3219531dd6de.json",
+    "attribution": "unversioned"
+  },
+  "_meta": {
+    "version": "0.8.168",
+    "updateAvailable": false
+  }
+}

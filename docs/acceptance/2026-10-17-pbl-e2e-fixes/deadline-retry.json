@@ -1,0 +1,11 @@
+{
+  "exerciseId": "pbl_30a7cbe3cae4183538dac3691a503e4b",
+  "initialFailure": "GENERATION_CANCELLED",
+  "retryPassed": true,
+  "modelCalls": 3,
+  "stepCount": 4,
+  "checkCount": 14,
+  "queueWindow": 1800,
+  "executionWindow": 1800,
+  "actualExecutionDeadlineSeconds": 1800.0
+}

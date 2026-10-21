@@ -1,0 +1,5 @@
+{
+  "verifiedAt": "2026-10-15T06:01:23.882431+00:00",
+  "livePreparationCreationTimestampMatchesDatabase": true,
+  "scope": "One existing task, authenticated GET and read-only SQL; no task execution or writes"
+}

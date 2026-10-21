@@ -1,0 +1,59 @@
+{
+  "status": "published-and-verified",
+  "at": "2026-10-19T05:36:43.759651+00:00",
+  "services": {
+    "edu-ai-backend.service": {
+      "MainPID": "2460324",
+      "ExecMainStartTimestamp": "Mon 2026-10-19 05:30:55 UTC",
+      "ActiveState": "active"
+    },
+    "edu-ai-durable-workers.service": {
+      "MainPID": "2463238",
+      "ExecMainStartTimestamp": "Mon 2026-10-19 05:34:29 UTC",
+      "ActiveState": "active"
+    },
+    "edu-ai-tts.service": {
+      "MainPID": "2450992",
+      "ExecMainStartTimestamp": "Mon 2026-10-19 05:22:06 UTC",
+      "ActiveState": "active"
+    }
+  },
+  "backend_health": {
+    "status": "ok",
+    "message": "service ready",
+    "knowledge_base_ready": true,
+    "document_count": 11249
+  },
+  "tts_stats": {
+    "batch_size": 1,
+    "cache_size": 256,
+    "cache_entries": 4,
+    "requests": 4,
+    "cache_hits": 0,
+    "batch_calls": 0,
+    "fallback_calls": 0,
+    "sentences": 4,
+    "audio_ms": 161840,
+    "infer_ms": 359487
+  },
+  "active_teacher_jobs": 0,
+  "tests": "127 passed in isolated storage; see isolated-tests.log",
+  "live_inputs_chars": [
+    407,
+    76,
+    195
+  ],
+  "podcast_seconds": 101.232,
+  "video_seconds": 46.466667,
+  "video_audio_seconds": [
+    "46.466667"
+  ],
+  "changes": [
+    "Removed narration transport hard-splitting and all silent local speech truncation",
+    "Whole chapters/scenes are each synthesized once; oversize input explicitly rejected at provider limit (1500 characters)",
+    "Length-based local long-form HTTP timeout; new/retried podcasts have separate 7200-second queue/execution windows",
+    "Versioned narration and native video audio caches to avoid reusing previous fragments"
+  ],
+  "scope": "Real two-chapter podcast renderer and original HyperFrames audio CLI, duration sync, native minimal MP4 render and decode. Whole request payload hashes match source text. No full AI course generation or ASR/word-by-word listening audit.",
+  "deployment_note": "Main backend was observed restarted after production file changes at 05:30:55 UTC. Supplemental worker explicitly restarted in this run after confirming idle. All source hashes unchanged after validation. Existing user media not overwritten."
+}

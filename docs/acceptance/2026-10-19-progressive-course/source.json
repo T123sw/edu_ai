@@ -1,0 +1,15 @@
+{
+  "baseSource": "/tmp/edu-pbl-scroll-fix-source",
+  "source": "/tmp/edu-progressive-course-source",
+  "files": {
+    "frontend/src/liveLearning/progressiveCourse.ts": "60cc5d97aaaa619930500e4b1b6c8797ad1336d6360e5349c32465aae29f84fe",
+    "frontend/src/liveLearning/LiveApp.tsx": "1036b313cf31259d27786003becdeb66093b71ceebcfc69d800d4dfeff64e7a1",
+    "frontend/src/liveLearning/learningState.ts": "f8f41f2c3eee12b779de3e3fc7fe79b8b483f7552038416cfddd334af437ce5f",
+    "frontend/src/liveLearning/preparationProgress.ts": "f32bfa341d52c209998243e5f0b223a74e903deba277878eada6b614ab221a11",
+    "frontend/src/liveLearning/PreparationProgress.tsx": "04eda873a8cec08f452e29a15537cd548dfb4224df6cda5f2be28a0dbc68d195",
+    "frontend/src/liveLearning/Preparation.tsx": "273b4c3046141b58f79eb9f11f88c7bc0ea33231ef9e474756353de7abff01cc",
+    "frontend/src/selfLearning/model.ts": "45095a0750ba7521176654662043da595495bc684bf68a53a31be5f7159a0c8d",
+    "frontend/src/selfLearning/Classroom.tsx": "8e48da44e45b3438817edc4cbdce9159e81b78cac832ee4c200dfa6fcda16a89",
+    "frontend/src/selfLearning/classroomEditorial.css": "677b43c7242702a8cd3fed2ec8757c946db37c3b279174c95c50b02fdc027392"
+  }
+}

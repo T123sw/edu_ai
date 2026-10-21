@@ -1,0 +1,41 @@
+{
+  "status": "frontend-published-backend-restart-required",
+  "publishedAt": "20261019T073341Z",
+  "source": "/tmp/edu-resource-slots-repair-source",
+  "release": "/tmp/edu-resource-slots-repair-release",
+  "backupIndex": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-resource-slots-20261019T073341Z/index.html",
+  "previousIndexSha256": "e7c8428e42308fc74ab91409cac9ceb08524b5cb8dad00599428896d2ee24e60",
+  "releaseIndexSha256": "1752bc64a3dea2427f45df81a9bb6a842d309e869b04257a9807efa36710500b",
+  "backendRestarted": false,
+  "backendRestartReason": "Interactive authentication required",
+  "verification": {
+    "contentContextRetrySuite": {
+      "passed": 75,
+      "skipped": 13
+    },
+    "finalManualRetrySuite": {
+      "passed": 9,
+      "skipped": 8
+    },
+    "roomProjectionSuite": {
+      "passed": 2,
+      "skipped": 2
+    },
+    "frontendUnitPassed": 7,
+    "browserPreviewPassed": 2,
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "scope": "Empty/partial preview fixture based on real metadata; no claim of regenerated resource success yet",
+    "browserOnlinePassed": 2
+  },
+  "nginxIndexVerified": true,
+  "recovery": {
+    "unit": "edu-resource-failure-recovery-20261019.service",
+    "status": "waiting_backend_restart",
+    "latest_course": "learn-a9c1d026075f47b3aaa7fbc0862a7692",
+    "available_before_retry": 10,
+    "planned": 12,
+    "preserve": "all existing ready resources; retry only failed report and quiz, plus old-course node supplement"
+  }
+}

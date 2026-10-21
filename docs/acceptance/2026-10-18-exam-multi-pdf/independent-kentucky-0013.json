@@ -1,0 +1,141 @@
+{
+  "generation_id": "examgen_999feff63616eb873d1cf26a5f446513",
+  "boundary": "Six selected numerical subquestions only; not a full semantic or novelty review.",
+  "passed": 6,
+  "failed": 0,
+  "checks": [
+    {
+      "parent": 2,
+      "child": 1,
+      "actual": [
+        [
+          2,
+          9,
+          null,
+          8,
+          5
+        ],
+        3,
+        2
+      ],
+      "claimed": [
+        [
+          2,
+          9,
+          null,
+          8,
+          5
+        ],
+        3,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "parent": 2,
+      "child": 2,
+      "actual": [
+        1,
+        2,
+        3,
+        7,
+        5,
+        8,
+        9
+      ],
+      "claimed": [
+        1,
+        2,
+        3,
+        7,
+        5,
+        8,
+        9
+      ],
+      "passed": true
+    },
+    {
+      "parent": 2,
+      "child": 3,
+      "actual": [
+        [
+          3,
+          2,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        2
+      ],
+      "claimed": [
+        [
+          3,
+          2,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        2
+      ],
+      "passed": true
+    },
+    {
+      "parent": 2,
+      "child": 4,
+      "actual": [
+        9,
+        7,
+        8,
+        5,
+        4,
+        2
+      ],
+      "claimed": [
+        9,
+        7,
+        8,
+        5,
+        4,
+        2
+      ],
+      "passed": true
+    },
+    {
+      "parent": 3,
+      "child": 5,
+      "actual": [
+        1,
+        2,
+        3,
+        4,
+        8,
+        7,
+        6,
+        9
+      ],
+      "claimed": [
+        1,
+        2,
+        3,
+        4,
+        8,
+        7,
+        6,
+        9
+      ],
+      "passed": true
+    },
+    {
+      "parent": 4,
+      "child": 3,
+      "actual": 9,
+      "claimed": 9,
+      "passed": true
+    }
+  ],
+  "manual_note": "Question 3a correctly states expected logarithmic BST cost, but its categorical wording that a random insertion tree will not degenerate into a chain is too strong; this is an expectation, not an absolute guarantee."
+}

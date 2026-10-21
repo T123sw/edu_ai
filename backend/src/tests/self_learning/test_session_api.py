@@ -67,7 +67,7 @@ def test_read_does_not_create_and_enter_is_stable(client, live_service):
     assert first['message_count'] == 1
     assert client.post(BASE + 'a/enter').json()['session_id'] == first['session_id']
     second = client.post(BASE + 'b/enter').json()
-    assert second['session_id'] != first['session_id']
+    assert second['session_id'] == first['session_id']
     assert client.post(BASE + 'a/enter', headers={'x-user': 'bob'}).json()['session_id'] != first['session_id']
     assert client.post(BASE + 'a/enter', headers={'x-user': 'outsider'}).status_code == 404
     assert client.post(BASE + 'absent/enter').status_code == 404
@@ -76,7 +76,7 @@ def test_read_does_not_create_and_enter_is_stable(client, live_service):
     assert client.post(BASE + 'a/enter').json()['session_id'] == first['session_id']
 
 
-def test_answer_persists_once_failure_recovers_and_context_isolated(client, live_service):
+def test_answer_persists_once_failure_recovers_and_context_shared(client, live_service):
     payload = {'question': '独有问题A', 'request_id': str(uuid4()), 'resource_id': 'pending:a'}
     assert client.post(BASE + 'a/turns', json=payload).status_code == 200
     assert client.post(BASE + 'a/turns', json=payload).status_code == 200
@@ -84,7 +84,7 @@ def test_answer_persists_once_failure_recovers_and_context_isolated(client, live
     assert client.post(BASE + 'a/turns', json={**payload, 'question': 'changed'}).status_code == 409
     assert len(client.get(BASE + 'a/session').json()['items']) == 3
     assert client.post(BASE + 'b/turns', json={**payload, 'request_id': str(uuid4()), 'resource_id': 'pending:b', 'question': '条件'}).status_code == 200
-    assert '独有问题A' not in json.dumps(live_service.test_model.calls[-1], ensure_ascii=False)
+    assert '独有问题A' in json.dumps(live_service.test_model.calls[-1], ensure_ascii=False)
     class Broken:
         def chat(self, *args, **kwargs):
             raise RuntimeError('failure')
@@ -92,10 +92,10 @@ def test_answer_persists_once_failure_recovers_and_context_isolated(client, live
     live_service.model_factory = lambda _: Broken()
     retry = {**payload, 'request_id': str(uuid4()), 'question': 'failed question'}
     assert client.post(BASE + 'a/turns', json=retry).status_code == 502
-    assert len(client.get(BASE + 'a/session').json()['items']) == 4
+    assert len(client.get(BASE + 'a/session').json()['items']) == 6
     live_service.model_factory = factory
     assert client.post(BASE + 'a/turns', json=retry).status_code == 200
-    assert len(client.get(BASE + 'a/session').json()['items']) == 5
+    assert len(client.get(BASE + 'a/session').json()['items']) == 7
     # Existing records never return to the file writer after cutover.
     assert live_service.session('course', 'a', 'alice')['turns'] == []
 

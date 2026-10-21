@@ -2,6 +2,7 @@
 import hashlib
 from pathlib import Path
 
+from app.services.tutoring_response_policy import TUTORING_RESPONSE_POLICY
 from .turn_contracts import AgentFailure
 
 
@@ -29,6 +30,7 @@ def load_teaching_skill(material_type):
             raise ValueError('empty teaching reference')
     except (OSError, UnicodeError, ValueError) as exc:
         raise AgentFailure('TEACHING_SKILL_UNAVAILABLE') from exc
+    reference += '\n\n' + TUTORING_RESPONSE_POLICY
     version = hashlib.sha256((source + '\n' + mode + '\n' + reference).encode()).hexdigest()
     return {
         'name': SKILL_NAME, 'version': version, 'mode': mode,

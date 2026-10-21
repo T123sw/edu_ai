@@ -1,0 +1,16 @@
+{
+  "source": "/tmp/edu-prep-pool-fix-cii1apv2",
+  "production_database_used": false,
+  "pool_capacity": 3,
+  "blocked_waiters_before_authorization": 2,
+  "checked_out_before_authorization": 3,
+  "holder": {
+    "status": "succeeded"
+  },
+  "waiters": [
+    "succeeded",
+    "succeeded"
+  ],
+  "seconds": 0.027752841357141733,
+  "checked_out_after": 0
+}

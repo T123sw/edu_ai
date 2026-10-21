@@ -1,0 +1,33 @@
+{
+  "status": "validated_awaiting_backend_restart",
+  "updated_at": "2026-10-19T10:58:24.273894+00:00",
+  "backend": {
+    "service": "edu-ai-backend.service",
+    "observed_pid": 2589661,
+    "new_generation_loaded": false,
+    "restart_blocker": "systemd: Interactive authentication required"
+  },
+  "supplemental_worker": {
+    "service": "edu-ai-durable-workers.service",
+    "observed_pid": 2588978,
+    "new_generation_loaded": false
+  },
+  "frontend": {
+    "published": false,
+    "source": "/tmp/edu-hyperframes-teaching-brief-source",
+    "release": "/tmp/edu-hyperframes-teaching-brief-release",
+    "expected_previous_index_sha256": "1752bc64a3dea2427f45df81a9bb6a842d309e869b04257a9807efa36710500b",
+    "staged_index_sha256": "af6c752a0d6dc4d4415b15c97552dd2fb0d4d5b8b5d86175cefb14c0e3b107a7"
+  },
+  "desired_settings": {
+    "COURSE_PREPARATION_RESOURCE_CONCURRENCY": 8,
+    "COURSE_PREPARATION_VIDEO_CONCURRENCY": 4,
+    "HYPERFRAMES_VIDEO_TARGET_MINUTES": 5,
+    "HYPERFRAMES_FRAME_CONCURRENCY": 6,
+    "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": 8,
+    "HYPERFRAMES_RENDER_WORKERS": 4
+  },
+  "sample_course_available": true,
+  "sample_course_path": "/#/classroom/bubble-sort-five-minute-20261019",
+  "new_full_course_online_test": "pending_service_restart"
+}

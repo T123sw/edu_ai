@@ -1,0 +1,40 @@
+{
+  "backend": {
+    "passed": 211,
+    "basePassed": 205,
+    "postgresPassed": 6
+  },
+  "runners": {
+    "passed": 21
+  },
+  "browserFlows": {
+    "passed": 2,
+    "steps": 4,
+    "checks": 12
+  },
+  "mutations": {
+    "rejected": 5,
+    "total": 5
+  },
+  "generation": [
+    {
+      "name": "signup",
+      "id": "pbl_24283a82c7750804eed1465b0159ef44",
+      "success": true,
+      "seconds": 95.78,
+      "modelCalls": 5
+    },
+    {
+      "name": "reading",
+      "id": "pbl_ec563f87d3670a65bdb56f4ce6010a42",
+      "success": true,
+      "seconds": 104.49,
+      "modelCalls": 5
+    }
+  ],
+  "typecheck": true,
+  "eslint": true,
+  "build": true,
+  "deployed": false,
+  "productionRestarted": false
+}

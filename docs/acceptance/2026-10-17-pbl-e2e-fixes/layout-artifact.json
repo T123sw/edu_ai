@@ -1,0 +1,726 @@
+{
+  "schemaVersion": 2,
+  "runtimeKind": "react_app",
+  "templateVersion": "react-app-v1",
+  "exerciseId": "pbl_4f6ee33f2ce560660e33ed674111db3f",
+  "artifactVersion": 1,
+  "topic": "用 React 做一个个人作品展示页，只需要一个页面布局步骤。页面有标题“我的作品”、简介“记录我的学习成果”，下方展示三件作品，每件含标题和一句介绍。作品标题分别是“天气卡片”“读书笔记”“像素画”。桌面标题在简介上方，作品区域在简介下方；手机页面不横向溢出。无需按钮、输入框或交互功能，不要图片或外部资源。",
+  "title": "个人作品展示页",
+  "summary": "用 React 构建一个单页个人作品展示页：页面显示标题“我的作品”和简介“记录我的学习成果”，下方展示三件作品（天气卡片、读书笔记、像素画），每件含标题和一句介绍；桌面端标题位于简介上方、作品区域位于简介下方；手机端页面不横向溢出。",
+  "plan": {
+    "schemaVersion": 1,
+    "title": "个人作品展示页",
+    "goal": "用 React 构建一个单页个人作品展示页：页面显示标题“我的作品”和简介“记录我的学习成果”，下方展示三件作品（天气卡片、读书笔记、像素画），每件含标题和一句介绍；桌面端标题位于简介上方、作品区域位于简介下方；手机端页面不横向溢出。",
+    "runtimeKind": "react_app",
+    "editableFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "requirements": [
+      {
+        "id": "page-heading",
+        "description": "页面显示标题“我的作品”。"
+      },
+      {
+        "id": "page-intro",
+        "description": "页面显示简介文字“记录我的学习成果”。"
+      },
+      {
+        "id": "work-list",
+        "description": "页面展示三件作品，每件含作品标题和一句介绍；作品标题分别为“天气卡片”“读书笔记”“像素画”，每件都有非空的介绍文字。"
+      },
+      {
+        "id": "desktop-order",
+        "description": "桌面端（1280×800）标题位于简介上方，作品区域位于简介下方。"
+      },
+      {
+        "id": "mobile-no-overflow",
+        "description": "手机端（390×844）页面不出现横向溢出，内容宽度不超出视口。"
+      }
+    ],
+    "steps": [
+      {
+        "id": "build-page",
+        "title": "搭建作品展示页",
+        "objective": "在 App.jsx 与 styles.css 中完成标题、简介与三件作品的单页布局，并满足桌面顺序与手机不横向溢出。",
+        "dependsOn": [],
+        "entryCondition": "已打开初始 React 工程，App.jsx 与 styles.css 为待编辑的起始文件。",
+        "deliverable": "一个单页作品展示页：显示标题“我的作品”、简介“记录我的学习成果”，下方三件作品各含标题与一句介绍；桌面端标题在简介上方、作品区域在简介下方；手机端不横向溢出。",
+        "requirementIds": [
+          "page-heading",
+          "page-intro",
+          "work-list",
+          "desktop-order",
+          "mobile-no-overflow"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "newCheckIds": [
+          "heading-visible",
+          "intro-visible",
+          "works-titles",
+          "works-intros",
+          "desktop-heading-above-intro",
+          "desktop-works-below-intro",
+          "mobile-no-horizontal-overflow"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "heading-visible",
+        "stepId": "build-page",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "page-heading"
+        ],
+        "setup": "打开页面，桌面窗口 1280×800。",
+        "actions": [
+          "查找标题元素（role=heading，name=我的作品）"
+        ],
+        "expected": [
+          "页面显示标题“我的作品”。"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text"
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "intro-visible",
+        "stepId": "build-page",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "page-intro"
+        ],
+        "setup": "打开页面，桌面窗口 1280×800。",
+        "actions": [
+          "查找简介文本元素（data-testid=intro）"
+        ],
+        "expected": [
+          "简介文字为“记录我的学习成果”。"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text"
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "works-titles",
+        "stepId": "build-page",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "work-list"
+        ],
+        "setup": "打开页面，桌面窗口 1280×800。",
+        "actions": [
+          "查找作品区域（data-testid=works）",
+          "在作品区域内查找标题“天气卡片”",
+          "在作品区域内查找标题“读书笔记”",
+          "在作品区域内查找标题“像素画”"
+        ],
+        "expected": [
+          "三件作品标题均可见且文字正确。"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text"
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "works-intros",
+        "stepId": "build-page",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "work-list"
+        ],
+        "setup": "打开页面，桌面窗口 1280×800。",
+        "actions": [
+          "在作品区域内定位第一件作品（data-testid=work-item，index=0）并读取其介绍（data-testid=work-desc）",
+          "定位第二件作品（index=1）并读取介绍",
+          "定位第三件作品（index=2）并读取介绍"
+        ],
+        "expected": [
+          "每件作品都有非空的一句介绍。"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text"
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "desktop-heading-above-intro",
+        "stepId": "build-page",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "desktop-order"
+        ],
+        "setup": "打开页面，桌面窗口 1280×800。",
+        "actions": [
+          "断言标题（role=heading，name=我的作品）位于简介（data-testid=intro）上方"
+        ],
+        "expected": [
+          "桌面端标题在简介上方。"
+        ],
+        "requiredAssertions": [
+          "above"
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "desktop-works-below-intro",
+        "stepId": "build-page",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "desktop-order"
+        ],
+        "setup": "打开页面，桌面窗口 1280×800。",
+        "actions": [
+          "断言简介（data-testid=intro）位于作品区域（data-testid=works）上方"
+        ],
+        "expected": [
+          "桌面端作品区域在简介下方。"
+        ],
+        "requiredAssertions": [
+          "above"
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "id": "mobile-no-horizontal-overflow",
+        "stepId": "build-page",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "mobile-no-overflow"
+        ],
+        "setup": "打开页面，手机窗口 390×844。",
+        "actions": [
+          "断言标题、简介与作品区域均完整位于视口内"
+        ],
+        "expected": [
+          "手机端内容不横向溢出。"
+        ],
+        "requiredAssertions": [
+          "within_viewport"
+        ],
+        "viewport": "mobile"
+      }
+    ]
+  },
+  "starterFiles": {
+    "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+    "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+  },
+  "tasks": [
+    {
+      "stepId": "build-page",
+      "title": "搭建作品展示页",
+      "objective": "在 App.jsx 与 styles.css 中完成标题、简介与三件作品的单页布局，并满足桌面顺序与手机不横向溢出。",
+      "instructionsMarkdown": "这一步要做出一个完整的个人作品展示页。页面从上到下依次是：大标题“我的作品”、一句简介“记录我的学习成果”，以及下方的作品区域。\n\n作品区域里放三件作品，每件都包含一个作品标题和一句介绍文字。三件作品的标题依次是“天气卡片”“读书笔记”“像素画”，介绍文字由你自己写，一句话即可，不能为空。\n\n布局要求：\n\n- 在桌面窗口（1280×800）中，标题要显示在简介上方，作品区域要显示在简介下方。\n- 在手机窗口（390×844）中，页面不能出现横向溢出，标题、简介和作品区域都要完整落在视口宽度内。\n\n页面不需要按钮、输入框或任何交互，也不要使用图片或外部资源。\n\n**代码约定**\n\n为了让系统能识别页面部件，请按下面的方式添加标记（这些标记不会改变页面外观）：\n\n- 简介文字所在的元素加上 `data-testid=\"intro\"`。\n- 作品区域的外层容器加上 `data-testid=\"works\"`。\n- 每件作品的外层容器加上 `data-testid=\"work-item\"`，三件作品按显示顺序排列。\n- 每件作品里的介绍文字元素加上 `data-testid=\"work-desc\"`。\n- 标题使用真正的标题元素（如 `<h1>`），文字为“我的作品”。",
+      "explanationMarkdown": "这个页面本质上是“头部信息 + 卡片列表”的纵向结构。可以用一个外层容器包住全部内容，里面依次放标题、简介和作品区域。\n\n作品区域适合用网格或弹性布局排列三张卡片。桌面端可以一行放三张，窄屏时让它们自动换行或变成单列，这样手机端就不会被撑宽。\n\n避免横向溢出的关键是：给容器设置 `box-sizing: border-box`，让网格/弹性子项允许收缩（例如 `min-width: 0`），并给页面留出合理的内边距。不要用固定的大宽度或 `overflow: hidden` 去掩盖问题。",
+      "hints": [
+        "先写结构：一个外层容器，里面依次是标题、简介、作品区域。",
+        "作品数据可以放在数组里，用 map 渲染三张卡片，减少重复代码。",
+        "桌面端用 grid 三列，窄屏用媒体查询改成单列。",
+        "检查手机端时，注意卡片和容器的宽度是否被固定值撑开。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "checkIds": [
+        "heading-visible",
+        "intro-visible",
+        "works-titles",
+        "works-intros",
+        "desktop-heading-above-intro",
+        "desktop-works-below-intro",
+        "mobile-no-horizontal-overflow"
+      ],
+      "id": "build-page",
+      "cumulativeCheckIds": [
+        "heading-visible",
+        "intro-visible",
+        "works-titles",
+        "works-intros",
+        "desktop-heading-above-intro",
+        "desktop-works-below-intro",
+        "mobile-no-horizontal-overflow"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "heading-visible",
+      "label": "页面显示标题“我的作品”",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "heading",
+            "name": "我的作品",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "heading",
+            "name": "我的作品",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "我的作品",
+          "relativeTo": null
+        }
+      ],
+      "viewport": "desktop"
+    },
+    {
+      "id": "intro-visible",
+      "label": "页面显示简介“记录我的学习成果”",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "intro"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "intro"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "记录我的学习成果",
+          "relativeTo": null
+        }
+      ],
+      "viewport": "desktop"
+    },
+    {
+      "id": "works-titles",
+      "label": "作品区域展示三件作品标题：天气卡片、读书笔记、像素画",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "works"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "works"
+            },
+            "index": null,
+            "role": "heading",
+            "name": "天气卡片",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "works"
+            },
+            "index": null,
+            "role": "heading",
+            "name": "天气卡片",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "天气卡片",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "works"
+            },
+            "index": null,
+            "role": "heading",
+            "name": "读书笔记",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "works"
+            },
+            "index": null,
+            "role": "heading",
+            "name": "读书笔记",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "读书笔记",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "works"
+            },
+            "index": null,
+            "role": "heading",
+            "name": "像素画",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": null,
+              "role": null,
+              "name": null,
+              "testId": "works"
+            },
+            "index": null,
+            "role": "heading",
+            "name": "像素画",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "像素画",
+          "relativeTo": null
+        }
+      ],
+      "viewport": "desktop"
+    },
+    {
+      "id": "works-intros",
+      "label": "三件作品各自都有可见且非空的介绍文字",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "work-item"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 3,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "work-item"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "work-desc"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "work-item"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "work-desc"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "用 React 做的一个能显示天气信息的小卡片。",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "work-item"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "work-desc"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "work-item"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "work-desc"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "记录我读书时摘抄和感想的小工具。",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 2,
+              "role": null,
+              "name": null,
+              "testId": "work-item"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "work-desc"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 2,
+              "role": null,
+              "name": null,
+              "testId": "work-item"
+            },
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "work-desc"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "在网页上绘制像素风格图案的练习作品。",
+          "relativeTo": null
+        }
+      ],
+      "viewport": "desktop"
+    },
+    {
+      "id": "desktop-heading-above-intro",
+      "label": "桌面端标题位于简介上方",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "heading",
+            "name": "我的作品",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "above",
+          "expected": null,
+          "relativeTo": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "intro"
+          }
+        }
+      ],
+      "viewport": "desktop"
+    },
+    {
+      "id": "desktop-works-below-intro",
+      "label": "桌面端作品区域位于简介下方",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "intro"
+          },
+          "value": null,
+          "assertion": "above",
+          "expected": null,
+          "relativeTo": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "works"
+          }
+        }
+      ],
+      "viewport": "desktop"
+    },
+    {
+      "id": "mobile-no-horizontal-overflow",
+      "label": "手机端标题、简介与作品区域均完整位于视口内，无横向溢出",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "heading",
+            "name": "我的作品",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "within_viewport",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "intro"
+          },
+          "value": null,
+          "assertion": "within_viewport",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "works"
+          },
+          "value": null,
+          "assertion": "within_viewport",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": "mobile"
+    }
+  ],
+  "validationSummary": {
+    "passed": true,
+    "templateVersion": "react-app-v1",
+    "validatedSteps": 1,
+    "qualityWarnings": [
+      {
+        "stepId": "build-page",
+        "message": "未提供可执行负例，负例区分度未验证"
+      }
+    ]
+  }
+}

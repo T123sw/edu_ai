@@ -1,0 +1,528 @@
+{
+  "title": "位置编码、残差与层归一化、前馈网络：让注意力真正可用",
+  "content": "# 位置编码、残差与层归一化、前馈网络：让注意力真正可用\n\n> 本节承接上一节的自注意力：你已经知道 Attention(Q,K,V)=softmax(QKᵀ/√d_k)V 怎么算。本节回答一个更基础的问题——**光有自注意力，Transformer 是跑不起来的**。它缺三样东西：位置信息、训练稳定性、以及每个位置自己的非线性加工。本节按“先看反例 → 再补公式 → 最后看组件如何拼起来”的顺序展开。\n\n<a id=\"why-position\"></a>\n## 一、先看一个反例：自注意力看不见顺序\n\n### 1.1 具体演示：两句话算出的注意力完全一样\n\n考虑两个句子：\n\n- 句子 A：`我 爱 你`\n- 句子 B：`你 爱 我`\n\n它们的**词集合完全相同**，只是顺序不同。现在假设三个词的嵌入向量分别是（为便于手算，用 2 维玩具向量）：\n\n| token | 嵌入向量 e |\n|---|---|\n| 我 | (1, 0) |\n| 爱 | (0, 1) |\n| 你 | (1, 1) |\n\n自注意力对每个位置做的事是：用该位置的向量去和**所有位置**的向量做点积打分，再 softmax 加权求和。注意这一步里，**没有任何地方用到“这个 token 排第几”**。它只看到“有哪些向量”，看不到“这些向量按什么顺序排”。\n\n于是：\n\n- 句子 A 的输入矩阵（按行排列）是 `[(1,0), (0,1), (1,1)]`\n- 句子 B 的输入矩阵是 `[(1,1), (0,1), (1,0)]`\n\n这两个矩阵只是**行顺序不同**。而自注意力对每一行做的计算，只依赖“这一行是什么向量”和“全体向量集合是什么”，不依赖行的序号。所以：\n\n- 句子 A 中“我”这个位置算出的输出，等于句子 B 中“我”这个位置（第 3 行）算出的输出；\n- 换句话说，**把整句话打乱重排，每个 token 得到的表示不变，只是输出的行跟着换了位置**。\n\n这就是“自注意力是位置无关（permutation-equivariant）的”这句话的具体含义：它对输入做置换，输出就跟着做同样的置换，模型内部**没有任何机制**能区分“我爱你”和“你爱我”。\n\n### 1.2 结论：必须把位置信息“注入”进去\n\n原论文的表述很直接：因为模型不含循环也不含卷积，为了让模型能利用序列的顺序，**必须注入 token 的相对或绝对位置信息**；做法是把“位置编码”加到编码器和解码器栈底部的输入嵌入上（来源：Attention Is All You Need, NIPS 2017, §3.5）。中文教程也用“我爱你 ≠ 你爱我”这个例子说明同一件事（来源：Datawhale Easy-Vibe, Transformer 注意力机制）。\n\n### 1.3 为什么是“加”而不是“拼接”？\n\n这是本节自检的第一个问题，先给出理由：\n\n1. **维度对齐**：原论文明确说位置编码与嵌入**维度相同**，都是 d_model，所以两者可以直接相加（来源：同上，§3.5）。如果拼接，维度会变成 2·d_model，后续所有子层、残差连接、权重矩阵的形状都要跟着改。\n2. **残差连接要求全模型维度统一**：原论文为了让残差连接可行，规定所有子层以及嵌入层的输出维度都是 d_model=512（来源：同上，§3.1）。拼接会破坏这个统一性。\n3. **信息上够用**：相加后每个维度同时携带“词义分量 + 位置分量”，模型可以通过后续的线性变换把两者分开使用；原论文选择相加，并在实验中验证了效果。\n\n> 说明：第 3 点是“相加在实践上够用”的工程判断，不是数学上“拼接一定更差”的证明。原论文没有做“拼接 vs 相加”的对照实验，这里不夸大。\n\n<a id=\"sinusoidal-pe\"></a>\n## 二、正弦余弦位置编码：公式与设计意图\n\n### 2.1 公式\n\n原论文使用不同频率的正弦、余弦函数（来源：同上，§3.5）：\n\n```\nPE(pos, 2i)   = sin( pos / 10000^(2i/d_model) )\nPE(pos, 2i+1) = cos( pos / 10000^(2i/d_model) )\n```\n\n其中 `pos` 是位置（第几个 token，从 0 开始），`i` 是维度编号（0 ≤ i < d_model/2）。也就是说：**偶数维用 sin，奇数维用 cos，每一对 (2i, 2i+1) 共用一个频率**。\n\n### 2.2 手算一个具体值\n\n取 d_model = 4（真实模型是 512，这里缩小便于手算），则 i 只能取 0 和 1：\n\n- i=0：分母 = 10000^(0/4) = 10000^0 = 1，所以频率项是 `pos / 1 = pos`\n- i=1：分母 = 10000^(2/4) = 10000^0.5 = 100\n\n于是位置 pos=1 的编码向量是：\n\n| 维度 | 公式 | 值（弧度） | 数值 |\n|---|---|---|---|\n| 0 | sin(1/1) | sin(1) | ≈ 0.841 |\n| 1 | cos(1/1) | cos(1) | ≈ 0.540 |\n| 2 | sin(1/100) | sin(0.01) | ≈ 0.010 |\n| 3 | cos(1/100) | cos(0.01) | ≈ 1.000 |\n\n位置 pos=2 的编码向量：\n\n| 维度 | 公式 | 值（弧度） | 数值 |\n|---|---|---|---|\n| 0 | sin(2) | — | ≈ 0.909 |\n| 1 | cos(2) | — | ≈ −0.416 |\n| 2 | sin(0.02) | — | ≈ 0.020 |\n| 3 | cos(0.02) | — | ≈ 1.000 |\n\n观察两件事：\n\n- **低维（i 小）变化快**：维度 0/1 在 pos 从 1 到 2 时数值大幅变化（0.841→0.909，0.540→−0.416），像一根“细刻度尺”。\n- **高维（i 大）变化慢**：维度 2/3 几乎没动（0.010→0.020，1.000→1.000），像一根“粗刻度尺”。\n\n多个频率叠在一起，就构成了一套类似二进制计数的“位置指纹”：每个位置都有唯一的编码向量，且相邻位置在低维上差异明显、在远距离上仍能靠高维区分。\n\n### 2.3 波长为什么是等比数列\n\n原论文指出：每个维度对应一条正弦曲线，**波长构成从 2π 到 10000·2π 的等比数列**（来源：同上，§3.5）。\n\n验证一下：sin(pos/ω) 的波长是 2π·ω。当 i=0 时 ω=1，波长 = 2π；当 i=d_model/2−1 时 ω = 10000^((d_model−2)/d_model) ≈ 10000，波长 ≈ 10000·2π。中间的 i 按指数增长，所以波长按等比排列。\n\n**设计意图**：短波长维度负责区分近邻位置，长波长维度负责区分远距离位置，两者组合后，任意两个不同位置的编码向量都不相同。\n\n### 2.4 设计意图二：相对位置可以线性表示\n\n原论文给出的选择理由是：作者**假设**这种函数能让模型容易学到“按相对位置关注”，因为对任意固定偏移 k，`PE(pos+k)` 可以表示为 `PE(pos)` 的线性函数（来源：同上，§3.5）。\n\n为什么？因为 sin(a+b) 和 cos(a+b) 可以用和角公式展开：\n\n```\nsin(θ + φ) = sin θ·cos φ + cos θ·sin φ\ncos(θ + φ) = cos θ·cos φ − sin θ·sin φ\n```\n\n把 θ = pos/ω、φ = k/ω 代入，就得到：同一对维度上，`PE(pos+k)` 的两个分量是 `PE(pos)` 两个分量的固定线性组合，而组合系数（cos(k/ω)、sin(k/ω)）**只依赖偏移 k，不依赖 pos**。\n\n这意味着：模型只要学会一组与 k 相关的线性变换，就能实现“看相对距离 k 的位置”。注意这是**作者的假设与设计动机**，不是“模型一定学会了相对位置”的证明。\n\n### 2.5 设计意图三：可能外推到更长序列\n\n原论文还做了对照实验：用可学习的位置嵌入替代正弦编码，两者结果**几乎相同**（Table 3 行 (E)）；最终选正弦版本，是因为它**可能**让模型外推到比训练时更长的序列（来源：同上，§3.5）。\n\n这里要精确：论文用的是 “may allow”，是可能性而非保证。可学习位置嵌入受限于训练时见过的最大长度，超出就没有对应参数；正弦编码是固定函数，任意 pos 都能算出值，但“能算出值”不等于“模型在更长序列上表现一样好”。\n\n### 2.6 延伸了解（不属于原论文）\n\n后续演进出了多种位置编码方案：可学习位置编码（BERT、GPT）、相对位置编码（T5、DeBERTa）、旋转位置编码 RoPE（LLaMA、GPT-NeoX）、ALiBi（在注意力分数上加偏置，无额外参数）（来源：Datawhale Easy-Vibe 教程概述）。这些是**后续发展**，原论文用的是固定正弦余弦编码。本节只需知道它们存在、解决的是同一类问题即可，不展开细节。\n\n<a id=\"residual-layernorm\"></a>\n## 三、残差连接与层归一化：让深层网络训得动\n\n### 3.1 结构：每个子层都包一层\n\n原论文的编码器由 N=6 个相同层堆叠，每层两个子层：多头自注意力、逐位置前馈网络。**每个子层外面都套一个残差连接，再做层归一化**，即每个子层的输出是（来源：同上，§3.1）：\n\n```\noutput = LayerNorm( x + Sublayer(x) )\n```\n\n其中 x 是该子层的输入，Sublayer(x) 是子层自己算出的结果。为了让残差能相加，所有子层和嵌入层的输出维度都统一为 d_model=512（来源：同上，§3.1）。\n\n### 3.2 残差连接解决什么\n\n把 `x + Sublayer(x)` 拆开看：\n\n- **梯度有了一条“直通车道”**：反向传播时，梯度可以沿 `+x` 这条恒等路径直接回传，不必穿过子层内部的每一层非线性。层数越深，这条路径越重要——否则梯度在层层相乘中容易衰减到接近 0。\n- **子层只需学“增量”**：子层不必从零重建整个表示，只需学“在当前表示上要改什么”。这让每层的学习目标更轻。\n- **信息不丢失**：即使某个子层学到的变换接近恒等（输出≈0），原始信息 x 仍然完整保留下来。\n\n### 3.3 层归一化解决什么\n\n层归一化对**单个样本的单个位置向量**做归一化：把这个 d_model 维向量减去自己的均值、除以自己的标准差，再用可学习的缩放 γ 和平移 β 调整。\n\n它解决的是**数值尺度失控**：残差相加会让不同子层的输出不断累加，激活值的量级可能逐层放大或漂移；层归一化把每个位置向量的尺度拉回稳定范围，使后续线性层和 softmax 的输入保持在合理区间。\n\n> 注意区分：层归一化是**对每个位置自己的特征维**做归一化，不跨位置、不跨样本；这与批归一化（跨样本统计）不同。原论文只写了 “layer normalization”，没有展开这个对比，此处是帮助理解的补充说明。\n\n### 3.4 两者为什么必须一起用\n\n- 只有残差、没有归一化：深层累加后数值尺度可能越来越大，训练不稳定。\n- 只有归一化、没有残差：梯度仍要穿过子层内部，深层依然难训。\n\n原论文把两者组合成 `LayerNorm(x + Sublayer(x))`，中文教程也概括为“每个子层后面都有残差连接和层归一化，确保深层网络的训练稳定性”（来源：Datawhale Easy-Vibe 教程）。\n\n<a id=\"ffn\"></a>\n## 四、逐位置前馈网络：每个位置自己的非线性加工\n\n### 4.1 公式\n\n除了注意力子层，编码器和解码器的每一层还包含一个全连接前馈网络，它**对每个位置分别且相同地**施加（来源：Attention Is All You Need, §3.3）：\n\n```\nFFN(x) = max(0, x·W1 + b1)·W2 + b2\n```\n\n即两层线性变换，中间夹一个 ReLU（`max(0, ·)`）。原论文中：输入输出维度 d_model=512，内层维度 d_ff=2048（来源：同上，§3.3）。\n\n### 4.2 手算一个位置\n\n取 d_model=2、d_ff=3 的玩具例子，输入是某个位置的向量 x = (1, −2)，参数设为：\n\n```\nW1 = [[1, 0, 1],\n      [0, 1, 1]]      b1 = (0, 1, 0)\nW2 = [[1, 0],\n      [0, 1],\n      [1, 1]]         b2 = (0, 0)\n```\n\n**第一步：x·W1 + b1**\n\n- 第 1 个内层单元：1×1 + (−2)×0 + 0 = 1\n- 第 2 个内层单元：1×0 + (−2)×1 + 1 = −1\n- 第 3 个内层单元：1×1 + (−2)×1 + 0 = −1\n\n得到 (1, −1, −1)。\n\n**第二步：ReLU**\n\nmax(0, 1)=1，max(0, −1)=0，max(0, −1)=0 → (1, 0, 0)。\n\n**第三步：·W2 + b2**\n\n- 输出第 1 维：1×1 + 0×0 + 0×1 = 1\n- 输出第 2 维：1×0 + 0×1 + 0×1 = 0\n\n最终 FFN(x) = (1, 0)。\n\n注意 ReLU 把两个负值直接压成 0——这就是“非线性”的具体体现：如果去掉 ReLU，整个 FFN 就退化成一次线性变换 `x·(W1W2) + …`，多层堆叠也等价于一层。\n\n### 4.3 三个关键性质\n\n1. **对每个位置独立**：位置 1 的 FFN 计算完全不看位置 2、3 的向量。**FFN 不做跨位置交互**——跨位置的信息交换全部由前面的注意力子层完成。\n2. **位置间共享参数**：同一层里，所有位置用的是**同一组** W1、b1、W2、b2。原论文说“线性变换在不同位置上是相同的”（来源：同上，§3.3）。\n3. **层间不共享参数**：第 1 层的 FFN 和第 2 层的 FFN 参数不同（来源：同上，§3.3）。\n\n原论文还给了一个等价描述：这相当于**两个核大小为 1 的卷积**（来源：同上，§3.3）——核大小为 1 的卷积正是“逐位置、共享权重”的操作。\n\n### 4.4 为什么需要它\n\n注意力子层本质上是**加权求和**，是（对 V 的）线性组合。如果只有注意力，模型能做的“变换”非常有限。FFN 在中间升维到 d_ff（512→2048）、过 ReLU、再降回 d_model，为每个位置提供了**独立的非线性加工能力**。两者分工：注意力负责“从别的位置取信息”，FFN 负责“加工自己拿到的信息”。\n\n<a id=\"assembly\"></a>\n## 五、拼起来看：一个编码器层的完整数据流\n\n把本节四个组件放回一个编码器层，数据流是：\n\n```\n输入嵌入 + 位置编码            ← 位置信息在这里注入（维度都是 d_model）\n      ↓\n多头自注意力 Sublayer(x)       ← 跨位置交互：每个位置从所有位置取信息\n      ↓\nLayerNorm(x + Sublayer(x))    ← 残差保信息 + 归一化稳尺度\n      ↓\n逐位置 FFN(x)                 ← 逐位置非线性加工，不跨位置\n      ↓\nLayerNorm(x + FFN(x))         ← 再一次残差 + 归一化\n      ↓\n（送入下一层，共 N=6 层）\n```\n\n对照原论文：编码器每层两个子层，每个子层外包残差连接再做层归一化，所有子层与嵌入层输出维度都是 d_model=512（来源：Attention Is All You Need, §3.1）；解码器结构类似，但第一个子层是掩码多头自注意力（只能看到当前位置之前的词），中间多一个交叉注意力子层去关注编码器输出（来源：Datawhale Easy-Vibe 教程）。\n\n**一句话总结**：位置编码让注意力“知道顺序”，残差+层归一化让 6 层堆叠“训得动”，FFN 让每个位置“有自己的非线性加工”。三者缺一，自注意力都无法单独构成可用的 Transformer。\n\n<a id=\"self-check\"></a>\n## 六、自检：三个问题\n\n1. **位置编码为什么是“加”而不是“拼接”？**\n   提示：看 §1.3。要点是维度统一（位置编码与嵌入同为 d_model）、残差连接要求全模型维度一致、相加后信息仍可被后续线性变换区分使用。\n\n2. **残差与层归一化解决什么问题？**\n   提示：看 §3.2–3.4。残差给梯度一条直通路径、让子层只学增量、保留原始信息；层归一化把每个位置向量的尺度拉回稳定范围。两者组合成 `LayerNorm(x + Sublayer(x))`。\n\n3. **前馈网络与注意力层在“是否跨位置交互”上有何区别？**\n   提示：看 §4.3。注意力层让每个位置从所有位置取信息（跨位置）；FFN 对每个位置独立计算，位置间共享参数但不交换信息。\n\n<a id=\"pairing-practice\"></a>\n## 七、组件配对练习\n\n把左列组件与右列“它解决的问题”配对，并说明理由（参考答案在下方，先自己连一遍）：\n\n| 左列组件 | 右列问题 |\n|---|---|\n| A. 位置编码 | ① 深层堆叠时梯度衰减、数值尺度失控 |\n| B. 残差连接 | ② 自注意力看不见 token 的顺序 |\n| C. 层归一化 | ③ 每个位置缺少独立的非线性加工能力 |\n| D. 前馈网络 | ④ 子层输出会覆盖原始信息，且梯度要穿过整个子层 |\n\n**参考答案与理由**：\n\n- **A—②**：自注意力对输入置换等变，必须把位置信息加到嵌入上（§1）。\n- **B—④**：`x + Sublayer(x)` 保留原始信息，并给梯度一条恒等直通路径（§3.2）。\n- **C—①**：层归一化把每个位置向量的尺度拉回稳定范围，配合残差保证深层训练稳定（§3.3）。\n- **D—③**：FFN 用两层线性 + ReLU 为每个位置提供非线性变换，注意力本身只是加权求和（§4.4）。\n\n> 注意 B 和 C 常被混为一谈：残差管“信息与梯度能不能传下去”，归一化管“数值尺度稳不稳”，两者互补而非替代。\n\n<a id=\"sources\"></a>\n## 八、本节依据与边界\n\n**依据**：\n\n- 《Attention Is All You Need》(NIPS 2017)，§3.1 编码器/解码器栈与残差+层归一化、§3.3 逐位置前馈网络、§3.5 位置编码。\n- Datawhale Easy-Vibe 教程《Transformer 注意力机制》中文概述（位置编码必要性、现代位置编码方案、编码器/解码器子层结构）。\n\n**边界**：\n\n- 本节为原理理解层面，不含可运行代码；手算例子中的维度（d_model=4、d_ff=3）是为便于手算而缩小的玩具设置，真实模型是 d_model=512、d_ff=2048。\n- 原论文超参数（N=6、d_model=512、h=8、d_ff=2048）是 2017 年 base 模型配置，不代表所有后续 Transformer 实现。\n- RoPE、ALiBi、相对位置编码等现代方案仅作延伸提及，未逐项核对原始论文。\n- “相加优于拼接”“层归一化与批归一化的对比”等属于帮助理解的补充说明，原论文未做对应论证。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 14.5
+      },
+      "sections": [
+        {
+          "section_id": "why-position",
+          "content_sha256": "4484bdcb513ce758264d70ee0f98490ff06f988169e51330b5ef4556542553a6"
+        },
+        {
+          "section_id": "sinusoidal-pe",
+          "content_sha256": "756ccae5edd09498858c727b52fb1bcfd1480235d835b4035437a566574fc089"
+        },
+        {
+          "section_id": "residual-layernorm",
+          "content_sha256": "b87f5ac40d73ba69bbdcee33e176af3f724218688d71c846aa74f182c39b83ad"
+        },
+        {
+          "section_id": "ffn",
+          "content_sha256": "05a3838ee4621fb84a324ca9020f08ddd1522c6542d71dfe76a96a0f894d841d"
+        },
+        {
+          "section_id": "assembly",
+          "content_sha256": "9abb8bfb92a7afb8383193506ba49a84a8afd8e287b4329a49ffec0b06aadfd5"
+        },
+        {
+          "section_id": "self-check",
+          "content_sha256": "970ebd2955c3726edc1a861bde524f6c35f2a809353f4fcc1bea29721df8af16"
+        },
+        {
+          "section_id": "pairing-practice",
+          "content_sha256": "722c6c8fb560083020f5a7b68a7ca6dfe07d68d091beca3df61733a906bee397"
+        },
+        {
+          "section_id": "sources",
+          "content_sha256": "4f40c9b5914e3d9b5a0da56db4aa48dbb83ea1fb211370578927968a15ebfddf"
+        }
+      ],
+      "spec_digest": "5892de201d3a82ae0a21f7f1903a2fe720a78c6d61147ab317f30638602532aa",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "objective_id": "n4-position-ffn-norm:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sinusoidal-pe"
+          },
+          "objective_id": "n4-position-ffn-norm:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "residual-layernorm"
+          },
+          "objective_id": "n4-position-ffn-norm:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "ffn"
+          },
+          "objective_id": "n4-position-ffn-norm:o4"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n4-position-ffn-norm:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n4-position-ffn-norm:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n4-position-ffn-norm:o4"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "pairing-practice"
+          },
+          "objective_id": "n4-position-ffn-norm:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "pairing-practice"
+          },
+          "objective_id": "n4-position-ffn-norm:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "pairing-practice"
+          },
+          "objective_id": "n4-position-ffn-norm:o4"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "why-position"
+          },
+          "explanation": "以“我爱你/你爱我”反例演示自注意力位置无关，并说明位置编码必须加到嵌入上、维度同为 d_model 才能相加，落实“讲授 Transformer 核心概念与结构”中位置编码部分。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "sinusoidal-pe"
+          },
+          "explanation": "给出正弦余弦位置编码公式、手算数值、波长等比排列、相对位置线性表示与外推可能性，落实位置编码原理讲授。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "residual-layernorm"
+          },
+          "explanation": "解释 LayerNorm(x + Sublayer(x)) 中残差与层归一化各自作用及组合必要性，落实结构讲授。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "ffn"
+          },
+          "explanation": "给出 FFN 公式、手算过程与“逐位置独立、位置间共享、层间不共享”三条性质，落实前馈网络讲授。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "assembly"
+          },
+          "explanation": "把四个组件拼回编码器层数据流，帮助学习者形成整体结构认识。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "teaching_context_digest": "38ed4a0527c574a51fa4960fbb9bb156230b3418d6c660f878af4778d121dd47"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文按节点分工覆盖四项要求：§1（why-position）用“我爱你/你爱我”反例说明自注意力位置无关并解释为何相加、维度同为 d_model；§2（sinusoidal-pe）给出正弦余弦公式、波长等比、相对位置线性表示与外推可能性；§3（residual-layernorm）解释 LayerNorm(x+Sublayer(x))；§4（ffn）给出 FFN 公式与逐位置独立、位置间共享、层间不共享。未越界讲授其他节点内容，仅作衔接提及。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "§2.2 手算核对无误：d_model=4 时 i=0 分母 1、i=1 分母 10000^0.5=100，pos=1 得 sin1≈0.841、cos1≈0.540、sin0.01≈0.010、cos0.01≈1.000，pos=2 得 0.909、−0.416、0.020、1.000，均正确。§4.2 FFN 手算：x=(1,−2)，W1 列向量 (1,0)、(0,1)、(1,1)，b1=(0,1,0) 得 (1,−1,−1)，ReLU 后 (1,0,0)，乘 W2 得 (1,0)，正确。§2.3 波长推导 2π·ω 与 i=d_model/2−1 时 ω≈10000 正确；§2.4 和角公式推导正确，并明确标注为作者假设而非已证结论。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "例子均为合法输入且分支完整：§1.1 置换等变演示逻辑自洽（输出随行置换）；§2.2 手算覆盖两个位置、四个维度；§4.2 玩具例子同时出现正负值，ReLU 的截断分支被实际触发并解释；§4.2 末尾指出去掉 ReLU 则退化为线性变换，边界说明到位。§2.5 明确区分“may allow”与保证，未夸大外推。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为反例引入（§1）→ 公式与设计意图（§2）→ 残差与层归一化（§3）→ FFN（§4）→ 编码器层数据流拼装（§5）→ 自检（§6）→ 配对练习（§7）→ 依据与边界（§8），与节点活动顺序一致，非仅口头声称；§5 数据流图把四组件放回结构，符合入门深度且无面试模板。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "§1.2、§2.1、§2.3–2.5、§3.1、§4.1、§4.3 的引用与 evidence 中论文 §3.1/§3.3/§3.5 原文一致（含“same dimension dmodel so that the two can be summed”“geometric progression from 2π to 10000·2π”“may allow the model to extrapolate”）；§2.6 与 §5 的解码器描述标注为 Datawhale 教程概述；§8 明确列出补充说明（相加优于拼接、LN 与 BN 对比）非原论文论证，未虚构外部核查。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "四个目标均有讲解、自检与练习落点：§6 三问对应 o1/o3/o4，§7 配对练习含参考答案与理由；§8 交代玩具维度、超参数适用范围与现代位置编码未逐项核对的边界。preparation 估算 14.5 分钟略高于 12 分钟节点预算，但属内容量参考，不构成遗漏。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文按节点分工覆盖四项要求：§1（why-position）用“我爱你/你爱我”反例说明自注意力位置无关并解释为何相加、维度同为 d_model；§2（sinusoidal-pe）给出正弦余弦公式、波长等比、相对位置线性表示与外推可能性；§3（residual-layernorm）解释 LayerNorm(x+Sublayer(x))；§4（ffn）给出 FFN 公式与逐位置独立、位置间共享、层间不共享。未越界讲授其他节点内容，仅作衔接提及。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "§2.2 手算核对无误：d_model=4 时 i=0 分母 1、i=1 分母 10000^0.5=100，pos=1 得 sin1≈0.841、cos1≈0.540、sin0.01≈0.010、cos0.01≈1.000，pos=2 得 0.909、−0.416、0.020、1.000，均正确。§4.2 FFN 手算：x=(1,−2)，W1 列向量 (1,0)、(0,1)、(1,1)，b1=(0,1,0) 得 (1,−1,−1)，ReLU 后 (1,0,0)，乘 W2 得 (1,0)，正确。§2.3 波长推导 2π·ω 与 i=d_model/2−1 时 ω≈10000 正确；§2.4 和角公式推导正确，并明确标注为作者假设而非已证结论。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "例子均为合法输入且分支完整：§1.1 置换等变演示逻辑自洽（输出随行置换）；§2.2 手算覆盖两个位置、四个维度；§4.2 玩具例子同时出现正负值，ReLU 的截断分支被实际触发并解释；§4.2 末尾指出去掉 ReLU 则退化为线性变换，边界说明到位。§2.5 明确区分“may allow”与保证，未夸大外推。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为反例引入（§1）→ 公式与设计意图（§2）→ 残差与层归一化（§3）→ FFN（§4）→ 编码器层数据流拼装（§5）→ 自检（§6）→ 配对练习（§7）→ 依据与边界（§8），与节点活动顺序一致，非仅口头声称；§5 数据流图把四组件放回结构，符合入门深度且无面试模板。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "§1.2、§2.1、§2.3–2.5、§3.1、§4.1、§4.3 的引用与 evidence 中论文 §3.1/§3.3/§3.5 原文一致（含“same dimension dmodel so that the two can be summed”“geometric progression from 2π to 10000·2π”“may allow the model to extrapolate”）；§2.6 与 §5 的解码器描述标注为 Datawhale 教程概述；§8 明确列出补充说明（相加优于拼接、LN 与 BN 对比）非原论文论证，未虚构外部核查。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个目标均有讲解、自检与练习落点：§6 三问对应 o1/o3/o4，§7 配对练习含参考答案与理由；§8 交代玩具维度、超参数适用范围与现代位置编码未逐项核对的边界。preparation 估算 14.5 分钟略高于 12 分钟节点预算，但属内容量参考，不构成遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "§7 配对练习中 B—④ 与 C—① 的右列表述有重叠（④ 同时含“梯度要穿过整个子层”，① 含“数值尺度失控”），可把 ④ 改为只描述“原始信息被覆盖/梯度需穿过子层”，减少歧义。",
+              "§2.2 表格中 pos=2 的“值（弧度）”列用“—”占位，与 pos=1 表格格式不一致，建议统一写出 sin(2)、cos(2) 等表达式。",
+              "§6 自检第 2 问未覆盖 o2（正弦公式与设计意图），可考虑增加一问或提示回看 §2.4–2.5，使四个目标在自检中均有落点。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "§1（why-position）确实以“我爱你/你爱我”反例演示置换等变，并在 §1.3 说明维度同为 d_model 才能相加、残差要求维度统一，真实支持该要求的位置编码部分。",
+                "locator": {
+                  "section_id": "why-position"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "§2（sinusoidal-pe）给出 PE(pos,2i)=sin(pos/10000^(2i/d_model)) 等公式、手算数值、波长等比、相对位置线性表示与外推可能性，内容与所述贡献相符。",
+                "locator": {
+                  "section_id": "sinusoidal-pe"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "§3（residual-layernorm）明确写出 output=LayerNorm(x+Sublayer(x))，并分别解释残差（梯度直通、学增量、保信息）与层归一化（尺度稳定）及组合必要性。",
+                "locator": {
+                  "section_id": "residual-layernorm"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "§4（ffn）给出 FFN(x)=max(0,xW1+b1)W2+b2、手算过程，并在 §4.3 列出逐位置独立、位置间共享参数、层间不共享三条性质。",
+                "locator": {
+                  "section_id": "ffn"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "§5（assembly）用数据流图把位置编码、注意力、LayerNorm(x+Sublayer(x))、FFN 拼回编码器层，并对照论文 §3.1 与解码器差异，支持整体结构认识。",
+                "locator": {
+                  "section_id": "assembly"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "o1 在 §1 有完整讲解：位置无关性论证、必须注入位置信息、维度同为 d_model 才能相加，role=explanation 成立。",
+                "locator": {
+                  "section_id": "why-position"
+                },
+                "binding_id": "n4-position-ffn-norm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "o2 在 §2 有公式、手算、波长等比与相对位置线性表示、外推可能性，并区分假设与保证，role=explanation 成立。",
+                "locator": {
+                  "section_id": "sinusoidal-pe"
+                },
+                "binding_id": "n4-position-ffn-norm:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "o3 在 §3 解释 LayerNorm(x+Sublayer(x)) 中残差与层归一化各自作用及为何需一起用，role=explanation 成立。",
+                "locator": {
+                  "section_id": "residual-layernorm"
+                },
+                "binding_id": "n4-position-ffn-norm:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "o4 在 §4 给出公式、手算与三条性质，并说明 FFN 不跨位置交互，role=explanation 成立。",
+                "locator": {
+                  "section_id": "ffn"
+                },
+                "binding_id": "n4-position-ffn-norm:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "§6 第 1 问“位置编码为什么是加而不是拼接”直接检验 o1，并提示回看 §1.3，role=check 成立。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n4-position-ffn-norm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "§6 第 2 问“残差与层归一化解决什么问题”检验 o3，提示 §3.2–3.4，role=check 成立。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n4-position-ffn-norm:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "§6 第 3 问“FFN 与注意力层在是否跨位置交互上的区别”检验 o4，提示 §4.3，role=check 成立。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n4-position-ffn-norm:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "§7 配对练习 A—② 要求把位置编码与“自注意力看不见顺序”配对并说明理由，实际检验 o1，role=practice 成立。",
+                "locator": {
+                  "section_id": "pairing-practice"
+                },
+                "binding_id": "n4-position-ffn-norm:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "§7 中 B—④、C—① 及末尾“残差管信息与梯度、归一化管尺度”的说明检验 o3 的残差与层归一化分工，role=practice 成立。",
+                "locator": {
+                  "section_id": "pairing-practice"
+                },
+                "binding_id": "n4-position-ffn-norm:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "§7 中 D—③ 及理由“FFN 用两层线性+ReLU 提供非线性，注意力只是加权求和”检验 o4，role=practice 成立。",
+                "locator": {
+                  "section_id": "pairing-practice"
+                },
+                "binding_id": "n4-position-ffn-norm:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "5cb7c54371d026317abd6d3e152c5623e536ea222400c0d5bd000cf179d54a18",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "§7 配对练习中 B—④ 与 C—① 的右列表述有重叠（④ 同时含“梯度要穿过整个子层”，① 含“数值尺度失控”），可把 ④ 改为只描述“原始信息被覆盖/梯度需穿过子层”，减少歧义。",
+        "§2.2 表格中 pos=2 的“值（弧度）”列用“—”占位，与 pos=1 表格格式不一致，建议统一写出 sin(2)、cos(2) 等表达式。",
+        "§6 自检第 2 问未覆盖 o2（正弦公式与设计意图），可考虑增加一问或提示回看 §2.4–2.5，使四个目标在自检中均有落点。"
+      ],
+      "content_sha256": "5cb7c54371d026317abd6d3e152c5623e536ea222400c0d5bd000cf179d54a18",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "§1（why-position）确实以“我爱你/你爱我”反例演示置换等变，并在 §1.3 说明维度同为 d_model 才能相加、残差要求维度统一，真实支持该要求的位置编码部分。",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "§2（sinusoidal-pe）给出 PE(pos,2i)=sin(pos/10000^(2i/d_model)) 等公式、手算数值、波长等比、相对位置线性表示与外推可能性，内容与所述贡献相符。",
+          "locator": {
+            "section_id": "sinusoidal-pe"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "§3（residual-layernorm）明确写出 output=LayerNorm(x+Sublayer(x))，并分别解释残差（梯度直通、学增量、保信息）与层归一化（尺度稳定）及组合必要性。",
+          "locator": {
+            "section_id": "residual-layernorm"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "§4（ffn）给出 FFN(x)=max(0,xW1+b1)W2+b2、手算过程，并在 §4.3 列出逐位置独立、位置间共享参数、层间不共享三条性质。",
+          "locator": {
+            "section_id": "ffn"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "§5（assembly）用数据流图把位置编码、注意力、LayerNorm(x+Sublayer(x))、FFN 拼回编码器层，并对照论文 §3.1 与解码器差异，支持整体结构认识。",
+          "locator": {
+            "section_id": "assembly"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "o1 在 §1 有完整讲解：位置无关性论证、必须注入位置信息、维度同为 d_model 才能相加，role=explanation 成立。",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "binding_id": "n4-position-ffn-norm:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "o2 在 §2 有公式、手算、波长等比与相对位置线性表示、外推可能性，并区分假设与保证，role=explanation 成立。",
+          "locator": {
+            "section_id": "sinusoidal-pe"
+          },
+          "binding_id": "n4-position-ffn-norm:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "o3 在 §3 解释 LayerNorm(x+Sublayer(x)) 中残差与层归一化各自作用及为何需一起用，role=explanation 成立。",
+          "locator": {
+            "section_id": "residual-layernorm"
+          },
+          "binding_id": "n4-position-ffn-norm:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "o4 在 §4 给出公式、手算与三条性质，并说明 FFN 不跨位置交互，role=explanation 成立。",
+          "locator": {
+            "section_id": "ffn"
+          },
+          "binding_id": "n4-position-ffn-norm:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "§6 第 1 问“位置编码为什么是加而不是拼接”直接检验 o1，并提示回看 §1.3，role=check 成立。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n4-position-ffn-norm:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "§6 第 2 问“残差与层归一化解决什么问题”检验 o3，提示 §3.2–3.4，role=check 成立。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n4-position-ffn-norm:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "§6 第 3 问“FFN 与注意力层在是否跨位置交互上的区别”检验 o4，提示 §4.3，role=check 成立。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n4-position-ffn-norm:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "§7 配对练习 A—② 要求把位置编码与“自注意力看不见顺序”配对并说明理由，实际检验 o1，role=practice 成立。",
+          "locator": {
+            "section_id": "pairing-practice"
+          },
+          "binding_id": "n4-position-ffn-norm:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "§7 中 B—④、C—① 及末尾“残差管信息与梯度、归一化管尺度”的说明检验 o3 的残差与层归一化分工，role=practice 成立。",
+          "locator": {
+            "section_id": "pairing-practice"
+          },
+          "binding_id": "n4-position-ffn-norm:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "§7 中 D—③ 及理由“FFN 用两层线性+ReLU 提供非线性，注意力只是加权求和”检验 o4，role=practice 成立。",
+          "locator": {
+            "section_id": "pairing-practice"
+          },
+          "binding_id": "n4-position-ffn-norm:o4",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "f8017b0d5f91b8f41f1f08d499d7b1304f3c77042d7e57b24e862c57395c6817"
+    }
+  }
+}

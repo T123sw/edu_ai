@@ -1,0 +1,136 @@
+{
+  "title": "验收·习题·Python 变量绑定与列表浅拷贝-quiz.json",
+  "source": {
+    "rag_index_keys": [],
+    "selected_doc_ids": []
+  },
+  "status": "ready",
+  "content": {
+    "title": "验收·习题·Python 变量绑定与列表浅拷贝 quiz",
+    "questions": [
+      {
+        "id": "1",
+        "stem": "执行以下代码后，a 的值是什么？\na = [1, 2]\nb = a\nb.append(3)",
+        "type": "choice",
+        "answer": "B",
+        "options": [
+          "[1, 2]",
+          "[1, 2, 3]",
+          "[3]",
+          "程序报错"
+        ],
+        "explanation": "b = a 使 b 和 a 绑定到同一个列表对象，因此通过 b.append(3) 修改列表时，a 也会看到相同的变化，所以 a 为 [1, 2, 3]。",
+        "knowledge_points": []
+      },
+      {
+        "id": "2",
+        "stem": "阅读代码后填空：\na = [1, 2]\nb = a.copy()\nb.append(3)\n执行后，a = ______，b = ______。",
+        "type": "blank",
+        "answer": "a = [1, 2]；b = [1, 2, 3]",
+        "options": null,
+        "explanation": "b = a.copy() 创建了一个浅拷贝的新列表，b.append(3) 只修改新列表，不会改变原列表 a，因此 a 仍为 [1, 2]，b 为 [1, 2, 3]。",
+        "knowledge_points": []
+      },
+      {
+        "id": "3",
+        "stem": "请简要说明 b = a 与 b = a.copy() 的区别，并指出浅拷贝在嵌套列表场景下可能有什么表现。",
+        "type": "short",
+        "answer": "b = a 让 b 和 a 绑定到同一个列表对象，通过 b 修改列表内容时 a 也会看到变化；b = a.copy() 会创建一个新列表，对新列表外层的修改不会影响原列表。但浅拷贝只复制外层列表，嵌套列表仍被两个列表共享，修改嵌套列表中的元素会相互影响。",
+        "options": null,
+        "explanation": "b = a 表示别名，两个变量引用同一对象；b = a.copy() 表示浅拷贝，外层列表是新的，但嵌套对象仍共享。",
+        "knowledge_points": []
+      },
+      {
+        "id": "4",
+        "stem": "判断：因为整数是不可变对象，所以执行 a = 1; b = a; b = 2 后，a 的值会变成 2。",
+        "type": "judge",
+        "answer": "错误",
+        "options": null,
+        "explanation": "整数是不可变对象。b = 2 是重新赋值，让 b 绑定到新的整数对象 2，并不会修改 a 原来绑定的整数 1，因此 a 仍为 1。",
+        "knowledge_points": []
+      }
+    ],
+    "difficulty": "medium",
+    "question_type": "mixed"
+  },
+  "version": 3,
+  "scope_id": null,
+  "course_id": "resource-e2e-b25c130f",
+  "is_pinned": false,
+  "pinned_at": null,
+  "created_at": "2026-10-14T09:03:46.678831+00:00",
+  "created_by": "resource_e2e_b25c130f",
+  "scope_type": "course",
+  "updated_at": "2026-10-14T09:03:46.789756+00:00",
+  "visibility": "private",
+  "approved_at": null,
+  "approved_by": null,
+  "material_id": "studio_12dc2e3fbe9d510f99b62fd7e04f",
+  "origin_type": "personal",
+  "studio_mode": "generate",
+  "content_hash": "9a9845af7bbc14ca58f4f313526fb13c392fa2097ac2e18852b023b699a83f36",
+  "studio_title": "验收·习题·Python 变量绑定与列表浅拷贝",
+  "material_type": "quiz",
+  "owner_user_id": "resource_e2e_b25c130f",
+  "source_job_id": "studio_12dc2e3fbe9d510f99b62fd7e04f",
+  "standard_kind": null,
+  "documents_used": [
+    "当前课程资料"
+  ],
+  "schema_version": 2,
+  "config_snapshot": {
+    "title": "验收·习题·Python 变量绑定与列表浅拷贝",
+    "quiz_config": {
+      "topic": "验收·习题·Python 变量绑定与列表浅拷贝",
+      "audience": "本科一年级",
+      "difficulty": "medium",
+      "hard_points": [],
+      "question_count": 4,
+      "question_types": [
+        "choice",
+        "blank",
+        "short",
+        "judge"
+      ],
+      "include_answers": true,
+      "include_explanations": true
+    },
+    "prompt_draft": null,
+    "research_context": "课程：资源生成端到端验证 · Python 变量与列表\n\n学习目标：仅用于资源生成验收。知识范围：Python 变量绑定对象；整数不可变；a=[1,2]; b=a 时 a 与 b 引用同一列表，b.append(3) 也改变 a 所见内容；b=a.copy() 创建浅拷贝，嵌套列表仍共享；判断别名与重新赋值的区别。面向入门学习者，使用中文。\n\n当前知识点：Python 变量绑定、列表别名与浅拷贝\n\n当前知识点暂无可读取正文；以课程目标和知识点为范围，不得声称引用了课程原文。",
+    "final_user_prompt": null
+  },
+  "source_snapshot": {
+    "mode": "none",
+    "documents": [],
+    "resolved_at": "2026-10-14T09:03:36.866988+00:00",
+    "requested_document_ids": []
+  },
+  "studio_complete": true,
+  "approved_version": null,
+  "generation_state": {
+    "mode": "knowledge_base_direct",
+    "status": "completed",
+    "final_count": 4,
+    "parse_error": "",
+    "parsed_count": 4,
+    "source_scope": [
+      "selected_docs",
+      "direct_prompt"
+    ],
+    "fallback_used": false,
+    "generation_mode": "initial",
+    "requested_count": 4,
+    "selected_doc_count": 0
+  },
+  "selected_doc_ids": [],
+  "studio_course_id": "resource-e2e-b25c130f",
+  "studio_chapter_id": "resource-e2e-b25c130f-variables",
+  "config_snapshot_id": null,
+  "studio_source_refs": [],
+  "generation_batch_id": null,
+  "studio_course_title": "资源生成端到端验证 · Python 变量与列表",
+  "studio_chapter_title": "Python 变量绑定、列表别名与浅拷贝",
+  "current_review_status": "not_required",
+  "artifact_paths": [],
+  "personal_resource": true
+}

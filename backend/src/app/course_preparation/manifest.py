@@ -29,8 +29,9 @@ class ManifestResource(Contract):
     purpose: ShortText
     required: bool = True
     order: PositiveVersion
-    objective_ids: tuple[Identifier, ...] = Field(min_length=1, max_length=100)
-    source_refs: tuple[Identifier, ...] = Field(default=(), max_length=200)
+    objective_ids: tuple[Identifier, ...] = Field(min_length=1)
+    objective_coverage: Literal['verified', 'planned'] = 'verified'
+    source_refs: tuple[Identifier, ...] = Field(default=())
 
 
 class CheckLocator(Contract):
@@ -47,7 +48,7 @@ class CheckLocator(Contract):
 
 class LearningCheck(Contract):
     check_id: Identifier
-    objective_ids: tuple[Identifier, ...] = Field(min_length=1, max_length=100)
+    objective_ids: tuple[Identifier, ...] = Field(min_length=1)
     mode: Literal['self_check', 'practice']
     resource_id: Identifier
     resource_version: PositiveVersion
@@ -59,11 +60,14 @@ class ManifestNode(Contract):
     title: ShortText
     order: PositiveVersion
     required: bool = True
-    objectives: tuple[LearningObjective, ...] = Field(min_length=1, max_length=100)
-    prerequisite_node_ids: tuple[Identifier, ...] = Field(default=(), max_length=100)
+    delivery_state: Literal['ready', 'partial', 'pending'] = 'ready'
+    generation_status: Literal['queued', 'generating', 'ready', 'failed'] | None = None
+    pending_resource_types: tuple[ResourceType, ...] = ()
+    objectives: tuple[LearningObjective, ...] = Field(min_length=1)
+    prerequisite_node_ids: tuple[Identifier, ...] = Field(default=())
     estimated_minutes: PositiveVersion
-    resources: tuple[ManifestResource, ...] = Field(default=(), max_length=100)
-    checks: tuple[LearningCheck, ...] = Field(default=(), max_length=100)
+    resources: tuple[ManifestResource, ...] = Field(default=())
+    checks: tuple[LearningCheck, ...] = Field(default=())
 
     @model_validator(mode='after')
     def validate_coverage(self):
@@ -74,6 +78,8 @@ class ManifestNode(Contract):
         unique([c.check_id for c in self.checks], 'check IDs')
         unique(self.prerequisite_node_ids, 'prerequisites')
         resources = {r.resource_id: r for r in self.resources}
+        if any(r.objective_coverage == 'planned' and r.resource_type not in ('classroom', 'quiz') for r in self.resources):
+            raise ValueError('only classroom/quiz coverage may remain planned')
         for item in (*self.resources, *self.checks):
             unique(item.objective_ids, 'objective references')
             if not set(item.objective_ids) <= objectives:
@@ -84,16 +90,23 @@ class ManifestNode(Contract):
                 raise ValueError('check must reference an included exact resource version')
             if not set(check.objective_ids) <= set(resource.objective_ids):
                 raise ValueError('check objective must be covered by its resource')
-        if self.required:
+        if self.required and self.delivery_state == 'ready':
             covered = {o for r in self.resources if r.required for o in r.objective_ids}
             checked = {o for c in self.checks for o in c.objective_ids}
-            if covered != objectives or checked != objectives:
+            planned = {o for r in self.resources if r.required and r.resource_type == 'classroom'
+                       and r.objective_coverage == 'planned' for o in r.objective_ids}
+            verified = {o for r in self.resources if r.required and r.objective_coverage == 'verified'
+                        for o in r.objective_ids}
+            quiz_planned = {o for r in self.resources if r.required and r.resource_type == 'quiz'
+                            and r.objective_coverage == 'planned' for o in r.objective_ids}
+            if covered != objectives or objectives - checked - (planned - verified) - quiz_planned:
                 raise ValueError('core node requires core resources and checks covering every objective')
         return self
 
 
 class CourseManifest(Contract):
     schema_version: Literal[1] = 1
+    delivery_state: Literal['complete', 'partial'] = 'complete'
     manifest_id: Identifier
     course_id: Identifier
     version: PositiveVersion
@@ -102,14 +115,16 @@ class CourseManifest(Contract):
     goal: ShortText
     audience: ShortText
     estimated_minutes: PositiveVersion
-    assumptions: tuple[ShortText, ...] = Field(default=(), max_length=100)
-    nodes: tuple[ManifestNode, ...] = Field(min_length=1, max_length=100)
+    assumptions: tuple[ShortText, ...] = Field(default=())
+    nodes: tuple[ManifestNode, ...] = Field(min_length=1)
     quality_report_id: Identifier
-    limitations: tuple[ShortText, ...] = Field(default=(), max_length=100)
+    limitations: tuple[ShortText, ...] = Field(default=())
     created_by_preparation_id: Identifier
 
     @model_validator(mode='after')
     def validate_route(self):
+        if self.delivery_state == 'complete' and any(n.delivery_state != 'ready' or n.pending_resource_types for n in self.nodes):
+            raise ValueError('complete course cannot contain unfinished nodes')
         unique([n.node_id for n in self.nodes], 'node IDs')
         unique([n.order for n in self.nodes], 'node order')
         unique([o.objective_id for n in self.nodes for o in n.objectives], 'course objective IDs')

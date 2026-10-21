@@ -1,0 +1,619 @@
+{
+  "unit": {
+    "stepId": "build-layout",
+    "title": "搭建计算器界面",
+    "objective": "建立显示区和可操作按钮",
+    "instructionsMarkdown": "这一步先做出计算器的样子，暂时不用让它真的会算。\n\n页面从上到下分成两部分：上方是一块显示数字的屏幕，刚打开时显示 `0`；下方是按键面板，按顺序排好这些按钮：数字 `0` 到 `9`、小数点 `.`、加号 `+`、减号 `-`、乘号 `×`、除号 `÷`、等号 `=`，以及清空按钮 `C`。\n\n把屏幕和按键排成一个整齐的面板，每个按钮都要能看见、能用鼠标点，并且可以用键盘 Tab 聚焦。本步只做外壳，点按钮暂时不需要有任何计算或显示变化。\n\n### 代码约定\n\n为了让系统找到显示数字的屏幕，请给显示数字的那个标签加上 `data-testid=\"display\"`。它只是检查用的标记，不会改变页面外观。",
+    "explanationMarkdown": "React 组件用 JSX 描述页面结构，一个函数组件返回的标签树就是最终页面。\n\n按钮用 `<button>` 标签，文字直接写在标签里，例如 `<button>7</button>`。`<button>` 天生可聚焦、可点击，不需要额外处理。\n\n显示区可以用 `<div>` 或 `<output>` 之类的标签，里面放当前要显示的文字。给它加 `data-testid` 是为了让检查程序能定位到它，不影响外观。\n\n布局可以用 CSS 的 `display: grid` 把按钮排成网格，也可以用 flex 换行，先让面板看起来整齐即可。",
+    "hints": [
+      "先用一个变量或直接写死 `0` 作为显示区内容，确认屏幕能显示出来。",
+      "按钮文字要和题目一致：乘号用 `×`、除号用 `÷`、减号用 `-`，不要写成 `*` 或 `/`。",
+      "如果按钮挤在一起，可以在 CSS 里给按钮面板设置 `display: grid; grid-template-columns: repeat(4, 1fr);` 之类的网格。",
+      "本步不需要写任何点击逻辑，`onClick` 可以留到下一步再加。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "controls"
+    ]
+  },
+  "checks": [
+    {
+      "id": "controls",
+      "label": "显示区显示 0，并且 0–9、小数点、加减乘除、等号、清空按钮都可见、可聚焦、可点击",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0"
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "0",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "0",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "0",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "1",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "1",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "1",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "2",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "2",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "2",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "3",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "3",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "3",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "4",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "4",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "4",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "5",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "5",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "5",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "6",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "6",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "6",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "7",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "7",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "7",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "8",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "8",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "8",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "9",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "9",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "9",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": ".",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": ".",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": ".",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "+",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "+",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "+",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "-",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "-",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "-",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "×",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "×",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "×",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "÷",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "÷",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "÷",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "C",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "C",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "C",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        }
+      ]
+    }
+  ],
+  "referencePassed": true,
+  "starterPassed": false,
+  "faultyPassed": false,
+  "elapsedSeconds": 18.3,
+  "modelCalls": 1,
+  "productionDataModified": false
+}

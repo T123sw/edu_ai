@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-13",
+  "scope": "native OpenMAIC classroom generation integration",
+  "backup": {
+    "commit": "ba2c74aef3070e5cb0fa0a073423dbbc1ee44ee5",
+    "branch": "backup/openmaic-native-20261013T134243Z",
+    "directory": "/home/zxqs_ep/project-backups/Edu_AI-before-openmaic-native-20261013T134243Z",
+    "archive_sha256_verified": true,
+    "git_bundle_verified": true
+  },
+  "code": {
+    "branch": "feat/openmaic-native-classroom",
+    "commits": [
+      "961f44ec",
+      "2873d2ad",
+      "f51f94ba"
+    ],
+    "applied_to": "/home/zxqs_ep/Edu_AI",
+    "concurrent_changes_preserved": true
+  },
+  "tests": {
+    "preparation_suite_initial": {
+      "passed": 603,
+      "skipped": 133
+    },
+    "broad_followup": {
+      "passed": 195,
+      "skipped": 17
+    },
+    "final_review_schema_regressions": {
+      "passed": 99,
+      "skipped": 15
+    },
+    "merged_workspace_regressions": {
+      "passed": 39,
+      "skipped": 11
+    },
+    "sidecar_targeted": {
+      "passed": 25
+    },
+    "typescript": "passed",
+    "next_production_build": "passed",
+    "notes": "Test groups overlap; PostgreSQL cases were skipped without a separate test database. Later scoped runs validate subsequent fixes."
+  },
+  "live_validation": {
+    "model": "deepseek-v4-flash",
+    "synthetic_topic": "Lomuto partition",
+    "scene_types": [
+      "slide",
+      "interactive",
+      "quiz"
+    ],
+    "node_generation": "passed",
+    "checkpoint_resume": "passed",
+    "targeted_native_repair": "exercised",
+    "browser_render": "initial_candidate_passed; latest_unapproved_candidate_has_interactive_runtime_error",
+    "interactive_button_state_change": "passed",
+    "audio_listening": "not_checked",
+    "content_acceptance": "rejected",
+    "final_failure_code": "CLASSROOM_CONTENT_REJECTED",
+    "reason": "Inconsistent interval boundaries between interactive state and narration remained after bounded repairs. An earlier model pass was rejected by manual verification. No synthetic course was delivered. Browser replay of the final rejected candidate also reported a null DOM reference in generated interactive HTML, while its step button changed state.",
+    "evidence_directory": "/home/zxqs_ep/openmaic-native-validation",
+    "latest_browser_error": "Cannot set properties of null (setting 'textContent')"
+  },
+  "deployment": {
+    "backend_restarted": false,
+    "sidecar_restarted": false,
+    "reason": "Current user cannot restart systemd services without administrator authentication. Source is integrated; running services have not been switched."
+  },
+  "capabilities": {
+    "whiteboard": false,
+    "discussion": false,
+    "pbl": false,
+    "paid_media": "Requires provider configuration and explicit per-request price ceilings; disabled by default until configured."
+  }
+}

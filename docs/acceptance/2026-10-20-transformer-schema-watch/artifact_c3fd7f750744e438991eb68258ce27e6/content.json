@@ -1,0 +1,370 @@
+{
+  "title": "位置编码的必要性与 Transformer 相对循环网络的优势",
+  "content": "# 位置编码的必要性与 Transformer 相对循环网络的优势\n\n本节解决两个问题：一是 Transformer 既然没有循环、也没有卷积，它靠什么知道词的先后顺序；二是它凭什么敢放弃循环结构，用自注意力替代循环层到底换来了什么、又付出了什么代价。\n\n<a id=\"why-position\"></a>\n## 一、为什么必须注入位置信息\n\n先看一个具体现象。把「狗咬人」和「人咬狗」送进模型，两句话用的是同一批词，只是顺序不同。自注意力层做的事是：对每个位置，用它的查询向量去和所有位置的键向量算相似度，再加权求和所有位置的值向量。这个计算对输入位置是**置换等变**的——把输入序列的顺序打乱，输出的向量也只是跟着同样打乱，每个位置拿到的结果集合完全一样。也就是说，如果只给模型词嵌入、不给位置信息，模型看到的「狗咬人」和「人咬狗」在数学上是同一个多重集合，它没有任何依据区分这两句话。\n\n循环网络不需要额外处理：它按时间步依次读入，第 t 步的隐藏状态依赖第 t−1 步，顺序被结构本身编码进去了。卷积网络也不需要：卷积核在序列上滑动，局部窗口的位置关系天然存在。Transformer 两者都没有，所以必须**显式**地把位置信息注入进去。原论文的表述是：由于模型不含循环也不含卷积，为了让模型利用序列顺序，必须向输入嵌入注入词元的相对或绝对位置信息。\n\n注入的方式是**相加**，不是拼接：位置编码的维度与词嵌入的维度相同，都是 d_model，因此两者可以直接逐元素相加，得到编码器和解码器栈底部的输入。相加而不是拼接，是因为拼接会把维度变成 2·d_model，后续所有子层的参数形状都要跟着改；而相加保持了维度不变，且模型可以在训练中学会把「语义部分」和「位置部分」在同一个向量空间里区分使用。\n\n<a id=\"positional-encoding\"></a>\n## 二、正弦位置编码：公式与选择理由\n\n原论文使用不同频率的正弦、余弦函数：\n\n$$PE(pos, 2i) = \\sin\\left(\\frac{pos}{10000^{2i/d_{model}}}\\right)$$\n\n$$PE(pos, 2i+1) = \\cos\\left(\\frac{pos}{10000^{2i/d_{model}}}\\right)$$\n\n其中 pos 是位置（从 0 开始计），i 是维度下标，d_model 是嵌入维度。偶数维用 sin，奇数维用 cos，每个维度对应一条正弦曲线，波长构成从 2π 到 10000·2π 的等比数列：低维（i 小）波长很短、变化快，高维波长很长、变化慢。这样每个位置得到一个由不同频率正弦值组成的「指纹」，不同位置的指纹互不相同。\n\n选择这个函数有两个理由：\n\n1. **相对位置可以线性表示。** 对任意固定偏移 k，PE(pos+k) 可以写成 PE(pos) 的线性函数。直观理解：sin(a+b) = sin a·cos b + cos a·sin b，cos(a+b) = cos a·cos b − sin a·sin b，所以「位置往后挪 k」这个操作，在每一对 (sin, cos) 维度上都是一个只依赖 k、不依赖 pos 的固定旋转。模型因此容易学会「关注相对位置」而不是死记绝对位置。\n2. **可能外推到更长的序列。** 正弦编码是解析式，任意 pos 都能直接算出来，不受训练时见过的最大长度限制；而学习式位置嵌入是一张查表，表里没有的位置就没有向量。论文也说明，他们实验过学习式位置嵌入，两种版本结果几乎相同，最终选正弦版本正是看中外推的可能性。\n\n需要如实说明边界：论文用的是「可能外推」（may allow），并没有证明在远超训练长度时性能不下降；实际使用中很多后续模型仍采用学习式或旋转式位置编码。这里讲的是原论文的动机，不是普适结论。\n\n<a id=\"worked-example\"></a>\n## 三、完整例子：给「狗咬人」和「人咬狗」加上位置编码\n\n为了能真正算出来，把维度缩小到 d_model = 4，于是 i 取 0 和 1，分母分别是 10000^{0/4} = 1 和 10000^{2/4} = 100。\n\n四个维度依次是：\n- 维度 0（2i=0）：sin(pos / 1) = sin(pos)\n- 维度 1（2i+1=1）：cos(pos / 1) = cos(pos)\n- 维度 2（2i=2）：sin(pos / 100)\n- 维度 3（2i=3）：cos(pos / 100)\n\n位置 0、1、2 的编码（保留三位小数）：\n\n| pos | 维度0 sin(pos) | 维度1 cos(pos) | 维度2 sin(pos/100) | 维度3 cos(pos/100) |\n|---|---|---|---|---|\n| 0 | 0.000 | 1.000 | 0.000 | 1.000 |\n| 1 | 0.841 | 0.540 | 0.010 | 1.000 |\n| 2 | 0.909 | −0.416 | 0.020 | 1.000 |\n\n现在假设词嵌入（示意值，只为演示相加）：\n\n- 「狗」= (0.5, 0.1, −0.2, 0.3)\n- 「咬」= (0.2, 0.4, 0.1, −0.1)\n- 「人」= (−0.3, 0.2, 0.6, 0.0)\n\n**「狗咬人」**：狗在位置 0，咬在位置 1，人在位置 2。\n\n- 狗@0 = (0.5+0.000, 0.1+1.000, −0.2+0.000, 0.3+1.000) = (0.500, 1.100, −0.200, 1.300)\n- 咬@1 = (0.2+0.841, 0.4+0.540, 0.1+0.010, −0.1+1.000) = (1.041, 0.940, 0.110, 0.900)\n- 人@2 = (−0.3+0.909, 0.2−0.416, 0.6+0.020, 0.0+1.000) = (0.609, −0.216, 0.620, 1.000)\n\n**「人咬狗」**：人在位置 0，咬在位置 1，狗在位置 2。\n\n- 人@0 = (−0.3+0.000, 0.2+1.000, 0.6+0.000, 0.0+1.000) = (−0.300, 1.200, 0.600, 1.000)\n- 咬@1 = (1.041, 0.940, 0.110, 0.900)（与上一句相同，因为「咬」都在位置 1）\n- 狗@2 = (0.5+0.909, 0.1−0.416, −0.2+0.020, 0.3+1.000) = (1.409, −0.316, −0.180, 1.300)\n\n对比两句可以看到三件事：\n\n1. 「狗」这个向量在两句话里**不一样**了：第一句是 (0.500, 1.100, −0.200, 1.300)，第二句是 (1.409, −0.316, −0.180, 1.300)。同一个词因为位置不同，进入模型时携带的向量就不同，模型因此有了区分词序的依据。\n2. 「咬」在两句话里完全相同，因为它都在位置 1——位置编码只依赖位置，不依赖词本身。\n3. 相加后维度仍是 4，没有变化，可以直接送进第一层自注意力。\n\n再验证一下「相对位置可线性表示」：位置 1 相对位置 0 偏移 k=1。维度 0、1 上，(sin1, cos1) = (0.841, 0.540)，而 (sin0, cos0) = (0, 1)，确实满足 (0.841, 0.540) = (0·cos1 + 1·sin1, 1·cos1 − 0·sin1)，即由 (0,1) 经一个只依赖 k=1 的旋转得到。位置 2 相对位置 1 也是同样的偏移 k=1，维度 0、1 上 (sin2, cos2) = (0.909, −0.416) 同样由 (0.841, 0.540) 经同一旋转得到。这就是「固定偏移对应固定线性变换」的具体含义。\n\n<a id=\"self-attention-vs-recurrent\"></a>\n## 四、自注意力与循环层的三方面比较\n\n原论文从三个角度比较层类型，n 是序列长度，d 是表示维度：\n\n| 层类型 | 每层计算复杂度 | 最少顺序操作数 | 最大路径长度 |\n|---|---|---|---|\n| 自注意力 | O(n²·d) | O(1) | O(1) |\n| 循环层 | O(n·d²) | O(n) | O(n) |\n\n**每层计算复杂度。** 自注意力要算 n×n 的注意力分数矩阵，每个分数是长度为 d 的向量点积，所以是 O(n²·d)。循环层每个时间步做一次 d×d 的矩阵乘，共 n 步，所以是 O(n·d²)。\n\n**可并行的顺序操作数。** 自注意力层里所有位置同时参与计算，顺序执行的步骤数是常数 O(1)。循环层第 t 步必须等第 t−1 步算完，隐藏状态 h_t 依赖 h_{t−1}，所以最少需要 O(n) 个顺序操作。这种固有的顺序性使训练样本内部无法并行，序列越长越关键，因为显存限制会进一步压缩批大小。这是 Transformer 能大幅提高并行度的根本原因。\n\n**长程依赖的路径长度。** 路径越短，前向和反向信号要穿过的层数越少，长程依赖越容易学。自注意力层用常数个顺序操作就把任意两个位置直接连起来，最大路径长度 O(1)；循环层中位置 1 的信息要传到位置 n，必须经过 n 步，路径长度 O(n)。\n\n<a id=\"complexity-condition\"></a>\n## 五、O(n²·d) 与 O(n·d²)：什么时候自注意力更快\n\n把两个复杂度放在一起看：自注意力 O(n²·d)，循环层 O(n·d²)。两者都含 n·d，约掉后比较的是 n 和 d。所以结论是：**当序列长度 n 小于表示维度 d 时，自注意力层比循环层更快**。论文指出，这在当时最好的机器翻译模型所用的句子表示（如 word-piece、byte-pair 编码）中通常是成立的。\n\n反过来也要看清代价：n 远大于 d 时，n² 项会迅速压过 d²，自注意力反而更慢、更耗显存。这就是长序列场景下 O(n²) 成为瓶颈的原因，也是后续出现各种稀疏化、分块、线性注意力等改进的动机。入门阶段只需记住这个判据和它的适用边界，不必展开这些变体。\n\n<a id=\"summary\"></a>\n## 六、小结与自检\n\n三句话概括本节：\n\n1. Transformer 没有循环也没有卷积，自注意力对输入顺序是置换等变的，所以必须把与嵌入同维的位置编码**相加**到栈底输入嵌入上，模型才能区分「狗咬人」和「人咬狗」。\n2. 正弦位置编码用不同频率的 sin/cos 填满各维度，好处是固定偏移 k 对应一个只依赖 k 的线性变换（便于学相对位置），并且是解析式、可能外推到训练时未见过的长度。\n3. 自注意力每层 O(n²·d)、顺序操作 O(1)、最大路径 O(1)；循环层每层 O(n·d²)、顺序操作 O(n)、最大路径 O(n)。n < d 时自注意力更快，n 很大时 O(n²) 成为代价。\n\n自检清单：\n\n- 能解释为什么是「相加」而不是「拼接」：拼接会改变维度，相加保持 d_model 不变。\n- 能默写 PE(pos,2i) 与 PE(pos,2i+1) 两个公式，并说出分母 10000^{2i/d_model} 使波长成等比数列。\n- 能说出自注意力在并行度和长程路径上的优势，同时指出 O(n²) 在长序列上的代价，以及 n < d 这个更快条件。\n\n> 说明：本节内容依据公开论文《Attention Is All You Need》（NeurIPS 2017）第 3.5 节与第 4 节及表 1。文中 d_model=4 的数值例子是为教学演示而设计的简化算例，不是论文原始设定；论文 base 模型使用 d_model=512。本节不涉及从零实现代码与训练调参。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 8.9
+      },
+      "sections": [
+        {
+          "section_id": "why-position",
+          "content_sha256": "55a940e3e97515fbfd71aee95bb1fcf86adaaaa1b422e1cb70ba5e9d697bc87b"
+        },
+        {
+          "section_id": "positional-encoding",
+          "content_sha256": "5d846a88590ede7489656f634b2018455d4bb11f8a34d292babde4b7ac4ad012"
+        },
+        {
+          "section_id": "worked-example",
+          "content_sha256": "ad140d4f825e8da30a9fd3cda791f430a28fb44cfce7cca68db76a453a908e8e"
+        },
+        {
+          "section_id": "self-attention-vs-recurrent",
+          "content_sha256": "18622131e2020a7f0343cb3882a646426b0db1258a7caa36d35be6eb2a3706f6"
+        },
+        {
+          "section_id": "complexity-condition",
+          "content_sha256": "ae43e07de789282cf9f09a73c6dc109352fa0e112b8c018aa49aa1dfdffe4408"
+        },
+        {
+          "section_id": "summary",
+          "content_sha256": "35d88cb47b40a378a24207f0fdf09c06b88d33279c02cfd755936a0f46f383fe"
+        }
+      ],
+      "spec_digest": "29fe84dcb793fcf1a037528c380a13866c1acd0d9d491bd9344a86e8a10e83e3",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "objective_id": "n5-positional-encoding-and-advantages:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "positional-encoding"
+          },
+          "objective_id": "n5-positional-encoding-and-advantages:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "positional-encoding"
+          },
+          "objective_id": "n5-positional-encoding-and-advantages:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "worked-example"
+          },
+          "objective_id": "n5-positional-encoding-and-advantages:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "self-attention-vs-recurrent"
+          },
+          "objective_id": "n5-positional-encoding-and-advantages:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "complexity-condition"
+          },
+          "objective_id": "n5-positional-encoding-and-advantages:o4"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "summary"
+          },
+          "objective_id": "n5-positional-encoding-and-advantages:o4"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "positional-encoding"
+          },
+          "explanation": "本节从“为什么必须注入位置信息”入手，讲清 Transformer 因不含循环与卷积而丢失词序，并给出正弦位置编码公式与相加方式，属于核心架构原理的一部分。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "self-attention-vs-recurrent"
+          },
+          "explanation": "本节用复杂度、顺序操作数、最大路径长度三个维度比较自注意力与循环层，说明 Transformer 选择纯注意力的机制性理由，落实“理解工作机制”的要求。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "teaching_context_digest": "2905c834423552631bc1dec2868603f9f301f2923c74758bd9d5f9c992ce42c2"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文在「一、为什么必须注入位置信息」「二、正弦位置编码」落实 o1/o2，在「四、自注意力与循环层的三方面比较」「五、O(n²·d) 与 O(n·d²)」落实 o3/o4，对 req-goal-transformer 的架构原理理解有真实贡献；未越界到其他节点内容。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "公式 PE(pos,2i)=sin(pos/10000^(2i/d_model))、PE(pos,2i+1)=cos(...) 与论文一致；d_model=4 算例数值经复核正确（sin1≈0.841、cos1≈0.540、sin2≈0.909、cos2≈−0.416、sin(0.01)≈0.010、sin(0.02)≈0.020），相加结果逐项无误；复杂度表 O(n²·d)/O(1)/O(1) 与 O(n·d²)/O(n)/O(n) 与论文表 1 一致，n<d 判据表述准确。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "「狗咬人」/「人咬狗」算例给出完整数值并指出「咬」在两句中相同、同一词因位置不同向量不同，边界也说明 d_model=4 为教学简化、论文 base 为 512；相对位置线性表示用 k=1 的旋转具体验证，未夸大外推结论（明确写「可能外推」）。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：必要性→公式与理由→完整算例→三方面比较→复杂度条件→小结自检，先讲动机再给公式再演算再比较，符合入门深度与节点活动顺序；小结三句话与自检清单对应四个目标。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "文末说明依据《Attention Is All You Need》第 3.5 节、第 4 节及表 1，与 evidence 中逐字原文（含 PE 公式、Table 1、n<d 更快、学习式与正弦结果几乎相同）一致；未虚构外部来源，也未声称做过全文核查。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "四个目标均有对应章节：o1（why-position、positional-encoding）、o2（公式+理由+算例）、o3（三方面比较表）、o4（复杂度条件与小结自检）；自检清单覆盖相加而非拼接、公式默写、O(n²) 代价与 n<d 条件，无重要遗漏。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文在「一、为什么必须注入位置信息」「二、正弦位置编码」落实 o1/o2，在「四、自注意力与循环层的三方面比较」「五、O(n²·d) 与 O(n·d²)」落实 o3/o4，对 req-goal-transformer 的架构原理理解有真实贡献；未越界到其他节点内容。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "公式 PE(pos,2i)=sin(pos/10000^(2i/d_model))、PE(pos,2i+1)=cos(...) 与论文一致；d_model=4 算例数值经复核正确（sin1≈0.841、cos1≈0.540、sin2≈0.909、cos2≈−0.416、sin(0.01)≈0.010、sin(0.02)≈0.020），相加结果逐项无误；复杂度表 O(n²·d)/O(1)/O(1) 与 O(n·d²)/O(n)/O(n) 与论文表 1 一致，n<d 判据表述准确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "「狗咬人」/「人咬狗」算例给出完整数值并指出「咬」在两句中相同、同一词因位置不同向量不同，边界也说明 d_model=4 为教学简化、论文 base 为 512；相对位置线性表示用 k=1 的旋转具体验证，未夸大外推结论（明确写「可能外推」）。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：必要性→公式与理由→完整算例→三方面比较→复杂度条件→小结自检，先讲动机再给公式再演算再比较，符合入门深度与节点活动顺序；小结三句话与自检清单对应四个目标。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "文末说明依据《Attention Is All You Need》第 3.5 节、第 4 节及表 1，与 evidence 中逐字原文（含 PE 公式、Table 1、n<d 更快、学习式与正弦结果几乎相同）一致；未虚构外部来源，也未声称做过全文核查。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四个目标均有对应章节：o1（why-position、positional-encoding）、o2（公式+理由+算例）、o3（三方面比较表）、o4（复杂度条件与小结自检）；自检清单覆盖相加而非拼接、公式默写、O(n²) 代价与 n<d 条件，无重要遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "「一、为什么必须注入位置信息」中「置换等变」一词对入门读者偏难，可加一句白话解释（打乱输入顺序，输出只是跟着打乱）。",
+              "「五、O(n²·d) 与 O(n·d²)」可补一个具体数字（如 n=50、d=512）让 n<d 判据更直观。",
+              "「三、完整例子」中位置 2 的维度 2/3 数值（0.020、1.000）可注明保留三位小数导致 cos(0.02) 显示为 1.000，避免读者误以为精确相等。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "locator 指向 positional-encoding 节，该节确实给出正弦位置编码公式、相加方式与选择理由，真实支持「核心架构原理」这一局部贡献，未伪称整门课已满足。",
+                "locator": {
+                  "section_id": "positional-encoding"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "locator 指向 self-attention-vs-recurrent 节，该节以复杂度、顺序操作数、最大路径长度三方面比较自注意力与循环层，真实支持「理解工作机制」的局部贡献。",
+                "locator": {
+                  "section_id": "self-attention-vs-recurrent"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-position 节解释自注意力对输入顺序置换等变、循环与卷积天然编码顺序，故必须显式注入位置信息，直接支持 o1 前半。",
+                "locator": {
+                  "section_id": "why-position"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "positional-encoding 节说明位置编码与词嵌入同维 d_model 因而逐元素相加，并解释相加而非拼接的理由，支持 o1 后半。",
+                "locator": {
+                  "section_id": "positional-encoding"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "positional-encoding 节写出 PE(pos,2i) 与 PE(pos,2i+1) 公式，并给出相对位置线性表示与可能外推两条理由，完整支持 o2。",
+                "locator": {
+                  "section_id": "positional-encoding"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "worked-example 节以 d_model=4 数值算例演示公式计算、相加结果与固定偏移 k=1 的旋转验证，作为 o2 的练习性落实真实有效。",
+                "locator": {
+                  "section_id": "worked-example"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-attention-vs-recurrent 节给出三方面对比表并逐项解释 O(n²·d)/O(1)/O(1) 与 O(n·d²)/O(n)/O(n)，支持 o3。",
+                "locator": {
+                  "section_id": "self-attention-vs-recurrent"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "complexity-condition 节由两式约去 n·d 得出 n<d 时自注意力更快，并指出 n 远大于 d 时 O(n²) 成为代价，支持 o4。",
+                "locator": {
+                  "section_id": "complexity-condition"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "summary 节小结第 3 条与自检清单复述 O(n²·d)、O(n·d²)、n<d 条件及长序列代价，作为 o4 的检查点有效。",
+                "locator": {
+                  "section_id": "summary"
+                },
+                "binding_id": "n5-positional-encoding-and-advantages:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "f9df5284f560a4f6794bd24acd5119537ee85fd6c9b03b645fe1c8365d1530b8",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "「一、为什么必须注入位置信息」中「置换等变」一词对入门读者偏难，可加一句白话解释（打乱输入顺序，输出只是跟着打乱）。",
+        "「五、O(n²·d) 与 O(n·d²)」可补一个具体数字（如 n=50、d=512）让 n<d 判据更直观。",
+        "「三、完整例子」中位置 2 的维度 2/3 数值（0.020、1.000）可注明保留三位小数导致 cos(0.02) 显示为 1.000，避免读者误以为精确相等。"
+      ],
+      "content_sha256": "f9df5284f560a4f6794bd24acd5119537ee85fd6c9b03b645fe1c8365d1530b8",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "locator 指向 positional-encoding 节，该节确实给出正弦位置编码公式、相加方式与选择理由，真实支持「核心架构原理」这一局部贡献，未伪称整门课已满足。",
+          "locator": {
+            "section_id": "positional-encoding"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "locator 指向 self-attention-vs-recurrent 节，该节以复杂度、顺序操作数、最大路径长度三方面比较自注意力与循环层，真实支持「理解工作机制」的局部贡献。",
+          "locator": {
+            "section_id": "self-attention-vs-recurrent"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-position 节解释自注意力对输入顺序置换等变、循环与卷积天然编码顺序，故必须显式注入位置信息，直接支持 o1 前半。",
+          "locator": {
+            "section_id": "why-position"
+          },
+          "binding_id": "n5-positional-encoding-and-advantages:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "positional-encoding 节说明位置编码与词嵌入同维 d_model 因而逐元素相加，并解释相加而非拼接的理由，支持 o1 后半。",
+          "locator": {
+            "section_id": "positional-encoding"
+          },
+          "binding_id": "n5-positional-encoding-and-advantages:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "positional-encoding 节写出 PE(pos,2i) 与 PE(pos,2i+1) 公式，并给出相对位置线性表示与可能外推两条理由，完整支持 o2。",
+          "locator": {
+            "section_id": "positional-encoding"
+          },
+          "binding_id": "n5-positional-encoding-and-advantages:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "worked-example 节以 d_model=4 数值算例演示公式计算、相加结果与固定偏移 k=1 的旋转验证，作为 o2 的练习性落实真实有效。",
+          "locator": {
+            "section_id": "worked-example"
+          },
+          "binding_id": "n5-positional-encoding-and-advantages:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-attention-vs-recurrent 节给出三方面对比表并逐项解释 O(n²·d)/O(1)/O(1) 与 O(n·d²)/O(n)/O(n)，支持 o3。",
+          "locator": {
+            "section_id": "self-attention-vs-recurrent"
+          },
+          "binding_id": "n5-positional-encoding-and-advantages:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "complexity-condition 节由两式约去 n·d 得出 n<d 时自注意力更快，并指出 n 远大于 d 时 O(n²) 成为代价，支持 o4。",
+          "locator": {
+            "section_id": "complexity-condition"
+          },
+          "binding_id": "n5-positional-encoding-and-advantages:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "summary 节小结第 3 条与自检清单复述 O(n²·d)、O(n·d²)、n<d 条件及长序列代价，作为 o4 的检查点有效。",
+          "locator": {
+            "section_id": "summary"
+          },
+          "binding_id": "n5-positional-encoding-and-advantages:o4",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "475fc2c4eb6c598322db78e5db3f172f59e6bc71b5161ed422195d9de5c94af9"
+    }
+  }
+}

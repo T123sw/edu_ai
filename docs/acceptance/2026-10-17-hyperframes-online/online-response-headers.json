@@ -1,0 +1,8 @@
+{
+  "status": 200,
+  "total_header_bytes": 1287,
+  "csp_bytes": 883,
+  "opaque_sandbox": true,
+  "html_bytes": 17224,
+  "live_index_sha256": "24e85cc70d0a3c9b31d20c34aa3132f92442773c0a3db8f19f15b77e509b61cd"
+}

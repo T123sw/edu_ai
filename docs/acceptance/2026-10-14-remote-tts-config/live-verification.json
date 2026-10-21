@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "production_backend_pid": 3618130,
+  "remote_model": "qwen-audio-3.1-tts-flash",
+  "voice": "longanhuan_v3.1",
+  "speed": 1.0,
+  "remote_selected": true,
+  "configuration_loaded": true,
+  "remote_api_success": true,
+  "sample_generation_seconds": 4.122,
+  "production_browser_continuous_segments": 2,
+  "pause_and_next_page_passed": true,
+  "api_intercepted": false,
+  "browser_speech_fallbacks": 0,
+  "sample_audio": {
+    "codec": "mp3",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 2.136,
+    "mean_volume_db": -20.6,
+    "peak_volume_db": -4.5
+  },
+  "initial_test_issue": "Shell-inherited proxy failed to download OSS audio; repeat with production process proxy environment succeeded. Production API and browser passed.",
+  "source_changes_this_validation": false,
+  "restart_required": false
+}

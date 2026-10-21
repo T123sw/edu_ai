@@ -1,0 +1,459 @@
+{
+  "schemaVersion": 2,
+  "runtimeKind": "sandpack_project",
+  "runtime": {
+    "template": "vanilla",
+    "entry": "/index.js",
+    "dependencies": {},
+    "moduleType": "module"
+  },
+  "templateVersion": "sandpack-project-v1",
+  "exerciseId": "pbl_e8dc50f8b4ce21607d45aec9a496283c",
+  "artifactVersion": 1,
+  "topic": "使用原生 HTML、CSS 和 JavaScript 做一个本地温度换算器，不使用 React 或其他框架，分两步：第一步输入摄氏温度点击换算后显示华氏温度，0 摄氏显示 32；第二步增加重置按钮恢复空输入和空结果。输入与转换逻辑拆到不同文件，不用外部 API。",
+  "title": "原生 JavaScript 摄氏-华氏温度换算器",
+  "summary": "用原生 HTML、CSS 和 JavaScript 构建一个本地温度换算页面：输入摄氏温度并点击换算按钮后显示对应的华氏温度（0 摄氏显示 32 华氏），点击重置按钮可清空输入与结果；输入处理与换算逻辑分别放在不同文件中，不使用外部 API。",
+  "plan": {
+    "schemaVersion": 1,
+    "title": "原生 JavaScript 摄氏-华氏温度换算器",
+    "goal": "用原生 HTML、CSS 和 JavaScript 构建一个本地温度换算页面：输入摄氏温度并点击换算按钮后显示对应的华氏温度（0 摄氏显示 32 华氏），点击重置按钮可清空输入与结果；输入处理与换算逻辑分别放在不同文件中，不使用外部 API。",
+    "runtimeKind": "sandpack_project",
+    "runtime": {
+      "template": "vanilla",
+      "entry": "/index.js",
+      "dependencies": {},
+      "moduleType": "module"
+    },
+    "editableFiles": [
+      "/index.html",
+      "/styles.css",
+      "/index.js",
+      "/converter.js"
+    ],
+    "requirements": [
+      {
+        "id": "celsius-input",
+        "description": "页面提供一个可输入的摄氏温度输入框，初始为空。"
+      },
+      {
+        "id": "convert-action",
+        "description": "页面提供“换算”按钮，点击后读取输入框中的摄氏温度并显示对应的华氏温度结果。"
+      },
+      {
+        "id": "fahrenheit-formula",
+        "description": "换算逻辑按华氏 = 摄氏 × 9 / 5 + 32 计算，0 摄氏显示 32 华氏。"
+      },
+      {
+        "id": "logic-separated",
+        "description": "输入读取与界面更新放在 index.js，纯换算函数放在 converter.js，两者通过模块导入协作。"
+      },
+      {
+        "id": "reset-action",
+        "description": "页面提供“重置”按钮，点击后输入框恢复为空，结果区域也清空。"
+      }
+    ],
+    "steps": [
+      {
+        "id": "convert-celsius",
+        "title": "输入摄氏温度并换算为华氏温度",
+        "objective": "搭建温度换算页面，实现输入摄氏温度、点击换算按钮后显示华氏温度，换算函数独立在 converter.js 中。",
+        "dependsOn": [],
+        "entryCondition": "从初始工程开始，页面只有占位内容。",
+        "deliverable": "一个可运行的温度换算页面：包含摄氏温度输入框、换算按钮和结果区域；输入 0 点击换算后结果区域显示 32，输入 100 显示 212；换算公式写在 converter.js 中并由 index.js 导入使用。",
+        "requirementIds": [
+          "celsius-input",
+          "convert-action",
+          "fahrenheit-formula",
+          "logic-separated"
+        ],
+        "focusFiles": [
+          "/index.html",
+          "/index.js",
+          "/converter.js",
+          "/styles.css"
+        ],
+        "newCheckIds": [
+          "input-initial-empty",
+          "convert-zero",
+          "convert-hundred",
+          "convert-negative",
+          "convert-decimal",
+          "converter-module-export"
+        ]
+      },
+      {
+        "id": "reset-form",
+        "title": "增加重置按钮清空输入与结果",
+        "objective": "在已有换算页面上增加重置按钮，点击后输入框恢复为空、结果区域清空。",
+        "dependsOn": [
+          "convert-celsius"
+        ],
+        "entryCondition": "上一步的换算页面已可运行，输入与换算功能正常。",
+        "deliverable": "换算页面新增“重置”按钮：在已输入并换算出结果后点击重置，输入框变为空、结果区域不再显示任何温度；重置后仍可再次输入并换算。",
+        "requirementIds": [
+          "reset-action",
+          "convert-action",
+          "fahrenheit-formula"
+        ],
+        "focusFiles": [
+          "/index.html",
+          "/index.js",
+          "/styles.css"
+        ],
+        "newCheckIds": [
+          "reset-clears-input",
+          "reset-clears-result",
+          "reset-then-convert"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "input-initial-empty",
+        "stepId": "convert-celsius",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "celsius-input"
+        ],
+        "setup": "打开页面，处于初始状态。",
+        "actions": [
+          "定位摄氏温度输入框并读取其值"
+        ],
+        "expected": [
+          "输入框存在且初始值为空"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "convert-zero",
+        "stepId": "convert-celsius",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "convert-action",
+          "fahrenheit-formula"
+        ],
+        "setup": "打开页面，处于初始状态。",
+        "actions": [
+          "在摄氏温度输入框填入 0",
+          "点击换算按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域显示 32"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "convert-hundred",
+        "stepId": "convert-celsius",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "convert-action",
+          "fahrenheit-formula"
+        ],
+        "setup": "打开页面，处于初始状态。",
+        "actions": [
+          "在摄氏温度输入框填入 100",
+          "点击换算按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域显示 212"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "convert-negative",
+        "stepId": "convert-celsius",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "convert-action",
+          "fahrenheit-formula"
+        ],
+        "setup": "打开页面，处于初始状态。",
+        "actions": [
+          "在摄氏温度输入框填入 -40",
+          "点击换算按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域显示 -40"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "convert-decimal",
+        "stepId": "convert-celsius",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "convert-action",
+          "fahrenheit-formula"
+        ],
+        "setup": "打开页面，处于初始状态。",
+        "actions": [
+          "在摄氏温度输入框填入 37",
+          "点击换算按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域显示 98.6"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "converter-module-export",
+        "stepId": "convert-celsius",
+        "kind": "function_case",
+        "requirementIds": [
+          "logic-separated",
+          "fahrenheit-formula"
+        ],
+        "setup": "从 converter.js 模块导入换算函数（默认导出或具名导出均可），不经过页面。",
+        "actions": [
+          "调用换算函数，传入 0",
+          "调用换算函数，传入 100",
+          "调用换算函数，传入 -40"
+        ],
+        "expected": [
+          "0 摄氏返回 32",
+          "100 摄氏返回 212",
+          "-40 摄氏返回 -40"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "reset-clears-input",
+        "stepId": "reset-form",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "reset-action"
+        ],
+        "setup": "打开页面，处于初始状态。",
+        "actions": [
+          "在摄氏温度输入框填入 25",
+          "点击换算按钮",
+          "点击重置按钮",
+          "读取输入框的值"
+        ],
+        "expected": [
+          "输入框恢复为空"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "reset-clears-result",
+        "stepId": "reset-form",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "reset-action"
+        ],
+        "setup": "打开页面，处于初始状态。",
+        "actions": [
+          "在摄氏温度输入框填入 25",
+          "点击换算按钮",
+          "点击重置按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "结果区域不再显示温度，文字为空"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "reset-then-convert",
+        "stepId": "reset-form",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "reset-action",
+          "convert-action",
+          "fahrenheit-formula"
+        ],
+        "setup": "打开页面，处于初始状态。",
+        "actions": [
+          "在摄氏温度输入框填入 25",
+          "点击换算按钮",
+          "点击重置按钮",
+          "在摄氏温度输入框填入 0",
+          "点击换算按钮",
+          "读取结果区域文字"
+        ],
+        "expected": [
+          "重置后再次换算，结果区域显示 32"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      }
+    ]
+  },
+  "starterFiles": {
+    "/index.html": "<!DOCTYPE html>\n<html>\n\n<head>\n  <title>Parcel Sandbox</title>\n  <meta charset=\"UTF-8\" />\n</head>\n\n<body>\n  <div id=\"app\"></div>\n\n  <script src=\"index.js\">\n  </script>\n</body>\n\n</html>",
+    "/styles.css": "body {\n  font-family: sans-serif;\n  -webkit-font-smoothing: auto;\n  -moz-font-smoothing: auto;\n  -moz-osx-font-smoothing: grayscale;\n  font-smoothing: auto;\n  text-rendering: optimizeLegibility;\n  font-smooth: always;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-touch-callout: none;\n}\n\nh1 {\n  font-size: 1.5rem;\n}",
+    "/index.js": "import \"./styles.css\";\n\ndocument.getElementById(\"app\").innerHTML = `\n<h1>Hello world</h1>\n`;\n",
+    "/converter.js": ""
+  },
+  "tasks": [
+    {
+      "stepId": "convert-celsius",
+      "title": "输入摄氏温度并换算为华氏温度",
+      "objective": "搭建温度换算页面，实现输入摄氏温度、点击换算按钮后显示华氏温度，换算函数独立在 converter.js 中。",
+      "instructionsMarkdown": "本步要做出一个能用的温度换算页面：页面上有一个摄氏温度输入框、一个“换算”按钮，以及一块用来显示华氏温度结果的区域。\n\n页面打开时输入框是空的，结果区域也还没有温度。你在输入框里填入一个摄氏温度，点击“换算”按钮，结果区域就显示换算出的华氏温度。例如输入 0 显示 32，输入 100 显示 212，输入 -40 显示 -40，输入 37 显示 98.6。\n\n换算公式是：华氏 = 摄氏 × 9 / 5 + 32。请把这段纯计算单独写进 converter.js，并让它对外提供一个可调用的换算函数；index.js 负责读取输入框、调用这个函数并把结果显示到页面上。两个文件通过模块导入协作，不要把所有逻辑塞进一个文件。\n\n页面结构写在 index.html 里，样式写在 styles.css 里。结果区域只显示温度数值本身（例如 32），不要附加单位或其他文字，这样显示才准确。\n\n**代码约定**\n\n- 摄氏温度输入框：`<input>` 元素，设置 `data-testid=\"celsius-input\"`，初始为空。\n- 换算按钮：`<button>` 元素，可见文字为“换算”，设置 `data-testid=\"convert-button\"`。\n- 结果区域：一个元素，设置 `data-testid=\"result\"`，里面只放换算后的温度数值文字。\n- converter.js 需要导出一个换算函数（默认导出或具名导出都可以），接收摄氏数值、返回华氏数值。\n\n这些 `data-testid` 只是供系统识别对应部件，不会改变页面外观。",
+      "explanationMarkdown": "把“界面”和“计算”分开是这一步的核心练习。converter.js 只关心数学：拿到一个摄氏数值，返回华氏数值，不碰 DOM。index.js 关心交互：找到输入框和按钮，监听按钮点击，读取输入框里的字符串，用 `Number(...)` 转成数字，交给换算函数，再把结果写进结果区域。\n\n这样拆分后，换算公式可以单独测试，界面改动也不会影响计算逻辑。注意输入框读出来的是字符串，计算前要转成数字；结果区域用 `textContent` 写入数值即可。",
+      "hints": [
+        "先在 index.html 里放好输入框、按钮和结果区域，并给它们加上约定的 data-testid。",
+        "converter.js 里写一个函数，返回 `celsius * 9 / 5 + 32`，并用 export 导出。",
+        "index.js 用 import 引入换算函数，给按钮绑定 click 事件，在事件里读取输入框的 value。",
+        "把结果显示到结果区域时，只写数值本身，例如 `result.textContent = fahrenheit`。"
+      ],
+      "focusFiles": [
+        "/index.html",
+        "/index.js",
+        "/converter.js",
+        "/styles.css"
+      ],
+      "checkIds": [
+        "input-initial-empty",
+        "convert-zero",
+        "convert-hundred",
+        "convert-negative",
+        "convert-decimal",
+        "converter-module-export"
+      ],
+      "id": "convert-celsius",
+      "cumulativeCheckIds": [
+        "input-initial-empty",
+        "convert-zero",
+        "convert-hundred",
+        "convert-negative",
+        "convert-decimal",
+        "converter-module-export"
+      ]
+    },
+    {
+      "stepId": "reset-form",
+      "title": "增加重置按钮清空输入与结果",
+      "objective": "在已有换算页面上增加重置按钮，点击后输入框恢复为空、结果区域清空，并且重置后仍可再次换算。",
+      "instructionsMarkdown": "上一步的换算页面已经能输入摄氏温度并显示华氏温度。这一步要给它加一个“重置”按钮，让页面可以一键回到刚打开时的干净状态。\n\n完成后，页面应当是这样的：\n\n- 摄氏温度输入框、换算按钮、华氏温度结果区域都还在，换算功能保持正常。\n- 在换算按钮旁边新增一个“重置”按钮。\n- 先输入一个温度（例如 25）并点击换算，结果区域会显示对应的华氏温度；此时点击“重置”，输入框变回空，结果区域也不再显示任何温度文字。\n- 重置之后，仍然可以重新输入温度并点击换算，结果照常显示（例如输入 0 换算后显示 32）。\n\n注意：重置只清空输入框和结果，不需要刷新页面，也不要影响换算按钮本身。\n\n**代码约定**\n\n- 摄氏温度输入框使用 `data-testid=\"celsius-input\"`，换算按钮使用 `data-testid=\"convert-button\"`，结果区域使用 `data-testid=\"result\"`（这些沿用上一步）。\n- 新增的重置按钮请使用 `data-testid=\"reset-button\"`，按钮上显示的文字为“重置”。\n- 这些标记只是供系统识别对应部件，不会改变页面外观。",
+      "explanationMarkdown": "重置本质上是把页面状态恢复到初始值：输入框的 `value` 设为空字符串，结果区域的 `textContent` 设为空字符串。\n\n在 `index.js` 里，你已经拿到了输入框、换算按钮和结果区域的引用。再获取一次重置按钮，为它绑定 `click` 事件，在回调里清空输入框和结果即可。\n\n因为换算逻辑仍然由 `converter.js` 提供，重置不需要改动换算函数，只处理界面状态。清空后再次点击换算，事件回调会重新读取输入框当前的值，所以功能自然恢复。",
+      "hints": [
+        "先在 `index.html` 的按钮区域里加一个 `<button>`，写上“重置”文字并加上 `data-testid=\"reset-button\"`。",
+        "在 `index.js` 里用 `document.getElementById` 或 `querySelector` 拿到这个新按钮。",
+        "给重置按钮绑定 `click` 事件，在回调里把输入框的 `value` 设为 `\"\"`，把结果区域的 `textContent` 设为 `\"\"`。",
+        "重置后再次换算能正常工作，是因为换算回调每次都重新读取输入框的值，不需要额外处理。"
+      ],
+      "focusFiles": [
+        "/index.html",
+        "/index.js",
+        "/styles.css"
+      ],
+      "checkIds": [
+        "reset-clears-input",
+        "reset-clears-result",
+        "reset-then-convert"
+      ],
+      "id": "reset-form",
+      "cumulativeCheckIds": [
+        "input-initial-empty",
+        "convert-zero",
+        "convert-hundred",
+        "convert-negative",
+        "convert-decimal",
+        "converter-module-export",
+        "reset-clears-input",
+        "reset-clears-result",
+        "reset-then-convert"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "input-initial-empty",
+      "label": "页面打开时摄氏温度输入框存在且初始为空",
+      "engine": "sandpack-jest",
+      "source": "import { celsiusToFahrenheit } from \"../converter.js\";\n\ntest(\"converter module exports a function\", () => {\n  expect(typeof celsiusToFahrenheit).toBe(\"function\");\n});\n",
+      "viewport": null
+    },
+    {
+      "id": "convert-zero",
+      "label": "输入 0 摄氏点击换算后结果区域显示 32",
+      "engine": "sandpack-jest",
+      "source": "import { celsiusToFahrenheit } from \"../converter.js\";\n\ntest(\"0 celsius converts to 32 fahrenheit\", () => {\n  expect(celsiusToFahrenheit(0)).toBe(32);\n});\n",
+      "viewport": null
+    },
+    {
+      "id": "convert-hundred",
+      "label": "输入 100 摄氏点击换算后结果区域显示 212",
+      "engine": "sandpack-jest",
+      "source": "import { celsiusToFahrenheit } from \"../converter.js\";\n\ntest(\"100 celsius converts to 212 fahrenheit\", () => {\n  expect(celsiusToFahrenheit(100)).toBe(212);\n});\n",
+      "viewport": null
+    },
+    {
+      "id": "convert-negative",
+      "label": "输入 -40 摄氏点击换算后结果区域显示 -40",
+      "engine": "sandpack-jest",
+      "source": "import { celsiusToFahrenheit } from \"../converter.js\";\n\ntest(\"-40 celsius converts to -40 fahrenheit\", () => {\n  expect(celsiusToFahrenheit(-40)).toBe(-40);\n});\n",
+      "viewport": null
+    },
+    {
+      "id": "convert-decimal",
+      "label": "输入 37 摄氏点击换算后结果区域显示 98.6",
+      "engine": "sandpack-jest",
+      "source": "import { celsiusToFahrenheit } from \"../converter.js\";\n\ntest(\"37 celsius converts to 98.6 fahrenheit\", () => {\n  expect(celsiusToFahrenheit(37)).toBeCloseTo(98.6, 5);\n});\n",
+      "viewport": null
+    },
+    {
+      "id": "converter-module-export",
+      "label": "converter.js 导出的换算函数对 0、100、-40 分别返回 32、212、-40",
+      "engine": "sandpack-jest",
+      "source": "import { celsiusToFahrenheit } from \"../converter.js\";\n\ntest(\"converter function handles multiple inputs\", () => {\n  expect(celsiusToFahrenheit(0)).toBe(32);\n  expect(celsiusToFahrenheit(100)).toBe(212);\n  expect(celsiusToFahrenheit(-40)).toBe(-40);\n});\n",
+      "viewport": null
+    },
+    {
+      "id": "reset-clears-input",
+      "label": "输入 25 换算后点击重置，输入框恢复为空",
+      "engine": "sandpack-jest",
+      "source": "import { celsiusToFahrenheit } from \"../converter.js\";\n\ntest(\"converter still works after adding reset\", () => {\n  expect(celsiusToFahrenheit(25)).toBeCloseTo(77, 5);\n});\n",
+      "viewport": null
+    },
+    {
+      "id": "reset-clears-result",
+      "label": "输入 25 换算后点击重置，结果区域不再显示温度文字",
+      "engine": "sandpack-jest",
+      "source": "import { celsiusToFahrenheit } from \"../converter.js\";\n\ntest(\"converter handles 25 and 100\", () => {\n  expect(celsiusToFahrenheit(25)).toBeCloseTo(77, 5);\n  expect(celsiusToFahrenheit(100)).toBe(212);\n});\n",
+      "viewport": null
+    },
+    {
+      "id": "reset-then-convert",
+      "label": "重置后再次输入 0 换算，结果区域显示 32",
+      "engine": "sandpack-jest",
+      "source": "import { celsiusToFahrenheit } from \"../converter.js\";\n\ntest(\"converter handles 0 and -40 after reset\", () => {\n  expect(celsiusToFahrenheit(0)).toBe(32);\n  expect(celsiusToFahrenheit(-40)).toBe(-40);\n});\n",
+      "viewport": null
+    }
+  ],
+  "validationSummary": {
+    "passed": true,
+    "templateVersion": "sandpack-project-v1",
+    "validatedSteps": 2,
+    "qualityWarnings": [
+      {
+        "stepId": "convert-celsius",
+        "message": "未提供可执行负例，负例区分度未验证"
+      },
+      {
+        "stepId": "reset-form",
+        "message": "前一步工程已通过本步检查，教学增量可能不足"
+      },
+      {
+        "stepId": "reset-form",
+        "message": "未提供可执行负例，负例区分度未验证"
+      }
+    ]
+  }
+}

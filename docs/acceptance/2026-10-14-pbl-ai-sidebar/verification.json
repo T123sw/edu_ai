@@ -1,0 +1,30 @@
+{
+  "typecheck": "passed",
+  "eslint": "passed",
+  "build": "passed after preserving the published classroom-directory change",
+  "browserCases": 6,
+  "initialSuite": {
+    "passed": 5,
+    "failed": 1,
+    "failureReason": "Mobile test tried to locate the acceptance button by accessible role while the result pane was hidden behind the code view; test corrected to include hidden controls when checking preserved selection."
+  },
+  "correctedSidebarCase": "passed at 1440/1024/768/390/320",
+  "closedReplyCase": "passed after adding close/reopen while response pending",
+  "coverage": [
+    "independent right sidebar, only preview and checks in result navigation",
+    "open/close preserves draft, response, editor and selected result view",
+    "Escape closes sidebar and returns focus to toolbar toggle",
+    "step isolation, retry request id, old code notice and saved history restored",
+    "real project preview counter preserved on sidebar toggles and step changes",
+    "real checker failure evidence opens sidebar without replacing acceptance",
+    "algorithm input, Worker execution, complete check results and responsive layout"
+  ],
+  "actualCalculatorReadOnlyWidths": [
+    1440,
+    1024,
+    390,
+    320
+  ],
+  "limitations": "Business/auth/workspace/tutor APIs mocked. Real Sandpack React preview, algorithm Worker and checker used where exercised. Dedicated layout case blocks external runtime. No real tutor model calls or production learner-data writes.",
+  "publishedAssetsAndSourceMatch": true
+}

@@ -1,0 +1,34 @@
+{
+  "sharedComponents": [
+    "WorkbenchHeading: title, current task, step selector and instructions dialog",
+    "WorkbenchPanels: resizable editor/result columns, preview/checks/tutor tabs, mobile switch",
+    "WorkbenchFooter: save status, file actions, tutor and check controls"
+  ],
+  "algorithmChanges": [
+    "Remove separate left directory and stacked lesson layout",
+    "Run all cases through the same bottom check action; preserve sample-run distinction",
+    "Display input/expected/actual and failure-to-tutor drafts in the check pane",
+    "Keep runtime iframe, input and tutor draft across tab switches",
+    "Preserve Worker execution, cancellation, immutable code snapshots and draft/conflict recovery"
+  ],
+  "validation": {
+    "typecheck": "passed: tsconfig.self-learning.json",
+    "eslint": "passed: changed TSX components",
+    "build": "passed; existing chunk-size warning",
+    "unitCases": 6,
+    "browserCases": 16,
+    "browserRetries": "14 passed initially; two external Sandpack TIME_OUT cases passed unchanged when rerun individually. Business/auth/storage APIs are mocked; actual hosted runtime and Workers execute student test code.",
+    "widths": [
+      1440,
+      1024,
+      900,
+      768,
+      720,
+      700,
+      390,
+      320
+    ]
+  },
+  "baseline": "Initial unchanged-source build exactly matched deployed bc3385457c6f64929362a800a8d7a1b6a4351f27e76943c0823d26a0f96ad8aa. Subsequent report-export and export-size files reconciled from their verified release source; unpublished practice work excluded.",
+  "scope": "Frontend only; no backend restart or changes to production learner code, progress or artifacts."
+}

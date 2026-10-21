@@ -170,6 +170,29 @@ class JobCompletionService:
     ) -> tuple[str | None, str]:
         if not result_ref:
             return "RESOURCE_READBACK_FAILED", "任务没有返回可读取的结果引用"
+        if result_ref.get("resource_type") == "exam_generation":
+            from app.exam_generation.repository import GenerationRepository, GenerationNotFound
+            try:
+                record = GenerationRepository().get(task.owner_user_id, str(result_ref.get("generation_id") or ""))
+            except GenerationNotFound:
+                return "RESOURCE_READBACK_FAILED", "试卷生成结果无法读取"
+            from app.exam_generation.validation import complete_result
+            if not complete_result(record) or not record.get("turn_id"):
+                return "RESOURCE_READBACK_FAILED", "试卷生成结果尚未完整保存"
+            if record.get("job_id") != task.task_id:
+                return "RESOURCE_PROVENANCE_MISMATCH", "试卷生成来源任务不一致"
+            return None, ""
+        if result_ref.get("resource_type") == "personal_resource":
+            from app.services.personal_studio import read
+            from fastapi import HTTPException
+            try:
+                material = read(task.owner_user_id, str(result_ref.get("material_type") or ""),
+                                str(result_ref.get("material_id") or ""), self.course_storage_manager)
+            except HTTPException:
+                return "RESOURCE_READBACK_FAILED", "个人资源无法读取"
+            if not material.get("studio_complete") or material.get("source_job_id") != task.task_id:
+                return "RESOURCE_PROVENANCE_MISMATCH", "个人资源尚未完整保存"
+            return None, ""
         if result_ref.get("resource_type") == "artifact_revision":
             from app.artifact_revision.storage import RevisionStorage
             storage = RevisionStorage(self.course_storage_manager)

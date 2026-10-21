@@ -13,12 +13,12 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
-from typing import Optional
 
 from .base import ParsedPdf, PdfParseError, PdfParseProvider
 from .mineru_cloud import MinerUCloudProvider
+from .mineru_local import LocalMinerUProvider
+from .configuration import resolve_pdf_config, create_pdf_parser
 from app.services.runtime_config_resolver import runtime_config_resolver
 
 __all__ = [
@@ -26,30 +26,14 @@ __all__ = [
     "PdfParseError",
     "PdfParseProvider",
     "MinerUCloudProvider",
+    "LocalMinerUProvider",
     "get_pdf_parser",
     "write_parsed_markdown",
 ]
 
-# 解析后端选择：默认 mineru-cloud。留出扩展位（未来可加 sidecar/unpdf 实现）。
-_PDF_PARSER_PROVIDER = os.getenv("PDF_PARSER_PROVIDER", "mineru-cloud").strip().lower()
-
-_singletons: dict[str, PdfParseProvider] = {}
-
-
 def get_pdf_parser() -> PdfParseProvider:
     """Return a parser bound to the current request/job configuration snapshot."""
-    resolved = runtime_config_resolver.resolve("pdf_parser")
-    cache_key = str(resolved.get("_revision_id") or "environment")
-    if cache_key not in _singletons:
-        if _PDF_PARSER_PROVIDER in ("mineru-cloud", "mineru", "mineru_cloud"):
-            _singletons[cache_key] = MinerUCloudProvider(
-                api_key=str(resolved.get("api_key") or "") or None,
-                base_url=str(resolved.get("base_url") or "") or None,
-                model_version=str(resolved.get("model") or "vlm"),
-            )
-        else:
-            raise PdfParseError(f"未知 PDF_PARSER_PROVIDER: {_PDF_PARSER_PROVIDER}")
-    return _singletons[cache_key]
+    return create_pdf_parser(resolve_pdf_config(runtime_config_resolver.resolve("pdf_parser")))
 
 
 def write_parsed_markdown(result: ParsedPdf, out_dir: Path, stem: str) -> Path:

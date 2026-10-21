@@ -1,0 +1,11 @@
+{
+  "preparation_id": "prep_95f2f8fee55d43538396f4e5035661af",
+  "failing_operation": "map completed native classroom pages to teaching objectives",
+  "classroom_native_content_bytes": 95937,
+  "mapping_input_upper_bound": 127799,
+  "output_reservation": 6000,
+  "configured_context_limit": 128000,
+  "real_model_called": false,
+  "limits_changed": false,
+  "reproduced_error": "CONTEXT_BUDGET_EXCEEDED"
+}

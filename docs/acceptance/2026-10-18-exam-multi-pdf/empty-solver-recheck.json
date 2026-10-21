@@ -1,0 +1,18 @@
+{
+  "boundary": "Isolated real-model recheck of frozen Shanghai ordinal 40, not a complete browser E2E.",
+  "issues": [
+    "independent_solution_unverified",
+    "Independent solver did not provide an answer"
+  ],
+  "calls": [
+    {
+      "call": "quiz-solve-q_48a1f01746319a82e3b7-adb8075064",
+      "max_tokens": 16384,
+      "label": "FINISH",
+      "text_length": 785,
+      "finish_reason": "stop",
+      "reasoning_only": false,
+      "idle_timeout": false
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+[
+  {
+    "width": 1440,
+    "ok": true,
+    "checks": [
+      "six-demo-steps-and-back",
+      "task-1-wrong-feedback-retry-correct-auto-advance",
+      "frozen-question-real-server-context",
+      "task-2-wrong-feedback-retry-correct-auto-advance",
+      "task-3-wrong-feedback-retry-correct-auto-advance",
+      "explore-step-run-pause-animation-history",
+      "frozen-context-immutable-after-later-operations",
+      "fresh-browser-server-restore",
+      "explore-sorted-result-and-reset"
+    ],
+    "events": 49,
+    "snapshots": 99,
+    "errors": [],
+    "mockedRequests": 0
+  },
+  {
+    "width": 390,
+    "ok": true,
+    "checks": [
+      "six-demo-steps-and-back",
+      "task-1-wrong-feedback-retry-correct-auto-advance",
+      "frozen-question-real-server-context",
+      "task-2-wrong-feedback-retry-correct-auto-advance",
+      "task-3-wrong-feedback-retry-correct-auto-advance",
+      "explore-step-run-pause-animation-history",
+      "frozen-context-immutable-after-later-operations",
+      "fresh-browser-server-restore",
+      "explore-sorted-result-and-reset"
+    ],
+    "events": 48,
+    "snapshots": 97,
+    "errors": [],
+    "mockedRequests": 0
+  }
+]

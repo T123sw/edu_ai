@@ -1,0 +1,32 @@
+{
+  "deployment": {
+    "code_sha": "7b28132561c957b1a03c925e0dfce1e53e4ab1b7",
+    "frontend_tree_sha": "3a63858b9110a94a41a9053db0e549dd2072f04f",
+    "published_at": "20261013T130318Z",
+    "api_base": "/backend"
+  },
+  "apiMode": "mocked browser API requests; static files served by actual Nginx",
+  "results": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "passed": true,
+      "pageErrors": [],
+      "httpFailures": []
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "passed": true,
+      "pageErrors": [],
+      "httpFailures": []
+    },
+    {
+      "name": "new-user",
+      "width": 1440,
+      "passed": true,
+      "pageErrors": [],
+      "httpFailures": []
+    }
+  ]
+}

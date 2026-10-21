@@ -1,0 +1,209 @@
+{
+  "date": "2026-10-14",
+  "scope": "Six resource-generation tools on deployed Nginx frontend and real backend/model/TTS, using dedicated test accounts/course. No business API mocks. Course shell created via API rather than full course generation.",
+  "frontendIndexSha256": "68eff5ae16f609d9b6b98be73297484f27fced46e31c5146a9eb396168b2e029",
+  "resources": [
+    {
+      "kind": "report",
+      "label": "学习报告",
+      "firstAttemptStatus": "succeeded",
+      "firstAttemptSeconds": 28.0,
+      "jobId": "studio_79902448c90ada0b109c2eaab383",
+      "previewFunctionalChecks": {
+        "kind": "report",
+        "checks": [
+          "unauthenticated access denied",
+          "table and code rendered",
+          "Markdown export preserves complete saved content",
+          "desktop/mobile no page overflow",
+          "saved resource reopens after reload",
+          "attach to classroom"
+        ],
+        "passed": true
+      }
+    },
+    {
+      "kind": "quiz",
+      "label": "习题",
+      "firstAttemptStatus": "succeeded",
+      "firstAttemptSeconds": 10.5,
+      "jobId": "studio_12dc2e3fbe9d510f99b62fd7e04f",
+      "previewFunctionalChecks": {
+        "kind": "quiz",
+        "checks": [
+          "unauthenticated access denied",
+          "four requested types generated",
+          "answer/explanation expansion",
+          "JSON export preserves all questions",
+          "desktop/mobile no page overflow",
+          "saved resource reopens after reload",
+          "attach to classroom"
+        ],
+        "passed": true
+      }
+    },
+    {
+      "kind": "flashcard",
+      "label": "闪卡",
+      "firstAttemptStatus": "succeeded",
+      "firstAttemptSeconds": 6.9,
+      "jobId": "studio_0fd656f39f2bf84c190a77503fcb",
+      "previewFunctionalChecks": {
+        "kind": "flashcard",
+        "checks": [
+          "unauthenticated access denied",
+          "unknown returns once to queue",
+          "known cards removed",
+          "round completion and restart",
+          "JSON export",
+          "desktop/mobile no page overflow",
+          "saved resource reopens after reload"
+        ],
+        "passed": true
+      }
+    },
+    {
+      "kind": "graph",
+      "label": "思维导图",
+      "firstAttemptStatus": "succeeded",
+      "firstAttemptSeconds": 22.2,
+      "jobId": "studio_10a14cb220a53ef83a2d1a32f1d9",
+      "previewFunctionalChecks": {
+        "kind": "graph",
+        "checks": [
+          "unauthenticated access denied",
+          "13 nodes / 3 levels",
+          "expand, zoom and reset",
+          "native JSON export",
+          "desktop/mobile no page overflow",
+          "saved resource reopens after reload"
+        ],
+        "passed": true
+      }
+    },
+    {
+      "kind": "podcast",
+      "label": "播客",
+      "firstAttemptStatus": "succeeded",
+      "firstAttemptSeconds": 49.6,
+      "jobId": "studio_508dd1aff00595b1387f4ea556d6",
+      "previewFunctionalChecks": {
+        "kind": "podcast",
+        "checks": [
+          "unauthenticated access denied",
+          "real MP3 decoded and playback advances",
+          "chapter transcript",
+          "audio download",
+          "desktop/mobile no page overflow",
+          "saved resource reopens after reload"
+        ],
+        "duration": 243,
+        "passed": true
+      }
+    },
+    {
+      "kind": "scenario",
+      "label": "情景案例",
+      "firstAttemptStatus": "failed",
+      "firstAttemptSeconds": 32.0,
+      "jobId": "studio_243859b8d485fce32ba67d342f90",
+      "previewFunctionalChecks": {
+        "kind": "scenario",
+        "checks": [
+          "unauthenticated access denied",
+          "every root-to-ending path",
+          "choice feedback, ending and restart",
+          "desktop/mobile no page overflow",
+          "saved resource reopens after reload"
+        ],
+        "paths": 81,
+        "passed": true
+      },
+      "retryJobId": "job_a81bcc56c7594abc",
+      "retrySeconds": 15.0,
+      "retryStatus": "succeeded"
+    }
+  ],
+  "issues": [
+    {
+      "id": "Q1",
+      "priority": "high",
+      "status": "open",
+      "finding": "Generated choice/blank/short/judge types are not mapped to classroom single_choice/short_answer/true_false vocabulary. Single choice uses checkboxes; true/false uses textarea; all labels fall back to 练习.",
+      "source": "frontend/src/liveLearning/CheckCard.tsx; frontend/src/liveLearning/quizPresentation.ts; frontend/src/stitch/pages/courseMaterialPreviewData.ts",
+      "evidence": "quiz-answer.json and quiz-before.png"
+    },
+    {
+      "id": "Q2",
+      "priority": "medium",
+      "status": "open",
+      "finding": "Quiz resource preview renders plain stem in h3, collapsing line breaks and code into one paragraph; differs from readable classroom view.",
+      "source": "frontend/src/stitch/pages/CourseMaterialArtifactPreview.tsx: QuizPreview",
+      "evidence": "preview-quiz-390.png"
+    },
+    {
+      "id": "S1",
+      "priority": "medium",
+      "status": "intermittent_not_resolved",
+      "finding": "First scenario job failed STUDIO_CONTENT_INVALID after model repair; browser retry succeeded. Diagnostic model call also succeeded, so exact invalid branch rule is not identified.",
+      "evidence": "job-scenario.json; scenario-retry.json; scenario-diagnose.json"
+    },
+    {
+      "id": "P1",
+      "priority": "low",
+      "status": "observed",
+      "finding": "3-minute podcast target produced 243.048 seconds (4:03). UI correctly describes approximate duration; timing is not tightly controlled.",
+      "evidence": "content-validation.json"
+    }
+  ],
+  "privacy": {
+    "results": [
+      {
+        "kind": "scenario",
+        "audio": false,
+        "otherUserStatus": 404
+      },
+      {
+        "kind": "podcast",
+        "audio": false,
+        "otherUserStatus": 404
+      },
+      {
+        "kind": "podcast",
+        "audio": true,
+        "otherUserStatus": 404
+      },
+      {
+        "kind": "report",
+        "audio": false,
+        "otherUserStatus": 404
+      },
+      {
+        "kind": "graph",
+        "audio": false,
+        "otherUserStatus": 404
+      },
+      {
+        "kind": "quiz",
+        "audio": false,
+        "otherUserStatus": 404
+      },
+      {
+        "kind": "flashcard",
+        "audio": false,
+        "otherUserStatus": 404
+      }
+    ],
+    "diagnosticRemoved": true
+  },
+  "codeChanges": false,
+  "deploymentPerformed": false,
+  "limits": [
+    "One topic / one primary sample per tool; not a reliability benchmark.",
+    "Podcast browser decoding/playback and duration checked; no human listening evaluation.",
+    "Scenario structure and all paths checked; pedagogical quality not exhaustively evaluated.",
+    "Scenario diagnostic invocation initially persisted an extra diagnostic resource in the dedicated test namespace because dotenv overrides persistence flags; it was removed, and final scenario validation uses the real browser retry resource only.",
+    "Harness locator/navigation errors were corrected; not counted as product failures."
+  ],
+  "summary": "Five generation jobs succeeded on first attempt; scenario succeeded on manual UI retry. Functional checks completed for all six, with unresolved quiz control/format defects and generation-quality observations."
+}

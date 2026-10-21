@@ -1,0 +1,17 @@
+{
+  "preparation_id": "prep_65488c25779346448e1dcbe0b809d73e",
+  "status": "succeeded",
+  "stage": "commit",
+  "started_at": "2026-10-19T11:52:30.771510+00:00",
+  "finished_at": "2026-10-19T12:34:52.100830+00:00",
+  "total_seconds": 2541.32932,
+  "final_delivery": {
+    "course_id": "learn-65488c25779346448e1dcbe0b809d73e",
+    "manifest_id": "manifest_35baad82b2f65f5a42d1c42cff0fb9b2",
+    "course_ready": true,
+    "manifest_version": 21
+  },
+  "resource_count": 15,
+  "nodes": 5,
+  "error_code": null
+}

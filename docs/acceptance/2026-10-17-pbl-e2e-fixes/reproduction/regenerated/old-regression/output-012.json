@@ -1,0 +1,650 @@
+{
+  "unit": {
+    "stepId": "filter-and-stats",
+    "title": "筛选与统计",
+    "objective": "实现全部/待购买/已购买筛选，并显示基于整个清单的商品种类数与待购买总件数。",
+    "instructionsMarkdown": "本步给购物清单加上**筛选**和**统计**。\n\n**起点**：上一步已经能添加商品、增减数量、切换待购买/已购买、删除商品。\n\n**要做出的东西**：\n\n1. 在列表上方放一组筛选按钮，文字分别是「全部」「待购买」「已购买」。默认选中「全部」。点击某个按钮后，列表只显示对应商品：\n   - 「全部」显示所有商品；\n   - 「待购买」只显示状态为待购买的商品；\n   - 「已购买」只显示状态为已购买的商品。\n2. 在页面上显示两项统计：\n   - **商品种类数**：清单里一共有多少件商品（不管状态、不管当前筛选）；\n   - **待购买总件数**：所有待购买商品的数量之和（已购买商品不计入）。\n   这两项统计始终基于整个清单，切换筛选时数字不变。\n\n**完成效果举例**：添加「牛奶」并把数量加到 2，再添加「面包」并切换为已购买，然后点「已购买」筛选——列表只剩「面包」，但商品种类数仍显示 2，待购买总件数仍显示 2。\n\n**代码约定**（供系统识别，不影响外观）：\n- 三个筛选按钮用普通 `<button>`，可见文字分别为「全部」「待购买」「已购买」。\n- 商品种类数的数字放在一个元素上，加 `data-testid=\"stat-kinds\"`，文字形如 `商品种类：2`。\n- 待购买总件数的数字放在一个元素上，加 `data-testid=\"stat-pending\"`，文字形如 `待购买件数：2`。\n- 商品列表项继续使用 `data-testid=\"item-row\"`，数量文字用 `data-testid=\"item-quantity\"`（形如 `数量：1`），状态文字用 `data-testid=\"item-status\"`（`待购买` 或 `已购买`）。\n- 每件商品的「切换状态」按钮文字保持为「切换状态」（与上一步一致），系统通过所在商品行区分是哪件商品。",
+    "explanationMarkdown": "筛选和统计是两种不同的「派生数据」：\n\n- **筛选**只影响「列表显示哪些商品」。你可以用 `useState` 保存当前筛选值（如 `'all' | 'pending' | 'purchased'`），渲染前用 `filter` 得到要显示的子集。注意：筛选只改变显示，不要改动 `items` 本身。\n- **统计**要基于完整的 `items`，而不是筛选后的子集。商品种类数就是 `items.length`；待购买总件数用 `reduce` 把 `purchased === false` 的 `quantity` 累加。\n\n关键点：先算出筛选后的列表用于渲染，再用原始 `items` 算统计，两者互不影响。这样切换筛选时统计数字保持稳定。",
+    "hints": [
+      "用 `useState('all')` 保存当前筛选，三个按钮分别把筛选设为 `'all'`、`'pending'`、`'purchased'`。",
+      "渲染列表前先算 `const visible = items.filter(...)`，根据筛选值决定保留哪些商品。",
+      "商品种类数用 `items.length`；待购买总件数用 `items.filter(i => !i.purchased).reduce((sum, i) => sum + i.quantity, 0)`。",
+      "统计元素要放在列表外面，用 `items` 计算，不要用 `visible`。",
+      "每件商品的「切换状态」按钮文字保持「切换状态」不变，系统会按商品行定位对应按钮。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "filter-pending",
+      "filter-purchased",
+      "filter-all",
+      "stats-ignore-filter"
+    ]
+  },
+  "behaviorCases": [
+    {
+      "requirementId": "filter",
+      "setup": "清单有「大米」（待购买）和「面粉」（已购买）。",
+      "action": "点击「待购买」筛选按钮。",
+      "expected": "列表只显示「大米」，商品项数量为 1。",
+      "checkId": "filter-pending"
+    },
+    {
+      "requirementId": "filter",
+      "setup": "清单有「茶叶」（待购买）和「咖啡」（已购买）。",
+      "action": "点击「已购买」筛选按钮。",
+      "expected": "列表只显示「咖啡」，商品项数量为 1。",
+      "checkId": "filter-purchased"
+    },
+    {
+      "requirementId": "filter",
+      "setup": "清单有「土豆」（待购买）和「番茄」（已购买），当前处于「已购买」筛选。",
+      "action": "点击「全部」筛选按钮。",
+      "expected": "列表显示两件商品，商品项数量为 2。",
+      "checkId": "filter-all"
+    },
+    {
+      "requirementId": "stats",
+      "setup": "清单有「牛奶」数量 2（待购买）和「面包」已购买，当前处于「已购买」筛选。",
+      "action": "读取商品种类数与待购买总件数显示。",
+      "expected": "商品种类数为 2，待购买总件数为 2，不受筛选影响。",
+      "checkId": "stats-ignore-filter"
+    }
+  ],
+  "checks": [
+    {
+      "id": "filter-pending",
+      "label": "清单有「大米」（待购买）和「面粉」（已购买），点击「待购买」筛选后列表只显示 1 件商品",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "大米",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "添加",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面粉",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "添加",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": "button",
+            "name": "切换状态",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "待购买",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "filter-purchased",
+      "label": "清单有「茶叶」（待购买）和「咖啡」（已购买），点击「已购买」筛选后列表只显示 1 件商品",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "茶叶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "添加",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "咖啡",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "添加",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": "button",
+            "name": "切换状态",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "已购买",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-status"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "已购买",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "filter-all",
+      "label": "清单有「土豆」（待购买）和「番茄」（已购买），从「已购买」筛选切回「全部」后列表显示 2 件商品",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "土豆",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "添加",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "番茄",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "添加",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": "button",
+            "name": "切换状态",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "已购买",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "全部",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 2,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "stats-ignore-filter",
+      "label": "「牛奶」数量 2（待购买）与「面包」（已购买）存在时，切到「已购买」筛选后商品种类数仍为 2、待购买总件数仍为 2",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "牛奶",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "添加",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 0,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": "button",
+            "name": "增加",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-input"
+          },
+          "value": "面包",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "添加",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": {
+              "within": null,
+              "index": 1,
+              "role": null,
+              "name": null,
+              "testId": "item-row"
+            },
+            "index": null,
+            "role": "button",
+            "name": "切换状态",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-kinds"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "商品种类：2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-pending"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买件数：2",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "button",
+            "name": "已购买",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "item-row"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 1,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-kinds"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "商品种类：2",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "stat-pending"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "待购买件数：2",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "faultyFiles": {},
+  "faultyCheckId": null
+}

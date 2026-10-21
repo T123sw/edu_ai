@@ -1,0 +1,77 @@
+{
+  "published_at": "2026-10-19T06:27:15.248841+00:00",
+  "status": "published_for_new_tasks",
+  "backend": {
+    "MainPID": "2503545",
+    "ActiveState": "active",
+    "SubState": "running",
+    "ActiveEnterTimestamp": "Mon 2026-10-19 06:25:01 UTC"
+  },
+  "tts": {
+    "MainPID": "2488854",
+    "ActiveState": "active",
+    "SubState": "running",
+    "ActiveEnterTimestamp": "Mon 2026-10-19 06:13:44 UTC"
+  },
+  "supplemental_workers": {
+    "MainPID": "2475382",
+    "ActiveState": "deactivating",
+    "SubState": "stop-sigterm",
+    "ActiveEnterTimestamp": "Mon 2026-10-19 05:58:13 UTC"
+  },
+  "api_health": {
+    "status": "ok",
+    "message": "service ready",
+    "knowledge_base_ready": true,
+    "document_count": 11249
+  },
+  "tts_health": {
+    "status": "ok",
+    "service": "local-tts",
+    "model_loaded": true,
+    "model": "qwen3-tts",
+    "device": "cuda:1",
+    "formats": [
+      "mp3",
+      "wav"
+    ]
+  },
+  "tts_stats": {
+    "batch_size": 4,
+    "cache_size": 256,
+    "cache_entries": 11,
+    "active_requests": 0,
+    "queued_requests": 0,
+    "requests": 11,
+    "cache_hits": 1,
+    "batch_calls": 3,
+    "fallback_calls": 0,
+    "sentences": 11,
+    "audio_ms": 506880,
+    "infer_ms": 424807,
+    "model_calls": 3,
+    "max_batch_observed": 4
+  },
+  "routing": "new tasks use 8191/GPU1; old leased tasks retain 8188/GPU0 while supplemental service drains",
+  "worker_topology": "main 3 general +2 control; supplemental will restart with 5 generation +0 control after current jobs finish",
+  "tests": {
+    "isolated_suite": 135,
+    "additional_video_test": 1,
+    "focused_final_recheck": 8,
+    "http_batch_model_stub": "passed",
+    "real_7_chapter_and_4_scene_audio": "passed"
+  },
+  "benchmark": {
+    "parallel_podcast_seconds": 383.95,
+    "previous_job_seconds": 911.1,
+    "observed_ratio": 2.37,
+    "caveat": "Previous task includes script-writing/saving; separate run on same GPU model, not a controlled deterministic benchmark."
+  },
+  "boundaries": [
+    "Full original text, no artificial sentence splitting or script shortening.",
+    "No full new AI video creation/render benchmark this turn; native audio and timing tested.",
+    "No word-by-word auditory verification.",
+    "Existing task outputs not replaced.",
+    "Legacy 8188 TTS retained; new 8191 user service enabled."
+  ]
+}

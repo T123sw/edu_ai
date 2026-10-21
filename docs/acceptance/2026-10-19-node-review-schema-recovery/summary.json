@@ -1,0 +1,139 @@
+{
+  "at": "2026-10-19T16:24:56.271807+00:00",
+  "status": "online_verified_and_original_task_resumed",
+  "original_task": "prep_531f57d76e274188b9bfd49fc9588dda",
+  "root_cause": {
+    "trigger": "模型在节点 n2 审阅中添加未定义字段 sufficient_again=true",
+    "existing_behavior": "严格业务 schema 拒绝额外字段；通用阶段工具只检查工具名和参数是否为字典，未在模型响应恢复边界验证 schema",
+    "failure_path": "无效参数被接收后交给 NodeEvidenceAssessment.model_validate，ValidationError 被 runner 归为 STEP_FAILED，整课停止",
+    "relation_to_concurrency": "发生于 research_nodes，尚未进入资源调度；节点禁止额外字段的校验在并发改造前已存在，未发现并发改造导致本次错误的证据"
+  },
+  "changes": [
+    "PreparationTools 按各工具实际 JSON schema 验证完整参数，MCP 入口也拒绝不合格输入",
+    "在 SDK 分发前校验整批工具参数，接入已有最多两次协议纠正，所有调用继续计量并受原超时/预算控制",
+    "业务校验、来源范围及不足证据判断保留；不丢弃多余字段、不把格式修复转换为内容通过",
+    "持续错误返回 MODEL_RESPONSE_INVALID，而非单次参数错误直接导致 STEP_FAILED"
+  ],
+  "test_suites": [
+    {
+      "tests": 143,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 24,
+      "passed": 119,
+      "file": "tests.xml"
+    },
+    {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1,
+      "file": "resume-tests.xml"
+    }
+  ],
+  "test_counts_overlap": false,
+  "total_passed": 120,
+  "total_skipped": 24,
+  "skips_reason": "PostgreSQL parametrizations require PREPARATION_TEST_DATABASE_URL; SQLite variants ran.",
+  "live_replay": {
+    "status": "recovered",
+    "decision": {
+      "node_key": "n2-self-attention",
+      "sufficient": true,
+      "reason": "当前节点三个目标均有实质依据：source_2 给出 Q/K/V 的检索式直觉（查询在找什么、键是内容标签、值是被取走的信息），并完整推导 Q=XW_Q、K=XW_K、V=XW_V → S=QK^T → 除以 √d_k → softmax 沿最后一维（key 维）按行归一化 → 输出 AV，与目标要求的步骤顺序一致；source_1 明确 softmax 按行归一化，source_3 以 \"it 指代 cat/bank\" 例子说明 QKV 语义，source_4 说明缩放因子防止点积过大使 softmax 进入梯度饱和区。缩放原因方面，source_2 给出方差随 d_k 线性增长、标准差约 √d_k、不缩放导致近似 one-hot 与梯度消失的推导，source_4 亦佐证。节点活动中的 n=3、d_k=2 手算推演与\"每行权重和为 1\"的检查，可由上述公式与按行归一化说明直接支撑，属教学者自行构造的小算例，无需额外来源。self_check 的公式与维度问题均被覆盖。未发现与目标冲突或需扩展的主题，故无需追加检索。",
+      "source_ids": [
+        "ev_cf807b1a738b6c6375a3ff43",
+        "ev_b65c279e9d830a24a6006942",
+        "ev_8d31cb8c47a018f3e14d01a8",
+        "ev_6f83a834a32bd420dd30f8bd"
+      ],
+      "gap_queries": []
+    },
+    "seconds": 4.665899368003011,
+    "model": "deepseek-v4-flash",
+    "calls": [
+      {
+        "index": 0,
+        "kind": "recorded_response_replay"
+      },
+      {
+        "index": 1,
+        "kind": "real_provider_request",
+        "feedback": "上一轮工具参数不符合当前 schema，整批工具均未执行。请按工具 schema 重新提交完整结构化结果，补齐必填字段、移除未定义字段。保持独立判断，保留真实 blocking_issues，不将格式修正当成内容通过。具体错误：assess_node_evidence.$: Additional properties are not allowed ('sufficient_again' was unexpected)",
+        "seconds": 3.064994466956705,
+        "http_status": 200
+      }
+    ],
+    "input_state_unchanged": true,
+    "original_task_mutated": false,
+    "sources_reread": false
+  },
+  "original_task_state": {
+    "attempt": 2,
+    "status": "running",
+    "stage": "research_nodes",
+    "mutated_by_fix_validation": false,
+    "resume_behavior_verified": "手动重试保留来源、大纲和已通过 n1 审阅，从 n2 继续，不重新进行范围调研",
+    "resumed_via": "PreparationService.retry",
+    "retained_checkpoints": true
+  },
+  "deployment": {
+    "at": "2026-10-19T16:52:34.473603+00:00",
+    "status": "online_verified",
+    "source_files": {
+      "backend/src/app/course_preparation/harness_adapter.py": {
+        "sha256": "8c8b487849b5aa71a3d6bf7da050fea97a1a8ee42a684783be3ab99c7386b447",
+        "mtime": 1792426692.1826515
+      },
+      "backend/src/app/course_preparation/harness_provider.py": {
+        "sha256": "057a0a16deaa45fbfd89548e36b3bf20c1035a1503412431215ac5d8284e83aa",
+        "mtime": 1792426692.1826515
+      }
+    },
+    "services": {
+      "edu-ai-backend.service": {
+        "MainPID": "2747087",
+        "ExecMainStartTimestamp": "Mon 2026-10-19 16:50:39 UTC",
+        "ActiveState": "active",
+        "configuration": {
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "DURABLE_JOB_LIGHT_WORKERS": "2",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "cwd": "/home/zxqs_ep/Edu_AI/backend/src"
+      },
+      "edu-ai-durable-workers.service": {
+        "MainPID": "2747473",
+        "ExecMainStartTimestamp": "Mon 2026-10-19 16:51:16 UTC",
+        "ActiveState": "active",
+        "configuration": {
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "DURABLE_JOB_LIGHT_WORKERS": "2",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "cwd": "/home/zxqs_ep/Edu_AI/backend/src"
+      }
+    },
+    "health_http_status": 200,
+    "backend_restart_by": "user",
+    "supplemental_restart_by": "assistant_after_empty_queue",
+    "source_loading_evidence": "Both processes restarted after patched files were written; source paths and hashes verified.",
+    "resumed_preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda",
+    "attempt_no": 2
+  },
+  "related_test_fixture_update": "补充既有概念题审阅 fixture 的 calculation_checks=[]，使原生 SDK 回归符合已上线的数值审阅 schema；未放松生产校验。",
+  "resumed_attempt_result": {
+    "status": "failed",
+    "attempt": 2,
+    "original_schema_error_recurred": false,
+    "new_error": "3o7r / QueuePool exhaustion in nested authorization",
+    "evidence": "../2026-10-19-transformer-adaptive-watch-retry/summary.json"
+  }
+}

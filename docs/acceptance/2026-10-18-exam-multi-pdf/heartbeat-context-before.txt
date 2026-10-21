@@ -1,0 +1,64 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_____ test_stream_scope_is_preserved_across_yields_and_closed_in_same_task _____
+
+    async def source():
+        token = scope.set('owner')
+        task = asyncio.current_task()
+        try:
+            for seq in (1,2):
+>               assert scope.get() == 'owner' and asyncio.current_task() is task
+E               AssertionError: assert ('outside' == 'owner'
+E                 
+E                 - owner
+E                 + outside)
+
+services/deeptutor/tests/test_bridge.py:208: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+    @pytest.mark.asyncio
+    async def test_stream_scope_is_preserved_across_yields_and_closed_in_same_task():
+        import asyncio
+        from contextvars import ContextVar
+        from edu_deeptutor.api import event_lines
+        scope = ContextVar('test_stream_owner', default='outside')
+        closed = []
+        async def source():
+            token = scope.set('owner')
+            task = asyncio.current_task()
+            try:
+                for seq in (1,2):
+                    assert scope.get() == 'owner' and asyncio.current_task() is task
+                    yield {'seq':seq,'type':'progress'}
+            finally:
+                assert asyncio.current_task() is task
+                scope.reset(token)
+                closed.append(True)
+>       lines = [line async for line in event_lines(source(), heartbeat_seconds=.005) if line.strip()]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+services/deeptutor/tests/test_bridge.py:214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.runtime/exam-multi-pdf-20261018/bridge14/src/edu_deeptutor/api.py:69: in event_lines
+    event = pending.result()
+            ^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    async def source():
+        token = scope.set('owner')
+        task = asyncio.current_task()
+        try:
+            for seq in (1,2):
+                assert scope.get() == 'owner' and asyncio.current_task() is task
+                yield {'seq':seq,'type':'progress'}
+        finally:
+>           assert asyncio.current_task() is task
+E           AssertionError: assert <Task pending name='Task-3' coro=<<async_generator_asend without __name__>()> cb=[_wait.<locals>._on_completion() at /home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/asyncio/tasks.py:534]> is <Task finished name='Task-2' coro=<<async_generator_asend without __name__>()> result={'seq': 1, 'type': 'progress'}>
+E            +  where <Task pending name='Task-3' coro=<<async_generator_asend without __name__>()> cb=[_wait.<locals>._on_completion() at /home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/asyncio/tasks.py:534]> = <built-in function current_task>()
+E            +    where <built-in function current_task> = <module 'asyncio' from '/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/asyncio/__init__.py'>.current_task
+
+services/deeptutor/tests/test_bridge.py:211: AssertionError
+=========================== short test summary info ============================
+FAILED services/deeptutor/tests/test_bridge.py::test_stream_scope_is_preserved_across_yields_and_closed_in_same_task
+1 failed, 1 passed, 12 deselected in 0.35s

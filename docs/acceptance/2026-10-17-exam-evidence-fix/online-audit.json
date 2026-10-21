@@ -1,0 +1,95 @@
+{
+  "observed_at": 1792261654.0941038,
+  "tag": "计算证据修复验收 1792260860771",
+  "generations": [
+    {
+      "generation_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+      "job_id": "examgen_963b0aff1fd978f7e2f3cd01624a1e5e",
+      "turn": {
+        "id": "turn_1792260898458_2d04633af0",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792260898.6050043,
+        "updated_at": 1792261527.0934646
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4483,
+          "layout_blocks": 71,
+          "images": 16
+        }
+      ],
+      "blueprint_count": 32,
+      "local_events": 52632,
+      "upstream_events": 52632,
+      "done_received": true,
+      "summary": {
+        "failed": 1,
+        "success": false,
+        "completed": 31,
+        "requested": 32,
+        "template_count": 32
+      },
+      "failed_questions": [
+        {
+          "ordinal": 7,
+          "issues": [
+            "computed_choice_answer_mismatch: unique computed correct option is C"
+          ]
+        }
+      ],
+      "usage": {
+        "recorded_calls": 159,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 27,
+          "deepseek-v4-flash": 132
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_2614fc5b2b7a9895a0b6c088d044a244",
+      "job_id": "job_91f4e9d362024490",
+      "turn": {
+        "id": "turn_1792261566471_2e51874c59",
+        "status": "completed",
+        "failure_code": "",
+        "created_at": 1792261566.6029701,
+        "updated_at": 1792261586.1182015
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4483,
+          "layout_blocks": 71,
+          "images": 16
+        }
+      ],
+      "blueprint_count": 32,
+      "local_events": 2218,
+      "upstream_events": 2218,
+      "done_received": true,
+      "summary": {
+        "failed": 0,
+        "success": true,
+        "completed": 32,
+        "requested": 32,
+        "template_count": 32
+      },
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 4,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 3,
+          "deepseek-v4-flash": 1
+        }
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 31,
+    "unchanged_in_latest": 31
+  }
+}

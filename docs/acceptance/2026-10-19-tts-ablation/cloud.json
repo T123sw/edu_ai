@@ -1,0 +1,21 @@
+{
+  "samples": [
+    {
+      "index": 0,
+      "chars": 237,
+      "seconds": 6.698952627833933,
+      "audio_seconds": 44.544,
+      "bytes": 890971
+    },
+    {
+      "index": 1,
+      "chars": 207,
+      "seconds": 6.021198210306466,
+      "audio_seconds": 40.224,
+      "bytes": 804571
+    }
+  ],
+  "batch_seconds": 6.802100922912359,
+  "model": "qwen-audio-3.1-tts-flash",
+  "voice": "longanhuan_v3.1"
+}

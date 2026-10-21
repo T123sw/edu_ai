@@ -1,0 +1,28 @@
+{
+  "typecheck": "passed",
+  "lint": "0 errors; existing Profile useEffect dependency warning",
+  "unitTests": 14,
+  "previewBrowserTests": 18,
+  "publishedBrowserTests": 18,
+  "viewportWidths": [
+    1440,
+    1024,
+    390
+  ],
+  "verified": [
+    "Header palette button adjacent to avatar on live and review pages",
+    "Five themes apply immediately, persist across reload, and follow system appearance",
+    "Popover bounds, focus return, Escape, outside click",
+    "Single account details and security section; subdued AI settings row",
+    "Role-neutral profile, course count, edit, avatar, password, logout",
+    "Runtime configuration apply remains gated by test; deployment-managed TTS remains read-only"
+  ],
+  "limits": "Browser auth/business APIs mocked; no external AI service requests or production learner data modifications.",
+  "visualReview": [
+    "desktop profile",
+    "mobile profile",
+    "mobile palette",
+    "dark palette"
+  ],
+  "releaseFilesVerified": 481
+}

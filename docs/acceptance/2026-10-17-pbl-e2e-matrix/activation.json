@@ -1,0 +1,59 @@
+{
+  "service": "MainPID=939101\nActiveEnterTimestamp=Sat 2026-10-17 05:39:17 UTC\n",
+  "processWorkingDirectory": "/home/zxqs_ep/Edu_AI/backend/src",
+  "files": {
+    "backend/src/app/pbl/project_service.py": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:38:38.501689+00:00"
+    },
+    "backend/src/app/pbl/project_generator.py": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:45:27.351449+00:00"
+    },
+    "backend/src/app/pbl/project_workflow.py": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:46:48.313365+00:00"
+    },
+    "backend/src/tests/pbl/test_previous_regression.py": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:39:18.115420+00:00"
+    },
+    "backend/src/tests/pbl/test_project_workflow.py": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:46:48.313365+00:00"
+    },
+    "backend/src/tests/pbl/test_split_acceptance.py": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:39:18.107419+00:00"
+    },
+    "backend/src/tests/pbl/test_statement_generation.py": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:42:27.846394+00:00"
+    },
+    "backend/src/app/pbl/skills/build-pbl-project-v2/SKILL.md": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:42:05.745679+00:00"
+    },
+    "backend/src/app/pbl/skills/build-pbl-project-v2/references/step-unit.md": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:42:05.745679+00:00"
+    },
+    "backend/src/app/pbl/skills/build-pbl-project-v2/references/planning.md": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:46:48.313365+00:00"
+    },
+    "backend/src/app/pbl/skills/build-pbl-project-v2/references/verification.md": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-15T15:00:20.199931+00:00"
+    },
+    "backend/src/app/pbl/skills/build-pbl-project-v2/references/integration.md": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:38:38.501689+00:00"
+    },
+    "backend/src/app/pbl/skills/build-pbl-project-v2/references/acceptance.md": {
+      "matchesVerifiedSource": true,
+      "modifiedUtc": "2026-10-17T04:38:38.501689+00:00"
+    }
+  },
+  "basis": "Restart timestamp after all verified PBL source files; filesystem hashes match prior verified manifest. Functional tests use separate API process and database, published frontend."
+}

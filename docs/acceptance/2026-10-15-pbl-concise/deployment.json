@@ -1,0 +1,96 @@
+{
+  "publishedAt": "20261015T035627Z",
+  "frontendPublished": true,
+  "checkerPublished": false,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-pbl-concise-final",
+  "backup": "/tmp/edu-pbl-concise-backup-20261015T035627Z",
+  "previousIndexSha256": "f24e2ee3dbd9032960d77e0a50ce33f34caab68ab4e8b3bccabe94ad56dcb627",
+  "releaseIndexSha256": "b43e2b52d45b3d2bf0770afe27bde7e0440ca8cabe3bf30546975975e2dcc36e",
+  "nginxIndexMatches": true,
+  "sourceManifest": {
+    "src/pbl/WorkbenchBrief.tsx": {
+      "previous": "5a207fe6a6e70abe1f4b3e302e0c179589402ee703823d8bbd82e2917733363b",
+      "new": "154135846035aa557c4f0892f9becb7ea59f1077cb70d4a2b53346637d17af65"
+    },
+    "src/pbl/problemStatement.ts": {
+      "previous": null,
+      "new": "856e1a910c94a4dc193296927453cf842e95b227abbacef8feddbd63f722cc4e"
+    },
+    "src/pbl/problemStatement.test.ts": {
+      "previous": null,
+      "new": "73916d012ba5a603f6545cc5a7b8d67531aae4fa8ca026b16e0553ad594342c6"
+    },
+    "src/pbl/workbenchBrief.css": {
+      "previous": "efbc50ba7dc8ac82d93704cb5d23913af1deca242f55e126e54b40e5d9f71d34",
+      "new": "487c35d7bc4fc9a9f7415beeaf448621af044d2a3586cbf107cace2d5e525934"
+    },
+    "src/pbl/WorkbenchChrome.tsx": {
+      "previous": "8a7c0f0cb408b3eb3b28c5b4b1a64d4a08693cff6ada9df5d4323ecbcf7bd36b",
+      "new": "4d3fca66b38744ec5e138440cc4beb3f276253cff53fd4d5593302b02ad61faa"
+    },
+    "src/pbl/AlgorithmWorkspace.tsx": {
+      "previous": "8d9bdc6d1396b4464f6b68db8cd503c93d991dcabc70b6b5450c21d73bdbde4a",
+      "new": "037cdf6d768ef7a7768bd2223f4ace431fce5ccd24848a89e4d5fed2a81df874"
+    },
+    "src/pbl/ProjectWorkspace.tsx": {
+      "previous": "3471dd041798dc39f9a29625e204f90204d140961a8457f96753f1ee8014e74d",
+      "new": "c3731795a28d797f503c796c165a196cf4c6d2e1301c159c86575a91127838fe"
+    },
+    "tests/live-learning/pbl-brief.spec.ts": {
+      "previous": "2f93f58536e1c838ac7e4d650b11211046c3237099506612fc88593e5a8f13c9",
+      "new": "a3610531d252362b21145845206d9c2a595e2c343dd6452a0f2ed720e3c688df"
+    },
+    "tests/live-learning/pbl-scroll.spec.ts": {
+      "previous": "96770225af886214f189dc9e5c700c5a48538640b15afcf08f7d2269df9913d2",
+      "new": "72a8e6b637b64f8cee04360ac1e5c6825b652c4e2f4acb5f17e1cbfab345fc7d"
+    },
+    "tests/live-learning/pbl-project.spec.ts": {
+      "previous": "2b1284755a46a67123c941597401c6464ec008ba3aba686f7ea0cffa41a676a7",
+      "new": "9f3df4c4d4131c8139b3cdda36ba7c235940451d16faa1f3bc64005cedab9f60"
+    },
+    "tests/live-learning/pbl.spec.ts": {
+      "previous": "da57cc5799687313c3dab2701b0aa66d3c3ba21e6fd227248b6d35a7030bc856",
+      "new": "36bceebb6faacf5d669c0f5ab68175cc22ad50c72a6b95cadeede18bc75dd763"
+    }
+  },
+  "basedOnVerifiedPreviousRelease": true,
+  "sharedComponents": [
+    "WorkbenchHeading",
+    "AlgorithmBrief",
+    "ProjectBrief"
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "layoutCases": 6,
+    "runtimeCases": 2,
+    "unitCases": 4
+  },
+  "changes": [
+    "Single-column concise task requirements and exactly one example",
+    "Remove acceptance cards, tutorial explanation, inline hints and repeated objective",
+    "Derive project example from current-step operations and final expected result",
+    "Keep viewport scroll transition and shared workbench"
+  ],
+  "verificationLimits": "Business/auth/storage/tutor APIs mocked. Heading/layout cases block external runtime; regression cases use real React preview and algorithm Worker. No real model calls or production learner-data writes.",
+  "backendChanges": false,
+  "sourceSnapshot": "/tmp/edu-pbl-concise-source/frontend",
+  "preservedPublishedFiles": {
+    "src/components/flashcards/FlashcardRound.tsx": "ac9912dc4a8e5a2d39e69aabbfdfb273082957b7b808aef73d30125fb6203f91",
+    "src/components/flashcards/round.ts": "37238d2185422c22c943b24655d97d60636d099bcbbc886145166dea2fd798c0",
+    "src/components/generation/definitions/flashcard.ts": "a18d8ce75bdd73bc7ec4f23e97def8c0806a9aae9f42441c478a5ee72fd7c259",
+    "src/components/generation/definitions/practiceResources.test.ts": "f0438c103aafb10524660619a04f90ba9b46562552fecbb2dfa2325fde03a991",
+    "src/components/generation/definitions/textResources.test.ts": "87b7b647e24d395aa5315936c78fbe81040462a8a2b500ab33ace3a565742b77",
+    "src/components/generation/forms/FlashcardForm.tsx": "0ec46578df3195d70a23ae9a78e2a4413b1948444a989a712074051013dabf12",
+    "src/components/generation/forms/MindMapForm.tsx": "cc9c6ffb2605fee2dfb75f59b69d1da854e92dba0893aaaace481e80a6de5db2",
+    "src/components/teacher/FlashcardArtifactPreview.tsx": "c7fd366d6633f56feed8b4468102441cc57a8c6796b3b66a62645b9885e5414e",
+    "tests/live-learning/resource-config.spec.ts": "68cc6d0a71a9511ea3e1c45931155989a262ff0675ba4384bb6be6e795543bb7"
+  },
+  "designReference": "https://leetcode.cn/problems/two-sum/description/",
+  "releaseFilesVerified": 545,
+  "selectedSourceMatches": true,
+  "productionLayoutCases": 3,
+  "productionLayoutStatus": "passed"
+}

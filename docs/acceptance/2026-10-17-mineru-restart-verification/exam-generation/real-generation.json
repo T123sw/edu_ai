@@ -1,0 +1,17 @@
+{
+  "model_boundary": "live",
+  "pdf_parser": "mineru-local",
+  "production_writes": false,
+  "cases": [
+    {
+      "mode": "mimic",
+      "saved": true,
+      "seconds": 23.94,
+      "events": 19,
+      "result_ref": {
+        "resource_type": "exam_generation",
+        "generation_id": "examgen_e1d72637d73187c7aed2ef62c6810b6b"
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "reproduced": true,
+  "error": "TimeoutError",
+  "message": "QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 0.15 (Background on this error at: https://sqlalche.me/e/20/3o7r)",
+  "seconds": 0.15677150012925267,
+  "database": "temporary SQLite QueuePool with one connection; no production access",
+  "reason": "Claim owns one connection then nested real authorizer requests another; reproduces pool starvation without network or model calls."
+}

@@ -17,12 +17,12 @@ def eligible(request):
 class RouteNode(Contract):
     node_id: Identifier
     title: ShortText
-    minutes: int=Field(strict=True,ge=1,le=100000)
-    prerequisite_node_ids: tuple[Identifier,...]=Field(default=(),max_length=12)
+    minutes: int=Field(strict=True,ge=1)
+    prerequisite_node_ids: tuple[Identifier,...]=Field(default=())
 
 
 class RouteEdit(Contract):
-    nodes: tuple[RouteNode,...]=Field(min_length=1,max_length=12)
+    nodes: tuple[RouteNode,...]=Field(min_length=1)
 
 
 def validate(request,checkpoint):

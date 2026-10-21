@@ -1,0 +1,16 @@
+{
+  "course_id": "bubble-sort-five-minute-20261019",
+  "title": "冒泡排序 Python 实现 · 五分钟视频验证",
+  "owner": "teacher",
+  "path": "/#/classroom/bubble-sort-five-minute-20261019",
+  "imported_at": "2026-10-19T10:54:32.708873+00:00",
+  "project": {
+    "id": "hf_five_minute_demo_20261019",
+    "digest": "6cd0cf079f25ecf23ae3b328d40ebecf6755106d7916c879d4bb40c1267d6966",
+    "entry": "index.html"
+  },
+  "duration": 294.5,
+  "segments": 9,
+  "original_task_modified": false,
+  "source_preparation_id": "prep_f671b0da7a474ac2827f3798362c85bd"
+}

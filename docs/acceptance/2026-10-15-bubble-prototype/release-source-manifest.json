@@ -1,0 +1,11 @@
+{
+  "src/practice/practiceHome.css": "eea6952a97d47cb5a3cd46fa22988b999a460cd73d4ea598a549805e82d1235a",
+  "src/practice/PracticeHome.tsx": "c4bd1e0bd08cd7915d172d76f73442dc997e850574910a6ea9e65094e3ec248d",
+  "src/practice/teaching/bubblePrototype.css": "0dc0088c9d103db1af3f08ad8949b3182dc9e17cfe30ae686d16a0a8b0bbc407",
+  "src/practice/teaching/BubbleSortPrototype.tsx": "85e5197cf48a03b3a2a2143fd64369a553dc88da99ae71f54adf9036c0c4f359",
+  "src/practice/teaching/prototypeStorage.ts": "8bd7ef4b86f0e7f90b92a602205d56d116b4c05ca418a42db9431db1d6403111",
+  "src/practice/teaching/prototypeEntry.tsx": "a3e49d8ccab5e135c6bc8692bd3c52322822fb55b7aa8aada7ad61d1aa83eaa4",
+  "src/practice/teaching/domains/bubbleSort.ts": "9c185f70168b192cc034a7ab925f13fcc1ed51ce1a40079972b79cc2973ec2a7",
+  "src/practice/teaching/domains/bubbleSort.test.ts": "b5c860173d01bab3a767a50f037a6f32e468166a94f490a7459ef3ab5188d0d8",
+  "src/liveLearning/LiveApp.tsx": "4b3a9375919ce4b5d33aaa1d637c1114699c79ca874f0f7a17435dcb5ca768ef"
+}

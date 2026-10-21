@@ -1,0 +1,12 @@
+{
+  "generation_id": "examgen_bfb709da4063f0a66bb7574841f56e37",
+  "original_summary": {
+    "success": false,
+    "completed": 43,
+    "failed": 2
+  },
+  "questions_checked": 45,
+  "structure_only_result_valid": true,
+  "production_writes": false,
+  "method": "Read-only original result; remove semantic verdicts in memory, run full structural delivery checks."
+}

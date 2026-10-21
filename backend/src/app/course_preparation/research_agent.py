@@ -54,6 +54,8 @@ class ResearchAgent:
         self.model, self.sources, self.max_calls = model, sources, max_calls
 
     def read_budget(self, state):
+        if self.max_calls is None:
+            return {'upload_reads': None, 'web_reads': None}
         # Legacy checkpoints predate the split counter. Completed upload excerpts
         # establish a lower bound without refunding any spent reads.
         uploads = max(state.upload_reads, sum(e.url.startswith('upload://') for e in state.evidence))
@@ -62,7 +64,7 @@ class ResearchAgent:
 
     def can_read(self, url, state):
         key = 'upload_reads' if url.startswith('upload://') else 'web_reads'
-        return self.read_budget(state)[key] > 0
+        return self.read_budget(state)[key] is None or self.read_budget(state)[key] > 0
 
     def tools(self, phase, state=None):
         names = MOUNTS.get(phase, ())
@@ -72,7 +74,7 @@ class ResearchAgent:
             names = tuple(n for n in names if n != "search_sources")
         if state is not None and not state.evidence:
             names = tuple(n for n in names if n != 'read_research_evidence')
-        if state is not None and phase == 'research':
+        if state is not None and phase == 'research' and self.max_calls is not None:
             names = tuple(name for name in names
                           if not (name == 'search_sources' and (state.searches >= 6 or self.read_budget(state)['web_reads'] == 0))
                           and not (name == 'fetch_source' and not any(self.read_budget(state).values())))
@@ -99,7 +101,7 @@ class ResearchAgent:
              reserve=None) -> ResearchState:
         if state.phase == 'done':
             return state
-        if state.calls >= self.max_calls:
+        if self.max_calls is not None and state.calls >= self.max_calls:
             raise ResearchError('BUDGET_EXHAUSTED', '研究决策次数已达上限')
         state = state.model_copy(update={'calls': state.calls + 1})
         def persist(value):
@@ -109,15 +111,15 @@ class ResearchAgent:
                 reserve(value)
         persist(state)  # Persist spent call BEFORE contacting an external model.
         context = {**self.extra_context, 'request': request.model_dump(mode='json'), **state.model_dump(mode='json'),
-                   'remaining_budget': {'model_calls': self.max_calls - state.calls,
-                                        'searches': max(0, 6 - state.searches),
+                   'remaining_budget': {'model_calls': self.max_calls - state.calls if self.max_calls is not None else None,
+                                        'searches': max(0, 6 - state.searches) if self.max_calls is not None else None,
                                         **self.read_budget(state)}}
         if state.phase == 'intent':
             from .intake_references import with_references
             context['input_documents'] = with_references(context.get('input_documents', []))
         if self.incremental_findings:
-            from .research_context_view import build_research_context_view
-            context.update(build_research_context_view(state, required_ids=(), max_bytes=48000))
+            from .research_context_view import build_model_research_context
+            context.update(build_model_research_context(state, self.model))
         # Review is a fresh independent request: no generator self-assessment or tool history.
         if state.phase == 'review':
             context.pop('trace', None)
@@ -168,7 +170,7 @@ class ResearchAgent:
             from .schemas import SourcePolicy
             mode = 'uploaded_only' if request.source_policy.mode == 'uploaded_only' else (args.source_policy.mode if args.source_policy else request.source_policy.mode)
             args = args.model_copy(update={'source_policy': SourcePolicy(mode=mode)})
-            if request.operation == 'create_course':
+            if request.operation in ('create_course', 'adjust_course'):
                 from .resource_selection import course_resource_types
                 args = args.model_copy(update={'required_resource_types': tuple(
                     kind for kind in course_resource_types(request, args.required_resource_types)
@@ -181,7 +183,7 @@ class ResearchAgent:
         if name == 'search_sources':
             if self.source_policy == "uploaded_only":
                 raise PermissionError("UPLOADED_ONLY_NETWORK_FORBIDDEN")
-            if state.searches >= 6:
+            if self.max_calls is not None and state.searches >= 6:
                 raise ResearchError('BUDGET_EXHAUSTED', '搜索次数已达上限')
             if any(t.get('query') == args.query for t in state.trace):
                 raise ValueError('同查询已执行，请使用候选资料或修改查询解决具体缺口')
@@ -194,7 +196,7 @@ class ResearchAgent:
                 url = hit['url']
                 candidates.setdefault(url, Candidate(candidate_id='src_' + hashlib.sha256(url.encode()).hexdigest()[:20],
                     url=url, title=hit['title'][:300], snippet=hit['snippet'][:600]))
-            return state.model_copy(update={'candidates': tuple(candidates.values())[:30 + len(request.uploads)],
+            return state.model_copy(update={'candidates': tuple(candidates.values()) if self.max_calls is None else tuple(candidates.values())[:30 + len(request.uploads)],
                 'trace': (*state.trace, {'query': args.query, 'hits': len(hits)})})
         if name == 'fetch_source':
             candidate = next((c for c in state.candidates if c.candidate_id == args.candidate_id), None)
@@ -245,7 +247,6 @@ class ResearchAgent:
                 # A resumed native session may replay a validated finding.
                 # Keep the stored finding/summary; the action still costs budget.
                 return state
-            if args.finding_id not in findings and len(findings) >= 12: raise ValueError('研究结论已达上限')
             findings[args.finding_id] = normalized
             return state.model_copy(update={'draft_findings':tuple(findings.values()),'trace':checked.trace})
         if name == 'finalize_research_summary':

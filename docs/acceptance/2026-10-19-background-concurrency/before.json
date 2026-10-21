@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-19T04:13:13.132773+00:00",
+  "tasks": [
+    {
+      "task_id": "generate_artifact_539a8ac535fbb94b65a43f0f9794e07e",
+      "workflow_type": "preparation_resource",
+      "status": "leased",
+      "lease_owner": "durable-7f24585d34a0-2",
+      "attempt_count": 1,
+      "started_at": "2026-10-19 03:21:55.000625+00:00",
+      "heartbeat_at": "2026-10-19 04:13:03.099639+00:00"
+    },
+    {
+      "task_id": "generate_artifact_fafed4dd35099d915d1cfaecfde21bb1",
+      "workflow_type": "preparation_resource",
+      "status": "leased",
+      "lease_owner": "durable-7f24585d34a0-1",
+      "attempt_count": 1,
+      "started_at": "2026-10-19 03:21:55.228530+00:00",
+      "heartbeat_at": "2026-10-19 04:13:03.091509+00:00"
+    }
+  ]
+}

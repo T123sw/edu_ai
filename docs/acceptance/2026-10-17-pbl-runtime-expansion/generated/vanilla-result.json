@@ -1,0 +1,13 @@
+{
+  "name": "vanilla",
+  "id": "pbl_124c74f9b1d8e53f9c5b505db8061e4e",
+  "success": true,
+  "runtime": {
+    "template": "vanilla",
+    "entry": "/index.js",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  },
+  "seconds": 337.6,
+  "modelCalls": 7
+}

@@ -1,0 +1,11 @@
+{
+  "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "version": "1.6.14",
+  "source": "/home/zxqs_ep/Edu_AI/services/deeptutor/.upstream/DeepTutor",
+  "patches": [
+    {
+      "file": "0012-compound-option-mapping.patch",
+      "sha256": "b012728d34d268fa4d60dba5f2dda74b37a3f8bf60fb93b959ce3760694e98eb"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-"""Role-scoped authorization for resources saved to a user's private space."""
+"""Shared tool catalog for authenticated users; resource ownership is checked separately."""
 
 from __future__ import annotations
 
@@ -7,6 +7,8 @@ from typing import Literal, cast
 
 
 PersonalToolId = Literal[
+    "podcast",
+    "scenario",
     "report",
     "mind_map",
     "quiz",
@@ -23,7 +25,6 @@ PersonalOutputScope = Literal["personal"]
 @dataclass(frozen=True)
 class PersonalToolDefinition:
     tool_id: PersonalToolId
-    allowed_system_roles: frozenset[str]
     required_course_capabilities: tuple[Literal["read"], ...] = ("read",)
     allowed_source_scopes: tuple[PersonalSourceScope, ...] = (
         "none",
@@ -46,31 +47,20 @@ class PersonalToolAccessDenied(PermissionError):
         self.tool_id = normalized_tool_id
 
 
-_TEACHER_ROLES = frozenset({"teacher", "admin"})
-_STUDENT_ROLES = frozenset({"student"})
-_SHARED_ROLES = _TEACHER_ROLES | _STUDENT_ROLES
-
-_TOOL_DEFINITIONS: tuple[PersonalToolDefinition, ...] = (
-    PersonalToolDefinition("report", _SHARED_ROLES),
-    PersonalToolDefinition("mind_map", _SHARED_ROLES),
-    PersonalToolDefinition("quiz", _SHARED_ROLES),
-    PersonalToolDefinition("classroom", _SHARED_ROLES),
-    PersonalToolDefinition("lesson_plan", _TEACHER_ROLES),
-    PersonalToolDefinition("blog", _TEACHER_ROLES),
-    PersonalToolDefinition("flashcard", _STUDENT_ROLES),
-    PersonalToolDefinition("game", _STUDENT_ROLES),
+_TOOL_DEFINITIONS: tuple[PersonalToolDefinition, ...] = tuple(
+    PersonalToolDefinition(tool_id)
+    for tool_id in (
+        "report", "mind_map", "quiz", "classroom",
+        "flashcard", "game", "podcast", "scenario",
+    )
 )
 
 
 def list_personal_tools_for_role(
     system_role: str,
 ) -> tuple[PersonalToolDefinition, ...]:
-    role = str(system_role or "").strip()
-    return tuple(
-        definition
-        for definition in _TOOL_DEFINITIONS
-        if role in definition.allowed_system_roles
-    )
+    """Keep the legacy call signature; account roles no longer filter tools."""
+    return _TOOL_DEFINITIONS
 
 
 def require_personal_tool(
@@ -81,9 +71,7 @@ def require_personal_tool(
     normalized_tool_id = str(tool_id or "").strip()
     for definition in _TOOL_DEFINITIONS:
         if definition.tool_id == normalized_tool_id:
-            if role in definition.allowed_system_roles:
-                return definition
-            break
+            return definition
     raise PersonalToolAccessDenied(
         system_role=role,
         tool_id=normalized_tool_id,

@@ -1,0 +1,74 @@
+[
+  {
+    "ordinal": 14,
+    "passed": false,
+    "issues": [
+      "independent_calculation_failed",
+      "calculation_unverified: all([A.index(u) < A.index(v) for u,v in edges]): expression node not allowed: Call",
+      "calculation_unverified: all([B.index(u) < B.index(v) for u,v in edges]): expression node not allowed: Call",
+      "calculation_unverified: all([C.index(u) < C.index(v) for u,v in edges]): expression node not allowed: Call",
+      "calculation_unverified: all([D.index(u) < D.index(v) for u,v in edges]): expression node not allowed: Call",
+      "option_calculation_unverified: A: expression node not allowed: Call",
+      "option_calculation_unverified: B: expression node not allowed: Call",
+      "option_calculation_unverified: C: expression node not allowed: Call",
+      "option_calculation_unverified: D: expression node not allowed: Call",
+      "Solver statement (must be checked, not blindly copied): 图 G 的边为 1→3、1→4、2→4、3→5、4→5、5→6。拓扑排序要求每条有向边的起点都排在终点之前。\n逐项检查：\nA：1,3,2,4,5,6。1 在 3 前、1 在 4 前、2 在 4 前、3 在 5 前、4 在 5 前、5 在 6 前，全部满足，故 A 是拓扑排序。\nB：2,1,4,3,5,6。边 3→5 要求 3 在 5 前，但此处 5 在 3 前，违反，故不是。\nC：1,4,2,3,5,6。边 2→4 要求 2 在 4 前，但此处 4 在 2 前，违反，故不是。\nD：1,2,3,4,6,5。边 5→6 要求 5 在 6 前，但此处 6 在 5 前，违反，故不是。\n因此唯一正确的是 A。",
+      "Executed calculator evidence: [{\"expression\": \"[(1,3),(1,4),(2,4),(3,5),(4,5),(5,6)]\", \"actual\": [[1, 3], [1, 4], [2, 4], [3, 5], [4, 5], [5, 6]], \"expected\": [[1, 3], [1, 4], [2, 4], [3, 5], [4, 5], [5, 6]], \"matches\": true, \"name\": \"edges\"}, {\"expression\": \"[1,3,2,4,5,6]\", \"actual\": [1, 3, 2, 4, 5, 6], \"expected\": [1, 3, 2, 4, 5, 6], \"matches\": true, \"name\": \"A\"}, {\"expression\": \"[2,1,4,3,5,6]\", \"actual\": [2, 1, 4, 3, 5, 6], \"expected\": [2, 1, 4, 3, 5, 6], \"matches\": true, \"name\": \"B\"}, {\"expression\": \"[1,4,2,3,5,6]\", \"actual\": [1, 4, 2, 3, 5, 6], \"expected\": [1, 4, 2, 3, 5, 6], \"matches\": true, \"name\": \"C\"}, {\"expression\": \"[1,2,3,4,6,5]\", \"actual\": [1, 2, 3, 4, 6, 5], \"expected\": [1, 2, 3, 4, 6, 5], \"matches\": true, \"name\": \"D\"}]"
+    ],
+    "seconds": 25.89
+  },
+  {
+    "ordinal": 12,
+    "passed": false,
+    "issues": [
+      "independent_calculation_failed",
+      "single_choice_not_unique: computed correct options ['A', 'D']",
+      "Solver statement (must be checked, not blindly copied): 按完全二叉树层序存储、下标从 1 开始，最小堆要求每个结点都不大于其左右孩子。对长度 8 的序列，需检查的父子关系为：结点 1 与 2、3；结点 2 与 4、5；结点 3 与 6、7；结点 4 与 8。\n\n逐项检查：\n- A：3≤9、3≤5、9≤14、9≤11、5≤8、5≤7、14≤20，全部满足，是最小堆。\n- B：结点 3 的值 5 大于其右孩子结点 7 的值 2，不满足。\n- C：结点 4 的值 14 大于其孩子结点 8 的值 1，不满足。\n- D：3≤9、3≤5、9≤14、9≤11、5≤8、5≤7、14≤16，全部满足，也是最小堆。\n\n因此 A 和 D 都能构成最小堆。原题作为单选题却有两个正确选项，题目本身存在矛盾（非唯一答案）。",
+      "Executed calculator evidence: [{\"expression\": \"[3, 9, 5, 14, 11, 8, 7, 20]\", \"actual\": [3, 9, 5, 14, 11, 8, 7, 20], \"expected\": [3, 9, 5, 14, 11, 8, 7, 20], \"matches\": true, \"name\": \"A\"}, {\"expression\": \"[3, 9, 5, 14, 11, 8, 2, 20]\", \"actual\": [3, 9, 5, 14, 11, 8, 2, 20], \"expected\": [3, 9, 5, 14, 11, 8, 2, 20], \"matches\": true, \"name\": \"B\"}, {\"expression\": \"[3, 9, 5, 14, 11, 8, 7, 1]\", \"actual\": [3, 9, 5, 14, 11, 8, 7, 1], \"expected\": [3, 9, 5, 14, 11, 8, 7, 1], \"matches\": true, \"name\": \"C\"}, {\"expression\": \"[3, 9, 5, 14, 11, 8, 7, 16]\", \"actual\": [3, 9, 5, 14, 11, 8, 7, 16], \"expected\": [3, 9, 5, 14, 11, 8, 7, 16], \"matches\": true, \"name\": \"D\"}, {\"expression\": \"all(A[i-1] <= A[2*i-1] for i in range(1, 5)) and all(A[i-1] <= A[2*i] for i in range(1, 4))\", \"actual\": true, \"expected\": true, \"matches\": true, \"name\": \"checkA\"}, {\"expression\": \"all(B[i-1] <= B[2*i-1] for i in range(1, 5)) and all(B[i-1] <= B[2*i] for i in range(1, 4))\", \"actual\": false, \"expected\": false, \"matches\": true, \"name\": \"checkB\"}, {\"expression\": \"all(C[i-1] <= C[2*i-1] for i in range(1, 5)) and all(C[i-1] <= C[2*i] for i in range(1, 4))\", \"actual\": false, \"expected\": false, \"matches\": true, \"name\": \"checkC\"}, {\"expression\": \"all(D[i-1] <= D[2*i-1] for i in range(1, 5)) and all(D[i-1] <= D[2*i] for i in range(1, 4))\", \"actual\": true, \"expected\": true, \"matches\": true, \"name\": \"checkD\"}, {\"expression\": \"checkA + checkB + checkC + checkD\", \"actual\": 2, \"expected\": 2, \"matches\": true}]"
+    ],
+    "seconds": 48.72
+  },
+  {
+    "ordinal": 27,
+    "passed": true,
+    "issues": [],
+    "seconds": 26.84
+  },
+  {
+    "ordinal": 29,
+    "passed": true,
+    "issues": [],
+    "seconds": 22.15
+  },
+  {
+    "ordinal": 26,
+    "passed": false,
+    "issues": [
+      "independent_calculation_failed",
+      "calculation_mismatch: sum([1 for i in range(7,1499) if 2*i+1>1498 and 2*i+2>1498 and i>=7 and i<=1498 and (i-7)<128]) = 0, claimed 64",
+      "calculation_mismatch: sum([1 for i in range(35,1499) if 2*i+1>1498 and 2*i+2>1498 and i>=35 and i<=1498 and (i-35)<64]) = 0, claimed 32",
+      "calculation_mismatch: sum([1 for i in range(73,1499) if 2*i+1>1498 and 2*i+2>1498 and i>=73 and i<=1498 and (i-73)<32]) = 0, claimed 16",
+      "Solver statement (must be checked, not blindly copied): 完全二叉树按层序从 0 编号，结点 i 的左孩子为 2i+1，右孩子为 2i+2，父结点为 floor((i-1)/2)。根 0 的左子树 TL 根为 1，右子树 TR 根为 2。\n\n(1) q_8b9ac018b987840ee562：S=1200 的祖先链为 1200→599→299→149→74→36→17→8→3→1→0。由于 1 是根 0 的左孩子，故 S 在 TL 上。\n\n(2) q_6f07f9dc0a2e8d47c1be：S 在 TL 中，TL 的结点为编号 1..1499，共 1499 个结点。S 在 TL 中的相对编号为 1199。TL 的叶子为相对编号 749..1498（共 750 个）。S 相对编号 1199 无孩子（2·1199+1=2399>1498），是叶子。中序遍历中，S 之前的叶子数等于路径上每个“右转”结点左子树的叶子数之和。路径 0→1→3→8→17→36→74→149→299→599→1199 中，右转发生在 3→8、17→36、36→74。对应左子树根分别为 7、35、73。在 TL（相对编号 0..1498）中，这三棵子树的叶子数分别为：子树 7 有 64 个叶子，子树 35 有 32 个叶子，子树 73 有 16 个叶子，合计 112 个。故位于 S 左侧的叶子结点共有 112 个。\n\n(3) q_1547df775d7cc57ea1d9：S 在 TL 上，而 TL 的层次数为 11（根 0 为第 1 层，TL 根 1 为第 2 层，…，S 在第 11 层），因此“Tx 的层次数为 4”与 S 在 TL 上不相容；若 Tx 指 S 所在子树，则 Tx=TL，层次数为 11，不是 4。故第 (3) 问在给定条件下无解（条件矛盾）。",
+      "Executed calculator evidence: [{\"expression\": \"[1200, (1200-1)//2, ((1200-1)//2-1)//2, (((1200-1)//2-1)//2-1)//2, ((((1200-1)//2-1)//2-1)//2-1)//2, (((((1200-1)//2-1)//2-1)//2-1)//2-1)//2, ((((((1200-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2, (((((((1200-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2, ((((((((1200-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2, (((((((((1200-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2, ((((((((((1200-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2-1)//2]\", \"actual\": [1200, 599, 299, 149, 74, 36, 17, 8, 3, 1, 0], \"expected\": [1200, 599, 299, 149, 74, 36, 17, 8, 3, 1, 0], \"matches\": true, \"name\": \"ancestors\"}, {\"expression\": \"1200 >= 1 and 1200 <= 1499\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"2*1199+1 > 1498\", \"actual\": true, \"expected\": true, \"matches\": true}, {\"expression\": \"sum([1 for i in range(7,1499) if 2*i+1>1498 and 2*i+2>1498 and i>=7 and i<=1498 and (i-7)<128])\", \"actual\": 0, \"expected\": 64, \"matches\": false, \"name\": \"leaf_count_sub7\"}, {\"expression\": \"sum([1 for i in range(35,1499) if 2*i+1>1498 and 2*i+2>1498 and i>=35 and i<=1498 and (i-35)<64])\", \"actual\": 0, \"expected\": 32, \"matches\": false, \"name\": \"leaf_count_sub35\"}, {\"expression\": \"sum([1 for i in range(73,1499) if 2*i+1>1498 and 2*i+2>1498 and i>=73 and i<=1498 and (i-73)<32])\", \"actual\": 0, \"expected\": 16, \"matches\": false, \"name\": \"leaf_count_sub73\"}, {\"expression\": \"64+32+16\", \"actual\": 112, \"expected\": 112, \"matches\": true}, {\"expression\": \"floor(log2(1499))+1\", \"actual\": 11, \"expected\": 11, \"matches\": true}, {\"expression\": \"floor(log2(1200))+1\", \"actual\": 11, \"expected\": 11, \"matches\": true}]"
+    ],
+    "seconds": 99.25
+  },
+  {
+    "ordinal": 30,
+    "passed": false,
+    "issues": [
+      "independent_calculation_failed",
+      "calculation_mismatch: dijkstra([[None,20,40,8,None,None],[None,None,6,None,None,None],[None,None,None,None,None,None],[None,12,None,None,5,None],[None,4,3,None,None,10],[None,None,None,7,None,None]],0) = {'settled': [1, 1, 1, 1, 1, 1], 'distances': [0, 17, 16, 8, 13, 23], 'predecessors': [-1, 4, 4, 0, 3, 4], 'order': [0, 3, 4, 2, 1, 5], 'trace': [{'vertex': 0, 'settled': [1, 0, 0, 0, 0, 0], 'distances': [0, None, None, None, None, None], 'predecessors': [-1, -1, -1, -1, -1, -1]}, {'vertex': 3, 'settled': [1, 0, 0, 1, 0, 0], 'distances': [0, 20, 40, 8, None, None], 'predecessors': [-1, 0, 0, 0, -1, -1]}, {'vertex': 4, 'settled': [1, 0, 0, 1, 1, 0], 'distances': [0, 20, 40, 8, 13, None], 'predecessors': [-1, 0, 0, 0, 3, -1]}, {'vertex': 2, 'settled': [1, 0, 1, 1, 1, 0], 'distances': [0, 17, 16, , claimed {'settled': [1, 1, 1, 1, 1, 1], 'distances': [0, 17, 16, 8, 13, 23], 'predecessors': [-1, 4, 4, 0, 3, 4], 'order': [0, 3, 4, 2, 1, 5]}",
+      "calculation_mismatch: dijkstra([[None,20,40,8,None,None],[None,None,6,None,None,None],[None,None,None,None,None,None],[None,12,None,None,5,None],[None,4,3,None,None,10],[None,None,None,7,None,None]],0,2) = {'settled': [1, 0, 1, 1, 1, 0], 'distances': [0, 17, 16, 8, 13, 23], 'predecessors': [-1, 4, 4, 0, 3, 4], 'order': [0, 3, 4, 2], 'trace': [{'vertex': 0, 'settled': [1, 0, 0, 0, 0, 0], 'distances': [0, None, None, None, None, None], 'predecessors': [-1, -1, -1, -1, -1, -1]}, {'vertex': 3, 'settled': [1, 0, 0, 1, 0, 0], 'distances': [0, 20, 40, 8, None, None], 'predecessors': [-1, 0, 0, 0, -1, -1]}, {'vertex': 4, 'settled': [1, 0, 0, 1, 1, 0], 'distances': [0, 20, 40, 8, 13, None], 'predecessors': [-1, 0, 0, 0, 3, -1]}, {'vertex': 2, 'settled': [1, 0, 1, 1, 1, 0], 'distances': [0, 17, 16, 8, 13,, claimed {'settled': [1, 0, 1, 1, 1, 0], 'distances': [0, 17, 16, 8, 13, 23], 'predecessors': [-1, 4, 4, 0, 3, 4], 'order': [0, 3, 4, 2]}",
+      "Solver statement (must be checked, not blindly copied): 按题目邻接矩阵，行下标为起点、列下标为终点。Dijkstra 从 V0 出发，距离相同按顶点编号较小者先选。\n\n初始：S=∅，D=[0,∞,∞,∞,∞,∞]，P=[-1,-1,-1,-1,-1,-1]。\n\n1. 选 V0（D[0]=0）：S={0}；松弛 0→1=20、0→2=40、0→3=8，得 D=[0,20,40,8,∞,∞]，P=[-1,0,0,0,-1,-1]。\n2. 选 V3（D[3]=8）：S={0,3}；松弛 3→1：8+12=20，与 D[1]=20 相等，严格小于不更新，P[1] 保持 0；松弛 3→4：8+5=13，D[4]=13，P[4]=3。得 D=[0,20,40,8,13,∞]，P=[-1,0,0,0,3,-1]。\n3. 选 V4（D[4]=13）：S={0,3,4}；松弛 4→1：13+4=17<20，D[1]=17，P[1]=4；4→2：13+3=16<40，D[2]=16，P[2]=4；4→5：13+10=23，D[5]=23，P[5]=4。得 D=[0,17,16,8,13,23]，P=[-1,4,4,0,3,4]。\n4. 选 V2（D[2]=16）：S={0,3,4,2}；V2 无出边，D、P 不变。\n\n(1) V2 刚加入 S 后：\nS={V0,V3,V4,V2}（集合 {0,2,3,4}，按加入顺序为 0,3,4,2）\nD=[0,17,16,8,13,23]\nP=[-1,4,4,0,3,4]\n\n继续执行：\n5. 选 V1（D[1]=17）：S={0,3,4,2,1}；松弛 1→2：17+6=23>16，不更新。\n6. 选 V5（D[5]=23）：S={0,3,4,2,1,5}；松弛 5→3：23+7=30>8，不更新。\n\n(2) 最终最短距离：\nD[0]=0，D[1]=17，D[2]=16，D[3]=8，D[4]=13，D[5]=23。\n\nV0 到 V5 的最短路径由前驱回溯：5←4←3←0，即 V0→V3→V4→V5，长度 8+5+10=23，与 D[5]=23 一致。\n\n核对：V0→V1 经 V4 为 8+5+4=17（优于直接 20 与经 V3 的 20）；V0→V2 经 V4 为 8+5+3=16；V0→V4 经 V3 为 8+5=13。",
+      "Executed calculator evidence: [{\"expression\": \"dijkstra([[None,20,40,8,None,None],[None,None,6,None,None,None],[None,None,None,None,None,None],[None,12,None,None,5,None],[None,4,3,None,None,10],[None,None,None,7,None,None]],0)\", \"actual\": {\"settled\": [1, 1, 1, 1, 1, 1], \"distances\": [0, 17, 16, 8, 13, 23], \"predecessors\": [-1, 4, 4, 0, 3, 4], \"order\": [0, 3, 4, 2, 1, 5], \"trace\": [{\"vertex\": 0, \"settled\": [1, 0, 0, 0, 0, 0], \"distances\": [0, null, null, null, null, null], \"predecessors\": [-1, -1, -1, -1, -1, -1]}, {\"vertex\": 3, \"settled\": [1, 0, 0, 1, 0, 0], \"distances\": [0, 20, 40, 8, null, null], \"predecessors\": [-1, 0, 0, 0, -1, -1]}, {\"vertex\": 4, \"settled\": [1, 0, 0, 1, 1, 0], \"distances\": [0, 20, 40, 8, 13, null], \"predecessors\": [-1, 0, 0, 0, 3, -1]}, {\"vertex\": 2, \"settled\": [1, 0, 1, 1, 1, 0], \"distances\": [0, 17, 16, 8, 13, 23], \"predecessors\": [-1, 4, 4, 0, 3, 4]}, {\"vertex\": 1, \"settled\": [1, 1, 1, 1, 1, 0], \"distances\": [0, 17, 16, 8, 13, 23], \"predecessors\": [-1, 4, 4, 0, 3, 4]}, {\"vertex\": 5, \"settled\": [1, 1, 1, 1, 1, 1], \"distances\": [0, 17, 16, 8, 13, 23], \"predecessors\": [-1, 4, 4, 0, 3, 4]}]}, \"expected\": {\"settled\": [1, 1, 1, 1, 1, 1], \"distances\": [0, 17, 16, 8, 13, 23], \"predecessors\": [-1, 4, 4, 0, 3, 4], \"order\": [0, 3, 4, 2, 1, 5]}, \"matches\": false, \"name\": \"full\"}, {\"expression\": \"dijkstra([[None,20,40,8,None,None],[None,None,6,None,None,None],[None,None,None,None,None,None],[None,12,None,None,5,None],[None,4,3,None,None,10],[None,None,None,7,None,None]],0,2)\", \"actual\": {\"settled\": [1, 0, 1, 1, 1, 0], \"distances\": [0, 17, 16, 8, 13, 23], \"predecessors\": [-1, 4, 4, 0, 3, 4], \"order\": [0, 3, 4, 2], \"trace\": [{\"vertex\": 0, \"settled\": [1, 0, 0, 0, 0, 0], \"distances\": [0, null, null, null, null, null], \"predecessors\": [-1, -1, -1, -1, -1, -1]}, {\"vertex\": 3, \"settled\": [1, 0, 0, 1, 0, 0], \"distances\": [0, 20, 40, 8, null, null], \"predecessors\": [-1, 0, 0, 0, -1, -1]}, {\"vertex\": 4, \"settled\": [1, 0, 0, 1, 1, 0], \"distances\": [0, 20, 40, 8, 13, null], \"predecessors\": [-1, 0, 0, 0, 3, -1]}, {\"vertex\": 2, \"settled\": [1, 0, 1, 1, 1, 0], \"distances\": [0, 17, 16, 8, 13, 23], \"predecessors\": [-1, 4, 4, 0, 3, 4]}]}, \"expected\": {\"settled\": [1, 0, 1, 1, 1, 0], \"distances\": [0, 17, 16, 8, 13, 23], \"predecessors\": [-1, 4, 4, 0, 3, 4], \"order\": [0, 3, 4, 2]}, \"matches\": false, \"name\": \"at2\"}, {\"expression\": \"full['distances']\", \"actual\": [0, 17, 16, 8, 13, 23], \"expected\": [0, 17, 16, 8, 13, 23], \"matches\": true}, {\"expression\": \"full['predecessors']\", \"actual\": [-1, 4, 4, 0, 3, 4], \"expected\": [-1, 4, 4, 0, 3, 4], \"matches\": true}, {\"expression\": \"full['order']\", \"actual\": [0, 3, 4, 2, 1, 5], \"expected\": [0, 3, 4, 2, 1, 5], \"matches\": true}, {\"expression\": \"at2['distances']\", \"actual\": [0, 17, 16, 8, 13, 23], \"expected\": [0, 17, 16, 8, 13, 23], \"matches\": true}, {\"expression\": \"at2['predecessors']\", \"actual\": [-1, 4, 4, 0, 3, 4], \"expected\": [-1, 4, 4, 0, 3, 4], \"matches\": true}, {\"expression\": \"at2['order']\", \"actual\": [0, 3, 4, 2], \"expected\": [0, 3, 4, 2], \"matches\": true}, {\"expression\": \"at2['settled']\", \"actual\": [1, 0, 1, 1, 1, 0], \"expected\": [1, 0, 1, 1, 1, 0], \"matches\": true}, {\"expression\": \"8+5+10\", \"actual\": 23, \"expected\": 23, \"matches\": true}, {\"expression\": \"8+5+4\", \"actual\": 17, \"expected\": 17, \"matches\": true}, {\"expression\": \"8+5+3\", \"actual\": 16, \"expected\": 16, \"matches\": true}]"
+    ],
+    "seconds": 38.64
+  },
+  {
+    "ordinal": 32,
+    "passed": true,
+    "issues": [],
+    "seconds": 37.3
+  }
+]

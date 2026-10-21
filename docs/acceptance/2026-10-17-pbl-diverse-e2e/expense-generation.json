@@ -1,0 +1,164 @@
+{
+  "case": "expense",
+  "topic": "用 React 做本地记账表。输入备注、金额，选择餐饮或交通分类，添加一条支出。备注去首尾空格不能空白；金额必须是大于0且最多两位小数的数字，0、负数和超过两位小数要拒绝。列表能删除记录，按全部/餐饮/交通筛选。显示总支出和当前筛选支出，均保留两位小数；总支出不受筛选影响。0.10加0.20必须显示0.30。添加成功后清空备注金额，保留所选分类。无后台无持久化，分步实现。",
+  "exerciseId": "pbl_f3c094e57cdce84206c49b4c1d01bc34",
+  "generationPassed": false,
+  "job": {
+    "schema_version": 2,
+    "version": 18,
+    "edu_job_id": "pbl_f3c094e57cdce84206c49b4c1d01bc34",
+    "kind": "generate_pbl",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "matrix_expense",
+    "owner": "matrix_expense",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_f3c094e57cdce84206c49b4c1d01bc34",
+    "input_summary": {
+      "title": "用 React 做本地记账表。输入备注、金额，选择餐饮或交通分类，添加一条支出。备注去首尾空格不能空白；金额必须是大于0且最多两位小数的数字，0、负数和超过两位小数要拒绝。列表能删除记录，按全部/餐饮/交通筛选。显示总支出和当前筛选支出，均保留两位小数；总支出不受筛选影响。0.10加0.20必须显示0.30。添加成功后清空备注金额，保留所选分类。无后台无持久化，分步实现。",
+      "topic": "用 React 做本地记账表。输入备注、金额，选择餐饮或交通分类，添加一条支出。备注去首尾空格不能空白；金额必须是大于0且最多两位小数的数字，0、负数和超过两位小数要拒绝。列表能删除记录，按全部/餐饮/交通筛选。显示总支出和当前筛选支出，均保留两位小数；总支出不受筛选影响。0.10加0.20必须显示0.30。添加成功后清空备注金额，保留所选分类。无后台无持久化，分步实现。",
+      "exercise_id": "pbl_f3c094e57cdce84206c49b4c1d01bc34"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error": "项目步骤经过修复仍未通过运行检查，请重试",
+    "error_code": "PBL_VALIDATION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:20:54.445696+00:00",
+    "started_at": "2026-10-17T09:20:55.379835+00:00",
+    "finished_at": "2026-10-17T09:22:31.093687+00:00",
+    "updated_at": "2026-10-17T09:22:31.093687+00:00"
+  },
+  "events": [
+    {
+      "seconds": 4.13,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 15.32,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：添加支出并显示列表"
+      ]
+    },
+    {
+      "seconds": 21.92,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：添加支出并显示列表"
+      ]
+    },
+    {
+      "seconds": 32.99,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：添加支出并显示列表"
+      ]
+    },
+    {
+      "seconds": 39.49,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：添加支出并显示列表"
+      ]
+    },
+    {
+      "seconds": 53.36,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：校验备注与金额"
+      ]
+    },
+    {
+      "seconds": 59.93,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：校验备注与金额"
+      ]
+    },
+    {
+      "seconds": 62.1,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：校验备注与金额"
+      ]
+    },
+    {
+      "seconds": 66.55,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：校验备注与金额"
+      ]
+    },
+    {
+      "seconds": 73.18,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：校验备注与金额"
+      ]
+    },
+    {
+      "seconds": 75.35,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：校验备注与金额"
+      ]
+    },
+    {
+      "seconds": 84.13,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：校验备注与金额"
+      ]
+    },
+    {
+      "seconds": 90.93,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：校验备注与金额"
+      ]
+    },
+    {
+      "seconds": 93.22,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：校验备注与金额"
+      ]
+    },
+    {
+      "seconds": 100.0,
+      "state": [
+        "failed",
+        "failed",
+        "任务执行失败"
+      ]
+    }
+  ],
+  "seconds": 100.01,
+  "idempotentCreate": true
+}

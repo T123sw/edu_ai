@@ -1,0 +1,30 @@
+[
+  {
+    "width": 1440,
+    "nextAndFeedbackTogether": true,
+    "buttonsBelowBoth": true,
+    "advanceAndBack": true,
+    "noOverflow": true
+  },
+  {
+    "width": 900,
+    "nextAndFeedbackTogether": true,
+    "buttonsBelowBoth": true,
+    "advanceAndBack": true,
+    "noOverflow": true
+  },
+  {
+    "width": 390,
+    "nextAndFeedbackTogether": true,
+    "buttonsBelowBoth": true,
+    "advanceAndBack": true,
+    "noOverflow": true
+  },
+  {
+    "width": 320,
+    "nextAndFeedbackTogether": true,
+    "buttonsBelowBoth": true,
+    "advanceAndBack": true,
+    "noOverflow": true
+  }
+]

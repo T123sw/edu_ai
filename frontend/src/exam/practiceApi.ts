@@ -1,0 +1,16 @@
+import { apiRequest } from '../stitch/api/client';
+export type Answer = {option_ids: string[]; blank_values: string[]; text: string};
+export type Question = {question_id: string; question_type: string; question: string; options?: Record<string,string>; number: string; blank_count: number; children: Question[]};
+export type Paper = {generation_id: string; version: string; title: string; answer_count: number; questions: Question[]};
+export type Draft = {answer: Answer; revision: number; updated_at: number; submitted?: boolean};
+export type Attempt = {id: string; answer: Answer; status: string; correct: boolean | null; evaluator: string; feedback: string; reference_answer: string; created_at: number};
+export type Run = {id: string; paper_id: string; version: string; status: string; created_at: number; finished_at: number | null; total: number; drafts: Record<string,Draft>; answers: Record<string,Attempt[]>};
+export type RunSummary = Pick<Run,'id'|'status'|'created_at'|'total'> & {submitted: number};
+export type Turn = {id: string; run_id: string; question_id: string | null; question_number: string | null; question: string; answer: string; status: string; error: string; created_at: number; citations: {question_id: string; label: string}[]};
+export const examPath = (id: string) => `/api/exam-generations/${encodeURIComponent(id)}`;
+export const runPath = (pid: string,rid: string) => `${examPath(pid)}/practice-runs/${encodeURIComponent(rid)}`;
+export const send = <T,>(path: string,body?: unknown,method='POST') => apiRequest<T>(path,{method,...(body===undefined?{}:{body:JSON.stringify(body)})});
+export const emptyAnswer = (q: Question): Answer => ({option_ids:[],blank_values:q.question_type==='fill_in_blank'?Array(q.blank_count).fill(''):[],text:''});
+export const filled = (q: Question,a: Answer) => ['choice','multiple_choice','concept'].includes(q.question_type)?a.option_ids.length>0:q.question_type==='fill_in_blank'?a.blank_values.every(v=>v.trim())&&a.blank_values.length===q.blank_count:!!a.text.trim();
+export const leaves = (questions: Question[]): Question[] => questions.flatMap(q=>q.children.length?leaves(q.children):[q]);
+export const errorText = (e: unknown) => e instanceof Error?e.message:'暂时无法完成操作，请重试';

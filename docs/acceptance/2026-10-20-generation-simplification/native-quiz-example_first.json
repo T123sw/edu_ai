@@ -1,0 +1,141 @@
+{
+  "scope": "real native Harness SDK and provider; in-memory usage ledger; not full course delivery",
+  "teaching_context": {
+    "schema_version": 1,
+    "request_goal": "学习工具调用，不要面试话术",
+    "requirements": [
+      {
+        "requirement_id": "req-order",
+        "text": "每题先给具体调用例子，再问职责或缺失参数；总共两道单选题，每项都有对应解析",
+        "source_quote": "本次要求",
+        "source_document_id": null
+      }
+    ],
+    "prior_knowledge": "会 Python，没有 Agent 基础",
+    "desired_outcomes": [
+      "解释工具职责"
+    ],
+    "exclusions": [
+      "面试话术"
+    ],
+    "language": "zh-CN",
+    "depth": "introductory",
+    "source_policy": {
+      "mode": "uploaded_only"
+    },
+    "effective_preferences": {},
+    "node_id": "tools",
+    "objective_ids": [
+      "tools:o1",
+      "tools:o2"
+    ],
+    "objectives": [
+      "解释工具职责",
+      "检查缺失参数"
+    ],
+    "prerequisites": [],
+    "learning_activities": [
+      "追踪12+30例子",
+      "解释模型与程序职责"
+    ],
+    "self_check": "程序是否执行了工具？",
+    "node_budget_minutes": 10,
+    "resource_target_minutes": null,
+    "assumptions": [],
+    "limitations": []
+  },
+  "artifact": {
+    "artifact_type": "quiz",
+    "title": "工具调用",
+    "content": {
+      "title": "工具调用：职责与缺失参数",
+      "questions": [
+        {
+          "id": "tools-q1",
+          "type": "single_choice",
+          "stem": "模型输出 add(a=12, b=30)，程序校验名称、权限和参数后执行工具，得到 42。在这个流程中，程序（执行环境）的职责是什么？",
+          "answer": "B",
+          "explanation": "模型只负责输出工具名和参数，真正执行工具的是程序。程序在调用前校验工具名称、权限和参数是否齐全合法，校验通过后才执行 add 并返回结果 42。A 错：输出工具名和参数的是模型，不是程序。C 错：程序不负责决定调用哪个工具，工具名由模型给出。D 错：程序校验的是名称、权限和参数，不负责生成自然语言回答。",
+          "difficulty": "easy",
+          "options": [
+            "输出工具名和参数",
+            "校验并执行工具",
+            "决定调用哪个工具",
+            "生成自然语言回答"
+          ]
+        },
+        {
+          "id": "tools-q2",
+          "type": "single_choice",
+          "stem": "模型输出 add(a=12) 想计算两个数的和，但缺少参数 b。此时会发生什么？",
+          "answer": "C",
+          "explanation": "add 需要 a 和 b 两个参数才能计算和。缺少 b 时，程序在参数校验阶段就会失败，因此工具不会被执行，也不会返回结果。A 错：缺少参数时校验失败，工具不会执行。B 错：程序不会自动补一个 b 的值。D 错：缺少参数是校验失败，不是执行后报错。",
+          "difficulty": "medium",
+          "options": [
+            "工具照常执行并返回 12",
+            "程序自动补上 b=0 再执行",
+            "参数校验失败，工具不执行",
+            "工具执行后报错"
+          ]
+        }
+      ]
+    },
+    "generation_state": {
+      "resource_review": {
+        "decision": "skipped",
+        "method": "structural_validation",
+        "policy": "quiz-structure-only-v1",
+        "resource_type": "quiz",
+        "content_sha256": "892276151ad6081d08c5d3aa9e0966ebfe1b01e079e4b0f4d01f285125343c8c",
+        "reason": "结构可展示即可交付；不执行模型审阅、数值审查或自动内容修订。",
+        "preparation_sha256": "cf347e3b42f907265889f9b423c7c0ff0d482498002fd1c504d22daf5393c6a0"
+      },
+      "preparation": {
+        "schema_version": 1,
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "teaching_context_digest": "0a1f979bbc8f23b78675d0e251af497074e71f6d67105d5d76f787ae92de57ff",
+        "alignment_policy": "quiz-structure-only-v1",
+        "objective_bindings": [],
+        "applied_requirements": [],
+        "duration": {
+          "basis": "unknown",
+          "value_minutes": null,
+          "method": "生成后不要求逐题估时。"
+        }
+      }
+    }
+  },
+  "calls": [
+    {
+      "action_id": "provider:4a44f605ac144efb8b7ff36daa78e719",
+      "reserved": {
+        "calls": 1,
+        "tokens": 32248,
+        "cost_micro_usd": 322480
+      },
+      "failed": false,
+      "evidence": {
+        "runtime": "deepseek-harness",
+        "phase": "resource_write",
+        "skill": {
+          "name": "generate-learning-resource",
+          "sha256": "6de017889229962f829a5dba02a9e6e7d228cf0548b80af00ae83c72ba653e26",
+          "loaded": true
+        },
+        "provider": "configured",
+        "model": "deepseek-v4-pro",
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "usage": {
+        "prompt_tokens": 4447,
+        "completion_tokens": 481,
+        "total_tokens": 4928,
+        "prompt_tokens_details": {
+          "cached_tokens": 512
+        },
+        "prompt_cache_hit_tokens": 512,
+        "prompt_cache_miss_tokens": 3935
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "started_at": "2026-10-20T07:43:25.743778+00:00",
+  "apply": true,
+  "course_count": 1,
+  "preparation_count": 1,
+  "course_ids_including_orphans": [
+    "learn-4406eb8b05ec47bdb9b1609e35e31ab5"
+  ],
+  "rows_selected": {
+    "course_preparations": 1,
+    "course_preparation_attempts": 1,
+    "course_preparation_events": 933,
+    "learning_topic_sessions": 1,
+    "conversations": 1,
+    "self_learning_fact_revisions": 1,
+    "self_learning_events": 71,
+    "self_learning_resource_states": 1,
+    "self_learning_reading_streams": 2,
+    "preparation_executions": 1,
+    "preparation_budgets": 1,
+    "preparation_actions": 896,
+    "preparation_artifacts": 19,
+    "prepared_manifest_versions": 22,
+    "prepared_course_pointers": 1,
+    "courses": 1,
+    "durable_tasks": 955,
+    "materials": 13,
+    "course_memberships": 1,
+    "material_versions": 13,
+    "conversation_messages": 1,
+    "learning_progress_outbox": 71,
+    "agent_memory_dependencies": 1
+  },
+  "filesystem": [
+    "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/projects/hf_resource_00bc4c1ede6b9c01d23a0235ed0002d5",
+    "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/projects/hf_resource_1d6e26ea700cc8f3b7c72d8ee398c676",
+    "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/projects/hf_resource_4042b02585abd37afd61e9c2d9d136be",
+    "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/projects/hf_resource_4b5bec1c9489d2abac62f21a4cb7dac5",
+    "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/projects/hf_resource_aa836bc1306d9bb940c50175fb361e93",
+    "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/2a08290042a4035df9db68ef1cd6b5f555dc31f3271c834a817166e774c8f361",
+    "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4ff025441f82e0503d83e4bda74b8bb424f0e4aceb8fa0302ede8847db94fe79",
+    "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/8422e061f5d5fed31fae44fe841f4aa0c15c1f791f35324f5be0113948181831",
+    "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/b7a21eba44a74afa5a0671cd67bb915da01675978e16d6ea912e23ab8e500cce",
+    "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/e236e801a484a756543a26c670d1881377f0e2bc324832d7e2a238d3dd5caf33"
+  ],
+  "preserved_fingerprints": {
+    "users": "e1a2b7750421c69e29c2dfed8e192d5b378a421b921dce6bb1ee8a7d54a690fa",
+    "runtime_config": "bbf39fd7acf302291b1da0b46c93e4acf09c1e9630e82aa41469a5ff03d8d960"
+  },
+  "scope": "Only learn-4406eb8b05ec47bdb9b1609e35e31ab5 and prep_4406eb8b05ec47bdb9b1609e35e31ab5 with their associated records, projects and vectors; preserve other courses and accounts/config."
+}

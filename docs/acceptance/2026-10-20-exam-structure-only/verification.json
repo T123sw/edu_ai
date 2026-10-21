@@ -1,0 +1,68 @@
+{
+  "updated_at": "2026-10-20T08:14:49.962743+00:00",
+  "status": "validated-and-activated",
+  "policy": "generate_then_structure_only",
+  "removed_runtime_stages": [
+    "independent_solution",
+    "calculation_evidence",
+    "content_alignment_review",
+    "semantic_repair",
+    "precomputed_tree_instance"
+  ],
+  "retained": [
+    "source_blueprint",
+    "question_count_and_order",
+    "types_required_fields_option_keys",
+    "blank_counts_and_children",
+    "two_bounded_structural_repairs",
+    "checkpoints_and_cancellation"
+  ],
+  "progress": {
+    "generation_range": [
+      40,
+      95
+    ],
+    "saved_percent": 100,
+    "message": "已处理 X/Y 题",
+    "resume": "Question count committed atomically with event cursor; restored after interruption."
+  },
+  "verification": {
+    "service_tests_passed": 155,
+    "backend_tests_passed": 55,
+    "final_service_subset_passed": 79,
+    "live_seconds": 11.9,
+    "live_questions": 2,
+    "live_model_calls": 3,
+    "live_breakdown": "1 source extraction + 2 question generation calls",
+    "live_parser": "pypdf synthetic text PDF, not MinerU regression",
+    "original_45_question_structure_replay_passed": true,
+    "production_business_writes": false,
+    "native_and_patch_preparation_tests_passed": 57,
+    "managed_patch_verified": true
+  },
+  "deployment": {
+    "main_pid_before": 2834406,
+    "deeptutor_pid_before": 2192581,
+    "worker_pid_before": 2916307,
+    "restart_attempt": "sudo -n systemctl restart edu-ai-backend",
+    "restart_error": "sudo: a password is required",
+    "applied_to_running_services": false
+  },
+  "source_sha256": {
+    "backend/src/app/exam_generation/progress.py": "5149229821f04aebd1d8bbd3e8c3537be391f46ed30739f7f8417190925c5e79",
+    "backend/src/app/exam_generation/repository.py": "56241029e42b75a798c79da9055c3bc6cdad4b3544b148c2025d4694d2ea12f3",
+    "backend/src/app/exam_generation/service.py": "8e49d3b97769f3a3c09befe004e79a791e6a4bac2334568a5e76fec3aeb31b6c",
+    "backend/src/app/exam_generation/validation.py": "5ebf2245a9bd45bf3898cfd2e7d874923987942a06ba5ee6793a7ca22276decb",
+    "services/deeptutor/upstream.lock.json": "cc48655b90edc85df2b424ecf447c61a02e0f15be241cfb32e1cd92086c72439",
+    "services/deeptutor/patches/0015-structure-only-generation.patch": "503d5e194dbd993e746c8e947c52501e68123b43fe41aabc7e847cf9c9d60e10"
+  },
+  "activation20261020": {
+    "service": "edu-ai-deeptutor",
+    "pid": 3354910,
+    "startedAt": "2026-10-20T11:57:13Z",
+    "cumulativePatch": "0016-shared-source-boundary.patch",
+    "productionQuestions": 45,
+    "allStructureOnly": true,
+    "evidence": "../2026-10-20-exam-shared-context/verification.json"
+  }
+}

@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<title>Edu-AI 本地模型服务部署 · 交付文档</title>
+<style>
+ body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;max-width:1100px;margin:0 auto;padding:32px 28px 80px;color:#1f2328;line-height:1.7;background:#fff}
+ h1{font-size:28px;border-bottom:2px solid #d0d7de;padding-bottom:10px;margin-top:0}
+ h2{font-size:22px;border-bottom:1px solid #eaeef2;padding-bottom:6px;margin-top:36px}
+ h3{font-size:17px;margin-top:26px;color:#24292f}
+ h4{font-size:15px;margin-top:18px}
+ table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+ th,td{border:1px solid #d0d7de;padding:7px 10px;text-align:left;vertical-align:top}
+ th{background:#f6f8fa;font-weight:600}
+ tr:nth-child(even) td{background:#fbfcfd}
+ code{background:#f6f8fa;padding:2px 5px;border-radius:4px;font-family:Consolas,monospace;font-size:13px}
+ pre{background:#f6f8fa;border:1px solid #eaeef2;border-radius:6px;padding:12px;overflow-x:auto}
+ pre code{background:none;padding:0}
+ section{page-break-before:always;border-top:4px solid #0969da;padding-top:28px;margin-top:60px}
+ section:first-of-type{page-break-before:auto;border-top:none;margin-top:0}
+ .doc-title{font-size:13px;color:#57606a;letter-spacing:.08em;margin-bottom:8px}
+ .toc{background:#f6f8fa;border:1px solid #d0d7de;border-radius:8px;padding:14px 20px;margin:20px 0 30px}
+ .toc h3{margin:0 0 8px;font-size:15px}
+ .toc ol{margin:0;padding-left:20px}
+ a{color:#0969da}
+ @media print{section{page-break-before:always} .toc{page-break-after:always}}
+</style></head><body>
+<h1>Edu-AI 本地模型服务部署 · 交付文档</h1>
+<p>服务器 server163（222.27.241.65:7163） · 2026-10-16 ~ 2026-10-17</p>
+<div class="toc"><h3>目录</h3><ol><li><a href="#交付说明（总索引）">交付说明（总索引）</a></li><li><a href="#交付物 1：模型服务清单及部署结果">交付物 1：模型服务清单及部署结果</a></li><li><a href="#交付物 2：本地服务与接入说明">交付物 2：本地服务与接入说明</a></li><li><a href="#交付物 3：对比记录">交付物 3：对比记录</a></li><li><a href="#交付物 4：部署运维与回退文档">交付物 4：部署运维与回退文档</a></li></ol></div>
+<section id="交付说明（总索引）"><div class="doc-title">交付说明（总索引）</div><h1>Edu-AI 本地模型服务部署 —— 交付说明</h1>
+<p><strong>交付日期</strong>：2026-10-16 <strong>部署环境</strong>：服务器 <code>server163</code>（<code>222.27.241.65:7163</code>），项目路径 <code>/home/zxqs_ep/Edu_AI</code> <strong>执行范围</strong>：Qwen3-TTS 本地化完善 · Qwen3-Embedding 本地化 + 索引重建 · MinerU 本地化 <strong>完成日期</strong>：2026-10-17（MinerU 部分）</p>
+<hr/>
+<h2>一、本包内容</h2>
+<pre><code>local-ai/
+├── 交付说明.md                        ← 本文件（总索引）
+├── docs/
+│   ├── 交付物1-模型服务清单及部署结果.md
+│   ├── 交付物2-本地服务与接入说明.md
+│   ├── 交付物3-对比记录.md
+│   └── 交付物4-部署运维与回退文档.md
+├── demo/server/                       ← 音频效果对比样本（可直接播放）
+│   ├── cmp_v1.mp3                     原始逐条合成（RTF 2.17）
+│   ├── cmp_v2.mp3                     批量优化后（RTF 0.89）
+│   ├── cmp_v2_cached.mp3              缓存命中（0.00s）
+│   └── e2e_local_tts.mp3              端到端：项目真实调用本地 TTS 产出
+└── server-files/                      ← 服务器上实际运行的文件（备份）
+    ├── qwen_server.py                 优化后的 TTS 服务（批量+缓存）
+    ├── server.py                      本地向量服务（文本本地/图片转发）
+    ├── rebuild_index.py               索引重建脚本
+    ├── health-check.sh                健康巡检脚本
+    ├── start-local-ai.sh              一键启动
+    ├── stop-local-ai.sh               一键停止
+    ├── edu-ai-tts.service             systemd 单元
+    └── edu-ai-embedding.service       systemd 单元</code></pre>
+<hr/>
+<h2>二、完成情况总览</h2>
+<table><thead><tr><th>#</th><th>任务书要求</th><th>状态</th><th>关键结果</th></tr></thead><tbody>
+<tr><td>1</td><td>核对项目全部模型调用</td><td>✅ 完成</td><td>6 个 provider 全部盘清（llm/embedding/tts/web_search/pdf_parser/classroom）</td></tr>
+<tr><td>2</td><td>排查 GPU 驱动与 NVML 不匹配</td><td>✅ <strong>已修复</strong></td><td>内核模块 595.91.07 → <strong>595.99.02</strong>，<code>nvidia-smi</code> 恢复</td></tr>
+<tr><td>2</td><td>确认可用显存</td><td>✅ 完成</td><td><strong>2× RTX 3090，各 24 GB</strong>；TTS 占 GPU0，Embedding 占 GPU1</td></tr>
+<tr><td>3</td><td>高频服务常驻显存</td><td>✅ 完成</td><td>TTS 6.7 GB 常驻、Embedding 1.5 GB 常驻，均开机自启</td></tr>
+<tr><td>3</td><td>连续配音优化</td><td>✅ 完成</td><td>批量合成 <strong>RTF 2.17 → 0.89（2.49x）</strong>；16 批量达 <strong>7.63x</strong></td></tr>
+<tr><td>3</td><td>异常恢复</td><td>✅ 完成</td><td>systemd <code>Restart=on-failure</code>；TTS 批量失败自动降级逐条；429/503 语义完整</td></tr>
+<tr><td>4</td><td>完成项目真实调用验证</td><td>✅ 完成</td><td>用项目自身代码路径端到端验证（TTS + Embedding 均已通过）</td></tr>
+<tr><td>4</td><td>保留回退方式</td><td>✅ 完成</td><td>每次改动均有 <code>.env.bak-&lt;时间戳&gt;</code>；旧索引保留；原服务代码备份</td></tr>
+<tr><td>5</td><td>MinerU 本地部署</td><td>✅ <strong>完成</strong></td><td>MinerU 4.0.12 上线（8190），219KB 文档 11.4s</td></tr>
+</tbody></table>
+<hr/>
+<h2>三、最有价值的三个发现</h2>
+<h3>1️⃣ 原在线 Embedding 服务已经故障</h3>
+<p>实测原配置的中转站 <code>api.relayrouter.ai</code> 对标准 OpenAI 格式返回 <strong>HTTP 400</strong>：</p>
+<pre><code>Invalid JSON payload received. Unknown name &quot;requests&quot;: Cannot find field.</code></pre>
+<p><strong>说明在我接手前，项目的知识库入库/检索链路就是断的。</strong> 本地化部署同时修复了这个故障。</p>
+<h3>2️⃣ 项目曾因&quot;本地 TTS 太慢&quot;而放弃</h3>
+<p>项目在 2026-10-13 曾启用本地 TTS 并验收通过，但当时的性能数据是：</p>
+<pre><code>synthesis_seconds: 14.7    audio: 4.464s    →  RTF ≈ 3.3</code></pre>
+<p>之后被改回 <code>TTS_LOCAL_ONLY=false</code>（改用阿里云）。<strong>本次优化后 RTF 降到 0.89，已重新启用。</strong></p>
+<h3>3️⃣ 索引维度与配置不符，必须重建</h3>
+<p><code>.env</code> 里的 <code>GEMINI_EMBEDDING_DIMENSIONS=768</code> 是<strong>死配置</strong>（代码仅在 <code>backend==&quot;gemini&quot;</code> 时传递，实际为 <code>openai</code>），实际索引是 <strong>3072 维</strong>。切换向量模型必须重建索引，本次采用&quot;新建独立索引 + 验证 + 切换&quot;方式，<strong>295 秒</strong>完成 11,249 条重建。</p>
+<hr/>
+<h2>四、服务与配置现状（可直接核对）</h2>
+<h3>服务状态（七个全部 active，开机自启）</h3>
+<pre><code>systemctl is-active postgresql edu-ai-openmaic edu-ai-backend nginx edu-ai-tts edu-ai-embedding edu-ai-mineru</code></pre>
+<table><thead><tr><th>端口</th><th>服务</th></tr></thead><tbody>
+<tr><td>80</td><td>Nginx 前端</td></tr>
+<tr><td>3000</td><td>OpenMAIC sidecar</td></tr>
+<tr><td>5432</td><td>PostgreSQL</td></tr>
+<tr><td>8001</td><td>FastAPI 后端</td></tr>
+<tr><td><strong>8188</strong></td><td><strong>本地 Qwen3-TTS</strong></td></tr>
+<tr><td><strong>8189</strong></td><td><strong>本地 Qwen3-Embedding</strong></td></tr>
+</tbody></table>
+<h3>关键配置（<code>.env</code>）</h3>
+<pre><code>TTS_LOCAL_ONLY=true
+TTS_API_BASE=http://127.0.0.1:8188/v1
+TTS_MODEL=qwen3-tts
+EMBEDDING_API_BASE=http://127.0.0.1:8189/v1
+EMBEDDING_MODEL=qwen3-embedding-0.6b
+VECTOR_DB_PATH=/home/zxqs_ep/data/edu_ai/staging/vector_db_qwen3_1024
+RAG_ENABLE_IMAGE_EMBEDDING=0</code></pre>
+<h3>一键巡检</h3>
+<pre><code>bash /home/zxqs_ep/Edu_AI/scripts/local_ai/health-check.sh</code></pre>
+<hr/>
+<h2>五、MinerU 部署结果（2026-10-17 完成）</h2>
+<table><thead><tr><th>步骤</th><th>结果</th></tr></thead><tbody>
+<tr><td>1</td><td>MinerU 4.0.12 安装到独立 venv（819 MB）</td></tr>
+<tr><td>2</td><td>ONNX basic 模型下载至 ~/.mineru/models（ModelScope 源）</td></tr>
+<tr><td>3</td><td>edu-ai-mineru.service 上线，127.0.0.1:8190，开机自启</td></tr>
+<tr><td>4</td><td>新增 LocalMinerUProvider 并注册</td></tr>
+<tr><td>5</td><td>.env 切换 PDF_PARSER_PROVIDER=mineru-local，端到端通过</td></tr>
+<tr><td>6</td><td>实测：219 KB 文档 11.4 秒；568 KB 教材 220.8 秒（CPU）</td></tr>
+</tbody></table>
+<hr/>
+<h2>六、回退速查（万一出问题）</h2>
+<table><thead><tr><th>要回退什么</th><th>操作</th></tr></thead><tbody>
+<tr><td>TTS 服务代码</td><td><code>cp services/local_tts/qwen_server.py.bak-20261016-122510 services/local_tts/qwen_server.py</code> 后重启服务</td></tr>
+<tr><td>TTS 改回阿里云</td><td><code>.env</code> 设 <code>TTS_LOCAL_ONLY=false</code> 后重启 <code>edu-ai-backend</code></td></tr>
+<tr><td>Embedding 改回远程</td><td><code>.env</code> 改回 <code>EMBEDDING_API_BASE/EMBEDDING_MODEL/EMBEDDING_API_KEY</code>（见 <code>.env.bak-step6-*</code>）</td></tr>
+<tr><td><strong>MinerU 改回云端</strong></td><td><code>.env</code> 设 <code>PDF_PARSER_PROVIDER=mineru-cloud</code> 后重启 <code>edu-ai-backend</code></td></tr>
+<tr><td>索引改回旧版</td><td><code>.env</code> 设 <code>VECTOR_DB_PATH=/home/zxqs_ep/data/edu_ai/staging/vector_db_20260907_linux</code> 后重启后端</td></tr>
+<tr><td>全量配置回退</td><td><code>cp .env.bak-&lt;任意时间戳&gt; .env</code> 后重启相关服务</td></tr>
+</tbody></table>
+<p>&gt; 所有备份文件都在 <code>/home/zxqs_ep/Edu_AI/</code> 下，文件名带时间戳。</p></section><section id="交付物 1：模型服务清单及部署结果"><div class="doc-title">交付物 1：模型服务清单及部署结果</div><h1>交付物 1：模型服务清单及每项部署结果</h1>
+<p>核查日期：2026-10-16 核查对象：Edu-AI 项目（服务器 server163 / 222.27.241.65:7163，项目路径 <code>/home/zxqs_ep/Edu_AI</code>）</p>
+<hr/>
+<h2>一、项目全部模型调用清单</h2>
+<p>来源：<code>.env</code> 实测 + <code>backend/src/app/services/runtime_config_store.py</code> 的 <code>PROVIDER_FIELDS</code> + OpenAPI（262 个接口）。</p>
+<p>项目内置 <strong>6 个可配置的模型服务</strong>，统一由 <code>runtime-config</code> 管理：</p>
+<table><thead><tr><th>#</th><th>provider</th><th>中文名</th><th>用途</th><th>配置字段</th><th>原实现</th><th>本地化状态</th></tr></thead><tbody>
+<tr><td>1</td><td><code>llm</code></td><td>对话与内容模型</td><td>问答·报告·教案·习题</td><td>provider_name, base_url, api_key, model, timeout_seconds</td><td>DeepSeek V4 Pro/Flash（在线）</td><td>任务要求<strong>不改</strong></td></tr>
+<tr><td>2</td><td><code>embedding</code></td><td>知识库向量模型</td><td>资料入库·RAG 检索·相似匹配</td><td>+ dimensions</td><td>Gemini Embedding 2 Preview（在线，3072 维）</td><td>✅ <strong>已本地化</strong></td></tr>
+<tr><td>3</td><td><code>tts</code></td><td>语音服务</td><td>课堂讲解·音频生成</td><td>+ voice</td><td>阿里云百炼 qwen-audio-3.1-tts-flash（在线）</td><td>✅ <strong>已本地化</strong></td></tr>
+<tr><td>4</td><td><code>pdf_parser</code></td><td>文档解析服务</td><td>PDF·教材·论文</td><td>provider_name, base_url, api_key, model, timeout_seconds</td><td>MinerU Cloud（在线）</td><td>⏳ 部署中</td></tr>
+<tr><td>5</td><td><code>web_search</code></td><td>联网搜索服务</td><td>深度搜索·资料补充</td><td>provider_name, base_url, api_key, model, timeout_seconds</td><td>博查 Bocha + Tavily（在线）</td><td>不在任务范围</td></tr>
+<tr><td>6</td><td><code>classroom</code></td><td>AI 课堂服务</td><td>课堂生成·交互课件</td><td>provider_name, base_url, api_key, model, timeout_seconds</td><td>OpenMAIC sidecar（本地 127.0.0.1:3000）</td><td>已是本地</td></tr>
+</tbody></table>
+<h3>其他在线依赖（任务书未要求本地化）</h3>
+<table><thead><tr><th>用途</th><th>当前实现</th><th>说明</th></tr></thead><tbody>
+<tr><td>知识库重排 Rerank</td><td>SiliconFlow <code>BAAI/bge-reranker-v2-m3</code></td><td>在线</td></tr>
+<tr><td>通用语音识别</td><td>百度语音</td><td>在线</td></tr>
+<tr><td>图片理解</td><td><code>deepseek-v4-flash-vision-exp</code></td><td>在线</td></tr>
+<tr><td>图片生成</td><td>Qwen Image 3.0（百炼，密钥已配）</td><td>在线，预留</td></tr>
+<tr><td>视频入库 ASR</td><td>faster-whisper small</td><td><strong>已是本地实现</strong></td></tr>
+<tr><td>视频生成</td><td>未启用（Seedance 预留）</td><td>—</td></tr>
+</tbody></table>
+<hr/>
+<h2>二、每项部署结果</h2>
+<h3>2.1 Qwen3-TTS-12Hz-1.7B-CustomVoice —— ✅ 已部署并接入</h3>
+<table><thead><tr><th>项</th><th>结果</th></tr></thead><tbody>
+<tr><td>部署位置</td><td>服务器 <code>server163</code>，<strong>GPU0</strong>（RTX 3090）</td></tr>
+<tr><td>服务名</td><td><code>edu-ai-tts.service</code>（systemd，开机自启）</td></tr>
+<tr><td>端口</td><td><code>127.0.0.1:8188</code></td></tr>
+<tr><td>权重</td><td>✅ <code>/home/zxqs_ep/data/models/qwen3-tts</code>（4.9 GB，<strong>复用现有权重，未重新下载</strong>）</td></tr>
+<tr><td>健康检查</td><td>✅ <code>{&quot;status&quot;:&quot;ok&quot;,&quot;model_loaded&quot;:true,&quot;device&quot;:&quot;cuda:0&quot;}</code></td></tr>
+<tr><td>显存常驻</td><td>✅ <strong>6,732 MiB</strong>（模型常驻不释放）</td></tr>
+<tr><td>接口</td><td><code>/health</code> <code>/stats</code> <code>/v1/models</code> <code>/v1/audio/voices</code> <code>/v1/audio/speech</code></td></tr>
+<tr><td>支持音色</td><td>9 个（vivian / serena / uncle_fu / dylan / eric / ryan / aiden / ono_anna / sohee）</td></tr>
+<tr><td>项目调用</td><td>✅ <strong>已启用</strong>（<code>TTS_LOCAL_ONLY=true</code>），端到端验证通过</td></tr>
+<tr><td>性能优化</td><td>✅ 批量合成 + 结果缓存：<strong>RTF 2.17 → 0.89</strong>，缓存命中 0.00s</td></tr>
+<tr><td>历史问题</td><td>项目 2026-10-13 曾启用过本地 TTS（当时 RTF≈3.3 太慢）后被关闭；本次优化后重新启用</td></tr>
+</tbody></table>
+<h3>2.2 Qwen3-Embedding-0.6B —— ✅ 已部署并接入</h3>
+<table><thead><tr><th>项</th><th>结果</th></tr></thead><tbody>
+<tr><td>部署位置</td><td>服务器 <code>server163</code>，<strong>GPU1</strong>（RTX 3090，与 TTS 双卡隔离）</td></tr>
+<tr><td>服务名</td><td><code>edu-ai-embedding.service</code>（systemd，开机自启）</td></tr>
+<tr><td>端口</td><td><code>127.0.0.1:8189</code></td></tr>
+<tr><td>权重</td><td>✅ <code>/home/zxqs_ep/data/models/Qwen3-Embedding-0.6B</code>（1.2 GB，经 hf-mirror 下载）</td></tr>
+<tr><td>健康检查</td><td>✅ <code>{&quot;status&quot;:&quot;ok&quot;,&quot;dim&quot;:1024,&quot;native_dim&quot;:1024,&quot;device&quot;:&quot;cuda:1&quot;}</code></td></tr>
+<tr><td>显存</td><td>1.5 ~ 7.7 GB</td></tr>
+<tr><td>输出维度</td><td><strong>1024</strong>（原生维度，支持 MRL 降维）</td></tr>
+<tr><td>接口</td><td><code>/health</code> <code>/stats</code> <code>/v1/models</code> <code>/v1/embeddings</code></td></tr>
+<tr><td>项目调用</td><td>✅ <strong>已启用</strong>，端到端验证通过</td></tr>
+<tr><td>图片向量</td><td>关闭远程多模态向量，改用图片描述文本降级（<code>RAG_ENABLE_IMAGE_EMBEDDING=0</code>），保留远程转发能力备用</td></tr>
+<tr><td><strong>索引重建</strong></td><td>✅ <strong>已完成</strong>：11,249 条文档，3072 维（Gemini）→ <strong>1024 维（Qwen3）</strong>，耗时 295 秒</td></tr>
+<tr><td>新索引</td><td><code>/home/zxqs_ep/data/edu_ai/staging/vector_db_qwen3_1024</code>（181 MB）</td></tr>
+<tr><td>旧索引</td><td><code>/home/zxqs_ep/data/edu_ai/staging/vector_db_20260907_linux</code>（279 MB，<strong>保留作回退</strong>）</td></tr>
+</tbody></table>
+<h3>2.3 MinerU —— ✅ 已部署并接入</h3>
+<table><thead><tr><th>项</th><th>结果</th></tr></thead><tbody>
+<tr><td>部署位置</td><td>服务器 <code>server163</code>，CPU 推理（ONNX basic tier），不占用 GPU</td></tr>
+<tr><td>服务名</td><td><code>edu-ai-mineru.service</code>（systemd，开机自启）</td></tr>
+<tr><td>端口</td><td><code>127.0.0.1:8190</code></td></tr>
+<tr><td>版本</td><td><strong>MinerU 4.0.12</strong></td></tr>
+<tr><td>安装位置</td><td><code>/home/zxqs_ep/data/venvs/mineru</code>（独立 venv，819 MB，不影响 edu-ai 环境）</td></tr>
+<tr><td>模型</td><td><code>/home/zxqs_ep/.mineru/models/MinerU-4_models_onnx</code>（tier=basic，ModelScope 源）</td></tr>
+<tr><td>健康检查</td><td>✅ <code>{&quot;status&quot;:&quot;ok&quot;,&quot;version&quot;:&quot;4.0.12&quot;,&quot;output_formats&quot;:[&quot;markdown&quot;,&quot;middle_json&quot;,&quot;structured_content&quot;,&quot;zip&quot;]}</code></td></tr>
+<tr><td>接口</td><td><code>/v1/health</code> <code>/v1/models</code> <code>/v1/file_parse</code> <code>/v1/parse/jobs</code> <code>/v1/tasks</code></td></tr>
+<tr><td>项目调用</td><td>✅ <strong>已启用</strong>（<code>PDF_PARSER_PROVIDER=mineru-local</code>）</td></tr>
+<tr><td>适配器</td><td>新增 <code>backend/src/app/integrations/pdf/mineru_local.py</code>（<code>LocalMinerUProvider</code>）</td></tr>
+<tr><td>实测解析</td><td>219 KB 文档 <strong>11.4 秒</strong> / 568 KB 教材 <strong>220.8 秒</strong></td></tr>
+<tr><td>输出</td><td>markdown（保留标题层级、列表、公式）</td></tr>
+</tbody></table>
+<hr/>
+<h2>三、GPU 基线</h2>
+<h3>3.1 NVML 驱动不匹配问题（任务书第 1 条）—— ✅ 已修复</h3>
+<table><thead><tr><th>项</th><th>修复前</th><th>修复后</th></tr></thead><tbody>
+<tr><td><code>nvidia-smi</code></td><td>❌ <code>Failed to initialize NVML: Driver/library version mismatch</code></td><td>✅ 正常</td></tr>
+<tr><td>内核模块</td><td>595.91.07</td><td><strong>595.99.02</strong></td></tr>
+<tr><td>用户态库</td><td>595.99.02</td><td>595.99.02</td></tr>
+<tr><td>CUDA Version</td><td>—</td><td>13.2</td></tr>
+</tbody></table>
+<p><strong>根因</strong>：驱动包升级到 595.99.02 后，内核中仍加载着旧模块 595.91.07（升级后未重启）。 <strong>修复</strong>：停止占用 GPU 的服务 → 卸载旧模块 → 加载新模块 → 恢复服务（约 90 秒，未重启服务器）。</p>
+<h3>3.2 当前硬件与显存</h3>
+<table><thead><tr><th>GPU</th><th>型号</th><th>总显存</th><th>占用</th><th>用途</th></tr></thead><tbody>
+<tr><td>GPU0</td><td>RTX 3090</td><td>24,576 MiB</td><td>6,732 MiB</td><td>Qwen3-TTS 常驻</td></tr>
+<tr><td>GPU1</td><td>RTX 3090</td><td>24,576 MiB</td><td>7,746 MiB</td><td>Qwen3-Embedding</td></tr>
+</tbody></table>
+<p>服务器其他资源：40 逻辑 CPU（2×Xeon Silver 4210R）、250 GB 内存、<code>/data</code> 剩 2.9 TB。</p>
+<hr/>
+<h2>四、服务总览</h2>
+<table><thead><tr><th>端口</th><th>服务</th><th>systemd 单元</th><th>状态</th></tr></thead><tbody>
+<tr><td>80</td><td>Nginx 前端</td><td><code>nginx.service</code></td><td>✅ active</td></tr>
+<tr><td>3000</td><td>OpenMAIC sidecar</td><td><code>edu-ai-openmaic.service</code></td><td>✅ active</td></tr>
+<tr><td>5432</td><td>PostgreSQL</td><td><code>postgresql.service</code></td><td>✅ active</td></tr>
+<tr><td>8001</td><td>FastAPI 后端</td><td><code>edu-ai-backend.service</code></td><td>✅ active</td></tr>
+<tr><td>8188</td><td>本地 Qwen3-TTS</td><td><code>edu-ai-tts.service</code></td><td>✅ active</td></tr>
+<tr><td>8189</td><td>本地 Qwen3-Embedding</td><td><code>edu-ai-embedding.service</code></td><td>✅ active</td></tr>
+</tbody></table></section><section id="交付物 2：本地服务与接入说明"><div class="doc-title">交付物 2：本地服务与接入说明</div><h1>交付物 2：已接入项目的本地服务、启动脚本、配置模板和接口说明</h1>
+<p>部署日期：2026-10-16 服务器：server163（222.27.241.65:7163），项目路径 <code>/home/zxqs_ep/Edu_AI</code></p>
+<hr/>
+<h2>一、已接入项目的本地服务</h2>
+<table><thead><tr><th>服务</th><th>systemd 单元</th><th>端口</th><th>设备</th><th>显存</th><th>状态</th></tr></thead><tbody>
+<tr><td>本地语音合成 Qwen3-TTS</td><td><code>edu-ai-tts.service</code></td><td>127.0.0.1:8188</td><td>GPU0 (RTX 3090)</td><td>6.7 GB</td><td>✅ 已接入</td></tr>
+<tr><td>本地文本向量 Qwen3-Embedding</td><td><code>edu-ai-embedding.service</code></td><td>127.0.0.1:8189</td><td>GPU1 (RTX 3090)</td><td>1.5~7.7 GB</td><td>✅ 已接入</td></tr>
+<tr><td>本地文档解析 MinerU</td><td><code>edu-ai-mineru.service</code></td><td>127.0.0.1:8190</td><td>CPU（ONNX）</td><td>0</td><td>✅ 已接入</td></tr>
+</tbody></table>
+<p><strong>双卡隔离</strong>：TTS 固定 GPU0，Embedding 固定 GPU1，互不抢占显存。</p>
+<hr/>
+<h2>二、启动脚本</h2>
+<h3>2.1 服务管理（已注册 systemd，开机自启）</h3>
+<pre><code># 查看状态（六个服务应全部 active）
+systemctl is-active postgresql edu-ai-openmaic edu-ai-backend nginx edu-ai-tts edu-ai-embedding
+
+# 启动 / 停止 / 重启单个服务
+sudo systemctl start   edu-ai-tts
+sudo systemctl stop    edu-ai-tts
+sudo systemctl restart edu-ai-tts
+sudo systemctl restart edu-ai-embedding
+
+# 开机自启（已启用）
+sudo systemctl enable edu-ai-tts edu-ai-embedding
+
+# 日志
+journalctl -u edu-ai-tts -n 100 --no-pager
+journalctl -u edu-ai-embedding -f</code></pre>
+<h3>2.2 一键启停脚本（建议新增，见 <code>scripts/local_ai/</code>）</h3>
+<pre><code># 启动全部本地 AI 服务
+bash /home/zxqs_ep/Edu_AI/scripts/local_ai/start-local-ai.sh
+
+# 停止
+bash /home/zxqs_ep/Edu_AI/scripts/local_ai/stop-local-ai.sh
+
+# 健康巡检
+bash /home/zxqs_ep/Edu_AI/scripts/local_ai/health-check.sh</code></pre>
+<h3>2.3 项目整体启动（原有流程不变）</h3>
+<pre><code>cd /home/zxqs_ep/Edu_AI
+source /home/zxqs_ep/miniforge3/etc/profile.d/conda.sh
+conda activate edu-ai
+bash scripts/start-production.sh</code></pre>
+<hr/>
+<h2>三、配置模板</h2>
+<h3>3.1 语音服务（TTS）—— 写入 <code>/home/zxqs_ep/Edu_AI/.env</code></h3>
+<pre><code># 本地 Qwen3-TTS 开关：true=用本地，false=用阿里云远程
+TTS_LOCAL_ONLY=true
+
+# 本地 TTS 服务（TTS_LOCAL_ONLY=true 时生效）
+TTS_PROVIDER_NAME=local-qwen-tts
+TTS_API_BASE=http://127.0.0.1:8188/v1
+TTS_API_KEY=
+TTS_MODEL=qwen3-tts
+TTS_VOICE=vivian
+TTS_TIMEOUT_SECONDS=120
+TTS_SPEED=1.0
+TTS_RESPONSE_FORMAT=mp3
+
+# 以下仅供本地 TTS 服务进程使用
+QWEN_TTS_MODEL=/home/zxqs_ep/data/models/qwen3-tts
+QWEN_TTS_DEVICE=cuda:0
+QWEN_TTS_MAX_CONCURRENCY=1
+
+# ---- 性能优化参数（2026-10-16 新增）----
+QWEN_TTS_BATCH_SIZE=16        # 批量合成条数，1=退回旧的逐条模式
+QWEN_TTS_CACHE_SIZE=256       # 结果缓存条数，0=关闭缓存
+QWEN_TTS_MAX_CHUNK_CHARS=40   # 分块上限（字），越大越少切分
+QWEN_TTS_CHUNK_MODE=sentence  # sentence | none</code></pre>
+<p>&gt; ⚠️ <code>TTS_LOCAL_ONLY=true</code> 时项目会强制校验地址必须是回环地址（<code>127.0.0.1</code>），否则启动即报 &gt; <code>TTS_LOCAL_ONLY requires a loopback TTS endpoint</code>。</p>
+<h3>3.2 向量服务（Embedding）—— 写入 <code>.env</code></h3>
+<pre><code>EMBEDDING_BACKEND=openai
+EMBEDDING_API_BASE=http://127.0.0.1:8189/v1
+EMBEDDING_API_KEY=
+EMBEDDING_MODEL=qwen3-embedding-0.6b
+EMBEDDING_TIMEOUT_SEC=180
+EMBEDDING_MAX_RETRIES=8
+EMBEDDING_BATCH_SIZE=4
+EMBEDDING_MAX_WORKERS=1
+
+# 向量库指向重建后的新索引
+VECTOR_DB_PATH=/home/zxqs_ep/data/edu_ai/staging/vector_db_qwen3_1024
+
+# 图片向量：关闭远程多模态向量，改用图片描述文本降级（项目默认行为）
+RAG_ENABLE_IMAGE_EMBEDDING=0
+RAG_IMAGE_EMBED_FALLBACK_TO_TEXT=1</code></pre>
+<h3>3.3 图片转发配置 —— <code>/home/zxqs_ep/Edu_AI/.env.embedding-local</code>（权限 600）</h3>
+<p>保留原远程多模态能力，供图片向量请求转发使用：</p>
+<pre><code>EMB_REMOTE_BASE=https://api.relayrouter.ai/v1
+EMB_REMOTE_KEY=&lt;原 EMBEDDING_API_KEY&gt;
+EMB_REMOTE_MODEL=gemini-embedding-2-preview
+EMB_REMOTE_TIMEOUT=180</code></pre>
+<h3>3.5 文档解析（MinerU）—— 写入 <code>.env</code></h3>
+<pre><code># 解析后端：mineru-local（本地）| mineru-cloud（云端）
+PDF_PARSER_PROVIDER=mineru-local
+PDF_MINERU_LOCAL_BASE_URL=http://127.0.0.1:8190
+PDF_MINERU_LOCAL_TIMEOUT=1800
+
+# 云端配置保留，回退时可直接切回
+PDF_MINERU_CLOUD_BASE_URL=https://mineru.net/api/v4
+PDF_MINERU_CLOUD_API_KEY=&lt;原有 Key&gt;</code></pre>
+<p>&gt; 服务进程参数（systemd 中固定）：<code>mineru-api --host 127.0.0.1 --port 8190 --upload-dir /home/zxqs_ep/data/mineru-uploads --tier basic --concurrency 2</code> &gt; 模型目录：<code>/home/zxqs_ep/.mineru/models/MinerU-4_models_onnx</code>（tier=basic）</p>
+<h3>3.4 systemd 单元模板</h3>
+<p><strong><code>/etc/systemd/system/edu-ai-tts.service</code></strong>（原有，未改动）</p>
+<pre><code>[Unit]
+Description=Edu-AI local Qwen3-TTS
+After=network.target
+
+[Service]
+Type=simple
+User=zxqs_ep
+Group=zxqs_ep
+WorkingDirectory=/home/zxqs_ep/Edu_AI
+EnvironmentFile=/home/zxqs_ep/Edu_AI/.env
+Environment=PYTHONUNBUFFERED=1
+Environment=HF_HUB_OFFLINE=1
+Environment=TRANSFORMERS_OFFLINE=1
+Environment=PATH=/home/zxqs_ep/miniforge3/envs/edu-ai/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python -m uvicorn services.local_tts.qwen_server:app --host 127.0.0.1 --port 8188
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<p><strong><code>/etc/systemd/system/edu-ai-embedding.service</code></strong>（本次新增）</p>
+<pre><code>[Unit]
+Description=Edu-AI local Qwen3-Embedding (Qwen3-Embedding-0.6B)
+After=network.target
+
+[Service]
+Type=simple
+User=zxqs_ep
+Group=zxqs_ep
+WorkingDirectory=/home/zxqs_ep/Edu_AI
+EnvironmentFile=/home/zxqs_ep/Edu_AI/.env
+EnvironmentFile=/home/zxqs_ep/Edu_AI/.env.embedding-local
+Environment=PYTHONUNBUFFERED=1
+Environment=HF_HUB_OFFLINE=1
+Environment=TRANSFORMERS_OFFLINE=1
+Environment=EMB_MODEL_DIR=/home/zxqs_ep/data/models/Qwen3-Embedding-0.6B
+Environment=EMB_DEVICE=cuda:1
+Environment=EMB_PORT=8189
+Environment=EMB_BATCH=32
+Environment=EMB_MAX_LEN=1024
+Environment=EMB_DIM=1024
+Environment=PATH=/home/zxqs_ep/miniforge3/envs/edu-ai/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python -m uvicorn services.local_embedding.server:app --host 127.0.0.1 --port 8189
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<p><strong><code>/etc/systemd/system/edu-ai-mineru.service</code></strong>（本次新增）</p>
+<pre><code>[Unit]
+Description=Edu-AI local MinerU parsing service
+After=network.target
+
+[Service]
+Type=simple
+User=zxqs_ep
+Group=zxqs_ep
+WorkingDirectory=/home/zxqs_ep/Edu_AI
+Environment=PYTHONUNBUFFERED=1
+Environment=MINERU_MODEL_SOURCE=modelscope
+Environment=PATH=/home/zxqs_ep/data/venvs/mineru/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/zxqs_ep/data/venvs/mineru/bin/mineru-api --host 127.0.0.1 --port 8190 --upload-dir /home/zxqs_ep/data/mineru-uploads --tier basic --concurrency 2
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<hr/>
+<h2>四、接口说明</h2>
+<h3>4.1 本地 TTS 服务（8188）</h3>
+<table><thead><tr><th>方法</th><th>路径</th><th>说明</th></tr></thead><tbody>
+<tr><td>GET</td><td><code>/health</code></td><td>健康检查，返回 <code>model_loaded</code> / <code>device</code></td></tr>
+<tr><td>GET</td><td><code>/stats</code></td><td>运行统计：批量次数、缓存命中、句子数、推理耗时</td></tr>
+<tr><td>GET</td><td><code>/v1/models</code></td><td>模型列表（<code>qwen3-tts</code>）</td></tr>
+<tr><td>GET</td><td><code>/v1/audio/voices</code></td><td>9 个可用音色</td></tr>
+<tr><td>POST</td><td><code>/v1/audio/speech</code></td><td><strong>语音合成（OpenAI 兼容）</strong></td></tr>
+</tbody></table>
+<p><strong><code>POST /v1/audio/speech</code> 请求体</strong></p>
+<pre><code>{
+  &quot;model&quot;: &quot;qwen3-tts&quot;,          // 必填，必须是 qwen3-tts
+  &quot;input&quot;: &quot;要合成的文本&quot;,        // 必填，≤1500 字
+  &quot;voice&quot;: &quot;vivian&quot;,             // 可选，默认 vivian
+  &quot;response_format&quot;: &quot;mp3&quot;,      // mp3 | wav
+  &quot;speed&quot;: 1.0,                  // 0.5 ~ 2.0
+  &quot;language&quot;: &quot;chinese&quot;,         // 可选，默认按音色推断
+  &quot;instructions&quot;: &quot;&quot;             // 可选，语气指令
+}</code></pre>
+<p><strong>响应</strong>：音频二进制（<code>audio/mpeg</code> 或 <code>audio/wav</code>）</p>
+<p><strong>响应头</strong></p>
+<table><thead><tr><th>头</th><th>说明</th></tr></thead><tbody>
+<tr><td><code>X-Request-ID</code></td><td>请求 ID</td></tr>
+<tr><td><code>X-Audio-Format</code></td><td>音频格式</td></tr>
+<tr><td><code>X-Audio-Duration-Ms</code></td><td>音频时长（毫秒）</td></tr>
+<tr><td><code>X-Audio-Batch</code></td><td>当前批量参数（如 16）</td></tr>
+</tbody></table>
+<p><strong>错误码</strong></p>
+<table><thead><tr><th>HTTP</th><th>code</th><th>含义</th></tr></thead><tbody>
+<tr><td>400</td><td><code>invalid_request</code></td><td>请求体非法</td></tr>
+<tr><td>404</td><td><code>model_not_found</code> / <code>voice_not_found</code></td><td>模型或音色不存在</td></tr>
+<tr><td>413</td><td><code>input_too_long</code></td><td>文本超长（&gt;1500 字）</td></tr>
+<tr><td>422</td><td><code>unsupported_format</code></td><td>格式不支持</td></tr>
+<tr><td>429</td><td><code>queue_full</code></td><td>并发队列满（带 <code>Retry-After</code>）</td></tr>
+<tr><td>503</td><td><code>model_loading</code></td><td>模型加载中</td></tr>
+</tbody></table>
+<p><strong>可用音色</strong>：<code>vivian</code> <code>serena</code> <code>uncle_fu</code> <code>dylan</code> <code>eric</code>（中文）／<code>ryan</code> <code>aiden</code>（英文）／<code>ono_anna</code>（日语）／<code>sohee</code>（韩语）</p>
+<h3>4.2 本地向量服务（8189）</h3>
+<table><thead><tr><th>方法</th><th>路径</th><th>说明</th></tr></thead><tbody>
+<tr><td>GET</td><td><code>/health</code></td><td>健康检查，返回 <code>dim</code> / <code>native_dim</code> / <code>device</code></td></tr>
+<tr><td>GET</td><td><code>/stats</code></td><td>统计：请求数、文本数、图片转发数</td></tr>
+<tr><td>GET</td><td><code>/v1/models</code></td><td>模型列表（<code>qwen3-embedding-0.6b</code>）</td></tr>
+<tr><td>POST</td><td><code>/v1/embeddings</code></td><td><strong>向量化（OpenAI 兼容）</strong></td></tr>
+</tbody></table>
+<p><strong><code>POST /v1/embeddings</code> 请求体</strong></p>
+<pre><code>{
+  &quot;model&quot;: &quot;qwen3-embedding-0.6b&quot;,
+  &quot;input&quot;: [&quot;文本1&quot;, &quot;文本2&quot;],   // 字符串或字符串数组
+  &quot;dimensions&quot;: 1024,            // 可选，MRL 截断降维（默认 1024 原生维度）
+  &quot;instruction&quot;: &quot;&quot;              // 可选，检索指令前缀
+}</code></pre>
+<p><strong>响应</strong></p>
+<pre><code>{
+  &quot;object&quot;: &quot;list&quot;,
+  &quot;data&quot;: [{&quot;object&quot;: &quot;embedding&quot;, &quot;index&quot;: 0, &quot;embedding&quot;: [0.0123, ...]}],
+  &quot;model&quot;: &quot;qwen3-embedding-0.6b&quot;,
+  &quot;usage&quot;: {&quot;prompt_tokens&quot;: 0, &quot;total_tokens&quot;: 0},
+  &quot;latency_ms&quot;: 123
+}</code></pre>
+<p><strong>路由策略</strong></p>
+<table><thead><tr><th>输入类型</th><th>处理方式</th><th>输出维度</th></tr></thead><tbody>
+<tr><td>文本</td><td>本地 Qwen3-Embedding（GPU1）</td><td>1024</td></tr>
+<tr><td>图片（<code>data:image/...</code>）</td><td>转发给远程 provider（保留多模态）</td><td>远程返回</td></tr>
+</tbody></table>
+<h3>4.3 本地文档解析服务（8190，MinerU 4.0.12）</h3>
+<table><thead><tr><th>方法</th><th>路径</th><th>说明</th></tr></thead><tbody>
+<tr><td>GET</td><td><code>/v1/health</code></td><td>健康检查（含版本、支持的输出格式）</td></tr>
+<tr><td>GET</td><td><code>/v1/models</code></td><td>模型列表</td></tr>
+<tr><td>POST</td><td><code>/v1/file_parse</code></td><td><strong>同步解析</strong>（multipart，字段只允许 <code>files</code>）</td></tr>
+<tr><td>POST</td><td><code>/v1/parse/jobs</code></td><td>异步任务（返回 job_id）</td></tr>
+<tr><td>POST</td><td><code>/v1/tasks</code></td><td>异步任务（返回 202）</td></tr>
+<tr><td>GET</td><td><code>/v1/tasks/{task_id}/result</code></td><td>异步结果</td></tr>
+</tbody></table>
+<p><strong><code>POST /v1/file_parse</code> 请求</strong></p>
+<pre><code>curl -X POST http://127.0.0.1:8190/v1/file_parse -F &quot;files=@document.pdf&quot;</code></pre>
+<p><strong>响应结构（关键字段）</strong></p>
+<pre><code>{
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;tier&quot;: &quot;basic&quot;,
+  &quot;task_id&quot;: &quot;...&quot;,
+  &quot;files&quot;: [{
+    &quot;name&quot;: &quot;document.pdf&quot;,
+    &quot;status&quot;: &quot;completed&quot;,
+    &quot;parse&quot;: {&quot;duration_ms&quot;: 11163, &quot;parser_version&quot;: &quot;4.0.12&quot;},
+    &quot;content&quot;: {&quot;markdown&quot;: &quot;# 标题\n...&quot;}
+  }]
+}</code></pre>
+<p><strong>项目适配器</strong>：<code>backend/src/app/integrations/pdf/mineru_local.py</code></p>
+<ul>
+<li>实现 <code>PdfParseProvider.parse(pdf, filename=...)</code></li>
+<li>返回统一的 <code>ParsedPdf(text=markdown, metadata={...})</code></li>
+<li>超时默认 1800 秒（可由 <code>PDF_MINERU_LOCAL_TIMEOUT</code> 覆盖）</li>
+</ul>
+<p><strong>输出格式</strong>：<code>markdown</code> / <code>middle_json</code> / <code>structured_content</code> / <code>zip</code></p>
+<hr/>
+<h2>五、部署位置速查</h2>
+<table><thead><tr><th>内容</th><th>路径</th></tr></thead><tbody>
+<tr><td>TTS 服务代码</td><td><code>/home/zxqs_ep/Edu_AI/services/local_tts/qwen_server.py</code></td></tr>
+<tr><td>TTS 服务代码备份</td><td><code>同目录 qwen_server.py.bak-20261016-122510</code></td></tr>
+<tr><td>Embedding 服务代码</td><td><code>/home/zxqs_ep/Edu_AI/services/local_embedding/server.py</code></td></tr>
+<tr><td>索引重建脚本</td><td><code>/home/zxqs_ep/Edu_AI/scripts/local_ai/rebuild_index.py</code></td></tr>
+<tr><td>TTS 权重</td><td><code>/home/zxqs_ep/data/models/qwen3-tts</code>（4.9 GB）</td></tr>
+<tr><td>Embedding 权重</td><td><code>/home/zxqs_ep/data/models/Qwen3-Embedding-0.6B</code>（1.2 GB）</td></tr>
+<tr><td>新向量索引</td><td><code>/home/zxqs_ep/data/edu_ai/staging/vector_db_qwen3_1024</code>（181 MB）</td></tr>
+<tr><td>旧向量索引（回退保留）</td><td><code>/home/zxqs_ep/data/edu_ai/staging/vector_db_20260907_linux</code>（279 MB）</td></tr>
+<tr><td>MinerU 服务代码（适配器）</td><td><code>/home/zxqs_ep/Edu_AI/backend/src/app/integrations/pdf/mineru_local.py</code></td></tr>
+<tr><td>MinerU 运行环境</td><td><code>/home/zxqs_ep/data/venvs/mineru</code>（819 MB）</td></tr>
+<tr><td>MinerU 模型</td><td><code>/home/zxqs_ep/.mineru/models/MinerU-4_models_onnx</code></td></tr>
+<tr><td>服务日志</td><td><code>/home/zxqs_ep/data/logs/</code></td></tr>
+</tbody></table></section><section id="交付物 3：对比记录"><div class="doc-title">交付物 3：对比记录</div><h1>交付物 3：本地与原服务的对比记录</h1>
+<p>测试日期：2026-10-16 环境：服务器 server163，2× RTX 3090 24GB，torch 2.13.0+cu130，Python 3.12，CUDA 13.2</p>
+<hr/>
+<h2>一、Qwen3-TTS：本地 vs 阿里云在线</h2>
+<h3>1.1 总体对比</h3>
+<table><thead><tr><th>维度</th><th>原服务（阿里云 qwen-audio-3.1-tts-flash）</th><th>本地 Qwen3-TTS</th></tr></thead><tbody>
+<tr><td>接入地址</td><td><code>dashscope.aliyuncs.com</code>（公网）</td><td><code>127.0.0.1:8188</code>（本机）</td></tr>
+<tr><td>网络依赖</td><td>必须联网</td><td>无</td></tr>
+<tr><td>费用</td><td>按量计费</td><td><strong>0</strong></td></tr>
+<tr><td>数据出域</td><td>文本上传到云端</td><td><strong>不出本机</strong></td></tr>
+<tr><td>显存占用</td><td>0</td><td>6,732 MiB（GPU0 常驻）</td></tr>
+<tr><td>音色</td><td>阿里云音色体系</td><td>Qwen3 9 个原生音色</td></tr>
+<tr><td>服务可用性</td><td>依赖第三方（本次实测原 embedding 服务已故障）</td><td>自主可控</td></tr>
+</tbody></table>
+<h3>1.2 耗时对比（同一段 4 句文本，约 110 字）</h3>
+<table><thead><tr><th>方案</th><th>音频时长</th><th>生成耗时</th><th>RTF</th></tr></thead><tbody>
+<tr><td>本地 TTS · 原始逐条</td><td>26.72 s</td><td><strong>57.89 s</strong></td><td>2.17</td></tr>
+<tr><td>本地 TTS · 批量优化</td><td>26.00 s</td><td><strong>23.24 s</strong></td><td><strong>0.89</strong></td></tr>
+<tr><td>本地 TTS · 缓存命中</td><td>26.00 s</td><td><strong>0.00 s</strong></td><td>—</td></tr>
+</tbody></table>
+<p>&gt; <strong>本地优化版比原始版本快 2.49 倍；重复文本 0 耗时。</strong></p>
+<h3>1.3 批量大小对吞吐的影响（16 句，共约 85 s 音频）</h3>
+<table><thead><tr><th>批量大小</th><th>调用次数</th><th>耗时</th><th>RTF</th><th>加速比</th><th>预估 10 分钟课程音频</th></tr></thead><tbody>
+<tr><td>1（原始）</td><td>16</td><td>175.17 s</td><td>2.15</td><td>1.00x</td><td>21.5 分钟</td></tr>
+<tr><td>4</td><td>4</td><td>57.72 s</td><td>0.67</td><td>3.03x</td><td>6.7 分钟</td></tr>
+<tr><td>8</td><td>2</td><td>34.71 s</td><td>0.41</td><td>5.05x</td><td>4.1 分钟</td></tr>
+<tr><td><strong>16</strong></td><td><strong>1</strong></td><td><strong>22.95 s</strong></td><td><strong>0.26</strong></td><td><strong>7.63x</strong></td><td><strong>2.6 分钟</strong></td></tr>
+</tbody></table>
+<h3>1.4 显存占用</h3>
+<table><thead><tr><th>方案</th><th>显存</th></tr></thead><tbody>
+<tr><td>阿里云（原方案）</td><td>0（全部在云端）</td></tr>
+<tr><td>本地 TTS v1（原始代码）</td><td>4,420 MiB</td></tr>
+<tr><td>本地 TTS v2（批量优化后）</td><td>6,732 MiB</td></tr>
+</tbody></table>
+<h3>1.5 人工听感对比</h3>
+<p>音频样本：<code>outputs/local-ai/demo/server/</code></p>
+<table><thead><tr><th>文件</th><th>说明</th></tr></thead><tbody>
+<tr><td><code>cmp_v1.mp3</code></td><td>原始逐条生成（4 句），26.72 s</td></tr>
+<tr><td><code>cmp_v2.mp3</code></td><td>批量优化生成（4 句），26.00 s</td></tr>
+<tr><td><code>cmp_v2_cached.mp3</code></td><td>缓存命中，与 cmp_v2 完全一致</td></tr>
+<tr><td><code>e2e_local_tts.mp3</code></td><td><strong>端到端</strong>：项目自己的 <code>OpenMaicTtsService</code> 调用本地 TTS 产出</td></tr>
+</tbody></table>
+<p><strong>已知差异</strong>：优化版按句切分后分别合成再拼接，句间语气连贯性与整段合成可能存在细微差异。 <strong>可调档位</strong>：<code>QWEN_TTS_CHUNK_MODE=paragraph</code>（少切分）/ <code>QWEN_TTS_BATCH_SIZE=4</code> / <code>=1</code>（完全退回原行为）。</p>
+<hr/>
+<h2>二、Qwen3-Embedding：本地 vs Gemini Embedding</h2>
+<h3>2.1 总体对比</h3>
+<table><thead><tr><th>维度</th><th>原服务（Gemini Embedding 2 Preview / relayrouter）</th><th>本地 Qwen3-Embedding-0.6B</th></tr></thead><tbody>
+<tr><td>接入地址</td><td><code>https://api.relayrouter.ai/v1</code></td><td><code>http://127.0.0.1:8189/v1</code></td></tr>
+<tr><td><strong>当前可用性</strong></td><td>❌ <strong>已故障</strong>（HTTP 400，见 2.2）</td><td>✅ 正常</td></tr>
+<tr><td>模型类型</td><td>多模态（文本+图片）</td><td>纯文本</td></tr>
+<tr><td>输出维度</td><td>3072</td><td>1024（原生，支持 MRL 降维）</td></tr>
+<tr><td>网络依赖</td><td>必须联网</td><td>无</td></tr>
+<tr><td>费用</td><td>按量计费</td><td><strong>0</strong></td></tr>
+<tr><td>显存占用</td><td>0</td><td>1,492 MiB（GPU1，空闲时）</td></tr>
+</tbody></table>
+<h3>2.2 原在线服务可用性实测（关键发现）</h3>
+<pre><code>[原在线服务 · 标准 OpenAI 格式]
+  ❌ HTTP 400: Invalid JSON payload received. Unknown name &quot;requests&quot;: Cannot find field.
+[原在线服务 · 带 dimensions 参数]
+  ❌ HTTP 400: 同样错误
+[本地服务]
+  ✅ 返回 1024 维，耗时 140 ms</code></pre>
+<p><strong>结论：原在线 embedding 服务在本次核查时已不可用</strong>，项目原先的知识库入库/检索链路实际上是断的。本地化部署同时修复了该故障。</p>
+<h3>2.3 耗时对比</h3>
+<table><thead><tr><th>操作</th><th>原在线服务</th><th>本地服务</th></tr></thead><tbody>
+<tr><td>3 条文本向量化</td><td>❌ 不可用</td><td><strong>93 ms</strong>（项目客户端实测）</td></tr>
+<tr><td>单条查询向量化</td><td>❌ 不可用</td><td>6 ms</td></tr>
+<tr><td>向量检索（11,249 条库）</td><td>❌ 不可用</td><td>3 ms</td></tr>
+<tr><td>4 条文档（含预热）</td><td>实测 1,875 ms（历史）</td><td>1,856 ms（首次）/ 93 ms（预热后）</td></tr>
+</tbody></table>
+<h3>2.4 检索效果验证（自召回测试，60 条真实课程数据块）</h3>
+<table><thead><tr><th>指标</th><th>结果</th></tr></thead><tbody>
+<tr><td>Recall@1</td><td>53.3%</td></tr>
+<tr><td>Recall@3</td><td>70.0%</td></tr>
+<tr><td>Recall@5</td><td>71.7%</td></tr>
+</tbody></table>
+<p>&gt; 测试方法：从新索引随机取 60 个文档块，用其正文前 60 字作为查询，检查能否召回原块。 &gt; 说明：查询构造较粗糙（仅为片段），实际业务查询效果应优于该数值。 &gt; <strong>该数值作为本地模型的基线记录；原服务因已故障，无法取得同口径对比数据。</strong></p>
+<h3>2.5 端到端检索验证（真实业务查询）</h3>
+<p>通过项目自身的 <code>EmbeddingClient</code> 调用，对 11,249 条新索引检索：</p>
+<table><thead><tr><th>查询</th><th>Top-1 召回结果</th><th>判定</th></tr></thead><tbody>
+<tr><td>冒泡排序的原理是什么</td><td>【金九银十】笔试通关 小学生都能学会的冒泡排序</td><td>✅ 相关</td></tr>
+<tr><td>决策树的优缺点</td><td>kbbuild-plan-一文看懂决策树</td><td>✅ 相关</td></tr>
+<tr><td>什么是过拟合</td><td>kbbuild-plan-什么是过拟合与欠拟合 - IBM</td><td>✅ 相关</td></tr>
+</tbody></table>
+<h3>2.6 索引重建对比（交付要求&quot;独立索引重建&quot;）</h3>
+<table><thead><tr><th>项</th><th>旧索引</th><th>新索引</th></tr></thead><tbody>
+<tr><td>路径</td><td><code>staging/vector_db_20260907_linux</code></td><td><code>staging/vector_db_qwen3_1024</code></td></tr>
+<tr><td>向量模型</td><td>Gemini Embedding 2</td><td>Qwen3-Embedding-0.6B</td></tr>
+<tr><td><strong>维度</strong></td><td><strong>3072</strong></td><td><strong>1024</strong></td></tr>
+<tr><td>条数</td><td>11,249</td><td>11,249</td></tr>
+<tr><td>体积</td><td>279 MB</td><td>181 MB</td></tr>
+<tr><td>状态</td><td>保留（回退用）</td><td>✅ 生产在用</td></tr>
+<tr><td>重建耗时</td><td>—</td><td><strong>295 秒</strong>（38.1 条/秒）</td></tr>
+</tbody></table>
+<p>&gt; 维度不兼容说明：项目配置中的 <code>GEMINI_EMBEDDING_DIMENSIONS=768</code> 是死配置（代码仅在 <code>backend==&quot;gemini&quot;</code> 时传递），实际索引为 3072 维。切换 embedding 模型必须重建索引，本次采用&quot;新建独立索引 + 验证 + 切换 <code>VECTOR_DB_PATH</code>&quot;的方式，旧索引全程保留。</p>
+<hr/>
+<h2>三、MinerU：本地 vs MinerU Cloud</h2>
+<h3>3.1 总体对比</h3>
+<table><thead><tr><th>维度</th><th>原服务（MinerU Cloud）</th><th>本地 MinerU 4.0.12</th></tr></thead><tbody>
+<tr><td>接入地址</td><td><code>https://mineru.net/api/v4</code>（公网）</td><td><code>http://127.0.0.1:8190</code></td></tr>
+<tr><td>网络依赖</td><td>必须联网 + API Key</td><td>无</td></tr>
+<tr><td>费用</td><td>按量计费</td><td><strong>0</strong></td></tr>
+<tr><td>数据出域</td><td>文档上传到云端</td><td><strong>不出本机</strong></td></tr>
+<tr><td>推理设备</td><td>云端 GPU</td><td>本机 CPU（ONNX basic tier）</td></tr>
+<tr><td>显存占用</td><td>0</td><td><strong>0</strong>（不占 GPU）</td></tr>
+<tr><td>接口协议</td><td>异步 batch + 预签名上传 + 轮询 + ZIP 下载</td><td><strong>同步</strong> <code>POST /v1/file_parse</code></td></tr>
+</tbody></table>
+<h3>3.2 实测耗时（本地）</h3>
+<table><thead><tr><th>文档</th><th>大小</th><th>耗时</th><th>输出 markdown</th></tr></thead><tbody>
+<tr><td>《汉字编码》</td><td>219 KB</td><td><strong>11.4 s</strong></td><td>5,864 字符</td></tr>
+<tr><td>《xv6 教材》</td><td>568 KB</td><td><strong>220.8 s</strong></td><td>1,239,694 字符</td></tr>
+</tbody></table>
+<p>&gt; 说明：CPU ONNX 推理，耗时与页数/版面复杂度强相关。教材类大文档适合后台任务，不阻塞交互。</p>
+<h3>3.3 效果验证</h3>
+<ul>
+<li>标题层级、列表、公式均正确保留（markdown 输出）</li>
+<li>中文正文解析完整（《汉字编码》全文可读）</li>
+<li>输出格式支持：<code>markdown</code> / <code>middle_json</code> / <code>structured_content</code> / <code>zip</code></li>
+</ul>
+<h3>3.4 索引/接入改造</h3>
+<table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody>
+<tr><td>新增适配器</td><td><code>backend/src/app/integrations/pdf/mineru_local.py</code>（<code>LocalMinerUProvider</code>，实现 <code>PdfParseProvider.parse</code>）</td></tr>
+<tr><td>注册位置</td><td><code>backend/src/app/integrations/pdf/__init__.py</code>（<code>mineru-local</code> 分支）</td></tr>
+<tr><td>配置项</td><td><code>PDF_PARSER_PROVIDER=mineru-local</code>、<code>PDF_MINERU_LOCAL_BASE_URL</code>、<code>PDF_MINERU_LOCAL_TIMEOUT=1800</code></td></tr>
+<tr><td>回退</td><td>改回 <code>PDF_PARSER_PROVIDER=mineru-cloud</code> 即恢复云端</td></tr>
+</tbody></table>
+<h2>四、方法论</h2>
+<ul>
+<li><strong>计时</strong>：客户端 <code>time.time()</code> 包住完整 HTTP 请求；服务端另记录 <code>X-Audio-Duration-Ms</code>。</li>
+<li><strong>音频时长</strong>：优先取服务端返回的真实采样点数；估算值按 mp3 192 kbps 换算。</li>
+<li><strong>显存读数</strong>：<code>nvidia-smi --query-gpu=memory.used</code>（NVML 修复后可用；修复前用 <code>torch.cuda.mem_get_info()</code> 兜底）。</li>
+<li><strong>预热剔除</strong>：所有性能测试均在服务预热后执行，排除首次 CUDA 编译开销。</li>
+<li><strong>检索验证</strong>：使用项目真实课程索引数据，通过项目自身的 <code>EmbeddingClient</code> 调用。</li>
+</ul></section><section id="交付物 4：部署运维与回退文档"><div class="doc-title">交付物 4：部署运维与回退文档</div><h1>交付物 4：部署、重启、故障处理与回退文档</h1>
+<p>适用环境：服务器 server163（222.27.241.65:7163），用户 <code>zxqs_ep</code> 项目路径：<code>/home/zxqs_ep/Edu_AI</code> 文档日期：2026-10-16</p>
+<hr/>
+<h2>一、服务与端口总览</h2>
+<table><thead><tr><th>端口</th><th>服务</th><th>组件</th><th>暴露方式</th></tr></thead><tbody>
+<tr><td>3000</td><td>OpenMAIC sidecar</td><td><code>edu-ai-openmaic.service</code></td><td>仅内部</td></tr>
+<tr><td>5432</td><td>PostgreSQL</td><td><code>postgresql.service</code></td><td>仅内部</td></tr>
+<tr><td>8001</td><td>FastAPI 后端</td><td><code>edu-ai-backend.service</code></td><td>由 Nginx 代理（<code>/backend</code>）</td></tr>
+<tr><td>8188</td><td>本地 Qwen3-TTS</td><td><code>edu-ai-tts.service</code></td><td>仅内部</td></tr>
+<tr><td>8189</td><td>本地 Qwen3-Embedding</td><td><code>edu-ai-embedding.service</code></td><td>仅内部</td></tr>
+<tr><td>8190</td><td>本地 MinerU 解析</td><td><code>edu-ai-mineru.service</code></td><td>仅内部</td></tr>
+<tr><td>80</td><td>Nginx 前端</td><td><code>nginx.service</code></td><td>对外</td></tr>
+</tbody></table>
+<h3>状态检查（一条命令看全部）</h3>
+<pre><code>systemctl is-active postgresql edu-ai-openmaic edu-ai-backend nginx edu-ai-tts edu-ai-embedding edu-ai-mineru</code></pre>
+<p>七个都显示 <code>active</code> 即正常。</p>
+<hr/>
+<h2>二、启动与重启</h2>
+<h3>2.1 完整启动项目</h3>
+<pre><code>cd /home/zxqs_ep/Edu_AI
+source /home/zxqs_ep/miniforge3/etc/profile.d/conda.sh
+conda activate edu-ai
+bash scripts/start-production.sh      # 按提示输入 sudo 密码</code></pre>
+<p>成功标志：<code>Edu-AI is ready: http://127.0.0.1/</code></p>
+<h3>2.2 只重启某个服务</h3>
+<pre><code>sudo systemctl restart edu-ai-tts        # 本地 TTS
+sudo systemctl restart edu-ai-backend    # 后端
+sudo systemctl restart edu-ai-openmaic   # 课堂 sidecar</code></pre>
+<h3>2.3 停 / 启 / 看日志</h3>
+<pre><code>sudo systemctl stop  edu-ai-tts
+sudo systemctl start edu-ai-tts
+journalctl -u edu-ai-tts -n 100 --no-pager        # 最近 100 行日志
+journalctl -u edu-ai-tts -f                       # 实时跟踪</code></pre>
+<h3>2.4 从本机访问前端（SSH 隧道）</h3>
+<pre><code>ssh -N -p 7163 -L 8080:127.0.0.1:80 -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 zxqs_ep@222.27.241.65</code></pre>
+<p>然后浏览器打开 <code>http://127.0.0.1:8080/</code>。<strong>保持该终端不关。</strong></p>
+<hr/>
+<h2>三、故障处理</h2>
+<h3>3.1 【已解决】GPU 驱动与 NVML 库版本不匹配</h3>
+<p><strong>现象</strong></p>
+<pre><code>$ nvidia-smi
+Failed to initialize NVML: Driver/library version mismatch
+NVML library version: 595.99</code></pre>
+<p><code>torch.cuda.is_available()</code> 仍为 True，但 <code>nvidia-smi</code> 完全不可用，无法读取显存。</p>
+<p><strong>根因</strong> 驱动包已升级到 <code>595.99.02</code>，但<strong>内核中仍加载着旧模块</strong> <code>595.91.07</code>（升级后未重启/未重载模块）。</p>
+<p>验证方法：</p>
+<pre><code>cat /proc/driver/nvidia/version        # 看内核模块版本 → 595.91.07
+dpkg -l | grep nvidia-driver           # 看已安装包版本 → 595.99.02</code></pre>
+<p>两者不一致即为本故障。</p>
+<p><strong>修复步骤</strong>（2026-10-16 实际执行，全程约 90 秒，无需重启服务器）</p>
+<pre><code># 1) 确认谁在占用 GPU（若只有本项目 TTS，可直接停）
+sudo fuser -v /dev/nvidia*
+
+# 2) 停掉占用 GPU 的服务
+sudo systemctl stop edu-ai-tts
+
+# 3) 卸载旧内核模块（顺序不能反）
+sudo rmmod nvidia_drm nvidia_modeset nvidia_uvm nvidia
+
+# 4) 加载新模块
+sudo modprobe nvidia &amp;&amp; sudo modprobe nvidia_uvm
+
+# 5) 验证
+cat /proc/driver/nvidia/version       # 应显示 595.99.02
+nvidia-smi                            # 应正常输出两张卡
+
+# 6) 恢复服务
+sudo systemctl start edu-ai-tts</code></pre>
+<p><strong>修复结果</strong></p>
+<table><thead><tr><th>项</th><th>修复前</th><th>修复后</th></tr></thead><tbody>
+<tr><td>内核模块</td><td>595.91.07</td><td><strong>595.99.02</strong></td></tr>
+<tr><td><code>nvidia-smi</code></td><td>报错</td><td>正常</td></tr>
+<tr><td>CUDA Version</td><td>—</td><td>13.2</td></tr>
+<tr><td>GPU0 / GPU1</td><td>读不出</td><td>24576 MiB / 24576 MiB</td></tr>
+</tbody></table>
+<p><strong>风险与注意事项</strong></p>
+<ul>
+<li>该服务器是<strong>共享服务器</strong>（<code>/data</code> 下还有 cbw、dxx、huanxu、lizixu、lzs 等其他用户）。执行前务必用 <code>fuser -v /dev/nvidia*</code> 确认没有他人在用 GPU。</li>
+<li>本次执行时 GPU 上<strong>只有 <code>edu-ai-tts</code> 一个进程</strong>，且项目当时使用在线 TTS（<code>TTS_LOCAL_ONLY=false</code>），因此停服务不影响业务。</li>
+<li>若 <code>rmmod</code> 提示 <code>Module is in use</code>，说明仍有进程持有 GPU，用 <code>fuser -v /dev/nvidia*</code> 找出后处理。</li>
+<li>若重载失败，终极手段是 <code>sudo reboot</code>（systemd 服务会自动拉起，约 2 分钟）。</li>
+</ul>
+<h3>3.2 本地 TTS 服务无响应</h3>
+<pre><code>systemctl status edu-ai-tts --no-pager
+curl -s http://127.0.0.1:8188/health
+journalctl -u edu-ai-tts -n 80 --no-pager</code></pre>
+<table><thead><tr><th>症状</th><th>可能原因</th><th>处理</th></tr></thead><tbody>
+<tr><td><code>model_loaded: false</code></td><td>模型还在加载</td><td>等待约 30 秒后再试</td></tr>
+<tr><td>503 <code>model_loading</code></td><td>同上</td><td>同上</td></tr>
+<tr><td>429 <code>queue_full</code></td><td>并发超限（<code>QWEN_TTS_MAX_CONCURRENCY</code>，默认 1）</td><td>降低并发或调大该值</td></tr>
+<tr><td>404 <code>model_not_found</code></td><td>请求里 <code>model</code> 字段不等于 <code>qwen3-tts</code></td><td>检查请求体</td></tr>
+<tr><td>404 <code>voice_not_found</code></td><td>音色名不在 9 个支持列表内</td><td>用 <code>/v1/audio/voices</code> 查询</td></tr>
+<tr><td>500 <code>inference_failed</code></td><td>推理异常</td><td>看 <code>journalctl</code> 里的 traceback</td></tr>
+</tbody></table>
+<h3>3.3 显存不足（OOM）</h3>
+<pre><code>nvidia-smi                                     # 看谁在占
+sudo fuser -v /dev/nvidia*                     # 定位进程</code></pre>
+<p>优先把新服务放到空闲的 GPU1（<code>CUDA_VISIBLE_DEVICES=1</code>）。</p>
+<hr/>
+<h2>四、回退方案</h2>
+<h3>4.1 回退 TTS 服务版本</h3>
+<p>部署新版前必须备份：</p>
+<pre><code>cd /home/zxqs_ep/Edu_AI/services/local_tts
+cp qwen_server.py qwen_server.py.bak-$(date +%Y%m%d-%H%M)</code></pre>
+<p>回退：</p>
+<pre><code>cd /home/zxqs_ep/Edu_AI/services/local_tts
+cp qwen_server.py.bak-&lt;时间戳&gt; qwen_server.py
+sudo systemctl restart edu-ai-tts</code></pre>
+<h3>4.2 回退 TTS 到在线（阿里云）</h3>
+<p>改 <code>.env</code>：</p>
+<pre><code>TTS_LOCAL_ONLY=false</code></pre>
+<p>然后：</p>
+<pre><code>sudo systemctl restart edu-ai-backend</code></pre>
+<p>&gt; <code>TTS_LOCAL_ONLY=false</code> 时项目读取 <code>TTS_REMOTE_*</code> 一组配置（阿里云百炼），完全绕开本地服务。</p>
+<h3>4.3 回退单个模型服务配置（项目内置机制）</h3>
+<p>项目自带版本化配置与一键回退：</p>
+<pre><code># 查看当前所有 provider 的生效状态
+curl http://127.0.0.1:8001/api/runtime-config
+
+# 回退某个 provider 到上一个版本
+curl -X POST http://127.0.0.1:8001/api/runtime-config/{provider}/rollback \
+     -H &#x27;Content-Type: application/json&#x27; -d &#x27;{&quot;scope&quot;:&quot;system&quot;}&#x27;
+
+# 停用某个 provider（恢复使用部署环境配置）
+curl -X POST http://127.0.0.1:8001/api/runtime-config/{provider}/disable \
+     -H &#x27;Content-Type: application/json&#x27; -d &#x27;{&quot;scope&quot;:&quot;system&quot;}&#x27;</code></pre>
+<p><code>{provider}</code> 取值：<code>llm</code> / <code>embedding</code> / <code>tts</code> / <code>web_search</code> / <code>pdf_parser</code> / <code>classroom</code></p>
+<p>配置生命周期：<code>draft</code> → <code>verify</code>（连接测试）→ <code>activate</code>（启用）→ 可 <code>rollback</code> / <code>disable</code></p>
+<h3>4.4 回退知识库索引（Embedding 切换后必用）</h3>
+<pre><code># 查看索引版本
+GET  /api/courses/{course_id}/knowledge-base/versions
+
+# 回滚到指定版本
+POST /api/courses/{course_id}/knowledge-base/versions/{version}/rollback</code></pre>
+<hr/>
+<h2>五、变更记录（2026-10-16 全天）</h2>
+<table><thead><tr><th>序号</th><th>变更</th><th>备份文件</th><th>结果</th></tr></thead><tbody>
+<tr><td>1</td><td>重载 NVIDIA 内核模块 595.91.07 → <strong>595.99.02</strong></td><td>无（模块重载）</td><td>✅ nvidia-smi 恢复，双卡 24GB 可读</td></tr>
+<tr><td>2</td><td>TTS 服务代码升级为批量优化版</td><td><code>qwen_server.py.bak-20261016-122510</code></td><td>✅ 生产已切换</td></tr>
+<tr><td>3</td><td><code>.env</code> 开启本地 TTS（TTS_LOCAL_ONLY=true）</td><td><code>.env.bak-20261016-122706</code></td><td>✅ 端到端验证通过</td></tr>
+<tr><td>4</td><td>新增本地向量服务 <code>services/local_embedding/server.py</code></td><td>—</td><td>✅ 服务上线</td></tr>
+<tr><td>5</td><td>注册 systemd 单元 <code>edu-ai-embedding.service</code></td><td>—</td><td>✅ 开机自启</td></tr>
+<tr><td>6</td><td><code>.env</code> 切换 Embedding 到本地 + 关闭图片向量</td><td><code>.env.bak-step6-20261016-123417</code></td><td>✅ 端到端验证通过</td></tr>
+<tr><td>7</td><td><strong>索引重建</strong>：3072 维 Gemini → 1024 维 Qwen3，11249 条</td><td>旧索引目录保留</td><td>✅ 295 秒完成</td></tr>
+<tr><td>8</td><td><code>.env</code> 切换 VECTOR_DB_PATH 指向新索引</td><td><code>.env.bak-indexcut-20261016-124314</code></td><td>✅ 检索验证通过</td></tr>
+<tr><td>9</td><td>新增运维脚本 <code>scripts/local_ai/</code></td><td>—</td><td>✅ 已就位</td></tr>
+<tr><td>10</td><td>(10-17) 安装 MinerU 4.0.12 独立 venv</td><td>—</td><td>✅ 819 MB</td></tr>
+<tr><td>11</td><td>(10-17) 部署 MinerU API 8190 + systemd</td><td>—</td><td>✅ 已接入</td></tr>
+<tr><td>12</td><td>(10-17) 新增 LocalMinerUProvider 并注册</td><td>pdf/__init__.py.bak-20261017-021611</td><td>✅ 验证通过</td></tr>
+<tr><td>13</td><td>(10-17) 切换 PDF_PARSER_PROVIDER=mineru-local</td><td>.env.bak-mineru-20261017-021616</td><td>✅ 11.4s 解析</td></tr>
+</tbody></table>
+<h3>回退对照表</h3>
+<table><thead><tr><th>想回退到哪一步</th><th>用哪个备份</th></tr></thead><tbody>
+<tr><td>索引切换前</td><td><code>.env.bak-indexcut-20261016-124314</code></td></tr>
+<tr><td>Embedding 切换前</td><td><code>.env.bak-step6-20261016-123417</code></td></tr>
+<tr><td>本地 TTS 启用前</td><td><code>.env.bak-20261016-122706</code></td></tr>
+<tr><td>TTS 代码原始版</td><td><code>services/local_tts/qwen_server.py.bak-20261016-122510</code></td></tr>
+</tbody></table></section>
+</body></html>

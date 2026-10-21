@@ -2,7 +2,7 @@
 import App from "./stitch/App";
 import { AuthProvider } from "./context/AuthContext";
 import "./stitch/styles.css";
-import "@openmaic/renderer/fonts.css";
+
 export default function LegacyEntry() {
   return (
     <AuthProvider>

@@ -1,0 +1,76 @@
+{
+  "passed": false,
+  "results": [
+    {
+      "caseId": "add-item-appears",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-row\" 的数量\n   实际：1\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "add-clears-input",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"面包\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "blank-shows-hint",
+      "status": "passed",
+      "message": "✓ 1. 点击 \"添加\"\n✓ 2. 检查 \"hint\" 的可见状态\n   实际：true\n✓ 3. 检查 \"hint\" 的显示文字\n   实际：\"请输入商品名称\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "blank-no-item",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"   \"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-row\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "increase-quantity",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"苹果\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n✓ 4. 点击 \"增加\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：2\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "decrease-quantity",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"香蕉\"\n✓ 2. 点击 \"添加\"\n✓ 3. 点击 \"增加\"\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：2\"\n✓ 5. 点击 \"减少\"\n✓ 6. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "decrease-floor-one",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"橙子\"\n✓ 2. 点击 \"添加\"\n✓ 3. 点击 \"减少\"\n✓ 4. 点击 \"减少\"\n✓ 5. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：1\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "toggle-to-purchased",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"酸奶\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-status\" 的显示文字\n   实际：\"待购买\"\n✓ 4. 点击 \"切换状态\"\n✓ 5. 检查 \"item-status\" 的显示文字\n   实际：\"已购买\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "toggle-back-pending",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"鸡蛋\"\n✓ 2. 点击 \"添加\"\n✓ 3. 点击 \"切换状态\"\n✓ 4. 检查 \"item-status\" 的显示文字\n   实际：\"已购买\"\n✓ 5. 点击 \"切换状态\"\n✓ 6. 检查 \"item-status\" 的显示文字\n   实际：\"待购买\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "delete-removes-item",
+      "status": "passed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"可乐\"\n✓ 2. 点击 \"添加\"\n✓ 3. 检查 \"item-row\" 的数量\n   实际：1\n✓ 4. 点击 \"删除\"\n✓ 5. 检查 \"item-row\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "filter-pending",
+      "status": "failed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"大米\"\n✓ 2. 点击 \"添加\"\n✓ 3. 在 \"item-input\" 输入 \"面粉\"\n✓ 4. 点击 \"添加\"\n✓ 5. 检查 \"item-row\" 的数量\n   实际：2\n× 6. 点击 \"item-row\" 中的 \"切换状态\"\n定位容器缺失或重复，无法确定操作范围。"
+    },
+    {
+      "caseId": "filter-purchased",
+      "status": "failed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"茶叶\"\n✓ 2. 点击 \"添加\"\n✓ 3. 在 \"item-input\" 输入 \"咖啡\"\n✓ 4. 点击 \"添加\"\n✓ 5. 检查 \"item-row\" 的数量\n   实际：2\n× 6. 点击 \"item-row\" 中的 \"切换状态\"\n定位容器缺失或重复，无法确定操作范围。"
+    },
+    {
+      "caseId": "filter-all",
+      "status": "failed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"土豆\"\n✓ 2. 点击 \"添加\"\n✓ 3. 在 \"item-input\" 输入 \"番茄\"\n✓ 4. 点击 \"添加\"\n× 5. 点击 \"item-row\" 中的 \"切换状态\"\n定位容器缺失或重复，无法确定操作范围。"
+    },
+    {
+      "caseId": "stats-ignore-filter",
+      "status": "failed",
+      "message": "✓ 1. 在 \"item-input\" 输入 \"牛奶\"\n✓ 2. 点击 \"添加\"\n✓ 3. 点击 \"增加\"\n✓ 4. 检查 \"item-quantity\" 的显示文字\n   实际：\"数量：2\"\n✓ 5. 在 \"item-input\" 输入 \"面包\"\n✓ 6. 点击 \"添加\"\n× 7. 点击 \"item-row\" 中的 \"切换状态\"\n定位容器缺失或重复，无法确定操作范围。"
+    }
+  ],
+  "durationMs": 4778.7533619999995
+}

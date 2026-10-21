@@ -114,8 +114,7 @@ def test_format_repair_updates_job_receipt_without_spec_revision():
 
 
 @pytest.mark.parametrize('minutes', [None, 11.41, 30])
-@pytest.mark.parametrize('decision', ['pass', 'fail'])
-def test_advisory_duration_reaches_semantic_review_without_rewriting(monkeypatch, minutes, decision):
+def test_quiz_advisory_duration_does_not_trigger_semantic_review_or_rewriting(monkeypatch, minutes):
     import app.course_preparation.quality as module
     from tests.course_preparation.test_resource_alignment import quiz, checkpoint
     from copy import deepcopy
@@ -136,20 +135,15 @@ def test_advisory_duration_reaches_semantic_review_without_rewriting(monkeypatch
     class Model:
         def decide(self, context, tools, **kwargs):
             calls.append(context)
-            return 'review_course_delivery', {'decision': decision, 'checked_node_ids': ['n'],
-                'issues': [] if decision == 'pass' else [{'artifact_ids': ['a'], 'reason': '答案错误'}]}
+            pytest.fail('Completed quizzes do not need another content review')
     stages = QualityStages(SimpleNamespace(get=lambda **_: SimpleNamespace(request=request)),
         SimpleNamespace(read_result=lambda *_: artifact), SimpleNamespace(validate=lambda *_: None),
         lambda *_: SimpleNamespace(model=Model()))
     ctx = SimpleNamespace(checkpoint=cp, owner_user_id='alice', preparation_id='prep')
     result = stages.review(ctx)
-    if decision == 'pass':
-        ctx.checkpoint = result.checkpoint
-        result = stages.review(ctx)
-        assert result.next_stage == 'commit' and len(calls) == 2
-    else:
-        assert result.next_stage == 'repair' and len(calls) == 1
-        assert result.checkpoint['quality']['issues'][0]['reason'] == '答案错误'
+    ctx.checkpoint = result.checkpoint
+    result = stages.review(ctx)
+    assert result.next_stage == 'commit' and calls == []
     assert artifact == original
     assert result.checkpoint['duration_summary']['enforcement'] == 'advisory'
 
@@ -176,3 +170,29 @@ def test_node_review_shares_context_without_losing_resource_specific_requirement
     assert rows == original
     result = context_packet({'phase': 'course_review', **packet}, [], max_tokens=128000, native_skill=True)
     assert result['input_token_upper_bound'] + result['output_token_limit'] <= 128000
+
+
+def test_node_review_keeps_media_identity_without_sending_binary_as_model_text():
+    from copy import deepcopy
+    from app.course_preparation.quality import node_review_artifacts
+    from tests.course_preparation.test_resource_alignment import quiz
+    from app.course_preparation.context import context_packet
+    row = quiz()
+    row['resource_type'] = 'classroom'
+    embedded = 'data:image/png;base64,' + 'YQ==' * 100000
+    row['content']['content'] = {'scenes': [{'id': 'scene-1', 'content': {
+        'elements': [{'type': 'image', 'src': embedded},
+                     {'type': 'text', 'content': '<p>先入栈 3，再入栈 7，出栈返回 7。</p>'}]}}]}
+    original = deepcopy(row)
+    packet = node_review_artifacts([row])
+    view = packet['artifacts'][0]
+    elements = view['content']['scenes'][0]['content']['elements']
+    assert elements[0]['src'].startswith('[embedded media sha256=')
+    assert elements[1] == original['content']['content']['scenes'][0]['content']['elements'][1]
+    assert view['content_digest'] == row['content_digest']
+    assert row == original
+    result = context_packet({'phase': 'course_review', **packet}, [], max_tokens=128000, native_skill=True)
+    assert result['input_token_upper_bound'] + result['output_token_limit'] <= 128000
+    row['content']['content']['scenes'][0]['content']['elements'][0]['src'] += 'YQ=='
+    changed = node_review_artifacts([row])['artifacts'][0]['content']['scenes'][0]['content']['elements'][0]['src']
+    assert changed != elements[0]['src']

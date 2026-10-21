@@ -33,13 +33,13 @@ export function createSessionReader(request: (enter: boolean, before?: string, s
   };
 }
 
-export function useTopicSession(courseId: string, topicId: string, enabled: boolean, owner: string) {
+export function useCourseSession(courseId: string, topicId: string, enabled: boolean, owner: string) {
   const [cache, setCache] = useState<Record<string, Cache>>({});
-  const key = JSON.stringify([owner, courseId, topicId]);
+  const key = JSON.stringify([owner, courseId]);
   const url = `/api/self-learning/courses/${encodeURIComponent(courseId)}/topics/${encodeURIComponent(topicId)}`;
   const read = useMemo(() => createSessionReader((enter, before, signal) =>
     apiRequest<SessionPage>(`${url}/${enter ? 'enter' : 'session'}${before ? '?before=' + encodeURIComponent(before) : ''}`,
-      { method: enter ? 'POST' : 'GET', signal })), [key, url]);
+      { method: enter ? 'POST' : 'GET', signal })), [key, url]); // eslint-disable-line react-hooks/exhaustive-deps -- re-enter after account changes
   const load = useCallback(async (enter = false, before?: string, signal?: AbortSignal) => {
     setCache(c => ({ ...c, [key]: { ...c[key], loading: true, error: undefined } }));
     try {

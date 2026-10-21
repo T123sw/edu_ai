@@ -1,0 +1,188 @@
+{
+  "title": "位置编码与逐位置前馈网络：补回顺序信息与逐位置非线性",
+  "content": {
+    "title": "位置编码与逐位置前馈网络：补回顺序信息与逐位置非线性",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_f389a890295c6fa609e053a92da5f28b",
+      "entry": "index.html",
+      "digest": "4d16adbc3089c879ac07449c3d1691e8d2c67473a876bfebaf106b20c6cba40b"
+    },
+    "timeline": {
+      "duration": 295.566667,
+      "segments": [
+        {
+          "id": "01-opening",
+          "end": 19.25,
+          "start": 0.0,
+          "title": "承上启下：看不见顺序",
+          "events": [],
+          "narration": "上一节我们讲完了自注意力：每个位置都能看到整条序列，靠的是 Query 和 Key 的相似度。但它有一个缺口，一个很隐蔽的缺口——它看不见顺序。这一节我们补上两块拼图：位置编码，和逐位置前馈网络。",
+          "audio_path": "assets/audio/baad35c92def4cc1dad76ca3bc3087f4345d8599929a99e12023b2ddafc9ee18.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "承接自注意力，点出它看不见顺序，抛出本节两块拼图（位置编码 / 逐位置前馈网络）"
+        },
+        {
+          "id": "02-permutation",
+          "end": 54.91,
+          "start": 19.25,
+          "title": "置换等变：输出只是重排",
+          "events": [],
+          "narration": "先把缺口摆出来。自注意力对输入位置的置换是等变的：同一个句子，把词序打乱，只做自注意力，输出也只是跟着重排，内容一点没变。猫追狗和狗追猫，用的是同一批词向量，注意力给每一对词打的分也完全对称，模型没有任何线索判断谁在前、谁在后。它知道有哪些词，却不知道这些词怎么排。既然 Transformer 既没有循环，也没有卷积，顺序信息就只能显式地注入进去，这就是位置编码要解决的问题。",
+          "audio_path": "assets/audio/1851e683555918aedc3a303179a8d12e6ec9a1afef2277968fc724c9e35576d4.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "打乱词序只做自注意力，输出只是跟着重排，模型分不清「猫追狗」与「狗追猫」"
+        },
+        {
+          "id": "03-injection",
+          "end": 87.36,
+          "start": 54.91,
+          "title": "注入方式：同维相加",
+          "events": [],
+          "narration": "注入的方式很直接：把位置编码加到编码器和解码器栈底部的输入嵌入上，注意是相加，不是拼接。位置编码和词嵌入都是 d_model 维，原论文里 d_model 等于 512，两个 512 维向量逐元素相加，维度保持不变，所以上面的每一层都不需要改动，注意力照常工作。换句话说，位置编码给每个词向量做了一次平移，把它挪到属于这个词位置的那片区域。",
+          "audio_path": "assets/audio/b62fa9b766c0e086726fbae98b66257481b46a5fede9e723129a81a04fc1133c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "把位置编码加到编码器/解码器栈底的输入嵌入上；同为 d_model=512，逐元素相加而不是拼接"
+        },
+        {
+          "id": "04-formula",
+          "end": 123.82,
+          "start": 87.36,
+          "title": "正弦公式逐项拆解",
+          "events": [],
+          "narration": "位置编码取什么函数？作者没有让它去学，而是直接写了一组不同频率的正弦和余弦。偶数维取 sin，括号里是 pos 除以 10000 的 d_model 分之 2i 次方；奇数维取 cos，括号里完全一样，只是把函数换成余弦。pos 是位置序号，从零开始数；i 是维度编号。也就是说，每一个维度对应一条固定频率的正弦曲线，维度编号越大，分母越大，频率越低，波长越长。",
+          "audio_path": "assets/audio/1499414fefe5e3233b1436e4ca963b3f3d42746f58c0b901b333017283fd0542.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "PE(pos,2i)=sin(pos/10000^(2i/d_model)) 与 cos 版本，逐项标注 pos / i / 频率项"
+        },
+        {
+          "id": "05-heatmap",
+          "end": 162.51,
+          "start": 123.82,
+          "title": "热力图与波长几何级数",
+          "events": [],
+          "narration": "把所有位置、所有维度排成一张表，就是一张热力图：横向是位置，纵向是维度。底部几行是高频快振荡，相邻位置的颜色差别很大；顶部几行是低频慢变化，相邻位置几乎看不出区别。波长正好构成一个几何级数，从 2π 一直到 10000 乘以 2π。所以位置每往前走一格，都会在每一维上留下一个有规律的、可区分的模式：低频维管粗粒度，高频维管细粒度，合起来就是一个位置的指纹。",
+          "audio_path": "assets/audio/29be8a74bf2be4c6bc01e319b5599516360dee5c885a904ef8ed2e6c0d5b9f6d.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "位置 × 维度的 PE 热力图，波长从 2π 到 10000·2π 的几何级数"
+        },
+        {
+          "id": "06-reasons",
+          "end": 195.76999999999998,
+          "start": 162.51,
+          "title": "两个设计理由",
+          "events": [],
+          "narration": "为什么偏偏选正弦函数？两个理由。第一，它让模型容易学按相对位置关注：对任意固定偏移 k，把正弦的和角公式展开，PE(pos 加 k) 就能写成 PE(pos) 的一个线性函数，而且这个变换只和 k 有关，与 pos 本身无关。模型只要学一个线性映射，就能表达往前看 k 个词。第二，这个公式对任意位置都有定义，所以可能外推到训练时没见过的更长序列。",
+          "audio_path": "assets/audio/463f9620808525ef7fd7bd64b77a3cd595b79fdfba92a0a6c6f0b6968102f07e.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "两个设计理由：PE(pos+k) 可写成 PE(pos) 的线性函数；公式可外推到更长的序列"
+        },
+        {
+          "id": "07-learned",
+          "end": 216.7,
+          "start": 195.76999999999998,
+          "title": "与可学习位置嵌入的对比",
+          "events": [],
+          "narration": "作者也试过可学习的位置嵌入：给每个位置配一个可训练向量。两种方案的结果几乎一模一样。最终选正弦版本，理由只有外推性：可学习的表只能在训练长度以内查，遇到更长的序列就没有位置可用；公式却可以一直算下去。",
+          "audio_path": "assets/audio/ad34ae7914770f0a054d09ce40e0cd8e4cee6c3a3a76ecb40e5b8a90258d61a4.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "可学习位置嵌入的结果几乎相同；选正弦版本只为外推性"
+        },
+        {
+          "id": "08-ffn",
+          "end": 263.15999999999997,
+          "start": 216.7,
+          "title": "逐位置前馈网络",
+          "events": [],
+          "narration": "顺序问题解决了，还差一块：逐位置前馈网络。编码器和解码器的每一层，除了注意力子层，还有一个全连接前馈网络，它对每个位置分别且相同地施加。它由两个线性变换夹一个 ReLU 组成：先把向量乘 W1 加 b1，升到更高的维度，再取 max(0, 那一步的结果)，把负数截成零，最后乘 W2 加 b2 回到原维度。不同位置共享同一组权重，但不同层用的是不同参数。ReLU 提供的就是逐位置的非线性：如果没有它，两个线性变换叠起来仍然只是一个线性变换。换个说法，这就等价于两个核大小为 1 的卷积。",
+          "audio_path": "assets/audio/8d37f1f1d667ef80469438b55d97efe4094789895c5e83caf1fd7e85cf222e42.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "FFN(x)=max(0,xW1+b1)W2+b2 对每个位置分别且相同地施加；位置共享参数、层间不共享；等价于两个 1×1 卷积"
+        },
+        {
+          "id": "09-dimensions",
+          "end": 295.53999999999996,
+          "start": 263.15999999999997,
+          "title": "512 → 2048 → 512",
+          "events": [],
+          "narration": "看维度变化就清楚了：输入是 512 维，W1 把它升到内层的 2048 维，ReLU 之后再由 W2 压回 512 维。每一层都重复这一套。注意力负责在位置之间交换信息，前馈网络负责在每个位置内部做非线性变换；两者合起来，才是一层完整的 Transformer。位置编码补回顺序，前馈网络补回逐位置的非线性——开头那两块拼图，到这里就都装上了。",
+          "audio_path": "assets/audio/f66f409e49af7dca27d093cace0fc52c03e23e02d74a7e517ae306d29f07dc77.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "维度变化 512 → 2048 → 512，以及全节小结"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 295.566667
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.926111116666666
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "5fe9926b7f7e7aa3f365d2ecba7474ed6891937781f1c79cd3504e1b022060f6",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 295.566667
+      },
+      "content_digest": "c2ead660863455223c2e74889ae15f74844add06b9c0b86bd5665a8747342ac9",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.926111116666666
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "ca81d2959b1d1dc81d803733f99fd9071a10d472aab3e6adb124f3135446295d"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "06a6c6eee5170e3d5b787be5e8525498aa5e1dc2b0055ab28cab0051b4178e2d",
+      "preparation_sha256": "d83e71671ad74f9bebb40f00d0ebc3763f4737b51f5b5181aa906cfdbd66e8d0"
+    }
+  }
+}

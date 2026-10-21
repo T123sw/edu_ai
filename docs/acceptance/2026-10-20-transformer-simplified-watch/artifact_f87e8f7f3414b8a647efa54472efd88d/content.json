@@ -1,0 +1,420 @@
+{
+  "title": "为什么需要 Transformer：Seq2Seq 与注意力动机",
+  "content": "# 为什么需要 Transformer：Seq2Seq 与注意力动机\n\n本节点用 10 分钟回答三个问题：Transformer 是什么、它由哪两部分组成、注意力到底在算什么。读完后你应当能不看资料说出这三件事。\n\n<a id=\"seq2seq-problem\"></a>\n## 一、先看一个具体问题：中译英\n\n假设我们要把中文句子「我爱学习」翻译成英文 \"I love studying\"。\n\n- 输入是 4 个词（我 / 爱 / 学习，按分词可能是 3 个），输出是 3 个英文词。\n- 输入长度和输出长度都不固定：换一句「今天天气很好，我们出去散步吧」，输入变长，输出也跟着变长。\n\n这类「输入是一个序列、输出也是一个序列，且两者长度都不确定」的任务，叫**序列到序列（Seq2Seq）问题**。机器翻译、问答系统、文档摘要生成都属于这一类。\n\n面对这种问题，最直接的想法是：先把整句中文读懂，再一个词一个词地写英文。这个想法对应的就是**编码器-解码器（Encoder-Decoder）结构**。\n\n<a id=\"encoder-decoder\"></a>\n## 二、编码器-解码器：读懂，再写出来\n\n编码器-解码器结构的分工非常直观：\n\n1. **编码器（Encoder）**：把输入序列（如中文词向量序列）编码成一个固定长度的状态向量，通常称为**语义编码向量**，可以理解为「这句话的意思」。\n2. **解码器（Decoder）**：以这个语义编码向量为起点，逐步生成输出序列（英文词）。\n\n用中译英的例子走一遍：\n\n- 编码器读入「我 / 爱 / 学习」三个词的向量，输出一个语义向量，代表「某人喜欢学习」这件事。\n- 解码器拿到这个语义向量，先输出 \"I\"，再基于已生成的内容输出 \"love\"，再输出 \"studying\"，最后输出结束符，翻译结束。\n\n需要强调一点：编码器和解码器只是**角色分工**，具体用什么网络来实现是可以替换的。历史上常见的选择有 CNN、RNN、GRU、LSTM；Transformer 的创新之处，就是把这个位置换成了注意力机制。\n\n<a id=\"attention-qkv\"></a>\n## 三、注意力机制：两步加权求和\n\n在讲 Transformer 之前，先看它最核心的零件——注意力机制。它的思路可以用一句话概括：**先算权重，再按权重加权求和**。\n\n注意力计算需要三组输入：\n\n- **Query（查询，Q）**：我现在想找什么信息。\n- **Key（键，K）**：每个位置能提供什么信息的「标签」。\n- **Value（值，V）**：每个位置真正携带的内容。\n\n计算分两步：\n\n- **第一步：用 Query 和 Key 算权重。** 把当前 Query 与每个位置的 Key 做内积（相似度），得到一组分数，再经 softmax 归一化成和为 1 的权重。分数越高，说明这个位置与当前查询越相关，权重越大。\n- **第二步：用权重对 Value 加权求和。** 把每个位置的 Value 乘以对应权重再相加，得到当前时间步的注意力输出。\n\n### 一个可以手算的小例子\n\n假设当前 Query 与三个位置的 Key 算出的相似度分数是 `[2, 1, 0]`。\n\n1. 归一化：softmax 后约为 `[0.67, 0.24, 0.09]`（三者相加为 1）。\n2. 若三个位置的 Value 分别是 `v1 = [1, 0]`、`v2 = [0, 1]`、`v3 = [1, 1]`，则输出为\n   `0.67 × [1,0] + 0.24 × [0,1] + 0.09 × [1,1] ≈ [0.76, 0.33]`。\n\n可以看到：输出并不是「选中某一个词」，而是**按相关程度把所有词的信息混合起来**。权重大的位置贡献多，权重小的位置贡献少。\n\n### 自注意力：Q、K、V 来自同一句话\n\n如果 Q、K、V 都来自同一个输入序列，这种注意力就叫**自注意力（Self-Attention）**。此时句子里的每个词都可以和句中所有词做注意力计算，从而寻找句子内部的关系——比如「它」到底指代前面哪个名词。\n\n注意：自注意力本身不关心词的先后顺序，所以后面还需要位置编码来补充顺序信息（这是后续节点的内容，这里只需知道「注意力本身是位置无关的」）。\n\n<a id=\"why-not-rnn\"></a>\n## 四、为什么不用 RNN：并行与长距离依赖\n\n在注意力机制流行之前，Seq2Seq 通常用 RNN 做编码器和解码器。RNN 有两个绕不开的痛点：\n\n**痛点一：必须逐时间步串行计算。** RNN 在第 t 步的计算依赖第 t−1 步的输出，所以一句话必须一个词一个词地算，无法把整句同时喂进去。而注意力机制每一步的计算不依赖上一步的结果，整句可以同时计算，因此能像 CNN 一样并行处理，更契合 GPU 的算力。\n\n**痛点二：长距离信息会被弱化。** RNN 理论上能建立长距离依赖，但信息要沿着时间步一步步传递，受传递容量和梯度消失影响，实际上往往只能建立短距离（局部）依赖。注意力机制则让任意两个位置直接相连，距离为 1，长距离依赖更容易建模。\n\n用一张对比表总结：\n\n| 对比项 | RNN 编码器 | 注意力机制 |\n| --- | --- | --- |\n| 计算方式 | 逐时间步串行，第 t 步依赖第 t−1 步 | 各位置可同时计算，不依赖上一步结果 |\n| 位置间距离 | 相隔越远，信息传递路径越长 | 任意两位置直接相连，距离为 1 |\n| 长距离依赖 | 易被弱化 | 更容易建模 |\n| 顺序信息 | 结构自带先后顺序 | 需额外加入位置编码 |\n\n### 多头注意力：多组视角同时看\n\n单次注意力只在一个投影空间里算一次相似度。**多头注意力（Multi-Head Attention）** 的做法是：用多组不同的参数矩阵，把 Q、K、V 分别投影到多个子空间，各自独立做一次注意力，最后把结果拼接起来。这样模型可以同时从多个角度捕捉不同的交互信息，例如有的头关注语法搭配，有的头关注指代关系。\n\n<a id=\"what-is-transformer\"></a>\n## 五、Transformer 的整体定位\n\n把上面的零件拼起来，就得到 Transformer 的定义：\n\n> Transformer 是 2017 年 Google 团队在论文《Attention Is All You Need》中提出的、基于多头注意力的 Seq2Seq 模型。整个网络由**编码器**和**解码器**两部分组成，**不使用 CNN 或 RNN**，仅用注意力机制自动捕捉输入序列不同位置之间的关联，并且可以高度并行计算。\n\n它的数据流可以概括为：\n\n1. 输入序列先做词嵌入，再加上位置编码，得到带顺序信息的向量序列。\n2. 编码器由 N 个相同层堆叠而成（原论文 N = 6），每层主要包含多头自注意力子层和前馈网络子层，每个子层后接残差连接与层归一化。编码器输出一组语义表示。\n3. 解码器同样由 N 层堆叠，每层有三个子层：掩蔽自注意力（只能看到已生成的部分）、编码器-解码器注意力（Query 来自解码器，Key 和 Value 来自编码器输出）、前馈网络。\n4. 解码器逐词生成输出序列，直到输出结束符。\n\n其中「编码器-解码器注意力」正是第二节分工的具体实现：解码器用自己当前的 Query，去编码器给出的 Key/Value 中查询需要的信息。\n\n### 也要知道它的代价\n\nTransformer 并非没有缺点：抛弃 RNN 和 CNN 后，模型丧失了部分捕捉局部特征的能力；由于结构本身不含顺序信息，位置信息只能靠位置编码补充，这被视为一种结构上的权宜之计。这些局限也是后续模型改进的出发点。\n\n<a id=\"self-check\"></a>\n## 六、自检：用三句话说明\n\n不看上面的内容，试着用三句话回答：\n\n1. Transformer 由哪两部分组成？\n2. 它替代了什么结构？\n3. 注意力机制的两步计算分别是什么？\n\n参考要点（先自己说，再对照）：\n\n- 第一句：Transformer 由编码器和解码器两部分组成，是 2017 年提出的基于多头注意力的 Seq2Seq 模型。\n- 第二句：它用注意力机制替代了原来编码器-解码器中的 CNN/RNN 结构，因此可以并行计算，并让任意两个位置直接相连。\n- 第三句：第一步用 Query 与 Key 计算相似度并归一化成权重，第二步用这些权重对 Value 加权求和得到输出。\n\n如果第三句说不清「权重从哪来、加权对象是什么」，回到第三节的手算例子再走一遍。\n\n---\n\n**资料来源说明**：本节点内容依据公开中文教材与技术博客整理，包括微软 AI-System 教材第 2.9 节《注意力机制和 Transformer》（https://github.com/microsoft/AI-System）与《Transformer 详解》博客（https://kangshitao.github.io/2020/11/15/transformer），未直接引用原始论文全文。位置编码的具体公式、掩码细节与训练方法不在本节点展开。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 7.0
+      },
+      "sections": [
+        {
+          "section_id": "seq2seq-problem",
+          "content_sha256": "1e3d560f1a35d4f7a5f7b41901354f8bab5d700b6f3d24f98b7a82d10c2a06f2"
+        },
+        {
+          "section_id": "encoder-decoder",
+          "content_sha256": "ad0fb47fa32e9ad8cdd76aaf784067466b883980320d24de67f74cb059635199"
+        },
+        {
+          "section_id": "attention-qkv",
+          "content_sha256": "fac68a589a8e883a9a6a02c1e307da263b16d33d87899dfe7e4979d7249ed8c0"
+        },
+        {
+          "section_id": "why-not-rnn",
+          "content_sha256": "91be78b8b519fa3ea8971ab39516a921b5ad5238e9ac4c16428043fd10fad9dc"
+        },
+        {
+          "section_id": "what-is-transformer",
+          "content_sha256": "f0094cf7f7ba43406659c2c3d4e868dfd8293b21e96e4ba33e6974c092fccf5c"
+        },
+        {
+          "section_id": "self-check",
+          "content_sha256": "061022064a126cf91bc347adfaff328960208922476348a670ccc060c215a9ba"
+        }
+      ],
+      "spec_digest": "483cfae5605f918f9c1743fa3f025aa7e0e34a330eb2115ecc1859502dd6cf2d",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "what-is-transformer"
+          },
+          "objective_id": "n1-motivation:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "encoder-decoder"
+          },
+          "objective_id": "n1-motivation:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "attention-qkv"
+          },
+          "objective_id": "n1-motivation:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "why-not-rnn"
+          },
+          "objective_id": "n1-motivation:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n1-motivation:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n1-motivation:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n1-motivation:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "what-is-transformer"
+          },
+          "explanation": "本节说明 Transformer 是 2017 年 Google 团队在《Attention Is All You Need》中提出的基于多头注意力的 Seq2Seq 模型，由编码器与解码器两部分组成，不使用 CNN/RNN，落实“基本原理与结构”要求中的整体定位部分。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "encoder-decoder"
+          },
+          "explanation": "本节以中译英为例说明 Seq2Seq 问题与编码器-解码器的分工：编码器把输入编码为语义表示，解码器据此逐步生成输出序列，落实“编码器-解码器”核心机制要求。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "attention-qkv"
+          },
+          "explanation": "本节用具体数值例子演示“Query 与 Key 算权重、再用权重对 Value 加权求和”的两步计算，并说明自注意力中 Q/K/V 同源，落实“自注意力”核心机制要求。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "why-not-rnn"
+          },
+          "explanation": "本节对比 RNN 逐时间步处理与注意力可并行计算，说明长距离依赖与并行性优势，并指出多头注意力在多个投影空间捕捉不同交互信息，落实“多头注意力”与动机部分要求。",
+          "requirement_id": "req-transformer-learning"
+        }
+      ],
+      "teaching_context_digest": "3c0491795017bf63c77d52d1aee57bcca7b9a635fd9a649c92c4a2fa29bc8490"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文按节点分工覆盖三项要求：第五节「Transformer 的整体定位」给出 2017 年、多头注意力 Seq2Seq、编码器+解码器、不用 CNN/RNN；第二节「编码器-解码器」说明编码器编码为语义向量、解码器逐步生成；第三节「注意力机制」给出 Q/K 算权重、对 V 加权求和两步，第四节对比 RNN 的并行与长距离依赖劣势。位置编码、多头注意力仅作概念提及，符合本节点动机定位，未伪称整门课已满足。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "第三节手算例子可复核：softmax([2,1,0])≈[0.665,0.245,0.090]，0.665×[1,0]+0.245×[0,1]+0.090×[1,1]≈[0.755,0.335]，与正文 [0.76,0.33] 一致；「我爱学习」分词说明也标注了不确定性。第四节「任意两位置距离为 1」「RNN 串行、梯度消失导致短距离依赖」与证据一致。第五节 N=6、掩蔽自注意力、编码器-解码器注意力中 Q 来自解码器、K/V 来自编码器均与来源相符。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "中译英例子（「我爱学习」→\"I love studying\"）与「今天天气很好…」变长例子落实了输入输出长度不定的 Seq2Seq 场景；注意力数值例子给出分数、softmax 权重、Value 向量与加权结果，边界（权重和为 1、输出为混合而非选中）说明清楚；第四节对比表逐项对照 RNN 与注意力，覆盖串行/并行、距离、长距离依赖、顺序信息四个维度。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：具体问题（中译英）→ 编码器-解码器分工 → 注意力两步计算与手算 → 为何不用 RNN（并行/长距离）→ 多头注意力 → Transformer 整体定位与数据流 → 自检，与节点活动「先讲 Seq2Seq 例子引出分工、再对比 RNN 与注意力、最后互动式自检」一致，非仅声称。第六节自检三问与 self_check 要求逐条对应并给出参考要点。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "文末资料来源说明列出微软 AI-System 教材 2.9 节与 kangshitao 博客两个实际来源，并声明未直接引用原始论文全文，与 limitations 一致；正文关键主张（2017 年论文、N=6、注意力两步、RNN 串行）均可在所给证据中找到对应原文，未出现无依据的外部断言。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三个目标均有解释与自检落点：o1 在第五节定义+数据流、o2 在第二节分工与第五节编码器-解码器注意力、o3 在第三节两步计算与第四节并行/长距离优势；同时补充了局限（丧失局部特征、位置编码为权宜之计），并明确位置编码公式、掩码细节、训练方法不在本节点展开，边界交代完整。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文按节点分工覆盖三项要求：第五节「Transformer 的整体定位」给出 2017 年、多头注意力 Seq2Seq、编码器+解码器、不用 CNN/RNN；第二节「编码器-解码器」说明编码器编码为语义向量、解码器逐步生成；第三节「注意力机制」给出 Q/K 算权重、对 V 加权求和两步，第四节对比 RNN 的并行与长距离依赖劣势。位置编码、多头注意力仅作概念提及，符合本节点动机定位，未伪称整门课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "第三节手算例子可复核：softmax([2,1,0])≈[0.665,0.245,0.090]，0.665×[1,0]+0.245×[0,1]+0.090×[1,1]≈[0.755,0.335]，与正文 [0.76,0.33] 一致；「我爱学习」分词说明也标注了不确定性。第四节「任意两位置距离为 1」「RNN 串行、梯度消失导致短距离依赖」与证据一致。第五节 N=6、掩蔽自注意力、编码器-解码器注意力中 Q 来自解码器、K/V 来自编码器均与来源相符。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "中译英例子（「我爱学习」→\"I love studying\"）与「今天天气很好…」变长例子落实了输入输出长度不定的 Seq2Seq 场景；注意力数值例子给出分数、softmax 权重、Value 向量与加权结果，边界（权重和为 1、输出为混合而非选中）说明清楚；第四节对比表逐项对照 RNN 与注意力，覆盖串行/并行、距离、长距离依赖、顺序信息四个维度。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：具体问题（中译英）→ 编码器-解码器分工 → 注意力两步计算与手算 → 为何不用 RNN（并行/长距离）→ 多头注意力 → Transformer 整体定位与数据流 → 自检，与节点活动「先讲 Seq2Seq 例子引出分工、再对比 RNN 与注意力、最后互动式自检」一致，非仅声称。第六节自检三问与 self_check 要求逐条对应并给出参考要点。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "文末资料来源说明列出微软 AI-System 教材 2.9 节与 kangshitao 博客两个实际来源，并声明未直接引用原始论文全文，与 limitations 一致；正文关键主张（2017 年论文、N=6、注意力两步、RNN 串行）均可在所给证据中找到对应原文，未出现无依据的外部断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个目标均有解释与自检落点：o1 在第五节定义+数据流、o2 在第二节分工与第五节编码器-解码器注意力、o3 在第三节两步计算与第四节并行/长距离优势；同时补充了局限（丧失局部特征、位置编码为权宜之计），并明确位置编码公式、掩码细节、训练方法不在本节点展开，边界交代完整。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第一节「输入是 4 个词（我 / 爱 / 学习，按分词可能是 3 个）」表述自相矛盾，建议直接写「按分词为 3 个词」，避免读者困惑。",
+              "第四节对比表「顺序信息」一行可补一句：注意力需位置编码，而位置编码的具体方案留待后续节点，以衔接整课结构。",
+              "第三节可点明 softmax 前通常还会除以 √d_k 做缩放，仅一句提示即可，不必展开公式，以免入门读者误以为注意力只有内积+softmax。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "what-is-transformer 节引用块明确写出 2017 年 Google 团队、《Attention Is All You Need》、基于多头注意力的 Seq2Seq、编码器+解码器、不使用 CNN/RNN，真实支持该要求。",
+                "locator": {
+                  "section_id": "what-is-transformer"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "encoder-decoder 节以中译英为例说明编码器输出语义编码向量、解码器逐步生成输出序列，并指出实现可替换为 CNN/RNN/GRU/LSTM，真实支持编码器-解码器分工要求。",
+                "locator": {
+                  "section_id": "encoder-decoder"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "attention-qkv 节给出 Q/K/V 含义、两步计算与 [2,1,0]→[0.67,0.24,0.09]→[0.76,0.33] 的手算过程，并说明自注意力中 Q/K/V 同源，真实支持自注意力与加权求和机制。",
+                "locator": {
+                  "section_id": "attention-qkv"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-not-rnn 节对比 RNN 逐时间步串行与注意力可并行、任意两位置距离为 1，并单列「多头注意力：多组视角同时看」小节，真实支持多头注意力与动机要求。",
+                "locator": {
+                  "section_id": "why-not-rnn"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "what-is-transformer 节的定义引用块与四步数据流完整说明 Transformer 是 2017 年多头注意力 Seq2Seq 模型、由编码器与解码器组成、不用 CNN/RNN，支持 o1。",
+                "locator": {
+                  "section_id": "what-is-transformer"
+                },
+                "binding_id": "n1-motivation:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "encoder-decoder 节用「我 / 爱 / 学习」→\"I love studying\" 走通编码器编码语义向量、解码器逐词生成至结束符的流程，支持 o2。",
+                "locator": {
+                  "section_id": "encoder-decoder"
+                },
+                "binding_id": "n1-motivation:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "attention-qkv 节两步计算与手算例子直接解释「Q 与 K 算权重、权重对 V 加权求和」，支持 o3 的机制部分。",
+                "locator": {
+                  "section_id": "attention-qkv"
+                },
+                "binding_id": "n1-motivation:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-not-rnn 节痛点一说明注意力不依赖上一步可并行、痛点二说明任意两位置距离为 1 便于长距离依赖，支持 o3 的优势部分。",
+                "locator": {
+                  "section_id": "why-not-rnn"
+                },
+                "binding_id": "n1-motivation:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 节第 1 问「Transformer 由哪两部分组成」及参考要点第一句（编码器+解码器、2017 年多头注意力 Seq2Seq）构成对 o1 的检查。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n1-motivation:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 节第 2 问「它替代了什么结构」及参考要点第二句（替代 CNN/RNN、可并行、任意两位置直接相连）检查 o2 相关的编码器-解码器替换关系。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n1-motivation:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 节第 3 问「注意力机制的两步计算」及参考要点第三句（Q 与 K 算相似度归一化为权重、权重对 V 加权求和）检查 o3。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n1-motivation:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "d4d12f0d75af3cb6ea07c6e202364874fbe797f0d5461da688b0426eefe8406f",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第一节「输入是 4 个词（我 / 爱 / 学习，按分词可能是 3 个）」表述自相矛盾，建议直接写「按分词为 3 个词」，避免读者困惑。",
+        "第四节对比表「顺序信息」一行可补一句：注意力需位置编码，而位置编码的具体方案留待后续节点，以衔接整课结构。",
+        "第三节可点明 softmax 前通常还会除以 √d_k 做缩放，仅一句提示即可，不必展开公式，以免入门读者误以为注意力只有内积+softmax。"
+      ],
+      "content_sha256": "d4d12f0d75af3cb6ea07c6e202364874fbe797f0d5461da688b0426eefe8406f",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "what-is-transformer 节引用块明确写出 2017 年 Google 团队、《Attention Is All You Need》、基于多头注意力的 Seq2Seq、编码器+解码器、不使用 CNN/RNN，真实支持该要求。",
+          "locator": {
+            "section_id": "what-is-transformer"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "encoder-decoder 节以中译英为例说明编码器输出语义编码向量、解码器逐步生成输出序列，并指出实现可替换为 CNN/RNN/GRU/LSTM，真实支持编码器-解码器分工要求。",
+          "locator": {
+            "section_id": "encoder-decoder"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "attention-qkv 节给出 Q/K/V 含义、两步计算与 [2,1,0]→[0.67,0.24,0.09]→[0.76,0.33] 的手算过程，并说明自注意力中 Q/K/V 同源，真实支持自注意力与加权求和机制。",
+          "locator": {
+            "section_id": "attention-qkv"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-not-rnn 节对比 RNN 逐时间步串行与注意力可并行、任意两位置距离为 1，并单列「多头注意力：多组视角同时看」小节，真实支持多头注意力与动机要求。",
+          "locator": {
+            "section_id": "why-not-rnn"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "what-is-transformer 节的定义引用块与四步数据流完整说明 Transformer 是 2017 年多头注意力 Seq2Seq 模型、由编码器与解码器组成、不用 CNN/RNN，支持 o1。",
+          "locator": {
+            "section_id": "what-is-transformer"
+          },
+          "binding_id": "n1-motivation:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "encoder-decoder 节用「我 / 爱 / 学习」→\"I love studying\" 走通编码器编码语义向量、解码器逐词生成至结束符的流程，支持 o2。",
+          "locator": {
+            "section_id": "encoder-decoder"
+          },
+          "binding_id": "n1-motivation:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "attention-qkv 节两步计算与手算例子直接解释「Q 与 K 算权重、权重对 V 加权求和」，支持 o3 的机制部分。",
+          "locator": {
+            "section_id": "attention-qkv"
+          },
+          "binding_id": "n1-motivation:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-not-rnn 节痛点一说明注意力不依赖上一步可并行、痛点二说明任意两位置距离为 1 便于长距离依赖，支持 o3 的优势部分。",
+          "locator": {
+            "section_id": "why-not-rnn"
+          },
+          "binding_id": "n1-motivation:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 节第 1 问「Transformer 由哪两部分组成」及参考要点第一句（编码器+解码器、2017 年多头注意力 Seq2Seq）构成对 o1 的检查。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n1-motivation:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 节第 2 问「它替代了什么结构」及参考要点第二句（替代 CNN/RNN、可并行、任意两位置直接相连）检查 o2 相关的编码器-解码器替换关系。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n1-motivation:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 节第 3 问「注意力机制的两步计算」及参考要点第三句（Q 与 K 算相似度归一化为权重、权重对 V 加权求和）检查 o3。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n1-motivation:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "1027816462cc42e77130e06d2bdce8c9bc01a207e1af0656c4400fdca0e82c1a"
+    }
+  }
+}

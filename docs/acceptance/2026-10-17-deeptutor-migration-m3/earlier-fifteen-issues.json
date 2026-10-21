@@ -1,0 +1,85 @@
+{
+  "stage": "Earlier M3 reviewer, superseded",
+  "completed": 13,
+  "failed": 2,
+  "finding": "Question 8 incorrectly treats instability of the first LSD digit pass as necessarily breaking numeric ordering. Its automatic review passed; questions 14 and 15 were blocked for near-copying.",
+  "question_8": {
+    "qa_pair": {
+      "question_id": "q_5dbc62d196d04974dd72",
+      "question": "An LSD radix sort processes 2-digit decimal keys, sorting first by the units digit and then by the tens digit. Suppose the pass on the units digit is implemented with an unstable digit sort. What is the most likely consequence for the final output?",
+      "question_type": "choice",
+      "options": {
+        "A": "Keys that share the same tens digit may end up out of order relative to each other, so the result is not correctly sorted.",
+        "B": "The algorithm still sorts correctly but runs in quadratic time instead of linear time.",
+        "C": "The algorithm still sorts correctly, but only if the number of keys is a power of ten.",
+        "D": "The algorithm still sorts correctly, because the tens-digit pass alone determines the final order."
+      },
+      "correct_answers": [],
+      "blank_answers": [],
+      "children": [],
+      "correct_answer": "A",
+      "explanation": "LSD radix sort relies on each digit pass being stable: the order established by earlier (less significant) passes must be preserved when later passes group keys by a more significant digit. If the units-digit pass is unstable, keys with equal units digits may be permuted arbitrarily, and the tens-digit pass cannot repair that ordering within each tens-digit bucket — so keys sharing a tens digit can come out in the wrong relative order. The tens-digit pass alone does not determine the final order, so option D is wrong, and stability has no bearing on the running time or on the number of keys.",
+      "difficulty": "medium",
+      "concentration": "LSD radix sort stability requirement"
+    },
+    "metadata": {
+      "blueprint_id": "q_5dbc62d196d04974dd72",
+      "review_passed": true
+    }
+  },
+  "blocked_questions": [
+    {
+      "qa_pair": {
+        "question_id": "q_5ad1ff2ed47bfbf1fdc5",
+        "question": "A counting sort is run on n = 800,000 integers whose keys lie in the range 0 to 4,999,999 (so k = 5,000,000 possible key values). The algorithm tallies the keys into a count array of size k, converts those counts into prefix sums, and then places each key into its output position. Expressed as a function of n and k, the total running time of this counting sort is ____.",
+        "question_type": "fill_in_blank",
+        "options": null,
+        "correct_answers": [],
+        "blank_answers": [],
+        "children": [],
+        "correct_answer": "O(n + k)",
+        "explanation": "Counting sort performs one pass over the n keys to tally them, one pass over the k counters to form prefix sums, and one final pass over the n keys to place them in the output array. Each pass is linear in its length, so the total work is Θ(n + k). With n = 800,000 and k = 5,000,000, the dominant cost is the k-sized counter pass, giving about 5,800,000 operations — linear in the input size plus the key range, not O(n log n).",
+        "difficulty": "medium",
+        "concentration": "counting sort time complexity"
+      },
+      "metadata": {
+        "issues": [
+          "novel_question",
+          "requirements_met",
+          "no_substantive_task_change",
+          "The candidate asks for the same named complexity result O(n + k) as the source; the added n = 800,000 and k = 5,000,000 scenario and pass description do not change the required reasoning or answer.",
+          "The specific values are unused decoration, so this is a rephrasing of the original fill-in-the-blank rather than a meaningfully new task.",
+          "The requirement to use different values and wording is only cosmetically satisfied; the assessed task is unchanged."
+        ],
+        "blueprint_id": "q_5ad1ff2ed47bfbf1fdc5",
+        "review_passed": false
+      }
+    },
+    {
+      "qa_pair": {
+        "question_id": "q_5198fee6972b46e63436",
+        "question": "A comparison sort is allowed to use only pairwise comparisons of keys. For an input of size n, consider the minimum possible worst-case number of comparisons over all correct comparison sorts. This quantity grows asymptotically as ____ (give the tight bound in terms of n).",
+        "question_type": "fill_in_blank",
+        "options": null,
+        "correct_answers": [],
+        "blank_answers": [],
+        "children": [],
+        "correct_answer": "Ω(n log n)",
+        "explanation": "Any correct comparison sort induces a binary decision tree with at least n! leaves, one for each possible input ordering. A binary tree of height h has at most 2^h leaves, so h ≥ log₂(n!). Since log₂(n!) = Θ(n log n), every comparison sort requires Ω(n log n) comparisons in the worst case. Merge sort and heapsort match this bound with O(n log n) comparisons, so the bound is tight.",
+        "difficulty": "hard",
+        "concentration": "comparison sort lower bound"
+      },
+      "metadata": {
+        "issues": [
+          "novel_question",
+          "requirements_met",
+          "no_substantive_task_change",
+          "The candidate is a reworded version of the same fill-in-the-blank fact (comparison sort lower bound Ω(n log n)); the added decision-tree wording does not create a meaningfully new task, scenario, or values.",
+          "The requirement to use different values and wording from the template is not satisfied because no new values or substantive conditions are introduced."
+        ],
+        "blueprint_id": "q_5198fee6972b46e63436",
+        "review_passed": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "tts_provider": "host",
+  "voice_id": null,
+  "voices": [
+    {
+      "id": "1",
+      "path": "assets/audio/baad35c92def4cc1dad76ca3bc3087f4345d8599929a99e12023b2ddafc9ee18.mp3",
+      "duration_s": 18.048,
+      "words": []
+    },
+    {
+      "id": "2",
+      "path": "assets/audio/1851e683555918aedc3a303179a8d12e6ec9a1afef2277968fc724c9e35576d4.mp3",
+      "duration_s": 34.464,
+      "words": []
+    },
+    {
+      "id": "3",
+      "path": "assets/audio/b62fa9b766c0e086726fbae98b66257481b46a5fede9e723129a81a04fc1133c.mp3",
+      "duration_s": 31.248,
+      "words": []
+    },
+    {
+      "id": "4",
+      "path": "assets/audio/1499414fefe5e3233b1436e4ca963b3f3d42746f58c0b901b333017283fd0542.mp3",
+      "duration_s": 35.256,
+      "words": []
+    },
+    {
+      "id": "5",
+      "path": "assets/audio/29be8a74bf2be4c6bc01e319b5599516360dee5c885a904ef8ed2e6c0d5b9f6d.mp3",
+      "duration_s": 37.488,
+      "words": []
+    },
+    {
+      "id": "6",
+      "path": "assets/audio/463f9620808525ef7fd7bd64b77a3cd595b79fdfba92a0a6c6f0b6968102f07e.mp3",
+      "duration_s": 32.064,
+      "words": []
+    },
+    {
+      "id": "7",
+      "path": "assets/audio/ad34ae7914770f0a054d09ce40e0cd8e4cee6c3a3a76ecb40e5b8a90258d61a4.mp3",
+      "duration_s": 19.728,
+      "words": []
+    },
+    {
+      "id": "8",
+      "path": "assets/audio/8d37f1f1d667ef80469438b55d97efe4094789895c5e83caf1fd7e85cf222e42.mp3",
+      "duration_s": 45.264,
+      "words": []
+    },
+    {
+      "id": "9",
+      "path": "assets/audio/f66f409e49af7dca27d093cace0fc52c03e23e02d74a7e517ae306d29f07dc77.mp3",
+      "duration_s": 31.176,
+      "words": []
+    }
+  ],
+  "total_duration_s": 284.736
+}

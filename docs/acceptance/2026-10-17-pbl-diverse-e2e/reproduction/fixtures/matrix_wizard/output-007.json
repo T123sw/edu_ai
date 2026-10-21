@@ -1,0 +1,499 @@
+{
+  "unit": {
+    "stepId": "step2-submit",
+    "title": "第 2 步：选择参加方式并提交显示结果",
+    "objective": "实现第 2 步的参加方式选择、同意条款勾选与提交后显示结果。",
+    "instructionsMarkdown": "现在把第 2 步从占位页变成真正的报名确认页。\n\n第 2 步需要包含：\n\n- 参加方式选择：两个单选项，分别是“线上”和“线下”，同一时间只能选一个。\n- 一个“同意条款”复选框。\n- 一个“提交”按钮。\n\n点击“提交”时：\n\n- 如果还没选参加方式，或者没有勾选同意条款，就不显示报名结果，页面停留在第 2 步。\n- 如果已经选了参加方式并且勾选了同意条款，就在页面上显示报名结果，结果里要能看到第 1 步填写的姓名、年龄，以及本步选择的参加方式（线上或线下）。\n\n例如姓名填“张三”、年龄填“30”、选择“线上”并勾选条款后提交，结果区应显示“张三”“30”“线上”。\n\n本步暂不要求“返回”和“重新填写”按钮，它们会在下一步加入。\n\n### 代码约定\n\n为了让系统能识别页面部件，请使用以下标记（它们只是供程序定位，不会改变外观）：\n\n- 第 2 步整体容器加 `data-testid=\"step2-placeholder\"`（沿用上一步已有的标记）。\n- “线上”单选项的可见文字为“线上”，“线下”单选项的可见文字为“线下”，使用标准单选按钮（`type=\"radio\"`），让它们的可访问名称就是“线上”“线下”。\n- “同意条款”复选框的可见文字包含“同意条款”。\n- “提交”按钮加 `data-testid=\"submit-button\"`，按钮文字为“提交”。\n- 报名结果区加 `data-testid=\"result-panel\"`，里面分别显示姓名、年龄和参加方式。为了让程序能分别读取这三项，请把姓名、年龄、参加方式各自放在独立的元素里，并分别加上 `data-testid=\"result-name\"`、`data-testid=\"result-age\"`、`data-testid=\"result-mode\"`。",
+    "explanationMarkdown": "第 2 步需要新增几个状态：参加方式（线上/线下）、是否勾选同意条款，以及是否已提交。\n\n提交时先做校验：参加方式为空或未勾选条款，就不把“已提交”置为真，结果区不出现。两者都满足时，把“已提交”置为真，页面根据已提交状态渲染结果区，结果区读取第 1 步保存的姓名、年龄和本步的参加方式。\n\n单选按钮用受控组件：`checked` 绑定当前参加方式，`onChange` 更新它。复选框同理绑定布尔状态。这样返回第 1 步再回来时，选择也能保留（下一步会用到）。\n\n把姓名、年龄、参加方式分别放进独立元素，既方便阅读，也让每项内容可以被单独定位，后续步骤扩展结果区时不会互相干扰。",
+    "hints": [
+      "参加方式可以用一个字符串状态保存，例如 `mode`，值为 `'online'` 或 `'offline'`，初始为空字符串。",
+      "同意条款用一个布尔状态 `agreed`，初始为 `false`。",
+      "提交时判断 `mode` 非空且 `agreed` 为真，才把 `submitted` 置为 `true`。",
+      "结果区只在 `submitted` 为真时渲染，姓名、年龄、参加方式分别放在带 `result-name`、`result-age`、`result-mode` 标记的元素里。"
+    ],
+    "focusFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "checkIds": [
+      "check-step2-submit-online",
+      "check-step2-submit-offline",
+      "check-step2-blocked-without-consent"
+    ]
+  },
+  "behaviorCases": [
+    {
+      "requirementId": "step2-form",
+      "setup": "第 1 步已填姓名“张三”、年龄“30”并进入第 2 步，未选参加方式、未勾选条款",
+      "action": "选择“线上”，勾选同意条款，点击“提交”",
+      "expected": "结果区出现，姓名项显示“张三”，年龄项显示“30”，参加方式项显示“线上”",
+      "checkId": "check-step2-submit-online"
+    },
+    {
+      "requirementId": "step2-form",
+      "setup": "第 1 步已填姓名“李四”、年龄“45”并进入第 2 步，未选参加方式、未勾选条款",
+      "action": "选择“线下”，勾选同意条款，点击“提交”",
+      "expected": "结果区出现，姓名项显示“李四”，年龄项显示“45”，参加方式项显示“线下”",
+      "checkId": "check-step2-submit-offline"
+    },
+    {
+      "requirementId": "step2-form",
+      "setup": "第 1 步已填姓名“张三”、年龄“30”并进入第 2 步",
+      "action": "选择“线上”，不勾选同意条款，点击“提交”",
+      "expected": "不显示报名结果，结果区不出现",
+      "checkId": "check-step2-blocked-without-consent"
+    },
+    {
+      "requirementId": "step2-form",
+      "setup": "第 1 步已填姓名“张三”、年龄“30”并进入第 2 步",
+      "action": "不选参加方式，勾选同意条款，点击“提交”",
+      "expected": "不显示报名结果，结果区不出现",
+      "checkId": "check-step2-blocked-without-consent"
+    }
+  ],
+  "checks": [
+    {
+      "id": "check-step2-submit-online",
+      "label": "姓名张三、年龄30、选择线上并勾选条款后提交，结果区显示姓名张三、年龄30、参加方式线上",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-input"
+          },
+          "value": "30",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "next-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "radio",
+            "name": "线上",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "checkbox",
+            "name": "同意条款",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-panel"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "姓名：张三",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-age"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "年龄：30",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-mode"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "参加方式：线上",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-step2-submit-offline",
+      "label": "姓名李四、年龄45、选择线下并勾选条款后提交，结果区显示姓名李四、年龄45、参加方式线下",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "李四",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-input"
+          },
+          "value": "45",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "next-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "radio",
+            "name": "线下",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "checkbox",
+            "name": "同意条款",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-panel"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "姓名：李四",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-age"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "年龄：45",
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-mode"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "参加方式：线下",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-step2-blocked-without-consent",
+      "label": "选择线上但不勾选条款时提交不显示结果；不选参加方式但勾选条款时提交也不显示结果",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "age-input"
+          },
+          "value": "30",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "next-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "radio",
+            "name": "线上",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-panel"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "checkbox",
+            "name": "同意条款",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": "radio",
+            "name": "线上",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-panel"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "faultyFiles": {},
+  "faultyCheckId": null
+}

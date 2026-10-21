@@ -1,4 +1,4 @@
-import { API_BASE_URL, apiBlob, apiRequest } from "./client";
+import { API_BASE_URL, apiRequest } from "./client";
 import type { ClassroomMaterial, EduJob } from "./types";
 import {
   buildClassroomListPath,
@@ -16,6 +16,7 @@ export function generateClassroom(
     objectives?: string[];
     scene_count?: number;
     duration_minutes?: number;
+    video_preferences?: { target_minutes?: number; duration_mode?: "target" | "maximum" | "exact"; narration?: boolean; voice?: string; aspect?: "16:9" | "9:16" | "1:1" | "4:3"; teaching_style?: string; scene_count?: number };
     teaching_style?: string;
     source_mode?: "course_auto" | "selected_documents" | "none";
     selected_doc_ids?: string[];
@@ -42,17 +43,6 @@ export function listClassrooms(
   return apiRequest<ClassroomMaterial[]>(
     buildClassroomListPath(courseId, space),
   );
-}
-
-export function exportClassroomVideo(courseId: string, classroomId: string) {
-  return apiRequest<EduJob>(
-    `/api/courses/${encodeURIComponent(courseId)}/classrooms/${encodeURIComponent(classroomId)}/video/export`,
-    { method: "POST" },
-  );
-}
-
-export function downloadClassroomVideoArtifact(path: string) {
-  return apiBlob(path);
 }
 
 function readAuthToken() {

@@ -1,0 +1,2506 @@
+{
+  "wrong-choice-and-recovery": {
+    "schema": "edu-experiment-facts/1",
+    "source": "browser_reported_with_deterministic_projection",
+    "scientifically_verified": false,
+    "current": {
+      "phase": "guided",
+      "task_id": "task-1",
+      "task_title": "动手完成一次完整冒泡排序",
+      "task_scope_note": "当前任务与所问历史操作的任务分别定位",
+      "step_index": 0,
+      "reported_verdict": "fail",
+      "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+      "snapshot_id": "14",
+      "values": {
+        "i": 0,
+        "arr": [
+          4,
+          2,
+          3,
+          1
+        ],
+        "done": false,
+        "pass": 0,
+        "inputs": [
+          "4",
+          "2",
+          "3",
+          "1"
+        ],
+        "editable": false,
+        "baseArray": [
+          4,
+          2,
+          3,
+          1
+        ],
+        "comparing": null,
+        "sortedFrom": 4,
+        "taskActive": true,
+        "swappedInPass": false,
+        "currentTaskIndex": 0
+      },
+      "reference_only": {
+        "page_text": {
+          "message": "",
+          "lastAction": "就绪"
+        },
+        "note": "Page-written descriptions, not independently verified state causes."
+      },
+      "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+      "fields": [],
+      "completion_reason": "not_reported_as_structured_evidence",
+      "state_string_fields_are_page_reported": true
+    },
+    "focus": {
+      "kind": "operation",
+      "operation_id": "24de535e-5d07-421c-8b23-0ba7020f1f61",
+      "seq": 12,
+      "phase": "guided",
+      "actor": "user",
+      "task_id": "task-1",
+      "attempt_id": "2318c8db-de9a-47d4-b2d9-f464451feed4",
+      "action": "choose-keep",
+      "label": "选择不交换",
+      "input": {
+        "index": 0,
+        "choice": "keep"
+      },
+      "reported_facts": {
+        "left": 4,
+        "pass": 1,
+        "index": 0,
+        "right": 2,
+        "chosen": "keep",
+        "expected": "swap",
+        "arrayBefore": [
+          4,
+          2,
+          3,
+          1
+        ]
+      },
+      "before": {
+        "snapshot_id": "12:before",
+        "values": {
+          "i": 0,
+          "arr": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "4",
+            "2",
+            "3",
+            "1"
+          ],
+          "editable": false,
+          "baseArray": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "comparing": null,
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": false,
+          "currentTaskIndex": 0
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "",
+            "lastAction": "就绪"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement"
+      },
+      "after_action": {
+        "snapshot_id": "12",
+        "values": {
+          "i": 0,
+          "arr": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "4",
+            "2",
+            "3",
+            "1"
+          ],
+          "editable": false,
+          "baseArray": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "comparing": null,
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": false,
+          "currentTaskIndex": 0
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "",
+            "lastAction": "就绪"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement"
+      },
+      "changes": [],
+      "assessment": {
+        "verdict": "fail",
+        "scope": "operation",
+        "event_id": "e8170f7b-60b1-41c4-8e50-5787758e2262",
+        "covers_operation_ids": [
+          "24de535e-5d07-421c-8b23-0ba7020f1f61"
+        ],
+        "checks": [],
+        "error_reason": {
+          "status": "reported_choice_mismatch",
+          "expected": "swap",
+          "actual": "keep",
+          "failed_conditions": [],
+          "source": "page_reported_action_facts",
+          "learner_misconception": "not_established_by_operation"
+        },
+        "completion_reason": "not_reported_as_structured_evidence"
+      },
+      "recovery": {
+        "recorded": true,
+        "event_id": "3481f095-5348-44d8-85df-73f0a85a766a",
+        "snapshot_id": "14",
+        "state_after_recovery": {
+          "i": 0,
+          "arr": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "4",
+            "2",
+            "3",
+            "1"
+          ],
+          "message": "",
+          "editable": false,
+          "baseArray": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "comparing": null,
+          "lastAction": "就绪",
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": false,
+          "currentTaskIndex": 0
+        },
+        "restored_operation_start": true
+      },
+      "reference_only": {
+        "action_rule": "用户确认不交换；按当前相邻数值判对错，排序结束才pass",
+        "page_feedback": "这次不该保持不动：左元素 4 大于右元素 2，升序排序中应交换两者。请重新比较这两个相邻元素再选择。",
+        "warning": "Generated explanations are not independently verified causes."
+      },
+      "source_event_ids": [
+        "24de535e-5d07-421c-8b23-0ba7020f1f61",
+        "e8170f7b-60b1-41c4-8e50-5787758e2262",
+        "3481f095-5348-44d8-85df-73f0a85a766a"
+      ],
+      "reconstructed": false
+    },
+    "recorded_next_operation": null,
+    "after_focus_counts": {
+      "scope": "recorded_after_focus_until_next_task_initialization_reset_or_phase_boundary",
+      "semantic_operations_after_focus": 0,
+      "operation_ids": [],
+      "operations": [],
+      "operations_list_partial": false,
+      "excludes_focus_itself": true,
+      "not_a_forecast": true
+    },
+    "recent_mistakes": [
+      {
+        "operation_id": "24de535e-5d07-421c-8b23-0ba7020f1f61",
+        "task_id": "task-1",
+        "decision_event_id": "e8170f7b-60b1-41c4-8e50-5787758e2262",
+        "assessment_scope": "operation",
+        "error_reason": {
+          "status": "reported_choice_mismatch",
+          "expected": "swap",
+          "actual": "keep",
+          "failed_conditions": [],
+          "source": "page_reported_action_facts",
+          "learner_misconception": "not_established_by_operation"
+        },
+        "recovery_recorded": true
+      }
+    ],
+    "mistakes_total": 1,
+    "previous_operation_id": "8b9626dc-dfb5-4a68-b0d8-db2b544f6f2f",
+    "totals": {
+      "scope": "entire_frozen_run_including_revisits",
+      "through_seq": 14,
+      "raw_events": 14,
+      "semantic_operations": 7,
+      "by_phase": {
+        "demonstrate": {
+          "semantic_operations": 6,
+          "user_operations": 0,
+          "observation_samples": 0
+        },
+        "guided": {
+          "semantic_operations": 1,
+          "user_operations": 1,
+          "observation_samples": 0
+        },
+        "explore": {
+          "semantic_operations": 0,
+          "user_operations": 0,
+          "observation_samples": 0
+        }
+      },
+      "control_events": 1,
+      "observation_samples": 0,
+      "lifecycle_events": 6,
+      "demonstration_steps_executed": 6,
+      "demonstration_step_event_ids": [
+        "abbfbbe8-5504-41d4-90ea-532a96651eb6",
+        "395fcf4d-a378-482f-bf35-0f3fd99c9722",
+        "fb48aa83-02d1-4a66-a727-97c409ae30cf",
+        "7b63720a-c216-4d6d-bc78-76dece337698",
+        "5ba919af-0e38-4940-98ed-2efa0352ae56",
+        "8b9626dc-dfb5-4a68-b0d8-db2b544f6f2f"
+      ],
+      "reconstruction_operations": 0,
+      "user_operations": 1,
+      "guided_decisions": {
+        "fail": 1
+      },
+      "tasks": [
+        {
+          "task_id": "task-1",
+          "title": "动手完成一次完整冒泡排序",
+          "phase": "guided",
+          "recorded_operations": 1,
+          "decisions": {
+            "fail": 1
+          },
+          "failure_count": 1,
+          "choices_matching_reported_expectation": 0,
+          "choices_mismatching_reported_expectation": 1,
+          "pass_count": 0,
+          "passed_at_event_ids": [],
+          "ever_passed_in_this_run": false
+        },
+        {
+          "task_id": "task-2",
+          "title": "自由探索：修改数组后重新排序",
+          "phase": "guided",
+          "recorded_operations": 0,
+          "decisions": {},
+          "failure_count": 0,
+          "choices_matching_reported_expectation": 0,
+          "choices_mismatching_reported_expectation": 0,
+          "pass_count": 0,
+          "passed_at_event_ids": [],
+          "ever_passed_in_this_run": false
+        }
+      ],
+      "counting_rules": {
+        "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+        "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+        "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+        "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+        "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+      }
+    },
+    "record_summary": [
+      "当前阶段：动手实践",
+      "当前动手任务：动手完成一次完整冒泡排序",
+      "系统演示累计执行 6 步；初始化、回看重建、控件点击、反馈和动画采样均不算演示步骤。",
+      "任务统计仅属于动手实践阶段，即使任务标题含有“自由探索”，也不代表自由探索阶段；自由探索阶段单独统计。",
+      "自由探索阶段实际记录 0 次用户实验动作、0 条状态采样；不是动手任务操作次数，也不能换算为比较/交换次数。",
+      "快照有数值不等于真实测量已经验证；数值为 0 也不等于未测量。本记录没有测量有效性标记，不确定的要说明不确定。",
+      "下列动作数已经去除点击、判定和回滚等重复记录；判定是动作的结果，不能再加进动作次数。",
+      "动手阶段任务「动手完成一次完整冒泡排序」：累计 1 次实验动作；对应判定中失败 1 次、任务通过 0 次、继续 0 次。选择符合页面记录预期 0 次、不符合 1 次；没有上报预期的动作不归入这两个选择计数。",
+      "动手阶段任务「自由探索：修改数组后重新排序」：累计 0 次实验动作；对应判定中失败 0 次、任务通过 0 次、继续 0 次。选择符合页面记录预期 0 次、不符合 0 次；没有上报预期的动作不归入这两个选择计数。",
+      "这个冻结时点没有记录所问动作之后的新动作。未被要求预测时，只解释当前变化和未完成的条件，不列出多步未来数值。",
+      "所问动作之后、下一次任务初始化/重置/阶段切换之前实际又记录了 0 次实验动作，不含所问动作本身。这些是历史记录，不是未来预测。"
+    ],
+    "recent_operations": [
+      {
+        "operation_id": "395fcf4d-a378-482f-bf35-0f3fd99c9722",
+        "seq": 3,
+        "phase": "demonstrate",
+        "actor": "system",
+        "task_id": null,
+        "attempt_id": "3d7c39e1-a51a-4bbd-9cf7-fb56f2683b24",
+        "action": "compare-1-2",
+        "before_snapshot": "3:before",
+        "after_snapshot": "3",
+        "reported_facts": {
+          "left": 3,
+          "pass": 1,
+          "index": 1,
+          "right": 4,
+          "swapped": false,
+          "arrayAfter": [
+            1,
+            3,
+            4,
+            2
+          ],
+          "arrayBefore": [
+            1,
+            3,
+            4,
+            2
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "fb48aa83-02d1-4a66-a727-97c409ae30cf",
+        "seq": 4,
+        "phase": "demonstrate",
+        "actor": "system",
+        "task_id": null,
+        "attempt_id": "3d7c39e1-a51a-4bbd-9cf7-fb56f2683b24",
+        "action": "compare-2-3",
+        "before_snapshot": "4:before",
+        "after_snapshot": "4",
+        "reported_facts": {
+          "left": 4,
+          "pass": 1,
+          "index": 2,
+          "right": 2,
+          "swapped": true,
+          "arrayAfter": [
+            1,
+            3,
+            2,
+            4
+          ],
+          "arrayBefore": [
+            1,
+            3,
+            4,
+            2
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "7b63720a-c216-4d6d-bc78-76dece337698",
+        "seq": 5,
+        "phase": "demonstrate",
+        "actor": "system",
+        "task_id": null,
+        "attempt_id": "3d7c39e1-a51a-4bbd-9cf7-fb56f2683b24",
+        "action": "compare-0-1",
+        "before_snapshot": "5:before",
+        "after_snapshot": "5",
+        "reported_facts": {
+          "left": 1,
+          "pass": 2,
+          "index": 0,
+          "right": 3,
+          "swapped": false,
+          "arrayAfter": [
+            1,
+            3,
+            2,
+            4
+          ],
+          "arrayBefore": [
+            1,
+            3,
+            2,
+            4
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "5ba919af-0e38-4940-98ed-2efa0352ae56",
+        "seq": 6,
+        "phase": "demonstrate",
+        "actor": "system",
+        "task_id": null,
+        "attempt_id": "3d7c39e1-a51a-4bbd-9cf7-fb56f2683b24",
+        "action": "compare-1-2",
+        "before_snapshot": "6:before",
+        "after_snapshot": "6",
+        "reported_facts": {
+          "left": 3,
+          "pass": 2,
+          "index": 1,
+          "right": 2,
+          "swapped": true,
+          "arrayAfter": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "arrayBefore": [
+            1,
+            3,
+            2,
+            4
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "8b9626dc-dfb5-4a68-b0d8-db2b544f6f2f",
+        "seq": 7,
+        "phase": "demonstrate",
+        "actor": "system",
+        "task_id": null,
+        "attempt_id": "3d7c39e1-a51a-4bbd-9cf7-fb56f2683b24",
+        "action": "compare-0-1",
+        "before_snapshot": "7:before",
+        "after_snapshot": "7",
+        "reported_facts": {
+          "left": 1,
+          "pass": 3,
+          "index": 0,
+          "right": 2,
+          "swapped": false,
+          "arrayAfter": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "arrayBefore": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "24de535e-5d07-421c-8b23-0ba7020f1f61",
+        "seq": 12,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "2318c8db-de9a-47d4-b2d9-f464451feed4",
+        "action": "choose-keep",
+        "before_snapshot": "12:before",
+        "after_snapshot": "12",
+        "reported_facts": {
+          "left": 4,
+          "pass": 1,
+          "index": 0,
+          "right": 2,
+          "chosen": "keep",
+          "expected": "swap",
+          "arrayBefore": [
+            4,
+            2,
+            3,
+            1
+          ]
+        },
+        "verdict": "fail",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": false,
+        "recovery_recorded": true,
+        "reconstructed": false
+      }
+    ],
+    "coverage": {
+      "raw_events": 14,
+      "operations_total": 7,
+      "operations_in_recent_list": 6,
+      "totals_cover_full_frozen_run": true,
+      "history_details_partial": true,
+      "tools": [
+        "list_operations",
+        "get_operation",
+        "get_fact_summary"
+      ]
+    }
+  },
+  "current-after-correction": {
+    "schema": "edu-experiment-facts/1",
+    "source": "browser_reported_with_deterministic_projection",
+    "scientifically_verified": false,
+    "current": {
+      "phase": "guided",
+      "task_id": "task-1",
+      "task_title": "动手完成一次完整冒泡排序",
+      "task_scope_note": "当前任务与所问历史操作的任务分别定位",
+      "step_index": 0,
+      "reported_verdict": "pending",
+      "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+      "snapshot_id": "17",
+      "values": {
+        "i": 1,
+        "arr": [
+          2,
+          4,
+          3,
+          1
+        ],
+        "done": false,
+        "pass": 0,
+        "inputs": [
+          "4",
+          "2",
+          "3",
+          "1"
+        ],
+        "editable": false,
+        "baseArray": [
+          4,
+          2,
+          3,
+          1
+        ],
+        "comparing": [
+          0,
+          1
+        ],
+        "sortedFrom": 4,
+        "taskActive": true,
+        "swappedInPass": true,
+        "currentTaskIndex": 0
+      },
+      "reference_only": {
+        "page_text": {
+          "message": "",
+          "lastAction": "比较 a[0]=4 与 a[1]=2，交换"
+        },
+        "note": "Page-written descriptions, not independently verified state causes."
+      },
+      "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+      "fields": [],
+      "completion_reason": "not_reported_as_structured_evidence",
+      "state_string_fields_are_page_reported": true
+    },
+    "focus": {
+      "kind": "operation",
+      "operation_id": "40a8e89e-78f7-401b-ae6c-d711d8bbc1cb",
+      "seq": 16,
+      "phase": "guided",
+      "actor": "user",
+      "task_id": "task-1",
+      "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+      "action": "choose-swap",
+      "label": "选择交换",
+      "input": {
+        "index": 0,
+        "choice": "swap"
+      },
+      "reported_facts": {
+        "done": false,
+        "left": 4,
+        "pass": 1,
+        "index": 0,
+        "right": 2,
+        "chosen": "swap",
+        "swapped": true,
+        "expected": "swap",
+        "nextPass": 1,
+        "nextIndex": 1,
+        "arrayAfter": [
+          2,
+          4,
+          3,
+          1
+        ],
+        "sortedFrom": 4,
+        "arrayBefore": [
+          4,
+          2,
+          3,
+          1
+        ]
+      },
+      "before": {
+        "snapshot_id": "16:before",
+        "values": {
+          "i": 0,
+          "arr": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "4",
+            "2",
+            "3",
+            "1"
+          ],
+          "editable": false,
+          "baseArray": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "comparing": null,
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": false,
+          "currentTaskIndex": 0
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "",
+            "lastAction": "就绪"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement"
+      },
+      "after_action": {
+        "snapshot_id": "16",
+        "values": {
+          "i": 1,
+          "arr": [
+            2,
+            4,
+            3,
+            1
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "4",
+            "2",
+            "3",
+            "1"
+          ],
+          "editable": false,
+          "baseArray": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "comparing": [
+            0,
+            1
+          ],
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": true,
+          "currentTaskIndex": 0
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "",
+            "lastAction": "比较 a[0]=4 与 a[1]=2，交换"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement"
+      },
+      "changes": [
+        {
+          "field": "arr",
+          "before_present": true,
+          "after_present": true,
+          "before_length": 4,
+          "after_length": 4,
+          "changed_indices": [
+            0,
+            1
+          ]
+        },
+        {
+          "field": "comparing",
+          "before_present": true,
+          "after_present": true,
+          "before": null,
+          "after": [
+            0,
+            1
+          ]
+        },
+        {
+          "field": "i",
+          "before_present": true,
+          "after_present": true,
+          "before": 0,
+          "after": 1,
+          "delta": 1,
+          "direction": "increased"
+        },
+        {
+          "field": "swappedInPass",
+          "before_present": true,
+          "after_present": true,
+          "before": false,
+          "after": true
+        }
+      ],
+      "assessment": {
+        "verdict": "pending",
+        "scope": "operation",
+        "event_id": "071e41ff-be4c-4f43-9b8e-a016a02341df",
+        "covers_operation_ids": [
+          "40a8e89e-78f7-401b-ae6c-d711d8bbc1cb"
+        ],
+        "checks": [],
+        "error_reason": {
+          "status": "not_applicable",
+          "expected": null,
+          "actual": null,
+          "failed_conditions": [],
+          "source": "none",
+          "learner_misconception": "not_established_by_operation"
+        },
+        "completion_reason": "not_reported_as_structured_evidence"
+      },
+      "recovery": {
+        "recorded": false,
+        "event_id": null,
+        "snapshot_id": null,
+        "state_after_recovery": null,
+        "restored_operation_start": null
+      },
+      "reference_only": {
+        "action_rule": "用户确认交换；按当前相邻数值判对错，排序结束才pass",
+        "page_feedback": "判断正确：左元素 4 大于右元素 2，交换后较大的数向右移动，符合升序规则。",
+        "warning": "Generated explanations are not independently verified causes."
+      },
+      "source_event_ids": [
+        "40a8e89e-78f7-401b-ae6c-d711d8bbc1cb",
+        "071e41ff-be4c-4f43-9b8e-a016a02341df"
+      ],
+      "reconstructed": false
+    },
+    "recorded_next_operation": null,
+    "after_focus_counts": {
+      "scope": "recorded_after_focus_until_next_task_initialization_reset_or_phase_boundary",
+      "semantic_operations_after_focus": 0,
+      "operation_ids": [],
+      "operations": [],
+      "operations_list_partial": false,
+      "excludes_focus_itself": true,
+      "not_a_forecast": true
+    },
+    "recent_mistakes": [
+      {
+        "operation_id": "24de535e-5d07-421c-8b23-0ba7020f1f61",
+        "task_id": "task-1",
+        "decision_event_id": "e8170f7b-60b1-41c4-8e50-5787758e2262",
+        "assessment_scope": "operation",
+        "error_reason": {
+          "status": "reported_choice_mismatch",
+          "expected": "swap",
+          "actual": "keep",
+          "failed_conditions": [],
+          "source": "page_reported_action_facts",
+          "learner_misconception": "not_established_by_operation"
+        },
+        "recovery_recorded": true
+      }
+    ],
+    "mistakes_total": 1,
+    "previous_operation_id": "24de535e-5d07-421c-8b23-0ba7020f1f61",
+    "totals": {
+      "scope": "entire_frozen_run_including_revisits",
+      "through_seq": 17,
+      "raw_events": 17,
+      "semantic_operations": 8,
+      "by_phase": {
+        "demonstrate": {
+          "semantic_operations": 6,
+          "user_operations": 0,
+          "observation_samples": 0
+        },
+        "guided": {
+          "semantic_operations": 2,
+          "user_operations": 2,
+          "observation_samples": 0
+        },
+        "explore": {
+          "semantic_operations": 0,
+          "user_operations": 0,
+          "observation_samples": 0
+        }
+      },
+      "control_events": 2,
+      "observation_samples": 0,
+      "lifecycle_events": 7,
+      "demonstration_steps_executed": 6,
+      "demonstration_step_event_ids": [
+        "abbfbbe8-5504-41d4-90ea-532a96651eb6",
+        "395fcf4d-a378-482f-bf35-0f3fd99c9722",
+        "fb48aa83-02d1-4a66-a727-97c409ae30cf",
+        "7b63720a-c216-4d6d-bc78-76dece337698",
+        "5ba919af-0e38-4940-98ed-2efa0352ae56",
+        "8b9626dc-dfb5-4a68-b0d8-db2b544f6f2f"
+      ],
+      "reconstruction_operations": 0,
+      "user_operations": 2,
+      "guided_decisions": {
+        "fail": 1,
+        "pending": 1
+      },
+      "tasks": [
+        {
+          "task_id": "task-1",
+          "title": "动手完成一次完整冒泡排序",
+          "phase": "guided",
+          "recorded_operations": 2,
+          "decisions": {
+            "fail": 1,
+            "pending": 1
+          },
+          "failure_count": 1,
+          "choices_matching_reported_expectation": 1,
+          "choices_mismatching_reported_expectation": 1,
+          "pass_count": 0,
+          "passed_at_event_ids": [],
+          "ever_passed_in_this_run": false
+        },
+        {
+          "task_id": "task-2",
+          "title": "自由探索：修改数组后重新排序",
+          "phase": "guided",
+          "recorded_operations": 0,
+          "decisions": {},
+          "failure_count": 0,
+          "choices_matching_reported_expectation": 0,
+          "choices_mismatching_reported_expectation": 0,
+          "pass_count": 0,
+          "passed_at_event_ids": [],
+          "ever_passed_in_this_run": false
+        }
+      ],
+      "counting_rules": {
+        "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+        "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+        "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+        "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+        "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+      }
+    },
+    "record_summary": [
+      "当前阶段：动手实践",
+      "当前动手任务：动手完成一次完整冒泡排序",
+      "系统演示累计执行 6 步；初始化、回看重建、控件点击、反馈和动画采样均不算演示步骤。",
+      "任务统计仅属于动手实践阶段，即使任务标题含有“自由探索”，也不代表自由探索阶段；自由探索阶段单独统计。",
+      "自由探索阶段实际记录 0 次用户实验动作、0 条状态采样；不是动手任务操作次数，也不能换算为比较/交换次数。",
+      "快照有数值不等于真实测量已经验证；数值为 0 也不等于未测量。本记录没有测量有效性标记，不确定的要说明不确定。",
+      "下列动作数已经去除点击、判定和回滚等重复记录；判定是动作的结果，不能再加进动作次数。",
+      "动手阶段任务「动手完成一次完整冒泡排序」：累计 2 次实验动作；对应判定中失败 1 次、任务通过 0 次、继续 1 次。选择符合页面记录预期 1 次、不符合 1 次；没有上报预期的动作不归入这两个选择计数。",
+      "动手阶段任务「自由探索：修改数组后重新排序」：累计 0 次实验动作；对应判定中失败 0 次、任务通过 0 次、继续 0 次。选择符合页面记录预期 0 次、不符合 0 次；没有上报预期的动作不归入这两个选择计数。",
+      "这个冻结时点没有记录所问动作之后的新动作。未被要求预测时，只解释当前变化和未完成的条件，不列出多步未来数值。",
+      "所问动作之后、下一次任务初始化/重置/阶段切换之前实际又记录了 0 次实验动作，不含所问动作本身。这些是历史记录，不是未来预测。"
+    ],
+    "recent_operations": [
+      {
+        "operation_id": "fb48aa83-02d1-4a66-a727-97c409ae30cf",
+        "seq": 4,
+        "phase": "demonstrate",
+        "actor": "system",
+        "task_id": null,
+        "attempt_id": "3d7c39e1-a51a-4bbd-9cf7-fb56f2683b24",
+        "action": "compare-2-3",
+        "before_snapshot": "4:before",
+        "after_snapshot": "4",
+        "reported_facts": {
+          "left": 4,
+          "pass": 1,
+          "index": 2,
+          "right": 2,
+          "swapped": true,
+          "arrayAfter": [
+            1,
+            3,
+            2,
+            4
+          ],
+          "arrayBefore": [
+            1,
+            3,
+            4,
+            2
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "7b63720a-c216-4d6d-bc78-76dece337698",
+        "seq": 5,
+        "phase": "demonstrate",
+        "actor": "system",
+        "task_id": null,
+        "attempt_id": "3d7c39e1-a51a-4bbd-9cf7-fb56f2683b24",
+        "action": "compare-0-1",
+        "before_snapshot": "5:before",
+        "after_snapshot": "5",
+        "reported_facts": {
+          "left": 1,
+          "pass": 2,
+          "index": 0,
+          "right": 3,
+          "swapped": false,
+          "arrayAfter": [
+            1,
+            3,
+            2,
+            4
+          ],
+          "arrayBefore": [
+            1,
+            3,
+            2,
+            4
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "5ba919af-0e38-4940-98ed-2efa0352ae56",
+        "seq": 6,
+        "phase": "demonstrate",
+        "actor": "system",
+        "task_id": null,
+        "attempt_id": "3d7c39e1-a51a-4bbd-9cf7-fb56f2683b24",
+        "action": "compare-1-2",
+        "before_snapshot": "6:before",
+        "after_snapshot": "6",
+        "reported_facts": {
+          "left": 3,
+          "pass": 2,
+          "index": 1,
+          "right": 2,
+          "swapped": true,
+          "arrayAfter": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "arrayBefore": [
+            1,
+            3,
+            2,
+            4
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "8b9626dc-dfb5-4a68-b0d8-db2b544f6f2f",
+        "seq": 7,
+        "phase": "demonstrate",
+        "actor": "system",
+        "task_id": null,
+        "attempt_id": "3d7c39e1-a51a-4bbd-9cf7-fb56f2683b24",
+        "action": "compare-0-1",
+        "before_snapshot": "7:before",
+        "after_snapshot": "7",
+        "reported_facts": {
+          "left": 1,
+          "pass": 3,
+          "index": 0,
+          "right": 2,
+          "swapped": false,
+          "arrayAfter": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "arrayBefore": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "24de535e-5d07-421c-8b23-0ba7020f1f61",
+        "seq": 12,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "2318c8db-de9a-47d4-b2d9-f464451feed4",
+        "action": "choose-keep",
+        "before_snapshot": "12:before",
+        "after_snapshot": "12",
+        "reported_facts": {
+          "left": 4,
+          "pass": 1,
+          "index": 0,
+          "right": 2,
+          "chosen": "keep",
+          "expected": "swap",
+          "arrayBefore": [
+            4,
+            2,
+            3,
+            1
+          ]
+        },
+        "verdict": "fail",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": false,
+        "recovery_recorded": true,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "40a8e89e-78f7-401b-ae6c-d711d8bbc1cb",
+        "seq": 16,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+        "action": "choose-swap",
+        "before_snapshot": "16:before",
+        "after_snapshot": "16",
+        "reported_facts": {
+          "done": false,
+          "left": 4,
+          "pass": 1,
+          "index": 0,
+          "right": 2,
+          "chosen": "swap",
+          "swapped": true,
+          "expected": "swap",
+          "nextPass": 1,
+          "nextIndex": 1,
+          "arrayAfter": [
+            2,
+            4,
+            3,
+            1
+          ],
+          "sortedFrom": 4,
+          "arrayBefore": [
+            4,
+            2,
+            3,
+            1
+          ]
+        },
+        "verdict": "pending",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": true,
+        "recovery_recorded": false,
+        "reconstructed": false
+      }
+    ],
+    "coverage": {
+      "raw_events": 17,
+      "operations_total": 8,
+      "operations_in_recent_list": 6,
+      "totals_cover_full_frozen_run": true,
+      "history_details_partial": true,
+      "tools": [
+        "list_operations",
+        "get_operation",
+        "get_fact_summary"
+      ]
+    }
+  },
+  "historical-operation": {
+    "schema": "edu-experiment-facts/1",
+    "source": "browser_reported_with_deterministic_projection",
+    "scientifically_verified": false,
+    "current": {
+      "phase": "guided",
+      "task_id": "task-2",
+      "task_title": "自由探索：修改数组后重新排序",
+      "task_scope_note": "当前任务与所问历史操作的任务分别定位",
+      "step_index": 1,
+      "reported_verdict": "pass",
+      "attempt_id": "8c0379d2-27e6-493d-b51b-5b95f53cb64f",
+      "snapshot_id": "33",
+      "values": {
+        "i": 0,
+        "arr": [
+          3,
+          1,
+          4,
+          2
+        ],
+        "done": false,
+        "pass": 0,
+        "inputs": [
+          "3",
+          "1",
+          "4",
+          "2"
+        ],
+        "editable": true,
+        "baseArray": [
+          3,
+          1,
+          4,
+          2
+        ],
+        "comparing": null,
+        "sortedFrom": 4,
+        "taskActive": true,
+        "swappedInPass": false,
+        "currentTaskIndex": 1
+      },
+      "reference_only": {
+        "page_text": {
+          "message": "",
+          "lastAction": "就绪"
+        },
+        "note": "Page-written descriptions, not independently verified state causes."
+      },
+      "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+      "fields": [],
+      "completion_reason": "not_reported_as_structured_evidence",
+      "state_string_fields_are_page_reported": true
+    },
+    "focus": {
+      "kind": "operation",
+      "operation_id": "40a8e89e-78f7-401b-ae6c-d711d8bbc1cb",
+      "seq": 16,
+      "phase": "guided",
+      "actor": "user",
+      "task_id": "task-1",
+      "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+      "action": "choose-swap",
+      "label": "选择交换",
+      "input": {
+        "index": 0,
+        "choice": "swap"
+      },
+      "reported_facts": {
+        "done": false,
+        "left": 4,
+        "pass": 1,
+        "index": 0,
+        "right": 2,
+        "chosen": "swap",
+        "swapped": true,
+        "expected": "swap",
+        "nextPass": 1,
+        "nextIndex": 1,
+        "arrayAfter": [
+          2,
+          4,
+          3,
+          1
+        ],
+        "sortedFrom": 4,
+        "arrayBefore": [
+          4,
+          2,
+          3,
+          1
+        ]
+      },
+      "before": {
+        "snapshot_id": "16:before",
+        "values": {
+          "i": 0,
+          "arr": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "4",
+            "2",
+            "3",
+            "1"
+          ],
+          "editable": false,
+          "baseArray": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "comparing": null,
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": false,
+          "currentTaskIndex": 0
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "",
+            "lastAction": "就绪"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement"
+      },
+      "after_action": {
+        "snapshot_id": "16",
+        "values": {
+          "i": 1,
+          "arr": [
+            2,
+            4,
+            3,
+            1
+          ],
+          "done": false,
+          "pass": 0,
+          "inputs": [
+            "4",
+            "2",
+            "3",
+            "1"
+          ],
+          "editable": false,
+          "baseArray": [
+            4,
+            2,
+            3,
+            1
+          ],
+          "comparing": [
+            0,
+            1
+          ],
+          "sortedFrom": 4,
+          "taskActive": true,
+          "swappedInPass": true,
+          "currentTaskIndex": 0
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "",
+            "lastAction": "比较 a[0]=4 与 a[1]=2，交换"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement"
+      },
+      "changes": [
+        {
+          "field": "arr",
+          "before_present": true,
+          "after_present": true,
+          "before_length": 4,
+          "after_length": 4,
+          "changed_indices": [
+            0,
+            1
+          ]
+        },
+        {
+          "field": "comparing",
+          "before_present": true,
+          "after_present": true,
+          "before": null,
+          "after": [
+            0,
+            1
+          ]
+        },
+        {
+          "field": "i",
+          "before_present": true,
+          "after_present": true,
+          "before": 0,
+          "after": 1,
+          "delta": 1,
+          "direction": "increased"
+        },
+        {
+          "field": "swappedInPass",
+          "before_present": true,
+          "after_present": true,
+          "before": false,
+          "after": true
+        }
+      ],
+      "assessment": {
+        "verdict": "pending",
+        "scope": "operation",
+        "event_id": "071e41ff-be4c-4f43-9b8e-a016a02341df",
+        "covers_operation_ids": [
+          "40a8e89e-78f7-401b-ae6c-d711d8bbc1cb"
+        ],
+        "checks": [],
+        "error_reason": {
+          "status": "not_applicable",
+          "expected": null,
+          "actual": null,
+          "failed_conditions": [],
+          "source": "none",
+          "learner_misconception": "not_established_by_operation"
+        },
+        "completion_reason": "not_reported_as_structured_evidence"
+      },
+      "recovery": {
+        "recorded": false,
+        "event_id": null,
+        "snapshot_id": null,
+        "state_after_recovery": null,
+        "restored_operation_start": null
+      },
+      "reference_only": {
+        "action_rule": "用户确认交换；按当前相邻数值判对错，排序结束才pass",
+        "page_feedback": "判断正确：左元素 4 大于右元素 2，交换后较大的数向右移动，符合升序规则。",
+        "warning": "Generated explanations are not independently verified causes."
+      },
+      "source_event_ids": [
+        "40a8e89e-78f7-401b-ae6c-d711d8bbc1cb",
+        "071e41ff-be4c-4f43-9b8e-a016a02341df"
+      ],
+      "reconstructed": false
+    },
+    "recorded_next_operation": {
+      "operation_id": "29cbe467-69a0-499c-b3e5-04eafb5cd0fc",
+      "seq": 19,
+      "phase": "guided",
+      "actor": "user",
+      "task_id": "task-1",
+      "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+      "action": "choose-swap",
+      "before_snapshot": "19:before",
+      "after_snapshot": "19",
+      "reported_facts": {
+        "done": false,
+        "left": 4,
+        "pass": 1,
+        "index": 1,
+        "right": 3,
+        "chosen": "swap",
+        "swapped": true,
+        "expected": "swap",
+        "nextPass": 1,
+        "nextIndex": 2,
+        "arrayAfter": [
+          2,
+          3,
+          4,
+          1
+        ],
+        "sortedFrom": 4,
+        "arrayBefore": [
+          2,
+          4,
+          3,
+          1
+        ]
+      },
+      "verdict": "pending",
+      "assessment_scope": "operation",
+      "choice_matches_page_reported_expectation": true,
+      "recovery_recorded": false,
+      "reconstructed": false,
+      "source": "actually_recorded_after_focus_not_a_prediction"
+    },
+    "after_focus_counts": {
+      "scope": "recorded_after_focus_until_next_task_initialization_reset_or_phase_boundary",
+      "semantic_operations_after_focus": 5,
+      "operation_ids": [
+        "29cbe467-69a0-499c-b3e5-04eafb5cd0fc",
+        "551814c0-717c-40f5-8bc7-4f5924688775",
+        "7af2347a-051f-4e44-81a9-159eeddfd794",
+        "0858df14-460e-4598-bf75-772400f67340",
+        "a5f59889-b8a3-4f38-982d-fd2253340280"
+      ],
+      "operations": [
+        {
+          "operation_id": "29cbe467-69a0-499c-b3e5-04eafb5cd0fc",
+          "seq": 19,
+          "phase": "guided",
+          "actor": "user",
+          "task_id": "task-1",
+          "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+          "action": "choose-swap",
+          "before_snapshot": "19:before",
+          "after_snapshot": "19",
+          "reported_facts": {
+            "done": false,
+            "left": 4,
+            "pass": 1,
+            "index": 1,
+            "right": 3,
+            "chosen": "swap",
+            "swapped": true,
+            "expected": "swap",
+            "nextPass": 1,
+            "nextIndex": 2,
+            "arrayAfter": [
+              2,
+              3,
+              4,
+              1
+            ],
+            "sortedFrom": 4,
+            "arrayBefore": [
+              2,
+              4,
+              3,
+              1
+            ]
+          },
+          "verdict": "pending",
+          "assessment_scope": "operation",
+          "choice_matches_page_reported_expectation": true,
+          "recovery_recorded": false,
+          "reconstructed": false
+        },
+        {
+          "operation_id": "551814c0-717c-40f5-8bc7-4f5924688775",
+          "seq": 22,
+          "phase": "guided",
+          "actor": "user",
+          "task_id": "task-1",
+          "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+          "action": "choose-swap",
+          "before_snapshot": "22:before",
+          "after_snapshot": "22",
+          "reported_facts": {
+            "done": false,
+            "left": 4,
+            "pass": 1,
+            "index": 2,
+            "right": 1,
+            "chosen": "swap",
+            "swapped": true,
+            "expected": "swap",
+            "nextPass": 2,
+            "nextIndex": 0,
+            "arrayAfter": [
+              2,
+              3,
+              1,
+              4
+            ],
+            "sortedFrom": 3,
+            "arrayBefore": [
+              2,
+              3,
+              4,
+              1
+            ]
+          },
+          "verdict": "pending",
+          "assessment_scope": "operation",
+          "choice_matches_page_reported_expectation": true,
+          "recovery_recorded": false,
+          "reconstructed": false
+        },
+        {
+          "operation_id": "7af2347a-051f-4e44-81a9-159eeddfd794",
+          "seq": 25,
+          "phase": "guided",
+          "actor": "user",
+          "task_id": "task-1",
+          "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+          "action": "choose-keep",
+          "before_snapshot": "25:before",
+          "after_snapshot": "25",
+          "reported_facts": {
+            "done": false,
+            "left": 2,
+            "pass": 2,
+            "index": 0,
+            "right": 3,
+            "chosen": "keep",
+            "swapped": false,
+            "expected": "keep",
+            "nextPass": 2,
+            "nextIndex": 1,
+            "arrayAfter": [
+              2,
+              3,
+              1,
+              4
+            ],
+            "sortedFrom": 3,
+            "arrayBefore": [
+              2,
+              3,
+              1,
+              4
+            ]
+          },
+          "verdict": "pending",
+          "assessment_scope": "operation",
+          "choice_matches_page_reported_expectation": true,
+          "recovery_recorded": false,
+          "reconstructed": false
+        },
+        {
+          "operation_id": "0858df14-460e-4598-bf75-772400f67340",
+          "seq": 28,
+          "phase": "guided",
+          "actor": "user",
+          "task_id": "task-1",
+          "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+          "action": "choose-swap",
+          "before_snapshot": "28:before",
+          "after_snapshot": "28",
+          "reported_facts": {
+            "done": false,
+            "left": 3,
+            "pass": 2,
+            "index": 1,
+            "right": 1,
+            "chosen": "swap",
+            "swapped": true,
+            "expected": "swap",
+            "nextPass": 3,
+            "nextIndex": 0,
+            "arrayAfter": [
+              2,
+              1,
+              3,
+              4
+            ],
+            "sortedFrom": 2,
+            "arrayBefore": [
+              2,
+              3,
+              1,
+              4
+            ]
+          },
+          "verdict": "pending",
+          "assessment_scope": "operation",
+          "choice_matches_page_reported_expectation": true,
+          "recovery_recorded": false,
+          "reconstructed": false
+        },
+        {
+          "operation_id": "a5f59889-b8a3-4f38-982d-fd2253340280",
+          "seq": 31,
+          "phase": "guided",
+          "actor": "user",
+          "task_id": "task-1",
+          "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+          "action": "choose-swap",
+          "before_snapshot": "31:before",
+          "after_snapshot": "31",
+          "reported_facts": {
+            "done": true,
+            "left": 2,
+            "pass": 3,
+            "index": 0,
+            "right": 1,
+            "chosen": "swap",
+            "swapped": true,
+            "expected": "swap",
+            "nextPass": 4,
+            "nextIndex": 0,
+            "arrayAfter": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "sortedFrom": 1,
+            "arrayBefore": [
+              2,
+              1,
+              3,
+              4
+            ]
+          },
+          "verdict": "pass",
+          "assessment_scope": "operation",
+          "choice_matches_page_reported_expectation": true,
+          "recovery_recorded": false,
+          "reconstructed": false
+        }
+      ],
+      "operations_list_partial": false,
+      "excludes_focus_itself": true,
+      "not_a_forecast": true
+    },
+    "recent_mistakes": [
+      {
+        "operation_id": "24de535e-5d07-421c-8b23-0ba7020f1f61",
+        "task_id": "task-1",
+        "decision_event_id": "e8170f7b-60b1-41c4-8e50-5787758e2262",
+        "assessment_scope": "operation",
+        "error_reason": {
+          "status": "reported_choice_mismatch",
+          "expected": "swap",
+          "actual": "keep",
+          "failed_conditions": [],
+          "source": "page_reported_action_facts",
+          "learner_misconception": "not_established_by_operation"
+        },
+        "recovery_recorded": true
+      }
+    ],
+    "mistakes_total": 1,
+    "previous_operation_id": "24de535e-5d07-421c-8b23-0ba7020f1f61",
+    "totals": {
+      "scope": "entire_frozen_run_including_revisits",
+      "through_seq": 33,
+      "raw_events": 33,
+      "semantic_operations": 13,
+      "by_phase": {
+        "demonstrate": {
+          "semantic_operations": 6,
+          "user_operations": 0,
+          "observation_samples": 0
+        },
+        "guided": {
+          "semantic_operations": 7,
+          "user_operations": 7,
+          "observation_samples": 0
+        },
+        "explore": {
+          "semantic_operations": 0,
+          "user_operations": 0,
+          "observation_samples": 0
+        }
+      },
+      "control_events": 7,
+      "observation_samples": 0,
+      "lifecycle_events": 13,
+      "demonstration_steps_executed": 6,
+      "demonstration_step_event_ids": [
+        "abbfbbe8-5504-41d4-90ea-532a96651eb6",
+        "395fcf4d-a378-482f-bf35-0f3fd99c9722",
+        "fb48aa83-02d1-4a66-a727-97c409ae30cf",
+        "7b63720a-c216-4d6d-bc78-76dece337698",
+        "5ba919af-0e38-4940-98ed-2efa0352ae56",
+        "8b9626dc-dfb5-4a68-b0d8-db2b544f6f2f"
+      ],
+      "reconstruction_operations": 0,
+      "user_operations": 7,
+      "guided_decisions": {
+        "fail": 1,
+        "pending": 5,
+        "pass": 1
+      },
+      "tasks": [
+        {
+          "task_id": "task-1",
+          "title": "动手完成一次完整冒泡排序",
+          "phase": "guided",
+          "recorded_operations": 7,
+          "decisions": {
+            "fail": 1,
+            "pending": 5,
+            "pass": 1
+          },
+          "failure_count": 1,
+          "choices_matching_reported_expectation": 6,
+          "choices_mismatching_reported_expectation": 1,
+          "pass_count": 1,
+          "passed_at_event_ids": [
+            "267bdf82-90b5-4de8-a9dc-9a78a2ad659a"
+          ],
+          "ever_passed_in_this_run": true
+        },
+        {
+          "task_id": "task-2",
+          "title": "自由探索：修改数组后重新排序",
+          "phase": "guided",
+          "recorded_operations": 0,
+          "decisions": {},
+          "failure_count": 0,
+          "choices_matching_reported_expectation": 0,
+          "choices_mismatching_reported_expectation": 0,
+          "pass_count": 0,
+          "passed_at_event_ids": [],
+          "ever_passed_in_this_run": false
+        }
+      ],
+      "counting_rules": {
+        "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+        "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+        "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+        "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+        "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+      }
+    },
+    "record_summary": [
+      "当前阶段：动手实践",
+      "当前动手任务：自由探索：修改数组后重新排序",
+      "系统演示累计执行 6 步；初始化、回看重建、控件点击、反馈和动画采样均不算演示步骤。",
+      "任务统计仅属于动手实践阶段，即使任务标题含有“自由探索”，也不代表自由探索阶段；自由探索阶段单独统计。",
+      "自由探索阶段实际记录 0 次用户实验动作、0 条状态采样；不是动手任务操作次数，也不能换算为比较/交换次数。",
+      "快照有数值不等于真实测量已经验证；数值为 0 也不等于未测量。本记录没有测量有效性标记，不确定的要说明不确定。",
+      "下列动作数已经去除点击、判定和回滚等重复记录；判定是动作的结果，不能再加进动作次数。",
+      "动手阶段任务「动手完成一次完整冒泡排序」：累计 7 次实验动作；对应判定中失败 1 次、任务通过 1 次、继续 5 次。选择符合页面记录预期 6 次、不符合 1 次；没有上报预期的动作不归入这两个选择计数。",
+      "动手阶段任务「自由探索：修改数组后重新排序」：累计 0 次实验动作；对应判定中失败 0 次、任务通过 0 次、继续 0 次。选择符合页面记录预期 0 次、不符合 0 次；没有上报预期的动作不归入这两个选择计数。",
+      "所问动作之后、下一次任务初始化/重置/阶段切换之前实际又记录了 5 次实验动作，不含所问动作本身。这些是历史记录，不是未来预测。"
+    ],
+    "recent_operations": [
+      {
+        "operation_id": "40a8e89e-78f7-401b-ae6c-d711d8bbc1cb",
+        "seq": 16,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+        "action": "choose-swap",
+        "before_snapshot": "16:before",
+        "after_snapshot": "16",
+        "reported_facts": {
+          "done": false,
+          "left": 4,
+          "pass": 1,
+          "index": 0,
+          "right": 2,
+          "chosen": "swap",
+          "swapped": true,
+          "expected": "swap",
+          "nextPass": 1,
+          "nextIndex": 1,
+          "arrayAfter": [
+            2,
+            4,
+            3,
+            1
+          ],
+          "sortedFrom": 4,
+          "arrayBefore": [
+            4,
+            2,
+            3,
+            1
+          ]
+        },
+        "verdict": "pending",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": true,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "29cbe467-69a0-499c-b3e5-04eafb5cd0fc",
+        "seq": 19,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+        "action": "choose-swap",
+        "before_snapshot": "19:before",
+        "after_snapshot": "19",
+        "reported_facts": {
+          "done": false,
+          "left": 4,
+          "pass": 1,
+          "index": 1,
+          "right": 3,
+          "chosen": "swap",
+          "swapped": true,
+          "expected": "swap",
+          "nextPass": 1,
+          "nextIndex": 2,
+          "arrayAfter": [
+            2,
+            3,
+            4,
+            1
+          ],
+          "sortedFrom": 4,
+          "arrayBefore": [
+            2,
+            4,
+            3,
+            1
+          ]
+        },
+        "verdict": "pending",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": true,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "551814c0-717c-40f5-8bc7-4f5924688775",
+        "seq": 22,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+        "action": "choose-swap",
+        "before_snapshot": "22:before",
+        "after_snapshot": "22",
+        "reported_facts": {
+          "done": false,
+          "left": 4,
+          "pass": 1,
+          "index": 2,
+          "right": 1,
+          "chosen": "swap",
+          "swapped": true,
+          "expected": "swap",
+          "nextPass": 2,
+          "nextIndex": 0,
+          "arrayAfter": [
+            2,
+            3,
+            1,
+            4
+          ],
+          "sortedFrom": 3,
+          "arrayBefore": [
+            2,
+            3,
+            4,
+            1
+          ]
+        },
+        "verdict": "pending",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": true,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "7af2347a-051f-4e44-81a9-159eeddfd794",
+        "seq": 25,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+        "action": "choose-keep",
+        "before_snapshot": "25:before",
+        "after_snapshot": "25",
+        "reported_facts": {
+          "done": false,
+          "left": 2,
+          "pass": 2,
+          "index": 0,
+          "right": 3,
+          "chosen": "keep",
+          "swapped": false,
+          "expected": "keep",
+          "nextPass": 2,
+          "nextIndex": 1,
+          "arrayAfter": [
+            2,
+            3,
+            1,
+            4
+          ],
+          "sortedFrom": 3,
+          "arrayBefore": [
+            2,
+            3,
+            1,
+            4
+          ]
+        },
+        "verdict": "pending",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": true,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "0858df14-460e-4598-bf75-772400f67340",
+        "seq": 28,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+        "action": "choose-swap",
+        "before_snapshot": "28:before",
+        "after_snapshot": "28",
+        "reported_facts": {
+          "done": false,
+          "left": 3,
+          "pass": 2,
+          "index": 1,
+          "right": 1,
+          "chosen": "swap",
+          "swapped": true,
+          "expected": "swap",
+          "nextPass": 3,
+          "nextIndex": 0,
+          "arrayAfter": [
+            2,
+            1,
+            3,
+            4
+          ],
+          "sortedFrom": 2,
+          "arrayBefore": [
+            2,
+            3,
+            1,
+            4
+          ]
+        },
+        "verdict": "pending",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": true,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "a5f59889-b8a3-4f38-982d-fd2253340280",
+        "seq": 31,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+        "action": "choose-swap",
+        "before_snapshot": "31:before",
+        "after_snapshot": "31",
+        "reported_facts": {
+          "done": true,
+          "left": 2,
+          "pass": 3,
+          "index": 0,
+          "right": 1,
+          "chosen": "swap",
+          "swapped": true,
+          "expected": "swap",
+          "nextPass": 4,
+          "nextIndex": 0,
+          "arrayAfter": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "sortedFrom": 1,
+          "arrayBefore": [
+            2,
+            1,
+            3,
+            4
+          ]
+        },
+        "verdict": "pass",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": true,
+        "recovery_recorded": false,
+        "reconstructed": false
+      }
+    ],
+    "coverage": {
+      "raw_events": 33,
+      "operations_total": 13,
+      "operations_in_recent_list": 6,
+      "totals_cover_full_frozen_run": true,
+      "history_details_partial": true,
+      "tools": [
+        "list_operations",
+        "get_operation",
+        "get_fact_summary"
+      ]
+    }
+  },
+  "whole-run-counts": {
+    "schema": "edu-experiment-facts/1",
+    "source": "browser_reported_with_deterministic_projection",
+    "scientifically_verified": false,
+    "current": {
+      "phase": "explore",
+      "task_id": null,
+      "task_title": null,
+      "task_scope_note": "当前处于自由探索，没有当前动手任务；未通过的设计任务不等于当前任务",
+      "step_index": 0,
+      "reported_verdict": "",
+      "attempt_id": "0d244bf5-49e3-41ea-8ac0-7cac6fd2b0ac",
+      "snapshot_id": "55",
+      "values": {
+        "i": 0,
+        "arr": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "done": true,
+        "pass": 3,
+        "inputs": [
+          "4",
+          "3",
+          "2",
+          "1"
+        ],
+        "running": false,
+        "baseArray": [
+          4,
+          3,
+          2,
+          1
+        ],
+        "comparing": null,
+        "sortedFrom": 1,
+        "swappedInPass": false
+      },
+      "reference_only": {
+        "page_text": {
+          "message": "已应用预设数组，排序状态已重置。",
+          "lastAction": "第 3 轮结束，无交换 → 排序完成"
+        },
+        "note": "Page-written descriptions, not independently verified state causes."
+      },
+      "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement",
+      "fields": [],
+      "completion_reason": "not_reported_as_structured_evidence",
+      "state_string_fields_are_page_reported": true
+    },
+    "focus": {
+      "kind": "observation",
+      "event_id": "6f423acc-fc12-431e-b55e-590582752bdd",
+      "type": "observation",
+      "phase": "explore",
+      "actor": "system",
+      "before": {
+        "snapshot_id": "55:before",
+        "values": {
+          "i": 0,
+          "arr": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "done": true,
+          "pass": 3,
+          "inputs": [
+            "4",
+            "3",
+            "2",
+            "1"
+          ],
+          "running": true,
+          "baseArray": [
+            4,
+            3,
+            2,
+            1
+          ],
+          "comparing": null,
+          "sortedFrom": 1,
+          "swappedInPass": false
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "已应用预设数组，排序状态已重置。",
+            "lastAction": "第 3 轮结束，无交换 → 排序完成"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement"
+      },
+      "after_action": {
+        "snapshot_id": "55",
+        "values": {
+          "i": 0,
+          "arr": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "done": true,
+          "pass": 3,
+          "inputs": [
+            "4",
+            "3",
+            "2",
+            "1"
+          ],
+          "running": false,
+          "baseArray": [
+            4,
+            3,
+            2,
+            1
+          ],
+          "comparing": null,
+          "sortedFrom": 1,
+          "swappedInPass": false
+        },
+        "reference_only": {
+          "page_text": {
+            "message": "已应用预设数组，排序状态已重置。",
+            "lastAction": "第 3 轮结束，无交换 → 排序完成"
+          },
+          "note": "Page-written descriptions, not independently verified state causes."
+        },
+        "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement"
+      },
+      "assessment": null,
+      "note": "Not a semantically assessed operation."
+    },
+    "recorded_next_operation": null,
+    "after_focus_counts": null,
+    "recent_mistakes": [
+      {
+        "operation_id": "24de535e-5d07-421c-8b23-0ba7020f1f61",
+        "task_id": "task-1",
+        "decision_event_id": "e8170f7b-60b1-41c4-8e50-5787758e2262",
+        "assessment_scope": "operation",
+        "error_reason": {
+          "status": "reported_choice_mismatch",
+          "expected": "swap",
+          "actual": "keep",
+          "failed_conditions": [],
+          "source": "page_reported_action_facts",
+          "learner_misconception": "not_established_by_operation"
+        },
+        "recovery_recorded": true
+      }
+    ],
+    "mistakes_total": 1,
+    "previous_operation_id": "e927d623-fb32-4588-9b37-725b8fd42627",
+    "totals": {
+      "scope": "entire_frozen_run_including_revisits",
+      "through_seq": 55,
+      "raw_events": 55,
+      "semantic_operations": 17,
+      "by_phase": {
+        "demonstrate": {
+          "semantic_operations": 6,
+          "user_operations": 0,
+          "observation_samples": 0
+        },
+        "guided": {
+          "semantic_operations": 7,
+          "user_operations": 7,
+          "observation_samples": 0
+        },
+        "explore": {
+          "semantic_operations": 4,
+          "user_operations": 4,
+          "observation_samples": 11
+        }
+      },
+      "control_events": 11,
+      "observation_samples": 11,
+      "lifecycle_events": 16,
+      "demonstration_steps_executed": 6,
+      "demonstration_step_event_ids": [
+        "abbfbbe8-5504-41d4-90ea-532a96651eb6",
+        "395fcf4d-a378-482f-bf35-0f3fd99c9722",
+        "fb48aa83-02d1-4a66-a727-97c409ae30cf",
+        "7b63720a-c216-4d6d-bc78-76dece337698",
+        "5ba919af-0e38-4940-98ed-2efa0352ae56",
+        "8b9626dc-dfb5-4a68-b0d8-db2b544f6f2f"
+      ],
+      "reconstruction_operations": 0,
+      "user_operations": 11,
+      "guided_decisions": {
+        "fail": 1,
+        "pending": 5,
+        "pass": 1
+      },
+      "tasks": [
+        {
+          "task_id": "task-1",
+          "title": "动手完成一次完整冒泡排序",
+          "phase": "guided",
+          "recorded_operations": 7,
+          "decisions": {
+            "fail": 1,
+            "pending": 5,
+            "pass": 1
+          },
+          "failure_count": 1,
+          "choices_matching_reported_expectation": 6,
+          "choices_mismatching_reported_expectation": 1,
+          "pass_count": 1,
+          "passed_at_event_ids": [
+            "267bdf82-90b5-4de8-a9dc-9a78a2ad659a"
+          ],
+          "ever_passed_in_this_run": true
+        },
+        {
+          "task_id": "task-2",
+          "title": "自由探索：修改数组后重新排序",
+          "phase": "guided",
+          "recorded_operations": 0,
+          "decisions": {},
+          "failure_count": 0,
+          "choices_matching_reported_expectation": 0,
+          "choices_mismatching_reported_expectation": 0,
+          "pass_count": 0,
+          "passed_at_event_ids": [],
+          "ever_passed_in_this_run": false
+        }
+      ],
+      "counting_rules": {
+        "step": "v1 demo_completed or v2 demonstrate action; excludes initialization, controls, feedback and samples; repeated forward steps count again",
+        "operation": "semantic action; raw DOM control records excluded; an operation is not automatically one algorithm iteration",
+        "decision": "one recorded operation_feedback/attempt_submitted; pending means continue, not independently verified correct; pass means task passed, not every previous operation correct",
+        "errors": "count fail decisions only, not clicks, feedback copies, retries, unknown, or awaiting_review",
+        "algorithm_metrics": "comparison/swap/iteration totals are not inferred from raw event or observation counts"
+      }
+    },
+    "record_summary": [
+      "当前阶段：自由探索",
+      "当前动手任务：无",
+      "系统演示累计执行 6 步；初始化、回看重建、控件点击、反馈和动画采样均不算演示步骤。",
+      "任务统计仅属于动手实践阶段，即使任务标题含有“自由探索”，也不代表自由探索阶段；自由探索阶段单独统计。",
+      "自由探索阶段实际记录 4 次用户实验动作、11 条状态采样；不是动手任务操作次数，也不能换算为比较/交换次数。",
+      "快照有数值不等于真实测量已经验证；数值为 0 也不等于未测量。本记录没有测量有效性标记，不确定的要说明不确定。",
+      "下列动作数已经去除点击、判定和回滚等重复记录；判定是动作的结果，不能再加进动作次数。",
+      "动手阶段任务「动手完成一次完整冒泡排序」：累计 7 次实验动作；对应判定中失败 1 次、任务通过 1 次、继续 5 次。选择符合页面记录预期 6 次、不符合 1 次；没有上报预期的动作不归入这两个选择计数。",
+      "动手阶段任务「自由探索：修改数组后重新排序」：累计 0 次实验动作；对应判定中失败 0 次、任务通过 0 次、继续 0 次。选择符合页面记录预期 0 次、不符合 0 次；没有上报预期的动作不归入这两个选择计数。"
+    ],
+    "recent_operations": [
+      {
+        "operation_id": "0858df14-460e-4598-bf75-772400f67340",
+        "seq": 28,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+        "action": "choose-swap",
+        "before_snapshot": "28:before",
+        "after_snapshot": "28",
+        "reported_facts": {
+          "done": false,
+          "left": 3,
+          "pass": 2,
+          "index": 1,
+          "right": 1,
+          "chosen": "swap",
+          "swapped": true,
+          "expected": "swap",
+          "nextPass": 3,
+          "nextIndex": 0,
+          "arrayAfter": [
+            2,
+            1,
+            3,
+            4
+          ],
+          "sortedFrom": 2,
+          "arrayBefore": [
+            2,
+            3,
+            1,
+            4
+          ]
+        },
+        "verdict": "pending",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": true,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "a5f59889-b8a3-4f38-982d-fd2253340280",
+        "seq": 31,
+        "phase": "guided",
+        "actor": "user",
+        "task_id": "task-1",
+        "attempt_id": "b7a380a9-a7e1-4847-ac3f-f144d48ee153",
+        "action": "choose-swap",
+        "before_snapshot": "31:before",
+        "after_snapshot": "31",
+        "reported_facts": {
+          "done": true,
+          "left": 2,
+          "pass": 3,
+          "index": 0,
+          "right": 1,
+          "chosen": "swap",
+          "swapped": true,
+          "expected": "swap",
+          "nextPass": 4,
+          "nextIndex": 0,
+          "arrayAfter": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "sortedFrom": 1,
+          "arrayBefore": [
+            2,
+            1,
+            3,
+            4
+          ]
+        },
+        "verdict": "pass",
+        "assessment_scope": "operation",
+        "choice_matches_page_reported_expectation": true,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "7764faa9-de32-40f6-92d9-26652684867b",
+        "seq": 38,
+        "phase": "explore",
+        "actor": "user",
+        "task_id": null,
+        "attempt_id": "0d244bf5-49e3-41ea-8ac0-7cac6fd2b0ac",
+        "action": "preset-array",
+        "before_snapshot": "38:before",
+        "after_snapshot": "38",
+        "reported_facts": {
+          "array": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "b3ea314c-7d7a-4369-bfb3-55520b279907",
+        "seq": 40,
+        "phase": "explore",
+        "actor": "user",
+        "task_id": null,
+        "attempt_id": "0d244bf5-49e3-41ea-8ac0-7cac6fd2b0ac",
+        "action": "run",
+        "before_snapshot": "40:before",
+        "after_snapshot": "40",
+        "reported_facts": {
+          "array": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "acede571-0c21-46c1-8cf4-919e197bc9eb",
+        "seq": 46,
+        "phase": "explore",
+        "actor": "user",
+        "task_id": null,
+        "attempt_id": "0d244bf5-49e3-41ea-8ac0-7cac6fd2b0ac",
+        "action": "preset-array",
+        "before_snapshot": "46:before",
+        "after_snapshot": "46",
+        "reported_facts": {
+          "array": [
+            4,
+            3,
+            2,
+            1
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      },
+      {
+        "operation_id": "e927d623-fb32-4588-9b37-725b8fd42627",
+        "seq": 48,
+        "phase": "explore",
+        "actor": "user",
+        "task_id": null,
+        "attempt_id": "0d244bf5-49e3-41ea-8ac0-7cac6fd2b0ac",
+        "action": "run",
+        "before_snapshot": "48:before",
+        "after_snapshot": "48",
+        "reported_facts": {
+          "array": [
+            4,
+            3,
+            2,
+            1
+          ]
+        },
+        "verdict": "not_assessed",
+        "assessment_scope": null,
+        "choice_matches_page_reported_expectation": null,
+        "recovery_recorded": false,
+        "reconstructed": false
+      }
+    ],
+    "coverage": {
+      "raw_events": 55,
+      "operations_total": 17,
+      "operations_in_recent_list": 6,
+      "totals_cover_full_frozen_run": true,
+      "history_details_partial": true,
+      "tools": [
+        "list_operations",
+        "get_operation",
+        "get_fact_summary"
+      ]
+    }
+  }
+}

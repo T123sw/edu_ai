@@ -1,0 +1,1531 @@
+[
+  {
+    "at": 1792473671.5984938,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0010207965970039368,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/.host/BRIEF.md",
+    "sha256": "7de713f8c68a4460c992185ae9fb27ce60241b9b4203022223382da7b9efc36f"
+  },
+  {
+    "at": 1792473672.09181,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.000799358356744051,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/.host/teaching-brief.json",
+    "sha256": "8b5cbdb6d08ed56f785e34a165caea4580ad05d2b8a69899e49a753ec7c37448"
+  },
+  {
+    "at": 1792473675.661326,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0038595893420279026,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/REQUEST.json",
+    "sha256": "8576f35a374225a300be8020f6b75f15710647a8053270f14a14fc65c9919077"
+  },
+  {
+    "at": 1792473675.9662986,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.001985152717679739,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/SKILL.md",
+    "sha256": "dd67af24e6ca148769f191abd68e670bade17c4b8c847d1ff9aa847fbd7ffe23"
+  },
+  {
+    "at": 1792473680.700959,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22137883584946394,
+    "command": "ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/ && echo '--- videos ---' && ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/ 2>/dev/null || echo 'no videos dir' ; echo '--- skills ---' ; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/",
+    "exit_code": 0,
+    "command_id": "672f9e9361724421a79af75ec53a1aa6"
+  },
+  {
+    "at": 1792473683.8436532,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2471338496543467,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video && find . -type f | sort && echo '--- host ---' && find /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/.host -type f | sort",
+    "exit_code": 0,
+    "command_id": "3106e467c6a4458eb8d15927d0bee1b9"
+  },
+  {
+    "at": 1792473684.192039,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.003968533128499985,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/SKILL.md",
+    "sha256": "db87c1909eff755d810f83de6064bfb7c52a76e76ba388d4b00c98893dddcb1f"
+  },
+  {
+    "at": 1792473688.989107,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.202904112637043,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97 && npx hyperframes init \"videos/n5-tradeoff-self-attention\" --non-interactive --example=blank --skill=general-video 2>&1 | tail -40",
+    "exit_code": null,
+    "command_id": "ef29b510a9264d36a2798badbf20bd75"
+  },
+  {
+    "at": 1792473692.3253276,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.4615768538787961,
+    "exit_code": 0,
+    "command_id": "ef29b510a9264d36a2798badbf20bd75"
+  },
+  {
+    "at": 1792473695.7266188,
+    "tool": "prepare_project",
+    "ok": true,
+    "elapsed": 0.22147076297551394,
+    "exit_code": null,
+    "command_id": "1eef2d956dc646d992c807f65a4ff00f"
+  },
+  {
+    "at": 1792473700.1674016,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.26629021763801575,
+    "exit_code": 0,
+    "command_id": "1eef2d956dc646d992c807f65a4ff00f"
+  },
+  {
+    "at": 1792473708.6780005,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20541444327682257,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && ls -la && echo '--- hyperframes.json ---' && cat hyperframes.json && echo '--- meta.json ---' && cat meta.json && echo '--- package.json ---' && cat package.json && echo '--- BRIEF ---' && (cat BRIEF.md 2>/dev/null | head -20 || echo none) && echo '--- index.html ---' && cat index.html",
+    "exit_code": 0,
+    "command_id": "351c0ace932c4cb080ebb2024833afc5"
+  },
+  {
+    "at": 1792473708.9835265,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.001564983744174242,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/SKILL.md",
+    "sha256": "a8d6fe52471be6bcf1816ba0b9eb16c6d1efc830c668de533d6bee8d41d86e11"
+  },
+  {
+    "at": 1792473717.469104,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0031952299177646637,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/media-use/references/audio.md",
+    "sha256": "13409d128c10b55016f29c9bec55f53ac0ab63061fc87d054a45492467a9456d"
+  },
+  {
+    "at": 1792473717.6550488,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0009535551071166992,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/composition-patterns.md",
+    "sha256": "bcdf548ba1fec8decce5ea22c7bed99c73ba268986b1bfefc837f2d7f70f55b0"
+  },
+  {
+    "at": 1792473719.8052304,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.009853750001639128,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/determinism-rules.md",
+    "sha256": "415a3f08cf3be801e6ca381fd47959e787947da325a7ee30b8104b8b80198fd5"
+  },
+  {
+    "at": 1792473720.3172052,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.30273017566651106,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/sub-compositions.md",
+    "sha256": "7caf63046ea0d1915b51e4eb49897101e36dc716ea1195f9a34cef4ba9c18f64"
+  },
+  {
+    "at": 1792473723.5988133,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0027397270314395428,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/SKILL.md",
+    "sha256": "b35f1f8eff68e9ff480a5d5d343a1bf5a40ebb7d0d9be20b0b980cfdb36047f3"
+  },
+  {
+    "at": 1792473723.8595898,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.011357510928064585,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/blueprints-index.md",
+    "sha256": "601228ddcfda89ed6add52bd08becf53296764e155126fb5e7100eb29caaa46e"
+  },
+  {
+    "at": 1792473730.29373,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.000593189150094986,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/rules-index.md",
+    "sha256": "e6142e35d7090934fc139ec490df97fd3c7d4995d35745417afc52476aecd7ca"
+  },
+  {
+    "at": 1792473731.203362,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0020199529826641083,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/production-loop.md",
+    "sha256": "95b09c92c768de0736a77f5e3f8f88260ee38e80e96bfcbf804694a9fac624c5"
+  },
+  {
+    "at": 1792473737.084712,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22553556272760034,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && ls faceless-explainer && echo '--- scripts ---' && ls faceless-explainer/scripts 2>/dev/null && echo '--- media-use ---' && ls media-use media-use/scripts media-use/audio/scripts 2>/dev/null && echo '--- cli scripts ---' && ls hyperframes-cli/scripts 2>/dev/null",
+    "exit_code": 2,
+    "command_id": "0671f5628f244d0eb54404f231ad3606"
+  },
+  {
+    "at": 1792473740.2948892,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2035598182119429,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer && head -80 scripts/assemble-index.mjs && echo '=========== CAPTIONS ===========' && head -60 scripts/captions.mjs && echo '=========== TRANSITIONS ===========' && head -60 scripts/transitions.mjs",
+    "exit_code": 0,
+    "command_id": "b3efda73aac14dc8a309d08230ad523f"
+  },
+  {
+    "at": 1792473746.4536383,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.26298625208437443,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer && sed -n 1,160p scripts/lib/storyboard.mjs",
+    "exit_code": 0,
+    "command_id": "b6e993268f87481da00d10266b05842d"
+  },
+  {
+    "at": 1792473746.6574278,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.001580847892910242,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/storyboard-format.md",
+    "sha256": "f3fda31a65c89f0a6e10a9739b004568a9a0d7e2c8c56609b766b4ff36eedec6"
+  },
+  {
+    "at": 1792473752.307999,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2187430141493678,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer && sed -n 80,400p scripts/assemble-index.mjs",
+    "exit_code": 0,
+    "command_id": "6cfb017db9694a69b1bab823a7d2162c"
+  },
+  {
+    "at": 1792473756.4818227,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20298669068142772,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer && sed -n 400,700p scripts/assemble-index.mjs",
+    "exit_code": 0,
+    "command_id": "d5df6639cf124dc9bdd06c43e3534b12"
+  },
+  {
+    "at": 1792473764.2406764,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22069323295727372,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer && ls references sub-agents && echo '=== tokens ===' && sed -n 1,120p scripts/lib/tokens.mjs",
+    "exit_code": 0,
+    "command_id": "b34d2e0228454e079f8dd01180fea856"
+  },
+  {
+    "at": 1792473768.4389572,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2125591109506786,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer && grep -n \"export function semanticColors\" -A 40 scripts/lib/tokens.mjs",
+    "exit_code": 0,
+    "command_id": "f2915846574743b69ce1f4b2e5c01f74"
+  },
+  {
+    "at": 1792473773.0338748,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0029308111406862736,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/sub-agents/frame-worker.md",
+    "sha256": "447395b986126769a0d169c468f3f24b324781761130bc5155802656d1f22999"
+  },
+  {
+    "at": 1792473773.521899,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2293652007356286,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video && sed -n 1,60p scripts/frame-packets.mjs",
+    "exit_code": 0,
+    "command_id": "d3ca6ac620114fa993a58d00ebad5030"
+  },
+  {
+    "at": 1792473796.2755773,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21439497405663133,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && grep -n \"blueprint\\|rules\\|motion\\|cite\" hyperframes/scripts/lib/frame-packets-core.mjs | head -60",
+    "exit_code": 0,
+    "command_id": "01acd19e31994d2f97ffd4cd7b9fb303"
+  },
+  {
+    "at": 1792473799.398116,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.26222617272287607,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && sed -n 1,140p hyperframes/scripts/lib/frame-packets-core.mjs",
+    "exit_code": 0,
+    "command_id": "00777f6a9084483b8a2084e79f432e0f"
+  },
+  {
+    "at": 1792473804.4357858,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0006586750969290733,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/frame-worker-core.md",
+    "sha256": "75a1aafaf2e656ba075cfcf13c1f79bc825005f90aa78f0cafe6778df2493226"
+  },
+  {
+    "at": 1792473810.742222,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2080550449900329,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && find assets -maxdepth 3 | head -20 && du -h assets/fonts/* 2>/dev/null",
+    "exit_code": 0,
+    "command_id": "97e0545527f04af3bd0517252ec5edb5"
+  },
+  {
+    "at": 1792473819.3666027,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0008059442043304443,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/script-format.md",
+    "sha256": "7637028d866d3d4a21d0b7934d6db4f73585a28c28da060d00cecc39c47e2e3d"
+  },
+  {
+    "at": 1792473831.2232838,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0017644688487052917,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/frame.md"
+  },
+  {
+    "at": 1792473850.0898607,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0022535747848451138,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/SCRIPT.md"
+  },
+  {
+    "at": 1792473851.546593,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0008709128014743328,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/audio_request.json"
+  },
+  {
+    "at": 1792473858.0096912,
+    "tool": "prepare_narration",
+    "ok": true,
+    "elapsed": 0.2072656713426113
+  },
+  {
+    "at": 1792473880.0688546,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 14.59329732414335,
+    "exit_code": 0,
+    "command_id": "f1e511221ec94f19b0f6141213698b0a"
+  },
+  {
+    "at": 1792473883.9966075,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2038926719687879,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && node -e \"const m=JSON.parse(require('fs').readFileSync('audio_meta.json','utf8'));console.log(JSON.stringify({keys:Object.keys(m),total:m.total_duration_s,bgm:m.bgm,firstVoice:m.voices&&m.voices[0],voices:(m.voices||[]).map(v=>({id:v.id,frame:v.frame,path:v.path,dur:v.duration_s,words:(v.words||[]).length}))},null,2))\" && ls .media/audio/voice 2>/dev/null | head",
+    "exit_code": null,
+    "command_id": "e0e7947a3c884f57bcffc46b466e5b04"
+  },
+  {
+    "at": 1792473886.9457755,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.20315139601007104,
+    "exit_code": 0,
+    "command_id": "e0e7947a3c884f57bcffc46b466e5b04"
+  },
+  {
+    "at": 1792473926.2063434,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.002714333590120077,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/STORYBOARD.md"
+  },
+  {
+    "at": 1792473934.1854117,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2068085498176515,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts/frame-packets.mjs --project \"$PWD\" --storyboard \"$PWD/STORYBOARD.md\" 2>&1 | tail -20 && ls -la .hyperframes/frame-packets",
+    "exit_code": null,
+    "command_id": "cb64732eb82e4635a97b460fef1b6bf0"
+  },
+  {
+    "at": 1792473944.3812778,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.4104658928699791,
+    "exit_code": 0,
+    "command_id": "cb64732eb82e4635a97b460fef1b6bf0"
+  },
+  {
+    "at": 1792473954.4018624,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22242066077888012,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer && grep -n \"gsap\" sub-agents/frame-worker.md | head -20 && echo '--- examples in built frames? ---' && ls /home/zxqs_ep/Edu_AI/vendor/hyperframes 2>/dev/null | head",
+    "exit_code": 0,
+    "command_id": "e654c7b24c724d54a98e809882503880"
+  },
+  {
+    "at": 1792473962.7377563,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20961997099220753,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes && grep -rl \"data-composition-src\" --include=*.html . | head -10 && echo '---' && f=$(grep -rl \"<template>\" --include=*.html packages apps 2>/dev/null | head -5) && echo \"$f\"",
+    "exit_code": null,
+    "command_id": "925720f6fb1a4375b56ee8f65349a631"
+  },
+  {
+    "at": 1792473970.332811,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22797538014128804,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/hf-src && ls -R | head -20 && echo '--- index head ---' && sed -n 1,30p index.html && echo '--- frame file ---' && f=$(find . -name '*.html' | grep -v index | head -1) && echo $f && head -40 \"$f\"",
+    "exit_code": 0,
+    "command_id": "56821888d4c64e4cac551f8628f6c082"
+  },
+  {
+    "at": 1792473989.5631313,
+    "tool": "run_workers",
+    "ok": true,
+    "elapsed": 1.3898597080260515,
+    "workers": [
+      {
+        "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+        "status": "queued",
+        "submitted_at": 1792473988.6128883,
+        "prompt_sha256": "8bcf79405463ac385da9a67e0130b36172d1c67829ffd11066a60c6c1eed73bc"
+      },
+      {
+        "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+        "status": "queued",
+        "submitted_at": 1792473988.9705572,
+        "prompt_sha256": "c9f18e56d59bf63bbe8bffff9a1d77a9d1874c88c7d24a30585044f5dd77addd"
+      },
+      {
+        "worker_id": "95adecefbc9748768ef97d8033c3263a",
+        "status": "queued",
+        "submitted_at": 1792473989.561878,
+        "prompt_sha256": "b8b9b9d58114f822fa5d1b8a6cb69e5c0c670a3b550579931de8523035c3f898"
+      }
+    ]
+  },
+  {
+    "at": 1792473995.812946,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.005719752982258797,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/_role.md",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+    "sha256": "2a6fd31c09082f9564e613599d11873fb941036389373bb47b275228ce5844e3"
+  },
+  {
+    "at": 1792473996.46849,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00638611288741231,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/frame.md",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+    "sha256": "8964322d88deb5327c5666afd14250c3842a717bfa9e6e0e8118985070e7a8c7"
+  },
+  {
+    "at": 1792473997.2457867,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2160890637896955,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && node -e \"\nconst fs=require('fs');\nconst m=JSON.parse(fs.readFileSync('audio_meta.json','utf8'));\nconst order=['01-opening','02-recurrence','03-three-lenses','04-complexity','05-sequential-path','06-n-condition','07-cost','08-parallel-boundary','09-conclusion'];\nm.voices=m.voices.map(v=>({...v, frame: order.indexOf(v.id)+1}));\nm.bgm=null; m.sfx=[];\nfs.writeFileSync('audio_meta.json',JSON.stringify(m,null,2)+'\\n');\nconsole.log(m.voices.map(v=>v.frame+':'+v.id+' '+v.duration_s+'s').join('\\n'));\nconsole.log('total',m.total_duration_s);\n\" && ls assets/audio | head -3 && du -sh assets/audio",
+    "exit_code": null,
+    "command_id": "63f2622aa2a347968ff783a460f0f518"
+  },
+  {
+    "at": 1792473997.8375702,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0010988381691277027,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/_role.md",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "sha256": "2a6fd31c09082f9564e613599d11873fb941036389373bb47b275228ce5844e3"
+  },
+  {
+    "at": 1792473998.3544219,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.001330813392996788,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/_role.md",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a",
+    "sha256": "2a6fd31c09082f9564e613599d11873fb941036389373bb47b275228ce5844e3"
+  },
+  {
+    "at": 1792473998.7479715,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0013277428224682808,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/frame.md",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "sha256": "8964322d88deb5327c5666afd14250c3842a717bfa9e6e0e8118985070e7a8c7"
+  },
+  {
+    "at": 1792473999.3975804,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002724668011069298,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/07-cost.md",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a",
+    "sha256": "207e9f4c6d6a6385114ad9353b11799ed65ea2dbaf90db05b35f4caddb59f8ba"
+  },
+  {
+    "at": 1792474002.4368045,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.000631383154541254,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/01-opening.md",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+    "sha256": "e19eb2f07b63a54fb30029d07d496dc8607c28495f601715b904e06f07e05e91"
+  },
+  {
+    "at": 1792474003.0873072,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002724231220781803,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/02-recurrence.md",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+    "sha256": "5786fc10a73dfc4ea9a715dc3eda9df5710a7901c0c06b9d45321e77b329e7bc"
+  },
+  {
+    "at": 1792474003.3447042,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.541964499745518,
+    "exit_code": 0,
+    "command_id": "63f2622aa2a347968ff783a460f0f518"
+  },
+  {
+    "at": 1792474004.4286537,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0010131052695214748,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/04-complexity.md",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "sha256": "56adb36d18ca7da1d56053684b01e64f972a224fe34fa33b7926f8d91160f4dd"
+  },
+  {
+    "at": 1792474005.0279262,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0004746229387819767,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/05-sequential-path.md",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "sha256": "c5e105060586df64d0800237546a2f38a3b56e74c80b5302f310ef4e9582a8ee"
+  },
+  {
+    "at": 1792474005.5476978,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.003442817833274603,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/frame.md",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a",
+    "sha256": "8964322d88deb5327c5666afd14250c3842a717bfa9e6e0e8118985070e7a8c7"
+  },
+  {
+    "at": 1792474006.3036587,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0010573840700089931,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/08-parallel-boundary.md",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a",
+    "sha256": "66002b6fa797db68a19461542adf54fc767d9411d4d38f22dd4f550e2a461e6c"
+  },
+  {
+    "at": 1792474008.2336144,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.004424973390996456,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/03-three-lenses.md",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+    "sha256": "6915a31ae8e9efad02133149798988716bea623c7d86d6ec475e39d4e9863c00"
+  },
+  {
+    "at": 1792474011.9581468,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.013109886087477207,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/06-n-condition.md",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "sha256": "55742d3be522da6a1b08fca3ef0c197e1a36cabaa366415cf2db2f4a16a98f77"
+  },
+  {
+    "at": 1792474012.694563,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0008553061634302139,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/frame-packets/09-conclusion.md",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a",
+    "sha256": "ec496d1dd7c84e822ecc5fa4d346b8104e479d18b1d4ad9c19d99f75f427136d"
+  },
+  {
+    "at": 1792474015.7051082,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22847623890265822,
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && ls -la && ls -R compositions 2>/dev/null | head -40 && ls assets/fonts 2>/dev/null",
+    "exit_code": 0,
+    "command_id": "4c39da7246234c359a5f336a05e4c3b2"
+  },
+  {
+    "at": 1792474020.5419629,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20688602002337575,
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && ls -la && echo '---' && ls -la compositions 2>/dev/null && echo '--- frames' && ls -la compositions/frames 2>/dev/null && echo '--- assets' && ls -R assets 2>/dev/null | head -40",
+    "exit_code": 2,
+    "command_id": "c36cd2a2e1df46be88898d827fafe2d0"
+  },
+  {
+    "at": 1792474028.9801743,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20413610618561506,
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && find assets -type f | head -30 && echo '--- index' && cat index.html && echo '--- hyperframes.json' && cat hyperframes.json",
+    "exit_code": 0,
+    "command_id": "762000eade534143bebc68f97df0451a"
+  },
+  {
+    "at": 1792474054.7166796,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.080925257876515,
+    "workers": [
+      {
+        "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+        "status": "running",
+        "submitted_at": 1792473988.6128883,
+        "prompt_sha256": "8bcf79405463ac385da9a67e0130b36172d1c67829ffd11066a60c6c1eed73bc",
+        "started_at": 1792473989.2286494
+      },
+      {
+        "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+        "status": "running",
+        "submitted_at": 1792473988.9705572,
+        "prompt_sha256": "c9f18e56d59bf63bbe8bffff9a1d77a9d1874c88c7d24a30585044f5dd77addd",
+        "started_at": 1792473990.0271819
+      },
+      {
+        "worker_id": "95adecefbc9748768ef97d8033c3263a",
+        "status": "running",
+        "submitted_at": 1792473989.561878,
+        "prompt_sha256": "b8b9b9d58114f822fa5d1b8a6cb69e5c0c670a3b550579931de8523035c3f898",
+        "started_at": 1792473990.570088
+      }
+    ]
+  },
+  {
+    "at": 1792474105.09863,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.34896744368598,
+    "workers": [
+      {
+        "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+        "status": "running",
+        "submitted_at": 1792473988.6128883,
+        "prompt_sha256": "8bcf79405463ac385da9a67e0130b36172d1c67829ffd11066a60c6c1eed73bc",
+        "started_at": 1792473989.2286494
+      },
+      {
+        "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+        "status": "running",
+        "submitted_at": 1792473988.9705572,
+        "prompt_sha256": "c9f18e56d59bf63bbe8bffff9a1d77a9d1874c88c7d24a30585044f5dd77addd",
+        "started_at": 1792473990.0271819
+      },
+      {
+        "worker_id": "95adecefbc9748768ef97d8033c3263a",
+        "status": "running",
+        "submitted_at": 1792473989.561878,
+        "prompt_sha256": "b8b9b9d58114f822fa5d1b8a6cb69e5c0c670a3b550579931de8523035c3f898",
+        "started_at": 1792473990.570088
+      }
+    ]
+  },
+  {
+    "at": 1792474106.9727883,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.004229550715535879,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/01-opening.html",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c"
+  },
+  {
+    "at": 1792474113.6192555,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0012076999992132187,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/01-opening.motion.json",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c"
+  },
+  {
+    "at": 1792474126.8166053,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.014151573181152344,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/02-recurrence.html",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c"
+  },
+  {
+    "at": 1792474134.4513872,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0006231679581105709,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/02-recurrence.motion.json",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c"
+  },
+  {
+    "at": 1792474151.0256088,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.017050308641046286,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/03-three-lenses.html",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c"
+  },
+  {
+    "at": 1792474156.5993087,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.43141351221129,
+    "workers": [
+      {
+        "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+        "status": "running",
+        "submitted_at": 1792473988.6128883,
+        "prompt_sha256": "8bcf79405463ac385da9a67e0130b36172d1c67829ffd11066a60c6c1eed73bc",
+        "started_at": 1792473989.2286494
+      },
+      {
+        "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+        "status": "running",
+        "submitted_at": 1792473988.9705572,
+        "prompt_sha256": "c9f18e56d59bf63bbe8bffff9a1d77a9d1874c88c7d24a30585044f5dd77addd",
+        "started_at": 1792473990.0271819
+      },
+      {
+        "worker_id": "95adecefbc9748768ef97d8033c3263a",
+        "status": "running",
+        "submitted_at": 1792473989.561878,
+        "prompt_sha256": "b8b9b9d58114f822fa5d1b8a6cb69e5c0c670a3b550579931de8523035c3f898",
+        "started_at": 1792473990.570088
+      }
+    ]
+  },
+  {
+    "at": 1792474162.1759772,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0025583868846297264,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/03-three-lenses.motion.json",
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c"
+  },
+  {
+    "at": 1792474168.362435,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.005184257868677378,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/07-cost.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474171.1439292,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20271331584081054,
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames && for f in *.html; do echo \"== $f\"; head -c 60 \"$f\"; echo; tail -c 40 \"$f\"; echo; grep -c \"<template>\" \"$f\"; grep -o 'data-composition-id=\"[^\"]*\"' \"$f\" | sort -u; grep -o \"__timelines\\['[^']*'\\]\" \"$f\" | sort -u; grep -n \"transition:\\|<audio\\|script src\\|repeat:\\|yoyo:\" \"$f\" | head; python3 -c \"import json,sys; json.load(open('${f%.html}.motion.json')); print('sidecar ok')\"; done",
+    "exit_code": null,
+    "command_id": "e6836a1ee62340549a25d2025e9ade72"
+  },
+  {
+    "at": 1792474177.5293941,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.007522842846810818,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/07-cost.motion.json",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474181.351889,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.7964075319468975,
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+    "exit_code": 1,
+    "command_id": "e6836a1ee62340549a25d2025e9ade72"
+  },
+  {
+    "at": 1792474189.784073,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0023432979360222816,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/04-complexity.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474190.9474688,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20627045072615147,
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames && grep -o 'id=\"[^\"]*\"' 01-opening.html 02-recurrence.html 03-three-lenses.html | sort -u; echo \"--- abs paths:\"; grep -n \"/home/\\|file://\" 01-opening.html 02-recurrence.html 03-three-lenses.html; echo \"--- timeline count:\"; grep -c \"gsap.timeline\" 01-opening.html 02-recurrence.html 03-three-lenses.html; ls -la",
+    "exit_code": 0,
+    "command_id": "010d4ae2ff16469aa295aa8cef077bb0"
+  },
+  {
+    "at": 1792474197.9910703,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.001809868961572647,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/04-complexity.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474202.0842445,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 2.644723281264305e-05,
+    "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c"
+  },
+  {
+    "at": 1792474207.2299008,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.014924135059118271,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/08-parallel-boundary.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474212.6732695,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 48.34954977873713,
+    "workers": [
+      {
+        "worker_id": "7b5e2289f3e446aeaf6353ee81884a0c",
+        "status": "succeeded",
+        "submitted_at": 1792473988.6128883,
+        "prompt_sha256": "8bcf79405463ac385da9a67e0130b36172d1c67829ffd11066a60c6c1eed73bc",
+        "started_at": 1792473989.2286494,
+        "finished_at": 1792474205.1904318,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/.host/workers/7b5e2289f3e446aeaf6353ee81884a0c.json"
+      },
+      {
+        "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+        "status": "running",
+        "submitted_at": 1792473988.9705572,
+        "prompt_sha256": "c9f18e56d59bf63bbe8bffff9a1d77a9d1874c88c7d24a30585044f5dd77addd",
+        "started_at": 1792473990.0271819
+      },
+      {
+        "worker_id": "95adecefbc9748768ef97d8033c3263a",
+        "status": "running",
+        "submitted_at": 1792473989.561878,
+        "prompt_sha256": "b8b9b9d58114f822fa5d1b8a6cb69e5c0c670a3b550579931de8523035c3f898",
+        "started_at": 1792473990.570088
+      }
+    ]
+  },
+  {
+    "at": 1792474217.9677193,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.010838647838681936,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/08-parallel-boundary.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474218.3448477,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.004455228336155415,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/04-complexity.motion.json",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474225.3440127,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.004311450757086277,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/08-parallel-boundary.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474225.6516798,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0035470197908580303,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/04-complexity.motion.json",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474231.0748296,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.002008575014770031,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/08-parallel-boundary.motion.json",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474244.8963974,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0039359391666948795,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/05-sequential-path.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474256.150933,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.011228640098124743,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/05-sequential-path.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474262.0660093,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0013477681204676628,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/09-conclusion.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474266.6985815,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.008535635191947222,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/05-sequential-path.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474269.1810572,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 47.84779991907999,
+    "workers": [
+      {
+        "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+        "status": "running",
+        "submitted_at": 1792473988.9705572,
+        "prompt_sha256": "c9f18e56d59bf63bbe8bffff9a1d77a9d1874c88c7d24a30585044f5dd77addd",
+        "started_at": 1792473990.0271819
+      },
+      {
+        "worker_id": "95adecefbc9748768ef97d8033c3263a",
+        "status": "running",
+        "submitted_at": 1792473989.561878,
+        "prompt_sha256": "b8b9b9d58114f822fa5d1b8a6cb69e5c0c670a3b550579931de8523035c3f898",
+        "started_at": 1792473990.570088
+      }
+    ]
+  },
+  {
+    "at": 1792474273.2266853,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.004274697974324226,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/09-conclusion.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474276.2492752,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0007807007059454918,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/05-sequential-path.motion.json",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474279.3552213,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2075365469790995,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && ls -la compositions/frames/ && head -c 800 compositions/frames/01-opening.html && echo && echo '--- sidecar ---' && cat compositions/frames/01-opening.motion.json",
+    "exit_code": 0,
+    "command_id": "a419901e0f3c4ab1beef53b34aacad17"
+  },
+  {
+    "at": 1792474284.4281242,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0035688900388777256,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/09-conclusion.motion.json",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474290.6462023,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.027967849746346474,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/07-cost.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a",
+    "sha256": "cc9991c5fe7bb777c74751da4bdbd29a21c5a068f4934c9d18bc2ba74b112a6c"
+  },
+  {
+    "at": 1792474305.4284947,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.005942143965512514,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/06-n-condition.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474308.0000644,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.008543089032173157,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/07-cost.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474309.3480592,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.021138573996722698,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/08-parallel-boundary.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474310.8776374,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.010685432702302933,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/09-conclusion.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474318.1907654,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.001830617431551218,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/04-complexity.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "sha256": "305d6a94bbcaeb8529e9435c73bf21e7be57fa2fb2abd7a066c206f5906d93c1"
+  },
+  {
+    "at": 1792474320.7353063,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.023094712290912867,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/08-parallel-boundary.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a",
+    "sha256": "700468fd0912c427695387c134f666a7fded7f10b0adc3b49da78a0639867793"
+  },
+  {
+    "at": 1792474330.68349,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.011243015993386507,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/05-sequential-path.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "sha256": "b49e90677e3dfd787e4ced83f99359049e4e95c2ef008b23123c99d4586992e3"
+  },
+  {
+    "at": 1792474335.0476847,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.979295265860856,
+    "workers": [
+      {
+        "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+        "status": "running",
+        "submitted_at": 1792473988.9705572,
+        "prompt_sha256": "c9f18e56d59bf63bbe8bffff9a1d77a9d1874c88c7d24a30585044f5dd77addd",
+        "started_at": 1792473990.0271819
+      },
+      {
+        "worker_id": "95adecefbc9748768ef97d8033c3263a",
+        "status": "running",
+        "submitted_at": 1792473989.561878,
+        "prompt_sha256": "b8b9b9d58114f822fa5d1b8a6cb69e5c0c670a3b550579931de8523035c3f898",
+        "started_at": 1792473990.570088
+      }
+    ]
+  },
+  {
+    "at": 1792474340.326795,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.005700430832803249,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/08-parallel-boundary.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474341.115363,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.010774419642984867,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/08-parallel-boundary.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474342.1707804,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.008043341804295778,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/09-conclusion.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474351.1045659,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.009486299939453602,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/04-complexity.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474351.3047662,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0011417903006076813,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/09-conclusion.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a",
+    "sha256": "f5dfb3c23b8b19109f002f5aa641b63c4cfcaae0a5469282db9a5d2ad4395638"
+  },
+  {
+    "at": 1792474352.6009738,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.03836090536788106,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/05-sequential-path.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474361.2611914,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.015363919083029032,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/05-sequential-path.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474363.4119167,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.012787607964128256,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/09-conclusion.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474367.9251263,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.006232304032891989,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/05-sequential-path.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474376.1405954,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.23078019870445132,
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames && sed -n '30,75p' 05-sequential-path.html && echo '=== scripts ===' && grep -n \"f05-h\\|f05-col\" 05-sequential-path.html | head -30",
+    "exit_code": 0,
+    "command_id": "4bc9a5c044054f32b57f2a5b9d5d2dc6"
+  },
+  {
+    "at": 1792474376.886847,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.019429651089012623,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/07-cost.html",
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474386.1577423,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2810739176347852,
+    "worker_id": "95adecefbc9748768ef97d8033c3263a",
+    "command": "ls -l /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/ | sed -n '1,40p'; echo '--- head/tail checks ---'; for f in 07-cost 08-parallel-boundary 09-conclusion; do p=/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/$f.html; echo \"$f: first=$(head -c 12 \"$p\" | tr -d '\\n') last=$(tail -c 14 \"$p\" | tr '\\n' ' ')\"; done",
+    "exit_code": 0,
+    "command_id": "2a8ad9c8b28b470f898c9c3c54df1421"
+  },
+  {
+    "at": 1792474386.2049649,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002704647835344076,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/06-n-condition.html",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "sha256": "907b66c8d6efdad9a51a67619fae75bd3f677c80e3042c4d13cc3b5efcf20466"
+  },
+  {
+    "at": 1792474389.5588355,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 47.26278500817716,
+    "workers": [
+      {
+        "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+        "status": "running",
+        "submitted_at": 1792473988.9705572,
+        "prompt_sha256": "c9f18e56d59bf63bbe8bffff9a1d77a9d1874c88c7d24a30585044f5dd77addd",
+        "started_at": 1792473990.0271819
+      },
+      {
+        "worker_id": "95adecefbc9748768ef97d8033c3263a",
+        "status": "running",
+        "submitted_at": 1792473989.561878,
+        "prompt_sha256": "b8b9b9d58114f822fa5d1b8a6cb69e5c0c670a3b550579931de8523035c3f898",
+        "started_at": 1792473990.570088
+      }
+    ]
+  },
+  {
+    "at": 1792474394.724031,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 1.5124212950468063e-05,
+    "worker_id": "95adecefbc9748768ef97d8033c3263a"
+  },
+  {
+    "at": 1792474407.0914123,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0012091579847037792,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/06-n-condition.motion.json",
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474414.831358,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2409192519262433,
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames && for f in 04-complexity.html 05-sequential-path.html 06-n-condition.html; do echo \"== $f\"; head -c 12 \"$f\"; echo; tail -c 14 \"$f\"; echo; grep -c 'class=\"clip\"' \"$f\"; grep -n 'transform:\\|transition\\|repeat:\\|yoyo\\|Math.random\\|Date.now\\|<script src\\|<audio' \"$f\" || echo \"  (clean)\"; grep -o 'data-composition-id=\"[^\"]*\"' \"$f\"; grep -o 'window.__timelines\\[[^]]*\\]' \"$f\"; done; echo '=== files ==='; ls -l",
+    "exit_code": 0,
+    "command_id": "bd40a88588534bb2b9a19ad45ecd52bf"
+  },
+  {
+    "at": 1792474420.7323356,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.23838010290637612,
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames && grep -o '>[^<]*0[0-9] / 0[0-9]<' 03-three-lenses.html 07-cost.html 09-conclusion.html | head; echo '---'; grep -n 'Transformer' 03-three-lenses.html 07-cost.html | head -5",
+    "exit_code": 0,
+    "command_id": "f1a7b03c44724a738d11e244f35f7563"
+  },
+  {
+    "at": 1792474429.7620053,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 1.8685124814510345e-05,
+    "worker_id": "9c6e37c8a904414d84e5333f9229ff54"
+  },
+  {
+    "at": 1792474433.8313947,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 38.90754060912877,
+    "workers": [
+      {
+        "worker_id": "9c6e37c8a904414d84e5333f9229ff54",
+        "status": "succeeded",
+        "submitted_at": 1792473988.9705572,
+        "prompt_sha256": "c9f18e56d59bf63bbe8bffff9a1d77a9d1874c88c7d24a30585044f5dd77addd",
+        "started_at": 1792473990.0271819,
+        "finished_at": 1792474432.4117234,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/.host/workers/9c6e37c8a904414d84e5333f9229ff54.json"
+      },
+      {
+        "worker_id": "95adecefbc9748768ef97d8033c3263a",
+        "status": "succeeded",
+        "submitted_at": 1792473989.561878,
+        "prompt_sha256": "b8b9b9d58114f822fa5d1b8a6cb69e5c0c670a3b550579931de8523035c3f898",
+        "started_at": 1792473990.570088,
+        "finished_at": 1792474396.7806554,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/.host/workers/95adecefbc9748768ef97d8033c3263a.json"
+      }
+    ]
+  },
+  {
+    "at": 1792474438.3280354,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22594366408884525,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && ls compositions/frames/ && echo '--- checks ---' && for f in compositions/frames/*.html; do printf '%s: ' \"$f\"; head -c 11 \"$f\"; echo; done && echo '--- font-face count / gsap src refs ---' && grep -c \"NotoSansSC-Variable.ttf\" compositions/frames/*.html && grep -l \"script src\" compositions/frames/*.html || echo 'no external script tags'",
+    "exit_code": 0,
+    "command_id": "275d5064dcbb43feba5f288e3d17a95c"
+  },
+  {
+    "at": 1792474443.6795876,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2504556840285659,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && node -e \"\nconst fs=require('fs');let s=fs.readFileSync('STORYBOARD.md','utf8');\ns=s.replace(/^- status: outline$/gm,'- status: animated');\nfs.writeFileSync('STORYBOARD.md',s);\nconsole.log('animated:',(s.match(/- status: animated/g)||[]).length);\n\" && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/assemble-index.mjs --storyboard \"$PWD/STORYBOARD.md\" --hyperframes \"$PWD\" --audio-meta \"$PWD/audio_meta.json\" 2>&1 | tail -30",
+    "exit_code": null,
+    "command_id": "242d10c9f3c2498aa52a4c1d7943836d"
+  },
+  {
+    "at": 1792474449.3521879,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.40087276697158813,
+    "exit_code": 0,
+    "command_id": "242d10c9f3c2498aa52a4c1d7943836d"
+  },
+  {
+    "at": 1792474454.489366,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.27955722715705633,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/transitions.mjs inject --storyboard \"$PWD/STORYBOARD.md\" --hyperframes \"$PWD\" 2>&1 | tail -20 && echo '--- verify ---' && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/transitions.mjs verify --storyboard \"$PWD/STORYBOARD.md\" --index \"$PWD/index.html\" 2>&1 | tail -20",
+    "exit_code": null,
+    "command_id": "fec4406fabf24c35a25fa4cca57c1a88"
+  },
+  {
+    "at": 1792474458.2709026,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.2785607483237982,
+    "exit_code": 0,
+    "command_id": "fec4406fabf24c35a25fa4cca57c1a88"
+  },
+  {
+    "at": 1792474463.7173674,
+    "tool": "prepare_project",
+    "ok": true,
+    "elapsed": 0.21023956080898643,
+    "exit_code": null,
+    "command_id": "631977f909b44c558cead1917efc2abb"
+  },
+  {
+    "at": 1792474468.2346787,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.6599757010117173,
+    "exit_code": 0,
+    "command_id": "631977f909b44c558cead1917efc2abb"
+  },
+  {
+    "at": 1792474473.0670588,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20831162109971046,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && grep -n \"gsap\" index.html | head -5",
+    "exit_code": 0,
+    "command_id": "7e3d6942462548149d4400336fa4d2e9"
+  },
+  {
+    "at": 1792474478.8709388,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0022039981558918953,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/index.html"
+  },
+  {
+    "at": 1792474482.7728515,
+    "tool": "check_project",
+    "ok": true,
+    "elapsed": 0.26117228902876377,
+    "exit_code": null,
+    "command_id": "c207d7fb1b744f7790e6ef900c4ea44d"
+  },
+  {
+    "at": 1792474496.7619941,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 9.775053302757442,
+    "exit_code": 1,
+    "command_id": "c207d7fb1b744f7790e6ef900c4ea44d"
+  },
+  {
+    "at": 1792474502.955796,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20376270916312933,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames && for f in 04-complexity.html 05-sequential-path.html 06-n-condition.html; do echo \"=== $f ===\"; grep -n \"querySelector\\|getElementById\" $f | head -8; done",
+    "exit_code": 0,
+    "command_id": "e9907f80a40c429ca50d24e59fe6ac9d"
+  },
+  {
+    "at": 1792474509.505224,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22023262782022357,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames && echo '=== 04 root ===' && grep -n \"data-composition-id\" 04-complexity.html && echo '=== 04 script head ===' && sed -n 100,120p 04-complexity.html && echo '=== 07 pattern ===' && grep -n \"querySelector\\|getElementById\" 07-cost.html | head -5 && echo '=== 01 pattern ===' && grep -n \"querySelector\\|getElementById\" 01-opening.html | head -5",
+    "exit_code": 0,
+    "command_id": "958ea15fc5e541a8a114f6c9fff740c3"
+  },
+  {
+    "at": 1792474517.0395105,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.012849419377744198,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/04-complexity.html"
+  },
+  {
+    "at": 1792474517.757216,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.06496089603751898,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/05-sequential-path.html"
+  },
+  {
+    "at": 1792474518.6562612,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.005442382302135229,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/compositions/frames/06-n-condition.html"
+  },
+  {
+    "at": 1792474523.3596966,
+    "tool": "check_project",
+    "ok": true,
+    "elapsed": 0.2433955012820661,
+    "exit_code": null,
+    "command_id": "0eaf90853b35409688e48b911bc5d7fd"
+  },
+  {
+    "at": 1792474538.4377117,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 8.122655275277793,
+    "exit_code": 0,
+    "command_id": "0eaf90853b35409688e48b911bc5d7fd"
+  },
+  {
+    "at": 1792474545.5842535,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.24278187798336148,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention && npx hyperframes snapshot --at 14.45,43.65,72.15,102,137.55,175.4,209.15,240.95,273.5 2>&1 | tail -20",
+    "exit_code": null,
+    "command_id": "28557888cbbc419197b106e3e63602f6"
+  },
+  {
+    "at": 1792474556.5857081,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 8.318982899188995,
+    "exit_code": 0,
+    "command_id": "28557888cbbc419197b106e3e63602f6"
+  },
+  {
+    "at": 1792474568.5717354,
+    "tool": "inspect_image",
+    "ok": true,
+    "elapsed": 6.006769380997866,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97/videos/n5-tradeoff-self-attention/.hyperframes/artifacts/snapshots/14fc2059-eb8d-4a25-a450-2224cdf4b16a/contact-sheet-1.jpg"
+  },
+  {
+    "at": 1792474572.901536,
+    "tool": "render_project",
+    "ok": true,
+    "elapsed": 0.20504027884453535,
+    "exit_code": null,
+    "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a"
+  },
+  {
+    "at": 1792474622.823594,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.76940774684772,
+    "exit_code": null,
+    "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a"
+  },
+  {
+    "at": 1792474673.0874393,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.47454529302195,
+    "exit_code": null,
+    "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a"
+  },
+  {
+    "at": 1792474728.6180391,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 46.6656872597523,
+    "exit_code": null,
+    "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a"
+  },
+  {
+    "at": 1792474779.9757316,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.168221191037446,
+    "exit_code": null,
+    "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a"
+  },
+  {
+    "at": 1792474832.2164478,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 46.36628311313689,
+    "exit_code": null,
+    "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a"
+  },
+  {
+    "at": 1792474885.840532,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.69173031998798,
+    "exit_code": null,
+    "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a"
+  },
+  {
+    "at": 1792474937.1175225,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.59862567530945,
+    "exit_code": null,
+    "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a"
+  },
+  {
+    "at": 1792474988.4858944,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 46.17529568169266,
+    "exit_code": null,
+    "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a"
+  },
+  {
+    "at": 1792475002.3171804,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 9.351210699882358,
+    "exit_code": 0,
+    "command_id": "631d4608b1c64f6cb497ec0b8b35ef8a"
+  },
+  {
+    "at": 1792475006.3724504,
+    "tool": "complete_project",
+    "ok": true,
+    "elapsed": 0.5426644566468894
+  }
+]

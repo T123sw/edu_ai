@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-14",
+  "status": "verified_locally_not_deployed",
+  "active_tools": [
+    "report",
+    "quiz",
+    "flashcard",
+    "graph",
+    "podcast",
+    "scenario"
+  ],
+  "retired_creation_tools": [
+    "lesson_plan",
+    "blog"
+  ],
+  "historical_resources_readable": true,
+  "flashcards": {
+    "known": "removed for current round",
+    "unknown": "returned to queue end",
+    "completed": "all cards marked known",
+    "scheduled_review": false
+  },
+  "checks": {
+    "backend": {
+      "passed": 104,
+      "seconds": 71.88
+    },
+    "frontend_unit": {
+      "passed": 16
+    },
+    "browser": {
+      "passed": 6,
+      "seconds": 19.9,
+      "api": "mocked",
+      "audio": "actual browser decoding of generated 2-second MP3 fixture"
+    },
+    "typescript": "passed",
+    "lint": {
+      "errors": 0,
+      "warnings": 1,
+      "warning": "Existing react-refresh/only-export-components in FlashcardArtifactPreview.tsx"
+    },
+    "production_build": "passed; existing large chunk advisory"
+  },
+  "live_generation": {
+    "isolated_storage": "/tmp/edu-studio-smoke-fkf7oy8y",
+    "results": [
+      {
+        "kind": "scenario",
+        "saved": true,
+        "seconds": 11.02
+      },
+      {
+        "kind": "podcast",
+        "saved": true,
+        "seconds": 25.77,
+        "duration_seconds": 245.232,
+        "bytes": 981165
+      }
+    ]
+  },
+  "coverage": [
+    "uniform tools for legacy account roles",
+    "legacy generation rejected and old content readable",
+    "private resource and audio ownership",
+    "scenario branching, endings, restart and mobile layout",
+    "flashcard known/unknown/completion/restart",
+    "podcast transcript/audio/download",
+    "graph validation and repair feedback",
+    "cancellation and resumable podcast audio generation"
+  ],
+  "limitations": [
+    "No production frontend publication or backend restart in this change.",
+    "Real generation used synthetic course evidence and isolated storage; browser flow used mock APIs.",
+    "Podcast duration is approximate: the requested 3-minute sample is 245.232 seconds.",
+    "Content structure and operation validated; not an exhaustive educational accuracy review."
+  ]
+}

@@ -1,0 +1,283 @@
+[
+  {
+    "path": "requests/1791914713725624961-876115e4.json",
+    "phase": "intent",
+    "time": 1791914713.7256444,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 16904,
+    "tool_names": [
+      "mcp__preparation__save_preparation_brief"
+    ]
+  },
+  {
+    "path": "requests/1791914718982885973-b2cb39d7.json",
+    "phase": "learning_path",
+    "time": 1791914718.982902,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 22069,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914719900271121-7fe5eada.json",
+    "phase": "learning_path",
+    "time": 1791914719.9002876,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 22069,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914729179542922-abfe8452.json",
+    "phase": "learning_path",
+    "time": 1791914729.1795573,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 22069,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914734695075999-95405c31.json",
+    "phase": "learning_path",
+    "time": 1791914734.6950958,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 22069,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914737009639768-bf7f34c4.json",
+    "phase": "learning_path",
+    "time": 1791914737.0096564,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 22069,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914739568806732-c89bc908.json",
+    "phase": "learning_path",
+    "time": 1791914739.5688248,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 22069,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914768099490812-d49962fe.json",
+    "phase": "learning_path",
+    "time": 1791914768.0995078,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 71148,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914770057836223-0fdd5719.json",
+    "phase": "learning_path",
+    "time": 1791914770.0578551,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 71148,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914775836095113-58652f22.json",
+    "phase": "learning_path",
+    "time": 1791914775.8361108,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 71148,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914780841981877-d58f16d9.json",
+    "phase": "learning_path",
+    "time": 1791914780.841999,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 71148,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914784295306448-18713f70.json",
+    "phase": "learning_path",
+    "time": 1791914784.2953234,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 71148,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914788947069506-1ffd704c.json",
+    "phase": "learning_path",
+    "time": 1791914788.9470894,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 71148,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914801235969550-84ab9a49.json",
+    "phase": "learning_path",
+    "time": 1791914801.2359893,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 71148,
+    "tool_names": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__finalize_research_summary",
+      "mcp__preparation__read_research_evidence",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__report_research_blocker",
+      "mcp__preparation__save_course_plan",
+      "mcp__preparation__search_sources",
+      "skill"
+    ]
+  },
+  {
+    "path": "requests/1791914812102381787-6781b432.json",
+    "phase": "review",
+    "time": 1791914812.1024015,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 40542,
+    "tool_names": [
+      "mcp__preparation__submit_path_review"
+    ]
+  },
+  {
+    "path": "requests/1791914817029329772-5975b625.json",
+    "phase": "research_nodes",
+    "time": 1791914817.0293467,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 17729,
+    "tool_names": [
+      "mcp__preparation__assess_node_evidence"
+    ]
+  },
+  {
+    "path": "requests/1791914822150810175-23a91379.json",
+    "phase": "research_nodes",
+    "time": 1791914822.1508286,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 18689,
+    "tool_names": [
+      "mcp__preparation__assess_node_evidence"
+    ]
+  },
+  {
+    "path": "requests/1791914828407718368-cfaf70fe.json",
+    "phase": "research_nodes",
+    "time": 1791914828.4077396,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 35474,
+    "tool_names": [
+      "mcp__preparation__assess_node_evidence"
+    ]
+  },
+  {
+    "path": "requests/1791914834670897686-a51f7719.json",
+    "phase": "research_nodes",
+    "time": 1791914834.6709201,
+    "model": "deepseek-v4-flash",
+    "input_upper_bound": 18015,
+    "tool_names": [
+      "mcp__preparation__assess_node_evidence"
+    ]
+  }
+]

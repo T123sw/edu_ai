@@ -1,0 +1,29 @@
+{
+  "generationPassed": 5,
+  "generationFailed": 0,
+  "steps": 17,
+  "checks": 57,
+  "browserFlowsPassed": 5,
+  "independentBusinessScenarios": 19,
+  "mutationsCaught": 8,
+  "mutationsTotal": 8,
+  "mobileWidths": [
+    390,
+    320
+  ],
+  "previewInnerWidths": [
+    349,
+    279
+  ],
+  "runtimePageErrors": 0,
+  "cancelRetryPassed": true,
+  "exhaustedBudgetEventuallyRecovered": true,
+  "queuedRetryStatePassed": false,
+  "remainingIssues": [
+    "繁忙队列下重试新任务尚未领取时，项目仍关联旧失败任务，页面进度和取消入口错误。"
+  ],
+  "productionDataModified": false,
+  "productCodeModifiedThisRun": false,
+  "mainMatrixModelCalls": 43,
+  "totalModelCalls": 50
+}

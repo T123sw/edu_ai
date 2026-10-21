@@ -1,0 +1,51 @@
+{
+  "base": "http://127.0.0.1:4179",
+  "api": "fixtures; no production writes or model calls",
+  "results": [
+    {
+      "width": 1440,
+      "empty": true,
+      "upload": true,
+      "mimic": true,
+      "custom": true,
+      "remove": true,
+      "search": true,
+      "expand": true,
+      "retry": true,
+      "preview": true,
+      "themes": 3,
+      "otherHomes": true,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "empty": true,
+      "upload": true,
+      "mimic": true,
+      "custom": true,
+      "remove": true,
+      "search": true,
+      "expand": true,
+      "retry": true,
+      "preview": true,
+      "themes": 3,
+      "otherHomes": true,
+      "errors": []
+    },
+    {
+      "width": 320,
+      "empty": true,
+      "upload": true,
+      "mimic": true,
+      "custom": true,
+      "remove": true,
+      "search": true,
+      "expand": true,
+      "retry": true,
+      "preview": true,
+      "themes": 3,
+      "otherHomes": true,
+      "errors": []
+    }
+  ]
+}

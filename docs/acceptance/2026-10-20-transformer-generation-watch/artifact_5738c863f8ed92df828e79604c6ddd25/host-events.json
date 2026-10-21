@@ -1,0 +1,1622 @@
+[
+  {
+    "at": 1792473579.5861204,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005088271573185921,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/SKILL.md",
+    "sha256": "dd67af24e6ca148769f191abd68e670bade17c4b8c847d1ff9aa847fbd7ffe23"
+  },
+  {
+    "at": 1792473580.0107584,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00034775491803884506,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/.host/BRIEF.md",
+    "sha256": "36f6231e3cf76875f2f03f2ae176f16aa1e0ab994a8700d368520b2fd8c92b4e"
+  },
+  {
+    "at": 1792473580.436148,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005404199473559856,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/.host/teaching-brief.json",
+    "sha256": "ddf5f1fcdf44c42a83d3116427eecceaea2090e818f5f89dfbf31e1f3407b930"
+  },
+  {
+    "at": 1792473580.7422059,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0012607639655470848,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/REQUEST.json",
+    "sha256": "356bb6d6388dec0eec8526705d1fdcd3219c5a812820b4adab4108c9aeff732d"
+  },
+  {
+    "at": 1792473585.4347808,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20787492813542485,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1 && ls -la && echo \"--- videos ---\" && ls -la videos/ 2>/dev/null && echo \"--- host ---\" && ls -la .host/ && echo \"--- original ---\" && ls -la original/ 2>/dev/null | head -30 && echo \"--- skills ---\" && ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/",
+    "exit_code": 2,
+    "command_id": "032a185c2a724726a5e0d2fb9988d70d"
+  },
+  {
+    "at": 1792473585.5524035,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005042669363319874,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/SKILL.md",
+    "sha256": "db87c1909eff755d810f83de6064bfb7c52a76e76ba388d4b00c98893dddcb1f"
+  },
+  {
+    "at": 1792473588.2363122,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20237903529778123,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1 && ls -la .host/ ; echo \"--- skills ---\"; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/ ; echo \"--- gv refs ---\"; ls -R /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/ | head -60",
+    "exit_code": 0,
+    "command_id": "dda202f5c8db40309dbbf23516c9bc56"
+  },
+  {
+    "at": 1792473591.5303583,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20542498584836721,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1 && cat .host/runtime.json; echo \"--- state ---\"; cat .host/generation-state.json; echo \"--- events ---\"; head -20 .host/events.jsonl; echo \"--- bin ---\"; ls .host/bin .host/workers .host/home .host/tmp",
+    "exit_code": 0,
+    "command_id": "8ec223d620af40b2aa5167329933dfed"
+  },
+  {
+    "at": 1792473594.6530225,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20324859907850623,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1 && npx hyperframes init \"videos/why-transformer-sequential-bottleneck\" --non-interactive --example=blank --skill=general-video 2>&1 | tail -40",
+    "exit_code": null,
+    "command_id": "b40acffe483b4de29d0b20bfd66ab05b"
+  },
+  {
+    "at": 1792473595.1526163,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0024769888259470463,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/brief-format.md",
+    "sha256": "1e4f2f67989052fedd56fd1211e7a8c27f70aa5dba14ccd18e23cbd44d825adb"
+  },
+  {
+    "at": 1792473597.5748744,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.24998952960595489,
+    "exit_code": 0,
+    "command_id": "b40acffe483b4de29d0b20bfd66ab05b"
+  },
+  {
+    "at": 1792473600.2450786,
+    "tool": "prepare_project",
+    "ok": true,
+    "elapsed": 0.20405502431094646,
+    "exit_code": null,
+    "command_id": "69cd6c614e31483e8cd9215051f5ccc9"
+  },
+  {
+    "at": 1792473600.5471466,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0011516441591084003,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/SKILL.md",
+    "sha256": "a8d6fe52471be6bcf1816ba0b9eb16c6d1efc830c668de533d6bee8d41d86e11"
+  },
+  {
+    "at": 1792473603.5420694,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.4667755221016705,
+    "exit_code": 0,
+    "command_id": "69cd6c614e31483e8cd9215051f5ccc9"
+  },
+  {
+    "at": 1792473603.9175467,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0004560369998216629,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/minimal-composition.md",
+    "sha256": "0884abd9feeeea48d0de3d517c3d074859b9c322318401a928b9d1f9ee2cf851"
+  },
+  {
+    "at": 1792473608.5695457,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002220060210675001,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/sub-compositions.md",
+    "sha256": "7caf63046ea0d1915b51e4eb49897101e36dc716ea1195f9a34cef4ba9c18f64"
+  },
+  {
+    "at": 1792473609.0596092,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.000676523894071579,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/determinism-rules.md",
+    "sha256": "415a3f08cf3be801e6ca381fd47959e787947da325a7ee30b8104b8b80198fd5"
+  },
+  {
+    "at": 1792473609.5174794,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0004340680316090584,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/media-use/references/audio.md",
+    "sha256": "13409d128c10b55016f29c9bec55f53ac0ab63061fc87d054a45492467a9456d"
+  },
+  {
+    "at": 1792473610.1323931,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2072325786575675,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && find . -maxdepth 3 -not -path './node_modules*' | sort | head -60 && echo \"--- pkg ---\" && cat package.json && echo \"--- hf.json ---\" && cat hyperframes.json && echo \"--- index ---\" && head -40 index.html",
+    "exit_code": 0,
+    "command_id": "9096401393534490b8430b75311f46b2"
+  },
+  {
+    "at": 1792473613.6582494,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005099060945212841,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-creative/references/house-style.md",
+    "sha256": "3adc51745bfce9719b63ba74251fcf9e5b9eed56b1e0d8c3928f47c3703eba92"
+  },
+  {
+    "at": 1792473613.8005753,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0008251299150288105,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-creative/references/video-composition.md",
+    "sha256": "037a966583e4b5fc4c3385ef6217560d36237ec638d2b68b5808950c873e424b"
+  },
+  {
+    "at": 1792473613.9251168,
+    "tool": "read_file",
+    "ok": false,
+    "elapsed": 0.0005954219959676266,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md"
+  },
+  {
+    "at": 1792473614.0670576,
+    "tool": "read_file",
+    "ok": false,
+    "elapsed": 0.0007443190552294254,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/rules-index.md"
+  },
+  {
+    "at": 1792473616.3515275,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2026288933120668,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation && ls -R . | head -80",
+    "exit_code": 0,
+    "command_id": "1c4f5de4ebfa419daba68652e7b91fee"
+  },
+  {
+    "at": 1792473618.673927,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005370192229747772,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/blueprints-index.md",
+    "sha256": "601228ddcfda89ed6add52bd08becf53296764e155126fb5e7100eb29caaa46e"
+  },
+  {
+    "at": 1792473618.8572996,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0008867089636623859,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/rules-index.md",
+    "sha256": "e6142e35d7090934fc139ec490df97fd3c7d4995d35745417afc52476aecd7ca"
+  },
+  {
+    "at": 1792473633.5699797,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0015011210925877094,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/storyboard-format.md",
+    "sha256": "f3fda31a65c89f0a6e10a9739b004568a9a0d7e2c8c56609b766b4ff36eedec6"
+  },
+  {
+    "at": 1792473634.0527353,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0010860967449843884,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/production-loop.md",
+    "sha256": "95b09c92c768de0736a77f5e3f8f88260ee38e80e96bfcbf804694a9fac624c5"
+  },
+  {
+    "at": 1792473634.4448287,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0016088541597127914,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-core/references/composition-patterns.md",
+    "sha256": "bcdf548ba1fec8decce5ea22c7bed99c73ba268986b1bfefc837f2d7f70f55b0"
+  },
+  {
+    "at": 1792473634.869947,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0016648001037538052,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/sub-agents/frame-worker.md",
+    "sha256": "447395b986126769a0d169c468f3f24b324781761130bc5155802656d1f22999"
+  },
+  {
+    "at": 1792473640.5548775,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0020380252972245216,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/frame-worker-core.md",
+    "sha256": "75a1aafaf2e656ba075cfcf13c1f79bc825005f90aa78f0cafe6778df2493226"
+  },
+  {
+    "at": 1792473640.7529576,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00037030410021543503,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/subagent-dispatch.md",
+    "sha256": "92082776fe6618eda8aa5eb0cba40312f55210f4e542a40ae2f85afd1459f3e7"
+  },
+  {
+    "at": 1792473640.8612251,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0003731357865035534,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/SKILL.md",
+    "sha256": "b35f1f8eff68e9ff480a5d5d343a1bf5a40ebb7d0d9be20b0b980cfdb36047f3"
+  },
+  {
+    "at": 1792473646.300601,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0020527257584035397,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts/lib/frame-packets-core.mjs",
+    "sha256": "fd9062f3c955f89e5520fec3f88d25f92f44e91cf42988e387ae993175999c87"
+  },
+  {
+    "at": 1792473656.583129,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0004667039029300213,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes/references/script-format.md",
+    "sha256": "7637028d866d3d4a21d0b7934d6db4f73585a28c28da060d00cecc39c47e2e3d"
+  },
+  {
+    "at": 1792473656.7081242,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00043122004717588425,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts/frame-packets.mjs",
+    "sha256": "998ad1593e759c235537feca8eb7a116f930bd2135fdd0420d3a9a4ba100d65b"
+  },
+  {
+    "at": 1792473671.06628,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20240813214331865,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation && wc -c blueprints/kinetic-type-beats.md blueprints/grid-card-assemble.md blueprints/comparison-split.md blueprints/dataviz-countup.md blueprints/titlecard-reveal.md blueprints/fixed-anchor-cycle.md rules/waterfall-entry.md rules/spring-pop-entrance.md rules/ambient-glow-bloom.md rules/sine-wave-loop.md rules/stat-bars-and-fills.md rules/counting-dynamic-scale.md rules/svg-path-draw.md rules/split-tilt-cards.md rules/depth-of-field-blur.md rules/kinetic-beat-slam.md rules/nudge-curve.md rules/viewport-change.md",
+    "exit_code": 0,
+    "command_id": "f67af655ceda4dfa8b4e63ddd4e3a3c8"
+  },
+  {
+    "at": 1792473679.0986834,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20253032073378563,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills && ls hyperframes-animation/transitions/ && echo \"--- scripts search ---\" && find . -name \"*assemble*\" -o -name \"*transitions*.mjs\" -o -name \"*captions*.mjs\" | head -20 && echo \"--- capability menu media rows ---\" && grep -n -i \"assemble-index\\|transitions.mjs\\|captions.mjs\" hyperframes/references/capability-menu.md | head -20",
+    "exit_code": 0,
+    "command_id": "03762d5676f8477d84f415112880d215"
+  },
+  {
+    "at": 1792473681.9813232,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20237047411501408,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && wc -l assemble-index.mjs transitions.mjs captions.mjs && sed -n 1,120p assemble-index.mjs",
+    "exit_code": 0,
+    "command_id": "812679a6bcd84e7b801f503ff64929fc"
+  },
+  {
+    "at": 1792473706.46538,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0005498086102306843,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/frame.md"
+  },
+  {
+    "at": 1792473706.5903141,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0005205930210649967,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/SCRIPT.md"
+  },
+  {
+    "at": 1792473721.2285655,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.00041580991819500923,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/SCRIPT.md"
+  },
+  {
+    "at": 1792473721.35381,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.000532020814716816,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/audio_request.json"
+  },
+  {
+    "at": 1792473724.4644105,
+    "tool": "prepare_narration",
+    "ok": true,
+    "elapsed": 0.20330053521320224
+  },
+  {
+    "at": 1792473740.2254333,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 10.507222803775221,
+    "exit_code": 0,
+    "command_id": "0a91d032bd194408b007af133aabbbfe"
+  },
+  {
+    "at": 1792473743.3265433,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20294178323820233,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && cat audio_meta.json && echo \"--- files ---\" && find .media assets -maxdepth 3 -type f 2>/dev/null | head -30",
+    "exit_code": 0,
+    "command_id": "b5719ffa6df349a8b8501349d658e330"
+  },
+  {
+    "at": 1792473748.1332865,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20247435104101896,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && grep -n \"voices\\|audio\\|data-start\\|lead\\|offset\\|data-duration\" assemble-index.mjs | sed -n 1,80p",
+    "exit_code": 0,
+    "command_id": "c1471ef6d2644f1f91fbbd0f69112a69"
+  },
+  {
+    "at": 1792473748.4582703,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2025525001809001,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && sed -n 1,80p transitions.mjs",
+    "exit_code": 0,
+    "command_id": "c8f20aa53ace4e9f8dbb712eaae03174"
+  },
+  {
+    "at": 1792473752.116186,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2030427441932261,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && sed -n 300,420p assemble-index.mjs",
+    "exit_code": 0,
+    "command_id": "d97b17dd1be94f0a9d486904086d5e2c"
+  },
+  {
+    "at": 1792473762.650361,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20575300185009837,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts && sed -n 100,240p transitions.mjs && echo \"=== registry ===\" && sed -n 1,60p lib/transition-registry.mjs",
+    "exit_code": 0,
+    "command_id": "3cba999de56f446eb0f4ea08ea890509"
+  },
+  {
+    "at": 1792473799.519508,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0004368601366877556,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/STORYBOARD.md"
+  },
+  {
+    "at": 1792473805.4753108,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20718472404405475,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/scripts/frame-packets.mjs --project \"$PWD\" --storyboard \"$PWD/STORYBOARD.md\" 2>&1 | tail -20",
+    "exit_code": null,
+    "command_id": "70ac903edc2d458fa7d532663ccc92b0"
+  },
+  {
+    "at": 1792473809.535209,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.2262114300392568,
+    "exit_code": 0,
+    "command_id": "70ac903edc2d458fa7d532663ccc92b0"
+  },
+  {
+    "at": 1792473817.5199971,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20404040208086371,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && node -e '\nconst fs=require(\"fs\");\nconst m=JSON.parse(fs.readFileSync(\"audio_meta.json\",\"utf8\"));\nconst voices=m.voices.map((v,i)=>({frame:i+1,path:v.path}));\nfs.writeFileSync(\".hyperframes/assembly-audio.json\", JSON.stringify({bgm:null,voices,sfx:[]},null,2));\nconsole.log(JSON.stringify({voices:voices.length,total:m.total_duration_s}));\n' && cat .hyperframes/host-assets.json",
+    "exit_code": null,
+    "command_id": "bcbd1e26d44a4e2fb5f2b52d6d1a72aa"
+  },
+  {
+    "at": 1792473824.4906087,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.8842723318375647,
+    "exit_code": 0,
+    "command_id": "bcbd1e26d44a4e2fb5f2b52d6d1a72aa"
+  },
+  {
+    "at": 1792473846.8405821,
+    "tool": "run_workers",
+    "ok": true,
+    "elapsed": 2.893323753029108,
+    "workers": [
+      {
+        "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+        "status": "queued",
+        "submitted_at": 1792473845.0220387,
+        "prompt_sha256": "fba51bade535ccafbeb105ffe81e115377f1664735434c91de44244c4caae317"
+      },
+      {
+        "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+        "status": "queued",
+        "submitted_at": 1792473845.9895265,
+        "prompt_sha256": "0a0ea6e7706858ec68f2c7eff48bb82370e45769a6fc8befb35a69ba9a6c5808"
+      },
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "queued",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420"
+      }
+    ]
+  },
+  {
+    "at": 1792473853.4052775,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.002009146846830845,
+    "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/lib/storyboard.mjs",
+    "sha256": "e422c1faefc814e2d064d08b25fda60ad5b55728bb8a2400bf02494a4710b5da"
+  },
+  {
+    "at": 1792473855.9894052,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.003184423316270113,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/.hyperframes/frame-packets/frame04.md",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+    "sha256": "d6853c2c7b8c6f9508116a2dc62116e54aec400e4a25a9578d4b886d0f02a0ac"
+  },
+  {
+    "at": 1792473856.1035395,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0007719220593571663,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/.hyperframes/frame-packets/frame01.md",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+    "sha256": "b8e2f7517f1b05eb061204fe9b93573da41d0ba0629f2ba20ef2a7eb5b1a6c06"
+  },
+  {
+    "at": 1792473856.3295517,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0018000048585236073,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/.hyperframes/frame-packets/frame07.md",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "sha256": "56f01a35d73c0eca1d2e858512b5dd23cfd069848164648591fb8be73071da5c"
+  },
+  {
+    "at": 1792473856.4460247,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0017065363936126232,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/frame.md",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+    "sha256": "f6d3209e0ae0f16d8db6e5dd41ee50c6ea03968fe5cd7cad383ddbe8625ad4c5"
+  },
+  {
+    "at": 1792473856.5457826,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0015685860998928547,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/frame.md",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+    "sha256": "f6d3209e0ae0f16d8db6e5dd41ee50c6ea03968fe5cd7cad383ddbe8625ad4c5"
+  },
+  {
+    "at": 1792473856.6627488,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0017200158908963203,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/frame.md",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "sha256": "f6d3209e0ae0f16d8db6e5dd41ee50c6ea03968fe5cd7cad383ddbe8625ad4c5"
+  },
+  {
+    "at": 1792473864.4015727,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0006695566698908806,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/.hyperframes/frame-packets/frame02.md",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+    "sha256": "a5305f7c1f1a90811d8323b855407b4a1738b87e5341bac332e736f9fff1ff11"
+  },
+  {
+    "at": 1792473864.6688383,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0011049332097172737,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/.hyperframes/frame-packets/frame05.md",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+    "sha256": "9c09af705c2e659b1afaa4fc5acb55069ea1d66340d1e85964c8d496f766aa84"
+  },
+  {
+    "at": 1792473865.276747,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005938294343650341,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/.hyperframes/frame-packets/frame08.md",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "sha256": "055fb926a8c9674eb4710ab5f0b9774b2db3612300441415688599aacbf416a6"
+  },
+  {
+    "at": 1792473865.9841483,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.00046200118958950043,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/.hyperframes/frame-packets/frame03.md",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+    "sha256": "556b6f4d318f9fabf0ff588b94ff8567e20919c49e4b25da029fc03efabdd40a"
+  },
+  {
+    "at": 1792473866.3009803,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0006791050545871258,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/.hyperframes/frame-packets/frame06.md",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+    "sha256": "90f9a375a61d3e9289442911227c2590695b4bde4143ef2d078a988f965775de"
+  },
+  {
+    "at": 1792473866.8423567,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0005600531585514545,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/.hyperframes/frame-packets/frame09.md",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "sha256": "8fe048ebf73e619c87cd09760ccf4657717e6656b8da4cf42e622a3d332bc005"
+  },
+  {
+    "at": 1792473874.079733,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20377107989042997,
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && ls -la && echo \"--- assets ---\" && ls -R assets 2>/dev/null | head -40 && echo \"--- frames ---\" && ls -la compositions/frames 2>/dev/null",
+    "exit_code": 2,
+    "command_id": "662cc570d70048e7ab4be35c1c237012"
+  },
+  {
+    "at": 1792473874.7367592,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20273637864738703,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && ls -la && echo \"--- frames ---\" && ls -la compositions/frames 2>/dev/null && echo \"--- assets ---\" && ls -la assets assets/fonts 2>/dev/null",
+    "exit_code": 2,
+    "command_id": "46114b926d7942198659215c743fc589"
+  },
+  {
+    "at": 1792473879.404345,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20309698162600398,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && find assets -maxdepth 3 | head -50",
+    "exit_code": 0,
+    "command_id": "c7df4bdda3904c46b94e273ac58a5b67"
+  },
+  {
+    "at": 1792473884.6353772,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0010402770712971687,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/index.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "sha256": "993ad359ae498368b593e9f4214256cd8b848c46226394688c40b373fa31ae5c"
+  },
+  {
+    "at": 1792473907.7710538,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 47.48587776906788,
+    "workers": [
+      {
+        "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+        "status": "running",
+        "submitted_at": 1792473845.0220387,
+        "prompt_sha256": "fba51bade535ccafbeb105ffe81e115377f1664735434c91de44244c4caae317",
+        "started_at": 1792473847.0463624
+      },
+      {
+        "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+        "status": "running",
+        "submitted_at": 1792473845.9895265,
+        "prompt_sha256": "0a0ea6e7706858ec68f2c7eff48bb82370e45769a6fc8befb35a69ba9a6c5808",
+        "started_at": 1792473847.662894
+      },
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "running",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420",
+        "started_at": 1792473848.029542
+      }
+    ]
+  },
+  {
+    "at": 1792473956.279822,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.459255474153906,
+    "workers": [
+      {
+        "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+        "status": "running",
+        "submitted_at": 1792473845.0220387,
+        "prompt_sha256": "fba51bade535ccafbeb105ffe81e115377f1664735434c91de44244c4caae317",
+        "started_at": 1792473847.0463624
+      },
+      {
+        "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+        "status": "running",
+        "submitted_at": 1792473845.9895265,
+        "prompt_sha256": "0a0ea6e7706858ec68f2c7eff48bb82370e45769a6fc8befb35a69ba9a6c5808",
+        "started_at": 1792473847.662894
+      },
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "running",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420",
+        "started_at": 1792473848.029542
+      }
+    ]
+  },
+  {
+    "at": 1792474012.785141,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 48.4638515827246,
+    "workers": [
+      {
+        "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+        "status": "running",
+        "submitted_at": 1792473845.0220387,
+        "prompt_sha256": "fba51bade535ccafbeb105ffe81e115377f1664735434c91de44244c4caae317",
+        "started_at": 1792473847.0463624
+      },
+      {
+        "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+        "status": "running",
+        "submitted_at": 1792473845.9895265,
+        "prompt_sha256": "0a0ea6e7706858ec68f2c7eff48bb82370e45769a6fc8befb35a69ba9a6c5808",
+        "started_at": 1792473847.662894
+      },
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "running",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420",
+        "started_at": 1792473848.029542
+      }
+    ]
+  },
+  {
+    "at": 1792474018.6160207,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.006001938134431839,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame04.html",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1"
+  },
+  {
+    "at": 1792474024.097589,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0041694059036672115,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame01.html",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236"
+  },
+  {
+    "at": 1792474031.6411753,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0069655138067901134,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame04.html",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1"
+  },
+  {
+    "at": 1792474033.3766403,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0007885671220719814,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame01.motion.json",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236"
+  },
+  {
+    "at": 1792474059.1603978,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0021087578497827053,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame02.html",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236"
+  },
+  {
+    "at": 1792474065.791861,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20768230501562357,
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && python3 - <<'PY'\nimport re\np='frame02.html'\ns=open(p,encoding='utf-8').read()\nnew={'184':'M184 444 C210 388, 214 388, 240 444 M231 438 L240 444 L231 450',\n     '336':'M336 444 C362 388, 366 388, 392 444 M383 438 L392 444 L383 450',\n     '488':'M488 444 C514 388, 518 388, 544 444 M535 438 L544 444 L535 450',\n     '640':'M640 444 C666 388, 670 388, 696 444 M687 438 L696 444 L687 450',\n     '792':'M792 444 C818 388, 822 388, 848 444 M839 438 L848 444 L839 450'}\nold=re.findall(r'<path class=\"f02-arc\" d=\"M(\\d+) 444[^\"]*\"/>',s)\nfor k,v in new.items():\n    s=re.sub(r'<path class=\"f02-arc\" d=\"M%s 444[^\"]*\"/>'%k,'<path class=\"f02-arc\" d=\"%s\"/>'%v,s)\nopen(p,'w',encoding='utf-8').write(s)\nprint(re.findall(r'class=\"f02-arc\" d=\"([^\"]+)\"',s))\nPY",
+    "exit_code": null,
+    "command_id": "c7e2db8d821945cb98f1d580a8fa2cbb"
+  },
+  {
+    "at": 1792474067.5152025,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 47.28033926477656,
+    "workers": [
+      {
+        "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+        "status": "running",
+        "submitted_at": 1792473845.0220387,
+        "prompt_sha256": "fba51bade535ccafbeb105ffe81e115377f1664735434c91de44244c4caae317",
+        "started_at": 1792473847.0463624
+      },
+      {
+        "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+        "status": "running",
+        "submitted_at": 1792473845.9895265,
+        "prompt_sha256": "0a0ea6e7706858ec68f2c7eff48bb82370e45769a6fc8befb35a69ba9a6c5808",
+        "started_at": 1792473847.662894
+      },
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "running",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420",
+        "started_at": 1792473848.029542
+      }
+    ]
+  },
+  {
+    "at": 1792474069.7605417,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0037050009705126286,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame02.motion.json",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236"
+  },
+  {
+    "at": 1792474072.9079852,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.001664161216467619,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame05.html",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1"
+  },
+  {
+    "at": 1792474081.4402986,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0021175998263061047,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame05.html",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1"
+  },
+  {
+    "at": 1792474095.7459023,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0015351558104157448,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame03.html",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236"
+  },
+  {
+    "at": 1792474103.630014,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.003177202772349119,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame03.html",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236"
+  },
+  {
+    "at": 1792474108.8879774,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0032280771993100643,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame03.html",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236"
+  },
+  {
+    "at": 1792474112.021761,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0039445459842681885,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame06.html",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1"
+  },
+  {
+    "at": 1792474115.1317616,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.005956611130386591,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame03.html",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236"
+  },
+  {
+    "at": 1792474118.0349667,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.82028601784259,
+    "workers": [
+      {
+        "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+        "status": "running",
+        "submitted_at": 1792473845.0220387,
+        "prompt_sha256": "fba51bade535ccafbeb105ffe81e115377f1664735434c91de44244c4caae317",
+        "started_at": 1792473847.0463624
+      },
+      {
+        "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+        "status": "running",
+        "submitted_at": 1792473845.9895265,
+        "prompt_sha256": "0a0ea6e7706858ec68f2c7eff48bb82370e45769a6fc8befb35a69ba9a6c5808",
+        "started_at": 1792473847.662894
+      },
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "running",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420",
+        "started_at": 1792473848.029542
+      }
+    ]
+  },
+  {
+    "at": 1792474119.4223888,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.004159595351666212,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame07.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474121.8309715,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.004702252335846424,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame06.html",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1"
+  },
+  {
+    "at": 1792474122.487549,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0016044140793383121,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame03.motion.json",
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236"
+  },
+  {
+    "at": 1792474128.9276743,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.22715459391474724,
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && for f in frame04.html frame05.html frame06.html; do echo \"=== $f\"; echo \"-- first/last:\"; head -c 20 \"$f\" | head -1; tail -3 \"$f\"; echo \"-- template count: $(grep -c '<template>' $f) $(grep -c '</template>' $f)\"; echo \"-- timeline regs: $(grep -c 'window.__timelines\\[' $f)\"; echo \"-- clips: $(grep -c 'class=\"clip' $f)\"; grep -o 'class=\"clip[^\"]*\"[^>]*' \"$f\"; echo \"-- forbidden:\"; grep -n -E '<audio|<video|Math\\.random|Date\\.now|https?://|cdn\\.|transition:|autoAlpha|repeat: -1' \"$f\" || echo none; echo \"-- ids:\"; grep -o 'id=\"[^\"]*\"' \"$f\" | tr '\\n' ' '; echo; done",
+    "exit_code": null,
+    "command_id": "898c4426c1ac49eabb8877fe724f2757"
+  },
+  {
+    "at": 1792474130.6728575,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20587412035092711,
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && python3 - <<'PY'\nimport re,json,glob\nfor f in sorted(glob.glob('frame0*.html')):\n    s=open(f,encoding='utf-8').read()\n    print('==',f,len(s))\n    print(' starts:',repr(s.lstrip()[:12]),' ends:',repr(s.rstrip()[-12:]))\n    bad=[t for t in ['<!doctype','<html','<head','<body','</body>','autoAlpha','Math.random','Date.now','transition:','http://','https://'] if t.lower() in s.lower()]\n    print(' forbidden hits:',bad)\n    fid=re.search(r'data-composition-id=\"([^\"]+)\"',s).group(1)\n    print(' composition-id:',fid,'reg:',('window.__timelines[\"%s\"] = tl;'%fid) in s)\n    print(' root styled by id:', '#root{' in s.replace(' ',''))\n    clips=re.findall(r'<div class=\"clip[^\"]*\"[^>]*>',s)\n    for c in clips:\n        ok=all(a in c for a in ['data-start','data-duration','data-track-index'])\n        print('  clip ok' if ok else '  CLIP MISSING ATTRS', c[:90])\n    print(' font-face count:',s.count('@font-face'),' families named:',set(re.findall(r'font-family:\\s*([^;]+);',s)))\n    print(' gsap script:', s.count('src=\"assets/gsap.min.js\"'), ' timeline paused:', 'gsap.timeline({ paused: true })' in s, ' timeline count:', len(re.findall(r'gsap\\.timeline\\(',s)))\n    ids=re.findall(r'id=\"([^\"]+)\"',s)\n    print(' ids ok prefix:', all(i.startswith(fid) or i=='root' for i in ids), [i for i in ids if not (i.startswith(fid) or i=='root')])\nfor f in sorted(glob.glob('frame0*.motion.json')):\n    print(f, json.load(open(f)))\nPY",
+    "exit_code": null,
+    "command_id": "81b931fb5ed44730ae18abb7cecc2ef3"
+  },
+  {
+    "at": 1792474134.6581755,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0071834661066532135,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame07.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474136.5625234,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2281052707694471,
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && echo \"-- frame06 forbidden:\"; grep -n -E '<audio|<video|Math\\.random|Date\\.now|https?://|cdn\\.|transition:|autoAlpha|repeat: -1' frame06.html; echo \"exit=$?\"; echo \"-- frame06 ids:\"; grep -o 'id=\"[^\"]*\"' frame06.html | tr '\\n' ' '; echo; echo \"-- classes:\"; grep -o 'id=\"[0-9]' frame06.html frame05.html frame04.html || echo \"no digit-led ids\"",
+    "exit_code": 0,
+    "command_id": "38a5d6af297c4713a3d5e8ff308293b1"
+  },
+  {
+    "at": 1792474138.7350326,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.1926965988241136,
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+    "exit_code": 0,
+    "command_id": "81b931fb5ed44730ae18abb7cecc2ef3"
+  },
+  {
+    "at": 1792474142.7272468,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.006945277098566294,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame07.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474149.0416756,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.00038127368316054344,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame04.motion.json",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1"
+  },
+  {
+    "at": 1792474149.4643095,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2146727447398007,
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && python3 - <<'PY'\nimport re\nfor n in ('01','02','03'):\n    p='frame%s.html'%n\n    s=open(p,encoding='utf-8').read()\n    s=s.replace('f%s-'%n,'frame%s-'%n)\n    s=s.replace(' xmlns=\"http://www.w3.org/2000/svg\"','')\n    open(p,'w',encoding='utf-8').write(s)\n    print(p, 'leftover f%s-:'%n, len(re.findall(r'\\bf%s-'%n,s)), 'xmlns:', 'xmlns' in s)\n    ids=re.findall(r'id=\"([^\"]+)\"',s)\n    print('  ids:', ids[:4], '...', ids[-2:])\n    print('  all prefixed:', all(i.startswith('frame%s-'%n) or i=='root' for i in ids))\nPY",
+    "exit_code": 0,
+    "command_id": "c9410614c6464c5781b79944e2551014"
+  },
+  {
+    "at": 1792474149.6025722,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.0029762638732790947,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame07.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474150.316649,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.00035943416878581047,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame05.motion.json",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1"
+  },
+  {
+    "at": 1792474157.1822278,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.007823719177395105,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame07.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474158.4203715,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20451247179880738,
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && python3 - <<'PY'\nimport re\nfor n in ('01','02','03'):\n    p='frame%s.html'%n\n    s=open(p,encoding='utf-8').read()\n    fid='frame'+n\n    bad=[t for t in ['<!doctype','<html','<head','<body','autoAlpha','Math.random','Date.now','transition:','http://','https://',' visibility','display:'] if t.lower() in s.lower()]\n    print(p,'len',len(s),'starts',s.lstrip()[:10]=='<template>' ,'ends',s.rstrip().endswith('</template>'),'bad',bad)\n    print('  reg:', 'window.__timelines[\"%s\"] = tl;'%fid in s, 'timeline:',len(re.findall(r'gsap\\.timeline\\(',s)),'clip attrs ok:',all(all(a in c for a in ['data-start','data-duration','data-track-index']) for c in re.findall(r'<div class=\"clip[^\"]*\"[^>]*>',s)))\n    print('  css transform decls:', re.findall(r'(?<!origin:)\\btransform:\\s*[^;]+;',s))\n    print('  selectors sample:', re.findall(r'#frame%s-[a-z0-9-]+'%n,s)[:6])\nPY",
+    "exit_code": null,
+    "command_id": "583a7bd08b3b4d4f9971fb78b4912f58"
+  },
+  {
+    "at": 1792474158.574544,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0005025686696171761,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame06.motion.json",
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1"
+  },
+  {
+    "at": 1792474165.992268,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.0020568910986185074,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame07.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "sha256": "e975eaf94d14bc4b9417dcf0375904fc14d8d2302b111b625ff005ef1984a9da"
+  },
+  {
+    "at": 1792474172.2828379,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 8.455011993646622e-06,
+    "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1"
+  },
+  {
+    "at": 1792474172.782962,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 48.10708134388551,
+    "workers": [
+      {
+        "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+        "status": "running",
+        "submitted_at": 1792473845.0220387,
+        "prompt_sha256": "fba51bade535ccafbeb105ffe81e115377f1664735434c91de44244c4caae317",
+        "started_at": 1792473847.0463624
+      },
+      {
+        "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+        "status": "running",
+        "submitted_at": 1792473845.9895265,
+        "prompt_sha256": "0a0ea6e7706858ec68f2c7eff48bb82370e45769a6fc8befb35a69ba9a6c5808",
+        "started_at": 1792473847.662894
+      },
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "running",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420",
+        "started_at": 1792473848.029542
+      }
+    ]
+  },
+  {
+    "at": 1792474174.220361,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20999713940545917,
+    "command": "cd /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/lib && node -e 'const d=require(\"./transitions.json\");console.log(d.default_calm, d.max_duration_s);for(const t of d.transitions)console.log(t.name, t.default_duration_s, t.directions?t.directions.join(\"/\"):\"\")'",
+    "exit_code": null,
+    "command_id": "ec2dd37c0e2b48c2af9e06b593ee02f7"
+  },
+  {
+    "at": 1792474175.6348724,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 1.5147030353546143e-05,
+    "worker_id": "897e33ba6a0945acb14fcdd96eb7b236"
+  },
+  {
+    "at": 1792474181.4236934,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.001751704141497612,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame07.motion.json",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474183.2570512,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.109911436215043,
+    "exit_code": 0,
+    "command_id": "ec2dd37c0e2b48c2af9e06b593ee02f7"
+  },
+  {
+    "at": 1792474210.7200968,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.004892169032245874,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame08.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474223.5885437,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.00761787872761488,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame08.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474229.9565077,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0006864131428301334,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame08.motion.json",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474236.99695,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.699336451943964,
+    "workers": [
+      {
+        "worker_id": "897e33ba6a0945acb14fcdd96eb7b236",
+        "status": "succeeded",
+        "submitted_at": 1792473845.0220387,
+        "prompt_sha256": "fba51bade535ccafbeb105ffe81e115377f1664735434c91de44244c4caae317",
+        "started_at": 1792473847.0463624,
+        "finished_at": 1792474180.0137463,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/.host/workers/897e33ba6a0945acb14fcdd96eb7b236.json"
+      },
+      {
+        "worker_id": "1d9db700b4ad42deb3fe3f70b16f41a1",
+        "status": "succeeded",
+        "submitted_at": 1792473845.9895265,
+        "prompt_sha256": "0a0ea6e7706858ec68f2c7eff48bb82370e45769a6fc8befb35a69ba9a6c5808",
+        "started_at": 1792473847.662894,
+        "finished_at": 1792474176.8435018,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/.host/workers/1d9db700b4ad42deb3fe3f70b16f41a1.json"
+      },
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "running",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420",
+        "started_at": 1792473848.029542
+      }
+    ]
+  },
+  {
+    "at": 1792474262.9689791,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.004082892090082169,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame09.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474278.690891,
+    "tool": "write_file",
+    "ok": true,
+    "elapsed": 0.0016006948426365852,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame09.motion.json",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474287.3642063,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 46.16340083582327,
+    "workers": [
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "running",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420",
+        "started_at": 1792473848.029542
+      }
+    ]
+  },
+  {
+    "at": 1792474289.4167619,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21640697913244367,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && ls -1 && echo \"=== head/tail ===\" && for f in frame07.html frame08.html frame09.html; do echo \"-- $f\"; head -c 12 \"$f\"; echo; tail -c 14 \"$f\"; echo; done && echo \"=== forbidden patterns ===\" && grep -n -i -E \"transition:|Math\\.random|Date\\.now|repeat: *-1|<audio|<video|https?://|Inter|Hiragino|Yu Gothic|Noto Sans CJK|autoAlpha|display: *none|visibility\" *.html | grep -v \"xmlns\" ; echo \"=== json check ===\" && for f in *.motion.json; do python3 -c \"import json,sys; json.load(open('$f')); print('$f ok')\"; done",
+    "exit_code": null,
+    "command_id": "c205bcbab91c41728b58aca5db7ddd5e"
+  },
+  {
+    "at": 1792474294.2904162,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21672221878543496,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && ls -la compositions/frames/ && for f in compositions/frames/frame0*.html; do echo \"=== $f\"; head -c 120 \"$f\"; echo; echo \"-- clips:\"; grep -o 'class=\"clip\"[^>]*' \"$f\" | head -5; echo \"-- timeline:\"; grep -o '__timelines\\[[^]]*\\]' \"$f\" | head -3; echo \"-- font:\"; grep -c 'NotoSansSC-Variable.ttf' \"$f\"; done",
+    "exit_code": null,
+    "command_id": "b098e16b59a84922881658e8ff469d35"
+  },
+  {
+    "at": 1792474296.8249986,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20295821502804756,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && node -e \"['frame07','frame08','frame09'].forEach(function(f){var o=JSON.parse(require('fs').readFileSync(f+'.motion.json','utf8'));console.log(f, o.duration_s, o.rules.join('|'), 'exit_moving='+o.exit.still_moving);});\"",
+    "exit_code": null,
+    "command_id": "5698bb26df944c9fb366a40b13dd3286"
+  },
+  {
+    "at": 1792474301.415689,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.534707891754806,
+    "exit_code": 0,
+    "command_id": "b098e16b59a84922881658e8ff469d35"
+  },
+  {
+    "at": 1792474302.0978842,
+    "tool": "read_file",
+    "ok": true,
+    "elapsed": 0.000452596228569746,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame01.html",
+    "sha256": "9b567684bd52292d2a30080cfc5eca31cf23012e80f183fcfd27493b33ef02a1"
+  },
+  {
+    "at": 1792474302.5987852,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.6013698601163924,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "exit_code": 0,
+    "command_id": "5698bb26df944c9fb366a40b13dd3286"
+  },
+  {
+    "at": 1792474313.528064,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20573422499001026,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && node -e \"\nvar fs=require('fs');\n['frame07','frame08','frame09'].forEach(function(f){\n var s=fs.readFileSync(f+'.html','utf8');\n function c(re){return (s.match(re)||[]).length;}\n var divO=c(/<div\\b/g), divC=c(/<\\/div>/g);\n var spanO=c(/<span\\b/g), spanC=c(/<\\/span>/g);\n var tmplO=c(/<template>/g), tmplC=c(/<\\/template>/g);\n var style=c(/<style>/g), script=c(/<script\\b/g);\n console.log(f, 'div', divO+'/'+divC, 'span', spanO+'/'+spanC, 'template', tmplO+'/'+tmplC, 'style', style, 'script', script,\n  'clipAttrs', (s.match(/class=\\\"clip/g)||[]).length, 'data-track', c(/data-track-index/g), 'dashIds', (s.match(/id=\\\"[0-9]/g)||[]).length,\n  'registration', /window\\.__timelines\\[\\\"/.test(s), 'paused', /paused: true/.test(s));\n});\"",
+    "exit_code": null,
+    "command_id": "ef88dc9a4019458ab7f39667e8166a76"
+  },
+  {
+    "at": 1792474323.9998102,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.9941345872357488,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "exit_code": 0,
+    "command_id": "ef88dc9a4019458ab7f39667e8166a76"
+  },
+  {
+    "at": 1792474337.3033063,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.006956750992685556,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames/frame09.html",
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474346.3424156,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2133412891998887,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && node -e \"\nvar fs=require('fs');\n['frame07','frame08','frame09'].forEach(function(f){\n var s=fs.readFileSync(f+'.html','utf8');\n var o=(s.match(/<svg\\b/g)||[]).length, c=(s.match(/<\\/svg>/g)||[]).length;\n var tags=(s.match(/<(div|span)\\b[^>]*>/g)||[]);\n var bad=tags.filter(function(t){var m=t.match(/id=\\\"([^\\\"]+)\\\"/);return m && /^[0-9]/.test(m[1]);});\n console.log(f,'svg',o+'/'+c,'badIds',bad.length,'durationAttr',(s.match(/data-duration=\\\"[^\\\"]+\\\"/g)||[]).join(','));\n});\"",
+    "exit_code": null,
+    "command_id": "1a8d4f7850514e1dbe72c606dde35c77"
+  },
+  {
+    "at": 1792474356.2278674,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.2238039830699563,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "exit_code": 0,
+    "command_id": "1a8d4f7850514e1dbe72c606dde35c77"
+  },
+  {
+    "at": 1792474359.6110508,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 47.61383459996432,
+    "workers": [
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "running",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420",
+        "started_at": 1792473848.029542
+      }
+    ]
+  },
+  {
+    "at": 1792474360.3470585,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20276088593527675,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && for f in frame0*.html; do echo \"=== $f\"; node -e '\nconst fs=require(\"fs\");const s=fs.readFileSync(process.argv[1],\"utf8\");\nconst clips=[...s.matchAll(/<div[^>]*class=\"[^\"]*\\bclip\\b[^\"]*\"[^>]*>/g)].map(m=>m[0]);\nconst starts=clips.map(c=>({track:(c.match(/data-track-index=\"(\\d+)\"/)||[])[1],st:+(c.match(/data-start=\"([\\d.]+)\"/)||[])[1],du:+(c.match(/data-duration=\"([\\d.]+)\"/)||[])[1]}));\nconsole.log(\"clips:\",starts.length, JSON.stringify(starts));\nconsole.log(\"root dur:\",(s.match(/id=\"root\"[^>]*data-duration=\"([\\d.]+)\"/)||[])[1], \"| compid:\",(s.match(/id=\"root\"[^>]*data-composition-id=\"([^\"]+)\"/)||[])[1]);\nconsole.log(\"starts template:\", s.trimStart().startsWith(\"<template\"), \"| ends:\", s.trimEnd().endsWith(\"</template>\"));\nconsole.log(\"head/body tags:\", /<\\/?(html|head|body)\\b/i.test(s));\nconsole.log(\"cdn:\", /https?:\\/\\//.test(s), \"| audio/video:\", /<(audio|video)\\b/i.test(s));\n' \"$f\"; done",
+    "exit_code": null,
+    "command_id": "7857b68160394d80bf34288ddca1b228"
+  },
+  {
+    "at": 1792474364.3914914,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20568351075053215,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && node -e \"\nvar fs=require('fs');\n['frame07','frame08','frame09'].forEach(function(f){\n var s=fs.readFileSync(f+'.html','utf8');\n var parts=s.split(/<script[^>]*>/);\n var js=parts[parts.length-1].split('</script>')[0];\n fs.writeFileSync('/tmp/chk_'+f+'.js', js);\n});\nconsole.log('extracted');\" && for f in frame07 frame08 frame09; do node --check /tmp/chk_$f.js && echo \"$f js-ok\"; done",
+    "exit_code": null,
+    "command_id": "ba6bd6abdf6140558707d3234d95a874"
+  },
+  {
+    "at": 1792474367.1201851,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.234463756904006,
+    "exit_code": 0,
+    "command_id": "7857b68160394d80bf34288ddca1b228"
+  },
+  {
+    "at": 1792474371.9695685,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 1.3509043636731803,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+    "exit_code": 0,
+    "command_id": "ba6bd6abdf6140558707d3234d95a874"
+  },
+  {
+    "at": 1792474374.7808502,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20399018470197916,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/compositions/frames && grep -o 'https\\?://[^\"'\"'\"' ]*' frame08.html | sort -u && echo \"--- structure 08 ---\" && grep -n 'class=\"clip' frame08.html && grep -n 'id=\"root\"' frame08.html",
+    "exit_code": 0,
+    "command_id": "b3f82512a1184f18979b6576eba688cc"
+  },
+  {
+    "at": 1792474385.9753666,
+    "tool": "finish_work",
+    "ok": true,
+    "elapsed": 1.1237338185310364e-05,
+    "worker_id": "aae2ecf83bf6421182d77741e3ae7959"
+  },
+  {
+    "at": 1792474390.432791,
+    "tool": "poll_workers",
+    "ok": true,
+    "elapsed": 14.70641579059884,
+    "workers": [
+      {
+        "worker_id": "aae2ecf83bf6421182d77741e3ae7959",
+        "status": "succeeded",
+        "submitted_at": 1792473846.8392925,
+        "prompt_sha256": "48f84f0e9683acad0cd4ea56f8083eb5fd3d6721624e30087d75fa5515d3b420",
+        "started_at": 1792473848.029542,
+        "finished_at": 1792474389.4413893,
+        "result_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/.host/workers/aae2ecf83bf6421182d77741e3ae7959.json"
+      }
+    ]
+  },
+  {
+    "at": 1792474397.4308102,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2316610119305551,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && sed -i 's/^- status: outline$/- status: animated/' STORYBOARD.md && grep -c 'status: animated' STORYBOARD.md && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/assemble-index.mjs --storyboard \"$PWD/STORYBOARD.md\" --hyperframes \"$PWD\" --audio-meta \"$PWD/.hyperframes/assembly-audio.json\" 2>&1 | tail -30",
+    "exit_code": null,
+    "command_id": "5b5b54e3e47d4da3b830e6c30e7824d1"
+  },
+  {
+    "at": 1792474401.1817887,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.10850147530436516,
+    "exit_code": 0,
+    "command_id": "5b5b54e3e47d4da3b830e6c30e7824d1"
+  },
+  {
+    "at": 1792474405.9922013,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.202785172034055,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/transitions.mjs inject --storyboard \"$PWD/STORYBOARD.md\" --hyperframes \"$PWD\" 2>&1 | tail -25 && echo \"=== verify ===\" && node /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/faceless-explainer/scripts/transitions.mjs verify --storyboard \"$PWD/STORYBOARD.md\" --index \"$PWD/index.html\" 2>&1 | tail -15",
+    "exit_code": null,
+    "command_id": "a978549f4d0d4fc3a6645bc0ad1a44a7"
+  },
+  {
+    "at": 1792474410.438723,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.30838147876784205,
+    "exit_code": 0,
+    "command_id": "a978549f4d0d4fc3a6645bc0ad1a44a7"
+  },
+  {
+    "at": 1792474415.5159092,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20298847602680326,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && sed -n 1,60p index.html && echo \"...\" && grep -n \"gsap\\|__timelines\\|audio\" index.html | head -30",
+    "exit_code": 0,
+    "command_id": "cc94a9c089c8432e9aa1b195543b92bb"
+  },
+  {
+    "at": 1792474421.3711927,
+    "tool": "prepare_project",
+    "ok": true,
+    "elapsed": 0.525023439899087,
+    "exit_code": 0,
+    "command_id": "18c1879174d34d67bce403dd6cfde16b"
+  },
+  {
+    "at": 1792474426.1567416,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.2029544017277658,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && grep -n \"gsap\" index.html | head -5",
+    "exit_code": 0,
+    "command_id": "4a42ddec85114a5790884197392d89e0"
+  },
+  {
+    "at": 1792474431.6641119,
+    "tool": "edit_file",
+    "ok": true,
+    "elapsed": 0.002615150064229965,
+    "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck/index.html"
+  },
+  {
+    "at": 1792474437.0108316,
+    "tool": "check_project",
+    "ok": true,
+    "elapsed": 0.20865983609110117,
+    "exit_code": null,
+    "command_id": "a195aba0db4e4650bb732e7bffeb94d3"
+  },
+  {
+    "at": 1792474456.051098,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 16.432093157898635,
+    "exit_code": 0,
+    "command_id": "a195aba0db4e4650bb732e7bffeb94d3"
+  },
+  {
+    "at": 1792474461.6948717,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20369139919057488,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && npx hyperframes snapshot --at 14.9,47,76.3,106.3,137.4,168,200.2,232.9,268.6 2>&1 | tail -20",
+    "exit_code": null,
+    "command_id": "b561c3e10332477880c9af66ae9861f6"
+  },
+  {
+    "at": 1792474476.7935898,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 10.553152646869421,
+    "exit_code": 0,
+    "command_id": "b561c3e10332477880c9af66ae9861f6"
+  },
+  {
+    "at": 1792474482.2552834,
+    "tool": "render_project",
+    "ok": true,
+    "elapsed": 0.2026829430833459,
+    "exit_code": null,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474531.2648733,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.32884713867679,
+    "exit_code": null,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474537.430653,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20738286478444934,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && node -e '\nconst r=require(\"./.hyperframes/host-check-native.json\");\nconst arr=r.advisories||r.advisory||[];\nconsole.log(JSON.stringify(arr,null,1).slice(0,3000));\n'",
+    "exit_code": null,
+    "command_id": "f34719ae7548441da781e7754872dbf5"
+  },
+  {
+    "at": 1792474542.4434783,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.5020594210363925,
+    "exit_code": 0,
+    "command_id": "f34719ae7548441da781e7754872dbf5"
+  },
+  {
+    "at": 1792474547.2347422,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.20222493819892406,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && node -e '\nconst r=require(\"./.hyperframes/host-check-native.json\");\nconsole.log(Object.keys(r));\nconst j=JSON.stringify(r);\nconsole.log(j.length);\nconsole.log(j.slice(0,2500));\n'",
+    "exit_code": null,
+    "command_id": "5d2720c99ab9443bab963d422a921162"
+  },
+  {
+    "at": 1792474551.2507253,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.6993607133626938,
+    "exit_code": 0,
+    "command_id": "5d2720c99ab9443bab963d422a921162"
+  },
+  {
+    "at": 1792474557.227038,
+    "tool": "run_command",
+    "ok": true,
+    "elapsed": 0.21109718596562743,
+    "command": "cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1/videos/why-transformer-sequential-bottleneck && node -e '\nconst r=require(\"./.hyperframes/host-check-native.json\");\nconsole.log(\"runtime:\",JSON.stringify(r.runtime).slice(0,800));\nconsole.log(\"motion:\",JSON.stringify(r.motion).slice(0,1200));\nconsole.log(\"contrast:\",JSON.stringify(r.contrast).slice(0,600));\nconsole.log(\"layout:\",JSON.stringify(r.layout).slice(0,600));\n'",
+    "exit_code": null,
+    "command_id": "3b2be94af4eb46ee97c0f01c2e718739"
+  },
+  {
+    "at": 1792474562.2567134,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 0.3582960697822273,
+    "exit_code": 0,
+    "command_id": "3b2be94af4eb46ee97c0f01c2e718739"
+  },
+  {
+    "at": 1792474616.764638,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.95082794222981,
+    "exit_code": null,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474667.9727905,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 46.050662036053836,
+    "exit_code": null,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474719.6600327,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 46.32210853882134,
+    "exit_code": null,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474769.9455755,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.46949873492122,
+    "exit_code": null,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474821.6514695,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.86747428169474,
+    "exit_code": null,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474875.499625,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.1298347809352,
+    "exit_code": null,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474925.573073,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.11624386161566,
+    "exit_code": null,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474974.5954635,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 45.557525587268174,
+    "exit_code": null,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474990.242966,
+    "tool": "poll_command",
+    "ok": true,
+    "elapsed": 12.081101913005114,
+    "exit_code": 0,
+    "command_id": "3802791efe2f49e3b7647bae5a7e5e44"
+  },
+  {
+    "at": 1792474995.2829623,
+    "tool": "complete_project",
+    "ok": true,
+    "elapsed": 0.8588287117891014
+  }
+]

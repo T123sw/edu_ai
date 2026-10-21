@@ -1,0 +1,72 @@
+{
+  "observed_at": 1792303416.622095,
+  "tag": "多PDF验收 kentucky 1792299349506",
+  "generations": [
+    {
+      "generation_id": "examgen_fa786a3a74a92aae15352a8c728c740b",
+      "job_id": "examgen_fa786a3a74a92aae15352a8c728c740b",
+      "turn": {
+        "id": "turn_1792299365566_99e6e64ff3",
+        "status": "failed",
+        "failure_code": "",
+        "created_at": 1792299365.7352536,
+        "updated_at": 1792299378.1033986
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4022,
+          "layout_blocks": 42,
+          "images": 1
+        }
+      ],
+      "blueprint_count": 0,
+      "local_events": 6,
+      "upstream_events": 6,
+      "done_received": true,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 1,
+        "models": {
+          "deepseek-v4-flash-vision-exp": 1
+        }
+      }
+    },
+    {
+      "generation_id": "examgen_e83fa26a0dcc55e01e4c24e60549a7f1",
+      "job_id": "job_23c898864e9e4172",
+      "turn": {
+        "id": "turn_1792299469237_abd27d238f",
+        "status": "failed",
+        "failure_code": "",
+        "created_at": 1792299469.4084744,
+        "updated_at": 1792299471.761377
+      },
+      "parsed": [
+        {
+          "parser": "mineru-local",
+          "characters": 4022,
+          "layout_blocks": 42,
+          "images": 1
+        }
+      ],
+      "blueprint_count": 0,
+      "local_events": 6,
+      "upstream_events": 6,
+      "done_received": true,
+      "summary": {},
+      "failed_questions": [],
+      "usage": {
+        "recorded_calls": 0,
+        "models": {}
+      }
+    }
+  ],
+  "owner_knowledge_libraries": 0,
+  "owner_knowledge_documents": 0,
+  "retry_preservation": {
+    "first_accepted": 0,
+    "unchanged_in_latest": 0
+  }
+}

@@ -1,0 +1,194 @@
+[
+  {
+    "name": "quicksort",
+    "dpr": 1,
+    "initial": [
+      {
+        "id": "canvas",
+        "bitmap": [
+          790,
+          260
+        ],
+        "css": [
+          790,
+          260
+        ],
+        "dpr": 1,
+        "font": "11px system-ui"
+      }
+    ],
+    "resized": [
+      {
+        "id": "canvas",
+        "bitmap": [
+          790,
+          260
+        ],
+        "css": [
+          790,
+          260
+        ],
+        "dpr": 1,
+        "font": "11px system-ui"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "friction",
+    "dpr": 1,
+    "initial": [
+      {
+        "id": "scene",
+        "bitmap": [
+          478,
+          150
+        ],
+        "css": [
+          478,
+          150
+        ],
+        "dpr": 1,
+        "font": "12px sans-serif"
+      },
+      {
+        "id": "chart",
+        "bitmap": [
+          478,
+          200
+        ],
+        "css": [
+          478,
+          200
+        ],
+        "dpr": 1,
+        "font": "11px sans-serif"
+      }
+    ],
+    "resized": [
+      {
+        "id": "scene",
+        "bitmap": [
+          478,
+          150
+        ],
+        "css": [
+          478,
+          150
+        ],
+        "dpr": 1,
+        "font": "12px sans-serif"
+      },
+      {
+        "id": "chart",
+        "bitmap": [
+          478,
+          200
+        ],
+        "css": [
+          478,
+          200
+        ],
+        "dpr": 1,
+        "font": "11px sans-serif"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "quicksort",
+    "dpr": 2,
+    "initial": [
+      {
+        "id": "canvas",
+        "bitmap": [
+          790,
+          260
+        ],
+        "css": [
+          790,
+          260
+        ],
+        "dpr": 2,
+        "font": "11px system-ui"
+      }
+    ],
+    "resized": [
+      {
+        "id": "canvas",
+        "bitmap": [
+          790,
+          260
+        ],
+        "css": [
+          790,
+          260
+        ],
+        "dpr": 2,
+        "font": "11px system-ui"
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "friction",
+    "dpr": 2,
+    "initial": [
+      {
+        "id": "scene",
+        "bitmap": [
+          956,
+          300
+        ],
+        "css": [
+          478,
+          150
+        ],
+        "dpr": 2,
+        "font": "12px sans-serif"
+      },
+      {
+        "id": "chart",
+        "bitmap": [
+          956,
+          400
+        ],
+        "css": [
+          478,
+          200
+        ],
+        "dpr": 2,
+        "font": "11px sans-serif"
+      }
+    ],
+    "resized": [
+      {
+        "id": "scene",
+        "bitmap": [
+          956,
+          600
+        ],
+        "css": [
+          478,
+          300
+        ],
+        "dpr": 2,
+        "font": "12px sans-serif"
+      },
+      {
+        "id": "chart",
+        "bitmap": [
+          956,
+          800
+        ],
+        "css": [
+          478,
+          400
+        ],
+        "dpr": 2,
+        "font": "11px sans-serif"
+      }
+    ],
+    "errors": []
+  }
+]

@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-16",
+  "upstream_repository": "https://github.com/HKUDS/DeepTutor",
+  "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "version": "v1.6.14",
+  "python": "3.12.14",
+  "environment": "temporary venv with system-site-packages and local supplemental dependencies; not clean full deployment",
+  "test_groups": [
+    {
+      "log": "core-tests.log",
+      "passed": 207,
+      "failed": 0,
+      "seconds": 20.13,
+      "completed": true
+    },
+    {
+      "log": "recovery-tests.log",
+      "passed": 4,
+      "failed": 0,
+      "seconds": 16.24,
+      "completed": true
+    },
+    {
+      "log": "application-tests.log",
+      "passed": 6,
+      "failed": 1,
+      "seconds": 50.1,
+      "completed": true
+    }
+  ],
+  "distinct_upstream_tests": {
+    "passed": 217,
+    "failed": 1,
+    "total": 218
+  },
+  "extra_offline_behavior_probes": 3,
+  "known_failure": {
+    "test": "tests/app/test_turn_application_service.py::test_failed_first_submission_resends_in_its_original_conversation_without_a_duplicate_user",
+    "assertion_line": 130,
+    "error": "KeyError: user_message_id in DONE metadata after failed-submission retry",
+    "scope": "Repeated in this assessment environment; same-session and no-duplicate-message assertions passed before failure"
+  },
+  "excluded_from_total": [
+    "initial-question-tests.log repeats 68 cases covered by core-tests.log",
+    "application-mixed-run.log is an interrupted earlier run"
+  ],
+  "upstream_business_code_modified": false,
+  "edu_ai_business_code_modified": false,
+  "deployed": false,
+  "real_model_generation_calls": 0,
+  "not_validated": [
+    "real paper parsing/OCR",
+    "real generated question quality",
+    "real RAG and execution tools",
+    "Redis integration",
+    "full dependency installation/container",
+    "frontend build",
+    "Edu_AI integration/end-to-end exam"
+  ]
+}

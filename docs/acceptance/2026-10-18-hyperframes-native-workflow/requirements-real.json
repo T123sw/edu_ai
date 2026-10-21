@@ -1,0 +1,106 @@
+{
+  "phase": "research",
+  "brief": {
+    "node_count": 1,
+    "node_count_quote": "只交付视频，不需要讲义、题目或自测",
+    "required_resource_types": [
+      "classroom"
+    ],
+    "learning_goal": "用一段 30—45 秒的中文配音教学视频，向初中生解释一次函数 y=2x+b 中 b 的作用：通过比较 b=0 和 b=2，说明整条直线上移 2 个单位且斜率不变。",
+    "prior_knowledge": "未知（用户仅说明受众为初中生，未说明其对一次函数图像、斜率、平移的掌握程度）",
+    "desired_outcomes": [
+      "能说出 y=2x+b 中 b 改变时整条直线发生平移",
+      "能比较 b=0 与 b=2 两条直线，指出后者由前者上移 2 个单位得到",
+      "能指出两条直线的斜率相同（均为 2），即斜率不随 b 改变"
+    ],
+    "depth": "introductory",
+    "source_policy": {
+      "mode": "open"
+    },
+    "source_policy_quote": null,
+    "topic": "一次函数 y=2x+b 中 b 的作用（比较 b=0 与 b=2）",
+    "audience": "初中生",
+    "language": "中文",
+    "total_minutes": 1,
+    "assumptions": [
+      "用户未给出课程总时长，按视频时长 30—45 秒折算为 1 分钟记录",
+      "用户未指定输出语言，按提问语言推断为中文",
+      "用户未说明初中生的具体基础，按入门深度处理"
+    ],
+    "exclusions": [
+      "不需要讲义",
+      "不需要题目",
+      "不需要自测"
+    ],
+    "material_gaps": [
+      "本次未上传任何附件，坐标图、讲稿与动画需由后续研究/制作阶段自行准备"
+    ],
+    "requirements": [
+      {
+        "requirement_id": "req-b-role",
+        "text": "解释一次函数 y=2x+b 中 b 的作用",
+        "source_quote": "给初中生解释一次函数 y=2x+b 中 b 的作用",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req-compare-b0-b2",
+        "text": "比较 b=0 和 b=2 两种情况",
+        "source_quote": "比较 b=0 和 b=2",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req-shift-2",
+        "text": "说明整条直线上移 2 个单位",
+        "source_quote": "说明整条直线上移 2 个单位且斜率不变",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req-slope-unchanged",
+        "text": "说明斜率不变",
+        "source_quote": "说明整条直线上移 2 个单位且斜率不变",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req-clear-axes",
+        "text": "展示清晰的坐标图",
+        "source_quote": "展示清晰的坐标图",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req-chinese-voiceover",
+        "text": "以中文配音讲解",
+        "source_quote": "制作一段 30—45 秒的中文配音教学视频",
+        "source_ref": null,
+        "source_document_id": null
+      }
+    ]
+  },
+  "candidates": [],
+  "evidence": [],
+  "summary": null,
+  "draft_findings": [],
+  "path": null,
+  "review": null,
+  "calls": 1,
+  "searches": 0,
+  "reads": 0,
+  "upload_reads": 0,
+  "source_failures": {},
+  "blocker": null,
+  "repairs": 0,
+  "errors": 0,
+  "last_error": null,
+  "trace": [
+    {
+      "call": 1,
+      "phase": "intent",
+      "tool": "save_preparation_brief",
+      "status": "ok"
+    }
+  ]
+}

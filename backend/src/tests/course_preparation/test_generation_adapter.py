@@ -43,7 +43,7 @@ def test_unknown_submission_reconciles_same_draft_and_job(generation):
     repo,context,adapter=generation; action,receipt=submit(generation)
     again=adapter.reconcile(context,spec(),action['action_id'])
     assert again==receipt
-    assert adapter.task_store.get_durable(receipt['job_id']).command=={'artifact_id':receipt['artifact_id']}
+    assert adapter.task_store.get_durable(receipt['job_id']).command=={'artifact_id':receipt['artifact_id'], 'resource_type':'report'}
     payload=automatic_payload(spec(),{'owner_user_id':'alice','resource_id':'r1'})
     assert not hasattr(payload,'confirmed_outline')
     assert payload.preparation_policy=='automatic_personal_draft_v1'
@@ -82,7 +82,7 @@ def test_succeeded_job_without_reviewed_content_is_not_ready(generation):
 
 
 def test_nested_native_classroom_is_verified_against_actual_stage_and_scenes(generation):
-    from app.course_preparation.adapters.classroom import TeachingScript,native_classroom
+    from tests.course_preparation.legacy_classroom_fixtures import TeachingScript,native_classroom
     from app.chat.harness.reviewed_resource import CRITERIA,digest as review_digest
     repo,context,adapter=generation
     value={**spec(),'resource_type':'classroom'}

@@ -1,0 +1,78 @@
+[
+  {
+    "case": "old_binary",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "computed_choice_answer_mismatch: unique computed correct option is A"
+    ],
+    "seconds": 3.9
+  },
+  {
+    "case": "old_partition",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_solution_unverified",
+      "题目要求以第一个元素 47 为枢轴，用双指针从两端向中间扫描进行第一趟划分。按题面描述，划分后应满足：枢轴 47 位于最终位置，左侧元素均小于 47，右侧元素均大于 47。\n\n用提供的 partition_swap 对输入序列 [47,23,68,35,56,19,74,31] 进行划分，得到 [19,23,31,35,47,56,74,68]，即左区 (19,23,31,35)、枢轴 47、右区 (56,74,68)。\n\n逐一核对选项：\n- A：(31,23,35,19) 47 (56,68,74)，左区顺序与计算结果不符；\n- B：(31,23,35,19) 47 (56,74,68)，左区顺序不符；\n- C：(19,23,35,31) 47 (74,56,68)，左右两区均不符；\n- D：(23,31,35,19) 47 (56,68,74)，左区不符。\n\n四个选项均不等于实际划分结果，因此没有正确选项，题目按给定选项无法成立，well_posed=false。"
+    ],
+    "seconds": 8.81
+  },
+  {
+    "case": "new_arithmetic",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2328-2000 = 328, not 276",
+      "arithmetic_claim_invalid: 276 / 82 = 3.3658536585365852, not 4"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "new_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2**(11) = 2048, not 2047"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "correct_binary",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 4.36
+  },
+  {
+    "case": "old_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "第(1)问判断依据错误：候选答案称1025去掉最高位后首位为1，但1025=(10000000001)₂去掉最高位后为0000000001，首位是0，应向左；其结论“在T_R上”虽与按编号范围判断的正确结论一致，但给出的二进制路径推理与结果自相矛盾。",
+      "第(2)问答案错误：候选答案为0，但独立求解得T_R中编号750..1023的结点均为叶子且排在S之前，共274个；候选解释把S在T_R中的层序位置误算为1，实际S=1024在T_R中位于最后一层，前面有大量叶子结点。",
+      "第(2)问解释中称T_R共511个结点，实际n=1500时T_R含编号1024..1499共476个结点，统计错误。",
+      "第(3)问结论虽正确，但建立在第(1)(2)问错误推理之上，且第(1)问路径依据与结论矛盾，整体解答不可接受。"
+    ],
+    "seconds": 8.63
+  },
+  {
+    "case": "correct_partition",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 7.73
+  },
+  {
+    "case": "fresh_heap_multiple_answers",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_solution_unverified",
+      "按完全二叉树层序（数组下标从 0 开始），对每个非根结点 i 检查父结点 floor((i-1)/2) 是否不大于它。\nA = [15,45,25,60,50,30,40,70]：父结点关系依次为 15≤45、15≤25、45≤60、45≤50、25≤30、25≤40、60≤70，全部成立，A 是最小堆。\nB = [12,20,18,35,40,15,25,30]：i=5 时父结点为 2，18≤15 不成立，B 不是最小堆。\nC = [8,24,16,40,32,20,12,48]：i=6 时父结点为 2，16≤12 不成立，C 不是最小堆。\nD = [9,27,18,45,36,24,30,54]：父结点关系依次为 9≤27、9≤18、27≤45、27≤36、18≤24、18≤30、45≤54，全部成立，D 也是最小堆。\n因此 A 与 D 都满足最小堆定义，单选题没有唯一答案，题干与选项不自洽，well_posed=false。"
+    ],
+    "seconds": 9.19
+  }
+]

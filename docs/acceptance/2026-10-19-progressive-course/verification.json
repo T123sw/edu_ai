@@ -1,0 +1,29 @@
+{
+  "backendRegression": {
+    "passed": 57,
+    "skipped": 40,
+    "log": "backend-tests.log"
+  },
+  "learningRoomIntegration": {
+    "passed": 1,
+    "skipped": 1,
+    "log": "room-tests.log"
+  },
+  "scopedRetryApiRecheck": {
+    "passed": 3,
+    "skipped": 3,
+    "log": "retry-api-tests.log"
+  },
+  "frontendTests": {
+    "passed": 10,
+    "log": "frontend-tests.log"
+  },
+  "typecheck": "tsconfig.self-learning.json passed; full repository config has unrelated existing errors",
+  "lint": {
+    "errors": 0,
+    "preexistingWarnings": 2
+  },
+  "build": "passed",
+  "browser": "result.json; simulated delivery states, actual saved videos; playback preserved, new video playable, scoped retry request, reload, mobile layout",
+  "notRun": "No new full AI generation or isolated PostgreSQL suite"
+}

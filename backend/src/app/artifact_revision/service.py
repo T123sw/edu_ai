@@ -186,6 +186,9 @@ class ArtifactRevisionService:
                         return self._clarify(text.strip(), state)
                     edits = output.get("edits")
                     updated = apply_edits(content, edits)
+                    if kind == 'classroom' and content.get('format') == 'hyperframes/v1':
+                        from .hyperframes import regenerate
+                        updated = regenerate(self, content, updated, full_question)
                     validate(kind, updated)
                     break
                 except (ValueError, KeyError, TypeError) as error:
@@ -195,7 +198,7 @@ class ArtifactRevisionService:
                         {"role": "assistant", "content": raw},
                         {"role": "user", "content": "修改尚未保存。请修正输出：" + str(error) + "。path 从 source 本身开始，不要包含 source/content 包装层，严格使用 editable_paths 中的数字下标。"},
                     ])
-            if kind == "classroom" and updated["stage"]["id"] != content["stage"]["id"]:
+            if kind == "classroom" and updated.get("format") != "hyperframes/v1" and updated["stage"]["id"] != content["stage"]["id"]:
                 raise ValueError("修改不能更换课堂 ID")
             summary = f"已修改 {len(edits)} 处内容"
             changes = [{"path": e.get("path", []), "before": e["before"] if isinstance(e["before"], str) else json.dumps(e["before"], ensure_ascii=False), "after": e["after"] if isinstance(e["after"], str) else json.dumps(e["after"], ensure_ascii=False)} for e in edits]

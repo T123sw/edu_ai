@@ -1,0 +1,69 @@
+{
+  "status": "fix_verified_pending_backend_restart",
+  "root_cause": "Optional report visuals downloaded all candidates for each slot sequentially before report writing; progress remained at 5 percent during planning, image retrieval and writing.",
+  "original_task": {
+    "job_id": "studio_8bd56d08e64357ca2150d4b2d19d",
+    "status": "failed",
+    "error_code": "GENERATION_DEADLINE_EXCEEDED",
+    "created_at": "2026-10-14T05:00:55.081377+00:00",
+    "finished_at": "2026-10-14T05:10:36.579645+00:00",
+    "studio_complete": true,
+    "resource_listed": true,
+    "title": "快速排序是什么：分治思想与整体流程.md",
+    "report_characters": 6409,
+    "visuals": 79
+  },
+  "reproduction": "Isolated replay stack showed image_downloader._do_download blocked in TLS handshake and response reads after model planning completed.",
+  "changes": [
+    "Report image retrieval uses a 30-second cooperative budget, ranks candidates before downloading and stops per slot at the first usable image.",
+    "Per-image connection/read timeout capped at 4 seconds and reduced with remaining budget.",
+    "Report progress now reports planning, image retrieval, writing and saving.",
+    "Image downloader tests isolate persistence, DNS and proxy environment."
+  ],
+  "real_replay": {
+    "seconds": 24.21,
+    "stages": [
+      {
+        "progress": 10,
+        "step": "planning_visuals",
+        "seconds": 0.0
+      },
+      {
+        "progress": 25,
+        "step": "retrieving_visuals",
+        "seconds": 9.79
+      },
+      {
+        "progress": 55,
+        "step": "writing",
+        "seconds": 11.04
+      },
+      {
+        "progress": 90,
+        "step": "saving",
+        "seconds": 24.17
+      }
+    ],
+    "characters": 5518,
+    "visuals": {
+      "requested": true,
+      "selected_count": 2,
+      "candidate_count": 36,
+      "error": null
+    },
+    "storage": "/tmp/edu-report-fixed-7i7cko8c",
+    "original_job": "studio_8bd56d08e64357ca2150d4b2d19d",
+    "production_user_data_modified": false
+  },
+  "restart_blocked_by": "sudo: a password is required",
+  "limits": [
+    "Budget is checked between blocking operations, so an in-flight request may exceed the budget; this is not a hard process deadline.",
+    "The prior task remains honestly marked deadline exceeded; its saved complete report is confirmed visible in the resource list.",
+    "Real replay did not submit a second production report task."
+  ],
+  "tests": {
+    "passed": 115,
+    "seconds": 66.53,
+    "persistence": "isolated JSON modes; DNS and network transport mocked for image unit tests"
+  }
+}

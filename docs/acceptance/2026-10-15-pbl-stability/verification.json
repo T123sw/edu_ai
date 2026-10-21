@@ -1,0 +1,474 @@
+{
+  "status": "code-verified-backend-restart-required",
+  "originalFailure": {
+    "exerciseId": "pbl_48a21a73983a19b86e96cc5edd36dddd",
+    "topic": "我想实现一个计算器",
+    "createdAtUtc": "2026-10-15T14:53:05Z",
+    "failedAtUtc": "2026-10-15T14:53:23Z",
+    "code": "PBL_PLAN_INVALID",
+    "stage": "plan",
+    "completedSteps": 0,
+    "attempts": 3,
+    "cause": "checks[7].expected=[] rejected by a min_length=1 planning-notes constraint"
+  },
+  "changes": [
+    "Planning expected notes accept absent, empty, null or a single string; executable assertions still require actual expectations",
+    "No separate model plan review; normal model calls = 1 plan + N steps",
+    "Allow wording/focus changes within project files, extra valid assertions, redundant visible covered by other actions, and check ordering normalization",
+    "Optional assertion metadata is normalized; unspecified planned geometry viewport defaults to desktop",
+    "Previous-step and negative-example quality issues are recorded, not publication blockers",
+    "Optional negative code can inherit untouched reference files; missing negative evidence is explicitly marked"
+  ],
+  "retainedGates": [
+    "Reference engineering passes all cumulative checks and final execution",
+    "Known unique check IDs and ownership",
+    "Allowed runtime, files and source isolation",
+    "Version, owner, cancellation and lease fences"
+  ],
+  "originalPlanReplay": {
+    "passed": true,
+    "expectedStillEmpty": true,
+    "layoutRequirementsUnchanged": true,
+    "executionNotClaimed": true
+  },
+  "savedRealModelReplay": {
+    "passed": true,
+    "steps": 3,
+    "actualChecks": 9,
+    "qualityWarnings": [],
+    "generatedMaterialSource": "Saved real model output; replayed without modifying reference/checks",
+    "phases": [
+      "plan",
+      "build_step",
+      "build_step",
+      "build_step"
+    ],
+    "newModelCalls": 0,
+    "realBrowserExecution": true,
+    "productionDataModified": false
+  },
+  "backendSourceManifest": {
+    "backend/src/app/pbl/project_workflow.py": "cd103a6719a4029eee079686ad074f7ab9071c4ee999873350bc9b5c513d9a0d",
+    "backend/src/app/pbl/project_schemas.py": "755e5010167f5f1e8f9cd527d4e960d2e750ef150a1512e3c6ab72b5a87328a8",
+    "backend/src/app/pbl/project_service.py": "6fa5ab90a6d9eea2e152ab0ce57aadd0b0474e3f58b29f7d5bfb3fe605bcaa2f",
+    "backend/src/app/pbl/project_generator.py": "6eb10622ec35fca7244fd2a2d05c663d8635ac1a449d905000a365394d21d26a",
+    "backend/src/app/pbl/statement_guidance.py": "81f0befa6c7937aee6fd4c3b51cf010c5bc7b4e4da7af05520a08bb7c7633391",
+    "backend/src/app/pbl/skills/build-pbl-project/SKILL.md": "bb44b447223f8460782a41f9b7ebd66b301f2f53ed19ce3f6033f02165521622",
+    "backend/src/app/pbl/skills/build-pbl-project/references/step-unit.md": "490023d48bc7e3da9f2c942b43344cd0ca1dbec4aa086080e15db0f4ec1bc5df",
+    "backend/src/app/pbl/skills/build-pbl-project/references/planning.md": "5da13725f826ac07478788a633bf6e96aa1cc8a377c15d793598db75a1e4a559",
+    "backend/src/app/pbl/skills/build-pbl-project/references/verification.md": "1c3ffec91fe1c2240b661a202615af61a125e3770935cb909841968fb7b4f1cb",
+    "backend/src/app/pbl/skills/build-pbl-project/references/integration.md": "74e04686e72575e793ebb6819188ddd4001ab020667d37052ff51b2ef7be87c2"
+  },
+  "backendPidBefore": 514828,
+  "backendStartedAtUtc": "2026-10-15T14:46:24Z",
+  "backendRestarted": false,
+  "restartBlock": "sudo: a password is required",
+  "frontendChanged": false,
+  "productionDataModified": false,
+  "fullBackendTests": {
+    "passed": 162,
+    "skipped": 6
+  },
+  "subsequentContractTests": {
+    "passed": 57
+  },
+  "freshSameRequest": {
+    "passed": true,
+    "stepCount": 6,
+    "steps": [
+      "搭建计算器界面与显示区",
+      "实现数字输入",
+      "实现清除与退格",
+      "支持小数点输入",
+      "实现运算符与求值",
+      "处理除以零"
+    ],
+    "evidence": [
+      {
+        "stepId": "step-display",
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "check-display-initial",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-buttons-present",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"digit-0\" 的可见状态\n   实际：true\n✓ 2. 检查 \"digit-1\" 的可见状态\n   实际：true\n✓ 3. 检查 \"digit-2\" 的可见状态\n   实际：true\n✓ 4. 检查 \"digit-3\" 的可见状态\n   实际：true\n✓ 5. 检查 \"digit-4\" 的可见状态\n   实际：true\n✓ 6. 检查 \"digit-5\" 的可见状态\n   实际：true\n✓ 7. 检查 \"digit-6\" 的可见状态\n   实际：true\n✓ 8. 检查 \"digit-7\" 的可见状态\n   实际：true\n✓ 9. 检查 \"digit-8\" 的可见状态\n   实际：true\n✓ 10. 检查 \"digit-9\" 的可见状态\n   实际：true\n✓ 11. 检查 \"op-add\" 的可见状态\n   实际：true\n✓ 12. 检查 \"op-sub\" 的可见状态\n   实际：true\n✓ 13. 检查 \"op-mul\" 的可见状态\n   实际：true\n✓ 14. 检查 \"op-div\" 的可见状态\n   实际：true\n✓ 15. 检查 \"equals\" 的可见状态\n   实际：true\n✓ 16. 检查 \"clear\" 的可见状态\n   实际：true\n✓ 17. 检查 \"backspace\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+            }
+          ],
+          "durationMs": 781.52801
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "check-display-initial",
+              "status": "failed",
+              "message": "× 1. 检查 \"display\" 的显示文字\n预期：\"0\"\n实际：\"目标不可见或不存在\""
+            },
+            {
+              "caseId": "check-buttons-present",
+              "status": "failed",
+              "message": "× 1. 检查 \"digit-0\" 的可见状态\n预期：true\n实际：false"
+            }
+          ],
+          "durationMs": 3011.32706
+        },
+        "faulty": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "check-buttons-present",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"digit-0\" 的可见状态\n   实际：true\n✓ 2. 检查 \"digit-1\" 的可见状态\n   实际：true\n✓ 3. 检查 \"digit-2\" 的可见状态\n   实际：true\n✓ 4. 检查 \"digit-3\" 的可见状态\n   实际：true\n✓ 5. 检查 \"digit-4\" 的可见状态\n   实际：true\n✓ 6. 检查 \"digit-5\" 的可见状态\n   实际：true\n✓ 7. 检查 \"digit-6\" 的可见状态\n   实际：true\n✓ 8. 检查 \"digit-7\" 的可见状态\n   实际：true\n✓ 9. 检查 \"digit-8\" 的可见状态\n   实际：true\n✓ 10. 检查 \"digit-9\" 的可见状态\n   实际：true\n✓ 11. 检查 \"op-add\" 的可见状态\n   实际：true\n✓ 12. 检查 \"op-sub\" 的可见状态\n   实际：true\n✓ 13. 检查 \"op-mul\" 的可见状态\n   实际：true\n✓ 14. 检查 \"op-div\" 的可见状态\n   实际：true\n✓ 15. 检查 \"equals\" 的可见状态\n   实际：true\n✓ 16. 检查 \"clear\" 的可见状态\n   实际：true\n✓ 17. 检查 \"backspace\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+            }
+          ],
+          "durationMs": 539.581257
+        }
+      },
+      {
+        "stepId": "step-digits",
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "check-display-initial",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-buttons-present",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"digit-0\" 的可见状态\n   实际：true\n✓ 2. 检查 \"digit-1\" 的可见状态\n   实际：true\n✓ 3. 检查 \"digit-2\" 的可见状态\n   实际：true\n✓ 4. 检查 \"digit-3\" 的可见状态\n   实际：true\n✓ 5. 检查 \"digit-4\" 的可见状态\n   实际：true\n✓ 6. 检查 \"digit-5\" 的可见状态\n   实际：true\n✓ 7. 检查 \"digit-6\" 的可见状态\n   实际：true\n✓ 8. 检查 \"digit-7\" 的可见状态\n   实际：true\n✓ 9. 检查 \"digit-8\" 的可见状态\n   实际：true\n✓ 10. 检查 \"digit-9\" 的可见状态\n   实际：true\n✓ 11. 检查 \"op-add\" 的可见状态\n   实际：true\n✓ 12. 检查 \"op-sub\" 的可见状态\n   实际：true\n✓ 13. 检查 \"op-mul\" 的可见状态\n   实际：true\n✓ 14. 检查 \"op-div\" 的可见状态\n   实际：true\n✓ 15. 检查 \"equals\" 的可见状态\n   实际：true\n✓ 16. 检查 \"clear\" 的可见状态\n   实际：true\n✓ 17. 检查 \"backspace\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-digit-append",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 检查 \"display\" 的显示文字\n   实际：\"123\"\n本项操作与预期全部通过。"
+            }
+          ],
+          "durationMs": 1131.408907
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "check-digit-append",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n× 4. 检查 \"display\" 的显示文字\n预期：\"123\"\n实际：\"0\""
+            }
+          ],
+          "durationMs": 1958.195518
+        },
+        "faulty": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "check-digit-append",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n× 4. 检查 \"display\" 的显示文字\n预期：\"123\"\n实际：\"0\""
+            }
+          ],
+          "durationMs": 1930.9180020000001
+        }
+      },
+      {
+        "stepId": "step-clear-backspace",
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "check-display-initial",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-buttons-present",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"digit-0\" 的可见状态\n   实际：true\n✓ 2. 检查 \"digit-1\" 的可见状态\n   实际：true\n✓ 3. 检查 \"digit-2\" 的可见状态\n   实际：true\n✓ 4. 检查 \"digit-3\" 的可见状态\n   实际：true\n✓ 5. 检查 \"digit-4\" 的可见状态\n   实际：true\n✓ 6. 检查 \"digit-5\" 的可见状态\n   实际：true\n✓ 7. 检查 \"digit-6\" 的可见状态\n   实际：true\n✓ 8. 检查 \"digit-7\" 的可见状态\n   实际：true\n✓ 9. 检查 \"digit-8\" 的可见状态\n   实际：true\n✓ 10. 检查 \"digit-9\" 的可见状态\n   实际：true\n✓ 11. 检查 \"op-add\" 的可见状态\n   实际：true\n✓ 12. 检查 \"op-sub\" 的可见状态\n   实际：true\n✓ 13. 检查 \"op-mul\" 的可见状态\n   实际：true\n✓ 14. 检查 \"op-div\" 的可见状态\n   实际：true\n✓ 15. 检查 \"equals\" 的可见状态\n   实际：true\n✓ 16. 检查 \"clear\" 的可见状态\n   实际：true\n✓ 17. 检查 \"backspace\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-digit-append",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 检查 \"display\" 的显示文字\n   实际：\"123\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-clear",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-7\"\n✓ 2. 点击 \"digit-8\"\n✓ 3. 点击 \"clear\"\n✓ 4. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-backspace",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 点击 \"backspace\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"12\"\n本项操作与预期全部通过。"
+            }
+          ],
+          "durationMs": 1816.8955349999999
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "check-clear",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-7\"\n✓ 2. 点击 \"digit-8\"\n✓ 3. 点击 \"clear\"\n× 4. 检查 \"display\" 的显示文字\n预期：\"0\"\n实际：\"78\""
+            },
+            {
+              "caseId": "check-backspace",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 点击 \"backspace\"\n× 5. 检查 \"display\" 的显示文字\n预期：\"12\"\n实际：\"123\""
+            }
+          ],
+          "durationMs": 3521.5785830000004
+        },
+        "faulty": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "check-backspace",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 点击 \"backspace\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"12\"\n本项操作与预期全部通过。"
+            }
+          ],
+          "durationMs": 815.8297590000001
+        }
+      },
+      {
+        "stepId": "step-decimal",
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "check-display-initial",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-buttons-present",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"digit-0\" 的可见状态\n   实际：true\n✓ 2. 检查 \"digit-1\" 的可见状态\n   实际：true\n✓ 3. 检查 \"digit-2\" 的可见状态\n   实际：true\n✓ 4. 检查 \"digit-3\" 的可见状态\n   实际：true\n✓ 5. 检查 \"digit-4\" 的可见状态\n   实际：true\n✓ 6. 检查 \"digit-5\" 的可见状态\n   实际：true\n✓ 7. 检查 \"digit-6\" 的可见状态\n   实际：true\n✓ 8. 检查 \"digit-7\" 的可见状态\n   实际：true\n✓ 9. 检查 \"digit-8\" 的可见状态\n   实际：true\n✓ 10. 检查 \"digit-9\" 的可见状态\n   实际：true\n✓ 11. 检查 \"op-add\" 的可见状态\n   实际：true\n✓ 12. 检查 \"op-sub\" 的可见状态\n   实际：true\n✓ 13. 检查 \"op-mul\" 的可见状态\n   实际：true\n✓ 14. 检查 \"op-div\" 的可见状态\n   实际：true\n✓ 15. 检查 \"equals\" 的可见状态\n   实际：true\n✓ 16. 检查 \"clear\" 的可见状态\n   实际：true\n✓ 17. 检查 \"backspace\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-digit-append",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 检查 \"display\" 的显示文字\n   实际：\"123\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-clear",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-7\"\n✓ 2. 点击 \"digit-8\"\n✓ 3. 点击 \"clear\"\n✓ 4. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-backspace",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 点击 \"backspace\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"12\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-decimal-once",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"decimal\"\n✓ 3. 点击 \"decimal\"\n✓ 4. 点击 \"digit-5\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"1.5\"\n本项操作与预期全部通过。"
+            }
+          ],
+          "durationMs": 2272.902319
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "check-decimal-once",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-1\"\n× 2. 点击 \"decimal\"\n操作未完成：目标控件缺失、重复、不可见或无法操作。"
+            }
+          ],
+          "durationMs": 1811.544975
+        },
+        "faulty": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "check-decimal-once",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"decimal\"\n✓ 3. 点击 \"decimal\"\n✓ 4. 点击 \"digit-5\"\n× 5. 检查 \"display\" 的显示文字\n预期：\"1.5\"\n实际：\"1..5\""
+            }
+          ],
+          "durationMs": 1981.5535259999997
+        }
+      },
+      {
+        "stepId": "step-operators",
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "check-display-initial",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-buttons-present",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"digit-0\" 的可见状态\n   实际：true\n✓ 2. 检查 \"digit-1\" 的可见状态\n   实际：true\n✓ 3. 检查 \"digit-2\" 的可见状态\n   实际：true\n✓ 4. 检查 \"digit-3\" 的可见状态\n   实际：true\n✓ 5. 检查 \"digit-4\" 的可见状态\n   实际：true\n✓ 6. 检查 \"digit-5\" 的可见状态\n   实际：true\n✓ 7. 检查 \"digit-6\" 的可见状态\n   实际：true\n✓ 8. 检查 \"digit-7\" 的可见状态\n   实际：true\n✓ 9. 检查 \"digit-8\" 的可见状态\n   实际：true\n✓ 10. 检查 \"digit-9\" 的可见状态\n   实际：true\n✓ 11. 检查 \"op-add\" 的可见状态\n   实际：true\n✓ 12. 检查 \"op-sub\" 的可见状态\n   实际：true\n✓ 13. 检查 \"op-mul\" 的可见状态\n   实际：true\n✓ 14. 检查 \"op-div\" 的可见状态\n   实际：true\n✓ 15. 检查 \"equals\" 的可见状态\n   实际：true\n✓ 16. 检查 \"clear\" 的可见状态\n   实际：true\n✓ 17. 检查 \"backspace\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-digit-append",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 检查 \"display\" 的显示文字\n   实际：\"123\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-clear",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-7\"\n✓ 2. 点击 \"digit-8\"\n✓ 3. 点击 \"clear\"\n✓ 4. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-backspace",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 点击 \"backspace\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"12\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-decimal-once",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"decimal\"\n✓ 3. 点击 \"decimal\"\n✓ 4. 点击 \"digit-5\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"1.5\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-addition",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-2\"\n✓ 2. 点击 \"op-add\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 点击 \"equals\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"5\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-multiplication",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-4\"\n✓ 2. 点击 \"op-mul\"\n✓ 3. 点击 \"digit-6\"\n✓ 4. 点击 \"equals\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"24\"\n本项操作与预期全部通过。"
+            }
+          ],
+          "durationMs": 2869.497318
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "check-addition",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-2\"\n✓ 2. 点击 \"op-add\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 点击 \"equals\"\n× 5. 检查 \"display\" 的显示文字\n预期：\"5\"\n实际：\"23\""
+            },
+            {
+              "caseId": "check-multiplication",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-4\"\n✓ 2. 点击 \"op-mul\"\n✓ 3. 点击 \"digit-6\"\n✓ 4. 点击 \"equals\"\n× 5. 检查 \"display\" 的显示文字\n预期：\"24\"\n实际：\"46\""
+            }
+          ],
+          "durationMs": 3599.5083529999997
+        },
+        "faulty": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "check-addition",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-2\"\n✓ 2. 点击 \"op-add\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 点击 \"equals\"\n× 5. 检查 \"display\" 的显示文字\n预期：\"5\"\n实际：\"23\""
+            }
+          ],
+          "durationMs": 2011.4186149999998
+        }
+      },
+      {
+        "stepId": "step-divide-by-zero",
+        "reference": {
+          "passed": true,
+          "results": [
+            {
+              "caseId": "check-display-initial",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-buttons-present",
+              "status": "passed",
+              "message": "✓ 1. 检查 \"digit-0\" 的可见状态\n   实际：true\n✓ 2. 检查 \"digit-1\" 的可见状态\n   实际：true\n✓ 3. 检查 \"digit-2\" 的可见状态\n   实际：true\n✓ 4. 检查 \"digit-3\" 的可见状态\n   实际：true\n✓ 5. 检查 \"digit-4\" 的可见状态\n   实际：true\n✓ 6. 检查 \"digit-5\" 的可见状态\n   实际：true\n✓ 7. 检查 \"digit-6\" 的可见状态\n   实际：true\n✓ 8. 检查 \"digit-7\" 的可见状态\n   实际：true\n✓ 9. 检查 \"digit-8\" 的可见状态\n   实际：true\n✓ 10. 检查 \"digit-9\" 的可见状态\n   实际：true\n✓ 11. 检查 \"op-add\" 的可见状态\n   实际：true\n✓ 12. 检查 \"op-sub\" 的可见状态\n   实际：true\n✓ 13. 检查 \"op-mul\" 的可见状态\n   实际：true\n✓ 14. 检查 \"op-div\" 的可见状态\n   实际：true\n✓ 15. 检查 \"equals\" 的可见状态\n   实际：true\n✓ 16. 检查 \"clear\" 的可见状态\n   实际：true\n✓ 17. 检查 \"backspace\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-digit-append",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 检查 \"display\" 的显示文字\n   实际：\"123\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-clear",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-7\"\n✓ 2. 点击 \"digit-8\"\n✓ 3. 点击 \"clear\"\n✓ 4. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-backspace",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"digit-2\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 点击 \"backspace\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"12\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-decimal-once",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-1\"\n✓ 2. 点击 \"decimal\"\n✓ 3. 点击 \"decimal\"\n✓ 4. 点击 \"digit-5\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"1.5\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-addition",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-2\"\n✓ 2. 点击 \"op-add\"\n✓ 3. 点击 \"digit-3\"\n✓ 4. 点击 \"equals\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"5\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-multiplication",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-4\"\n✓ 2. 点击 \"op-mul\"\n✓ 3. 点击 \"digit-6\"\n✓ 4. 点击 \"equals\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"24\"\n本项操作与预期全部通过。"
+            },
+            {
+              "caseId": "check-divide-by-zero",
+              "status": "passed",
+              "message": "✓ 1. 点击 \"digit-5\"\n✓ 2. 点击 \"op-div\"\n✓ 3. 点击 \"digit-0\"\n✓ 4. 点击 \"equals\"\n✓ 5. 检查 \"display\" 的显示文字\n   实际：\"错误\"\n本项操作与预期全部通过。"
+            }
+          ],
+          "durationMs": 3239.39828
+        },
+        "previous": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "check-divide-by-zero",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-5\"\n✓ 2. 点击 \"op-div\"\n✓ 3. 点击 \"digit-0\"\n✓ 4. 点击 \"equals\"\n× 5. 检查 \"display\" 的显示文字\n预期：\"错误\"\n实际：\"Infinity\""
+            }
+          ],
+          "durationMs": 2002.146625
+        },
+        "faulty": {
+          "passed": false,
+          "results": [
+            {
+              "caseId": "check-divide-by-zero",
+              "status": "failed",
+              "message": "✓ 1. 点击 \"digit-5\"\n✓ 2. 点击 \"op-div\"\n✓ 3. 点击 \"digit-0\"\n✓ 4. 点击 \"equals\"\n× 5. 检查 \"display\" 的显示文字\n预期：\"错误\"\n实际：\"Infinity\""
+            }
+          ],
+          "durationMs": 1979.11819
+        }
+      }
+    ],
+    "topic": "我想实现一个计算器",
+    "modelCalls": [
+      "plan",
+      "build_step",
+      "build_step",
+      "build_step",
+      "build_step",
+      "build_step",
+      "repair_step",
+      "build_step",
+      "repair_step"
+    ],
+    "elapsedSeconds": 147.26,
+    "productionDataModified": false
+  },
+  "subsequentGenerationRecoveryTests": {
+    "passed": 68
+  },
+  "restartCommand": "sudo systemctl restart edu-ai-backend",
+  "afterRestart": "Retry the existing failed task; changed skill version invalidates the exhausted old planning checkpoint."
+}

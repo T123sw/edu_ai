@@ -7,7 +7,6 @@ export type ReportConfig = {
   depth: "overview" | "standard" | "deep";
   structureEmphasis: string;
   specialRequirements: string;
-  includeVisuals: boolean;
 };
 
 export const reportDefinition: GenerationConfigDefinition<ReportConfig> = {
@@ -21,7 +20,6 @@ export const reportDefinition: GenerationConfigDefinition<ReportConfig> = {
     depth: "standard",
     structureEmphasis: "结论、依据与可执行建议",
     specialRequirements: "",
-    includeVisuals: true,
   }),
   validate: (config) => ({
     ...(config.topic.trim() ? {} : { topic: "请输入报告主题" }),
@@ -34,7 +32,7 @@ export const reportDefinition: GenerationConfigDefinition<ReportConfig> = {
       depth: config.depth,
       structure_emphasis: config.structureEmphasis.trim(),
       special_requirements: config.specialRequirements.trim(),
-      include_visuals: config.includeVisuals !== false,
+      include_visuals: false,
     },
   }),
 };

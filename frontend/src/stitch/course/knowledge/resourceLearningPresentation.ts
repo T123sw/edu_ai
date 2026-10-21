@@ -1,4 +1,4 @@
-import { buildClassroomPlayerHash } from '../../../openmaic/classroomGenerationFlow';
+import { buildClassroomPlayerHash } from '../../../classroom/classroomGenerationFlow';
 import type { ResourceLearningProgress } from '../../api/types';
 
 export function buildStudentClassroomLearningHref(

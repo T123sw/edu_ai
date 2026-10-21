@@ -1,0 +1,351 @@
+[
+  {
+    "action_id": "paction_0588b3c267fe4ecc96ba7f59d3fbc01d",
+    "kind": "model_completion",
+    "model_phase": "intent",
+    "tools": [
+      "mcp__preparation__save_preparation_brief"
+    ],
+    "start": "2026-10-19 15:57:24.723729+00:00",
+    "end": "2026-10-19T15:57:27.930972+00:00",
+    "seconds": 3.207243,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_102974899578460eb416cd00588e2043",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__search_sources",
+      "mcp__preparation__search_sources"
+    ],
+    "start": "2026-10-19 15:57:29.844619+00:00",
+    "end": "2026-10-19T15:57:30.980633+00:00",
+    "seconds": 1.136014,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_0418662ac1834bfeb61a87a2f110f26b",
+    "kind": "search",
+    "model_phase": null,
+    "tools": [],
+    "start": "2026-10-19 15:57:31.429809+00:00",
+    "end": "2026-10-19T15:57:35.508531+00:00",
+    "seconds": 4.078722,
+    "provider_elapsed_seconds": 3.964177
+  },
+  {
+    "action_id": "paction_a7c8600ffe894e549855439d32f64fea",
+    "kind": "search",
+    "model_phase": null,
+    "tools": [],
+    "start": "2026-10-19 15:57:35.816210+00:00",
+    "end": "2026-10-19T15:57:41.797339+00:00",
+    "seconds": 5.981129,
+    "provider_elapsed_seconds": 5.939649
+  },
+  {
+    "action_id": "paction_de82c4b4f54b4eec902a2df8ffc17e59",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:57:42.048361+00:00",
+    "end": "2026-10-19T15:57:43.020667+00:00",
+    "seconds": 0.972306,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_90c3a6fcf4d6455c981aa70fc9eb7318",
+    "kind": "extract",
+    "model_phase": null,
+    "tools": [],
+    "start": "2026-10-19 15:57:43.274439+00:00",
+    "end": "2026-10-19T15:57:44.299596+00:00",
+    "seconds": 1.025157,
+    "provider_elapsed_seconds": 0.96905
+  },
+  {
+    "action_id": "paction_3c67272de938481582e7d7189603d443",
+    "kind": "extract",
+    "model_phase": null,
+    "tools": [],
+    "start": "2026-10-19 15:57:45.222240+00:00",
+    "end": "2026-10-19T15:57:47.192171+00:00",
+    "seconds": 1.969931,
+    "provider_elapsed_seconds": 1.932402
+  },
+  {
+    "action_id": "paction_0fbf8f23261f41efa47fb48ac0116302",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:57:47.533058+00:00",
+    "end": "2026-10-19T15:57:48.907696+00:00",
+    "seconds": 1.374638,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_0e3d8e73968e4178a33347da947ef935",
+    "kind": "extract",
+    "model_phase": null,
+    "tools": [],
+    "start": "2026-10-19 15:57:49.473666+00:00",
+    "end": "2026-10-19T15:57:50.925191+00:00",
+    "seconds": 1.451525,
+    "provider_elapsed_seconds": 1.381719
+  },
+  {
+    "action_id": "paction_d90d777827f5409e89e263a9eecc72ff",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source",
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:57:51.376824+00:00",
+    "end": "2026-10-19T15:57:52.815601+00:00",
+    "seconds": 1.438777,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_8ba748cef2a3416087a66b721f7426dd",
+    "kind": "extract",
+    "model_phase": null,
+    "tools": [],
+    "start": "2026-10-19 15:57:54.007141+00:00",
+    "end": "2026-10-19T15:57:55.510263+00:00",
+    "seconds": 1.503122,
+    "provider_elapsed_seconds": 1.430612
+  },
+  {
+    "action_id": "paction_2a486b5a4d214cdb99d63ff190046452",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:57:55.941823+00:00",
+    "end": "2026-10-19T15:57:57.026100+00:00",
+    "seconds": 1.084277,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_1bfd49e5307d4d0ab598abdf908fefcb",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:57:57.950853+00:00",
+    "end": "2026-10-19T15:57:59.162954+00:00",
+    "seconds": 1.212101,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_bcba9d3bda9d4801939849059f77e4b9",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:57:59.828991+00:00",
+    "end": "2026-10-19T15:58:00.747800+00:00",
+    "seconds": 0.918809,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_e6cc028aae9742c4a91890e8f1d16850",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:58:01.276820+00:00",
+    "end": "2026-10-19T15:58:02.901007+00:00",
+    "seconds": 1.624187,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_74daee9cbfc449e884a97a86ef264bad",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:58:03.425165+00:00",
+    "end": "2026-10-19T15:58:04.423420+00:00",
+    "seconds": 0.998255,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_a9592c13fa874813ac20f1a2190680d6",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:58:05.410319+00:00",
+    "end": "2026-10-19T15:58:06.762906+00:00",
+    "seconds": 1.352587,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_93e60adbfd7d4749b2a6c2516cc6802d",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:58:07.365998+00:00",
+    "end": "2026-10-19T15:58:08.862888+00:00",
+    "seconds": 1.49689,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_3bbe5a720bd84d739392916cdf08df15",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:58:09.579603+00:00",
+    "end": "2026-10-19T15:58:10.803181+00:00",
+    "seconds": 1.223578,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_c1089698a6e741ff8f59ae81b22eee32",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:58:11.716276+00:00",
+    "end": "2026-10-19T15:58:13.046382+00:00",
+    "seconds": 1.330106,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_76e52fe799cb4b069ccbb8c68666f529",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:58:13.719114+00:00",
+    "end": "2026-10-19T15:58:15.243301+00:00",
+    "seconds": 1.524187,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_3f222d99a8904fc194b0f65589506d0a",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:58:16.109471+00:00",
+    "end": "2026-10-19T15:58:17.110483+00:00",
+    "seconds": 1.001012,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_83021bd052f24f96ac8b1a2dca97a287",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__fetch_source"
+    ],
+    "start": "2026-10-19 15:58:18.144027+00:00",
+    "end": "2026-10-19T15:58:19.450229+00:00",
+    "seconds": 1.306202,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_a978efd4d1604cf58c690fee1faa7689",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__record_evidence_finding",
+      "mcp__preparation__record_evidence_finding"
+    ],
+    "start": "2026-10-19 15:58:20.249388+00:00",
+    "end": "2026-10-19T15:58:27.231572+00:00",
+    "seconds": 6.982184,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_ce65f02c9fdd4f08a8cdc974b745c7fd",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__finalize_research_summary"
+    ],
+    "start": "2026-10-19 15:58:31.645494+00:00",
+    "end": "2026-10-19T15:58:35.897513+00:00",
+    "seconds": 4.252019,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_88b355a3e75b423e8e698d9b92338c22",
+    "kind": "model_completion",
+    "model_phase": "learning_path",
+    "tools": [
+      "mcp__preparation__save_course_plan"
+    ],
+    "start": "2026-10-19 15:58:36.388102+00:00",
+    "end": "2026-10-19T15:58:48.427281+00:00",
+    "seconds": 12.039179,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_13886822511d4177a1b576d8f602bd4d",
+    "kind": "model_completion",
+    "model_phase": "review",
+    "tools": [
+      "mcp__preparation__submit_path_review"
+    ],
+    "start": "2026-10-19 15:58:51.780699+00:00",
+    "end": "2026-10-19T15:58:53.290992+00:00",
+    "seconds": 1.510293,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_c9a3fc15cc2346e4b7eb2208ef0e1924",
+    "kind": "model_completion",
+    "model_phase": "research_nodes",
+    "tools": [
+      "mcp__preparation__assess_node_evidence"
+    ],
+    "start": "2026-10-19 15:58:55.940182+00:00",
+    "end": "2026-10-19T15:58:58.176978+00:00",
+    "seconds": 2.236796,
+    "provider_elapsed_seconds": null
+  },
+  {
+    "action_id": "paction_de0e38dfe9e64e59aff74b0810bd5df8",
+    "kind": "model_completion",
+    "model_phase": "research_nodes",
+    "tools": [
+      "mcp__preparation__assess_node_evidence"
+    ],
+    "start": "2026-10-19 15:59:00.636046+00:00",
+    "end": "2026-10-19T15:59:03.479543+00:00",
+    "seconds": 2.843497,
+    "provider_elapsed_seconds": null
+  }
+]

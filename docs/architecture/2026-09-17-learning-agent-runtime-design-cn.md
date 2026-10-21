@@ -1,5 +1,7 @@
 # 学习 Agent 运行、工具与记忆设计 V1
 
+2026-10-20 会话范围更新：以学习主设计最新规则为准，学习对话按用户与课程共享；知识点仅标记每轮发问和资料引用，不再划分会话或历史上下文。原有预算、摘要、权限和来源失效规则保留。文中的旧知识点会话隔离约定已被本更新替代。
+
 日期：2026-09-17。状态：运行层技术决策已细化，待实施与验证。本轮只补设计，不推进 P1，不修改运行代码。P0 的领域测试不能作为本运行设计已实现的证据。
 
 依据：[学习主设计](2026-09-17-learning-agent-design-cn.md)、[准备主设计及交接契约](2026-09-17-course-preparation-agent-design-cn.md#handoff-contract)、[读取与记忆约定](2026-09-08-agent-access-memory-contract-cn.md)。本文收口[详细技术设计](2026-09-17-learning-agent-technical-design-cn.md)中尚未确定的运行器、工具挂载和记忆执行细节；产品边界仍以上述主设计为准。执行任务见[分阶段计划](../superpowers/plans/2026-09-17-learning-agent-implementation-cn.md)。

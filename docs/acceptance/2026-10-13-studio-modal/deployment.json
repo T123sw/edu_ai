@@ -1,0 +1,14 @@
+{
+  "source_snapshot": "/tmp/edu-studio-modal/source/frontend",
+  "published_at": "20261013T202517Z",
+  "uncommitted_source_changes": true,
+  "task": "centered-tools-research-reading-type-library",
+  "backend_status": "source implemented; service restart requires administrator authentication",
+  "previous_index_sha256": "e4988e4306a06b622bfea1690a3c6872aedbd29901a49ab3a74fb9ddcfc974f9",
+  "backup": "/tmp/edu-studio-modal/dist-backup-20261013T202517Z",
+  "http_verified": true,
+  "assets": [
+    "/assets/index-Dx9LMlKG.js",
+    "/assets/index-8vDhdg1F.css"
+  ]
+}

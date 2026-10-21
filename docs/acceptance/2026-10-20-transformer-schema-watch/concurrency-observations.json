@@ -1,0 +1,221 @@
+{
+  "method": "30-second snapshots, supplemented by exact worker lifecycle timestamps; sampled peaks are lower bounds",
+  "sample_count": 115,
+  "sampled_peaks": {
+    "resources": 8,
+    "videos": 5,
+    "scene_workers": 16
+  },
+  "scene_workers": [
+    {
+      "node": "n1-why-transformer",
+      "worker_id": "a3aefc6d01b04dfb9189624c7e813631",
+      "status": "succeeded",
+      "submitted_at": 1792478239.3002465,
+      "started_at": 1792478240.1327078,
+      "finished_at": 1792478726.5858252,
+      "error": null,
+      "queue_seconds": 0.832,
+      "execution_seconds": 486.453
+    },
+    {
+      "node": "n1-why-transformer",
+      "worker_id": "9e2b3f29f47d41a198c7745885d2f83a",
+      "status": "succeeded",
+      "submitted_at": 1792478239.074676,
+      "started_at": 1792478239.7746747,
+      "finished_at": 1792478574.094955,
+      "error": null,
+      "queue_seconds": 0.7,
+      "execution_seconds": 334.32
+    },
+    {
+      "node": "n1-why-transformer",
+      "worker_id": "17a1b408fece4b9aa72d50eae66e771c",
+      "status": "succeeded",
+      "submitted_at": 1792478239.5255508,
+      "started_at": 1792478240.3659973,
+      "finished_at": 1792478633.1668293,
+      "error": null,
+      "queue_seconds": 0.84,
+      "execution_seconds": 392.801
+    },
+    {
+      "node": "n2-overall-architecture",
+      "worker_id": "3e80bf9dd20146de8b5f3d975ce62e99",
+      "status": "succeeded",
+      "submitted_at": 1792478299.0444837,
+      "started_at": 1792478302.3473692,
+      "finished_at": 1792478736.250622,
+      "error": null,
+      "queue_seconds": 3.303,
+      "execution_seconds": 433.903
+    },
+    {
+      "node": "n2-overall-architecture",
+      "worker_id": "139df5e20c3c43258b789ea38663eeee",
+      "status": "succeeded",
+      "submitted_at": 1792478302.507363,
+      "started_at": 1792478584.0844965,
+      "finished_at": 1792479713.2373111,
+      "error": null,
+      "queue_seconds": 281.577,
+      "execution_seconds": 1129.153
+    },
+    {
+      "node": "n2-overall-architecture",
+      "worker_id": "a29496b89b5b416186b1c87aebb556b3",
+      "status": "succeeded",
+      "submitted_at": 1792478304.5568004,
+      "started_at": 1792478547.60683,
+      "finished_at": 1792478985.999213,
+      "error": null,
+      "queue_seconds": 243.05,
+      "execution_seconds": 438.392
+    },
+    {
+      "node": "n2-overall-architecture",
+      "worker_id": "5a0b2b60cc0546bdb159b2a53566d836",
+      "status": "succeeded",
+      "submitted_at": 1792478300.664847,
+      "started_at": 1792478577.4108086,
+      "finished_at": 1792479006.4528768,
+      "error": null,
+      "queue_seconds": 276.746,
+      "execution_seconds": 429.042
+    },
+    {
+      "node": "n3-self-attention",
+      "worker_id": "2da473a601204370a585cf2f8495291e",
+      "status": "succeeded",
+      "submitted_at": 1792478249.9311318,
+      "started_at": 1792478251.4557326,
+      "finished_at": 1792478582.093081,
+      "error": null,
+      "queue_seconds": 1.525,
+      "execution_seconds": 330.637
+    },
+    {
+      "node": "n3-self-attention",
+      "worker_id": "d6c4a4eae748448a9088c773d8e3674e",
+      "status": "succeeded",
+      "submitted_at": 1792478251.1902964,
+      "started_at": 1792478253.4470823,
+      "finished_at": 1792478545.9487638,
+      "error": null,
+      "queue_seconds": 2.257,
+      "execution_seconds": 292.502
+    },
+    {
+      "node": "n3-self-attention",
+      "worker_id": "730faf94980c4bed8adb3180a40d778a",
+      "status": "succeeded",
+      "submitted_at": 1792478249.1255572,
+      "started_at": 1792478250.339426,
+      "finished_at": 1792478724.836233,
+      "error": null,
+      "queue_seconds": 1.214,
+      "execution_seconds": 474.497
+    },
+    {
+      "node": "n3-self-attention",
+      "worker_id": "cdd0d238fff94233991b2e68806a251a",
+      "status": "succeeded",
+      "submitted_at": 1792478250.4820716,
+      "started_at": 1792478252.2894819,
+      "finished_at": 1792478766.63641,
+      "error": null,
+      "queue_seconds": 1.807,
+      "execution_seconds": 514.347
+    },
+    {
+      "node": "n4-multihead-and-sublayers",
+      "worker_id": "0437cd751abf4849b5ed4394b6e0cda5",
+      "status": "succeeded",
+      "submitted_at": 1792478287.5619516,
+      "started_at": 1792478290.8661685,
+      "finished_at": 1792478863.2659984,
+      "error": null,
+      "queue_seconds": 3.304,
+      "execution_seconds": 572.4
+    },
+    {
+      "node": "n4-multihead-and-sublayers",
+      "worker_id": "55deeafe1eec4e29be41023bf2154c75",
+      "status": "succeeded",
+      "submitted_at": 1792478285.259303,
+      "started_at": 1792478287.0837722,
+      "finished_at": 1792478809.2185745,
+      "error": null,
+      "queue_seconds": 1.824,
+      "execution_seconds": 522.135
+    },
+    {
+      "node": "n4-multihead-and-sublayers",
+      "worker_id": "f3874de4ca38457caf2681f53230ea03",
+      "status": "succeeded",
+      "submitted_at": 1792478284.5097597,
+      "started_at": 1792478285.8016589,
+      "finished_at": 1792479145.7699935,
+      "error": null,
+      "queue_seconds": 1.292,
+      "execution_seconds": 859.968
+    },
+    {
+      "node": "n4-multihead-and-sublayers",
+      "worker_id": "ff6d975a796744ca8680bda963376ce1",
+      "status": "succeeded",
+      "submitted_at": 1792478286.3756964,
+      "started_at": 1792478289.6499023,
+      "finished_at": 1792478715.0799859,
+      "error": null,
+      "queue_seconds": 3.274,
+      "execution_seconds": 425.43
+    },
+    {
+      "node": "n5-positional-encoding-and-advantages",
+      "worker_id": "6a35e36f8e53461aa946ffe1b8d390bf",
+      "status": "succeeded",
+      "submitted_at": 1792478286.4932868,
+      "started_at": 1792478290.1664546,
+      "finished_at": 1792478698.2334275,
+      "error": null,
+      "queue_seconds": 3.673,
+      "execution_seconds": 408.067
+    },
+    {
+      "node": "n5-positional-encoding-and-advantages",
+      "worker_id": "bf2520fbeace475699fbab90e84887b3",
+      "status": "succeeded",
+      "submitted_at": 1792478289.909285,
+      "started_at": 1792478294.1675684,
+      "finished_at": 1792478602.0392587,
+      "error": null,
+      "queue_seconds": 4.258,
+      "execution_seconds": 307.872
+    },
+    {
+      "node": "n5-positional-encoding-and-advantages",
+      "worker_id": "258e1d72bd6945459198cb4a5cfff8a0",
+      "status": "succeeded",
+      "submitted_at": 1792478285.3843696,
+      "started_at": 1792478288.3333864,
+      "finished_at": 1792478659.519733,
+      "error": null,
+      "queue_seconds": 2.949,
+      "execution_seconds": 371.186
+    },
+    {
+      "node": "n5-positional-encoding-and-advantages",
+      "worker_id": "01240e0d6b5f454eaa71cb17ae84fcb3",
+      "status": "succeeded",
+      "submitted_at": 1792478287.9346242,
+      "started_at": 1792478292.1659513,
+      "finished_at": 1792478781.292168,
+      "error": null,
+      "queue_seconds": 4.231,
+      "execution_seconds": 489.126
+    }
+  ],
+  "render_command_peak_including_admission_and_polling": 4
+}

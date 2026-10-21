@@ -1,0 +1,51 @@
+{
+  "generation_id": "examgen_84063a92be99187d60738b6e120f254b",
+  "ordinal": 4,
+  "child": "b",
+  "boundary": "Standard stable insertion sort; A sorts before B. Rechecks the reviewer arithmetic, not all reasons for rejecting the candidate.",
+  "reviewer_claim": "~4n^2",
+  "actual": "2n^2+4n-2; leading term ~2n^2",
+  "reviewer_arithmetic_correct": false,
+  "candidate_answer_key": "C (~2n^2)",
+  "candidate_still_invalid_reasons": [
+    "Its step explanation mixes opposite A/B orderings.",
+    "The source task was copied without substantive changes."
+  ],
+  "checks": [
+    {
+      "n": 1,
+      "comparisons": 4,
+      "comparisons_over_n_squared": 4.0
+    },
+    {
+      "n": 2,
+      "comparisons": 14,
+      "comparisons_over_n_squared": 3.5
+    },
+    {
+      "n": 4,
+      "comparisons": 46,
+      "comparisons_over_n_squared": 2.875
+    },
+    {
+      "n": 8,
+      "comparisons": 158,
+      "comparisons_over_n_squared": 2.46875
+    },
+    {
+      "n": 16,
+      "comparisons": 574,
+      "comparisons_over_n_squared": 2.2421875
+    },
+    {
+      "n": 32,
+      "comparisons": 2174,
+      "comparisons_over_n_squared": 2.123046875
+    },
+    {
+      "n": 64,
+      "comparisons": 8446,
+      "comparisons_over_n_squared": 2.06201171875
+    }
+  ]
+}

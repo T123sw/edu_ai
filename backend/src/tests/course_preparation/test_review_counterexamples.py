@@ -156,54 +156,23 @@ def _claim_checkpoint(generation, kind):
     return adapter, child, ArtifactResourceCheckpoint(adapter.artifacts, child)
 
 
-def test_classroom_private_checkpoint_resumes_review_without_content_repair(generation):
-    from app.chat.harness.preparation_content import value_digest
+def test_classroom_saved_candidate_requires_no_model_review_or_repair(generation):
     from app.chat.harness.reviewed_resource import review_classroom
-    from app.course_preparation.adapters.classroom import TeachingScript, native_classroom
-    from app.course_preparation.generation_failures import GenerationFailure
-    from app.course_preparation.resource_checkpoint import ArtifactResourceCheckpoint
-
+    from tests.course_preparation.legacy_classroom_fixtures import TeachingScript, native_classroom
+    from app.chat.harness.preparation_content import value_digest
     adapter, child, port = _claim_checkpoint(generation, 'classroom')
-    script = TeachingScript(slides=[{
-        'title': f'工具调用第{i + 1}步', 'points': ['模型提出调用，程序校验并执行'],
-        'narration': '模型根据工具描述提出调用，服务端检查权限、参数和预算后执行，将真实结果回传给模型。' * 3,
-    } for i in range(2)])
-    original = native_classroom(script, '工具调用', child['resource_id'])
-    calls = {'review': 0, 'repair': 0}
-
-    class Gateway:
-        def chat(self, messages, **kwargs):
-            data = json.loads(messages[-1]['content'])
-            if 'schema' not in data:
-                calls['repair'] += 1
-                pytest.fail('Malformed review must not trigger classroom content repair')
-            calls['review'] += 1
-            assert data['content'] == original
-            if calls['review'] == 1:
-                return '{}'
-            response = review(True)
-            response['scene_checks'] = [{
-                'scene_index': i, 'screen_passed': True, 'screen_reasoning': '投屏准确区分模型提出调用和程序执行',
-                'speech_checks': [{'action_index': 0, 'passed': True, 'reasoning': '讲解明确程序检查权限和参数后执行工具'}],
-            } for i in range(2)]
-            return json.dumps(response, ensure_ascii=False)
-
-    gateway = Gateway()
-    config = {'spec_digest': child['spec_digest']}
-    with pytest.raises(GenerationFailure) as error:
-        review_classroom(copy.deepcopy(original), config, gateway=gateway, checkpoint=port)
-    assert error.value.detail.category == 'review_format'
-    assert error.value.detail.retry_scope == 'review'
-    before = port.load_review_candidate()
-    assert before['content'] == original
-    assert error.value.detail.content_digest == before['content_digest'] == value_digest(original)
-
-    new_port = ArtifactResourceCheckpoint(adapter.artifacts, child)
-    content, audit = review_classroom(copy.deepcopy(original), config, gateway=gateway, checkpoint=new_port)
-    assert content == original
-    assert calls == {'review': 2, 'repair': 0}
-    assert new_port.load_review_candidate()['content_digest'] == before['content_digest']
+    original = native_classroom(TeachingScript(slides=[{
+        'title': '工具调用', 'points': ['模型提出，程序执行'],
+        'narration': '模型提出调用，程序校验权限和参数后执行。' * 6,
+    } for _ in range(2)]), '课堂', child['resource_id'])
+    port.save_review_candidate(content=original, content_digest=value_digest(original),
+        spec_digest=child['spec_digest'], review_state={})
+    class NoModel:
+        def chat(self, *args, **kwargs): raise AssertionError('classroom review must not call a model')
+    content, audit = review_classroom(copy.deepcopy(original), {}, gateway=NoModel(), checkpoint=port)
+    assert content == original and audit['decision'] == 'skipped'
     assert verified_resource({**content, 'generation_state': {'resource_review': audit}}, 'classroom')
+    assert port.load_review_candidate()['content'] == original
     assert adapter.artifacts.get('alice', child['artifact_id'])['status'] == 'running'
 
 

@@ -1,0 +1,1363 @@
+{
+  "schemaVersion": 2,
+  "runtimeKind": "react_app",
+  "templateVersion": "react-app-v1",
+  "exerciseId": "pbl_ba82f83b651e12b8ff22463498210ecd",
+  "artifactVersion": 1,
+  "topic": "做一个四则运算计算器，通过四个步骤学习 React：构建按钮和显示区、数字和小数输入及清空、四则运算、除零错误与恢复。不需要键盘输入、运算符优先级或历史记录。",
+  "title": "React 四则运算计算器",
+  "summary": "在本地 React 页面中实现一个可用的四则运算计算器：显示区展示当前输入与结果，0-9 与小数点按钮可输入数字，C 清空，+ - × ÷ 执行四则运算，= 求值，除以零时显示错误提示并可恢复继续使用。",
+  "plan": {
+    "schemaVersion": 1,
+    "title": "React 四则运算计算器",
+    "goal": "在本地 React 页面中实现一个可用的四则运算计算器：显示区展示当前输入与结果，0-9 与小数点按钮可输入数字，C 清空，+ - × ÷ 执行四则运算，= 求值，除以零时显示错误提示并可恢复继续使用。",
+    "runtimeKind": "react_app",
+    "editableFiles": [
+      "/src/App.jsx",
+      "/src/styles.css"
+    ],
+    "requirements": [
+      {
+        "id": "display-area",
+        "description": "页面有一个显示区（testId=display），展示当前输入的数字或计算结果，初始显示 0。"
+      },
+      {
+        "id": "digit-input",
+        "description": "点击数字按钮 0-9 会把该数字追加到当前输入，显示区同步更新。"
+      },
+      {
+        "id": "decimal-input",
+        "description": "点击小数点按钮可输入小数；同一数字中重复点击小数点不会产生第二个小数点。"
+      },
+      {
+        "id": "clear-input",
+        "description": "点击 C 按钮清空当前输入，显示区回到 0。"
+      },
+      {
+        "id": "addition",
+        "description": "点击 + 后输入第二个数并点击 =，显示区展示两数之和。"
+      },
+      {
+        "id": "subtraction",
+        "description": "点击 - 后输入第二个数并点击 =，显示区展示两数之差。"
+      },
+      {
+        "id": "multiplication",
+        "description": "点击 × 后输入第二个数并点击 =，显示区展示两数之积。"
+      },
+      {
+        "id": "division",
+        "description": "点击 ÷ 后输入非零第二个数并点击 =，显示区展示两数之商。"
+      },
+      {
+        "id": "divide-by-zero",
+        "description": "除以零时显示区展示错误提示（如“错误：不能除以零”），而不是崩溃或显示 Infinity。"
+      },
+      {
+        "id": "error-recovery",
+        "description": "出现除零错误后，点击 C 可清除错误，随后可继续正常输入与计算。"
+      }
+    ],
+    "steps": [
+      {
+        "id": "step-layout",
+        "title": "搭建计算器界面骨架",
+        "objective": "创建计算器页面结构：一个显示区与全部按钮（0-9、.、+、-、×、÷、=、C），按钮可点击但暂不实现业务逻辑。",
+        "dependsOn": [],
+        "entryCondition": "从固定 React 初始工程开始，App.jsx 与 styles.css 可编辑。",
+        "deliverable": "页面渲染出显示区（testId=display，初始文本 0）以及全部 16 个按钮，按钮均可见且可点击。",
+        "requirementIds": [
+          "display-area"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "newCheckIds": [
+          "layout-display-visible",
+          "layout-buttons-present"
+        ]
+      },
+      {
+        "id": "step-input",
+        "title": "数字与小数输入及清空",
+        "objective": "实现数字按钮追加输入、小数点输入与 C 清空，显示区实时反映当前输入。",
+        "dependsOn": [
+          "step-layout"
+        ],
+        "entryCondition": "上一步的显示区与按钮已存在且可点击。",
+        "deliverable": "点击数字按钮后显示区显示对应数字串；可输入小数；重复小数点被忽略；点击 C 后显示区回到 0。",
+        "requirementIds": [
+          "digit-input",
+          "decimal-input",
+          "clear-input"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "newCheckIds": [
+          "input-digits-append",
+          "input-decimal-once",
+          "input-clear-resets"
+        ]
+      },
+      {
+        "id": "step-operations",
+        "title": "实现四则运算",
+        "objective": "实现 + - × ÷ 运算符选择与 = 求值，显示区展示计算结果。",
+        "dependsOn": [
+          "step-input"
+        ],
+        "entryCondition": "数字输入与清空已可用。",
+        "deliverable": "对任意两个数执行加、减、乘、除，点击 = 后显示区展示正确结果。",
+        "requirementIds": [
+          "addition",
+          "subtraction",
+          "multiplication",
+          "division"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "newCheckIds": [
+          "op-addition",
+          "op-subtraction",
+          "op-multiplication",
+          "op-division"
+        ]
+      },
+      {
+        "id": "step-error",
+        "title": "除零错误与恢复",
+        "objective": "处理除以零：显示错误提示，并允许通过 C 清除错误后继续使用。",
+        "dependsOn": [
+          "step-operations"
+        ],
+        "entryCondition": "四则运算已可用。",
+        "deliverable": "除以零时显示区展示错误提示；点击 C 后错误清除，可继续输入并完成新的计算。",
+        "requirementIds": [
+          "divide-by-zero",
+          "error-recovery"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "newCheckIds": [
+          "error-divide-by-zero",
+          "error-recovery-after-clear"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "layout-display-visible",
+        "stepId": "step-layout",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "display-area"
+        ],
+        "setup": "从初始工程加载页面，不进行任何点击。",
+        "actions": [
+          "打开页面",
+          "定位 testId=display 的元素"
+        ],
+        "expected": [
+          "显示区存在且可见",
+          "显示区文本为 0"
+        ]
+      },
+      {
+        "id": "layout-buttons-present",
+        "stepId": "step-layout",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "display-area"
+        ],
+        "setup": "从初始工程加载页面，不进行任何点击。",
+        "actions": [
+          "打开页面",
+          "依次定位按钮 0、1、2、3、4、5、6、7、8、9、.、+、-、×、÷、=、C"
+        ],
+        "expected": [
+          "每个按钮均存在且可见",
+          "每个按钮均处于可用状态"
+        ]
+      },
+      {
+        "id": "input-digits-append",
+        "stepId": "step-input",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "digit-input"
+        ],
+        "setup": "从全新页面开始。",
+        "actions": [
+          "点击按钮 1",
+          "点击按钮 2",
+          "点击按钮 3"
+        ],
+        "expected": [
+          "显示区文本为 123"
+        ]
+      },
+      {
+        "id": "input-decimal-once",
+        "stepId": "step-input",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "decimal-input"
+        ],
+        "setup": "从全新页面开始。",
+        "actions": [
+          "点击按钮 3",
+          "点击按钮 .",
+          "点击按钮 1",
+          "再次点击按钮 .",
+          "点击按钮 4"
+        ],
+        "expected": [
+          "显示区文本为 3.14"
+        ]
+      },
+      {
+        "id": "input-clear-resets",
+        "stepId": "step-input",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "clear-input"
+        ],
+        "setup": "从全新页面开始。",
+        "actions": [
+          "点击按钮 7",
+          "点击按钮 8",
+          "点击按钮 C"
+        ],
+        "expected": [
+          "显示区文本为 0"
+        ]
+      },
+      {
+        "id": "op-addition",
+        "stepId": "step-operations",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "addition"
+        ],
+        "setup": "从全新页面开始。",
+        "actions": [
+          "点击按钮 1",
+          "点击按钮 2",
+          "点击按钮 +",
+          "点击按钮 3",
+          "点击按钮 ="
+        ],
+        "expected": [
+          "显示区文本为 15"
+        ]
+      },
+      {
+        "id": "op-subtraction",
+        "stepId": "step-operations",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "subtraction"
+        ],
+        "setup": "从全新页面开始。",
+        "actions": [
+          "点击按钮 9",
+          "点击按钮 -",
+          "点击按钮 4",
+          "点击按钮 ="
+        ],
+        "expected": [
+          "显示区文本为 5"
+        ]
+      },
+      {
+        "id": "op-multiplication",
+        "stepId": "step-operations",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "multiplication"
+        ],
+        "setup": "从全新页面开始。",
+        "actions": [
+          "点击按钮 6",
+          "点击按钮 ×",
+          "点击按钮 7",
+          "点击按钮 ="
+        ],
+        "expected": [
+          "显示区文本为 42"
+        ]
+      },
+      {
+        "id": "op-division",
+        "stepId": "step-operations",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "division"
+        ],
+        "setup": "从全新页面开始。",
+        "actions": [
+          "点击按钮 8",
+          "点击按钮 ÷",
+          "点击按钮 2",
+          "点击按钮 ="
+        ],
+        "expected": [
+          "显示区文本为 4"
+        ]
+      },
+      {
+        "id": "error-divide-by-zero",
+        "stepId": "step-error",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "divide-by-zero"
+        ],
+        "setup": "从全新页面开始。",
+        "actions": [
+          "点击按钮 5",
+          "点击按钮 ÷",
+          "点击按钮 0",
+          "点击按钮 ="
+        ],
+        "expected": [
+          "显示区文本包含“不能除以零”",
+          "显示区文本不包含 Infinity"
+        ]
+      },
+      {
+        "id": "error-recovery-after-clear",
+        "stepId": "step-error",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "error-recovery"
+        ],
+        "setup": "从全新页面开始。",
+        "actions": [
+          "点击按钮 5",
+          "点击按钮 ÷",
+          "点击按钮 0",
+          "点击按钮 =",
+          "点击按钮 C",
+          "点击按钮 2",
+          "点击按钮 +",
+          "点击按钮 3",
+          "点击按钮 ="
+        ],
+        "expected": [
+          "点击 C 后显示区文本为 0",
+          "最终显示区文本为 5"
+        ]
+      }
+    ]
+  },
+  "starterFiles": {
+    "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+    "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+  },
+  "tasks": [
+    {
+      "stepId": "step-layout",
+      "title": "搭建计算器界面骨架",
+      "objective": "创建计算器页面结构：一个显示区与全部按钮（0-9、.、+、-、×、÷、=、C），按钮可点击但暂不实现业务逻辑。",
+      "instructionsMarkdown": "## 本步目标\n\n在初始 React 工程中搭出计算器的**界面骨架**：一个显示区，以及全部 16 个按钮。本步只关心“看得见、点得动”，不实现任何计算逻辑。\n\n## 需要做什么\n\n1. 打开 `/src/App.jsx`，把默认的占位内容替换成计算器结构。\n2. 添加一个显示区元素，并给它加上 `data-testid=\"display\"`，初始文本为 `0`。\n3. 添加全部按钮，每个按钮的文字（可见文本）必须与下面完全一致：\n   - 数字：`0` `1` `2` `3` `4` `5` `6` `7` `8` `9`\n   - 小数点：`.`\n   - 运算符：`+` `-` `×` `÷`\n   - 等号：`=`\n   - 清空：`C`\n4. 在 `/src/styles.css` 中做基本排版，让显示区和按钮排列整齐、清晰可见。\n\n## 建议的结构\n\n可以用一个外层容器包住显示区和按钮区，按钮区用网格或弹性布局排列。按钮用 `<button>` 元素，这样它们天然可聚焦、可点击。\n\n## 如何观察结果\n\n在浏览器中打开页面，确认：\n- 显示区出现在顶部，内容为 `0`；\n- 16 个按钮全部可见，鼠标悬停/点击时有反馈；\n- 点击按钮暂时不会改变显示区内容（这是正常的，逻辑在后续步骤实现）。\n\n## 提示\n\n- 按钮文字要用 `×` 和 `÷`（乘号、除号），不是字母 `x` 或斜杠 `/`。\n- 显示区推荐用 `data-testid=\"display\"` 标记，方便后续检查定位。\n- 本步不要写 `onClick` 业务逻辑，保持结构清晰即可。",
+      "explanationMarkdown": "React 组件本质上是一个返回界面结构的函数。本步你写的是**声明式结构**：描述“页面上应该有什么”，而不是“怎么一步步操作 DOM”。\n\n把显示区和按钮先全部摆出来，是后续步骤的基础：数字输入、四则运算、错误处理都会复用这些按钮。提前把控件备齐，可以避免后面反复改动结构。\n\n`data-testid` 是给自动化检查用的稳定标记，它不会影响页面外观，但能让检查脚本准确找到显示区。",
+      "hints": [
+        "先想清楚页面分几块：显示区 + 按钮区。用两个容器分别包住它们。",
+        "按钮文字必须与要求完全一致，尤其是 `×`、`÷`、`C`、`=`。",
+        "显示区初始内容写死为 `0` 即可，本步不需要状态。",
+        "如果按钮挤在一起，可以在 styles.css 里给按钮区设置 `display: grid` 和 `grid-template-columns`。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "checkIds": [
+        "layout-display-visible",
+        "layout-buttons-present"
+      ],
+      "id": "step-layout",
+      "cumulativeCheckIds": [
+        "layout-display-visible",
+        "layout-buttons-present"
+      ]
+    },
+    {
+      "stepId": "step-input",
+      "title": "数字与小数输入及清空",
+      "objective": "实现数字按钮追加输入、小数点输入与 C 清空，显示区实时反映当前输入。",
+      "instructionsMarkdown": "## 本步目标\n\n让计算器“能打字”：点击数字按钮把数字追加到显示区，点击小数点输入小数，点击 C 清空回到 0。\n\n## 起点\n\n上一步的页面已经渲染出显示区（`data-testid=\"display\"`，初始文本 `0`）和全部按钮，但按钮点击没有任何反应。\n\n## 你要做的事\n\n1. 在 `App.jsx` 中用 `useState` 保存“当前输入”的字符串，初始值为 `'0'`。\n2. 给每个按钮绑定点击处理：\n   - 数字 `0`-`9`：把数字追加到当前输入。注意初始的 `0` 是占位，输入 `1` 后应显示 `1` 而不是 `01`。\n   - `.`：如果当前输入里还没有小数点，就追加一个 `.`；已经有小数点则忽略这次点击。\n   - `C`：把当前输入重置为 `'0'`。\n3. 显示区渲染当前输入字符串。\n\n## 如何观察\n\n- 依次点击 `1` `2` `3`，显示区应显示 `123`。\n- 点击 `3` `.` `1` `.` `4`，显示区应显示 `3.14`（第二个小数点被忽略）。\n- 点击 `7` `8` `C`，显示区应回到 `0`。\n\n## 提示\n\n- 按钮标签就是按钮文本，可以用 `label` 判断是数字、小数点还是 C。\n- 追加数字时，如果当前是 `'0'`，用新数字替换它，而不是拼接。\n- 本步只处理输入，`+ - × ÷ =` 可以先不实现逻辑。",
+      "explanationMarkdown": "React 的核心是“状态驱动界面”：你不需要手动去改 DOM 文本，只要改变 state，React 会重新渲染显示区。\n\n这里用 `useState('0')` 保存当前输入字符串。每次点击按钮调用 `setInput` 更新它，组件重新渲染，显示区自然显示最新值。\n\n几个容易踩的点：\n\n- **前导零**：初始值是 `'0'`，如果直接拼接会得到 `'01'`。所以当当前值是 `'0'` 且点击的是数字时，应替换而不是追加。\n- **小数点唯一**：用 `input.includes('.')` 判断是否已存在小数点，存在就忽略。\n- **清空**：`C` 把状态设回 `'0'`，显示区随之回到 0。\n\n把“输入字符串”当成唯一数据源，后续步骤的运算逻辑也会围绕它展开。",
+      "hints": [
+        "用 `const [input, setInput] = useState('0')` 保存当前输入，显示区渲染 `{input}`。",
+        "给按钮的 onClick 传入一个处理函数，根据按钮标签 `label` 决定行为。",
+        "追加数字时先判断：如果 `input === '0'`，就 `setInput(label)`，否则 `setInput(input + label)`。",
+        "小数点：`if (!input.includes('.')) setInput(input + '.')`。",
+        "C：`setInput('0')`。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "checkIds": [
+        "input-digits-append",
+        "input-decimal-once",
+        "input-clear-resets"
+      ],
+      "id": "step-input",
+      "cumulativeCheckIds": [
+        "layout-display-visible",
+        "layout-buttons-present",
+        "input-digits-append",
+        "input-decimal-once",
+        "input-clear-resets"
+      ]
+    },
+    {
+      "stepId": "step-operations",
+      "title": "实现四则运算",
+      "objective": "实现 + - × ÷ 运算符选择与 = 求值，显示区展示计算结果。",
+      "instructionsMarkdown": "## 本步目标\n\n让计算器真正会算数：点击 `+`、`-`、`×`、`÷` 选择一个运算符，输入第二个数，再点击 `=`，显示区展示计算结果。\n\n## 需要实现的行为\n\n1. 点击运算符按钮时，把当前显示的数字记为「第一个操作数」，并记住选中的运算符。\n2. 运算符按下后，再输入的数字作为「第二个操作数」，显示区展示新输入的数字。\n3. 点击 `=` 时，按选中的运算符计算两个操作数，并把结果显示在显示区。\n4. 计算完成后，显示区的结果应能作为下一次计算的起点（例如 `1+2=` 得到 `3`，再按 `+4=` 得到 `7`）。\n\n## 建议的状态设计\n\n在 `App` 组件里用 `useState` 维护几个状态：\n\n- `input`：当前正在输入的数字串（已有）。\n- `firstOperand`：第一个操作数（数字或 `null`）。\n- `operator`：当前选中的运算符（`'+'`、`'-'`、`'×'`、`'÷'` 或 `null`）。\n- `waitingForSecond`：布尔值，表示「刚按下运算符，等待输入第二个数」。\n\n## 如何观察结果\n\n在浏览器里依次点击 `1` `2` `+` `3` `=`，显示区应显示 `15`。\n\n## 提示\n\n- 运算符按钮的 `label` 是 `'+'`、`'-'`、`'×'`、`'÷'`，注意 `×` 和 `÷` 不是 JavaScript 的 `*` 和 `/`，计算时需要映射。\n- 用 `Number(input)` 把字符串转成数字再计算。\n- 本步先不考虑除以零，下一步再处理。",
+      "explanationMarkdown": "## 为什么需要多个状态\n\n计算器的运算本质是「两阶段输入」：先输入第一个数，再选运算符，再输入第二个数，最后求值。单个 `input` 字符串无法表达「已经选好运算符、正在等第二个数」这个中间状态，所以需要额外的状态来记录第一个操作数和运算符。\n\n## 状态机思路\n\n可以把计算器看成一个简单状态机：\n\n- **输入第一个数**：`operator === null`，数字追加到 `input`。\n- **按下运算符**：把 `input` 存进 `firstOperand`，记录 `operator`，设置 `waitingForSecond = true`。\n- **输入第二个数**：因为 `waitingForSecond` 为真，新的数字应该替换 `input` 而不是追加。\n- **按下 `=`**：用 `firstOperand`、`operator`、`Number(input)` 计算结果，写回 `input`，并清空 `firstOperand` 和 `operator`，让结果成为下一次计算的起点。\n\n## 运算符映射\n\n显示用的 `×` 和 `÷` 与 JavaScript 的 `*` 和 `/` 不同，计算时用一个小映射函数或 `switch` 转换即可。这样界面文案和计算逻辑解耦，后续要改符号也只改一处。",
+      "hints": [
+        "运算符按钮的 label 是 '+', '-', '×', '÷'，计算时把 '×' 映射为 '*'、'÷' 映射为 '/'。",
+        "按下运算符时，用 Number(input) 保存第一个操作数，并设置一个标志表示「接下来输入的是第二个数」。",
+        "第二个数输入时，如果标志为真，应该用新数字替换 input，而不是追加。",
+        "点击 = 时用 switch 或映射函数按运算符计算，把结果转成字符串写回 input，并重置 firstOperand 和 operator。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "checkIds": [
+        "op-addition",
+        "op-subtraction",
+        "op-multiplication",
+        "op-division"
+      ],
+      "id": "step-operations",
+      "cumulativeCheckIds": [
+        "layout-display-visible",
+        "layout-buttons-present",
+        "input-digits-append",
+        "input-decimal-once",
+        "input-clear-resets",
+        "op-addition",
+        "op-subtraction",
+        "op-multiplication",
+        "op-division"
+      ]
+    },
+    {
+      "stepId": "step-error",
+      "title": "除零错误与恢复",
+      "objective": "处理除以零：显示错误提示，并允许通过 C 清除错误后继续使用。",
+      "instructionsMarkdown": "## 本步目标\n\n让计算器在**除以零**时给出友好提示，而不是显示 `Infinity` 或崩溃；并且用户点击 `C` 后能清除错误、继续正常计算。\n\n## 你要实现的行为\n\n1. 当用户执行 `5 ÷ 0 =` 时，显示区应显示包含 **“不能除以零”** 的错误提示（例如 `错误：不能除以零`），且**不能**出现 `Infinity`。\n2. 出现错误后，点击 `C` 应清除错误，显示区回到 `0`。\n3. 清除后计算器仍可正常使用，例如继续 `2 + 3 =` 得到 `5`。\n\n## 建议思路\n\n- 在 `=` 求值分支里，先判断：如果运算符是 `÷` 且第二个操作数是 `0`，就进入错误状态。\n- 用一个状态（例如 `error`）记录当前是否处于错误状态；错误时显示区渲染错误文案。\n- 在 `C` 分支里，除了重置输入和运算状态，也要把错误状态清掉。\n- 注意：错误状态下点击数字按钮，应能开始新的输入（相当于自动从错误中恢复），这样用户体验更自然。\n\n## 如何观察\n\n- 点击 `5`、`÷`、`0`、`=`，看显示区是否出现“不能除以零”。\n- 再点击 `C`，看显示区是否回到 `0`。\n- 继续点击 `2`、`+`、`3`、`=`，看是否得到 `5`。",
+      "explanationMarkdown": "## 为什么需要专门处理除零\n\n在 JavaScript 中，`5 / 0` 不会抛异常，而是返回 `Infinity`。如果直接把它显示出来，用户会看到 `Infinity` 这种不友好的结果。真实计算器通常会给出明确的错误提示，并允许用户清除后继续使用。\n\n## 状态设计\n\n计算器本质上是一个**状态机**。本步引入一个额外的状态维度：\n\n- 正常状态：显示当前输入或结果。\n- 错误状态：显示错误文案，忽略或重置运算上下文。\n\n关键点是：**错误状态必须可退出**。如果 `C` 不能清除错误，计算器就“卡死”了。所以 `C` 分支要同时重置 `input`、`firstOperand`、`operator`、`waitingForSecond` 和错误状态。\n\n## 常见陷阱\n\n- 只在 `=` 里判断除零，但忘记在 `C` 里清除错误状态，导致错误无法恢复。\n- 用 `String(result)` 直接显示 `Infinity`，没有拦截。\n- 错误状态下继续点击数字，输入被错误状态覆盖而无法开始新计算。",
+      "hints": [
+        "在 `=` 分支里，先判断 `operator === '÷' && Number(input) === 0`，如果是就设置错误状态并提前返回。",
+        "用一个 `const [error, setError] = useState(null)` 保存错误文案；显示区渲染 `error ?? input`。",
+        "在 `C` 分支里加上 `setError(null)`，确保错误能被清除。",
+        "在数字按钮分支里，如果当前处于错误状态，先清除错误再开始新的输入，这样用户不必先按 C。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "checkIds": [
+        "error-divide-by-zero",
+        "error-recovery-after-clear"
+      ],
+      "id": "step-error",
+      "cumulativeCheckIds": [
+        "layout-display-visible",
+        "layout-buttons-present",
+        "input-digits-append",
+        "input-decimal-once",
+        "input-clear-resets",
+        "op-addition",
+        "op-subtraction",
+        "op-multiplication",
+        "op-division",
+        "error-divide-by-zero",
+        "error-recovery-after-clear"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "layout-display-visible",
+      "label": "显示区存在且初始为 0",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0"
+        }
+      ]
+    },
+    {
+      "id": "layout-buttons-present",
+      "label": "全部 16 个按钮存在且可用",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "0",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "1",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "2",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "3",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "4",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "5",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "6",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "7",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "8",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "9",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": ".",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "+",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "-",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "×",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "÷",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "C",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "0",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "C",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null
+        }
+      ]
+    },
+    {
+      "id": "input-digits-append",
+      "label": "点击 1、2、3 后显示区为 123",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "1",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "2",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "3",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "123"
+        }
+      ]
+    },
+    {
+      "id": "input-decimal-once",
+      "label": "重复点击小数点只保留一个小数点",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "3",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": ".",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "1",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": ".",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "4",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "3.14"
+        }
+      ]
+    },
+    {
+      "id": "input-clear-resets",
+      "label": "点击 C 后显示区回到 0",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "7",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "8",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "C",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0"
+        }
+      ]
+    },
+    {
+      "id": "op-addition",
+      "label": "1 + 2 = 3 显示 15（12+3）",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "1",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "2",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "+",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "3",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "15"
+        }
+      ]
+    },
+    {
+      "id": "op-subtraction",
+      "label": "9 - 4 = 5",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "9",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "-",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "4",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "5"
+        }
+      ]
+    },
+    {
+      "id": "op-multiplication",
+      "label": "6 × 7 = 42",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "6",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "×",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "7",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "42"
+        }
+      ]
+    },
+    {
+      "id": "op-division",
+      "label": "8 ÷ 2 = 4",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "8",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "÷",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "2",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "4"
+        }
+      ]
+    },
+    {
+      "id": "error-divide-by-zero",
+      "label": "5 ÷ 0 = 显示“不能除以零”且不显示 Infinity",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "5",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "÷",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "0",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "错误：不能除以零"
+        }
+      ]
+    },
+    {
+      "id": "error-recovery-after-clear",
+      "label": "除零错误后按 C 清除，可继续计算 2 + 3 = 5",
+      "actions": [
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "5",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "÷",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "0",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "C",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0"
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "2",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "+",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "3",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "5"
+        }
+      ]
+    }
+  ],
+  "validationSummary": {
+    "passed": true,
+    "templateVersion": "react-app-v1",
+    "validatedSteps": 4
+  }
+}

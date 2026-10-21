@@ -1,0 +1,369 @@
+{
+  "boundary": "isolated storage; real upload/generation APIs, durable executor, MinerU and model; local authentication overridden",
+  "owner": "exam-isolated-9ad8c9bdf42b",
+  "run_directory": "/home/zxqs_ep/Edu_AI/.runtime/exam-real-paper-e2e/isolated-003bfb27",
+  "source_sha256": "1625baa030d4ad82048d77623cb5658364c40bdf8326632360a1e6afd5b3021a",
+  "timeline": [
+    {
+      "seconds": 0.36,
+      "generation_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+      "job_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+      "status": "queued",
+      "progress": 0,
+      "message": "",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "seconds": 2.38,
+      "generation_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+      "job_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "seconds": 42.75,
+      "generation_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+      "job_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "seconds": 61.13,
+      "generation_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+      "job_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    }
+  ],
+  "production_business_writes": false,
+  "candidate_patch": [
+    {
+      "file": "0007-computed-exam-evidence.patch",
+      "sha256": "1c31bfe7bbad2a4d4fd183b3cf4559dbd358a52e76f937bdd2db97e7be2d4db3"
+    }
+  ],
+  "upload_http": 201,
+  "create_http": 202,
+  "generation_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+  "seconds": 260.02,
+  "final": {
+    "generation_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+    "job_id": "examgen_b08230317216dcc72c4f03aa6ca7b541",
+    "status": "canceled",
+    "progress": 100,
+    "message": "任务已取消",
+    "exam_ready": false,
+    "error_code": "GENERATION_CANCELLED"
+  },
+  "error_code": "GENERATION_CANCELLED",
+  "parsed": [
+    {
+      "parser": "mineru-local",
+      "characters": 4483,
+      "layout_blocks": 71,
+      "image_count": 16
+    }
+  ],
+  "knowledge_ingestion_blocked_calls": 0,
+  "embedding_calls": 0,
+  "network": [
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/health"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/health"
+    },
+    {
+      "method": "POST",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 8190,
+      "path": "/v1/tasks/job_fcc76263234f0189270072d1/result"
+    },
+    {
+      "method": "POST",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/internal/generations"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/internal/turns/turn_1792258450911_e6a3d5a75a"
+    },
+    {
+      "method": "GET",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/internal/turns/turn_1792258450911_e6a3d5a75a/events"
+    },
+    {
+      "method": "POST",
+      "host": "127.0.0.1",
+      "port": 54901,
+      "path": "/internal/turns/turn_1792258450911_e6a3d5a75a/cancel"
+    }
+  ]
+}

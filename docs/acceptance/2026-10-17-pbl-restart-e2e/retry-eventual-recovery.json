@@ -1,0 +1,20 @@
+{
+  "exerciseId": "pbl_b7116437b13ddf1fea63878535a3d8e3",
+  "jobId": "pbl_b7116437b13ddf1fea63878535a3d8e3",
+  "completedSteps": 3,
+  "repairs": {
+    "filter-and-stats": 3
+  },
+  "injectedFailure": true,
+  "retryJobId": "job_9ba43a580d8a4c12",
+  "queueStateBug": true,
+  "sameResourceAfterRetry": true,
+  "ready": true,
+  "resourceLookup404": [],
+  "modelCalls": 2,
+  "phases": [
+    "repair_step",
+    "repair_checks"
+  ],
+  "preservedPreviousCheckCount": 10
+}

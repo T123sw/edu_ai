@@ -1,0 +1,31 @@
+{
+  "turn_status": "completed",
+  "last_seq": 34769,
+  "finished_timestamp": 1792245036.5085351,
+  "usage_summary": {
+    "prompt_tokens": 443313,
+    "completion_tokens": 71325,
+    "total_tokens": 514638,
+    "cache_read_input_tokens": 199296,
+    "cache_creation_input_tokens": 0,
+    "reasoning_tokens": 0,
+    "duration_seconds": 356.77575363311917,
+    "total_calls": 91,
+    "cache_reported_calls": 91,
+    "cache_input_tokens": 443313,
+    "cache_hit_rate": 0.4495604685628439,
+    "ttft_seconds": 0.8117683054620607,
+    "ttft_calls": 90,
+    "generation_seconds": 256.7633676379919,
+    "timed_completion_tokens": 64899,
+    "tokens_per_second": 252.758018392641,
+    "estimated_calls": 0
+  },
+  "summary": {
+    "success": true,
+    "requested": 32,
+    "template_count": 32,
+    "completed": 32,
+    "failed": 0
+  }
+}

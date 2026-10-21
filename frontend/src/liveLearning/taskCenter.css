@@ -13,12 +13,6 @@
 .sl-modal:has(.sl-task-center) > header h2 { color: #484c63; font-size: 18px; font-weight: 600; }
 .sl-modal:has(.sl-task-center) > header .sl-icon-button { background: #f6f6fa; border-radius: 50%; width: 30px; height: 30px; min-height: 30px; color: #8d91a3; }
 .sl-task-center { display: flex; flex-direction: column; max-height: calc(min(820px, 100dvh - 48px) - 66px); color: #50566b; }
-.sl-task-summary { display: flex; align-items: center; gap: 12px; margin: 0 26px 22px; padding: 17px; background: linear-gradient(110deg, #f4f0fc, #f5f8fc); border: 1px solid #ece9f6; border-radius: 14px; flex-shrink: 0; }
-.sl-task-summary-icon { flex-shrink: 0; width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid #e7def7; border-radius: 13px; color: #9580c9; background: #ffffffbd; }
-.sl-task-summary h3 { margin: 0; font-size: 13px; font-weight: 500; color: #665b80; }
-.sl-task-summary p { margin: 6px 0 0; font-size: 11px; line-height: 1.6; color: #9691a6; }
-.sl-task-sync { display: flex; align-items: center; gap: 5px; margin-left: auto; flex-shrink: 0; font-size: 10px; color: #a09cac; }
-.sl-task-sync i { width: 5px; height: 5px; border-radius: 50%; background: #8ab8a3; }
 .sl-task-filters { display: flex; gap: 5px; margin: 0 26px 18px; padding: 4px; border-radius: 11px; background: #f5f6f9; flex-shrink: 0; }
 .sl-task-filters button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; padding: 9px 6px; font-size: 12px; color: #9297a7; white-space: nowrap; }
 .sl-task-filters button[aria-pressed="true"] { background: #fff; color: #7d67b5; box-shadow: 0 2px 6px #44415d09; }
@@ -63,10 +57,6 @@
   .sl-modal:has(.sl-task-center) { width: calc(100vw - 24px); max-height: calc(100dvh - 32px); border-radius: 18px; }
   .sl-modal:has(.sl-task-center) > header { padding: 18px 18px 14px; }
   .sl-task-center { max-height: calc(100dvh - 94px); }
-  .sl-task-summary { margin: 0 16px 16px; padding: 12px; gap: 10px; }
-  .sl-task-summary h3 { font-size: 12px; }
-  .sl-task-summary-icon { width: 35px; height: 35px; }
-  .sl-task-sync { display: none; }
   .sl-task-filters { margin: 0 16px 14px; gap: 2px; }
   .sl-task-filters button { font-size: 11px; gap: 5px; }
   .sl-task-list { padding: 0 16px 16px; min-height: 160px; }

@@ -1,0 +1,80 @@
+{
+  "verifiedAt": "2026-10-14T04:51:16.134834+00:00",
+  "frontendPublished": true,
+  "publicationOrigin": "included in resource-tools release at 2026-10-14T04:43:32Z; this turn verifies practice specifically without republishing",
+  "release": "/tmp/edu-resource-tools-release-20261014T044119Z",
+  "frontendBackup": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-resource-tools-20261014T044119Z",
+  "backendPid": 3768187,
+  "backendStartedAt": "Wed 2026-10-14 04:42:54 UTC",
+  "databaseMigrationRequired": false,
+  "upstreamRevision": "aad58ddcc2103058b4c2deffc48a3c13e2c64dd6",
+  "presentation": "maic-ui-native-v1",
+  "localDependencyCheck": {
+    "upstream_module": "_edu_maic_native.services.html_generation.heavy_generator",
+    "embedded_runtime_bytes": 906421
+  },
+  "productionApiSmoke": {
+    "/": {
+      "status": 200,
+      "sha256": "2b11b9f78cdd8f47d035719304729ac0dc2444054eaf42c0844ffb54c7ef18ad"
+    },
+    "/backend/health": {
+      "status": 200,
+      "health": "ok"
+    },
+    "/backend/openapi.json": {
+      "status": 200,
+      "practice_routes": {
+        "/api/practice": [
+          "get",
+          "post"
+        ],
+        "/api/practice/{identifier}": [
+          "get"
+        ],
+        "/api/practice/{identifier}/observations": [
+          "post"
+        ],
+        "/api/practice/{identifier}/ask": [
+          "post"
+        ]
+      }
+    },
+    "/backend/api/practice": {
+      "status": 401
+    },
+    "/backend/api/practice/native-deployment-probe": {
+      "status": 401
+    }
+  },
+  "verificationLimits": "真实线上静态页面使用模拟业务 API 和真实生成 HTML 回归；真实后端健康/路由/鉴权另行验证。后端启动时间晚于原生代码修改时间，依赖以相同 Python 环境核验；本轮未在生产创建实验或写入用户观察记录。",
+  "sourceModifiedAt": {
+    "backend/src/app/practice/native.py": "2026-10-14T04:40:36.290139+00:00",
+    "backend/src/app/practice/service.py": "2026-10-14T04:38:58.730706+00:00",
+    "backend/src/app/practice/runtime.py": "2026-10-14T04:25:49.861542+00:00",
+    "backend/src/app/practice/native_runtime.py": "2026-10-14T04:28:49.695440+00:00",
+    "frontend/scripts/practice-validation.mjs": "2026-10-14T04:37:47.895140+00:00"
+  },
+  "publishedBrowserChecks": {
+    "passed": 4,
+    "skipped": 1,
+    "skipReason": "optional legacy real-artifact path not supplied; two legacy fixture regressions passed",
+    "target": "Nginx http://127.0.0.1",
+    "viewports": [
+      1440,
+      390
+    ],
+    "deviceScaleFactor": 2,
+    "api": "mocked business responses; real generated HTML",
+    "coverage": [
+      "native full-document layout",
+      "sharp canvas",
+      "formula runtime",
+      "single-step result persisted correctly",
+      "guide toggle preserves state",
+      "tab switch preserves state",
+      "journal reload",
+      "legacy flow compatibility"
+    ]
+  }
+}

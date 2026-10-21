@@ -7,5 +7,13 @@
     "src/liveLearning/learningClient.ts",
     "src/vite-env.d.ts"
   ],
-  "exclude": ["src/selfLearning/**/*.test.ts"]
+  "exclude": [
+    "src/selfLearning/**/*.test.ts"
+  ],
+  "compilerOptions": {
+    "types": [
+      "vite/client",
+      "react-syntax-highlighter"
+    ]
+  }
 }

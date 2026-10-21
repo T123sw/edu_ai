@@ -1,0 +1,21 @@
+{
+  "same_task": true,
+  "attempt_before": 1,
+  "attempt_after": 2,
+  "same_deadline": true,
+  "limits_unchanged": true,
+  "spent_before": {
+    "calls": 13,
+    "tokens": 168024,
+    "cost_micro_usd": 1680240
+  },
+  "spent_after": {
+    "calls": 22,
+    "tokens": 318771,
+    "cost_micro_usd": 3187710
+  },
+  "all_previous_evidence_retained_exactly": true,
+  "new_source_network_calls": 0,
+  "new_model_calls": 9,
+  "generated_resources": 0
+}

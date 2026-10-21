@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "scope": "real isolated PostgreSQL/API existing project list, open and reload; no mock list or workspace",
+  "exerciseId": "pbl_c331d461f5121fa6ee1ca70d087692fa",
+  "projectCount": 2,
+  "revision": 3,
+  "filesUnchanged": true,
+  "mutations": 0,
+  "newGeneration": false
+}

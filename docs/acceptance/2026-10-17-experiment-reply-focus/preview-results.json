@@ -1,0 +1,86 @@
+[
+  {
+    "width": 1440,
+    "selection": "latest",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 1440,
+    "selection": "latest-again",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 1440,
+    "selection": "older",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 1440,
+    "selection": "keyboard",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 390,
+    "selection": "latest",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 390,
+    "selection": "latest-again",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 390,
+    "selection": "older",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 390,
+    "selection": "keyboard",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 320,
+    "selection": "latest",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 320,
+    "selection": "latest-again",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 320,
+    "selection": "older",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  },
+  {
+    "width": 320,
+    "selection": "keyboard",
+    "focused": true,
+    "draftPreserved": true,
+    "visible": true
+  }
+]

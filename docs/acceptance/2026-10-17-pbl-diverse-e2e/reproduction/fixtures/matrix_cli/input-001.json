@@ -1,0 +1,9 @@
+{
+  "phase": "plan",
+  "data": {
+    "topic": "做一个 Python 命令行CSV销售统计工具，不要网页。通过 python sales.py input.csv --output result.json 读取商品,数量,单价，计算总销售额与各商品销售额；用Decimal保留两位小数，非法行输出行号到stderr并以非零码退出。要有真实文件读写、命令行参数、退出码和临时目录验收。",
+    "issues": [],
+    "priorPlan": null
+  },
+  "startedAt": 1792229103.1192577
+}

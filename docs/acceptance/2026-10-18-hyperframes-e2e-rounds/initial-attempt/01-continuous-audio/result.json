@@ -1,0 +1,166 @@
+{
+  "scenario": "01-continuous-audio",
+  "started": "2026-10-18T04:54:43.579Z",
+  "base": "http://127.0.0.1",
+  "course": "hf-e2e-20261017160234",
+  "material_id": "published-c3b736d8ac969ce79217",
+  "version": 2,
+  "digest": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448",
+  "checks": [
+    {
+      "name": "production-player-ready"
+    },
+    {
+      "name": "first-segment-audible",
+      "audio": [
+        {
+          "state": "running",
+          "rms": 0.05585812691750312
+        }
+      ],
+      "seconds": 0.38426345578231286
+    },
+    {
+      "name": "second-segment-audible-after-natural-transition",
+      "audio": [
+        {
+          "state": "running",
+          "rms": 0.13829131935153663
+        }
+      ],
+      "seconds": 13.895374566893425
+    },
+    {
+      "name": "entire-lesson-played-to-end",
+      "time": 32.112,
+      "paused": true,
+      "ended": true
+    },
+    {
+      "name": "audio-before-question",
+      "audio": [
+        {
+          "state": "running",
+          "rms": 0.12591669722181628
+        }
+      ],
+      "seconds": 6.43216916090237
+    },
+    {
+      "name": "question-freezes-exact-current-context",
+      "seconds": 6.493121541854749,
+      "segment": "seg-01"
+    },
+    {
+      "name": "real-model-answer-succeeded",
+      "elapsedSeconds": 9.021
+    },
+    {
+      "name": "current-answer-citation-jump-and-reload"
+    },
+    {
+      "name": "audio-after-answer-resume",
+      "audio": [
+        {
+          "state": "running",
+          "rms": 0.08137401203630573
+        }
+      ],
+      "seconds": 7.132885269841272
+    },
+    {
+      "name": "resume-after-question"
+    }
+  ],
+  "errors": [
+    "Failed to read the 'localStorage' property from 'Window': Access is denied for this document.",
+    "Failed to read the 'localStorage' property from 'Window': Access is denied for this document.",
+    "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+  ],
+  "httpFailures": [],
+  "requestsFailed": [],
+  "question": {
+    "request_id": "2a08479f-6523-4dee-9614-0e1e3401aed5",
+    "question": "只看我当前停下的直线画面：w 保持 1，b 从 0 变为 2，斜率会变成 3 吗？请解释直线具体怎样变化，并引用当前位置。",
+    "reading_context": {
+      "resource_ref": {
+        "course_id": "hf-e2e-20261017160234",
+        "material_type": "classroom",
+        "material_id": "published-c3b736d8ac969ce79217",
+        "version": 2
+      },
+      "locator": {
+        "kind": "hyperframes",
+        "seconds": 6.493121541854749,
+        "segment_id": "seg-01",
+        "content_hash": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+      },
+      "selected_text": "",
+      "classroom": {
+        "status": "paused",
+        "position": {
+          "seconds": 6.493121541854749,
+          "segment_id": "seg-01"
+        }
+      }
+    }
+  },
+  "answer": {
+    "turn_id": "answer-04c598e3d0074cbdb5b96233b448a022",
+    "session_id": "learning-14275f3cfdb4305849dd41e4641a7398447c6dd9cf9bcaeb86dc5316bd8ed4ad",
+    "request_id": "2a08479f-6523-4dee-9614-0e1e3401aed5",
+    "topic_id": "bias",
+    "status": "succeeded",
+    "stage": "succeeded",
+    "attempt": 1,
+    "result": {
+      "actions": [],
+      "citations": [
+        {
+          "title": "神经元的偏置：平移直线与降低启动阈值",
+          "locator": {
+            "kind": "hyperframes",
+            "seconds": 6.493121541854749,
+            "segment_id": "seg-01",
+            "content_hash": "7654bc34383ccd33aedbd1da019a941a5ddae55869b80d3d19e13531e6e29448"
+          },
+          "visibility": "course",
+          "citation_id": "ctx_01",
+          "content_hash": "584044dd3b1ccdcbe8caf4443c4a78ed59dad71ea6496496e19b06b659bd5d04",
+          "resource_ref": {
+            "version": 2,
+            "course_id": "hf-e2e-20261017160234",
+            "material_id": "published-c3b736d8ac969ce79217",
+            "material_type": "classroom"
+          }
+        }
+      ],
+      "observation": null,
+      "citation_ids": [
+        "ctx_01"
+      ],
+      "memory_epoch": 0,
+      "model_rounds": 1,
+      "role_version": "learning-role-v3",
+      "tool_attempts": 0,
+      "teaching_skill": {
+        "mode": "classroom",
+        "name": "teach-current-topic",
+        "version": "5aeb8f26b90cb684dae41f9f197913be65ac5df1400fa571b6a369cd05f0b0a1"
+      },
+      "answer_markdown": "不会。斜率仍然是 1，不会变成 3。\n\n你现在停在 6.5 秒左右，画面是“偏置 b 让直线上下平移”这一段：坐标系里画的是 **y = w·x + b**，斜率固定 w = 1，b 从 0 增到 2，直线整体向上平移，截距点沿 y 轴同步上移；随后 b 从 2 减到 −2，直线向下平移。画面里还专门留了一条虚线参考线，用来强调“斜率不动”。\n\n具体变化：\n\n- **b = 0**：y = x，直线过原点。\n- **b = 2**：y = x + 2，每个 x 对应的 y 都比原来大 2，整条线向上平移 2 格，与 y 轴交于 (0, 2)。\n- 斜率看的是“x 每增加 1，y 增加多少”，这里始终是 1，所以直线倾斜程度不变。\n\n容易混淆的地方是：b 只改变截距（直线与 y 轴的交点），不改变斜率。要让斜率变成 3，得改 w（比如 w = 3），那是另一回事。",
+      "source_revision": 59,
+      "preparation_receipts": [],
+      "suggested_action_ids": []
+    },
+    "error_code": null,
+    "committed_effects": []
+  },
+  "citation": {
+    "text": "来源：神经元的偏置：平移直线与降低启动阈值 · v2",
+    "href": "?learningPlayer=1#ai?course_id=hf-e2e-20261017160234&material_type=classroom&material_id=published-c3b736d8ac969ce79217&version=2&visibility=course&citation=1&seconds=6.493121541854749&segment_id=seg-01"
+  },
+  "status": "failed",
+  "failure": "AssertionError [ERR_ASSERTION]: [\"Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\",\"Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\",\"Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\"]\n\n3 !== 0\n\n    at file:///home/zxqs_ep/Edu_AI/frontend/scripts/check-hyperframes-online-rounds.mjs:94:10",
+  "finished": "2026-10-18T04:55:36.970Z"
+}

@@ -1,0 +1,175 @@
+{
+  "operation_id": "3fd8a1e9-1433-40ba-8181-25898c3ecf15",
+  "seq": 12,
+  "phase": "guided",
+  "actor": "user",
+  "task_id": "task-1",
+  "attempt_id": "61958fcc-2be9-4316-abe1-aa048b9e0490",
+  "action": "choose-keep",
+  "label": "选择不交换",
+  "input": {
+    "index": 0,
+    "choice": "keep"
+  },
+  "reported_facts": {
+    "left": 4,
+    "pass": 1,
+    "index": 0,
+    "right": 2,
+    "chosen": "keep",
+    "expected": "swap",
+    "arrayBefore": [
+      4,
+      2,
+      3,
+      1
+    ]
+  },
+  "before": {
+    "snapshot_id": "12:before",
+    "values": {
+      "i": 0,
+      "arr": [
+        4,
+        2,
+        3,
+        1
+      ],
+      "done": false,
+      "pass": 0,
+      "inputs": [
+        "4",
+        "2",
+        "3",
+        "1"
+      ],
+      "editable": false,
+      "baseArray": [
+        4,
+        2,
+        3,
+        1
+      ],
+      "comparing": null,
+      "sortedFrom": 4,
+      "taskActive": true,
+      "swappedInPass": false,
+      "currentTaskIndex": 0
+    },
+    "reference_only": {
+      "page_text": {
+        "message": "",
+        "lastAction": "就绪"
+      },
+      "note": "Page-written descriptions, not independently verified state causes."
+    },
+    "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement"
+  },
+  "after_action": {
+    "snapshot_id": "12",
+    "values": {
+      "i": 0,
+      "arr": [
+        4,
+        2,
+        3,
+        1
+      ],
+      "done": false,
+      "pass": 0,
+      "inputs": [
+        "4",
+        "2",
+        "3",
+        "1"
+      ],
+      "editable": false,
+      "baseArray": [
+        4,
+        2,
+        3,
+        1
+      ],
+      "comparing": null,
+      "sortedFrom": 4,
+      "taskActive": true,
+      "swappedInPass": false,
+      "currentTaskIndex": 0
+    },
+    "reference_only": {
+      "page_text": {
+        "message": "",
+        "lastAction": "就绪"
+      },
+      "note": "Page-written descriptions, not independently verified state causes."
+    },
+    "measurement_validity": "not_reported; zero is a present value, not evidence of a missing measurement"
+  },
+  "changes": [],
+  "assessment": {
+    "verdict": "fail",
+    "scope": "operation",
+    "event_id": "4a0df001-96ea-4d27-975b-4aefc2e6a396",
+    "covers_operation_ids": [
+      "3fd8a1e9-1433-40ba-8181-25898c3ecf15"
+    ],
+    "checks": [],
+    "error_reason": {
+      "status": "reported_choice_mismatch",
+      "expected": "swap",
+      "actual": "keep",
+      "failed_conditions": [],
+      "source": "page_reported_action_facts",
+      "learner_misconception": "not_established_by_operation"
+    },
+    "completion_reason": "not_reported_as_structured_evidence"
+  },
+  "recovery": {
+    "recorded": true,
+    "event_id": "99cec078-c291-46bf-9fcc-c2f26aca8d64",
+    "snapshot_id": "14",
+    "state_after_recovery": {
+      "i": 0,
+      "arr": [
+        4,
+        2,
+        3,
+        1
+      ],
+      "done": false,
+      "pass": 0,
+      "inputs": [
+        "4",
+        "2",
+        "3",
+        "1"
+      ],
+      "message": "",
+      "editable": false,
+      "baseArray": [
+        4,
+        2,
+        3,
+        1
+      ],
+      "comparing": null,
+      "lastAction": "就绪",
+      "sortedFrom": 4,
+      "taskActive": true,
+      "swappedInPass": false,
+      "currentTaskIndex": 0
+    },
+    "restored_operation_start": true
+  },
+  "reference_only": {
+    "action_rule": "用户确认不交换；按当前相邻数值判对错，排序结束才pass",
+    "page_feedback": "这次不该保持不动：左元素 4 大于右元素 2，升序排序中应交换两者。请重新比较这两个相邻元素再选择。",
+    "warning": "Generated explanations are not independently verified causes."
+  },
+  "source_event_ids": [
+    "3fd8a1e9-1433-40ba-8181-25898c3ecf15",
+    "4a0df001-96ea-4d27-975b-4aefc2e6a396",
+    "99cec078-c291-46bf-9fcc-c2f26aca8d64"
+  ],
+  "reconstructed": false
+}

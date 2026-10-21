@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-14",
+  "status": "deployed-and-production-browser-verified",
+  "upstream": {
+    "repository": "https://github.com/THU-MAIC/MAIC-UI",
+    "revision": "aad58ddcc2103058b4c2deffc48a3c13e2c64dd6",
+    "checkout_unmodified": true,
+    "classes": [
+      "ScientificEngine",
+      "HeavyGenerator",
+      "PostProcessor"
+    ],
+    "reuse": "full checkout; call native classes through platform provider; preserve generated full-document layout"
+  },
+  "checks": {
+    "backend": {
+      "passed": 12
+    },
+    "browser_validator": {
+      "passed": 7
+    },
+    "host_browser": {
+      "passed": 4,
+      "skipped": 1,
+      "skip_reason": "optional legacy real-artifact path was not supplied; two legacy fixture tests passed",
+      "viewport_widths": [
+        1440,
+        390
+      ],
+      "dpr": 2,
+      "api": "mocked owner/detail/journal endpoints, real generated HTML"
+    },
+    "typescript": "passed",
+    "eslint_practice": "passed",
+    "vite_build": "passed; frontend/dist-practice-native"
+  },
+  "samples": {
+    "quicksort": {
+      "html_sha256": "ae73a7a8c32fc27a799d15079fc869453f4c7db7c5cea1e5af1d7edffc6a95c0",
+      "browser_ok": true,
+      "presentation": "maic-ui-native-v1",
+      "generation_info": {
+        "mode": "heavy",
+        "duration_seconds": 58.81,
+        "stages_completed": 2,
+        "refinements": {
+          "stage1": 0,
+          "stage2": 0
+        },
+        "theme": "通用"
+      },
+      "repairs": [
+        "真实模型定向修复：预计算动作改为使用数组副本，避免重复交换",
+        "验收样例修复：删除导致单步更新丢失的生成端节流，使用宿主消息合并"
+      ]
+    },
+    "friction": {
+      "html_sha256": "3952e54551683f715ac55a9432410246174f0aedc86ebae1aae0e670773f26c8",
+      "browser_ok": true,
+      "presentation": "maic-ui-native-v1",
+      "generation_info": {
+        "mode": "heavy",
+        "duration_seconds": 61.59,
+        "stages_completed": 2,
+        "refinements": {
+          "stage1": 0,
+          "stage2": 0
+        },
+        "theme": "通用"
+      },
+      "repairs": []
+    }
+  },
+  "limitations": [
+    "通用运行检查不等于学科正确性证明；另一次独立快速排序生成通过通用检查但未更新数组，见 quicksort-final-semantic.json。",
+    "验收用快速排序样例经过定向模型修复及删除丢失单步更新的节流，非声称原生首轮生成全对。",
+    "真实生成使用隔离内存存储，没有修改用户实验或观察记录。",
+    "没有新增数据库迁移；旧实验需重新生成才使用新链路。",
+    "原生代码已随资源工具发布进入生产；线上专项浏览器验收使用模拟业务响应，未向真实用户实验写入数据。"
+  ],
+  "deploymentRecord": "deployment.json"
+}

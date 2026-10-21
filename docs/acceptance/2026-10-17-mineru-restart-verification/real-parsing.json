@@ -1,0 +1,76 @@
+{
+  "production_writes": false,
+  "config": {
+    "provider_id": "mineru-local",
+    "base_url": "http://127.0.0.1:8190",
+    "timeout_seconds": 1800.0
+  },
+  "cases": [
+    {
+      "file": "sample-paper.pdf",
+      "parser": "mineru-local",
+      "revision": "mineru-local-v2",
+      "defects": [],
+      "characters": 2074,
+      "assets": 0,
+      "layout": 17,
+      "remote_task": {
+        "provider": "mineru-local",
+        "task_id": "job_3a99d44451e230edbb29428a"
+      },
+      "receipts": [
+        {
+          "provider": "mineru-local",
+          "task_id": "job_3a99d44451e230edbb29428a"
+        }
+      ],
+      "seconds": 4.13
+    },
+    {
+      "file": "scanned-paper.pdf",
+      "parser": "mineru-local",
+      "revision": "mineru-local-v2",
+      "defects": [],
+      "characters": 373,
+      "assets": 2,
+      "layout": 9,
+      "remote_task": {
+        "provider": "mineru-local",
+        "task_id": "job_aefdf8a98999f3a24cc957c3"
+      },
+      "receipts": [
+        {
+          "provider": "mineru-local",
+          "task_id": "job_aefdf8a98999f3a24cc957c3"
+        }
+      ],
+      "seconds": 5.07
+    },
+    {
+      "file": "blank-middle-page.pdf",
+      "parser": "mineru-local",
+      "revision": "mineru-local-v2",
+      "defects": [],
+      "characters": 2074,
+      "assets": 0,
+      "layout": 17,
+      "remote_task": {
+        "provider": "mineru-local",
+        "task_id": "job_fbae2c23a7981af2fe125172"
+      },
+      "receipts": [
+        {
+          "provider": "mineru-local",
+          "task_id": "job_fbae2c23a7981af2fe125172"
+        }
+      ],
+      "seconds": 6.07
+    }
+  ],
+  "exam_sources": {
+    "ok": true,
+    "provider": "mineru-local",
+    "layout": 17,
+    "characters": 2074
+  }
+}

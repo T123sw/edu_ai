@@ -1,0 +1,19 @@
+{
+  "activeTasks": 0,
+  "taskStates": [
+    {
+      "status": "succeeded",
+      "count": 1
+    },
+    {
+      "status": "failed",
+      "count": 9
+    }
+  ],
+  "isolatedServerPid": 1238787,
+  "signal": "SIGINT",
+  "retainedDatabase": "pbl_acceptance_20261017_diverse",
+  "productionDataModified": false,
+  "serverStopped": true,
+  "portClosed": true
+}

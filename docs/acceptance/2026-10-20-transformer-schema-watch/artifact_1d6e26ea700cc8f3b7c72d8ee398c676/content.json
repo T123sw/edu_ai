@@ -1,0 +1,201 @@
+{
+  "title": "自注意力：Q/K/V 与缩放点积计算",
+  "content": {
+    "title": "自注意力：Q/K/V 与缩放点积计算",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_1d6e26ea700cc8f3b7c72d8ee398c676",
+      "entry": "index.html",
+      "digest": "a70aba535537746ab9fa24bfd820e65c3c845434913163bd2d8a9862cdbb989a"
+    },
+    "timeline": {
+      "duration": 310.2,
+      "segments": [
+        {
+          "id": "f01-opening",
+          "end": 20.57,
+          "start": 0.0,
+          "title": "进入编码器栈内部",
+          "events": [],
+          "narration": "上一节我们把整条数据流走了一遍：分词、词嵌入、位置编码，一直到编码器栈和解码器栈。这一节我们钻进编码器栈内部，只看一个子层——注意力子层。它到底在算什么？答案是：让每个词元，自己决定该关注哪些词元。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "数据流条上高亮编码器栈，展开成子层，最后落到「让每个词元决定该关注谁」"
+        },
+        {
+          "id": "f02-attention-definition",
+          "end": 43.62,
+          "start": 20.57,
+          "title": "注意力函数的定义",
+          "events": [],
+          "narration": "论文对注意力函数有一个很干净的定义：把一个查询，和一组键值对，映射成一个输出，三者都是向量。输出是加权求和：每个值乘上一个权重，再全部加起来；权重由查询与它对应键的相容性函数给出。查询和键越相容，这个值的话语权就越大。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "一个查询对所有键打分，权重乘到值上，汇聚成一个输出"
+        },
+        {
+          "id": "f03-qkv-source",
+          "end": 77.22999999999999,
+          "start": 43.62,
+          "title": "Q、K、V 来自同一个序列",
+          "events": [],
+          "narration": "那么在自注意力里，查询、键、值从哪来？它们都来自同一个序列，也就是上一层输出的那些向量。每个位置的向量，分别乘上三个可学习的投影矩阵，就得到这个位置的查询、键和值。所以同一个词元在三件事上表态：我想找什么、我凭什么被匹配、我携带什么信息。顺带区分一句：编码器-解码器注意力里，查询来自解码器，键和值来自编码器输出。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "同一序列的三个投影矩阵扇出 Q/K/V 三张矩阵，附三个角色的说明"
+        },
+        {
+          "id": "f04-four-steps",
+          "end": 106.76,
+          "start": 77.23,
+          "title": "缩放点积注意力的四步",
+          "events": [],
+          "narration": "计算分四步，而且是对所有位置同时算的。第一步，查询和所有键做点积，得到分数矩阵；第二步，每个分数除以根号 dk 做缩放；第三步，每一行做 softmax，得到一组和为 1 的权重；第四步，用权重对值加权求和，得到输出矩阵。矩阵形式就是：softmax，Q 乘 K 转置，除根号 dk，再乘 V。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "四步流程卡依次点亮，底部公式条逐项拼出"
+        },
+        {
+          "id": "f05-hand-qkv",
+          "end": 133.33,
+          "start": 106.76,
+          "title": "手算准备：三个词元，dk = 2",
+          "events": [],
+          "narration": "我们来真的算一遍。三个词元，dk 等于 2，也就是每个查询、键、值都是二维向量。左边是查询矩阵 Q，三行，每行一个词元的查询；中间是键矩阵 K；右边是值矩阵 V。为了看清区别，我特意让 V 和 K 取不同的数。分母里的 dk 就是这里的 2，根号 dk 约等于一点四一四。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "Q、K、V 三张 3×2 矩阵逐张落位，右下角标注 dk=2"
+        },
+        {
+          "id": "f06-hand-scores",
+          "end": 162.38,
+          "start": 133.33,
+          "title": "手算：QKᵀ 得到分数矩阵",
+          "events": [],
+          "narration": "第一步，Q 乘 K 转置。K 转置之后，每一列是一个词元的键。第一行第一个数，q1 点乘 k1，一乘一加零乘零，等于 1；第一行第二个数，q1 点乘 k2，等于 0。就这样一行一行点下去，得到一个三乘三的分数矩阵。分数越大，说明这一对查询和键越相容。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "Q 与 Kᵀ 相乘，3×3 分数矩阵逐格填入"
+        },
+        {
+          "id": "f07-hand-softmax",
+          "end": 193.9,
+          "start": 162.38,
+          "title": "手算：除以 √dk 与 softmax",
+          "events": [],
+          "narration": "第二步，每个分数除以根号 dk，也就是除以 1.414。第三步，每一行做 softmax：先取指数，再除以这一行的指数和。第一行 2.028、1、2.028 加起来是 5.056，得到 0.401、0.198、0.401。三行都做完，你会看到一件重要的事：每一行的权重和都是 1，每一行都是一个完整的分配方案。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "缩放后的分数矩阵、softmax 公式、权重矩阵，最后每行校验和为 1"
+        },
+        {
+          "id": "f08-hand-output",
+          "end": 222.87,
+          "start": 193.9,
+          "title": "手算：对 V 加权求和得到输出",
+          "events": [],
+          "narration": "第四步，用权重对值加权求和。看第一行：0.401 乘 v1，加上 0.198 乘 v2，加上 0.401 乘 v3，得到 1.20 和 1.00。注意这不是挑选，而是混合——三个值按权重掺在一起。三行都算完，我们得到一个和 Q 同形状的三乘二输出矩阵，这才是送进下一个子层的东西。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "权重矩阵与值矩阵相乘，输出矩阵逐行算出"
+        },
+        {
+          "id": "f09-formula-annot",
+          "end": 248.8,
+          "start": 222.87,
+          "title": "公式逐项标注",
+          "events": [],
+          "narration": "现在回头看这个公式，每一项都不再陌生。Q 是查询矩阵，行数等于序列长度，列数等于 dk；K 的转置让键去和查询对齐，乘出来是分数矩阵；根号 dk 是缩放因子；softmax 按行归一化成权重；最后乘 V 得到输出。顺序不能换：先缩放，再 softmax。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "大公式居中，Q、Kᵀ、√dk、softmax、V 依次被点名并标注维度"
+        },
+        {
+          "id": "f10-why-scale",
+          "end": 283.85,
+          "start": 248.8,
+          "title": "为什么要除以 √dk",
+          "events": [],
+          "narration": "为什么一定要除以根号 dk？先看数量级。假设 q 和 k 的每个分量都独立、均值 0、方差 1，那么点积是 dk 项之和，方差就是 dk，标准差是根号 dk。dk 从 2 变成 64，相同模式下的分数幅值会放大几倍；softmax 对幅值很敏感，分数一大，最大的那一项几乎吃掉全部权重，输出接近 one-hot，梯度随之趋近于零。除以根号 dk，正好把方差拉回 1。",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左边方差推导链，右边 dk=2 与 dk=64 的权重分布对比"
+        },
+        {
+          "id": "f11-recap",
+          "end": 310.18,
+          "start": 283.85,
+          "title": "回顾与思考提示",
+          "events": [],
+          "narration": "收一下这一节：注意力是查询和键值对之间的加权求和；缩放点积注意力分四步，点积、缩放、softmax、加权求和；缩放是为了不让 softmax 饱和；自注意力里 Q、K、V 都来自同一个序列。留一个思考：如果把 dk 从 2 改成 64，又不做缩放，刚才那张权重表会变成什么样？",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "四条回顾依次落位，最后一张思考题卡留白"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 310.2
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.17
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "39fbe71c49c596cdf74266ff831873be9ab9106033d23aabdf75a53902ef33b8",
+      "capabilities": {
+        "animation": true,
+        "narration": false,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 310.2
+      },
+      "content_digest": "aae983de8c54703ddf38173ebdd73356c4cd70fc0bd2771d31ebbfc67505e8b1",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.17
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "a7acbc3dfb187216221b2175b0ef0dc79445ea55871005c85173f8715be54c11"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "1734c8f94f371ee9aa901682ed00bf0ffb55b4bdb3629f4c1154a2e9397b828d",
+      "preparation_sha256": "1127648876bfa3690c64eb68dd5cfecbf1e0274561e30ef158354ff6abb52202"
+    }
+  }
+}

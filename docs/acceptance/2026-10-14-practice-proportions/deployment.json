@@ -1,0 +1,165 @@
+{
+  "publishedAt": "20261014T053721Z",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-practice-proportions-release",
+  "backup": "/tmp/edu-practice-proportions-backup-20261014T053721Z",
+  "previousIndexSha256": "3fbd7434095f24a64f303cf6c521f5fc166b7b4275cc8e94cd300d55d21e3231",
+  "releaseIndexSha256": "518e128a85837307aeb0113c8d5bcead5c63c0121627976b4fe2c750d1ddd649",
+  "baselineReproduced": true,
+  "nginxIndexMatches": true,
+  "changes": [
+    "桌面右栏约30%，360–560px；1440宽度从352增至432px",
+    "左栏适当收窄，1440宽度三栏192/816/432px",
+    "逻辑画布从440增至560px，DPR=2位图1120px，配置保持在下方"
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "browser": {
+      "passed": 5,
+      "skipped": 1
+    },
+    "actualArtifactLayout": {
+      "base": "http://127.0.0.1:5232",
+      "checks": [
+        {
+          "width": 1920,
+          "headerHidden": true,
+          "canvasHeight": 560,
+          "bitmapHeight": 1120,
+          "canvasTop": 89,
+          "configTop": 853.984375,
+          "configBelow": true,
+          "overflow": false,
+          "columns": "220px 1140px 560px",
+          "right": 560,
+          "messages": 477.671875,
+          "comparisonAfterTwoSteps": 1,
+          "resetCount": 0,
+          "errors": []
+        },
+        {
+          "width": 1440,
+          "headerHidden": true,
+          "canvasHeight": 560,
+          "bitmapHeight": 1120,
+          "canvasTop": 89,
+          "configTop": 853.984375,
+          "configBelow": true,
+          "overflow": false,
+          "columns": "192px 816px 432px",
+          "right": 432,
+          "messages": 432.6875,
+          "comparisonAfterTwoSteps": 1,
+          "resetCount": 0,
+          "errors": []
+        },
+        {
+          "width": 1100,
+          "headerHidden": true,
+          "canvasHeight": 560,
+          "bitmapHeight": 1120,
+          "canvasTop": 85,
+          "configTop": 918.84375,
+          "configBelow": true,
+          "overflow": false,
+          "columns": "180px 560px 360px",
+          "right": 360,
+          "messages": 409.890625,
+          "comparisonAfterTwoSteps": 1,
+          "resetCount": 0,
+          "errors": []
+        },
+        {
+          "width": 390,
+          "headerHidden": true,
+          "canvasHeight": 560,
+          "bitmapHeight": 1120,
+          "canvasTop": 85,
+          "configTop": 996.9375,
+          "configBelow": true,
+          "overflow": false,
+          "columns": "390px",
+          "right": 0,
+          "messages": 0,
+          "comparisonAfterTwoSteps": 1,
+          "resetCount": 0,
+          "errors": []
+        }
+      ]
+    }
+  },
+  "reference": "本地固定 MAIC-UI 原仓库示例为两区布局；保留已确认三栏，参考其宽松展示比例，不声称原仓库固定三栏比例。",
+  "verificationLimits": "使用真实实验HTML副本和模拟业务API；未写入生产实验、问答或观察记录。",
+  "productionLayoutChecks": {
+    "base": "http://127.0.0.1",
+    "checks": [
+      {
+        "width": 1920,
+        "headerHidden": true,
+        "canvasHeight": 560,
+        "bitmapHeight": 1120,
+        "canvasTop": 89,
+        "configTop": 853.984375,
+        "configBelow": true,
+        "overflow": false,
+        "columns": "220px 1140px 560px",
+        "right": 560,
+        "messages": 477.671875,
+        "comparisonAfterTwoSteps": 1,
+        "resetCount": 0,
+        "errors": []
+      },
+      {
+        "width": 1440,
+        "headerHidden": true,
+        "canvasHeight": 560,
+        "bitmapHeight": 1120,
+        "canvasTop": 89,
+        "configTop": 853.984375,
+        "configBelow": true,
+        "overflow": false,
+        "columns": "192px 816px 432px",
+        "right": 432,
+        "messages": 432.6875,
+        "comparisonAfterTwoSteps": 1,
+        "resetCount": 0,
+        "errors": []
+      },
+      {
+        "width": 1100,
+        "headerHidden": true,
+        "canvasHeight": 560,
+        "bitmapHeight": 1120,
+        "canvasTop": 85,
+        "configTop": 918.84375,
+        "configBelow": true,
+        "overflow": false,
+        "columns": "180px 560px 360px",
+        "right": 360,
+        "messages": 409.890625,
+        "comparisonAfterTwoSteps": 1,
+        "resetCount": 0,
+        "errors": []
+      },
+      {
+        "width": 390,
+        "headerHidden": true,
+        "canvasHeight": 560,
+        "bitmapHeight": 1120,
+        "canvasTop": 85,
+        "configTop": 996.9375,
+        "configBelow": true,
+        "overflow": false,
+        "columns": "390px",
+        "right": 0,
+        "messages": 0,
+        "comparisonAfterTwoSteps": 1,
+        "resetCount": 0,
+        "errors": []
+      }
+    ]
+  }
+}

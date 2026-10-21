@@ -19,16 +19,26 @@ class DurableExecutorPool:
         handler_registry: DurableTaskHandlerRegistry,
         completion_service: JobCompletionService,
         worker_count: int,
+        control_worker_count: int = 0,
+        light_worker_count: int = 0,
+        exclude_control_from_general: bool = False,
         lease_seconds: float = 45,
         heartbeat_interval: float = 10,
         poll_interval: float = 0.5,
     ) -> None:
         if int(worker_count) < 1:
             raise ValueError("worker_count must be positive")
+        if int(control_worker_count) < 0:
+            raise ValueError("control_worker_count must not be negative")
+        if int(light_worker_count) < 0:
+            raise ValueError("light_worker_count must not be negative")
         self.task_store = task_store
         self.handler_registry = handler_registry
         self.completion_service = completion_service
-        pool_id = f"durable-{id(self):x}"
+        from uuid import uuid4
+        pool_id = f"durable-{uuid4().hex[:12]}"
+        control_types = ('preparation_step',)
+        generation_count = int(worker_count) + int(light_worker_count)
         self.executors = tuple(
             DurableTaskExecutor(
                 task_store=task_store,
@@ -38,8 +48,11 @@ class DurableExecutorPool:
                 lease_seconds=lease_seconds,
                 heartbeat_interval=heartbeat_interval,
                 poll_interval=poll_interval,
+                light_resources_only=int(worker_count) <= index < generation_count,
+                workflow_types=control_types if index >= generation_count else None,
+                excluded_workflow_types=control_types if (control_worker_count or exclude_control_from_general) and index < generation_count else (),
             )
-            for index in range(int(worker_count))
+            for index in range(generation_count + int(control_worker_count))
         )
         self._lock = threading.RLock()
         self._started = False

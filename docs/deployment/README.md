@@ -1,3 +1,5 @@
+> 2026-10-17 课堂已迁移到 HyperFrames。当前课堂部署以 [HyperFrames 运行说明](hyperframes.md) 为准。下面涉及旧 sidecar 的内容为历史部署记录，不能用作新课堂启动步骤。
+
 # Edu-AI Linux 启动、部署与数据迁移指南
 
 适用环境：Ubuntu 22.04 x86_64，部署用户 `zxqs_ep`，代码目录 `/home/zxqs_ep/Edu_AI`。本指南只使用系统 PostgreSQL、系统级 systemd 和 Nginx，不要求 Docker。
@@ -25,7 +27,7 @@ PostgreSQL 中保存用户、课程、成员关系、材料、知识文档和学
 正常情况下服务随系统启动，无需打开 VS Code。先查看状态：
 
 ```bash
-systemctl is-active postgresql edu-ai-openmaic edu-ai-backend nginx
+systemctl is-active postgresql edu-ai-backend nginx
 ```
 
 四行均显示 `active` 时，直接在浏览器访问服务器地址即可。需要手动启动时执行：
@@ -37,7 +39,7 @@ conda activate edu-ai
 bash scripts/start-production.sh
 ```
 
-看到命令行前缀出现 `(edu-ai)` 后，表示当前运维终端已经进入项目环境。脚本会请求 `sudo` 密码，依次启动 PostgreSQL、OpenMAIC、FastAPI 和 Nginx，并等待健康检查通过。
+看到命令行前缀出现 `(edu-ai)` 后，表示当前运维终端已经进入项目环境。脚本会请求 `sudo` 密码，依次启动 PostgreSQL、HyperFrames 任务 worker、FastAPI 和 Nginx，并等待健康检查通过。
 
 生产服务本身不依赖当前终端持续激活 Conda。systemd 单元已经固定使用：
 
@@ -59,13 +61,13 @@ cd /home/zxqs_ep/Edu_AI
 
 ```bash
 # 重启应用服务
-sudo systemctl restart edu-ai-openmaic edu-ai-backend
+sudo systemctl restart edu-ai-backend
 
 # 停止整套服务
-sudo systemctl stop nginx edu-ai-backend edu-ai-openmaic postgresql
+sudo systemctl stop nginx edu-ai-backend postgresql
 
 # 查看最近日志
-journalctl -u edu-ai-openmaic -u edu-ai-backend -n 200 --no-pager
+journalctl -u -u edu-ai-backend -n 200 --no-pager
 ```
 
 每次启动或重启后执行：
@@ -138,7 +140,7 @@ curl http://127.0.0.1:8080/backend/health
 
 ```bash
 # 以下命令在服务器终端执行
-systemctl is-active nginx edu-ai-backend edu-ai-openmaic
+systemctl is-active nginx edu-ai-backend
 curl --fail http://127.0.0.1/backend/health
 ```
 
@@ -191,7 +193,8 @@ source /home/zxqs_ep/miniforge3/etc/profile.d/conda.sh
 conda activate edu-ai
 
 # 安装 Chromium 在 Ubuntu 上需要的系统库
-sudo env "PATH=$PATH" pnpm --dir openmaic-sidecar exec playwright install-deps chromium
+sudo apt install bubblewrap
+sudo env "PATH=$PATH" npm --prefix hyperframes-runtime exec -- playwright install-deps chromium
 ```
 
 安装脚本使用根目录 `environment.yml`，统一安装 Python 3.12、Node.js 22、pnpm 10.28、FFmpeg/ffprobe 6+、后端依赖、两个 Node 项目和 Chromium。
@@ -252,27 +255,25 @@ cd ../..
 bash scripts/build-production.sh
 ```
 
-构建结果应为 `frontend/dist/` 和 `openmaic-sidecar/.next/`。
+构建结果为 `frontend/dist/`；运行时依赖保留在 `hyperframes-runtime/node_modules/`。
 
 ## 8. 安装 systemd 与 Nginx
 
 ```bash
 cd /home/zxqs_ep/Edu_AI
-sudo install -m 644 deploy/systemd/edu-ai-openmaic.service /etc/systemd/system/
 sudo install -m 644 deploy/systemd/edu-ai-backend.service /etc/systemd/system/
 sudo install -m 644 deploy/nginx/edu-ai.conf /etc/nginx/sites-available/edu-ai.conf
 sudo ln -sfn /etc/nginx/sites-available/edu-ai.conf /etc/nginx/sites-enabled/edu-ai.conf
 sudo rm -f /etc/nginx/sites-enabled/default
 
 sudo systemd-analyze verify \
-  /etc/systemd/system/edu-ai-openmaic.service \
   /etc/systemd/system/edu-ai-backend.service
 sudo nginx -t
 sudo systemctl daemon-reload
-sudo systemctl enable --now edu-ai-openmaic edu-ai-backend nginx
+sudo systemctl enable --now edu-ai-backend nginx
 ```
 
-安装完成后，也可以使用仓库脚本统一启动 PostgreSQL、OpenMAIC、FastAPI 与承载前端的 Nginx，脚本会等待服务就绪并执行健康检查：
+安装完成后，也可以使用仓库脚本统一启动 PostgreSQL、HyperFrames 任务 worker、FastAPI 与承载前端的 Nginx，脚本会等待服务就绪并执行健康检查：
 
 ```bash
 cd /home/zxqs_ep/Edu_AI
@@ -286,16 +287,16 @@ bash scripts/start-production.sh
 ## 9. 验收
 
 ```bash
-systemctl is-active postgresql edu-ai-openmaic edu-ai-backend nginx
+systemctl is-active postgresql edu-ai-backend nginx
 curl --fail http://127.0.0.1:3000/api/health
 curl --fail http://127.0.0.1:8001/health
 curl --fail http://127.0.0.1/backend/health
 ```
 
-浏览器访问服务器的 HTTP 地址后，再验证登录、课程列表、知识库检索、AI 课堂生成、OpenMAIC 播放、PPTX 导出和视频导出。若失败，查看：
+浏览器访问服务器的 HTTP 地址后，再验证登录、课程列表、知识库检索、AI 课堂生成、HyperFrames 播放、工程下载和视频导出。若失败，查看：
 
 ```bash
-journalctl -u edu-ai-openmaic -u edu-ai-backend -n 200 --no-pager
+journalctl -u -u edu-ai-backend -n 200 --no-pager
 sudo tail -n 200 /var/log/nginx/error.log
 ```
 

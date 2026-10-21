@@ -83,3 +83,38 @@ export async function apiBlob(path: string): Promise<Blob> {
   }
   return response.blob();
 }
+
+/** Authenticated SSE over POST. Disconnect/cancellation never becomes success. */
+export async function apiEventStream(path: string, init: RequestInit, receive: (event: unknown) => void) {
+  const headers = new Headers(init.headers);
+  headers.set('Content-Type', 'application/json');
+  const token = getAuthToken();
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+  const response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers });
+  if (!response.ok) {
+    const payload: unknown = await response.json().catch(() => null);
+    throw new ApiError(apiErrorDetail(payload), response.status);
+  }
+  if (!response.body) throw Error('回答连接未建立，请重试');
+  const reader = response.body.getReader(), decoder = new TextDecoder();
+  let pending = '';
+  const consume = () => {
+    let boundary: number;
+    while ((boundary = pending.indexOf('\n\n')) >= 0) {
+      const block = pending.slice(0, boundary); pending = pending.slice(boundary + 2);
+      const data = block.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart()).join('\n');
+      if (data) receive(JSON.parse(data) as unknown);
+    }
+  };
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      pending += decoder.decode(value, { stream: true });
+      pending = pending.replace(/\r\n/g, '\n');
+      consume();
+    }
+    pending += decoder.decode(); consume();
+    if (pending.trim()) throw Error('回答连接中断，请重试');
+  } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
+}

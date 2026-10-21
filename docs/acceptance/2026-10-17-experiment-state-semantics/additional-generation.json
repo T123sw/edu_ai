@@ -1,0 +1,38 @@
+{
+  "status": "failed_not_published",
+  "topic": "单摆周期实验",
+  "storage": "isolated LocalStore; no production generation job",
+  "metadata_generated": true,
+  "checks": {
+    "explore": {
+      "ok": true,
+      "issues": [],
+      "trace_steps": 0,
+      "unique_action_ids": [],
+      "last_done": null
+    },
+    "demonstrate-attempt-1": {
+      "ok": false,
+      "issues": [
+        "演示执行未结束：请采用简短的确定性初始案例，并在真实结束时返回 done:true。"
+      ],
+      "trace_steps": 256,
+      "unique_action_ids": [
+        "apply-initial-params"
+      ],
+      "last_done": false
+    },
+    "demonstrate-attempt-2": {
+      "ok": false,
+      "issues": [
+        "演示执行未结束：请采用简短的确定性初始案例，并在真实结束时返回 done:true。"
+      ],
+      "trace_steps": 256,
+      "unique_action_ids": [
+        "apply-initial-params"
+      ],
+      "last_done": false
+    }
+  },
+  "diagnosis": "Both demonstration attempts repeat apply-initial-params 256 times in idle state without terminating; metadata exists but does not certify state machine correctness. Exploration source also counts equilibrium sign crossings as full oscillations, which needs separate correction."
+}

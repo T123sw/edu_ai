@@ -52,7 +52,14 @@ class DurableJobRuntime:
 def build_durable_job_runtime(
     *,
     task_store: TaskStore | None = None,
+    worker_count: int | None = None,
+    control_worker_count: int | None = None,
+    light_worker_count: int | None = None,
+    exclude_control_from_general: bool = False,
 ) -> DurableJobRuntime:
+    from app.integrations.hyperframes.build_info import runtime_info
+    import logging
+    logging.getLogger(__name__).info('Generation build: %s', runtime_info())
     store = task_store or get_task_store()
     manager = CourseStorageManager()
     registry = DurableTaskHandlerRegistry()
@@ -64,6 +71,8 @@ def build_durable_job_runtime(
         handler=generation_handler,
     )
     register_platform_task_handlers(registry)
+    from app.services.personal_studio import PersonalStudioTaskHandler
+    registry.register("personal_studio", 1, PersonalStudioTaskHandler(generator=generation_handler, manager=manager))
     from app.artifact_revision.jobs import ArtifactRevisionTaskHandler
     registry.register("artifact_revision", 1, ArtifactRevisionTaskHandler())
     from app.course_preparation.runner import PreparationStepHandler
@@ -72,6 +81,14 @@ def build_durable_job_runtime(
     from app.course_preparation.adapters.generation import PreparationResourceHandler
     from app.course_preparation.application import application
     registry.register("preparation_resource", 1, PreparationResourceHandler(application))
+    from app.practice.service import PracticeTaskHandler
+    registry.register("practice_generate", 1, PracticeTaskHandler())
+    from app.pbl.service import PblTaskHandler
+    registry.register("pbl_generate", 1, PblTaskHandler())
+    from app.exam_generation.service import ExamGenerationHandler
+    registry.register("exam_generate", 1, ExamGenerationHandler())
+    from app.exam_practice.worker import PracticeWorker
+    registry.register("exam_practice", 1, PracticeWorker())
     completion = JobCompletionService(
         task_store=store,
         course_storage_manager=manager,
@@ -80,7 +97,10 @@ def build_durable_job_runtime(
         task_store=store,
         handler_registry=registry,
         completion_service=completion,
-        worker_count=Config.DURABLE_JOB_WORKERS,
+        exclude_control_from_general=exclude_control_from_general,
+        worker_count=Config.DURABLE_JOB_WORKERS if worker_count is None else worker_count,
+        light_worker_count=Config.DURABLE_JOB_LIGHT_WORKERS if light_worker_count is None else light_worker_count,
+        control_worker_count=Config.DURABLE_JOB_CONTROL_WORKERS if control_worker_count is None else control_worker_count,
     )
     reconciler = JobReconciliationService(
         task_store=store,

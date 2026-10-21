@@ -62,11 +62,11 @@ class BlogGenerationAdapterV2:
             pipeline = self.visual_pipeline
             llm = body_llm
             if pipeline is None:
-                from app.chat.application.knowledge_base_direct_report_service_v2 import (
-                    _build_default_visual_pipeline,
+                from app.services.visual_assets.factory import (
+                    build_default_visual_pipeline,
                 )
 
-                pipeline = _build_default_visual_pipeline()
+                pipeline = build_default_visual_pipeline()
             try:
                 brief = pipeline.plan_with_model(
                     llm,

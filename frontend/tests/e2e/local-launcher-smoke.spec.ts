@@ -1,7 +1,7 @@
 import { expect, test } from "playwright/test";
 
 
-test("local launcher exposes frontend, backend, and OpenMAIC", async ({ page, request }) => {
+test("local launcher exposes frontend and backend", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#root")).toBeVisible();
   await expect(page.locator("#root")).not.toBeEmpty();
@@ -13,6 +13,4 @@ test("local launcher exposes frontend, backend, and OpenMAIC", async ({ page, re
   expect(backendStatus).toBeGreaterThanOrEqual(200);
   expect(backendStatus).toBeLessThan(300);
 
-  const openmaic = await request.get("http://127.0.0.1:3000/api/health");
-  expect(openmaic.ok()).toBeTruthy();
 });

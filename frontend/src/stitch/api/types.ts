@@ -939,6 +939,10 @@ export type ClassroomScene = {
 };
 
 export type ClassroomMaterial = {
+  format?: string;
+  content?: unknown;
+  project?: import("../../hyperframes/types").HyperframesContent["project"];
+  timeline?: import("../../hyperframes/types").HyperframesContent["timeline"];
   material_id: string;
   material_type: string;
   title?: string;
@@ -1073,7 +1077,7 @@ export type ResourceLearningAnalytics = {
 
 export type QuizAnswers = Record<string, string | string[]>;
 
-export type ClassroomQaCheckpoint = {
+export type ClassroomQaCheckpoint = import("../../hyperframes/types").HyperframesLocator | {
   scene_id: string;
   scene_index: number;
   action_index: number;

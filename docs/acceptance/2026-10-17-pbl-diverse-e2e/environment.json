@@ -1,0 +1,20 @@
+{
+  "sourceHashes": {
+    "backend/src/app/pbl/project_schemas.py": "21aaec893917d18f9785dbb77a773771b6f122aa7552b41dab92a81f6ab39f35",
+    "backend/src/app/pbl/project_generator.py": "6bfde3aed57bf3097c569ae49dfc2257c261688e3c47af10ba1e214743f1219e",
+    "backend/src/app/pbl/project_workflow.py": "9f1247b0bbf5f3cd03f66e0f9086715f4f029236a4e60a3ab54c3c6c75d1fb53",
+    "backend/src/app/pbl/project_service.py": "ab9137da576987a717a6b604854ba4e98aa9ce60b8296a39c4bcdd9448e1743e",
+    "frontend/scripts/check-pbl-project.mjs": "cd82313a5d8f25d08dbabb07a7a76fa7e54207d464e3f08ee308f924bc6786ca"
+  },
+  "production": "MainPID=1235977\nActiveEnterTimestamp=Sat 2026-10-17 09:18:40 UTC\n",
+  "database": "pbl_acceptance_20261017_diverse",
+  "workers": 2,
+  "productionDataModified": false,
+  "sourceUnchangedAtEnd": {
+    "backend/src/app/pbl/project_schemas.py": true,
+    "backend/src/app/pbl/project_generator.py": true,
+    "backend/src/app/pbl/project_workflow.py": true,
+    "backend/src/app/pbl/project_service.py": true,
+    "frontend/scripts/check-pbl-project.mjs": true
+  }
+}

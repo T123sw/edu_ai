@@ -4,10 +4,7 @@ import { initializeAppearance } from './stitch/theme/appearance';
 import './stitch/theme/appearance.css';
 
 initializeAppearance();
-const legacy =
-  new URLSearchParams(location.search).get("legacy") === "1" ||
-  /^#\/(video-render|player-smoke)/.test(location.hash) ||
-  /^#(video-render|player-smoke)/.test(location.hash);
+const legacy = new URLSearchParams(location.search).get("legacy") === "1";
 const Entry = legacy
   ? lazy(() => import("./legacyEntry"))
   : new URLSearchParams(location.search).get("account") === "1"

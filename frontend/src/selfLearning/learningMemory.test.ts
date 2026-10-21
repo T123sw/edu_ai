@@ -4,7 +4,7 @@ import { seedState, startShared } from "./model";
 import { agentContext, chapterMessages, learningMemory } from "./learningMemory";
 import { restoreState } from "./store";
 
-test("knowledge point conversations restore legacy messages and bound context without mixing transcripts", () => {
+test("course conversation restores legacy messages and shares bounded context across topics", () => {
   const state = seedState(true);
   const room = state.rooms[0];
   const [a, b] = room.chapters;
@@ -17,7 +17,7 @@ test("knowledge point conversations restore legacy messages and bound context wi
   const context = agentContext(restored, a.id);
   assert.equal(context.recentMessages.length, 12);
   assert.equal(context.memory.find(m => m.chapterId === b.id)?.status, "待巩固");
-  assert.equal(JSON.stringify(context).includes("private full transcript"), false);
+  assert.equal(JSON.stringify(context).includes("private full transcript"), true);
 });
 
 test("global learning memory separates completion, quiz evidence and self assessment; shared learners start independently", () => {

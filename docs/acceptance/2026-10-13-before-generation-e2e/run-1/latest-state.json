@@ -1,0 +1,28 @@
+{
+  "preparation_id": "prep_7e7c132ad8864ea293c97b527a0c76f6",
+  "attempt_no": 1,
+  "status": "failed",
+  "stage": "normalize",
+  "revision": 9,
+  "error_code": "BUDGET_EXHAUSTED",
+  "result_ref": null,
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 4,
+      "tokens": 25045,
+      "cost_micro_usd": 250450
+    },
+    "deadline": "2026-10-13T19:01:33.463266+00:00"
+  }
+}

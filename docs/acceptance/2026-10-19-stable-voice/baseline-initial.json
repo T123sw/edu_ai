@@ -1,0 +1,46 @@
+[
+  {
+    "name": "baseline-0.wav",
+    "text": "快速排序先选取一个基准值，再比较左右两边的元素。这个场景保留完整的讲稿，用来验证多个场景同时配音时，每个场景仍然拥有独立且完整的声音文件。",
+    "chars": 69,
+    "duration": 17.84,
+    "sample_rate": 24000,
+    "samples": 428160,
+    "sha256_float": "8088182e2f7aa002ae7c5bf959e3acca391ea5b179055a33b88401ff561cd4d9",
+    "peak": 0.70703125,
+    "elapsed_batch": 45.25
+  },
+  {
+    "name": "baseline-1.wav",
+    "text": "划分结束后，基准值左右两边的元素满足相对大小关系。两边内部还不一定有序，需要继续递归处理，不能把一次划分理解成整个排序过程已经结束。",
+    "chars": 66,
+    "duration": 13.6,
+    "sample_rate": 24000,
+    "samples": 326400,
+    "sha256_float": "1bd80961cf67d5e08cbdcfbcbd7318b1fe5ea059935274615cc777d3f8e4e8de",
+    "peak": 0.76171875,
+    "elapsed_batch": 45.25
+  },
+  {
+    "name": "baseline-2.wav",
+    "text": "递归处理的关键是让问题规模不断缩小。当区间只有零个或者一个元素时，就可以直接返回。每个场景的声音应该对应自己的文字，不能与其他场景混在一起。",
+    "chars": 70,
+    "duration": 15.84,
+    "sample_rate": 24000,
+    "samples": 380160,
+    "sha256_float": "856369a50eb42a83aac29abc13994c2a34547fde432ed61969f22915a4fae04b",
+    "peak": 0.6484375,
+    "elapsed_batch": 45.25
+  },
+  {
+    "name": "baseline-3.wav",
+    "text": "最后回顾整个流程：选择基准，划分区间，递归处理子序列。我们将四个完整场景并行送入配音服务，再按照原来的场景顺序组装，保持讲解的先后关系。",
+    "chars": 68,
+    "duration": 12.96,
+    "sample_rate": 24000,
+    "samples": 311040,
+    "sha256_float": "aefe3098d0b07801d9b197378c31759e3ebf82806e1668d3c53538876d3460ca",
+    "peak": 0.72265625,
+    "elapsed_batch": 45.25
+  }
+]

@@ -1,0 +1,1335 @@
+{
+  "title": "多头注意力：多子空间并行与三种使用方式",
+  "content": {
+    "title": "多头注意力：多子空间并行与三种使用方式",
+    "questions": [
+      {
+        "id": "q1-why-multi-head",
+        "stem": "关于“多头注意力相比单头注意力为什么有用”，下列哪一项最准确地反映了原始论文的表述？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "多头把注意力计算重复 h 次再取平均，平均后噪声更小，所以效果更好",
+          "单头注意力只能学习一种相似度模式；多头让模型在不同表示子空间中并行关注不同位置的信息",
+          "多头注意力通过增加参数量把模型维度从 d_model 扩大到 h·d_model，因此表达能力更强",
+          "多头注意力用不同的 softmax 温度控制每个头，从而让注意力分布更平滑"
+        ],
+        "difficulty": "easy",
+        "explanation": "B 正确：原始论文的原话是“多头注意力允许模型在不同的表示子空间中联合关注不同位置的信息。使用单个注意力头时，平均操作会抑制这种能力”，CS336 笔记也概括为“单头只学习一种相似度模式”。A 错误：多头是并行做 h 个注意力再把输出拼接后投影，不是把结果取平均；论文恰恰指出平均会抑制多子空间能力。C 错误：每个头的维度被压到 d_head=d_model/h，各头输出拼接后总维度仍是 h·d_head=d_model，并没有把模型维度扩大 h 倍。D 错误：缩放因子 1/√d_k 对所有头相同，论文没有为每个头设置不同温度。"
+      },
+      {
+        "id": "q2-head-dim",
+        "stem": "某 Transformer 层取 d_model=512、头数 h=8，且按原始论文设定 d_k=d_v=d_model/h。每个头的 d_head 是多少？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "512",
+          "64",
+          "8",
+          "4096"
+        ],
+        "difficulty": "easy",
+        "explanation": "B 正确：d_head=d_model/h=512/8=64，这正是原始论文中 h=8、d_k=d_v=64 的设定。A 错误：512 是 d_model，即所有头拼接后的总维度，不是单个头的维度。C 错误：8 是头数 h，把 h 当成了每头维度。D 错误：4096=512×8，是把 d_model 乘以头数，方向算反了。"
+      },
+      {
+        "id": "q3-cost",
+        "stem": "为什么原始论文说“由于每个头的维度降低了，总的计算成本与全维度的单头注意力相似”？下列解释哪一项成立？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "因为多头注意力只在第一个头上真正计算，其余头复用其结果",
+          "因为每个头的 Q/K/V 投影矩阵是 d_model×d_head，h 个头合起来的总投影规模与一个 d_model×d_model 的投影相当，注意力部分也按 h 份分摊了维度",
+          "因为拼接后的输出投影 W_O 会把计算量抵消掉，所以总成本与头数无关",
+          "因为多头注意力用近似算法代替了精确的 softmax，从而省去了大部分计算"
+        ],
+        "difficulty": "medium",
+        "explanation": "B 正确：每个头的投影矩阵形状为 d_model×d_head，h 个头拼起来相当于一个 d_model×(h·d_head)=d_model×d_model 的投影；注意力部分每个头在 d_head 维上算，h 个头合计的规模与在 d_model 维上算一次同量级，因此总计算成本相近。A 错误：h 个头是并行独立计算的，不存在复用。C 错误：W_O 是额外的 h·d_v×d_model 投影，它增加计算而不是抵消；成本相近的原因是维度被分摊，不是 W_O 的作用。D 错误：多头注意力仍使用精确的 softmax，没有用近似算法替代。"
+      },
+      {
+        "id": "q4-pipeline",
+        "stem": "关于多头注意力的实现流程，下列哪些说法正确？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,D",
+        "options": [
+          "每个头有自己独立的 W_i^Q、W_i^K、W_i^V 投影矩阵，各头并行执行缩放点积注意力",
+          "各头输出先按维度拼接，再乘输出投影矩阵 W_O 混合各头信号",
+          "各头输出在拼接前先做 softmax 归一化，保证拼接后每行权重和为 1",
+          "工程实现中常把 h 个头的投影合并成一个大矩阵，再 reshape 成 h 份，以便利用 GPU 并行"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：论文明确说把 Q、K、V 分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维，再并行执行注意力函数。B 正确：各头输出被拼接后“再次进行投影，得到最终的输出值”，即 H'=Concat(H'_1,…,H'_h)W_O。C 错误：softmax 发生在每个头内部的注意力权重上（对 key 维归一化），各头输出是加权求和后的向量，拼接前不再做 softmax，拼接后每行权重和为 1 的说法没有依据。D 正确：实现上并非真的维护 h 套独立矩阵，而是用三个大矩阵按头数切分并 reshape 成 n_head×d_head×N 的张量，以充分利用 GPU 并行。"
+      },
+      {
+        "id": "q5-three-usages",
+        "stem": "在原始 Transformer 中，关于三处多头注意力的 Q、K、V 来源，下列哪些说法正确？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,D",
+        "options": [
+          "编码器自注意力：Q、K、V 都来自编码器前一层的输出",
+          "编码器-解码器注意力：Q 来自解码器前一层，K 和 V 来自编码器输出",
+          "解码器自注意力：Q 来自编码器输出，K 和 V 来自解码器前一层",
+          "解码器自注意力：Q、K、V 都来自解码器，并通过掩码阻止信息向左流动"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：编码器自注意力中“所有的键、值和查询都来自同一个地方，即编码器前一层的输出”。B 正确：编码器-解码器注意力中“查询来自前一层解码器，而记忆键和值则来自编码器的输出”，使解码器每个位置都能关注输入序列所有位置。C 错误：把编码器-解码器注意力的来源说反了；解码器自注意力的 Q 来自解码器自身，不是编码器输出。D 正确：解码器自注意力允许每个位置关注包括自身在内的位置，但通过把 softmax 输入中非法连接置为 -∞ 来阻止信息向左流动，保持自回归属性。"
+      },
+      {
+        "id": "q6-mask",
+        "stem": "解码器自注意力中，把 softmax 输入里“非法连接”对应的值设为 -∞，其直接效果是什么？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "这些位置的注意力权重经 softmax 后变为 0，位置 i 只能关注 j≤i 的位置，从而保持自回归属性",
+          "这些位置的注意力权重变为 1，使解码器强制复制前一个 token",
+          "这些位置的 Q 向量被清零，因此该位置不再产生输出",
+          "这些位置的值向量 V 被替换为 0，但注意力权重分布不变"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：softmax 中某一项为 -∞ 时，e^{-∞}=0，归一化后该位置的权重为 0，于是位置 i 只能把注意力分配给 j≤i 的位置，防止信息向左流动，保持自回归属性。B 错误：-∞ 使权重趋于 0 而不是 1，且掩码不涉及“复制前一个 token”的机制。C 错误：掩码作用在 softmax 的输入（注意力分数）上，不是把 Q 清零；该位置仍然正常产生输出。D 错误：掩码改变的是注意力权重分布，V 本身不被替换；权重变了，加权求和的结果也随之改变。"
+      },
+      {
+        "id": "q7-true-false",
+        "stem": "判断：在多头注意力中，每个头都处理整条输入序列的全部 token，但只在自己那一份特征子空间（d_head 维）上做注意力计算。",
+        "type": "true_false",
+        "answer": "正确",
+        "difficulty": "easy",
+        "explanation": "正确。按实现层面的描述，只有一套 K、Q、V（形状 d_model×N），每个头处理整个 token 序列，但操作的是不同的特征子集；把矩阵 reshape 成 n_head×d_head×N 后，每个头在 d_head 维子空间内独立计算注意力。因此“处理全部 token、但只用自己那份特征维度”是准确的。"
+      },
+      {
+        "id": "q8-short-answer",
+        "stem": "请按顺序写出多头注意力的完整计算流程（从输入 H 到最终输出），并说明在编码器-解码器注意力中 Q、K、V 分别来自哪里。",
+        "type": "short_answer",
+        "answer": "流程：①对输入 H 用 h 组独立的线性投影得到各头的 Q_i=H·W_i^Q、K_i=H·W_i^K、V_i=H·W_i^V，维度分别为 d_k、d_k、d_v（通常 d_k=d_v=d_head=d_model/h）；②每个头并行计算缩放点积注意力 head_i=softmax(Q_iK_i^T/√d_k)V_i；③把 h 个头的结果按维度拼接成 h·d_v 维；④乘输出投影矩阵 W_O（形状 h·d_v×d_model）得到 d_model 维的最终输出。编码器-解码器注意力中，Q 来自解码器前一层，K 和 V 来自编码器输出。",
+        "difficulty": "hard",
+        "explanation": "评分要点：投影（h 组独立 W^Q/W^K/W^V）→ 各头并行缩放点积注意力（含除以 √d_k 与 softmax）→ 拼接 → 乘 W_O。漏掉 W_O 或把拼接写成求和都算不完整。Q/K/V 来源必须答对：编码器-解码器注意力是“解码器给查询、编码器给键和值”，这是它与编码器自注意力（三者同源）的关键区别。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 12.29
+      },
+      "spec_digest": "2a0e6e6d7695fda6ac4ab1beaf4082e26eeb23242d5559313ad6af98c431a44d",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1-why-multi-head"
+          },
+          "objective_id": "n3-multi-head:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q7-true-false"
+          },
+          "objective_id": "n3-multi-head:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q2-head-dim"
+          },
+          "objective_id": "n3-multi-head:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q3-cost"
+          },
+          "objective_id": "n3-multi-head:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q4-pipeline"
+          },
+          "objective_id": "n3-multi-head:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q8-short-answer"
+          },
+          "objective_id": "n3-multi-head:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q5-three-usages"
+          },
+          "objective_id": "n3-multi-head:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q6-mask"
+          },
+          "objective_id": "n3-multi-head:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q1-why-multi-head"
+          },
+          "explanation": "通过单头与多头的对比题落实“多头注意力”这一核心机制的原理理解。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q2-head-dim"
+          },
+          "explanation": "通过计算 d_head=d_model/h 落实多头注意力的结构参数。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q3-cost"
+          },
+          "explanation": "通过计算成本题落实多头注意力的投影维度与计算量关系。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q4-pipeline"
+          },
+          "explanation": "通过流程多选题落实“投影→并行注意力→拼接→W_O”的实现步骤。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q5-three-usages"
+          },
+          "explanation": "通过三种用法题落实多头注意力在编码器-解码器结构中的使用方式。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q6-mask"
+          },
+          "explanation": "通过掩码题落实解码器自注意力的自回归约束。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q8-short-answer"
+          },
+          "explanation": "通过简答题完整复述多头注意力计算流程与 Q/K/V 来源。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需回忆论文对多头动机的表述，并逐一排除“取平均”“扩大维度”“不同温度”三个常见误解。",
+          "question_id": "q1-why-multi-head",
+          "thinking_seconds": 30
+        },
+        {
+          "reason": "直接代入 d_head=d_model/h=512/8，并确认 64 与论文设定一致。",
+          "question_id": "q2-head-dim",
+          "thinking_seconds": 20
+        },
+        {
+          "reason": "需比较每头投影矩阵 d_model×d_head 与单头 d_model×d_model 的规模，再判断注意力部分按 h 份分摊维度，属多步推理。",
+          "question_id": "q3-cost",
+          "thinking_seconds": 60
+        },
+        {
+          "reason": "需逐项核对投影、拼接、W_O、softmax 位置与张量实现四个说法，判断 C 项 softmax 位置错误。",
+          "question_id": "q4-pipeline",
+          "thinking_seconds": 55
+        },
+        {
+          "reason": "需分别回忆三处注意力的 Q/K/V 来源，并识别 C 项把编码器-解码器注意力来源说反。",
+          "question_id": "q5-three-usages",
+          "thinking_seconds": 60
+        },
+        {
+          "reason": "需由 e^{-∞}=0 推出权重为 0，再联系自回归属性，并排除“权重为 1”“清零 Q”“替换 V”等错误。",
+          "question_id": "q6-mask",
+          "thinking_seconds": 35
+        },
+        {
+          "reason": "需区分“处理全部 token”与“只在自己特征子空间计算”两个层面，判断表述是否准确。",
+          "question_id": "q7-true-false",
+          "thinking_seconds": 25
+        },
+        {
+          "reason": "需按顺序组织四步流程并写出维度，再单独说明编码器-解码注意力中 Q/K/V 的来源，属综合复述。",
+          "question_id": "q8-short-answer",
+          "thinking_seconds": 120
+        }
+      ],
+      "teaching_context_digest": "b8ed9a2c4a0c2baa2b19beaaf2afb46757d617995c971930891ce1425ef1eadd"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "8 题覆盖本节点三项目标：q1/q7 对应多头动机（o1），q2/q3/q4/q8 对应实现流程与 d_head=d_model/h（o2），q5/q6 对应三种用法与掩码（o3），与 req-transformer-basics 中“多头注意力”分工一致，未越界到其他节点。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题独立求解：q1 选 B、q2 得 512/8=64 选 B、q3 选 B、q4 选 A,B,D、q5 选 A,B,D、q6 选 A、q7 判“正确”、q8 流程与 Q/K/V 来源均与原始论文一致；未发现事实或数值错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "习题逐题求解并对照解析：干扰项均对应可解释的具体误区（取平均、扩大维度、不同温度、复用头、W_O 抵消、近似 softmax、Q 清零、V 替换），解析给出真实算式或明确错误原因，无“之类”式猜测。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序为动机→维度计算→成本→实现流程→三种用法→掩码→判断题→综合简答，与节点活动（听讲、计算练习、画图练习）和 12 分钟预算匹配；正确答案位置分布为 B,B,B,ABD,ABD,A,正确，单选未全部落在同一位置。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "解析引用的“不同表示子空间中联合关注”“平均操作会抑制”“h=8、d_k=d_v=64”“查询来自前一层解码器，键和值来自编码器输出”“置为 -∞”等表述均可在 research_context 的 volcengine 解读、CS336 笔记与 theaiedge 文章中逐字对应，未虚构外部来源。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "8 题含单选 4、多选 2、判断 1、简答 1，覆盖 o1/o2/o3 全部目标；q8 简答要求完整复述四步流程与 Q/K/V 来源，弥补了选择题无法检验完整复述的缺口；无选项题未虚构选项。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "version": 1,
+          "decision": "revise",
+          "structural_issues": [
+            "本轮输出格式或映射校验失败：preparation_content_envelope_missing。按本轮格式重交完整封装及必需教学映射；原生题目 JSON 应放在 content 字段内。"
+          ]
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "8 题覆盖本节点三项目标：q1/q7 对应多头动机（o1），q2/q3/q4/q8 对应实现流程与 d_head=d_model/h（o2），q5/q6 对应三种用法与掩码（o3），与 req-transformer-basics 中“多头注意力”分工一致，未越界到其他节点。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解：q1 选 B、q2 得 512/8=64 选 B、q3 选 B、q4 选 A,B,D、q5 选 A,B,D、q6 选 A、q7 判“正确”、q8 流程与 Q/K/V 来源均与原始论文一致；未发现事实或数值错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题逐题求解并对照解析：干扰项均对应可解释的具体误区（取平均、扩大维度、不同温度、复用头、W_O 抵消、近似 softmax、Q 清零、V 替换），解析给出真实算式或明确错误原因，无“之类”式猜测。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序为动机→维度计算→成本→实现流程→三种用法→掩码→判断题→综合简答，与节点活动（听讲、计算练习、画图练习）和 12 分钟预算匹配；正确答案位置分布为 B,B,B,ABD,ABD,A,正确，单选未全部落在同一位置。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "解析引用的“不同表示子空间中联合关注”“平均操作会抑制”“h=8、d_k=d_v=64”“查询来自前一层解码器，键和值来自编码器输出”“置为 -∞”等表述均可在 research_context 的 volcengine 解读、CS336 笔记与 theaiedge 文章中逐字对应，未虚构外部来源。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "8 题含单选 4、多选 2、判断 1、简答 1，覆盖 o1/o2/o3 全部目标；q8 简答要求完整复述四步流程与 Q/K/V 来源，弥补了选择题无法检验完整复述的缺口；无选项题未虚构选项。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q3 解析中“W_O 是额外的 h·d_v×d_model 投影”可补一句说明其参数量为 d_model²（当 h·d_v=d_model），与单头投影同量级，使“成本相近”的论证更完整。",
+              "q4 的 D 项涉及工程实现细节，属入门深度边缘内容，可考虑在解析中标注“实现细节，理解即可”，避免初学者误以为必须掌握张量 reshape。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1-why-multi-head",
+                "option_checks": [
+                  {
+                    "reasoning": "多头是并行计算后拼接再乘 W_O，不是取平均；论文原话恰指出单头时的平均操作会抑制多子空间能力，故 A 错。",
+                    "option_text": "多头把注意力计算重复 h 次再取平均，平均后噪声更小，所以效果更好",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：多头是并行做 h 个注意力再把输出拼接后投影，不是把结果取平均；论文恰恰指出平均会抑制多子空间能力。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录“多头是并行做 h 个注意力再把输出拼接后投影，不是把结果取平均；论文恰恰指出平均会抑制多子空间能力”两句均与论文表述一致，对 A 的批评成立。"
+                  },
+                  {
+                    "reasoning": "与论文“多头注意力允许模型在不同的表示子空间中联合关注不同位置的信息。使用单个注意力头时，平均操作会抑制这种能力”一致，且 CS336 笔记概括为单头只学一种相似度模式，故 B 正确。",
+                    "option_text": "单头注意力只能学习一种相似度模式；多头让模型在不同表示子空间中并行关注不同位置的信息",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：原始论文的原话是“多头注意力允许模型在不同的表示子空间中联合关注不同位置的信息。使用单个注意力头时，平均操作会抑制这种能力”，CS336 笔记也概括为“单头只学习一种相似度模式”。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "摘录逐字引用论文原话并补充 CS336 笔记的概括，两处依据均与 research_context 中的原文对应，说明准确。"
+                  },
+                  {
+                    "reasoning": "每头维度为 d_head=d_model/h，h 头拼接后总维度 h·d_head=d_model，模型维度并未扩大 h 倍，故 C 错。",
+                    "option_text": "多头注意力通过增加参数量把模型维度从 d_model 扩大到 h·d_model，因此表达能力更强",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：每个头的维度被压到 d_head=d_model/h，各头输出拼接后总维度仍是 h·d_head=d_model，并没有把模型维度扩大 h 倍。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录给出 d_head=d_model/h 与 h·d_head=d_model 的推导，正确指出 C 把维度扩大 h 倍的说法不成立。"
+                  },
+                  {
+                    "reasoning": "缩放因子 1/√d_k 由 d_k 决定，对所有头相同，论文未为每个头设置不同温度，故 D 错。",
+                    "option_text": "多头注意力用不同的 softmax 温度控制每个头，从而让注意力分布更平滑",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：缩放因子 1/√d_k 对所有头相同，论文没有为每个头设置不同温度。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录指出缩放因子对所有头相同、论文未设不同温度，与 CS336 笔记中“√d_k 相当于隐式设定温度”的表述一致，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "多头注意力用 h 组独立投影把 Q/K/V 映射到低维子空间并行做注意力，再拼接投影；其价值在于不同子空间可关注不同位置/模式，单头只有一种相似度模式。A 说取平均（错，是拼接+投影，且论文说平均会抑制该能力）；C 说维度扩大到 h·d_model（错，拼接后总维度仍为 d_model）；D 说每头不同 softmax 温度（错，缩放 1/√d_k 对所有头相同）。故选 B。"
+              },
+              {
+                "question_id": "q2-head-dim",
+                "option_checks": [
+                  {
+                    "reasoning": "512 是 d_model，即所有头拼接后的总维度，不是单头维度，故 A 错。",
+                    "option_text": "512",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：512 是 d_model，即所有头拼接后的总维度，不是单个头的维度。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录正确区分 d_model 与单头维度，对 A 的批评成立。"
+                  },
+                  {
+                    "reasoning": "512/8=64，与原始论文 h=8、d_k=d_v=64 的设定一致，故 B 正确。",
+                    "option_text": "64",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：d_head=d_model/h=512/8=64，这正是原始论文中 h=8、d_k=d_v=64 的设定。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "摘录给出 d_head=d_model/h=512/8=64 的算式并对应论文设定，说明准确。"
+                  },
+                  {
+                    "reasoning": "8 是头数 h，不是每头维度，故 C 错。",
+                    "option_text": "8",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：8 是头数 h，把 h 当成了每头维度。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录指出把 h 误当每头维度，错误原因具体成立。"
+                  },
+                  {
+                    "reasoning": "4096=512×8 是把 d_model 乘以头数，方向与 d_model/h 相反，故 D 错。",
+                    "option_text": "4096",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：4096=512×8，是把 d_model 乘以头数，方向算反了。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录给出 4096=512×8 的具体算式并说明方向算反，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "64",
+                    "excerpt": "B 正确：d_head=d_model/h=512/8=64，这正是原始论文中 h=8、d_k=d_v=64 的设定。",
+                    "expression": "512/8",
+                    "end_segment": 0,
+                    "source_field": "explanation",
+                    "start_segment": 0,
+                    "decimal_places": 0
+                  },
+                  {
+                    "claimed": "4096",
+                    "excerpt": "D 错误：4096=512×8，是把 d_model 乘以头数，方向算反了。",
+                    "expression": "512*8",
+                    "end_segment": 3,
+                    "source_field": "explanation",
+                    "start_segment": 3,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "d_head=d_model/h=512/8=64。A 的 512 是 d_model；C 的 8 是头数；D 的 4096=512×8 是乘反方向。故选 B。"
+              },
+              {
+                "question_id": "q3-cost",
+                "option_checks": [
+                  {
+                    "reasoning": "h 个头是并行独立计算的，不存在复用第一个头结果的做法，故 A 错。",
+                    "option_text": "因为多头注意力只在第一个头上真正计算，其余头复用其结果",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：h 个头是并行独立计算的，不存在复用。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录指出 h 个头并行独立、不存在复用，对 A 的批评成立。"
+                  },
+                  {
+                    "reasoning": "投影矩阵 d_model×d_head 的 h 头合计等于 d_model×d_model，注意力按 d_head 分摊，故总成本与全维单头相近，B 正确。",
+                    "option_text": "因为每个头的 Q/K/V 投影矩阵是 d_model×d_head，h 个头合起来的总投影规模与一个 d_model×d_model 的投影相当，注意力部分也按 h 份分摊了维度",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：每个头的投影矩阵形状为 d_model×d_head，h 个头拼起来相当于一个 d_model×(h·d_head)=d_model×d_model 的投影；注意力部分每个头在 d_head 维上算，h 个头合计的规模与在 d_model 维上算一次同量级，因此总计算成本相近。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "摘录给出 d_model×(h·d_head)=d_model×d_model 的等式与注意力维度分摊的说明，与论文“每个头的维度降低了，所以总计算成本与全维度单头注意力相似”一致。"
+                  },
+                  {
+                    "reasoning": "W_O 是额外的 h·d_v×d_model 投影，只会增加计算，不会抵消；成本相近源于维度分摊，故 C 错。",
+                    "option_text": "因为拼接后的输出投影 W_O 会把计算量抵消掉，所以总成本与头数无关",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：W_O 是额外的 h·d_v×d_model 投影，它增加计算而不是抵消；成本相近的原因是维度被分摊，不是 W_O 的作用。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录正确指出 W_O 增加计算而非抵消，并把成本相近归因于维度分摊，两句均成立。"
+                  },
+                  {
+                    "reasoning": "多头注意力仍使用精确 softmax，没有用近似算法替代，故 D 错。",
+                    "option_text": "因为多头注意力用近似算法代替了精确的 softmax，从而省去了大部分计算",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：多头注意力仍使用精确的 softmax，没有用近似算法替代。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录指出仍使用精确 softmax，对 D 的批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "每头投影矩阵为 d_model×d_head，h 头合计 d_model×(h·d_head)=d_model×d_model，与单头投影同规模；注意力部分每头在 d_head 维上算，h 头合计与在 d_model 维上算一次同量级，故总成本相近。A 说只算第一个头（错）；C 说 W_O 抵消计算（错，W_O 是额外投影）；D 说用近似 softmax（错）。故选 B。"
+              },
+              {
+                "question_id": "q4-pipeline",
+                "option_checks": [
+                  {
+                    "reasoning": "论文明确说 Q、K、V 分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维后并行执行注意力函数，故 A 正确。",
+                    "option_text": "每个头有自己独立的 W_i^Q、W_i^K、W_i^V 投影矩阵，各头并行执行缩放点积注意力",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：论文明确说把 Q、K、V 分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维，再并行执行注意力函数。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "摘录与论文原文表述一致，说明准确。"
+                  },
+                  {
+                    "reasoning": "论文说各头输出被拼接后“再次进行投影，得到最终的输出值”，即 H'=Concat(...)W_O，故 B 正确。",
+                    "option_text": "各头输出先按维度拼接，再乘输出投影矩阵 W_O 混合各头信号",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：各头输出被拼接后“再次进行投影，得到最终的输出值”，即 H'=Concat(H'_1,…,H'_h)W_O。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "摘录引用论文原话并给出 H'=Concat(H'_1,…,H'_h)W_O 的公式，与 theaiedge 文章一致。"
+                  },
+                  {
+                    "reasoning": "softmax 只作用于每头内部的注意力权重（对 key 维归一化），各头输出已是加权求和后的向量，拼接前不再做 softmax，故 C 错。",
+                    "option_text": "各头输出在拼接前先做 softmax 归一化，保证拼接后每行权重和为 1",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：softmax 发生在每个头内部的注意力权重上（对 key 维归一化），各头输出是加权求和后的向量，拼接前不再做 softmax，拼接后每行权重和为 1 的说法没有依据。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录准确说明 softmax 的位置与各头输出的性质，并指出“拼接后每行权重和为 1”无依据，批评成立。"
+                  },
+                  {
+                    "reasoning": "实现上并非维护 h 套独立矩阵，而是用三个大矩阵按头数切分并 reshape 成 n_head×d_head×N 张量以利用 GPU 并行，故 D 正确。",
+                    "option_text": "工程实现中常把 h 个头的投影合并成一个大矩阵，再 reshape 成 h 份，以便利用 GPU 并行",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：实现上并非真的维护 h 套独立矩阵，而是用三个大矩阵按头数切分并 reshape 成 n_head×d_head×N 的张量，以充分利用 GPU 并行。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "摘录与 theaiedge 文章关于张量表示（reshape 为 n_head×d_head×N）的描述一致，说明准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "A 正确：h 组独立 W^Q/W^K/W^V 投影后并行做缩放点积注意力。B 正确：拼接后乘 W_O。C 错：softmax 在每头内部对 key 维归一化，各头输出是加权求和向量，拼接前不再 softmax。D 正确：工程上用三个大矩阵切分 reshape 成 n_head×d_head×N 以利用 GPU 并行。故选 A,B,D。"
+              },
+              {
+                "question_id": "q5-three-usages",
+                "option_checks": [
+                  {
+                    "reasoning": "论文称编码器自注意力中“所有的键、值和查询都来自同一个地方，即编码器前一层的输出”，故 A 正确。",
+                    "option_text": "编码器自注意力：Q、K、V 都来自编码器前一层的输出",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：编码器自注意力中“所有的键、值和查询都来自同一个地方，即编码器前一层的输出”。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "摘录逐字引用论文表述，说明准确。"
+                  },
+                  {
+                    "reasoning": "论文称编码器-解码器注意力中“查询来自前一层解码器，而记忆键和值则来自编码器的输出”，故 B 正确。",
+                    "option_text": "编码器-解码器注意力：Q 来自解码器前一层，K 和 V 来自编码器输出",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：编码器-解码器注意力中“查询来自前一层解码器，而记忆键和值则来自编码器的输出”，使解码器每个位置都能关注输入序列所有位置。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "摘录引用论文原话并补充“解码器每个位置都能关注输入序列所有位置”，与来源一致。"
+                  },
+                  {
+                    "reasoning": "解码器自注意力的 Q 来自解码器自身而非编码器输出，C 把来源说反，故错。",
+                    "option_text": "解码器自注意力：Q 来自编码器输出，K 和 V 来自解码器前一层",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：把编码器-解码器注意力的来源说反了；解码器自注意力的 Q 来自解码器自身，不是编码器输出。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录指出 C 把来源说反，并说明解码器自注意力 Q 来自解码器自身，两句均成立。"
+                  },
+                  {
+                    "reasoning": "解码器自注意力允许每个位置关注包括自身在内的位置，并通过把 softmax 输入中非法连接置为 -∞ 阻止信息向左流动，保持自回归属性，故 D 正确。",
+                    "option_text": "解码器自注意力：Q、K、V 都来自解码器，并通过掩码阻止信息向左流动",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 正确：解码器自注意力允许每个位置关注包括自身在内的位置，但通过把 softmax 输入中非法连接置为 -∞ 来阻止信息向左流动，保持自回归属性。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "摘录与论文关于解码器自注意力掩码的表述一致，说明准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "编码器自注意力：Q/K/V 均来自编码器前一层输出（A 对）。编码器-解码器注意力：Q 来自解码器前一层，K/V 来自编码器输出（B 对）。解码器自注意力：Q/K/V 均来自解码器，并用掩码阻止信息向左流动（D 对）。C 把来源说反，错。故选 A,B,D。"
+              },
+              {
+                "question_id": "q6-mask",
+                "option_checks": [
+                  {
+                    "reasoning": "e^{-∞}=0 使该位置权重为 0，位置 i 只能关注 j≤i，从而保持自回归属性，故 A 正确。",
+                    "option_text": "这些位置的注意力权重经 softmax 后变为 0，位置 i 只能关注 j≤i 的位置，从而保持自回归属性",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：softmax 中某一项为 -∞ 时，e^{-∞}=0，归一化后该位置的权重为 0，于是位置 i 只能把注意力分配给 j≤i 的位置，防止信息向左流动，保持自回归属性。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "摘录给出 e^{-∞}=0 的推导并联系自回归属性，与论文“将 softmax 输入中对应非法连接的所有值设为 -∞”一致。"
+                  },
+                  {
+                    "reasoning": "-∞ 使权重趋于 0 而非 1，且掩码不涉及复制前一个 token 的机制，故 B 错。",
+                    "option_text": "这些位置的注意力权重变为 1，使解码器强制复制前一个 token",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：-∞ 使权重趋于 0 而不是 1，且掩码不涉及“复制前一个 token”的机制。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录正确指出权重趋于 0 且无复制机制，批评成立。"
+                  },
+                  {
+                    "reasoning": "掩码作用在 softmax 的输入（注意力分数）上，不是把 Q 清零，该位置仍正常产生输出，故 C 错。",
+                    "option_text": "这些位置的 Q 向量被清零，因此该位置不再产生输出",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：掩码作用在 softmax 的输入（注意力分数）上，不是把 Q 清零；该位置仍然正常产生输出。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录说明掩码作用于注意力分数而非 Q，并指出该位置仍产生输出，两句均成立。"
+                  },
+                  {
+                    "reasoning": "掩码改变的是注意力权重分布，V 本身不被替换，加权求和结果随之改变，故 D 错。",
+                    "option_text": "这些位置的值向量 V 被替换为 0，但注意力权重分布不变",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：掩码改变的是注意力权重分布，V 本身不被替换；权重变了，加权求和的结果也随之改变。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "摘录指出 V 不被替换且权重变化会改变加权求和结果，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "softmax 输入某项为 -∞ 时 e^{-∞}=0，归一化后该位置权重为 0，位置 i 只能关注 j≤i，保持自回归属性，故 A 对。B 说权重变 1（错）；C 说 Q 被清零（错，掩码作用于注意力分数）；D 说 V 被替换为 0 且权重不变（错）。故选 A。"
+              },
+              {
+                "question_id": "q7-true-false",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "实现层面只有一套 K/Q/V（形状 d_model×N），每个头处理整条序列但只操作自己的特征子集；reshape 成 n_head×d_head×N 后每头在 d_head 维子空间独立计算注意力。因此该表述正确。"
+              },
+              {
+                "question_id": "q8-short-answer",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "流程：①用 h 组独立 W_i^Q/W_i^K/W_i^V 把 H 投影为各头 Q_i、K_i、V_i（维度 d_k、d_k、d_v，通常 d_k=d_v=d_head=d_model/h）；②各头并行计算 head_i=softmax(Q_iK_i^T/√d_k)V_i；③按维度拼接成 h·d_v 维；④乘 W_O（h·d_v×d_model）得 d_model 维输出。编码器-解码器注意力中 Q 来自解码器前一层，K、V 来自编码器输出。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 直接对比单头与多头动机，正确落实“多头注意力”原理理解这一要求。",
+                "locator": {
+                  "question_id": "q1-why-multi-head"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 以 d_model=512、h=8 计算 d_head=64，落实多头注意力的结构参数。",
+                "locator": {
+                  "question_id": "q2-head-dim"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 通过投影矩阵规模与注意力维度分摊解释总成本相近，落实计算量关系。",
+                "locator": {
+                  "question_id": "q3-cost"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 多选逐项覆盖投影→并行注意力→拼接→W_O 四步，并排除 softmax 位置错误项。",
+                "locator": {
+                  "question_id": "q4-pipeline"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 逐项核对三处注意力的 Q/K/V 来源，正确区分编码器自注意力、编码器-解码器注意力与解码器自注意力。",
+                "locator": {
+                  "question_id": "q5-three-usages"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 由 e^{-∞}=0 推出权重为 0，落实解码器自注意力的自回归约束。",
+                "locator": {
+                  "question_id": "q6-mask"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 简答要求完整复述四步流程并说明编码器-解码器注意力的 Q/K/V 来源，与定位一致。",
+                "locator": {
+                  "question_id": "q8-short-answer"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1 的检查题，正确选项即“不同表示子空间并行关注不同位置”，能检验该目标。",
+                "locator": {
+                  "question_id": "q1-why-multi-head"
+                },
+                "binding_id": "n3-multi-head:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 判断题检验“每头处理全部 token 但只用自己特征子空间”，与 o1 的多子空间理解相关。",
+                "locator": {
+                  "question_id": "q7-true-false"
+                },
+                "binding_id": "n3-multi-head:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o2 的练习，直接计算 d_head=d_model/h。",
+                "locator": {
+                  "question_id": "q2-head-dim"
+                },
+                "binding_id": "n3-multi-head:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的练习，检验对多头投影维度与计算成本关系的理解。",
+                "locator": {
+                  "question_id": "q3-cost"
+                },
+                "binding_id": "n3-multi-head:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o2 的练习，检验实现流程四步的掌握。",
+                "locator": {
+                  "question_id": "q4-pipeline"
+                },
+                "binding_id": "n3-multi-head:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 作为 o2 的检查题，要求完整复述流程并写出维度，覆盖该目标全部要点。",
+                "locator": {
+                  "question_id": "q8-short-answer"
+                },
+                "binding_id": "n3-multi-head:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o3 的检查题，逐项区分三种用法的 Q/K/V 来源。",
+                "locator": {
+                  "question_id": "q5-three-usages"
+                },
+                "binding_id": "n3-multi-head:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 作为 o3 的练习，检验带掩码解码器自注意力的作用。",
+                "locator": {
+                  "question_id": "q6-mask"
+                },
+                "binding_id": "n3-multi-head:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 2,
+          "decision": "pass",
+          "content_sha256": "dd2f6468d2694171280e1392b5d2569247a9787707b537b0d9b303eba9e27840"
+        }
+      ],
+      "version": 2,
+      "decision": "pass",
+      "suggestions": [
+        "q3 解析中“W_O 是额外的 h·d_v×d_model 投影”可补一句说明其参数量为 d_model²（当 h·d_v=d_model），与单头投影同量级，使“成本相近”的论证更完整。",
+        "q4 的 D 项涉及工程实现细节，属入门深度边缘内容，可考虑在解析中标注“实现细节，理解即可”，避免初学者误以为必须掌握张量 reshape。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "dd2f6468d2694171280e1392b5d2569247a9787707b537b0d9b303eba9e27840",
+      "question_checks": [
+        {
+          "question_id": "q1-why-multi-head",
+          "option_checks": [
+            {
+              "reasoning": "多头是并行计算后拼接再乘 W_O，不是取平均；论文原话恰指出单头时的平均操作会抑制多子空间能力，故 A 错。",
+              "option_text": "多头把注意力计算重复 h 次再取平均，平均后噪声更小，所以效果更好",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 错误：多头是并行做 h 个注意力再把输出拼接后投影，不是把结果取平均；论文恰恰指出平均会抑制多子空间能力。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录“多头是并行做 h 个注意力再把输出拼接后投影，不是把结果取平均；论文恰恰指出平均会抑制多子空间能力”两句均与论文表述一致，对 A 的批评成立。"
+            },
+            {
+              "reasoning": "与论文“多头注意力允许模型在不同的表示子空间中联合关注不同位置的信息。使用单个注意力头时，平均操作会抑制这种能力”一致，且 CS336 笔记概括为单头只学一种相似度模式，故 B 正确。",
+              "option_text": "单头注意力只能学习一种相似度模式；多头让模型在不同表示子空间中并行关注不同位置的信息",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：原始论文的原话是“多头注意力允许模型在不同的表示子空间中联合关注不同位置的信息。使用单个注意力头时，平均操作会抑制这种能力”，CS336 笔记也概括为“单头只学习一种相似度模式”。",
+              "independent_correct": true,
+              "explanation_reasoning": "摘录逐字引用论文原话并补充 CS336 笔记的概括，两处依据均与 research_context 中的原文对应，说明准确。"
+            },
+            {
+              "reasoning": "每头维度为 d_head=d_model/h，h 头拼接后总维度 h·d_head=d_model，模型维度并未扩大 h 倍，故 C 错。",
+              "option_text": "多头注意力通过增加参数量把模型维度从 d_model 扩大到 h·d_model，因此表达能力更强",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：每个头的维度被压到 d_head=d_model/h，各头输出拼接后总维度仍是 h·d_head=d_model，并没有把模型维度扩大 h 倍。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录给出 d_head=d_model/h 与 h·d_head=d_model 的推导，正确指出 C 把维度扩大 h 倍的说法不成立。"
+            },
+            {
+              "reasoning": "缩放因子 1/√d_k 由 d_k 决定，对所有头相同，论文未为每个头设置不同温度，故 D 错。",
+              "option_text": "多头注意力用不同的 softmax 温度控制每个头，从而让注意力分布更平滑",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：缩放因子 1/√d_k 对所有头相同，论文没有为每个头设置不同温度。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录指出缩放因子对所有头相同、论文未设不同温度，与 CS336 笔记中“√d_k 相当于隐式设定温度”的表述一致，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "多头注意力用 h 组独立投影把 Q/K/V 映射到低维子空间并行做注意力，再拼接投影；其价值在于不同子空间可关注不同位置/模式，单头只有一种相似度模式。A 说取平均（错，是拼接+投影，且论文说平均会抑制该能力）；C 说维度扩大到 h·d_model（错，拼接后总维度仍为 d_model）；D 说每头不同 softmax 温度（错，缩放 1/√d_k 对所有头相同）。故选 B。"
+        },
+        {
+          "question_id": "q2-head-dim",
+          "option_checks": [
+            {
+              "reasoning": "512 是 d_model，即所有头拼接后的总维度，不是单头维度，故 A 错。",
+              "option_text": "512",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 错误：512 是 d_model，即所有头拼接后的总维度，不是单个头的维度。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录正确区分 d_model 与单头维度，对 A 的批评成立。"
+            },
+            {
+              "reasoning": "512/8=64，与原始论文 h=8、d_k=d_v=64 的设定一致，故 B 正确。",
+              "option_text": "64",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：d_head=d_model/h=512/8=64，这正是原始论文中 h=8、d_k=d_v=64 的设定。",
+              "independent_correct": true,
+              "explanation_reasoning": "摘录给出 d_head=d_model/h=512/8=64 的算式并对应论文设定，说明准确。"
+            },
+            {
+              "reasoning": "8 是头数 h，不是每头维度，故 C 错。",
+              "option_text": "8",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：8 是头数 h，把 h 当成了每头维度。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录指出把 h 误当每头维度，错误原因具体成立。"
+            },
+            {
+              "reasoning": "4096=512×8 是把 d_model 乘以头数，方向与 d_model/h 相反，故 D 错。",
+              "option_text": "4096",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：4096=512×8，是把 d_model 乘以头数，方向算反了。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录给出 4096=512×8 的具体算式并说明方向算反，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "calculation_checks": [
+            {
+              "claimed": "64",
+              "excerpt": "B 正确：d_head=d_model/h=512/8=64，这正是原始论文中 h=8、d_k=d_v=64 的设定。",
+              "expression": "512/8",
+              "end_segment": 0,
+              "source_field": "explanation",
+              "start_segment": 0,
+              "decimal_places": 0
+            },
+            {
+              "claimed": "4096",
+              "excerpt": "D 错误：4096=512×8，是把 d_model 乘以头数，方向算反了。",
+              "expression": "512*8",
+              "end_segment": 3,
+              "source_field": "explanation",
+              "start_segment": 3,
+              "decimal_places": 0
+            }
+          ],
+          "independent_solution": "d_head=d_model/h=512/8=64。A 的 512 是 d_model；C 的 8 是头数；D 的 4096=512×8 是乘反方向。故选 B。"
+        },
+        {
+          "question_id": "q3-cost",
+          "option_checks": [
+            {
+              "reasoning": "h 个头是并行独立计算的，不存在复用第一个头结果的做法，故 A 错。",
+              "option_text": "因为多头注意力只在第一个头上真正计算，其余头复用其结果",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 错误：h 个头是并行独立计算的，不存在复用。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录指出 h 个头并行独立、不存在复用，对 A 的批评成立。"
+            },
+            {
+              "reasoning": "投影矩阵 d_model×d_head 的 h 头合计等于 d_model×d_model，注意力按 d_head 分摊，故总成本与全维单头相近，B 正确。",
+              "option_text": "因为每个头的 Q/K/V 投影矩阵是 d_model×d_head，h 个头合起来的总投影规模与一个 d_model×d_model 的投影相当，注意力部分也按 h 份分摊了维度",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：每个头的投影矩阵形状为 d_model×d_head，h 个头拼起来相当于一个 d_model×(h·d_head)=d_model×d_model 的投影；注意力部分每个头在 d_head 维上算，h 个头合计的规模与在 d_model 维上算一次同量级，因此总计算成本相近。",
+              "independent_correct": true,
+              "explanation_reasoning": "摘录给出 d_model×(h·d_head)=d_model×d_model 的等式与注意力维度分摊的说明，与论文“每个头的维度降低了，所以总计算成本与全维度单头注意力相似”一致。"
+            },
+            {
+              "reasoning": "W_O 是额外的 h·d_v×d_model 投影，只会增加计算，不会抵消；成本相近源于维度分摊，故 C 错。",
+              "option_text": "因为拼接后的输出投影 W_O 会把计算量抵消掉，所以总成本与头数无关",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：W_O 是额外的 h·d_v×d_model 投影，它增加计算而不是抵消；成本相近的原因是维度被分摊，不是 W_O 的作用。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录正确指出 W_O 增加计算而非抵消，并把成本相近归因于维度分摊，两句均成立。"
+            },
+            {
+              "reasoning": "多头注意力仍使用精确 softmax，没有用近似算法替代，故 D 错。",
+              "option_text": "因为多头注意力用近似算法代替了精确的 softmax，从而省去了大部分计算",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：多头注意力仍使用精确的 softmax，没有用近似算法替代。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录指出仍使用精确 softmax，对 D 的批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "每头投影矩阵为 d_model×d_head，h 头合计 d_model×(h·d_head)=d_model×d_model，与单头投影同规模；注意力部分每头在 d_head 维上算，h 头合计与在 d_model 维上算一次同量级，故总成本相近。A 说只算第一个头（错）；C 说 W_O 抵消计算（错，W_O 是额外投影）；D 说用近似 softmax（错）。故选 B。"
+        },
+        {
+          "question_id": "q4-pipeline",
+          "option_checks": [
+            {
+              "reasoning": "论文明确说 Q、K、V 分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维后并行执行注意力函数，故 A 正确。",
+              "option_text": "每个头有自己独立的 W_i^Q、W_i^K、W_i^V 投影矩阵，各头并行执行缩放点积注意力",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：论文明确说把 Q、K、V 分别经 h 个不同的可学习线性投影映射到 d_k、d_k、d_v 维，再并行执行注意力函数。",
+              "independent_correct": true,
+              "explanation_reasoning": "摘录与论文原文表述一致，说明准确。"
+            },
+            {
+              "reasoning": "论文说各头输出被拼接后“再次进行投影，得到最终的输出值”，即 H'=Concat(...)W_O，故 B 正确。",
+              "option_text": "各头输出先按维度拼接，再乘输出投影矩阵 W_O 混合各头信号",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：各头输出被拼接后“再次进行投影，得到最终的输出值”，即 H'=Concat(H'_1,…,H'_h)W_O。",
+              "independent_correct": true,
+              "explanation_reasoning": "摘录引用论文原话并给出 H'=Concat(H'_1,…,H'_h)W_O 的公式，与 theaiedge 文章一致。"
+            },
+            {
+              "reasoning": "softmax 只作用于每头内部的注意力权重（对 key 维归一化），各头输出已是加权求和后的向量，拼接前不再做 softmax，故 C 错。",
+              "option_text": "各头输出在拼接前先做 softmax 归一化，保证拼接后每行权重和为 1",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：softmax 发生在每个头内部的注意力权重上（对 key 维归一化），各头输出是加权求和后的向量，拼接前不再做 softmax，拼接后每行权重和为 1 的说法没有依据。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录准确说明 softmax 的位置与各头输出的性质，并指出“拼接后每行权重和为 1”无依据，批评成立。"
+            },
+            {
+              "reasoning": "实现上并非维护 h 套独立矩阵，而是用三个大矩阵按头数切分并 reshape 成 n_head×d_head×N 张量以利用 GPU 并行，故 D 正确。",
+              "option_text": "工程实现中常把 h 个头的投影合并成一个大矩阵，再 reshape 成 h 份，以便利用 GPU 并行",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 正确：实现上并非真的维护 h 套独立矩阵，而是用三个大矩阵按头数切分并 reshape 成 n_head×d_head×N 的张量，以充分利用 GPU 并行。",
+              "independent_correct": true,
+              "explanation_reasoning": "摘录与 theaiedge 文章关于张量表示（reshape 为 n_head×d_head×N）的描述一致，说明准确。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "A 正确：h 组独立 W^Q/W^K/W^V 投影后并行做缩放点积注意力。B 正确：拼接后乘 W_O。C 错：softmax 在每头内部对 key 维归一化，各头输出是加权求和向量，拼接前不再 softmax。D 正确：工程上用三个大矩阵切分 reshape 成 n_head×d_head×N 以利用 GPU 并行。故选 A,B,D。"
+        },
+        {
+          "question_id": "q5-three-usages",
+          "option_checks": [
+            {
+              "reasoning": "论文称编码器自注意力中“所有的键、值和查询都来自同一个地方，即编码器前一层的输出”，故 A 正确。",
+              "option_text": "编码器自注意力：Q、K、V 都来自编码器前一层的输出",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：编码器自注意力中“所有的键、值和查询都来自同一个地方，即编码器前一层的输出”。",
+              "independent_correct": true,
+              "explanation_reasoning": "摘录逐字引用论文表述，说明准确。"
+            },
+            {
+              "reasoning": "论文称编码器-解码器注意力中“查询来自前一层解码器，而记忆键和值则来自编码器的输出”，故 B 正确。",
+              "option_text": "编码器-解码器注意力：Q 来自解码器前一层，K 和 V 来自编码器输出",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：编码器-解码器注意力中“查询来自前一层解码器，而记忆键和值则来自编码器的输出”，使解码器每个位置都能关注输入序列所有位置。",
+              "independent_correct": true,
+              "explanation_reasoning": "摘录引用论文原话并补充“解码器每个位置都能关注输入序列所有位置”，与来源一致。"
+            },
+            {
+              "reasoning": "解码器自注意力的 Q 来自解码器自身而非编码器输出，C 把来源说反，故错。",
+              "option_text": "解码器自注意力：Q 来自编码器输出，K 和 V 来自解码器前一层",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：把编码器-解码器注意力的来源说反了；解码器自注意力的 Q 来自解码器自身，不是编码器输出。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录指出 C 把来源说反，并说明解码器自注意力 Q 来自解码器自身，两句均成立。"
+            },
+            {
+              "reasoning": "解码器自注意力允许每个位置关注包括自身在内的位置，并通过把 softmax 输入中非法连接置为 -∞ 阻止信息向左流动，保持自回归属性，故 D 正确。",
+              "option_text": "解码器自注意力：Q、K、V 都来自解码器，并通过掩码阻止信息向左流动",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 正确：解码器自注意力允许每个位置关注包括自身在内的位置，但通过把 softmax 输入中非法连接置为 -∞ 来阻止信息向左流动，保持自回归属性。",
+              "independent_correct": true,
+              "explanation_reasoning": "摘录与论文关于解码器自注意力掩码的表述一致，说明准确。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "编码器自注意力：Q/K/V 均来自编码器前一层输出（A 对）。编码器-解码器注意力：Q 来自解码器前一层，K/V 来自编码器输出（B 对）。解码器自注意力：Q/K/V 均来自解码器，并用掩码阻止信息向左流动（D 对）。C 把来源说反，错。故选 A,B,D。"
+        },
+        {
+          "question_id": "q6-mask",
+          "option_checks": [
+            {
+              "reasoning": "e^{-∞}=0 使该位置权重为 0，位置 i 只能关注 j≤i，从而保持自回归属性，故 A 正确。",
+              "option_text": "这些位置的注意力权重经 softmax 后变为 0，位置 i 只能关注 j≤i 的位置，从而保持自回归属性",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：softmax 中某一项为 -∞ 时，e^{-∞}=0，归一化后该位置的权重为 0，于是位置 i 只能把注意力分配给 j≤i 的位置，防止信息向左流动，保持自回归属性。",
+              "independent_correct": true,
+              "explanation_reasoning": "摘录给出 e^{-∞}=0 的推导并联系自回归属性，与论文“将 softmax 输入中对应非法连接的所有值设为 -∞”一致。"
+            },
+            {
+              "reasoning": "-∞ 使权重趋于 0 而非 1，且掩码不涉及复制前一个 token 的机制，故 B 错。",
+              "option_text": "这些位置的注意力权重变为 1，使解码器强制复制前一个 token",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：-∞ 使权重趋于 0 而不是 1，且掩码不涉及“复制前一个 token”的机制。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录正确指出权重趋于 0 且无复制机制，批评成立。"
+            },
+            {
+              "reasoning": "掩码作用在 softmax 的输入（注意力分数）上，不是把 Q 清零，该位置仍正常产生输出，故 C 错。",
+              "option_text": "这些位置的 Q 向量被清零，因此该位置不再产生输出",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：掩码作用在 softmax 的输入（注意力分数）上，不是把 Q 清零；该位置仍然正常产生输出。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录说明掩码作用于注意力分数而非 Q，并指出该位置仍产生输出，两句均成立。"
+            },
+            {
+              "reasoning": "掩码改变的是注意力权重分布，V 本身不被替换，加权求和结果随之改变，故 D 错。",
+              "option_text": "这些位置的值向量 V 被替换为 0，但注意力权重分布不变",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：掩码改变的是注意力权重分布，V 本身不被替换；权重变了，加权求和的结果也随之改变。",
+              "independent_correct": false,
+              "explanation_reasoning": "摘录指出 V 不被替换且权重变化会改变加权求和结果，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "softmax 输入某项为 -∞ 时 e^{-∞}=0，归一化后该位置权重为 0，位置 i 只能关注 j≤i，保持自回归属性，故 A 对。B 说权重变 1（错）；C 说 Q 被清零（错，掩码作用于注意力分数）；D 说 V 被替换为 0 且权重不变（错）。故选 A。"
+        },
+        {
+          "question_id": "q7-true-false",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "实现层面只有一套 K/Q/V（形状 d_model×N），每个头处理整条序列但只操作自己的特征子集；reshape 成 n_head×d_head×N 后每头在 d_head 维子空间独立计算注意力。因此该表述正确。"
+        },
+        {
+          "question_id": "q8-short-answer",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "流程：①用 h 组独立 W_i^Q/W_i^K/W_i^V 把 H 投影为各头 Q_i、K_i、V_i（维度 d_k、d_k、d_v，通常 d_k=d_v=d_head=d_model/h）；②各头并行计算 head_i=softmax(Q_iK_i^T/√d_k)V_i；③按维度拼接成 h·d_v 维；④乘 W_O（h·d_v×d_model）得 d_model 维输出。编码器-解码器注意力中 Q 来自解码器前一层，K、V 来自编码器输出。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q1 直接对比单头与多头动机，正确落实“多头注意力”原理理解这一要求。",
+          "locator": {
+            "question_id": "q1-why-multi-head"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 以 d_model=512、h=8 计算 d_head=64，落实多头注意力的结构参数。",
+          "locator": {
+            "question_id": "q2-head-dim"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 通过投影矩阵规模与注意力维度分摊解释总成本相近，落实计算量关系。",
+          "locator": {
+            "question_id": "q3-cost"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 多选逐项覆盖投影→并行注意力→拼接→W_O 四步，并排除 softmax 位置错误项。",
+          "locator": {
+            "question_id": "q4-pipeline"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 逐项核对三处注意力的 Q/K/V 来源，正确区分编码器自注意力、编码器-解码器注意力与解码器自注意力。",
+          "locator": {
+            "question_id": "q5-three-usages"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 由 e^{-∞}=0 推出权重为 0，落实解码器自注意力的自回归约束。",
+          "locator": {
+            "question_id": "q6-mask"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 简答要求完整复述四步流程并说明编码器-解码器注意力的 Q/K/V 来源，与定位一致。",
+          "locator": {
+            "question_id": "q8-short-answer"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 作为 o1 的检查题，正确选项即“不同表示子空间并行关注不同位置”，能检验该目标。",
+          "locator": {
+            "question_id": "q1-why-multi-head"
+          },
+          "binding_id": "n3-multi-head:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 判断题检验“每头处理全部 token 但只用自己特征子空间”，与 o1 的多子空间理解相关。",
+          "locator": {
+            "question_id": "q7-true-false"
+          },
+          "binding_id": "n3-multi-head:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 作为 o2 的练习，直接计算 d_head=d_model/h。",
+          "locator": {
+            "question_id": "q2-head-dim"
+          },
+          "binding_id": "n3-multi-head:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 作为 o2 的练习，检验对多头投影维度与计算成本关系的理解。",
+          "locator": {
+            "question_id": "q3-cost"
+          },
+          "binding_id": "n3-multi-head:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 作为 o2 的练习，检验实现流程四步的掌握。",
+          "locator": {
+            "question_id": "q4-pipeline"
+          },
+          "binding_id": "n3-multi-head:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 作为 o2 的检查题，要求完整复述流程并写出维度，覆盖该目标全部要点。",
+          "locator": {
+            "question_id": "q8-short-answer"
+          },
+          "binding_id": "n3-multi-head:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 作为 o3 的检查题，逐项区分三种用法的 Q/K/V 来源。",
+          "locator": {
+            "question_id": "q5-three-usages"
+          },
+          "binding_id": "n3-multi-head:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 作为 o3 的练习，检验带掩码解码器自注意力的作用。",
+          "locator": {
+            "question_id": "q6-mask"
+          },
+          "binding_id": "n3-multi-head:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "2869518733fe477893bb8f891867832658fbba9b5e04d3e6b89b748e791c64a6",
+      "numeric_verification": {
+        "version": 1,
+        "coverage": "source_bound_claims_and_literal_softmax",
+        "questions": [
+          {
+            "checks": [],
+            "question_index": 0
+          },
+          {
+            "checks": [
+              {
+                "status": "pass",
+                "claimed": "64",
+                "excerpt": "B 正确：d_head=d_model/h=512/8=64，这正是原始论文中 h=8、d_k=d_v=64 的设定。",
+                "computed": 64.0,
+                "expression": "512/8",
+                "end_segment": 0,
+                "source_field": "explanation",
+                "start_segment": 0,
+                "decimal_places": 0
+              },
+              {
+                "status": "pass",
+                "claimed": "4096",
+                "excerpt": "D 错误：4096=512×8，是把 d_model 乘以头数，方向算反了。",
+                "computed": 4096.0,
+                "expression": "512*8",
+                "end_segment": 3,
+                "source_field": "explanation",
+                "start_segment": 3,
+                "decimal_places": 0
+              }
+            ],
+            "question_index": 1
+          },
+          {
+            "checks": [],
+            "question_index": 2
+          },
+          {
+            "checks": [],
+            "question_index": 3
+          },
+          {
+            "checks": [],
+            "question_index": 4
+          },
+          {
+            "checks": [],
+            "question_index": 5
+          },
+          {
+            "checks": [],
+            "question_index": 6
+          },
+          {
+            "checks": [],
+            "question_index": 7
+          }
+        ]
+      },
+      "option_binding_version": 1
+    }
+  }
+}

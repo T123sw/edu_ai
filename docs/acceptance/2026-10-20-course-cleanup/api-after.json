@@ -1,0 +1,660 @@
+{
+  "/health": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "message": "service ready",
+      "knowledge_base_ready": true,
+      "document_count": 1249
+    }
+  },
+  "/api/courses": {
+    "status": 200,
+    "body": []
+  },
+  "/api/course-preparations": {
+    "status": 200,
+    "body": {
+      "preparations": []
+    }
+  },
+  "/api/self-learning/state": {
+    "status": 200,
+    "body": {
+      "version": 1,
+      "rooms": [],
+      "resources": [],
+      "jobs": [],
+      "shared": [],
+      "serverJobs": [
+        {
+          "edu_job_id": "practice_792ef220f0ee56f7576d4417540dc83f",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_792ef220f0ee56f7576d4417540dc83f",
+          "result_ref": {
+            "practice_id": "practice_792ef220f0ee56f7576d4417540dc83f",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-17T09:24:26.895590+00:00"
+        },
+        {
+          "edu_job_id": "pbl_65330c4a2de42e33daf589fc48098364",
+          "kind": "generate_pbl",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "编程项目已就绪，可以开始实现",
+          "course_id": null,
+          "scope_id": "pbl_65330c4a2de42e33daf589fc48098364",
+          "result_ref": {
+            "exercise_id": "pbl_65330c4a2de42e33daf589fc48098364",
+            "resource_type": "pbl_exercise"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-17T05:40:26.204599+00:00"
+        },
+        {
+          "edu_job_id": "pbl_18fa019c570001cf47cd40a1dc418073",
+          "kind": "generate_pbl",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": null,
+          "scope_id": "pbl_18fa019c570001cf47cd40a1dc418073",
+          "result_ref": null,
+          "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+          "error_code": "PBL_VALIDATION_FAILED",
+          "retryable": true,
+          "created_at": "2026-10-16T06:39:32.557246+00:00"
+        },
+        {
+          "edu_job_id": "practice_3f60923207dac4589abd65cc1d19e33b",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_3f60923207dac4589abd65cc1d19e33b",
+          "result_ref": {
+            "practice_id": "practice_3f60923207dac4589abd65cc1d19e33b",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-16T06:23:42.854814+00:00"
+        },
+        {
+          "edu_job_id": "practice_3dc0bc2275eb8e6dd2e9412dd059988b",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_3dc0bc2275eb8e6dd2e9412dd059988b",
+          "result_ref": {
+            "practice_id": "practice_3dc0bc2275eb8e6dd2e9412dd059988b",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-16T06:14:49.343529+00:00"
+        },
+        {
+          "edu_job_id": "pbl_92787ec536e4d2b60f2c05e1b45072d4",
+          "kind": "generate_pbl",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": null,
+          "scope_id": "pbl_92787ec536e4d2b60f2c05e1b45072d4",
+          "result_ref": null,
+          "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+          "error_code": "PBL_VALIDATION_FAILED",
+          "retryable": true,
+          "created_at": "2026-10-16T05:59:32.044784+00:00"
+        },
+        {
+          "edu_job_id": "practice_b0688a45b12689bbbe6f80c49363edf3",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_b0688a45b12689bbbe6f80c49363edf3",
+          "result_ref": {
+            "practice_id": "practice_b0688a45b12689bbbe6f80c49363edf3",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-16T05:33:53.186229+00:00"
+        },
+        {
+          "edu_job_id": "practice_7069af4007cb31d7735ac7420381406e",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_7069af4007cb31d7735ac7420381406e",
+          "result_ref": {
+            "practice_id": "practice_7069af4007cb31d7735ac7420381406e",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-15T15:52:58.569278+00:00"
+        },
+        {
+          "edu_job_id": "practice_5b8a3567562383a9e719085b55bf5f01",
+          "kind": "generate_practice",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": null,
+          "scope_id": "practice_5b8a3567562383a9e719085b55bf5f01",
+          "result_ref": null,
+          "error_message": "实验页面基本运行检查未通过：演示未达到完整终态：fixed: 期望 [0,1,2]，实际 [1,0,2]。按计划逐次执行真实操作，不能只设置完成标志或强制替换结果。",
+          "error_code": "PRACTICE_GENERATION_FAILED",
+          "retryable": true,
+          "created_at": "2026-10-15T15:40:23.786313+00:00"
+        },
+        {
+          "edu_job_id": "practice_762c389e5614798fa39791c95d6f7558",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_762c389e5614798fa39791c95d6f7558",
+          "result_ref": {
+            "practice_id": "practice_762c389e5614798fa39791c95d6f7558",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-15T15:14:31.612817+00:00"
+        },
+        {
+          "edu_job_id": "practice_78bf451e20930097cf17371cc4bea3a5",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_78bf451e20930097cf17371cc4bea3a5",
+          "result_ref": {
+            "practice_id": "practice_78bf451e20930097cf17371cc4bea3a5",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-15T15:09:57.085432+00:00"
+        },
+        {
+          "edu_job_id": "pbl_f68a8c30ed541638347f1ee9dd701055",
+          "kind": "generate_pbl",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "编程项目已就绪，可以开始实现",
+          "course_id": null,
+          "scope_id": "pbl_f68a8c30ed541638347f1ee9dd701055",
+          "result_ref": {
+            "exercise_id": "pbl_f68a8c30ed541638347f1ee9dd701055",
+            "resource_type": "pbl_exercise"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-15T15:10:12.521428+00:00"
+        },
+        {
+          "edu_job_id": "pbl_48a21a73983a19b86e96cc5edd36dddd",
+          "kind": "generate_pbl",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": null,
+          "scope_id": "pbl_48a21a73983a19b86e96cc5edd36dddd",
+          "result_ref": null,
+          "error_message": "项目计划经过修复仍未通过检查",
+          "error_code": "PBL_PLAN_INVALID",
+          "retryable": true,
+          "created_at": "2026-10-15T14:53:05.128180+00:00"
+        },
+        {
+          "edu_job_id": "practice_4066691d3732c56e8c087ca9f8389060",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_4066691d3732c56e8c087ca9f8389060",
+          "result_ref": {
+            "practice_id": "practice_4066691d3732c56e8c087ca9f8389060",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-15T11:29:30.321001+00:00"
+        },
+        {
+          "edu_job_id": "job_1f682b31a94146a6",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_dbd01b5a0821a1b3d09e1c41a7194331",
+          "result_ref": {
+            "practice_id": "job_1f682b31a94146a6",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-15T10:58:19.594393+00:00"
+        },
+        {
+          "edu_job_id": "practice_dbd01b5a0821a1b3d09e1c41a7194331",
+          "kind": "generate_practice",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": null,
+          "scope_id": "practice_dbd01b5a0821a1b3d09e1c41a7194331",
+          "result_ref": null,
+          "error_message": "实验页面基本运行检查未通过：保存状态未正确恢复",
+          "error_code": "PRACTICE_GENERATION_FAILED",
+          "retryable": true,
+          "created_at": "2026-10-15T10:56:12.211992+00:00"
+        },
+        {
+          "edu_job_id": "job_3aeff94f1c8d45a8",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_d15a0350026547e771db346c381664d5",
+          "result_ref": {
+            "practice_id": "job_3aeff94f1c8d45a8",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-15T10:40:26.385157+00:00"
+        },
+        {
+          "edu_job_id": "practice_d15a0350026547e771db346c381664d5",
+          "kind": "generate_practice",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": null,
+          "scope_id": "practice_d15a0350026547e771db346c381664d5",
+          "result_ref": null,
+          "error_message": "实验页面基本运行检查未通过：重置未恢复初始状态",
+          "error_code": "PRACTICE_GENERATION_FAILED",
+          "retryable": true,
+          "created_at": "2026-10-15T10:37:35.701955+00:00"
+        },
+        {
+          "edu_job_id": "pbl_5880f37834bfd306e4f25a0eefec6212",
+          "kind": "generate_pbl",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "编程练习已就绪，可以开始实现算法",
+          "course_id": null,
+          "scope_id": "pbl_5880f37834bfd306e4f25a0eefec6212",
+          "result_ref": {
+            "exercise_id": "pbl_5880f37834bfd306e4f25a0eefec6212",
+            "resource_type": "pbl_exercise"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-15T09:22:44.214996+00:00"
+        },
+        {
+          "edu_job_id": "practice_0ea4343e06197b531fd767ebbc5a717b",
+          "kind": "generate_practice",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": null,
+          "scope_id": "practice_0ea4343e06197b531fd767ebbc5a717b",
+          "result_ref": null,
+          "error_message": "模型生成的实验设计存在冲突，自动修复未成功。请重试，无需修改实验主题。",
+          "error_code": "PRACTICE_GENERATION_FAILED",
+          "retryable": true,
+          "created_at": "2026-10-15T09:13:27.356761+00:00"
+        },
+        {
+          "edu_job_id": "pbl_5c9f08603b63b9130cb7f88409b8369e",
+          "kind": "generate_pbl",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": null,
+          "scope_id": "pbl_5c9f08603b63b9130cb7f88409b8369e",
+          "result_ref": null,
+          "error_message": "项目步骤经过修复仍未通过运行检查，请重试",
+          "error_code": "PBL_VALIDATION_FAILED",
+          "retryable": true,
+          "created_at": "2026-10-15T06:55:34.709016+00:00"
+        },
+        {
+          "edu_job_id": "practice_47be683aa123c52a7dda9f5aa0380a12",
+          "kind": "generate_practice",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": null,
+          "scope_id": "practice_47be683aa123c52a7dda9f5aa0380a12",
+          "result_ref": null,
+          "error_message": "实验设计规格校验失败，请调整主题后重新生成",
+          "error_code": "PRACTICE_GENERATION_FAILED",
+          "retryable": true,
+          "created_at": "2026-10-15T06:48:00.758113+00:00"
+        },
+        {
+          "edu_job_id": "practice_7627cd8cbc6a02a42bf92576ba63a9c5",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_7627cd8cbc6a02a42bf92576ba63a9c5",
+          "result_ref": {
+            "practice_id": "practice_7627cd8cbc6a02a42bf92576ba63a9c5",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-14T08:31:31.468997+00:00"
+        },
+        {
+          "edu_job_id": "practice_289c568969485348808f76997ef40576",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_289c568969485348808f76997ef40576",
+          "result_ref": {
+            "practice_id": "practice_289c568969485348808f76997ef40576",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-14T04:54:44.384763+00:00"
+        },
+        {
+          "edu_job_id": "pbl_b33fe35781ba590d346b053f240b447b",
+          "kind": "generate_pbl",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "编程练习已就绪，可以开始实现算法",
+          "course_id": null,
+          "scope_id": "pbl_b33fe35781ba590d346b053f240b447b",
+          "result_ref": {
+            "exercise_id": "pbl_b33fe35781ba590d346b053f240b447b",
+            "resource_type": "pbl_exercise"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-14T04:30:59.939727+00:00"
+        },
+        {
+          "edu_job_id": "pbl_21f2da17fb283afb361837799aed787c",
+          "kind": "generate_pbl",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "编程练习已就绪，可以开始实现算法",
+          "course_id": null,
+          "scope_id": "pbl_21f2da17fb283afb361837799aed787c",
+          "result_ref": {
+            "exercise_id": "pbl_21f2da17fb283afb361837799aed787c",
+            "resource_type": "pbl_exercise"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-14T01:05:21.919731+00:00"
+        },
+        {
+          "edu_job_id": "practice_6e557e64a2f693ffce97c98ea6258fb1",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_6e557e64a2f693ffce97c98ea6258fb1",
+          "result_ref": {
+            "practice_id": "practice_6e557e64a2f693ffce97c98ea6258fb1",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-13T17:32:20.212230+00:00"
+        },
+        {
+          "edu_job_id": "job_7d0d516e7a7b42b1",
+          "kind": "generate_practice",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "互动实验已就绪，可以进入操作",
+          "course_id": null,
+          "scope_id": "practice_0b922b7ced3ede29bb1542463bb52895",
+          "result_ref": {
+            "practice_id": "job_7d0d516e7a7b42b1",
+            "resource_type": "practice"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-10-13T17:26:10.633410+00:00"
+        },
+        {
+          "edu_job_id": "practice_0b922b7ced3ede29bb1542463bb52895",
+          "kind": "generate_practice",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": null,
+          "scope_id": "practice_0b922b7ced3ede29bb1542463bb52895",
+          "result_ref": null,
+          "error_message": "实验运行检查未通过：调整参数并运行后，上报的结果没有变化",
+          "error_code": "PRACTICE_GENERATION_FAILED",
+          "retryable": true,
+          "created_at": "2026-10-13T17:15:17.095988+00:00"
+        },
+        {
+          "edu_job_id": "job_5c7f8b6b24f047b6",
+          "kind": "rag_import",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "生成完成，已保存到“我的资源”，仅你可见。",
+          "course_id": "personal:teacher",
+          "scope_id": "personal:teacher",
+          "result_ref": {
+            "course_id": "personal:teacher",
+            "chunk_count": 69,
+            "document_id": "doc-d84becfdd6294a069872af2cd72c67e4",
+            "index_version": "idx_571d1e942383",
+            "resource_type": "knowledge_document"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-08-12T08:10:27.994414+00:00"
+        },
+        {
+          "edu_job_id": "job_5f7339310f1e4ada",
+          "kind": "rag_import",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "生成完成，已保存到“我的资源”，仅你可见。",
+          "course_id": "personal:teacher",
+          "scope_id": "personal:teacher",
+          "result_ref": {
+            "course_id": "personal:teacher",
+            "chunk_count": 31,
+            "document_id": "doc-fceab36d9bd04795b44a5e4885786fe4",
+            "index_version": "idx_bffbd86da8ac",
+            "resource_type": "knowledge_document"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-08-12T08:10:27.765332+00:00"
+        },
+        {
+          "edu_job_id": "job_304cecbf475f43ee",
+          "kind": "rag_import",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "生成完成，已保存到“我的资源”，仅你可见。",
+          "course_id": "personal:teacher",
+          "scope_id": "personal:teacher",
+          "result_ref": {
+            "course_id": "personal:teacher",
+            "chunk_count": 47,
+            "document_id": "doc-c5bdd84748b34956b38989199e68d7dd",
+            "index_version": "idx_d15e062aaf31",
+            "resource_type": "knowledge_document"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-08-12T08:10:27.554472+00:00"
+        },
+        {
+          "edu_job_id": "job_924f0d9d7c2346e2",
+          "kind": "rag_import",
+          "status": "succeeded",
+          "progress": 100,
+          "message": "生成完成，已保存到“我的资源”，仅你可见。",
+          "course_id": "personal:teacher",
+          "scope_id": "personal:teacher",
+          "result_ref": {
+            "course_id": "personal:teacher",
+            "chunk_count": 37,
+            "document_id": "doc-42287c2008a04d2c880ab60a428f39ef",
+            "index_version": "idx_c02f9877ca9c",
+            "resource_type": "knowledge_document"
+          },
+          "error_message": null,
+          "error_code": null,
+          "retryable": false,
+          "created_at": "2026-08-12T08:10:27.337957+00:00"
+        },
+        {
+          "edu_job_id": "job_4b8accaa773341a4",
+          "kind": "rag_import",
+          "status": "failed",
+          "progress": 100,
+          "message": "任务执行失败",
+          "course_id": "personal:teacher",
+          "scope_id": "personal:teacher",
+          "result_ref": null,
+          "error_message": "(psycopg.errors.UniqueViolation) duplicate key value violates unique constraint \"pk_knowledge_documents\"\nDETAIL:  Key (library_id, document_id)=(personal:teacher, doc-09488f09e23b457ab359a0d02e2280bb) already exists.\n[SQL: INSERT INTO knowledge_documents (library_id, document_id, filename, path, content_hash, scope_type, scope_id, status, created_at, updated_at, raw_payload) VALUES (%(library_id)s::VARCHAR, %(document_id)s::VARCHAR, %(filename)s::VARCHAR, %(path)s::VARCHAR, %(content_hash)s::VARCHAR, %(scope_type)s::VARCHAR, %(scope_id)s::VARCHAR, %(status)s::VARCHAR, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE, %(raw_payload)s::JSONB)]\n[parameters: [{'library_id': 'personal:teacher', 'document_id': 'doc-09488f09e23b457ab359a0d02e2280bb', 'filename': '维基百科，自由的百科全书｜快速排序 - 维基百科，自由的百科全书-78467e7e0659.md', 'path': 'knowledge_base/documents/bb6bce22a1e64b6d861d4343be7202d4-维基百科，自由的百科全书｜快速排序 - 维基百科，自由的百科全书-78467e7e0659.md', 'content_hash': None, 'scope_type': 'personal', 'scope_id': 'personal:teacher', 'status': 'parsing', 'created_at': datetime.datetime(2026, 8, 12, 16, 10, 27, 86067, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 12, 8, 10, 27, 890595, tzinfo=datetime.timezone.utc), 'raw_payload': Jsonb({'id': 'doc-09488f09e23b457ab359a0d ... (1188 chars))}, {'library_id': 'personal:teacher', 'document_id': 'doc-42287c2008a04d2c880ab60a428f39ef', 'filename': '菜鸟教程｜1.6 快速排序 菜鸟教程-3e9d315a9660.md', 'path': 'knowledge_base/documents/513aafcddf9d4f70a03f57bf3736534a-菜鸟教程｜1.6 快速排序 菜鸟教程-3e9d315a9660.md', 'content_hash': None, 'scope_type': 'personal', 'scope_id': 'personal:teacher', 'status': 'parsing', 'created_at': datetime.datetime(2026, 8, 12, 16, 10, 27, 258602, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 12, 8, 10, 27, 873695, tzinfo=datetime.timezone.utc), 'raw_payload': Jsonb({'id': 'doc-42287c2008a04d2c880ab60 ... (1111 chars))}, {'library_id': 'personal:teacher', 'document_id': 'doc-c5bdd84748b34956b38989199e68d7dd', 'filename': 'OI Wiki｜快速排序 - OI Wiki-3182fa98808b.md', 'path': 'knowledge_base/documents/23fa63e92ee7462ab22e111774913fd0-OI Wiki｜快速排序 - OI Wiki-3182fa98808b.md', 'content_hash': None, 'scope_type': 'personal', 'scope_id': 'personal:teacher', 'status': 'received', 'created_at': datetime.datetime(2026, 8, 12, 16, 10, 27, 476736, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 12, 8, 10, 27, 571018, tzinfo=datetime.timezone.utc), 'raw_payload': Jsonb({'id': 'doc-c5bdd84748b34956b389891 ... (1111 chars))}, {'library_id': 'personal:teacher', 'document_id': 'doc-fceab36d9bd04795b44a5e4885786fe4', 'filename': '博客园｜[排序算法] 快速排序 (C++) (含三种写法) - MarisaMagic - 博客园-c8e1480a78ae.md', 'path': 'knowledge_base/documents/e1336f0aa4c44910b9bc5c7dc3e084b6-博客园｜[排序算法] 快速排序 (C++) (含三种写法) - MarisaMagic - 博客园-c8e1480a78ae.md', 'content_hash': None, 'scope_type': 'personal', 'scope_id': 'personal:teacher', 'status': 'received', 'created_at': datetime.datetime(2026, 8, 12, 16, 10, 27, 666908, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 8, 12, 8, 10, 27, 786146, tzinfo=datetime.timezone.utc), 'raw_payload': Jsonb({'id': 'doc-fceab36d9bd04795b44a5e4 ... (1238 chars))}]]\n(Background on this error at: https://sqlalche.me/e/20/gkpj)",
+          "error_code": "RAG_INDEX_FAILED",
+          "retryable": true,
+          "created_at": "2026-08-12T08:10:27.156296+00:00"
+        },
+        {
+          "edu_job_id": "job_6706f3673fcd",
+          "kind": "render_video",
+          "status": "failed",
+          "progress": 100,
+          "message": "课堂视频导出失败",
+          "course_id": null,
+          "scope_id": null,
+          "result_ref": null,
+          "error_message": "{\"type\":\"error\",\"message\":\"page.waitForFunction: Timeout 120000ms exceeded.\"}",
+          "error_code": "VIDEO_EXPORT_FAILED",
+          "retryable": true,
+          "created_at": "2026-07-26T05:22:02.613538+00:00"
+        },
+        {
+          "edu_job_id": "job_6637aed7bfda",
+          "kind": "render_video",
+          "status": "failed",
+          "progress": 100,
+          "message": "课堂视频导出失败",
+          "course_id": null,
+          "scope_id": null,
+          "result_ref": null,
+          "error_message": "{\"type\":\"error\",\"message\":\"page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4173/#video-render?course_id=computational-thinking&classroom_id=Ii0-7a0bpN&scene_index=0\\nCall log:\\n\\u001b[2m  - navigating to \\\"http://127.0.0.1:4173/#video-render?course_id=computational-thinking&classroom_id=Ii0-7a0bpN&scene_index=0\\\", waiting until \\\"networkidle\\\"\\u001b[22m\\n\"}",
+          "error_code": "VIDEO_EXPORT_FAILED",
+          "retryable": true,
+          "created_at": "2026-07-26T05:05:22.192189+00:00"
+        },
+        {
+          "edu_job_id": "job_693bf232b3a5",
+          "kind": "render_video",
+          "status": "failed",
+          "progress": 100,
+          "message": "课堂视频导出失败",
+          "course_id": null,
+          "scope_id": null,
+          "result_ref": null,
+          "error_message": "{\"type\":\"error\",\"message\":\"page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:4173/#video-render?course_id=computational-thinking&classroom_id=Ii0-7a0bpN&scene_index=0\\nCall log:\\n\\u001b[2m  - navigating to \\\"http://127.0.0.1:4173/#video-render?course_id=computational-thinking&classroom_id=Ii0-7a0bpN&scene_index=0\\\", waiting until \\\"networkidle\\\"\\u001b[22m\\n\"}",
+          "error_code": "VIDEO_EXPORT_FAILED",
+          "retryable": true,
+          "created_at": "2026-07-26T05:01:22.397248+00:00"
+        },
+        {
+          "edu_job_id": "job_22038024b50d",
+          "kind": "generate_classroom",
+          "status": "failed",
+          "progress": 0,
+          "message": "Failed to submit classroom generation job",
+          "course_id": null,
+          "scope_id": null,
+          "result_ref": null,
+          "error_message": "sidecar unreachable: All connection attempts failed",
+          "error_code": "SIDECAR_UNAVAILABLE",
+          "retryable": true,
+          "created_at": "2026-07-26T04:11:16.711004+00:00"
+        },
+        {
+          "edu_job_id": "job_cd0a79071b73",
+          "kind": "generate_classroom",
+          "status": "failed",
+          "progress": 0,
+          "message": "Failed to submit classroom generation job",
+          "course_id": null,
+          "scope_id": null,
+          "result_ref": null,
+          "error_message": "sidecar unreachable: All connection attempts failed",
+          "error_code": "SIDECAR_UNAVAILABLE",
+          "retryable": true,
+          "created_at": "2026-07-24T16:02:23.371050+00:00"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "ok": true,
+  "issues": [],
+  "checks": [
+    "initial-results",
+    "default-run",
+    "valid-parameter-change-and-run",
+    "reset-button",
+    "responsive-layout",
+    "javascript-errors",
+    "hidpi-canvas",
+    "canvas-label-size",
+    "resize-stability",
+    "pause-button"
+  ],
+  "scope": "browser-smoke-not-scientific-certification",
+  "diagnostics": {
+    "observation_ms": 8000,
+    "controls": [
+      {
+        "name": "speed",
+        "type": "range",
+        "min": "150",
+        "max": "1500",
+        "step": "50",
+        "value": "600"
+      },
+      {
+        "name": "size",
+        "type": "range",
+        "min": "4",
+        "max": "9",
+        "step": "1",
+        "value": "5"
+      }
+    ],
+    "initial": {
+      "parameters": {
+        "speed": "600",
+        "size": "5"
+      },
+      "results": {
+        "比较次数": 0,
+        "交换次数": 0,
+        "当前阶段": "未开始",
+        "初始化": 1
+      }
+    },
+    "trials": [
+      {
+        "action": "run-with-defaults",
+        "before": {
+          "parameters": {
+            "speed": "600",
+            "size": "5"
+          },
+          "results": {
+            "比较次数": 0,
+            "交换次数": 0,
+            "当前阶段": "未开始",
+            "初始化": 1
+          }
+        },
+        "after": {
+          "parameters": {
+            "speed": "600",
+            "size": "5"
+          },
+          "results": {
+            "比较次数": 1,
+            "交换次数": 0,
+            "当前阶段": "扫描比较中",
+            "当前比较元素索引": 0
+          }
+        },
+        "changed": true
+      },
+      {
+        "action": "change-one-parameter-and-run",
+        "control": "speed",
+        "parameters": {
+          "speed": "650",
+          "size": "5"
+        },
+        "before": {
+          "parameters": {
+            "speed": "600",
+            "size": "5"
+          },
+          "results": {
+            "比较次数": 0,
+            "交换次数": 0,
+            "当前阶段": "未开始",
+            "重置": 1
+          }
+        },
+        "after": {
+          "parameters": {
+            "speed": "650",
+            "size": "5"
+          },
+          "results": {
+            "比较次数": 1,
+            "交换次数": 0,
+            "当前阶段": "扫描比较中",
+            "当前比较元素索引": 0
+          }
+        },
+        "changed": true
+      }
+    ],
+    "presentation": [
+      {
+        "label": "桌面高清屏",
+        "width": 1424,
+        "height": 1212,
+        "overflow": false,
+        "canvases": [
+          {
+            "id": "sortCanvas",
+            "width": 1092,
+            "height": 560,
+            "cssWidth": 546,
+            "cssHeight": 280,
+            "fontSize": 13,
+            "dpr": 2
+          }
+        ]
+      },
+      {
+        "label": "手机高清屏",
+        "width": 374,
+        "height": 2506,
+        "overflow": false,
+        "canvases": [
+          {
+            "id": "sortCanvas",
+            "width": 552,
+            "height": 560,
+            "cssWidth": 276,
+            "cssHeight": 280,
+            "fontSize": 13,
+            "dpr": 2
+          }
+        ]
+      },
+      {
+        "label": "窄桌面高清屏",
+        "width": 1084,
+        "height": 1212,
+        "overflow": false,
+        "canvases": [
+          {
+            "id": "sortCanvas",
+            "width": 896,
+            "height": 560,
+            "cssWidth": 448,
+            "cssHeight": 280,
+            "fontSize": 13,
+            "dpr": 2
+          }
+        ]
+      },
+      {
+        "label": "恢复桌面宽度",
+        "width": 1424,
+        "height": 1212,
+        "overflow": false,
+        "canvases": [
+          {
+            "id": "sortCanvas",
+            "width": 1092,
+            "height": 560,
+            "cssWidth": 546,
+            "cssHeight": 280,
+            "fontSize": 13,
+            "dpr": 2
+          }
+        ]
+      }
+    ],
+    "evidence_id": "52460be8-045f-4419-8b00-bc38baa9d9f1"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "status": "deployed_verified_five_videos_completed",
+  "production_code_modified": true,
+  "deployed": true,
+  "failed_preparation": "prep_531f57d76e274188b9bfd49fc9588dda",
+  "root_cause": "Authorization creates a nested session while holding memory/preparation locks. With all pool connections held by lock waiters, the lock holder cannot check out another connection and times out. Increased video fanout exposed this existing pattern.",
+  "change": "Reuse caller session through repository, reference authorizer, target and upload validation. Retain current owner/origin/target/document validation and worker/memory/budget fences. No pool-size increase.",
+  "watch": "../2026-10-19-transformer-adaptive-watch-retry/summary.json",
+  "postgres_before": "../2026-10-19-transformer-adaptive-watch-retry/pool-postgres-before.json",
+  "postgres_after": "../2026-10-19-transformer-adaptive-watch-retry/pool-postgres-after.json",
+  "files": [
+    "authorizer.py",
+    "repository.py",
+    "lifecycle_repository.py",
+    "artifact_store.py",
+    "progressive_delivery.py",
+    "adapters/document_store.py",
+    "adapters/targets.py"
+  ],
+  "regression": {
+    "passed": 182,
+    "skipped": 5,
+    "seconds": 170.65,
+    "database": "SQLite and private PostgreSQL cluster; no production DB"
+  },
+  "tests": "../2026-10-19-transformer-adaptive-watch-retry/pool-regression-tests.xml",
+  "watch_final_status": "failed",
+  "applied_tests": {
+    "passed": 7,
+    "skipped": 0,
+    "seconds": 3.71
+  },
+  "restart_commands": [
+    "sudo systemctl restart edu-ai-backend.service",
+    "systemctl --user restart edu-ai-durable-workers.service"
+  ],
+  "task_retry_after_fix": false,
+  "previous_restart_blocker": "systemctl restart edu-ai-backend.service returned Interactive authentication required; neither production service was restarted after the pool fix.",
+  "blocker": null,
+  "online_verification": {
+    "date": "2026-10-20",
+    "preparation_id": "prep_593ea484dc7c4247bacf13fcaddf8c5d",
+    "video_successes": 5,
+    "video_failures": 0,
+    "pool_timeouts_observed": 0,
+    "overall_status": "failed_due_to_two_quizzes",
+    "evidence": "../2026-10-20-transformer-generation-watch/summary.json",
+    "runtime": "../2026-10-20-transformer-generation-watch/runtime-verification.json"
+  }
+}

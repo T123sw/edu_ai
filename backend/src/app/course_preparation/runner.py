@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from threading import Event, Thread
 from .adapters.memory import ContextRebuilt
 from .lifecycle_repository import BudgetExceeded, NoProgress, StaleLease
+from .research_agent import ResearchError
 
 
 @dataclass(frozen=True)
@@ -72,8 +73,25 @@ class PreparationRunner:
             return {'stale': True}
         except Exception as exc:
             import logging
+            if isinstance(exc, ResearchError):
+                try:
+                    if canceled():
+                        self.repository.cancel(context.owner_user_id, preparation_id)
+                        return {'canceled': True}
+                    delay = self.repository.defer_provider_retry(context, exc.code)
+                    if delay is not None:
+                        logging.getLogger(__name__).warning(
+                            'Preparation provider retry scheduled: task=%s stage=%s code=%s delay=%s',
+                            preparation_id, context.stage, exc.code, delay)
+                        return {'claimed': True, 'stage': context.stage, 'waiting': True,
+                                'retrying': True, 'code': exc.code}
+                except StaleLease:
+                    return {'stale': True}
+                except (PermissionError, BudgetExceeded) as recovery_error:
+                    exc = recovery_error
             logging.getLogger(__name__).exception('Preparation step failed: task=%s stage=%s', preparation_id, context.stage)
-            code = ('BUDGET_EXHAUSTED' if isinstance(exc, BudgetExceeded) else
+            code = (('DEADLINE_EXCEEDED' if str(exc) == 'DEADLINE_EXCEEDED' else 'BUDGET_EXHAUSTED')
+                    if isinstance(exc, BudgetExceeded) else
                     'NO_PROGRESS' if isinstance(exc, NoProgress) else
                     'SOURCE_OR_OWNER_UNAVAILABLE' if isinstance(exc, PermissionError) else getattr(exc, 'code', 'STEP_FAILED'))
             try:

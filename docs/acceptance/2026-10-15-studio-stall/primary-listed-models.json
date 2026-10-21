@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-15T03:20:46.010779+00:00",
+  "results": [
+    {
+      "model": "deepseek-flash",
+      "http_status": 503,
+      "answer": null,
+      "returned_model": null,
+      "error": {
+        "message": "Service is too busy. We advise users to temporarily switch to alternative LLM API service providers. (request_id: 8c8833d6-7be9-481a-9fcc-191b8b942d9f)",
+        "type": "service_unavailable_error",
+        "param": null,
+        "code": "service_unavailable_error"
+      },
+      "seconds": 0.31
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "error": "ReadTimeout",
+      "seconds": 40.29
+    }
+  ]
+}

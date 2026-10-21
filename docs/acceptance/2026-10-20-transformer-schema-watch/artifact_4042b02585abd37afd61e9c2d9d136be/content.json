@@ -1,0 +1,200 @@
+{
+  "title": "多头注意力与编码器/解码器各子层职责",
+  "content": {
+    "title": "多头注意力与编码器/解码器各子层职责",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_4042b02585abd37afd61e9c2d9d136be",
+      "entry": "index.html",
+      "digest": "f009c45fc701e9437cc44b5bd69c62e41491ac456d13e054b2a5a7cf9a654ba9"
+    },
+    "timeline": {
+      "duration": 337.1,
+      "segments": [
+        {
+          "id": "01-overview",
+          "end": 25.8,
+          "start": 0.0,
+          "title": "全局：编码器 / 解码器",
+          "events": [],
+          "narration": "上一节我们把注意力算清楚了。这一节回答三个问题：多头注意力为什么比单头强，三种注意力各自的 Q、K、V 从哪里来，还有编码器和解码器的每一层到底有哪些子层。先把整张图放在眼前：左边是六层编码器，右边是六层解码器，中间那条箭头，把编码器的输出送进解码器的每一层。",
+          "audio_path": "assets/audio/421d3046322c558ada0183d277d7d426e474c75035728663ff9dc90fc34728f8.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "双栈架构图与三个待答问题；一条箭头把编码器输出送进解码器"
+        },
+        {
+          "id": "02-single-head",
+          "end": 53.2,
+          "start": 25.8,
+          "title": "单头注意力与它的局限",
+          "events": [],
+          "narration": "先快速回到先修内容。注意力就是把查询和所有键做点积，除以根号 dk，softmax 归一化以后，再对值加权求和。单头注意力只用一组投影，把一句话里所有位置的关系压进同一张权重表。当指代、语法、语义几种线索同时存在时，这张表只能给出一个平均的结果，而这些线索恰恰会被平均掩盖掉。",
+          "audio_path": "assets/audio/2e2615fcb9056adf7ca9f0e902cf7154ad5aac5569510407bf65e2aea6e037d1.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "公式回指后，三条线索汇入同一张权重表被平均掉"
+        },
+        {
+          "id": "03-project",
+          "end": 81.2,
+          "start": 53.2,
+          "title": "多头第一步：投影",
+          "events": [],
+          "narration": "多头注意力的第一步是换一组投影。它不做一次 512 维的注意力，而是把 Q、K、V 分别乘上 h 组不同的、可学习的线性投影矩阵，每一组都把 512 维降到更低的维度。原论文里 h 等于 8，每个头把 dmodel 512 维投影到 dk 等于 dv 等于 64 维，八组投影得到八套新的 Q、K、V。",
+          "audio_path": "assets/audio/f01b6da01f949408026f4db5c2f9d5303b065adfbd95efda27bb96f64abde2fd.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "512 维输入经 h 组不同投影，裂成 8 套 64 维 Q/K/V"
+        },
+        {
+          "id": "04-parallel-concat",
+          "end": 114.2,
+          "start": 81.2,
+          "title": "并行 → 拼接 → 再投影",
+          "events": [],
+          "narration": "第二步是并行：八个头各自在自己的 64 维空间里，独立跑一遍刚才那个注意力函数，互不干扰。第三步把八个头的输出按顺序拼接起来，得到 8 乘 64 等于 512 维；第四步再用一个输出投影 W O 把它映射回 512 维。写成公式就是，MultiHead 等于把 head 1 到 head h 拼接起来，再乘 W O，其中每个 head i 都是对第 i 组投影后的 Q、K、V 做注意力。",
+          "audio_path": "assets/audio/e694dcd830db9d1baee34102531b2fd869df87dd950ea273dbf0441260e81e77.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "八个头并行跑注意力，输出拼接成 512 维再经 W^O 投影"
+        },
+        {
+          "id": "05-why-heads",
+          "end": 143.4,
+          "start": 114.2,
+          "title": "为什么多头更强",
+          "events": [],
+          "narration": "为什么拆成多个头更强？因为每组投影相当于把表示空间切成一个不同的子空间。有的头可能更关注相邻词的关系，有的头可能盯住指代，有的头在追踪句法结构。多头让模型可以在不同位置，同时关注来自不同表示子空间的信息，而单头只能把它们平均掉。同时因为每个头的维度降到 64，总计算成本和全维度的单头注意力差不多。",
+          "audio_path": "assets/audio/a44323e99e9aa380bebbc929c0fcae926c032d9e7749cdfa1878035b9f47fb6c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "512 维表示切成子空间；单头平均 vs 多头分工；参数量对比"
+        },
+        {
+          "id": "06-three-usages",
+          "end": 184.7,
+          "start": 143.4,
+          "title": "三种注意力的 Q/K/V 来源",
+          "events": [],
+          "narration": "Transformer 在三处用到多头注意力，请看三种颜色，以及各自的 Q、K、V 来自哪里。蓝色是编码器自注意力，Q、K、V 全部来自上一层编码器的输出，每个位置都可以关注上一层所有位置。橙色是解码器的掩码自注意力，Q、K、V 都来自上一层解码器，但每个位置只能看到自己和自己之前的位置。绿色是编码器-解码器注意力，Q 来自上一层解码器，K 和 V 来自编码器最后一层的输出，所以解码器的每个位置都能关注输入序列的全部位置。",
+          "audio_path": "assets/audio/b5562accb536a369fdee3f50e043491bec415b27e933fd03c8a019efdea4d0a2.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "架构图上三色标注三种注意力，右侧三张卡逐一写出 Q/K/V 来源"
+        },
+        {
+          "id": "07-mask",
+          "end": 224.6,
+          "start": 184.7,
+          "title": "解码器掩码矩阵",
+          "events": [],
+          "narration": "掩码具体怎么做？假设目标序列有四个词。写出一个四行四列的矩阵，行是当前位置，列是它允许查看的键。合法的连接在左下三角，右上三角全部填负无穷。比如第一个词只能看它自己，第二个词能看前两个，最后一个词能看全部四个。负无穷经过 softmax 以后权重变成零，等于彻底切断这条连接。这样做的目的，是阻止信息向左流动，保持自回归：预测第 i 个位置时，模型只能依赖它之前已经产生的输出，不能提前偷看答案。",
+          "audio_path": "assets/audio/6d56928370923ade220a8e2de38bd5d8b0ac4e7ce9a90229d40cc6c54dbbd9ab.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "4 词序列生成 4×4 掩码矩阵，右上三角全部置 −∞"
+        },
+        {
+          "id": "08-ffn",
+          "end": 263.7,
+          "start": 224.6,
+          "title": "逐位置前馈网络",
+          "events": [],
+          "narration": "除了注意力，每一层还有一个逐位置前馈网络。公式是 FFN(x) 等于 max(0, xW1 加 b1) 再乘 W2 加 b2，也就是两次线性变换，中间夹一个 ReLU。重点在逐位置这三个字：它对每个位置分别处理，而且所有位置共用同一组参数，位置之间不交换信息，所以也可以看成两个核大小为 1 的卷积。输入输出都是 512 维，内层放大到 2048 维；同一层内参数共享，不同层用不同参数。",
+          "audio_path": "assets/audio/8dd3c0d2249f22077e74e3eeb5cafb916bc16526be9f09a3a8e7ac57ad45f7b0.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "每个位置独立同等地穿过同一个 FFN，512 → 2048 → 512"
+        },
+        {
+          "id": "09-addnorm",
+          "end": 299.0,
+          "start": 263.7,
+          "title": "Add & Norm",
+          "events": [],
+          "narration": "两个子层的外面都套了残差连接，后面接层归一化，也就是每个子层的输出等于 LayerNorm(x 加上 Sublayer(x))。残差把输入原样加回来，给梯度一条更短的路径，网络才能堆得很深；层归一化把每个位置的激活重新归一化到稳定的尺度。注意 x 加 Sublayer(x) 要求两边维度相同，所以模型里所有子层、以及嵌入层的输出，维度都必须是 dmodel 等于 512。",
+          "audio_path": "assets/audio/1b2a886e817e3a804d3232518c17a28ad162610660933d616590c5b094b81529.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "子层外套残差弧线与 LayerNorm，输出 LayerNorm(x + Sublayer(x))"
+        },
+        {
+          "id": "10-stacks",
+          "end": 337.1,
+          "start": 299.0,
+          "title": "编码器 2 子层 vs 解码器 3 子层",
+          "events": [],
+          "narration": "最后把结构差异并排看清楚。编码器六层，每层两个子层：多头自注意力，和逐位置前馈网络。解码器同样六层，在这两个子层之外插入第三个子层，对编码器的输出做多头注意力。每个子层都是 LayerNorm(x 加 Sublayer(x))。记住这里的 6 层、512 维、8 个头、2048 维内层，是 2017 年原始 base 模型的设定，后续变体会改，但骨架就是这张图。",
+          "audio_path": "assets/audio/06e6506adba9578903dfa145c6e0da0d74e5dc07a2e48ccad59db86af3bde2f8.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "并排对比编码器两层结构与解码器三层结构，回收关键数字"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 337.1
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.618333333333334
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "2a045afea5e7df042112c0d7b2497d2afea30c8dff930003ebb0af2212813248",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 337.1
+      },
+      "content_digest": "d2e3d1a04616fdb8b54e70f2b2c0a673307633bf163997fa4e686d9ee48f2361",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.618333333333334
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "5653cfb8b1081430dd9a47cbd758c8b1a416128303da253f86d1e3fe8866424d"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "5daac7c987db5c04f172849da5ddd37abe1765e678d988d868c257786bf407e6",
+      "preparation_sha256": "0f108616ca8fd63bb2ae298cc4e9034b659e20f1f484aa9a721149b691a10eab"
+    }
+  }
+}

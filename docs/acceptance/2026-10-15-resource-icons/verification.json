@@ -1,0 +1,49 @@
+{
+  "status": "published_and_verified",
+  "changes": [
+    "Reuse generation tool artwork in course resources, resource library and preview/configuration headers",
+    "Resolve canonical resource types through studioRegistry, including graph to mind_map",
+    "Compact icons preserve existing responsive layout"
+  ],
+  "validation": {
+    "typescript": "passed",
+    "eslint": "passed",
+    "production_build": "passed; existing chunk-size warning",
+    "browser": {
+      "source": "local production build; fixture APIs",
+      "checks": 48,
+      "types": [
+        "report",
+        "quiz",
+        "flashcard",
+        "graph",
+        "podcast",
+        "scenario"
+      ],
+      "views": [
+        "course",
+        "resources"
+      ],
+      "widths": [
+        1440,
+        390
+      ],
+      "page_errors": 0
+    }
+  },
+  "files": [
+    "frontend/src/studio/StudioHome.tsx",
+    "frontend/src/studio/ToolArtwork.tsx",
+    "frontend/src/studio/studio.css"
+  ],
+  "deployment": "docs/acceptance/2026-10-15-research-library/deployment.json",
+  "onlineChecks": {
+    "iconAssertions": 48,
+    "researchFlowWidths": [
+      1440,
+      390
+    ],
+    "pageErrors": 0,
+    "businessApi": "fixtures; production learner data not modified"
+  }
+}

@@ -44,7 +44,8 @@ def research_factory(repository,documents,memory):
         agent=legacy_factory(username,checkpoint['config_snapshot'])
         agent.model.meter=PreparationModelMeter(repository,context,
             micro_usd_per_token_upper_bound=int(os.getenv('PREPARATION_MODEL_MICRO_USD_PER_TOKEN_CEILING','10')))
-        agent.max_calls=60
+        agent.max_calls=None if context.deadline is None else 60
+        agent.model.retry_only = context.deadline is None
         agent.upload_read_limit=max(8, 2*len(request.uploads),
             sum((d.get('characters',0)+4999)//5000 for d in checkpoint.get('input_documents',[])))
         agent.incremental_findings=True

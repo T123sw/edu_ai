@@ -36,6 +36,7 @@ trustcall==0.0.39
 docx2txt==0.9
 python-docx==1.2.0
 Pillow==12.0.0
+PyPDF2==3.0.1
 openai==2.53.0
 playwright==1.57.0
 trio==0.30.0

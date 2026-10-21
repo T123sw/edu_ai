@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-19T16:24:12.568955+00:00",
+  "active_tasks": 0,
+  "source_files": {
+    "backend/src/app/course_preparation/harness_adapter.py": {
+      "sha256": "8c8b487849b5aa71a3d6bf7da050fea97a1a8ee42a684783be3ab99c7386b447",
+      "mtime": 1792426692.1826515
+    },
+    "backend/src/app/course_preparation/harness_provider.py": {
+      "sha256": "057a0a16deaa45fbfd89548e36b3bf20c1035a1503412431215ac5d8284e83aa",
+      "mtime": 1792426692.1826515
+    }
+  },
+  "backend_restart_returncode": 1,
+  "backend_restart_message": "Failed to restart edu-ai-backend.service: Interactive authentication required.\nSee system logs and 'systemctl status edu-ai-backend.service' for details.",
+  "status": "blocked_by_service_permissions",
+  "services_restarted": false
+}

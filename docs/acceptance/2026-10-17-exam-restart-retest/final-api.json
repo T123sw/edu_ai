@@ -1,0 +1,26 @@
+{
+  "statuses": [
+    {
+      "generation_id": "examgen_56c66e7dff76c20d8c736270ed87fc57",
+      "job_id": "examgen_56c66e7dff76c20d8c736270ed87fc57",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    },
+    {
+      "generation_id": "examgen_e5e47a9ab726c9fac99cc0284fd98fee",
+      "job_id": "job_c3170d6453bd4f58",
+      "status": "succeeded",
+      "progress": 100,
+      "message": "试题生成结果已保存，尚待整卷校验",
+      "exam_ready": false,
+      "error_code": null
+    }
+  ],
+  "paper_http": 200,
+  "questions": 32,
+  "answers_absent": true,
+  "retained_questions": 32
+}

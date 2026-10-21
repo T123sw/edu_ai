@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: removes duplicated children while keeping shared conditions and code intact
+ok 1 - removes duplicated children while keeping shared conditions and code intact
+  ---
+  duration_ms: 3.327441
+  type: 'test'
+  ...
+# Subtest: keeps additional conditions or merely similar parent text
+ok 2 - keeps additional conditions or merely similar parent text
+  ---
+  duration_ms: 0.489954
+  type: 'test'
+  ...
+# Subtest: supports numeric and parenthesized labels and CRLF without changing child content
+ok 3 - supports numeric and parenthesized labels and CRLF without changing child content
+  ---
+  duration_ms: 0.36612
+  type: 'test'
+  ...
+# Subtest: does not treat labels in fenced code as duplicate question blocks
+ok 4 - does not treat labels in fenced code as duplicate question blocks
+  ---
+  duration_ms: 0.256102
+  type: 'test'
+  ...
+# Subtest: retains options and unmatched blocks instead of dropping unique content
+ok 5 - retains options and unmatched blocks instead of dropping unique content
+  ---
+  duration_ms: 0.239897
+  type: 'test'
+  ...
+# Subtest: leaves standalone questions untouched and permits an empty shared stem
+ok 6 - leaves standalone questions untouched and permits an empty shared stem
+  ---
+  duration_ms: 0.354804
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 551.160707

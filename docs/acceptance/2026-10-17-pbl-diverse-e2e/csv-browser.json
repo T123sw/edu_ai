@@ -1,0 +1,74 @@
+{
+  "name": "csv",
+  "exerciseId": "pbl_8c2f998b556807e9dfec062461c2ff34",
+  "steps": [
+    {
+      "id": "input-and-parse",
+      "passed": true,
+      "cumulative": 2
+    },
+    {
+      "id": "invalid-and-stats",
+      "passed": true,
+      "cumulative": 5
+    },
+    {
+      "id": "reanalyze-and-clear",
+      "passed": true,
+      "cumulative": 7
+    }
+  ],
+  "checks": 7,
+  "errors": [],
+  "requestFailures": [
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://col.csbops.io/data/sandpack",
+      "error": "net::ERR_TIMED_OUT"
+    }
+  ],
+  "emptyStarterRejected": true,
+  "previewText": "成绩文本分析器\n分析\n清空",
+  "previewRendered": true,
+  "previewControls": [
+    {
+      "tag": "BUTTON",
+      "text": "分析",
+      "label": null,
+      "testId": "analyze-button",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "清空",
+      "label": null,
+      "testId": "clear-button",
+      "type": "button"
+    }
+  ],
+  "refreshPreservesCodeAndStep": true,
+  "regressionRejected": true,
+  "repairedCodePasses": true,
+  "mobileNoPageOverflow": true,
+  "previewViewports": [
+    {
+      "outerWidth": 390,
+      "width": 349,
+      "scrollWidth": 349
+    },
+    {
+      "outerWidth": 320,
+      "width": 279,
+      "scrollWidth": 279
+    }
+  ],
+  "privateAnswersExcluded": true,
+  "passed": true
+}

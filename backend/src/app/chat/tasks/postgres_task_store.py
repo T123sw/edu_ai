@@ -107,7 +107,7 @@ class PostgresTaskStore:
             if seconds <= 0:
                 raise ValueError("deadline_seconds must be positive")
             deadline = now + seconds
-        if deadline is None:
+        if deadline is None and workflow_type not in ('preparation_step', 'preparation_resource'):
             deadline = now + DEFAULT_TASK_DEADLINE_SECONDS
         idempotency_key = str(idempotency_key or "").strip() or None
         if idempotency_key:
@@ -161,7 +161,10 @@ class PostgresTaskStore:
         return self._to_durable(row)
 
     def claim_next(
-        self, *, lease_owner: str, lease_seconds: float, now: float | None = None
+        self, *, lease_owner: str, lease_seconds: float, now: float | None = None,
+        workflow_types: tuple[str, ...] | None = None,
+        excluded_workflow_types: tuple[str, ...] = (),
+        light_resources_only: bool = False,
     ) -> DurableTask | None:
         lease_owner = str(lease_owner or "").strip()
         if not lease_owner:
@@ -169,6 +172,17 @@ class PostgresTaskStore:
         if float(lease_seconds) <= 0:
             raise ValueError("lease_seconds must be positive")
         active_now = float(now if now is not None else _now_ts())
+        filters = []
+        if workflow_types is not None:
+            if not workflow_types:
+                return None
+            filters.append(DurableTaskModel.workflow_type.in_(workflow_types))
+        if excluded_workflow_types:
+            filters.append(DurableTaskModel.workflow_type.not_in(excluded_workflow_types))
+        if light_resources_only:
+            filters.append(or_(DurableTaskModel.workflow_type.in_(('report_direct', 'quiz_direct', 'exam_practice')),
+                (DurableTaskModel.workflow_type == 'preparation_resource') &
+                DurableTaskModel.command['resource_type'].as_string().in_(('report', 'quiz'))))
         with self._sessions.begin() as session:
             row = session.scalar(
                 select(DurableTaskModel)
@@ -178,6 +192,7 @@ class PostgresTaskStore:
                     DurableTaskModel.cancel_requested.is_(False),
                     DurableTaskModel.available_at <= active_now,
                     DurableTaskModel.attempt_count < DurableTaskModel.max_attempts,
+                    *filters,
                 )
                 .order_by(
                     DurableTaskModel.available_at,
@@ -294,7 +309,8 @@ class PostgresTaskStore:
                 .with_for_update(skip_locked=True)
             ))
             for row in live_rows:
-                if row.command is not None and row.deadline_at is None:
+                if (row.command is not None and row.deadline_at is None
+                        and row.workflow_type not in ('preparation_step', 'preparation_resource')):
                     row.deadline_at = row.updated_at + DEFAULT_TASK_DEADLINE_SECONDS
                 if row.status == "pending" and row.deadline_at is not None and row.deadline_at <= active_now:
                     row.status = "failed"

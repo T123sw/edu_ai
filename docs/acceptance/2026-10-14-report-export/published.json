@@ -1,0 +1,66 @@
+{
+  "results": [
+    {
+      "mode": "library",
+      "width": 1440,
+      "titleTop": 181,
+      "buttonTop": 181,
+      "buttonBottom": 216.5,
+      "titleBottom": 221.59375,
+      "textRight": 769,
+      "buttonLeft": 1091,
+      "bodyWidth": 918,
+      "bodyScrollWidth": 918,
+      "tables": 3,
+      "codeBlocks": 2,
+      "anchors": 0
+    },
+    {
+      "mode": "library",
+      "width": 390,
+      "titleTop": 215,
+      "buttonTop": 215,
+      "buttonBottom": 250.5,
+      "titleBottom": 284.59375,
+      "textRight": 273,
+      "buttonLeft": 301,
+      "bodyWidth": 364,
+      "bodyScrollWidth": 364,
+      "tables": 3,
+      "codeBlocks": 2,
+      "anchors": 0
+    },
+    {
+      "mode": "player",
+      "width": 1440,
+      "titleTop": 24,
+      "buttonTop": 24,
+      "buttonBottom": 59.5,
+      "titleBottom": 64.59375,
+      "textRight": 508,
+      "buttonLeft": 1352,
+      "bodyWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "tables": 3,
+      "codeBlocks": 2,
+      "anchors": 146
+    },
+    {
+      "mode": "player",
+      "width": 390,
+      "titleTop": 18,
+      "buttonTop": 18,
+      "buttonBottom": 53.5,
+      "titleBottom": 87.59375,
+      "textRight": 284,
+      "buttonLeft": 314,
+      "bodyWidth": 390,
+      "bodyScrollWidth": 390,
+      "tables": 3,
+      "codeBlocks": 2,
+      "anchors": 146
+    }
+  ],
+  "downloadContentMatches": true,
+  "errors": []
+}

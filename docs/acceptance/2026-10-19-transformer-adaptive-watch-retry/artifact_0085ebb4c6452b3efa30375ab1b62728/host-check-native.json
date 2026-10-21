@@ -1,0 +1,1351 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 9,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f01-clipbg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f01-hook.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f02-clipbg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f02-rnn-seq.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f03-clipbg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f03-seq-cost.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f04-improve-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f04-improve.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f05-attention-parallel-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f05-attention-parallel.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f06-table-parallel-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f06-table-parallel.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f10-ground\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f10-complexity.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f11-ground\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f11-table-cost.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f12-ground\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/compositions/frames/f12-close.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      }
+    ],
+    "filesScanned": 13
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 12,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f01-hook-voice\" is 16.06s but its slot (data-duration) is 21.50s — the slot is shortened to the media length when rendered. Set data-duration to ~16.06s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f02-rnn-seq-voice\" is 17.66s but its slot (data-duration) is 24.00s — the slot is shortened to the media length when rendered. Set data-duration to ~17.66s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f03-seq-cost-voice\" is 17.81s but its slot (data-duration) is 24.00s — the slot is shortened to the media length when rendered. Set data-duration to ~17.81s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f04-improve-voice\" is 14.93s but its slot (data-duration) is 20.50s — the slot is shortened to the media length when rendered. Set data-duration to ~14.93s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f05-attention-parallel-voice\" is 18.29s but its slot (data-duration) is 24.50s — the slot is shortened to the media length when rendered. Set data-duration to ~18.29s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f06-table-parallel-voice\" is 11.98s but its slot (data-duration) is 19.00s — the slot is shortened to the media length when rendered. Set data-duration to ~11.98s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f07-path-attention-voice\" is 16.54s but its slot (data-duration) is 23.50s — the slot is shortened to the media length when rendered. Set data-duration to ~16.54s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f08-path-rnn-voice\" is 16.06s but its slot (data-duration) is 23.00s — the slot is shortened to the media length when rendered. Set data-duration to ~16.06s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f09-table-path-voice\" is 13.18s but its slot (data-duration) is 20.50s — the slot is shortened to the media length when rendered. Set data-duration to ~13.18s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f10-complexity-voice\" is 22.13s but its slot (data-duration) is 30.00s — the slot is shortened to the media length when rendered. Set data-duration to ~22.13s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f11-table-cost-voice\" is 24.14s but its slot (data-duration) is 32.00s — the slot is shortened to the media length when rendered. Set data-duration to ~24.14s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"el-f12-close-voice\" is 14.14s but its slot (data-duration) is 21.50s — the slot is shortened to the media length when rendered. Set data-duration to ~14.14s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "main",
+          "data-start": "0",
+          "data-duration": "284",
+          "data-width": "1920",
+          "data-height": "1080"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      }
+    ]
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 25,
+    "findings": [
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 45.75,
+        "selector": "#f02-eyebrow > span:nth-of-type(2)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 148,
+          "top": 66,
+          "right": 389.06,
+          "bottom": 106,
+          "width": 241.06,
+          "height": 40
+        },
+        "containerSelector": "#f03-eyebrow > span:nth-of-type(2)",
+        "text": "为什么抛弃 RNN",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f02-rnn-seq.html",
+        "bbox": {
+          "x": 148,
+          "y": 66,
+          "width": 241.06,
+          "height": 40
+        },
+        "firstSeen": 45.75,
+        "lastSeen": 45.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          45.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 45.75,
+        "selector": "#f02-t1",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 117,
+          "right": 360,
+          "bottom": 204,
+          "width": 240,
+          "height": 87
+        },
+        "containerSelector": "#f03-t1",
+        "text": "循环网络",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f02-rnn-seq.html",
+        "bbox": {
+          "x": 120,
+          "y": 117,
+          "width": 240,
+          "height": 87
+        },
+        "firstSeen": 45.75,
+        "lastSeen": 45.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          45.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 45.75,
+        "selector": "#f02-t2",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 360,
+          "top": 117,
+          "right": 420,
+          "bottom": 204,
+          "width": 60,
+          "height": 87
+        },
+        "containerSelector": "#f03-t1",
+        "text": "：",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f02-rnn-seq.html",
+        "bbox": {
+          "x": 360,
+          "y": 117,
+          "width": 60,
+          "height": 87
+        },
+        "firstSeen": 45.75,
+        "lastSeen": 45.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          45.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 69.75,
+        "selector": "#f03-eyebrow > span:nth-of-type(2)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 148,
+          "top": 66,
+          "right": 389.06,
+          "bottom": 106,
+          "width": 241.06,
+          "height": 40
+        },
+        "containerSelector": "span.f04-improve-eyebrowtext",
+        "text": "为什么抛弃 RNN",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f03-seq-cost.html",
+        "bbox": {
+          "x": 148,
+          "y": 66,
+          "width": 241.06,
+          "height": 40
+        },
+        "firstSeen": 69.75,
+        "lastSeen": 69.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          69.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 69.75,
+        "selector": "#f03-t1",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 117,
+          "right": 420,
+          "bottom": 204,
+          "width": 300,
+          "height": 87
+        },
+        "containerSelector": "#f04-improve-title",
+        "text": "顺序的代价",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f03-seq-cost.html",
+        "bbox": {
+          "x": 120,
+          "y": 117,
+          "width": 300,
+          "height": 87
+        },
+        "firstSeen": 69.75,
+        "lastSeen": 69.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          69.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 69.75,
+        "selector": "#f03-t2",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 420,
+          "top": 117,
+          "right": 480,
+          "bottom": 204,
+          "width": 60,
+          "height": 87
+        },
+        "containerSelector": "#f04-improve-title",
+        "text": "：",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f03-seq-cost.html",
+        "bbox": {
+          "x": 420,
+          "y": 117,
+          "width": 60,
+          "height": 87
+        },
+        "firstSeen": 69.75,
+        "lastSeen": 69.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          69.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 69.75,
+        "selector": "#f03-t3",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 480,
+          "top": 117,
+          "right": 780,
+          "bottom": 204,
+          "width": 300,
+          "height": 87
+        },
+        "containerSelector": "#f04-improve-title",
+        "text": "两头都受限",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f03-seq-cost.html",
+        "bbox": {
+          "x": 480,
+          "y": 117,
+          "width": 300,
+          "height": 87
+        },
+        "firstSeen": 69.75,
+        "lastSeen": 69.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          69.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 90.25,
+        "selector": "span.f04-improve-eyebrowtext",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 146,
+          "top": 57,
+          "right": 387.06,
+          "bottom": 97,
+          "width": 241.06,
+          "height": 40
+        },
+        "containerSelector": "span.f05-attention-parallel-eyebrowtext",
+        "text": "为什么抛弃 RNN",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f04-improve.html",
+        "bbox": {
+          "x": 146,
+          "y": 57,
+          "width": 241.06,
+          "height": 40
+        },
+        "firstSeen": 90.25,
+        "lastSeen": 90.25,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          90.25
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 90.25,
+        "selector": "#f04-improve-title",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 109,
+          "right": 660,
+          "bottom": 196,
+          "width": 540,
+          "height": 87
+        },
+        "containerSelector": "#f05-attention-parallel-title",
+        "text": "技巧改善，约束仍在",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f04-improve.html",
+        "bbox": {
+          "x": 120,
+          "y": 109,
+          "width": 540,
+          "height": 87
+        },
+        "firstSeen": 90.25,
+        "lastSeen": 90.25,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          90.25
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 114.75,
+        "selector": "span.f05-attention-parallel-eyebrowtext",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 146,
+          "top": 57,
+          "right": 387.06,
+          "bottom": 97,
+          "width": 241.06,
+          "height": 40
+        },
+        "containerSelector": "span.f06-table-parallel-eyebrowtext",
+        "text": "为什么抛弃 RNN",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f05-attention-parallel.html",
+        "bbox": {
+          "x": 146,
+          "y": 57,
+          "width": 241.06,
+          "height": 40
+        },
+        "firstSeen": 114.75,
+        "lastSeen": 114.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          114.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 114.75,
+        "selector": "#f05-attention-parallel-title",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 109,
+          "right": 845.92,
+          "bottom": 196,
+          "width": 725.92,
+          "height": 87
+        },
+        "containerSelector": "#f06-table-parallel-title",
+        "text": "Transformer：只留注意力",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f05-attention-parallel.html",
+        "bbox": {
+          "x": 120,
+          "y": 109,
+          "width": 725.92,
+          "height": 87
+        },
+        "firstSeen": 114.75,
+        "lastSeen": 114.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          114.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 133.75,
+        "selector": "span.f06-table-parallel-eyebrowtext",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 146,
+          "top": 57,
+          "right": 387.06,
+          "bottom": 97,
+          "width": 241.06,
+          "height": 40
+        },
+        "containerSelector": "#f07-path-attention-eyebrow > span:nth-of-type(2)",
+        "text": "为什么抛弃 RNN",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f06-table-parallel.html",
+        "bbox": {
+          "x": 146,
+          "y": 57,
+          "width": 241.06,
+          "height": 40
+        },
+        "firstSeen": 133.75,
+        "lastSeen": 133.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          133.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 133.75,
+        "selector": "#f06-table-parallel-title",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 109,
+          "right": 660,
+          "bottom": 196,
+          "width": 540,
+          "height": 87
+        },
+        "containerSelector": "#f07-path-attention-title",
+        "text": "问题一：能否并行？",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f06-table-parallel.html",
+        "bbox": {
+          "x": 120,
+          "y": 109,
+          "width": 540,
+          "height": 87
+        },
+        "firstSeen": 133.75,
+        "lastSeen": 133.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          133.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 157.25,
+        "selector": "#f07-path-attention-eyebrow > span:nth-of-type(2)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 144,
+          "top": 63,
+          "right": 385.06,
+          "bottom": 103,
+          "width": 241.06,
+          "height": 40
+        },
+        "containerSelector": "#f08-path-rnn-eyebrow > span:nth-of-type(2)",
+        "text": "为什么抛弃 RNN",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f07-path-attention.html",
+        "bbox": {
+          "x": 144,
+          "y": 63,
+          "width": 241.06,
+          "height": 40
+        },
+        "firstSeen": 157.25,
+        "lastSeen": 157.25,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          157.25
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 157.25,
+        "selector": "#f07-path-attention-title",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 113,
+          "right": 660,
+          "bottom": 200,
+          "width": 540,
+          "height": 87
+        },
+        "containerSelector": "#f08-path-rnn-title",
+        "text": "路径长度：一步到位",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f07-path-attention.html",
+        "bbox": {
+          "x": 120,
+          "y": 113,
+          "width": 540,
+          "height": 87
+        },
+        "firstSeen": 157.25,
+        "lastSeen": 157.25,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          157.25
+        ]
+      },
+      {
+        "code": "text_occluded",
+        "severity": "info",
+        "time": 173.556,
+        "selector": "#f08-path-rnn-chip6 > span:nth-of-type(1)",
+        "message": "Text is hidden beneath an opaque element.",
+        "rect": {
+          "left": 1589.38,
+          "top": 730,
+          "right": 1610.63,
+          "bottom": 782,
+          "width": 21.25,
+          "height": 52
+        },
+        "containerSelector": "#f08-path-rnn-pulse",
+        "text": "6",
+        "fixHint": "Give the text its own zone, raise its stacking order above the covering element, or mark intentional layering with data-layout-allow-occlusion.",
+        "coveredFraction": 0.22,
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f08-path-rnn.html",
+        "bbox": {
+          "x": 1589.38,
+          "y": 730,
+          "width": 21.25,
+          "height": 52
+        },
+        "firstSeen": 173.556,
+        "lastSeen": 173.556,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          173.556
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 180.25,
+        "selector": "#f08-path-rnn-eyebrow > span:nth-of-type(2)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 144,
+          "top": 63,
+          "right": 385.06,
+          "bottom": 103,
+          "width": 241.06,
+          "height": 40
+        },
+        "containerSelector": "#f09-table-path-eyebrow > span:nth-of-type(2)",
+        "text": "为什么抛弃 RNN",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f08-path-rnn.html",
+        "bbox": {
+          "x": 144,
+          "y": 63,
+          "width": 241.06,
+          "height": 40
+        },
+        "firstSeen": 180.25,
+        "lastSeen": 180.25,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          180.25
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 180.25,
+        "selector": "#f08-path-rnn-title",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 113,
+          "right": 660,
+          "bottom": 200,
+          "width": 540,
+          "height": 87
+        },
+        "containerSelector": "#f09-table-path-title",
+        "text": "路径长度：一路传递",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f08-path-rnn.html",
+        "bbox": {
+          "x": 120,
+          "y": 113,
+          "width": 540,
+          "height": 87
+        },
+        "firstSeen": 180.25,
+        "lastSeen": 180.25,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          180.25
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 200.75,
+        "selector": "#f09-table-path-eyebrow > span:nth-of-type(2)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 144,
+          "top": 63,
+          "right": 385.06,
+          "bottom": 103,
+          "width": 241.06,
+          "height": 40
+        },
+        "containerSelector": "span.f10-eyebrow-text",
+        "text": "为什么抛弃 RNN",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f09-table-path.html",
+        "bbox": {
+          "x": 144,
+          "y": 63,
+          "width": 241.06,
+          "height": 40
+        },
+        "firstSeen": 200.75,
+        "lastSeen": 200.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          200.75
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 205.111,
+        "selector": "#f10-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -35.64,
+          "top": -3.08,
+          "right": 1930.05,
+          "bottom": 1102.62,
+          "width": 1965.7,
+          "height": 1105.7
+        },
+        "containerSelector": "#el-f10-complexity > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 35.64,
+          "right": 10.05,
+          "top": 3.08,
+          "bottom": 22.62
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f10-complexity.html",
+        "bbox": {
+          "x": -35.64,
+          "y": -3.08,
+          "width": 1965.7,
+          "height": 1105.7
+        },
+        "firstSeen": 205.111,
+        "lastSeen": 205.111,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          205.111
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 230.75,
+        "selector": "span.f10-eyebrow-text",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 148,
+          "top": 50,
+          "right": 389.06,
+          "bottom": 90,
+          "width": 241.06,
+          "height": 40
+        },
+        "containerSelector": "span.f11-eyebrow-text",
+        "text": "为什么抛弃 RNN",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f10-complexity.html",
+        "bbox": {
+          "x": 148,
+          "y": 50,
+          "width": 241.06,
+          "height": 40
+        },
+        "firstSeen": 230.75,
+        "lastSeen": 230.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          230.75
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 236.667,
+        "selector": "#f11-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -15.72,
+          "top": -1.36,
+          "right": 1924.44,
+          "bottom": 1089.98,
+          "width": 1940.16,
+          "height": 1091.34
+        },
+        "containerSelector": "#el-f11-table-cost > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 15.72,
+          "right": 4.44,
+          "bottom": 9.98
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f11-table-cost.html",
+        "bbox": {
+          "x": -15.72,
+          "y": -1.36,
+          "width": 1940.16,
+          "height": 1091.34
+        },
+        "firstSeen": 236.667,
+        "lastSeen": 236.667,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          236.667
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 262.75,
+        "selector": "span.f11-eyebrow-text",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 148,
+          "top": 50,
+          "right": 389.06,
+          "bottom": 90,
+          "width": 241.06,
+          "height": 40
+        },
+        "containerSelector": "span.f12-eyebrow-text",
+        "text": "为什么抛弃 RNN",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f11-table-cost.html",
+        "bbox": {
+          "x": 148,
+          "y": 50,
+          "width": 241.06,
+          "height": 40
+        },
+        "firstSeen": 262.75,
+        "lastSeen": 262.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          262.75
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 262.75,
+        "selector": "#f11-title",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 120,
+          "top": 119,
+          "right": 720,
+          "bottom": 206,
+          "width": 600,
+          "height": 87
+        },
+        "containerSelector": "h1.f12-title > span:nth-of-type(1)",
+        "text": "问题三：代价有多大？",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f11-table-cost.html",
+        "bbox": {
+          "x": 120,
+          "y": 119,
+          "width": 600,
+          "height": 87
+        },
+        "firstSeen": 262.75,
+        "lastSeen": 262.75,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          262.75
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 268.222,
+        "selector": "#f12-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -4.34,
+          "top": -0.38,
+          "right": 1921.22,
+          "bottom": 1082.76,
+          "width": 1925.57,
+          "height": 1083.13
+        },
+        "containerSelector": "#el-f12-close > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 4.34,
+          "bottom": 2.76
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/f12-close.html",
+        "bbox": {
+          "x": -4.34,
+          "y": -0.38,
+          "width": 1925.57,
+          "height": 1083.13
+        },
+        "firstSeen": 268.222,
+        "lastSeen": 268.222,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          268.222
+        ]
+      }
+    ],
+    "duration": 284,
+    "samples": [
+      15.778,
+      47.333,
+      78.889,
+      110.444,
+      142,
+      173.556,
+      205.111,
+      236.667,
+      268.222
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 25,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      15.778,
+      78.889,
+      142,
+      205.111,
+      268.222
+    ],
+    "checked": 41,
+    "passed": 41
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "saved": {
+    "id": "01e58ef7-e557-41d9-b1cb-b90d8bca0caa",
+    "revision": "dbfa6406-f7e2-4f69-b699-b83684d50584",
+    "report": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b/videos/transformer-vs-rnn-parallelism/.hyperframes/artifacts/checks/01e58ef7-e557-41d9-b1cb-b90d8bca0caa.json",
+    "attribution": "recorded-revision"
+  },
+  "_meta": {
+    "version": "0.8.168",
+    "updateAvailable": false
+  }
+}

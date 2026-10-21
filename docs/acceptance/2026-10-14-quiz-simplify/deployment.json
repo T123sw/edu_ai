@@ -1,0 +1,66 @@
+{
+  "publishedAt": "20261014T063740Z",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-quiz-simplify-20261014",
+  "backup": "/home/zxqs_ep/Edu_AI/frontend/dist-release-backups/before-quiz-simplify-20261014T063740Z",
+  "baselineReproduced": true,
+  "baselineSource": "/tmp/edu-quiz-simplify-source/frontend; current unified PBL release reproduced, then three quiz implementation files only",
+  "previousIndexSha256": "c80c5c77dc865ad3a32aa69b3d023412ed3f18210f4aec014234a7586023cd24",
+  "releaseIndexSha256": "422ed17b7429f648dfe3466f63d1d6d394acd9f4b2697049a365f89ed8c03da4",
+  "nginxIndexMatches": true,
+  "changes": [
+    "Remove skip, retry-answer, automatic-coaching UI and evaluator status sentence",
+    "Consolidate tutoring into hint and explanation, carrying saved answer context",
+    "Reopen previously skipped questions without altering historical attempts",
+    "Separate question, saved answer and feedback in a responsive reading column"
+  ],
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "quizChecks": {
+      "browserTests": 7,
+      "widths": [
+        1440,
+        390
+      ],
+      "covered": [
+        "single choice, multiple choice, true/false and short answer inputs",
+        "saved answer reload and draft references",
+        "previously skipped questions become answerable",
+        "prior automatic coaching disabled before submission",
+        "failed model evaluation preserves answer and retries evaluation only",
+        "hint and explanation reference the correct saved attempt",
+        "removed controls absent",
+        "code, math and legacy resource preview"
+      ],
+      "limits": "Business APIs mocked; model grading implementation inspected, no new real model calls or production answer submissions."
+    }
+  },
+  "verificationLimits": "Fixture questions and mocked business APIs against built assets. No production answers or settings changed by verification. Short-answer grading mechanism inspected in backend source; no new model calls.",
+  "productionBrowserChecks": {
+    "passed": 2,
+    "widths": [
+      1440,
+      390
+    ],
+    "businessApi": "mocked",
+    "productionDataModified": false
+  },
+  "shortAnswerGrading": {
+    "implementation": "backend/src/app/self_learning/check_service.py:evaluate",
+    "input": [
+      "question stem",
+      "reference answer",
+      "explanation",
+      "submitted text"
+    ],
+    "output": [
+      "supported boolean",
+      "text feedback"
+    ],
+    "numericScore": false,
+    "failure": "answer retained; evaluation_failed; separate evaluation retry"
+  }
+}

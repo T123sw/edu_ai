@@ -1,0 +1,49 @@
+{
+  "status": "published_and_verified",
+  "behavior": [
+    "Add research conclusions after six resource categories in course and personal resource libraries",
+    "Only saved research conclusions are listed and counted; course view respects course ownership",
+    "Collection and removal use existing persisted library state; original research remains available",
+    "Research uses search icon; generation tools remain six"
+  ],
+  "checks": {
+    "typescript": "passed",
+    "eslint": "passed",
+    "production_build": "passed; chunk-size warning",
+    "backend_collection_regression": "1 passed",
+    "unified_tools_roles": "3 passed",
+    "browser_flow": {
+      "widths": [
+        1440,
+        390
+      ],
+      "passed": true,
+      "api": "fixtures",
+      "scenarios": [
+        "collect",
+        "refresh",
+        "uncollect",
+        "course isolation",
+        "saved-only filter",
+        "search",
+        "count",
+        "archived preview without job",
+        "source references",
+        "personal library",
+        "no overflow",
+        "no page errors"
+      ]
+    }
+  },
+  "backend_changes": false,
+  "deployment": "docs/acceptance/2026-10-15-research-library/deployment.json",
+  "onlineChecks": {
+    "iconAssertions": 48,
+    "researchFlowWidths": [
+      1440,
+      390
+    ],
+    "pageErrors": 0,
+    "businessApi": "fixtures; production learner data not modified"
+  }
+}

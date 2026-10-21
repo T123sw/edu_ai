@@ -1,5 +1,8 @@
 # 文档入口
 
+- [AI 课堂改进计划与三人分工](AI课堂改进计划与三人分工_2026-10-14.md)：三人工作内容、具体模型部署清单及最终交付物。
+- [多步骤 PBL Skill](../backend/src/app/pbl/skills/build-pbl-project/SKILL.md)：项目拆解、单步材料、累计检查和恢复契约；含加载器、结构校验与样例，多步骤运行链尚待接入。
+- [Sandpack 算法练习设计](architecture/2026-10-13-sandpack-algorithm-practice-design-cn.md)与[实施计划](superpowers/plans/2026-10-13-sandpack-algorithm-practice.md)：快速排序单任务、左目录加 Sandpack 工作区、生成协议、执行检查和保存恢复；实现验收见[记录](acceptance/2026-10-13-sandpack-algorithm-practice/README.md)，最新入口与发布状态以项目地图为准。
 - [Agent 分支整合验收](acceptance/2026-09-18-agent-merge-cn.md)：保留原学习 Agent，接入完整课程准备 Agent。
 
 后续系统开发以以下两份设计为主方向（2026-09-17，用户已确认，新增能力待实施）：
@@ -218,3 +221,7 @@ Agent 从课堂进入时就参与学习，而非只在资源被选中后回答�
 - 内联 JavaScript 通过语法检查；主要操作期间未观察到浏览器脚本错误。以上不代表后端功能或真实学习效果验证。
 
 学习 Agent P0—P6 实施及隔离验收见[阶段总记录](acceptance/2026-09-17-learning-agent-implementation-cn.md)与[P6 验收](acceptance/2026-09-17-learning-agent-p6-cn.md)，生产开关默认关闭。
+
+- [Sandpack 快速排序编程练习：验收与部署交接](acceptance/2026-10-13-sandpack-algorithm-practice/README.md)
+
+- [多步骤 PBL Skill 接入与真实计算器验收](acceptance/2026-10-14-pbl-project-integration/README.md)

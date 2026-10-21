@@ -1,0 +1,418 @@
+{
+  "title": "自注意力：Q/K/V 与缩放点积计算",
+  "content": "# 自注意力：Q/K/V 与缩放点积计算\n\n上一节点你已经看到 Transformer 的整体数据流：词元先变成嵌入向量、加上位置编码，然后进入编码器栈。编码器每一层里第一个子层就是**自注意力**。这一节我们只做一件事：把自注意力这个\"黑盒\"拆开，看清它到底在算什么。\n\n## <a id=\"attention-function\"></a>一、注意力函数：查询与键值对的映射\n\n论文《Attention Is All You Need》对注意力函数给了一个很朴素的描述：**注意力函数把\"一个查询（query）和一组键-值对（key-value pairs）\"映射为一个输出**，其中查询、键、值、输出都是向量。输出不是挑出某一个值，而是**所有值的加权和**；每个值分到多少权重，由\"查询与该值对应的键之间的相容性函数\"算出。\n\n用一句话概括：\n\n> 输出 = Σᵢ (权重ᵢ × 值ᵢ)，其中 权重ᵢ = 相容性(查询, 键ᵢ)，且所有权重归一化后加起来为 1。\n\n这里三个角色可以这样理解（这是教学类比，不是论文原文）：\n\n- **查询 Q**：我现在\"想找什么信息\"。\n- **键 K**：每个位置\"能提供什么信息的标签\"，用来和查询比对。\n- **值 V**：每个位置\"实际携带的内容\"，一旦权重确定，就按权重把内容混合起来。\n\n关键点在于：**权重不是硬性选择，而是软性的比例**。所以输出是一个\"按相关度混合\"的新向量，而不是原样复制某个位置的向量。\n\n## <a id=\"hand-calc\"></a>二、手算一遍：3 个词元、dk = 2\n\n下面用玩具数值走完整流程。设序列有 3 个位置（3 个词元），键/查询维度 dk = 2，值维度 dv = 2。为便于手算，Q、K、V 直接给出（真实模型中它们由输入乘以可学习权重矩阵得到，这一步留到多头注意力再讲）。\n\n```\nQ = [[1, 0],      K = [[1, 0],      V = [[1, 0],\n     [0, 1],           [0, 1],           [0, 2],\n     [1, 1]]           [1, 1]]           [1, 1]]\n```\n\n**第 1 步：Q 与所有 K 做点积，得到分数矩阵 S = QKᵀ（3×3）**\n\n- 第 1 行（q₁ = [1,0]）：与 k₁=[1,0] 点积 = 1；与 k₂=[0,1] 点积 = 0；与 k₃=[1,1] 点积 = 1 → [1, 0, 1]\n- 第 2 行（q₂ = [0,1]）：与 k₁ = 0；与 k₂ = 1；与 k₃ = 1 → [0, 1, 1]\n- 第 3 行（q₃ = [1,1]）：与 k₁ = 1；与 k₂ = 1；与 k₃ = 2 → [1, 1, 2]\n\n```\nS = [[1, 0, 1],\n     [0, 1, 1],\n     [1, 1, 2]]\n```\n\n**第 2 步：除以 √dk**\n\ndk = 2，√dk ≈ 1.414，所以每个分数除以 1.414：\n\n```\nS/√dk ≈ [[0.707, 0.000, 0.707],\n         [0.000, 0.707, 0.707],\n         [0.707, 0.707, 1.414]]\n```\n\n**第 3 步：对每一行做 softmax，得到权重矩阵 A**\n\nsoftmax 的算法是：先对每个元素取 e 的幂，再除以该行所有幂之和。以第 1 行为例：\n\n- e^0.707 ≈ 2.028，e^0 ≈ 1.000，e^0.707 ≈ 2.028，和 ≈ 5.056\n- 权重 ≈ [0.401, 0.198, 0.401]，三者相加 = 1.000 ✓\n\n第 2 行与第 1 行数值相同（对称），权重 ≈ [0.198, 0.401, 0.401]。\n\n第 3 行：e^0.707 ≈ 2.028，e^0.707 ≈ 2.028，e^1.414 ≈ 4.113，和 ≈ 8.169\n- 权重 ≈ [0.248, 0.248, 0.503]，相加 = 0.999 ≈ 1 ✓（四舍五入误差）\n\n```\nA ≈ [[0.401, 0.198, 0.401],\n     [0.198, 0.401, 0.401],\n     [0.248, 0.248, 0.503]]\n```\n\n**第 4 步：用权重对 V 加权求和，得到输出（3×2）**\n\n- 输出第 1 行 = 0.401×[1,0] + 0.198×[0,2] + 0.401×[1,1] = [0.401+0+0.401, 0+0.396+0.401] = **[0.802, 0.797]**\n- 输出第 2 行 = 0.198×[1,0] + 0.401×[0,2] + 0.401×[1,1] = [0.198+0+0.401, 0+0.802+0.401] = **[0.599, 1.203]**\n- 输出第 3 行 = 0.248×[1,0] + 0.248×[0,2] + 0.503×[1,1] = [0.248+0+0.503, 0+0.496+0.503] = **[0.751, 0.999]**\n\n```\n输出 ≈ [[0.802, 0.797],\n        [0.599, 1.203],\n        [0.751, 0.999]]\n```\n\n**从结果读出三件事：**\n\n1. 每一行权重和为 1，所以输出是 V 各行的**凸组合**，数值落在 V 的范围内，不会爆炸。\n2. 第 3 个位置与自己的键点积最大（2），缩放后 1.414 仍最大，因此它给自己的权重最高（0.503）——**相似度越高，权重越大**。\n3. 输出维度是 dv = 2，与 V 的维度一致，而不是与序列长度一致。序列长度只决定\"混合多少个值\"。\n\n## <a id=\"matrix-form\"></a>三、矩阵形式与维度标注\n\n把上面四步一次性写成公式，就是论文中的式 (1)：\n\n$$\\mathrm{Attention}(Q,K,V)=\\mathrm{softmax}\\!\\left(\\frac{QK^{\\top}}{\\sqrt{d_k}}\\right)V$$\n\n逐项标注维度（设序列长度 n，键/查询维度 dk，值维度 dv）：\n\n| 符号 | 含义 | 维度 |\n| --- | --- | --- |\n| Q | 所有查询堆叠成矩阵，每行一个查询 | n × dk |\n| K | 所有键堆叠成矩阵，每行一个键 | n × dk |\n| Kᵀ | K 的转置 | dk × n |\n| QKᵀ | 分数矩阵，第 (i,j) 项是 qᵢ 与 kⱼ 的点积 | n × n |\n| √dk | 一个标量，对分数矩阵逐元素相除 | 标量 |\n| softmax | 按**行**归一化（每行和为 1） | n × n |\n| V | 所有值堆叠成矩阵 | n × dv |\n| 输出 | 每个位置一个上下文向量 | n × dv |\n\n注意 softmax 是**按行**做的：第 i 行对应\"第 i 个查询对所有键的权重分布\"。这也是为什么矩阵形式能一次算完所有位置——论文特别指出，实践中把一组查询打包成矩阵 Q 同时计算，这正是 Transformer 能并行的来源之一。\n\n## <a id=\"why-scale\"></a>四、为什么要除以 √dk\n\n如果去掉缩放，直接用 softmax(QKᵀ)V，会发生什么？\n\n论文给出的解释是：**当 dk 较大时，点积的幅值会变大，把 softmax 推入梯度极小的区域**。论文脚注进一步说明：假设 q 和 k 的各分量是均值 0、方差 1 的独立随机变量，那么点积 q·k = Σᵢ qᵢkᵢ 的均值为 0、**方差为 dk**。也就是说，维度越大，点积的波动范围越大，容易出现过大的正数和过小的负数。\n\nsoftmax 在大输入下的行为是\"接近 one-hot\"：最大值那一项趋近 1，其余趋近 0。此时：\n\n- 输出几乎只等于某一个 V 行，其他位置的信息被压掉；\n- 更关键的是，softmax 在饱和区**梯度接近 0**，反向传播时几乎学不动，训练会变慢甚至停滞。\n\n除以 √dk 后，点积的方差被拉回到约 1 的量级，分数分布保持在 softmax 的\"敏感区\"，梯度不会消失。论文还提到，在小 dk 时加性注意力与点积注意力表现相近，但 dk 较大时**不加缩放的点积注意力会劣于加性注意力**，这正是引入缩放因子的动机。\n\n**课堂练习（把 dk 从 2 改成 64）：** 保持 q、k 各分量方差为 1，点积方差会从 2 变成 64，标准差从约 1.41 变成 8。原本 1.414 这样的分数会变成 8 量级，softmax 输出迅速接近 one-hot，权重几乎全压在一个位置上，梯度极小。除以 √64 = 8 后，分数重新回到 1 量级，分布才恢复正常。所以缩放因子不是装饰，而是**让 softmax 工作在有效区间**的必要手段。\n\n## <a id=\"self-attention\"></a>五、自注意力：Q、K、V 来自同一序列\n\n前面手算时我们直接给了 Q、K、V。在**自注意力**层里，这三者都来自**同一个序列**——具体说，是上一层（或嵌入层）输出的同一组表示，各自乘以不同的可学习权重矩阵 W^Q、W^K、W^V 得到。论文的表述是：在自注意力层中，所有的键、值和查询都来自同一个地方，即编码器上一层的输出。\n\n这带来两个直接后果：\n\n1. **它刻画的是序列内部各位置之间的关系**。每个位置都在问\"这个句子里哪些位置和我相关\"，而不是\"另一个序列里哪些位置和我相关\"。中文讲解材料把这一点概括为\"让每个词关注句子中的其他词\"，例如判断 \"powerful\" 是在修饰前面的 \"Transformer\"。\n2. **它与编码器-解码器注意力不同**。在编码器-解码器注意力层里，查询来自解码器的上一层，而键和值来自编码器的输出——中文材料用翻译例子描述过这个过程：解码器用已生成序列产生 Q，用编码器输出提供 K 和 V，算出权重后对 V 加权求和，得到上下文向量，从而把源语言词与目标语言词对齐。两者公式相同，**区别只在 Q、K、V 的来源**。\n\n另外，解码器里的自注意力还要加掩码，防止某个位置看到它后面的位置；这一点属于解码器子层的职责，本节点不展开。\n\n## <a id=\"self-check\"></a>六、自检清单\n\n学完这一节，请确认你能做到：\n\n1. 不看笔记写出 Attention(Q,K,V) = softmax(QKᵀ/√dk)V，并说出 Q、K、V、dk 各自的维度。\n2. 独立手算一个 3×3 的注意力权重矩阵，并验证**每一行和为 1**。\n3. 用\"点积方差随 dk 增大 → softmax 饱和 → 梯度极小\"这条因果链解释缩放因子，而不是只背公式。\n4. 说清自注意力与编码器-解码器注意力在 Q、K、V 来源上的差别。\n\n**本节点边界说明：** 这里只讲单头缩放点积注意力的原理与手算。多头注意力如何切分维度、掩码的具体实现、以及从零实现可运行代码，不在本节点范围内；论文中的 dk = dv = 64、h = 8 等数值是 2017 年原始 base 模型的设定，不代表所有后续变体。\n\n**来源：** 公式、缩放原因与自注意力定义依据 Vaswani 等《Attention Is All You Need》（NeurIPS 2017）；\"让每个词关注句子中的其他词\"及翻译中 Q/K/V 来源的说明参考中文技术讲解文章（https://cloud.tencent.com/developer/article/2608139）。手算数值为本教学示例自行构造。",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 8.4
+      },
+      "sections": [
+        {
+          "section_id": "attention-function",
+          "content_sha256": "e6fcd4d5f03e22c6ce94117376c6e9bd2dc236daa6881cd4dd5649881267ef0a"
+        },
+        {
+          "section_id": "hand-calc",
+          "content_sha256": "8817aa57321dd1859bcaf980d9f9981561270d1464c0158f4da578d8d04a68e5"
+        },
+        {
+          "section_id": "matrix-form",
+          "content_sha256": "d78f0efa21677bfc63319c6689337a8208956e4c46d876167d4002f212039020"
+        },
+        {
+          "section_id": "why-scale",
+          "content_sha256": "6664ffe188b1889423dd4db1477c0e902473942014d450dbf5662c96a53f9355"
+        },
+        {
+          "section_id": "self-attention",
+          "content_sha256": "b1bc42f7eb647aa2f434a74206c351ab2a7c1857e7ae10a3bd60c740a4cdf9aa"
+        },
+        {
+          "section_id": "self-check",
+          "content_sha256": "6caf71d371cd850ba59de34068725f9f66bf2a0a179c497535ccf14129d30602"
+        }
+      ],
+      "spec_digest": "3302d22cf0cba3422070ff12aba16b7f6b95658d6dbb6ab8df457549babe8bc0",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "attention-function"
+          },
+          "objective_id": "n3-self-attention:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "hand-calc"
+          },
+          "objective_id": "n3-self-attention:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "matrix-form"
+          },
+          "objective_id": "n3-self-attention:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "why-scale"
+          },
+          "objective_id": "n3-self-attention:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "self-attention"
+          },
+          "objective_id": "n3-self-attention:o4"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n3-self-attention:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n3-self-attention:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "attention-function"
+          },
+          "explanation": "从注意力函数的定义（查询与键值对映射为输出、输出为值的加权和、权重由相容性函数给出）切入，讲授 Transformer 自注意力的核心机制，落实“理解其工作机制”的要求。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "hand-calc"
+          },
+          "explanation": "用 3 个词元、dk=2 的玩具数值完整演示缩放点积注意力的四步计算与矩阵形式，使学习者理解 Transformer 内部注意力子层实际在算什么。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "why-scale"
+          },
+          "explanation": "解释缩放因子 √dk 的由来与梯度饱和原因，并给出 dk=64 的对比讨论，补足对 Transformer 设计动机的理解。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "self-attention"
+          },
+          "explanation": "说明自注意力中 Q、K、V 同源，以及它与编码器-解码器注意力的区别，把注意力机制放回 Transformer 架构语境。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "teaching_context_digest": "a7acbc3dfb187216221b2175b0ef0dc79445ea55871005c85173f8715be54c11"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文按节点分工覆盖四条目标：第一节给出注意力函数定义（查询与键值对映射、输出为值的加权和、权重由相容性函数给出），第二节手算四步，第三节给出 softmax(QK^T/√dk)V 与维度表，第四节解释 √dk 缩放，第五节说明 Q/K/V 同源。对整课需求 req-goal-transformer 的贡献是真实的局部贡献，未伪称整门课已满足。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "手算数值经复核正确：S=[[1,0,1],[0,1,1],[1,1,2]]，除以 1.414 后各行 softmax 得 [0.401,0.198,0.401]、[0.198,0.401,0.401]、[0.248,0.248,0.503]，行和均为 1；输出 [0.802,0.797]、[0.599,1.203]、[0.751,0.999] 与 A·V 一致。缩放原因（点积方差为 dk、softmax 饱和、梯度极小）与论文一致；dk=64 时标准差 8 的推算正确。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第二节用 3 词元、dk=2 的玩具数值完整走完点积→缩放→softmax→加权求和，并明确标注 Q/K/V 为教学构造；第四节课堂练习把 dk 从 2 改为 64 讨论不缩放后果，与节点活动一致。边界（输出维度为 dv、凸组合不爆炸）也有说明。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：注意力函数定义→手算→矩阵形式与维度→缩放原因→自注意力同源→自检，先具体后抽象、先计算后动机，符合入门深度；自检清单与四条目标一一对应，未引入面试模板。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "公式、缩放原因、自注意力定义标注依据 Vaswani 等 NeurIPS 2017 论文，中文讲解引用 cloud.tencent.com 文章，手算数值声明为自构造，与提供的 evidence 一致，未虚构外部核查。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "四条目标均有讲解与自检落点，并明确边界（多头注意力、掩码实现、代码实现不在本节点；dk=dv=64、h=8 为 2017 base 设定），无越界讲授其他节点内容，也无关键遗漏。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文按节点分工覆盖四条目标：第一节给出注意力函数定义（查询与键值对映射、输出为值的加权和、权重由相容性函数给出），第二节手算四步，第三节给出 softmax(QK^T/√dk)V 与维度表，第四节解释 √dk 缩放，第五节说明 Q/K/V 同源。对整课需求 req-goal-transformer 的贡献是真实的局部贡献，未伪称整门课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "手算数值经复核正确：S=[[1,0,1],[0,1,1],[1,1,2]]，除以 1.414 后各行 softmax 得 [0.401,0.198,0.401]、[0.198,0.401,0.401]、[0.248,0.248,0.503]，行和均为 1；输出 [0.802,0.797]、[0.599,1.203]、[0.751,0.999] 与 A·V 一致。缩放原因（点积方差为 dk、softmax 饱和、梯度极小）与论文一致；dk=64 时标准差 8 的推算正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第二节用 3 词元、dk=2 的玩具数值完整走完点积→缩放→softmax→加权求和，并明确标注 Q/K/V 为教学构造；第四节课堂练习把 dk 从 2 改为 64 讨论不缩放后果，与节点活动一致。边界（输出维度为 dv、凸组合不爆炸）也有说明。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：注意力函数定义→手算→矩阵形式与维度→缩放原因→自注意力同源→自检，先具体后抽象、先计算后动机，符合入门深度；自检清单与四条目标一一对应，未引入面试模板。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "公式、缩放原因、自注意力定义标注依据 Vaswani 等 NeurIPS 2017 论文，中文讲解引用 cloud.tencent.com 文章，手算数值声明为自构造，与提供的 evidence 一致，未虚构外部核查。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "四条目标均有讲解与自检落点，并明确边界（多头注意力、掩码实现、代码实现不在本节点；dk=dv=64、h=8 为 2017 base 设定），无越界讲授其他节点内容，也无关键遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第二节第 3 行权重和写作 0.999≈1，可注明四舍五入后为 1.000，避免学习者误以为 softmax 行和不为 1。",
+              "第四节可补一句“缩放不改变 softmax 的相对排序，只改变分布尖锐程度”，帮助区分缩放与归一化的作用。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "attention-function 节确实给出注意力函数定义：查询与一组键值对映射为输出、输出为值的加权和、权重由相容性函数给出，并附 Q/K/V 角色类比，真实支持该要求。",
+                "locator": {
+                  "section_id": "attention-function"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "hand-calc 节用 3 词元、dk=2 数值完整演示四步计算并给出矩阵形式，落实“理解 Transformer 注意力子层在算什么”的贡献。",
+                "locator": {
+                  "section_id": "hand-calc"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-scale 节解释 √dk 由来、点积方差为 dk 与 softmax 梯度饱和，并含 dk=64 对比讨论，支持该要求。",
+                "locator": {
+                  "section_id": "why-scale"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-attention 节说明 Q/K/V 同源及与编码器-解码器注意力在来源上的区别，把机制放回架构语境，支持该要求。",
+                "locator": {
+                  "section_id": "self-attention"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "attention-function 节以 explanation 角色完整陈述注意力函数定义与加权和、相容性权重，直接支持 o1。",
+                "locator": {
+                  "section_id": "attention-function"
+                },
+                "binding_id": "n3-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "hand-calc 节以 practice 角色逐步手算点积、缩放、softmax、加权求和，支持 o2 的计算过程目标。",
+                "locator": {
+                  "section_id": "hand-calc"
+                },
+                "binding_id": "n3-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "matrix-form 节写出 softmax(QK^T/√dk)V 并逐项标注 Q、K、V、dk 维度，支持 o2 的矩阵形式与维度要求。",
+                "locator": {
+                  "section_id": "matrix-form"
+                },
+                "binding_id": "n3-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "why-scale 节以 explanation 角色说明 dk 增大导致点积幅值增大、softmax 进入梯度极小区域，支持 o3。",
+                "locator": {
+                  "section_id": "why-scale"
+                },
+                "binding_id": "n3-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-attention 节说明自注意力中 Q、K、V 均来自同一序列并刻画序列内部位置关系，支持 o4。",
+                "locator": {
+                  "section_id": "self-attention"
+                },
+                "binding_id": "n3-self-attention:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 1、2 条要求写出公式、标注维度并手算 3×3 权重矩阵验证行和为 1，作为 o2 的检查落点有效。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n3-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 第 3 条要求用“点积方差随 dk 增大→softmax 饱和→梯度极小”因果链解释缩放因子，作为 o3 的检查落点有效。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n3-self-attention:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "56323587a979780503c72531d7ad9a1d508ce64d31f005117ba7f9e351ec1f82",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第二节第 3 行权重和写作 0.999≈1，可注明四舍五入后为 1.000，避免学习者误以为 softmax 行和不为 1。",
+        "第四节可补一句“缩放不改变 softmax 的相对排序，只改变分布尖锐程度”，帮助区分缩放与归一化的作用。"
+      ],
+      "content_sha256": "56323587a979780503c72531d7ad9a1d508ce64d31f005117ba7f9e351ec1f82",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "attention-function 节确实给出注意力函数定义：查询与一组键值对映射为输出、输出为值的加权和、权重由相容性函数给出，并附 Q/K/V 角色类比，真实支持该要求。",
+          "locator": {
+            "section_id": "attention-function"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "hand-calc 节用 3 词元、dk=2 数值完整演示四步计算并给出矩阵形式，落实“理解 Transformer 注意力子层在算什么”的贡献。",
+          "locator": {
+            "section_id": "hand-calc"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-scale 节解释 √dk 由来、点积方差为 dk 与 softmax 梯度饱和，并含 dk=64 对比讨论，支持该要求。",
+          "locator": {
+            "section_id": "why-scale"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-attention 节说明 Q/K/V 同源及与编码器-解码器注意力在来源上的区别，把机制放回架构语境，支持该要求。",
+          "locator": {
+            "section_id": "self-attention"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "attention-function 节以 explanation 角色完整陈述注意力函数定义与加权和、相容性权重，直接支持 o1。",
+          "locator": {
+            "section_id": "attention-function"
+          },
+          "binding_id": "n3-self-attention:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "hand-calc 节以 practice 角色逐步手算点积、缩放、softmax、加权求和，支持 o2 的计算过程目标。",
+          "locator": {
+            "section_id": "hand-calc"
+          },
+          "binding_id": "n3-self-attention:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "matrix-form 节写出 softmax(QK^T/√dk)V 并逐项标注 Q、K、V、dk 维度，支持 o2 的矩阵形式与维度要求。",
+          "locator": {
+            "section_id": "matrix-form"
+          },
+          "binding_id": "n3-self-attention:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "why-scale 节以 explanation 角色说明 dk 增大导致点积幅值增大、softmax 进入梯度极小区域，支持 o3。",
+          "locator": {
+            "section_id": "why-scale"
+          },
+          "binding_id": "n3-self-attention:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-attention 节说明自注意力中 Q、K、V 均来自同一序列并刻画序列内部位置关系，支持 o4。",
+          "locator": {
+            "section_id": "self-attention"
+          },
+          "binding_id": "n3-self-attention:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 1、2 条要求写出公式、标注维度并手算 3×3 权重矩阵验证行和为 1，作为 o2 的检查落点有效。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n3-self-attention:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 第 3 条要求用“点积方差随 dk 增大→softmax 饱和→梯度极小”因果链解释缩放因子，作为 o3 的检查落点有效。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n3-self-attention:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "61516d14cd768a6b73e49a0eea90a0dd69a94098cb8aa85be54ae82b14af1c12"
+    }
+  }
+}

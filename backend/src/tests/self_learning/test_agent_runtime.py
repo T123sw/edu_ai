@@ -96,12 +96,12 @@ def test_unknown_citation_repaired_once_then_failed(agent_service):
     assert result['status'] == 'failed' and result['error_code'] == 'ANSWER_SCHEMA_INVALID'
     assert len(agent_service.session_repository.messages('alice', first['session_id'])['items']) == 2
 
-def test_context_selection_and_foreign_history_excluded(agent_service):
+def test_context_selection_and_course_history_shared(agent_service):
     svc = agent_service
     svc.session_repository.ensure_session('alice', 'course', 'b', 'B', [{'question': 'B秘密原文标记', 'answer_text': 'secret'}])
     first = accept(svc, request(selected='Hello'))
     packet = ContextBuilder(svc).build(svc.turn_repository.get('alice', first['turn_id']))
-    assert 'B秘密原文标记' not in str(packet['messages'])
+    assert 'B秘密原文标记' in str(packet['messages'])
     assert '"selection_verified": true' in str(packet['messages'])
     assert packet['citations']['ctx_01']['locator']['offset'] == 0
     assert packet['input_bytes'] <= 24000

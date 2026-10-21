@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "caseId": "shell-teams-visible",
+      "status": "passed",
+      "message": "✓ 1. 检查 \"红队\" 的可见状态\n   实际：true\n✓ 2. 检查 \"蓝队\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "shell-scores-zero",
+      "status": "passed",
+      "message": "✓ 1. 检查 \"red-score\" 的显示文字\n   实际：\"0\"\n✓ 2. 检查 \"blue-score\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "shell-status-draw",
+      "status": "passed",
+      "message": "✓ 1. 检查 \"status\" 的显示文字\n   实际：\"平局\"\n本项操作与预期全部通过。"
+    },
+    {
+      "caseId": "shell-buttons-visible",
+      "status": "passed",
+      "message": "✓ 1. 检查 \"red-add\" 的可见状态\n   实际：true\n✓ 2. 检查 \"red-add\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"red-minus\" 的可见状态\n   实际：true\n✓ 4. 检查 \"red-minus\" 的可操作状态\n   实际：true\n✓ 5. 检查 \"blue-add\" 的可见状态\n   实际：true\n✓ 6. 检查 \"blue-add\" 的可操作状态\n   实际：true\n✓ 7. 检查 \"blue-minus\" 的可见状态\n   实际：true\n✓ 8. 检查 \"blue-minus\" 的可操作状态\n   实际：true\n✓ 9. 检查 \"reset\" 的可见状态\n   实际：true\n✓ 10. 检查 \"reset\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+    }
+  ],
+  "durationMs": 1199.1132010000001
+}

@@ -1,0 +1,19 @@
+{
+  "previous_index_sha256": "4e421cfa8fd572e1b4f17fe9998053e256610d65a87b7f1864a9c52337577c42",
+  "published_at": "20261014T010920Z",
+  "backup": "/tmp/edu-practice-select-style-backup-20261014T010920Z",
+  "index_sha256": "e90ed7daeeac7efe758d2a4764b490636498e3dbd608451655146d395f853250",
+  "frontendPublished": true,
+  "backendChanged": false,
+  "oldAssetsRetained": true,
+  "buildSeconds": 22.14,
+  "lint": "passed",
+  "sourceChanges": [
+    "PracticeSelect shared component",
+    "PracticeFocusSelect wrapper",
+    "PblHome mode selector",
+    "shared dropdown CSS",
+    "removed native select CSS"
+  ],
+  "httpVerified": true
+}

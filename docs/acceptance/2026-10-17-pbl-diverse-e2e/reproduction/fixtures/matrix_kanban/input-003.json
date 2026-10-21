@@ -1,0 +1,590 @@
+{
+  "phase": "build_checks",
+  "data": {
+    "topic": "用 React 做本地任务看板，分待办、进行中、已完成三列。添加任务时标题去首尾空格，空白不能添加；每项可以用按钮前进或后退一个状态，首列无后退、末列无前进。可以删除任务。每列显示数量，总任务数不随移动变化。两条同名任务应能独立移动和删除。无需拖拽、后端或保存到服务器。拆成合理增量步骤。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "本地任务看板",
+      "goal": "用 React 实现一个本地任务看板：任务分待办、进行中、已完成三列；可添加任务（标题去首尾空格，空白不能添加）；每项可用按钮前进或后退一个状态（首列无后退、末列无前进）；可删除任务；每列显示数量，总任务数不随移动变化；两条同名任务可独立移动和删除。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "add-task",
+          "description": "输入标题并添加任务：标题去除首尾空格后作为任务名；去除后为空则不能添加，也不产生新任务。"
+        },
+        {
+          "id": "three-columns",
+          "description": "任务分为待办、进行中、已完成三列展示，新添加的任务出现在待办列。"
+        },
+        {
+          "id": "move-forward",
+          "description": "每个任务有前进按钮，可把任务移动到下一列；已完成列的任务没有前进按钮。"
+        },
+        {
+          "id": "move-back",
+          "description": "每个任务有后退按钮，可把任务移动到上一列；待办列的任务没有后退按钮。"
+        },
+        {
+          "id": "delete-task",
+          "description": "每个任务有删除按钮，点击后该任务从看板中消失。"
+        },
+        {
+          "id": "column-counts",
+          "description": "每列显示该列当前任务数量，数量随任务移动和删除更新。"
+        },
+        {
+          "id": "total-count",
+          "description": "页面显示总任务数，移动任务不改变总数，添加和删除会改变总数。"
+        },
+        {
+          "id": "independent-duplicates",
+          "description": "两条同名任务各自独立：移动或删除其中一条不影响另一条。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "add-and-list",
+          "title": "添加任务并分三列展示",
+          "objective": "实现输入框与添加按钮，把去空格后的标题作为新任务加入待办列，并展示待办、进行中、已完成三列。",
+          "dependsOn": [],
+          "entryCondition": "从初始工程开始，页面只有占位内容。",
+          "deliverable": "页面有标题输入框和添加按钮；输入非空标题点击添加后，待办列出现该任务（首尾空格被去掉）；输入空白点击添加不产生任务；页面同时显示待办、进行中、已完成三个列区域。",
+          "requirementIds": [
+            "add-task",
+            "three-columns"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "add-task-appears-in-todo",
+            "blank-title-rejected",
+            "three-columns-visible"
+          ]
+        },
+        {
+          "id": "move-tasks",
+          "title": "前进与后退移动任务",
+          "objective": "为任务添加前进和后退按钮，按所在列限制可用方向，任务在列间移动。",
+          "dependsOn": [
+            "add-and-list"
+          ],
+          "entryCondition": "上一步已完成：可以添加任务并在待办列看到它们。",
+          "deliverable": "待办列任务只有前进按钮，点击后进入进行中列；进行中列任务同时有前进和后退按钮，可移动到已完成或退回待办；已完成列任务只有后退按钮，点击后回到进行中列。",
+          "requirementIds": [
+            "move-forward",
+            "move-back",
+            "three-columns"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "todo-forward-to-progress",
+            "progress-back-to-todo",
+            "progress-forward-to-done",
+            "done-back-to-progress",
+            "todo-has-no-back",
+            "done-has-no-forward"
+          ]
+        },
+        {
+          "id": "delete-and-counts",
+          "title": "删除任务与数量统计",
+          "objective": "为任务添加删除按钮，并在每列显示数量、页面显示总任务数。",
+          "dependsOn": [
+            "move-tasks"
+          ],
+          "entryCondition": "上一步已完成：任务可以在三列之间前进和后退。",
+          "deliverable": "每个任务有删除按钮，点击后任务消失；每列显示该列任务数量；页面显示总任务数，移动任务时总数不变，添加或删除时总数随之变化。",
+          "requirementIds": [
+            "delete-task",
+            "column-counts",
+            "total-count"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "delete-removes-task",
+            "column-counts-update-on-move",
+            "total-count-stable-on-move",
+            "total-count-changes-on-add-delete"
+          ]
+        },
+        {
+          "id": "independent-duplicates",
+          "title": "同名任务互不影响",
+          "objective": "确保两条同名任务各自独立地移动和删除。",
+          "dependsOn": [
+            "delete-and-counts"
+          ],
+          "entryCondition": "上一步已完成：任务可移动、可删除，并有数量统计。",
+          "deliverable": "添加两条同名任务后，移动其中一条只改变该条所在列，另一条留在原列；删除其中一条后另一条仍在看板中，数量统计正确。",
+          "requirementIds": [
+            "independent-duplicates",
+            "move-forward",
+            "delete-task",
+            "column-counts"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "duplicate-move-independent",
+            "duplicate-delete-independent"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "add-task-appears-in-todo",
+          "stepId": "add-and-list",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "add-task",
+            "three-columns"
+          ],
+          "setup": "打开页面，输入框为空。",
+          "actions": [
+            "在标题输入框填入“  写周报  ”",
+            "点击添加按钮",
+            "读取待办列中任务文本"
+          ],
+          "expected": [
+            "待办列出现文本为“写周报”的任务，首尾空格被去掉"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "blank-title-rejected",
+          "stepId": "add-and-list",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "add-task"
+          ],
+          "setup": "打开页面，输入框为空。",
+          "actions": [
+            "在标题输入框填入“   ”",
+            "点击添加按钮",
+            "读取待办列任务数量"
+          ],
+          "expected": [
+            "待办列任务数量为 0，空白标题不产生任务"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "three-columns-visible",
+          "stepId": "add-and-list",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "three-columns"
+          ],
+          "setup": "打开页面。",
+          "actions": [
+            "读取待办、进行中、已完成三个列区域"
+          ],
+          "expected": [
+            "三个列区域都可见"
+          ],
+          "requiredAssertions": [
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "todo-forward-to-progress",
+          "stepId": "move-tasks",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "move-forward",
+            "three-columns"
+          ],
+          "setup": "打开页面，添加任务“写周报”。",
+          "actions": [
+            "点击“写周报”任务的前进按钮",
+            "读取进行中列任务文本"
+          ],
+          "expected": [
+            "进行中列出现“写周报”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "progress-back-to-todo",
+          "stepId": "move-tasks",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "move-back",
+            "three-columns"
+          ],
+          "setup": "打开页面，添加任务“写周报”并点击其前进按钮使其进入进行中列。",
+          "actions": [
+            "点击“写周报”任务的后退按钮",
+            "读取待办列任务文本"
+          ],
+          "expected": [
+            "待办列重新出现“写周报”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "progress-forward-to-done",
+          "stepId": "move-tasks",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "move-forward",
+            "three-columns"
+          ],
+          "setup": "打开页面，添加任务“写周报”并点击其前进按钮使其进入进行中列。",
+          "actions": [
+            "再次点击“写周报”任务的前进按钮",
+            "读取已完成列任务文本"
+          ],
+          "expected": [
+            "已完成列出现“写周报”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "done-back-to-progress",
+          "stepId": "move-tasks",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "move-back",
+            "three-columns"
+          ],
+          "setup": "打开页面，添加任务“写周报”，连续点击前进按钮两次使其进入已完成列。",
+          "actions": [
+            "点击“写周报”任务的后退按钮",
+            "读取进行中列任务文本"
+          ],
+          "expected": [
+            "进行中列重新出现“写周报”"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "todo-has-no-back",
+          "stepId": "move-tasks",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "move-back"
+          ],
+          "setup": "打开页面，添加任务“写周报”，任务位于待办列。",
+          "actions": [
+            "读取“写周报”任务所在行内的后退按钮数量"
+          ],
+          "expected": [
+            "待办列任务没有后退按钮，数量为 0"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "done-has-no-forward",
+          "stepId": "move-tasks",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "move-forward"
+          ],
+          "setup": "打开页面，添加任务“写周报”，连续点击前进按钮两次使其进入已完成列。",
+          "actions": [
+            "读取“写周报”任务所在行内的前进按钮数量"
+          ],
+          "expected": [
+            "已完成列任务没有前进按钮，数量为 0"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "delete-removes-task",
+          "stepId": "delete-and-counts",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "delete-task"
+          ],
+          "setup": "打开页面，添加任务“写周报”。",
+          "actions": [
+            "点击“写周报”任务的删除按钮",
+            "读取待办列任务数量"
+          ],
+          "expected": [
+            "待办列任务数量为 0，任务已删除"
+          ],
+          "requiredAssertions": [
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "column-counts-update-on-move",
+          "stepId": "delete-and-counts",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "column-counts",
+            "move-forward"
+          ],
+          "setup": "打开页面，添加任务“写周报”。",
+          "actions": [
+            "读取待办列数量与进行中列数量",
+            "点击“写周报”任务的前进按钮",
+            "再次读取待办列数量与进行中列数量"
+          ],
+          "expected": [
+            "移动前待办为 1、进行中为 0；移动后待办为 0、进行中为 1"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "total-count-stable-on-move",
+          "stepId": "delete-and-counts",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "total-count",
+            "move-forward"
+          ],
+          "setup": "打开页面，添加任务“写周报”。",
+          "actions": [
+            "读取总任务数",
+            "点击“写周报”任务的前进按钮",
+            "再次读取总任务数"
+          ],
+          "expected": [
+            "移动前后总任务数都为 1"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "total-count-changes-on-add-delete",
+          "stepId": "delete-and-counts",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "total-count",
+            "delete-task"
+          ],
+          "setup": "打开页面，添加任务“写周报”。",
+          "actions": [
+            "读取总任务数",
+            "点击“写周报”任务的删除按钮",
+            "再次读取总任务数"
+          ],
+          "expected": [
+            "添加后总任务数为 1，删除后总任务数为 0"
+          ],
+          "requiredAssertions": [
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "duplicate-move-independent",
+          "stepId": "independent-duplicates",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "independent-duplicates",
+            "move-forward"
+          ],
+          "setup": "打开页面，添加两条同名任务“写周报”。",
+          "actions": [
+            "点击第一条“写周报”任务的前进按钮",
+            "读取待办列与进行中列的任务文本"
+          ],
+          "expected": [
+            "进行中列有 1 条“写周报”，待办列仍有 1 条“写周报”"
+          ],
+          "requiredAssertions": [
+            "count",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "duplicate-delete-independent",
+          "stepId": "independent-duplicates",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "independent-duplicates",
+            "delete-task"
+          ],
+          "setup": "打开页面，添加两条同名任务“写周报”。",
+          "actions": [
+            "点击第一条“写周报”任务的删除按钮",
+            "读取待办列任务数量与总任务数"
+          ],
+          "expected": [
+            "待办列仍有 1 条“写周报”，总任务数为 1"
+          ],
+          "requiredAssertions": [
+            "count",
+            "text"
+          ],
+          "viewport": null
+        }
+      ]
+    },
+    "step": {
+      "id": "add-and-list",
+      "title": "添加任务并分三列展示",
+      "objective": "实现输入框与添加按钮，把去空格后的标题作为新任务加入待办列，并展示待办、进行中、已完成三列。",
+      "dependsOn": [],
+      "entryCondition": "从初始工程开始，页面只有占位内容。",
+      "deliverable": "页面有标题输入框和添加按钮；输入非空标题点击添加后，待办列出现该任务（首尾空格被去掉）；输入空白点击添加不产生任务；页面同时显示待办、进行中、已完成三个列区域。",
+      "requirementIds": [
+        "add-task",
+        "three-columns"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "add-task-appears-in-todo",
+        "blank-title-rejected",
+        "three-columns-visible"
+      ]
+    },
+    "requiredChecks": [
+      {
+        "id": "add-task-appears-in-todo",
+        "stepId": "add-and-list",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "add-task",
+          "three-columns"
+        ],
+        "setup": "打开页面，输入框为空。",
+        "actions": [
+          "在标题输入框填入“  写周报  ”",
+          "点击添加按钮",
+          "读取待办列中任务文本"
+        ],
+        "expected": [
+          "待办列出现文本为“写周报”的任务，首尾空格被去掉"
+        ],
+        "requiredAssertions": [
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "blank-title-rejected",
+        "stepId": "add-and-list",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "add-task"
+        ],
+        "setup": "打开页面，输入框为空。",
+        "actions": [
+          "在标题输入框填入“   ”",
+          "点击添加按钮",
+          "读取待办列任务数量"
+        ],
+        "expected": [
+          "待办列任务数量为 0，空白标题不产生任务"
+        ],
+        "requiredAssertions": [
+          "count"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "three-columns-visible",
+        "stepId": "add-and-list",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "three-columns"
+        ],
+        "setup": "打开页面。",
+        "actions": [
+          "读取待办、进行中、已完成三个列区域"
+        ],
+        "expected": [
+          "三个列区域都可见"
+        ],
+        "requiredAssertions": [
+          "visible"
+        ],
+        "viewport": null
+      }
+    ],
+    "previousFiles": {
+      "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+      "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+    },
+    "previousChecks": [],
+    "issues": [],
+    "priorCandidate": null,
+    "previousCheckReport": {
+      "stepId": "add-and-list",
+      "referenceHash": "7155699579ad2ed566933afc966bac870f7ce6d4508f2bea2b3e52080a8680ad",
+      "previousHash": "16855a1c7bcb0737c6bdcf69a17003ca4c075c74b89ba397db9cb4028ee57dce",
+      "checkIds": [],
+      "skipped": true,
+      "reason": "首步没有前序验收"
+    },
+    "unit": {
+      "stepId": "add-and-list",
+      "title": "添加任务并分三列展示",
+      "objective": "实现输入框与添加按钮，把去空格后的标题作为新任务加入待办列，并展示待办、进行中、已完成三列。",
+      "instructionsMarkdown": "这一步要做出看板的骨架：一个能添加任务的输入区，以及并排的三列。\n\n**页面组成**\n- 顶部有一个标题输入框和一个“添加”按钮。\n- 下方有三个列区域，分别叫“待办”“进行中”“已完成”。\n\n**添加任务的效果**\n- 在输入框里输入标题，点击“添加”后，新任务出现在“待办”列里。\n- 标题首尾的空格会被去掉：输入 `  写周报  `，待办列里显示的是 `写周报`。\n- 如果去掉空格后什么都不剩（比如只输入空格），点击“添加”不产生任何任务。\n- 添加成功后输入框清空，方便继续输入。\n\n**边界**\n- 这一步只需要“添加”和“三列展示”，前进、后退、删除、数量统计留到后面的步骤。\n- 三列即使为空也要显示出来。\n\n**代码约定**\n- 标题输入框加 `data-testid=\"title-input\"`。\n- “添加”按钮加 `data-testid=\"add-button\"`，按钮文字为“添加”。\n- 三个列区域分别加 `data-testid=\"column-todo\"`、`data-testid=\"column-progress\"`、`data-testid=\"column-done\"`，并各自包含可见的列名文字“待办”“进行中”“已完成”。\n- 每个任务条目加 `data-testid=\"task-item\"`，条目内显示任务标题文字。\n- 这些标记只供系统识别，不会改变页面外观。",
+      "explanationMarkdown": "核心是把“输入框里的文字”变成“列表里的一条数据”。\n\n用 `useState` 保存两样东西：输入框当前的值，以及任务数组。任务数组里每一项至少要有标题和它所在的列。因为后面要移动和删除，每条任务需要一个稳定的唯一标识（比如用递增计数器或 `crypto.randomUUID()`），不要用标题当标识——否则两条同名任务会互相干扰。\n\n添加时先对输入做 `trim()`，结果为空就直接返回，不修改任务数组。非空则把新任务（列设为“待办”）追加到数组末尾，并清空输入框。\n\n三列展示可以用一个固定的列定义数组（待办、进行中、已完成），然后对每一列过滤出属于它的任务来渲染。这样后面加移动功能时，只需改任务的列字段。",
+      "hints": [
+        "用 `useState('')` 保存输入值，用 `useState([])` 保存任务数组。",
+        "添加前先 `const title = input.trim()`，`if (!title) return;`。",
+        "每条任务用 `{ id, title, status }` 结构，`status` 取 `'todo' | 'progress' | 'done'`。",
+        "渲染三列时遍历列定义，用 `tasks.filter(t => t.status === col.key)` 得到该列任务。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "checkIds": [
+        "add-task-appears-in-todo",
+        "blank-title-rejected",
+        "three-columns-visible"
+      ]
+    },
+    "referenceFiles": {
+      "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nconst COLUMNS = [\n  { key: 'todo', label: '待办', testId: 'column-todo' },\n  { key: 'progress', label: '进行中', testId: 'column-progress' },\n  { key: 'done', label: '已完成', testId: 'column-done' },\n];\n\nlet nextId = 1;\n\nexport default function App() {\n  const [input, setInput] = useState('');\n  const [tasks, setTasks] = useState([]);\n\n  function handleAdd() {\n    const title = input.trim();\n    if (!title) return;\n    setTasks((prev) => [...prev, { id: nextId++, title, status: 'todo' }]);\n    setInput('');\n  }\n\n  return (\n    <main className=\"board\">\n      <h1>本地任务看板</h1>\n      <div className=\"add-row\">\n        <input\n          data-testid=\"title-input\"\n          value={input}\n          onChange={(e) => setInput(e.target.value)}\n          placeholder=\"输入任务标题\"\n        />\n        <button data-testid=\"add-button\" onClick={handleAdd}>添加</button>\n      </div>\n      <div className=\"columns\">\n        {COLUMNS.map((col) => (\n          <section key={col.key} className=\"column\" data-testid={col.testId}>\n            <h2>{col.label}</h2>\n            <ul className=\"task-list\">\n              {tasks\n                .filter((t) => t.status === col.key)\n                .map((t) => (\n                  <li key={t.id} className=\"task\" data-testid=\"task-item\">\n                    <span className=\"task-title\">{t.title}</span>\n                  </li>\n                ))}\n            </ul>\n          </section>\n        ))}\n      </div>\n    </main>\n  );\n}\n",
+      "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\n.board { padding: 16px; }\n.add-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }\n.add-row input { flex: 1 1 160px; min-width: 0; padding: 6px 8px; }\n.add-row button { padding: 6px 12px; }\n.columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }\n.column { background: #f4f5f7; border-radius: 8px; padding: 8px; min-width: 0; }\n.column h2 { font-size: 15px; margin: 4px 0 8px; }\n.task-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }\n.task { background: #fff; border-radius: 6px; padding: 6px 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }\n.task-title { flex: 1 1 auto; min-width: 0; word-break: break-word; }\n"
+    },
+    "referenceHash": "7155699579ad2ed566933afc966bac870f7ce6d4508f2bea2b3e52080a8680ad"
+  },
+  "startedAt": 1792229134.0907476
+}

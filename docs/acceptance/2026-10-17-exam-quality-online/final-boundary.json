@@ -1,0 +1,32 @@
+{
+  "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc": {
+    "anonymous": 401,
+    "owner": 409
+  },
+  "examgen_cee3918f6e261eafdd101822d15e2df0": {
+    "anonymous": 401,
+    "owner": 409
+  },
+  "history": [
+    {
+      "generation_id": "examgen_cee3918f6e261eafdd101822d15e2df0",
+      "job_id": "job_df7d12c3e5194961",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE",
+      "requirement": "性能与质量上线复测：依据整份原卷生成新的数据结构模拟试卷，保持原题顺序、题型和对应考点，保留子题结构，使用新的有效数据，不照抄原题。"
+    },
+    {
+      "generation_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "job_id": "examgen_b9aacaf7a3bf4047dd174eeef1d2e1dc",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE",
+      "requirement": "性能与质量上线复测：依据整份原卷生成新的数据结构模拟试卷，保持原题顺序、题型和对应考点，保留子题结构，使用新的有效数据，不照抄原题。"
+    }
+  ]
+}

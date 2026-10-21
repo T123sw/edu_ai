@@ -1,0 +1,360 @@
+{
+  "title": "为什么需要 Transformer：循环网络的瓶颈与注意力思路",
+  "content": "# 为什么需要 Transformer：循环网络的瓶颈与注意力思路\n\n本讲只回答一个问题：在 Transformer 出现之前，序列模型卡在哪里，Transformer 又是怎样绕开这个卡点的。读完后你应当能说清循环模型的顺序性从何而来、它为什么让训练无法在一条样本内部并行，以及 Transformer 用注意力替代循环意味着什么。\n\n<a id=\"sec-rnn-bottleneck\"></a>\n## 一、循环模型的瓶颈：h_t 必须等 h_{t−1}\n\n循环神经网络（RNN）处理序列的方式，是**沿符号位置把计算拆成一步步**。设输入序列为 x_1, x_2, …, x_n，模型为每个位置产生一个隐藏状态：\n\n```\nh_1 = f(x_1, h_0)\nh_2 = f(x_2, h_1)\nh_3 = f(x_3, h_2)\n...\nh_t = f(x_t, h_{t−1})\n```\n\n关键在最后一行：**位置 t 的隐藏状态是“前一个隐藏状态 h_{t−1}”和“当前位置输入 x_t”的函数**。这不是实现细节，而是模型定义本身——论文原文的表述是，循环模型把位置对齐到计算时间步，生成一串隐藏状态 h_t，它是前一隐藏状态 h_{t−1} 与位置 t 输入的函数。\n\n由此产生三层后果，正好对应本讲的第一个学习活动要列出的三条限制：\n\n1. **顺序计算**：要算出 h_100，必须先有 h_99；要有 h_99，必须先有 h_98……整条链只能一个接一个地算。计算图是一条长链，没有可以同时开工的分支。\n2. **样本内部难以并行**：并行计算的前提是“这些运算互不依赖”。而在一条训练样本内部，第 100 个位置的计算依赖第 99 个位置的结果，所以即便你有上千个 GPU 核心，也无法把同一条句子的不同位置分摊出去同时算。论文把这一点称为“固有的顺序性使训练样本内部的并行化无法实现”。\n3. **长序列时更严重，批处理也受限**：序列越长，这条依赖链越长，顺序等待的代价越大。同时论文指出，由于显存约束会限制跨样本的批大小（batching across examples），当无法靠“多塞几条样本”来填满硬件时，样本内部的串行就成了主要瓶颈。\n\n需要强调：论文也提到，此前有工作通过因子分解技巧、条件计算等方式提升了计算效率，但**顺序计算这一根本约束依然存在**。也就是说，这些改进是在“仍然串行”的前提下省算力，而不是取消串行本身。\n\n一个直观的量化：如果句子有 100 个词，RNN 的隐藏状态需要 100 个前后相继的计算步；这 100 步之间没有任何一对可以同时进行。\n\n<a id=\"sec-attention-shift\"></a>\n## 二、注意力不是新东西，但过去总跟着循环走\n\n注意力机制在 Transformer 之前已经是序列建模与序列转换模型的重要组成部分，它的价值在于**建模依赖关系时可以不管两个位置在输入或输出序列中相隔多远**——近处和远处的信息都能被直接关联。\n\n但论文同时指出一个关键事实：**除了极少数例外，这类注意力机制都是与循环网络结合使用的**。也就是说，注意力当时多半是“挂在 RNN 上面的一个附加模块”：主干仍然是逐步推进的隐藏状态，注意力只是帮助它在某一步挑选相关信息。既然主干还是循环，第一节讲的顺序性瓶颈就原封不动地保留着。\n\nTransformer 的转折点就在这里：它**抛弃循环，改为完全依赖注意力机制在输入与输出之间建立全局依赖**。这句话有两层含义：\n\n- “完全依赖注意力”：模型内部不再有沿位置逐步传递的隐藏状态链，位置之间的信息交换由注意力一次性完成；\n- “全局依赖”：任意两个位置之间都可以直接建立联系，不需要像循环那样让信息沿着链条一站站传过去。\n\n因为同一条样本内各位置的计算不再互为前提，Transformer 允许显著更多的并行化。论文报告的一个具体结果是：在 8 块 P100 GPU 上训练 12 小时，就达到了当时新的翻译质量水平。这个数字是 2017 年的实验设定，用来说明并行带来的训练效率，而不是今天的性能基准。\n\n用两条信息路径对比，差别一目了然：\n\n```\nRNN：      x1 → h1 → h2 → h3 → ... → h100        （链式，逐站传递）\n注意力层： x1 ─┐\n           x2 ─┼→ 每个位置同时与所有位置交互 → 输出   （一次看全序列）\n           ...─┘\n```\n\n<a id=\"sec-transformer-positioning\"></a>\n## 三、一句话定位 Transformer\n\n如果只能用一句话概括：**Transformer 是 2017 年论文《Attention Is All You Need》提出的序列转换架构，它完全基于注意力机制，彻底不使用循环和卷积。**\n\n这句话里的每个成分都值得留意：\n\n- **2017 年提出**：它是 NIPS 2017 上发表的成果，属于序列建模发展中的一个明确节点；\n- **不含循环**：没有 h_t 依赖 h_{t−1} 的递推结构，因此摆脱了第一节的顺序性；\n- **不含卷积**：论文背景部分提到，ConvS2S、ByteNet 等用卷积并行计算所有位置的表示，但两个任意位置之间建立联系所需的操作数会随距离增长（ConvS2S 线性增长、ByteNet 对数增长），使远距离依赖更难学。Transformer 不走这条路；\n- **序列转换架构**：它沿用编码器-解码器结构。编码器把输入符号表示序列 (x_1, …, x_n) 映射为连续表示序列 z = (z_1, …, z_n)；解码器基于 z **自回归地**一次生成一个输出符号，即生成下一个符号时把已生成的符号作为额外输入。\n\n注意一个容易被误解的点：Transformer 在**训练**时能高度并行，但解码器在**推理**时仍是自回归的、逐个生成输出符号。并行度的提升主要发生在训练阶段对整条序列的计算上，这与“解码必须一步步往外吐词”并不矛盾。\n\n<a id=\"sec-self-check\"></a>\n## 四、自查\n\n不看上文，试着回答：\n\n1. 循环模型顺序性的根源是什么？（提示：写出 h_t 的依赖关系）\n2. 为什么这个根源会让“一条训练样本内部”无法并行？如果只是样本之间并行，够不够？\n3. 注意力机制在 Transformer 之前通常和什么结构一起用？Transformer 改变了什么？\n4. 用一句话说出 Transformer 的定位，并指出它明确不使用的两种结构。\n\n参考要点：h_t 是 h_{t−1} 与 x_t 的函数，形成不可打断的依赖链；同一样本内各位置互为前提，故无法同时计算，而长序列时显存又限制跨样本批大小，串行代价被放大；注意力此前多与循环网络结合，Transformer 完全依赖注意力建立输入输出的全局依赖；它是 2017 年提出、不含循环与卷积、基于注意力的序列转换架构。\n\n## 说明与边界\n\n本讲依据公开论文《Attention Is All You Need》（NIPS 2017）的摘要、引言与背景部分组织，属于入门级原理理解。自注意力如何具体计算、多头注意力、位置编码、残差与归一化等子层细节不在本讲展开，留待后续节点；本讲也不涉及从零实现代码或训练调参。文中 8 块 P100、12 小时等数字为论文原始实验设定，不代表所有后续变体。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 5.7
+      },
+      "sections": [
+        {
+          "section_id": "sec-rnn-bottleneck",
+          "content_sha256": "0fb9b45e3ed9602c2b2aa38f1e5c7b944362fef6c774f9f80d8b6c09560f8bbc"
+        },
+        {
+          "section_id": "sec-attention-shift",
+          "content_sha256": "a21262b3ac44c0ac3deb32240dc95a83ce345081a5d9de36fc3965478c7ed402"
+        },
+        {
+          "section_id": "sec-transformer-positioning",
+          "content_sha256": "04a372d639ee3bdd6282c825ed5f65d812533c3d05c897ae45a3096db110c61a"
+        },
+        {
+          "section_id": "sec-self-check",
+          "content_sha256": "dab6307ee941293c4b05825367088e4d7b8b59db511597cba1f26075abfad890"
+        }
+      ],
+      "spec_digest": "252008d289dba053744bf3f948510c785c0601ca49d38288ef10b194863fb44c",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-rnn-bottleneck"
+          },
+          "objective_id": "n1-why-transformer:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "objective_id": "n1-why-transformer:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-attention-shift"
+          },
+          "objective_id": "n1-why-transformer:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "objective_id": "n1-why-transformer:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-transformer-positioning"
+          },
+          "objective_id": "n1-why-transformer:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "objective_id": "n1-why-transformer:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec-rnn-bottleneck"
+          },
+          "explanation": "该节从隐藏状态递推公式出发，讲清循环模型的顺序性根源及其对训练样本内部并行的限制，落实“讲授 Transformer 核心概念与架构原理”中“为何需要 Transformer”的动机部分。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "sec-attention-shift"
+          },
+          "explanation": "该节说明注意力机制此前多与循环网络结合，并解释 Transformer 完全依赖注意力建立全局依赖，落实架构原理中的注意力主线。",
+          "requirement_id": "req-goal-transformer"
+        },
+        {
+          "locator": {
+            "section_id": "sec-transformer-positioning"
+          },
+          "explanation": "该节用一句话给出 Transformer 的定位（2017 年提出、不含循环与卷积的序列转换架构），并说明其编码器-解码器数据流，落实核心概念讲授。",
+          "requirement_id": "req-goal-transformer"
+        }
+      ],
+      "teaching_context_digest": "9b353d05b245f0dbd44cd08cdb12c51a4063c18afcd73e388063d753f6e059da"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "本节点分工的三条目标均有对应章节：第一节（sec-rnn-bottleneck）讲 h_t 依赖 h_{t−1} 的顺序性及样本内不可并行；第二节（sec-attention-shift）指出注意力此前多与循环网络结合、Transformer 完全依赖注意力建立全局依赖；第三节（sec-transformer-positioning）给出“2017 年提出、不含循环与卷积的序列转换架构”的一句话定位。整课背景中的自注意力计算、多头、位置编码等由其他节点承担，本报告未越界也未伪称已满足整课。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "第一节递推式 h_t = f(x_t, h_{t−1}) 与论文表述一致，三条限制（顺序计算、样本内不可并行、长序列时显存限制跨样本批处理）均忠实于原文；第二节“除极少数例外，注意力多与循环网络结合”与“完全依赖注意力建立全局依赖”准确；第三节对 ConvS2S 线性、ByteNet 对数操作数增长的描述与论文背景部分一致，并正确区分训练并行与解码自回归推理，未把 8 块 P100/12 小时当作今日基准。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第一节“100 个词需 100 个前后相继计算步、无一对可同时进行”的推演在合法输入域内成立（n 个位置即 n 步串行），与学习活动中的课堂讨论题一致；第二节 RNN 链式路径与注意力“一次看全序列”的示意对比准确表达了两种信息传递方式，未出现把注意力层说成零成本或精确减半之类的错误。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为“循环瓶颈→注意力思路→一句话定位→自查”，与目标顺序（先顺序性、再注意力、最后定位）一致，而非仅在开头声称；第一节明确对应学习活动一的三条限制，第二节对应活动二的路径对比，自查四问覆盖三条目标并给出参考要点，符合入门深度与中文语言要求。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文引用的原文表述（factor computation along symbol positions、inherently sequential nature precludes parallelization、used in conjunction with a recurrent network、eschewing recurrence、twelve hours on eight P100 GPUs、ConvS2S 线性/ByteNet 对数）均可在提供的 ev_1005fe4de2a2ef3a07311f7a 与 ev_4110aa07d7df1bce5ee76c30 证据中找到对应原文，来源为 NIPS 2017 论文 PDF，未虚构外部核查。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三条目标均有讲解与自查闭环，末尾“说明与边界”明确交代依据范围（摘要、引言、背景）、不展开自注意力计算/多头/位置编码/残差归一化，也不含实现与调参，与 limitations 一致；正文约 5.7 分钟估算在 10 分钟节点预算内，无重要遗漏。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本节点分工的三条目标均有对应章节：第一节（sec-rnn-bottleneck）讲 h_t 依赖 h_{t−1} 的顺序性及样本内不可并行；第二节（sec-attention-shift）指出注意力此前多与循环网络结合、Transformer 完全依赖注意力建立全局依赖；第三节（sec-transformer-positioning）给出“2017 年提出、不含循环与卷积的序列转换架构”的一句话定位。整课背景中的自注意力计算、多头、位置编码等由其他节点承担，本报告未越界也未伪称已满足整课。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "第一节递推式 h_t = f(x_t, h_{t−1}) 与论文表述一致，三条限制（顺序计算、样本内不可并行、长序列时显存限制跨样本批处理）均忠实于原文；第二节“除极少数例外，注意力多与循环网络结合”与“完全依赖注意力建立全局依赖”准确；第三节对 ConvS2S 线性、ByteNet 对数操作数增长的描述与论文背景部分一致，并正确区分训练并行与解码自回归推理，未把 8 块 P100/12 小时当作今日基准。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第一节“100 个词需 100 个前后相继计算步、无一对可同时进行”的推演在合法输入域内成立（n 个位置即 n 步串行），与学习活动中的课堂讨论题一致；第二节 RNN 链式路径与注意力“一次看全序列”的示意对比准确表达了两种信息传递方式，未出现把注意力层说成零成本或精确减半之类的错误。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为“循环瓶颈→注意力思路→一句话定位→自查”，与目标顺序（先顺序性、再注意力、最后定位）一致，而非仅在开头声称；第一节明确对应学习活动一的三条限制，第二节对应活动二的路径对比，自查四问覆盖三条目标并给出参考要点，符合入门深度与中文语言要求。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文引用的原文表述（factor computation along symbol positions、inherently sequential nature precludes parallelization、used in conjunction with a recurrent network、eschewing recurrence、twelve hours on eight P100 GPUs、ConvS2S 线性/ByteNet 对数）均可在提供的 ev_1005fe4de2a2ef3a07311f7a 与 ev_4110aa07d7df1bce5ee76c30 证据中找到对应原文，来源为 NIPS 2017 论文 PDF，未虚构外部核查。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三条目标均有讲解与自查闭环，末尾“说明与边界”明确交代依据范围（摘要、引言、背景）、不展开自注意力计算/多头/位置编码/残差归一化，也不含实现与调参，与 limitations 一致；正文约 5.7 分钟估算在 10 分钟节点预算内，无重要遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第二节的 ASCII 路径示意图中“每个位置同时与所有位置交互”可补一句说明注意力层内部仍需计算两两相关性，避免初学者误以为注意力完全没有计算量。",
+              "自查第 2 问“如果只是样本之间并行，够不够”可给出更明确的参考要点（跨样本批大小受显存限制），使自查反馈更完整。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-rnn-bottleneck 从 h_t = f(x_t, h_{t−1}) 出发讲清顺序性根源及样本内不可并行，真实支撑“为何需要 Transformer”的动机部分，未夸大为整课已满足。",
+                "locator": {
+                  "section_id": "sec-rnn-bottleneck"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-attention-shift 明确写出“除极少数例外，注意力多与循环网络结合”与“完全依赖注意力建立全局依赖”，与所述贡献一致。",
+                "locator": {
+                  "section_id": "sec-attention-shift"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-transformer-positioning 给出 2017 年提出、不含循环与卷积的序列转换架构一句话定位，并补充编码器-解码器数据流，支持所述贡献。",
+                "locator": {
+                  "section_id": "sec-transformer-positioning"
+                },
+                "binding_id": "req-goal-transformer",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-rnn-bottleneck 以递推公式与三条后果解释 h_t 依赖 h_{t−1} 及样本内并行受限，作为 o1 的 explanation 定位准确。",
+                "locator": {
+                  "section_id": "sec-rnn-bottleneck"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-self-check 第 1、2 问直接要求写出 h_t 依赖关系并解释样本内不可并行，作为 o1 的 check 定位有效。",
+                "locator": {
+                  "section_id": "sec-self-check"
+                },
+                "binding_id": "n1-why-transformer:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-attention-shift 说明注意力此前多与循环网络结合，并解释 Transformer 完全依赖注意力建立全局依赖，支撑 o2。",
+                "locator": {
+                  "section_id": "sec-attention-shift"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-self-check 第 3 问要求回答注意力此前与什么结构同用、Transformer 改变了什么，作为 o2 的 check 有效。",
+                "locator": {
+                  "section_id": "sec-self-check"
+                },
+                "binding_id": "n1-why-transformer:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-transformer-positioning 以加粗一句话给出 2017 年提出、不含循环与卷积的序列转换架构定位，支撑 o3。",
+                "locator": {
+                  "section_id": "sec-transformer-positioning"
+                },
+                "binding_id": "n1-why-transformer:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-self-check 第 4 问要求一句话说出定位并指出不使用的两种结构，作为 o3 的 check 有效。",
+                "locator": {
+                  "section_id": "sec-self-check"
+                },
+                "binding_id": "n1-why-transformer:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "fd891e380748f58ee3107892ebb948f43194274f06c487620805b74a6c9c523a",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第二节的 ASCII 路径示意图中“每个位置同时与所有位置交互”可补一句说明注意力层内部仍需计算两两相关性，避免初学者误以为注意力完全没有计算量。",
+        "自查第 2 问“如果只是样本之间并行，够不够”可给出更明确的参考要点（跨样本批大小受显存限制），使自查反馈更完整。"
+      ],
+      "content_sha256": "fd891e380748f58ee3107892ebb948f43194274f06c487620805b74a6c9c523a",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec-rnn-bottleneck 从 h_t = f(x_t, h_{t−1}) 出发讲清顺序性根源及样本内不可并行，真实支撑“为何需要 Transformer”的动机部分，未夸大为整课已满足。",
+          "locator": {
+            "section_id": "sec-rnn-bottleneck"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-attention-shift 明确写出“除极少数例外，注意力多与循环网络结合”与“完全依赖注意力建立全局依赖”，与所述贡献一致。",
+          "locator": {
+            "section_id": "sec-attention-shift"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-transformer-positioning 给出 2017 年提出、不含循环与卷积的序列转换架构一句话定位，并补充编码器-解码器数据流，支持所述贡献。",
+          "locator": {
+            "section_id": "sec-transformer-positioning"
+          },
+          "binding_id": "req-goal-transformer",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-rnn-bottleneck 以递推公式与三条后果解释 h_t 依赖 h_{t−1} 及样本内并行受限，作为 o1 的 explanation 定位准确。",
+          "locator": {
+            "section_id": "sec-rnn-bottleneck"
+          },
+          "binding_id": "n1-why-transformer:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-self-check 第 1、2 问直接要求写出 h_t 依赖关系并解释样本内不可并行，作为 o1 的 check 定位有效。",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "binding_id": "n1-why-transformer:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-attention-shift 说明注意力此前多与循环网络结合，并解释 Transformer 完全依赖注意力建立全局依赖，支撑 o2。",
+          "locator": {
+            "section_id": "sec-attention-shift"
+          },
+          "binding_id": "n1-why-transformer:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-self-check 第 3 问要求回答注意力此前与什么结构同用、Transformer 改变了什么，作为 o2 的 check 有效。",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "binding_id": "n1-why-transformer:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-transformer-positioning 以加粗一句话给出 2017 年提出、不含循环与卷积的序列转换架构定位，支撑 o3。",
+          "locator": {
+            "section_id": "sec-transformer-positioning"
+          },
+          "binding_id": "n1-why-transformer:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-self-check 第 4 问要求一句话说出定位并指出不使用的两种结构，作为 o3 的 check 有效。",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "binding_id": "n1-why-transformer:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "ec331f112455f2f30a66b26e18ef95ea2b5ca8a8fe31a7175fc6880d2adc690f"
+    }
+  }
+}

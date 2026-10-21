@@ -1,0 +1,95 @@
+{
+  "base": "http://127.0.0.1/backend",
+  "owner": "exam_e2e_863f9c11530a",
+  "production_test_records": true,
+  "timeline": [
+    {
+      "seconds": 0.21,
+      "generation_id": "examgen_5cba89725d6e319844fa47fc538905f1",
+      "job_id": "examgen_5cba89725d6e319844fa47fc538905f1",
+      "status": "queued",
+      "progress": 0,
+      "message": "",
+      "exam_ready": false
+    },
+    {
+      "seconds": 2.32,
+      "generation_id": "examgen_5cba89725d6e319844fa47fc538905f1",
+      "job_id": "examgen_5cba89725d6e319844fa47fc538905f1",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false
+    },
+    {
+      "seconds": 42.32,
+      "generation_id": "examgen_5cba89725d6e319844fa47fc538905f1",
+      "job_id": "examgen_5cba89725d6e319844fa47fc538905f1",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false
+    }
+  ],
+  "upload_http": 201,
+  "upload": {
+    "document_id": "examdoc_bb949457fa2c4ad3a3d183e277e2019f",
+    "filename": "USTC-2017-data-structures.pdf",
+    "size_bytes": 2262846,
+    "source_hash": "1625baa030d4ad82048d77623cb5658364c40bdf8326632360a1e6afd5b3021a",
+    "status": "uploaded"
+  },
+  "create_http": 202,
+  "generation_id": "examgen_5cba89725d6e319844fa47fc538905f1",
+  "job": {
+    "schema_version": 2,
+    "version": 4,
+    "edu_job_id": "examgen_5cba89725d6e319844fa47fc538905f1",
+    "kind": "generate_exam",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "exam_e2e_863f9c11530a",
+    "course_id": null,
+    "scope_type": "exam_generation",
+    "scope_id": "examgen_5cba89725d6e319844fa47fc538905f1",
+    "input_summary": {
+      "title": "模拟试卷生成",
+      "source": "exam-generation",
+      "generation_id": "examgen_5cba89725d6e319844fa47fc538905f1"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "error_message": "试卷生成未完成，请检查模型配置及资料后重试",
+    "error": "试卷生成未完成，请检查模型配置及资料后重试",
+    "error_code": "EXAM_GENERATION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-10-17T09:38:30.454301+00:00",
+    "started_at": "2026-10-17T09:38:31.084837+00:00",
+    "finished_at": "2026-10-17T09:39:11.975565+00:00",
+    "updated_at": "2026-10-17T09:39:11.975565+00:00"
+  },
+  "parsed": [
+    {
+      "parser": "mineru-local",
+      "characters": 4483,
+      "layout_blocks": 66,
+      "image_count": 11,
+      "page_indices": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  ],
+  "turn_id": null,
+  "model_event_count": 0,
+  "result_saved": false,
+  "deeptutor_token_configured": false,
+  "deeptutor_url": "http://127.0.0.1:8026"
+}

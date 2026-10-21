@@ -1,0 +1,14 @@
+{
+  "source_snapshot": "/tmp/edu-studio-polish/source/frontend",
+  "published_at": "20261013T204916Z",
+  "uncommitted_source_changes": true,
+  "task": "floating-tools-and-redesigned-tool-dialogs",
+  "backend_status": "not modified in this turn; prior research reading/collection routes still require administrator restart",
+  "previous_index_sha256": "96dfe7b61fe069409c297277f31e246acdb567ae08df9bf69339120a94ab5528",
+  "backup": "/tmp/edu-studio-polish/dist-backup-20261013T204916Z",
+  "http_verified": true,
+  "assets": [
+    "/assets/index-R-UsZ3rF.js",
+    "/assets/index-8vDhdg1F.css"
+  ]
+}

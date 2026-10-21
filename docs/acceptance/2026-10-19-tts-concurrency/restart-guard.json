@@ -1,0 +1,31 @@
+{
+  "old_main_pid": 2476067,
+  "effective_tts": "http://127.0.0.1:8191/v1/audio/speech",
+  "preserved_tasks": [
+    {
+      "task_id": "generate_artifact_047b87bf19f1720d6baa0e0e5af5cd00",
+      "status": "leased",
+      "lease_owner": "durable-c33525b81f0a-1",
+      "attempt_count": 1,
+      "started_at": 1792389802.8637412,
+      "heartbeat_at": 1792391087.279353
+    },
+    {
+      "task_id": "generate_artifact_253128949c9f539f09fee8e21e827215",
+      "status": "leased",
+      "lease_owner": "durable-c33525b81f0a-3",
+      "attempt_count": 1,
+      "started_at": 1792389802.29258,
+      "heartbeat_at": 1792391087.166694
+    },
+    {
+      "task_id": "generate_artifact_2af5634bedb6b112e47c33b0f945fcdc",
+      "status": "leased",
+      "lease_owner": "durable-c33525b81f0a-4",
+      "attempt_count": 1,
+      "started_at": 1792389801.86703,
+      "heartbeat_at": 1792391087.0830963
+    }
+  ],
+  "at": 1792391095.5571673
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "case": "old_binary",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "候选解析中第3步mid=11的元素应为83而非75，83>75的判断及后续第4次比较均错误",
+      "按候选题给定序列和mid规则，查找83只需3次比较，正确选项应为A，候选答案B错误",
+      "候选答案与独立求解结果不一致，且解析存在明显元素取值和比较过程错误"
+    ],
+    "seconds": 5.14
+  },
+  {
+    "case": "old_tree",
+    "expected_accept": false,
+    "accepted": true,
+    "issues": [],
+    "seconds": 13.43
+  },
+  {
+    "case": "new_arithmetic",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_solution_unverified",
+      "Independent solver did not establish a well-posed answer"
+    ],
+    "seconds": 2.63
+  },
+  {
+    "case": "old_partition",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_solution_unverified",
+      "Independent solver did not establish a well-posed answer"
+    ],
+    "seconds": 27.34
+  },
+  {
+    "case": "new_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "independent_solution_unverified",
+      "Independent solver did not establish a well-posed answer"
+    ],
+    "seconds": 9.05
+  },
+  {
+    "case": "correct_binary",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 4.27
+  },
+  {
+    "case": "correct_partition",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 7.8
+  }
+]

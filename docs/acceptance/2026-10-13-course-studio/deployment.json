@@ -1,0 +1,14 @@
+{
+  "source_snapshot": "/tmp/edu-course-studio/source/frontend",
+  "published_at": "20261013T200935Z",
+  "uncommitted_source_changes": true,
+  "task": "course-studio-and-top-level-resources",
+  "backend_status": "source implemented; service restart requires administrator authentication",
+  "previous_index_sha256": "cc7f569a54a832a762be243d3bb30067193bac467bf27e46e4e07fc830be0899",
+  "backup": "/tmp/edu-course-studio/dist-backup-20261013T200935Z",
+  "http_verified": true,
+  "assets": [
+    "/assets/index-UTFfepc0.js",
+    "/assets/index-8vDhdg1F.css"
+  ]
+}

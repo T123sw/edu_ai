@@ -1,0 +1,1683 @@
+{
+  "ok": false,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 22,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/02-recall.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/02-recall.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/03-scramble-demo.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/03-scramble-demo.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f04-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/04-permutation.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f04-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/04-permutation.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f05-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/05-rnn-vs-parallel.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f05-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/05-rnn-vs-parallel.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f06-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/06-conclusion.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f06-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/06-conclusion.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f07-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/07-word-embedding.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f07-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/07-word-embedding.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f08-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/08-elementwise-add.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f08-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/08-elementwise-add.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f09-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/09-sinusoidal.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f09-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/09-sinusoidal.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f10-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/10-learned-or-fixed.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f10-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/10-learned-or-fixed.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f11-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/11-summary.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f11-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/compositions/frames/11-summary.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      }
+    ],
+    "filesScanned": 12
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": false,
+    "errorCount": 5,
+    "warningCount": 0,
+    "infoCount": 23,
+    "findings": [
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 81.136,
+        "selector": "#f04-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1042.7,
+          "top": 809.85,
+          "right": 1945.75,
+          "bottom": 1272.85,
+          "width": 903.05,
+          "height": 463
+        },
+        "text": "PERM",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/04-permutation.html",
+        "bbox": {
+          "x": 1042.7,
+          "y": 809.85,
+          "width": 903.05,
+          "height": 463
+        },
+        "firstSeen": 81.136,
+        "lastSeen": 81.136,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          81.136
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 113.591,
+        "selector": "#f05-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1305.59,
+          "top": 805.8,
+          "right": 1945.59,
+          "bottom": 1268.8,
+          "width": 640,
+          "height": 463
+        },
+        "text": "顺序",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/05-rnn-vs-parallel.html",
+        "bbox": {
+          "x": 1305.59,
+          "y": 805.8,
+          "width": 640,
+          "height": 463
+        },
+        "firstSeen": 113.591,
+        "lastSeen": 113.591,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          113.591
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 146.045,
+        "selector": "#f06-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1252.16,
+          "top": 799.41,
+          "right": 1928,
+          "bottom": 1262.41,
+          "width": 675.84,
+          "height": 463
+        },
+        "text": "POS",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/06-conclusion.html",
+        "bbox": {
+          "x": 1252.16,
+          "y": 799.41,
+          "width": 675.84,
+          "height": 463
+        },
+        "firstSeen": 146.045,
+        "lastSeen": 146.045,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          146.045
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 178.499,
+        "selector": "#f08-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1282.59,
+          "top": 764.18,
+          "right": 1900,
+          "bottom": 1198.18,
+          "width": 617.41,
+          "height": 434
+        },
+        "text": "ADD",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/08-elementwise-add.html",
+        "bbox": {
+          "x": 1282.59,
+          "y": 764.18,
+          "width": 617.41,
+          "height": 434
+        },
+        "firstSeen": 178.499,
+        "lastSeen": 178.499,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          178.499
+        ]
+      },
+      {
+        "code": "text_not_painted",
+        "severity": "error",
+        "time": 210.954,
+        "selector": "#f09-ghost",
+        "message": "Text paints with an effectively transparent fill (-webkit-text-fill-color / color), so its glyphs are invisible.",
+        "rect": {
+          "left": 1467.3,
+          "top": 760.85,
+          "right": 1896,
+          "bottom": 1194.85,
+          "width": 428.7,
+          "height": 434
+        },
+        "text": "sin",
+        "fixHint": "Set an explicit, opaque `color` on the text — and an explicit `-webkit-text-fill-color` if an ancestor makes the fill transparent. If the transparency is intentional gradient text, add `background-clip: text`.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/09-sinusoidal.html",
+        "bbox": {
+          "x": 1467.3,
+          "y": 760.85,
+          "width": 428.7,
+          "height": 434
+        },
+        "firstSeen": 210.954,
+        "lastSeen": 210.954,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          210.954
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 16.227,
+        "selector": "#f01-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 1308.39,
+          "top": 545.58,
+          "right": 1960,
+          "bottom": 845.58,
+          "width": 651.61,
+          "height": 300
+        },
+        "containerSelector": "#scene-01 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "text": "POS",
+        "fixHint": "Text is 652px x 300px inside 1920px x 1080px and overflows by up to 40px; widen the container to at least ~1960px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 40
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 1308.39,
+          "y": 545.58,
+          "width": 651.61,
+          "height": 300
+        },
+        "firstSeen": 16.227,
+        "lastSeen": 16.227,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          16.227
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 16.227,
+        "selector": "#f01-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 1308.39,
+          "top": 478.58,
+          "right": 1960,
+          "bottom": 912.58,
+          "width": 651.61,
+          "height": 434
+        },
+        "containerSelector": "#root",
+        "text": "POS",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 40
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 1308.39,
+          "y": 478.58,
+          "width": 651.61,
+          "height": 434
+        },
+        "firstSeen": 16.227,
+        "lastSeen": 16.227,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          16.227
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 16.227,
+        "selector": "div.f01-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 920,
+          "top": -340,
+          "right": 2160,
+          "bottom": 580,
+          "width": 1240,
+          "height": 920
+        },
+        "containerSelector": "#scene-01 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 240,
+          "top": 340
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 920,
+          "y": -340,
+          "width": 1240,
+          "height": 920
+        },
+        "firstSeen": 16.227,
+        "lastSeen": 16.227,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          16.227
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 16.318,
+        "selector": "#f01-bnum-1",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 292.02,
+          "top": 510,
+          "right": 307.98,
+          "bottom": 550,
+          "width": 15.96,
+          "height": 40
+        },
+        "containerSelector": "#f01-bq-1",
+        "text": "1",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/01-opening.html",
+        "bbox": {
+          "x": 292.02,
+          "y": 510,
+          "width": 15.96,
+          "height": 40
+        },
+        "firstSeen": 16.318,
+        "lastSeen": 16.318,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          16.318
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 48.682,
+        "selector": "#f03-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 1336,
+          "top": 525.51,
+          "right": 1960,
+          "bottom": 825.51,
+          "width": 624,
+          "height": 300
+        },
+        "containerSelector": "#scene-03 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "text": "顺序",
+        "fixHint": "Text is 624px x 300px inside 1920px x 1080px and overflows by up to 40px; widen the container to at least ~1960px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 40
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/03-scramble-demo.html",
+        "bbox": {
+          "x": 1336,
+          "y": 525.51,
+          "width": 624,
+          "height": 300
+        },
+        "firstSeen": 48.682,
+        "lastSeen": 48.682,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          48.682
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 48.682,
+        "selector": "#f03-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 1336,
+          "top": 458.51,
+          "right": 1960,
+          "bottom": 892.51,
+          "width": 624,
+          "height": 434
+        },
+        "containerSelector": "#root",
+        "text": "顺序",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 40
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/03-scramble-demo.html",
+        "bbox": {
+          "x": 1336,
+          "y": 458.51,
+          "width": 624,
+          "height": 434
+        },
+        "firstSeen": 48.682,
+        "lastSeen": 48.682,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          48.682
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 48.682,
+        "selector": "div.f03-glow",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 920,
+          "top": -340,
+          "right": 2160,
+          "bottom": 580,
+          "width": 1240,
+          "height": 920
+        },
+        "containerSelector": "#scene-03 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 240,
+          "top": 340
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/03-scramble-demo.html",
+        "bbox": {
+          "x": 920,
+          "y": -340,
+          "width": 1240,
+          "height": 920
+        },
+        "firstSeen": 48.682,
+        "lastSeen": 48.682,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          48.682
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 81.136,
+        "selector": "#f04-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 1042.7,
+          "top": 916.55,
+          "right": 1945.75,
+          "bottom": 1166.15,
+          "width": 903.05,
+          "height": 249.6
+        },
+        "containerSelector": "#scene-04 > div:nth-of-type(1)",
+        "text": "PERM",
+        "fixHint": "Text is 903px x 250px inside 1920px x 1080px and overflows by up to 86px; resize the container to at least ~1946px x 1166px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 25.75,
+          "bottom": 86.15
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/04-permutation.html",
+        "bbox": {
+          "x": 1042.7,
+          "y": 916.55,
+          "width": 903.05,
+          "height": 249.6
+        },
+        "firstSeen": 81.136,
+        "lastSeen": 81.136,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          81.136
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 81.136,
+        "selector": "#f04-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 1042.7,
+          "top": 809.85,
+          "right": 1945.75,
+          "bottom": 1272.85,
+          "width": 903.05,
+          "height": 463
+        },
+        "containerSelector": "#root",
+        "text": "PERM",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 25.75,
+          "bottom": 192.85
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/04-permutation.html",
+        "bbox": {
+          "x": 1042.7,
+          "y": 809.85,
+          "width": 903.05,
+          "height": 463
+        },
+        "firstSeen": 81.136,
+        "lastSeen": 81.136,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          81.136
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 113.591,
+        "selector": "#f05-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 1305.59,
+          "top": 912.5,
+          "right": 1945.59,
+          "bottom": 1162.1,
+          "width": 640,
+          "height": 249.6
+        },
+        "containerSelector": "#scene-05 > div:nth-of-type(1)",
+        "text": "顺序",
+        "fixHint": "Text is 640px x 250px inside 1920px x 1080px and overflows by up to 82px; resize the container to at least ~1946px x 1162px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 25.59,
+          "bottom": 82.1
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/05-rnn-vs-parallel.html",
+        "bbox": {
+          "x": 1305.59,
+          "y": 912.5,
+          "width": 640,
+          "height": 249.6
+        },
+        "firstSeen": 113.591,
+        "lastSeen": 113.591,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          113.591
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 113.591,
+        "selector": "#f05-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 1305.59,
+          "top": 805.8,
+          "right": 1945.59,
+          "bottom": 1268.8,
+          "width": 640,
+          "height": 463
+        },
+        "containerSelector": "#root",
+        "text": "顺序",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 25.59,
+          "bottom": 188.8
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/05-rnn-vs-parallel.html",
+        "bbox": {
+          "x": 1305.59,
+          "y": 805.8,
+          "width": 640,
+          "height": 463
+        },
+        "firstSeen": 113.591,
+        "lastSeen": 113.591,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          113.591
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 146.045,
+        "selector": "#f06-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 1252.16,
+          "top": 906.11,
+          "right": 1928,
+          "bottom": 1155.71,
+          "width": 675.84,
+          "height": 249.6
+        },
+        "containerSelector": "#scene-06 > div:nth-of-type(1)",
+        "text": "POS",
+        "fixHint": "Text is 676px x 250px inside 1920px x 1080px and overflows by up to 76px; resize the container to at least ~1928px x 1156px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 8,
+          "bottom": 75.71
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/06-conclusion.html",
+        "bbox": {
+          "x": 1252.16,
+          "y": 906.11,
+          "width": 675.84,
+          "height": 249.6
+        },
+        "firstSeen": 146.045,
+        "lastSeen": 146.045,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          146.045
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 146.045,
+        "selector": "#f06-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 1252.16,
+          "top": 799.41,
+          "right": 1928,
+          "bottom": 1262.41,
+          "width": 675.84,
+          "height": 463
+        },
+        "containerSelector": "#root",
+        "text": "POS",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 8,
+          "bottom": 182.41
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/06-conclusion.html",
+        "bbox": {
+          "x": 1252.16,
+          "y": 799.41,
+          "width": 675.84,
+          "height": 463
+        },
+        "firstSeen": 146.045,
+        "lastSeen": 146.045,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          146.045
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 178.499,
+        "selector": "#f08-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 1282.59,
+          "top": 858.18,
+          "right": 1900,
+          "bottom": 1104.18,
+          "width": 617.41,
+          "height": 246
+        },
+        "containerSelector": "#scene-08 > div:nth-of-type(1)",
+        "text": "ADD",
+        "fixHint": "Text is 617px x 246px inside 1920px x 1080px and overflows by up to 24px; increase the container height to at least ~1104px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "bottom": 24.18
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/08-elementwise-add.html",
+        "bbox": {
+          "x": 1282.59,
+          "y": 858.18,
+          "width": 617.41,
+          "height": 246
+        },
+        "firstSeen": 178.499,
+        "lastSeen": 178.499,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          178.499
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 178.499,
+        "selector": "#f08-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 1282.59,
+          "top": 764.18,
+          "right": 1900,
+          "bottom": 1198.18,
+          "width": 617.41,
+          "height": 434
+        },
+        "containerSelector": "#root",
+        "text": "ADD",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "bottom": 118.18
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/08-elementwise-add.html",
+        "bbox": {
+          "x": 1282.59,
+          "y": 764.18,
+          "width": 617.41,
+          "height": 434
+        },
+        "firstSeen": 178.499,
+        "lastSeen": 178.499,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          178.499
+        ]
+      },
+      {
+        "code": "text_box_overflow",
+        "severity": "info",
+        "time": 210.954,
+        "selector": "#f09-ghost",
+        "message": "Text extends outside its nearest visual/container box.",
+        "rect": {
+          "left": 1467.3,
+          "top": 854.85,
+          "right": 1896,
+          "bottom": 1100.85,
+          "width": 428.7,
+          "height": 246
+        },
+        "containerSelector": "#scene-09 > div:nth-of-type(1)",
+        "text": "sin",
+        "fixHint": "Text is 429px x 246px inside 1920px x 1080px and overflows by up to 21px; increase the container height to at least ~1101px, or allow wrapping with max-width/fitTextFontSize.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "bottom": 20.85
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/09-sinusoidal.html",
+        "bbox": {
+          "x": 1467.3,
+          "y": 854.85,
+          "width": 428.7,
+          "height": 246
+        },
+        "firstSeen": 210.954,
+        "lastSeen": 210.954,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          210.954
+        ]
+      },
+      {
+        "code": "canvas_overflow",
+        "severity": "info",
+        "time": 210.954,
+        "selector": "#f09-ghost",
+        "message": "Text extends outside the composition canvas.",
+        "rect": {
+          "left": 1467.3,
+          "top": 760.85,
+          "right": 1896,
+          "bottom": 1194.85,
+          "width": 428.7,
+          "height": 434
+        },
+        "containerSelector": "#root",
+        "text": "sin",
+        "fixHint": "Move the text inward, reduce its size, or mark intentional off-canvas animation with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "bottom": 114.85
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/09-sinusoidal.html",
+        "bbox": {
+          "x": 1467.3,
+          "y": 760.85,
+          "width": 428.7,
+          "height": 434
+        },
+        "firstSeen": 210.954,
+        "lastSeen": 210.954,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          210.954
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 210.954,
+        "selector": "#f09-plotsvg",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 161,
+          "top": 433.38,
+          "right": 921,
+          "bottom": 769.38,
+          "width": 760,
+          "height": 336
+        },
+        "containerSelector": "#f09-plot",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 160,
+          "top": 430,
+          "right": 920,
+          "bottom": 766,
+          "width": 760,
+          "height": 336
+        },
+        "overflow": {
+          "bottom": 3.38
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/09-sinusoidal.html",
+        "bbox": {
+          "x": 161,
+          "y": 433.38,
+          "width": 760,
+          "height": 336
+        },
+        "firstSeen": 210.954,
+        "lastSeen": 210.954,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          210.954
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 243.408,
+        "selector": "#f10-glow-a",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -162.3,
+          "top": -205.46,
+          "right": 922.3,
+          "bottom": 685.46,
+          "width": 1084.61,
+          "height": 890.93
+        },
+        "containerSelector": "#scene-10 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 162.3,
+          "top": 205.46
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/10-learned-or-fixed.html",
+        "bbox": {
+          "x": -162.3,
+          "y": -205.46,
+          "width": 1084.61,
+          "height": 890.93
+        },
+        "firstSeen": 243.408,
+        "lastSeen": 243.408,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          243.408
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 243.408,
+        "selector": "#f10-glow-b",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 916.21,
+          "top": 249.78,
+          "right": 2083.79,
+          "bottom": 1210.22,
+          "width": 1167.58,
+          "height": 960.43
+        },
+        "containerSelector": "#scene-10 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 163.79,
+          "bottom": 130.22
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/10-learned-or-fixed.html",
+        "bbox": {
+          "x": 916.21,
+          "y": 249.78,
+          "width": 1167.58,
+          "height": 960.43
+        },
+        "firstSeen": 243.408,
+        "lastSeen": 243.408,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          243.408
+        ]
+      },
+      {
+        "code": "escaped_container",
+        "severity": "info",
+        "time": 243.408,
+        "selector": "#f10-qmark",
+        "message": "Positioned element renders far outside its offset parent — its coordinates were likely computed in a different frame (canvas/viewport pixels).",
+        "rect": {
+          "left": 1170,
+          "top": 144,
+          "right": 1243.52,
+          "bottom": 284,
+          "width": 73.52,
+          "height": 140
+        },
+        "containerSelector": "div.f10-q",
+        "text": "?",
+        "fixHint": "Compute left/top in the offset parent's frame (subtract its rect), or mark intentional placement with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 120,
+          "top": 138,
+          "right": 968.41,
+          "bottom": 312.72,
+          "width": 848.41,
+          "height": 174.72
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/10-learned-or-fixed.html",
+        "bbox": {
+          "x": 1170,
+          "y": 144,
+          "width": 73.52,
+          "height": 140
+        },
+        "firstSeen": 243.408,
+        "lastSeen": 243.408,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          243.408
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 275.863,
+        "selector": "#f11-glow-a",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": -177.42,
+          "top": -217.88,
+          "right": 937.42,
+          "bottom": 697.88,
+          "width": 1114.85,
+          "height": 915.77
+        },
+        "containerSelector": "#scene-11 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "left": 177.42,
+          "top": 217.88
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/11-summary.html",
+        "bbox": {
+          "x": -177.42,
+          "y": -217.88,
+          "width": 1114.85,
+          "height": 915.77
+        },
+        "firstSeen": 275.863,
+        "lastSeen": 275.863,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          275.863
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 275.863,
+        "selector": "#f11-glow-b",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 911.68,
+          "top": 246.06,
+          "right": 2088.32,
+          "bottom": 1213.94,
+          "width": 1176.64,
+          "height": 967.88
+        },
+        "containerSelector": "#scene-11 > div:nth-of-type(1) > div:nth-of-type(1)",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 168.32,
+          "bottom": 133.94
+        },
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/11-summary.html",
+        "bbox": {
+          "x": 911.68,
+          "y": 246.06,
+          "width": 1176.64,
+          "height": 967.88
+        },
+        "firstSeen": 275.863,
+        "lastSeen": 275.863,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          275.863
+        ]
+      }
+    ],
+    "duration": 292.09,
+    "samples": [
+      16.227,
+      48.682,
+      81.136,
+      113.591,
+      146.045,
+      178.499,
+      210.954,
+      243.408,
+      275.863
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 28,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 3,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.08:1; WCAG AA requires 3:1.",
+        "text": "PERM",
+        "fg": "rgb(20,33,50)",
+        "bg": "rgb(13,26,43)",
+        "ratio": 1.08,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(93,102,114)",
+        "large": true,
+        "selector": "#f04-ghost",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/04-permutation.html",
+        "bbox": {
+          "x": 1042.7015380859375,
+          "y": 916.8474731445312,
+          "width": 903.046875,
+          "height": 249.59368896484375
+        },
+        "time": 81.136,
+        "times": [
+          81.136
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.08:1; WCAG AA requires 3:1.",
+        "text": "POS",
+        "fg": "rgb(21,35,52)",
+        "bg": "rgb(14,28,45)",
+        "ratio": 1.08,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(94,104,116)",
+        "large": true,
+        "selector": "#f06-ghost",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/06-conclusion.html",
+        "bbox": {
+          "x": 1252.15625,
+          "y": 906.40625,
+          "width": 675.84375,
+          "height": 249.59375
+        },
+        "time": 146.045,
+        "times": [
+          146.045
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 1.07:1; WCAG AA requires 3:1.",
+        "text": "sin",
+        "fg": "rgb(19,26,42)",
+        "bg": "rgb(12,19,35)",
+        "ratio": 1.07,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(93,98,109)",
+        "large": true,
+        "selector": "#f09-ghost",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/09-sinusoidal.html",
+        "bbox": {
+          "x": 1467.296875,
+          "y": 854.8499755859375,
+          "width": 428.703125,
+          "height": 246
+        },
+        "time": 210.954,
+        "times": [
+          210.954
+        ]
+      }
+    ],
+    "enabled": true,
+    "samples": [
+      16.227,
+      81.136,
+      146.045,
+      210.954,
+      275.863
+    ],
+    "checked": 73,
+    "passed": 70
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "saved": {
+    "id": "28cdff2d-7262-4a6c-87a8-58df87d40be9",
+    "revision": "d75b06a3-ab07-406c-b8ce-7025ec34a9a0",
+    "report": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/.hyperframes/artifacts/checks/28cdff2d-7262-4a6c-87a8-58df87d40be9.json",
+    "attribution": "recorded-revision"
+  },
+  "_meta": {
+    "version": "0.8.168",
+    "updateAvailable": false
+  }
+}

@@ -1,0 +1,104 @@
+[
+  {
+    "name": "quiz",
+    "generationFailed": true,
+    "issues": [
+      "参考实现未通过累计检查（先核对需求、本步检查和代码；本步验收可修复，前序检查保留）: [{\"caseId\": \"submit-disabled-without-selection\", \"status\": \"failed\", \"message\": \"× 1. 检查 \\\"submit\\\" 的可操作状态\\n预期：true\\n实际：false\"}, {\"caseId\": \"locked-after-submit\", \"status\": \"failed\", \"message\": \"✓ 1. 点击 第 1 个 \\\"option\\\"\\n✓ 2. 点击 \\\"submit\\\"\\n✓ 3. 检查 \\\"feedback\\\" 的显示文字\\n   实际：\\\"回答错误\\\"\\n✓ 4. 检查 \\\"correct-answer\\\" 的显示文字\\n   实际：\\\"正确答案：5\\\"\\n✓ 5. 点击 第 2 个 \\\"option\\\"\\n✓ 6. 检查 第 1 个 \\\"option\\\" 的显示文字\\n   实际：\\\"4\\\"\\n✓ 7. 检查 第 2 个 \\\"option\\\" 的显示文字\\n   实际：\\\"5\\\"\\n× 8. 检查 \\\"submit\\\" 的可操作状态\\n预期：true\\n实际：false\"}]"
+    ],
+    "independentCurrentStepPassed": true,
+    "scenarios": [
+      "未选择时提交按钮禁用",
+      "错误答案反馈及提交后禁止重复提交",
+      "提交后选项锁定"
+    ],
+    "directCumulativeBrowserReport": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "first-question-shown",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"progress\" 的显示文字\n   实际：\"第 1 题 / 共 3 题\"\n✓ 2. 检查 \"question\" 的显示文字\n   实际：\"2+3 等于多少？\"\n✓ 3. 检查 第 1 个 \"option\" 的显示文字\n   实际：\"4\"\n✓ 4. 检查 第 2 个 \"option\" 的显示文字\n   实际：\"5\"\n✓ 5. 检查 第 3 个 \"option\" 的显示文字\n   实际：\"6\"\n✓ 6. 检查 第 1 个 \"option\" 的可见状态\n   实际：true\n✓ 7. 检查 第 2 个 \"option\" 的可见状态\n   实际：true\n✓ 8. 检查 第 3 个 \"option\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "option-selectable",
+          "status": "passed",
+          "message": "✓ 1. 点击 第 2 个 \"option\"\n✓ 2. 检查 第 2 个 \"option\" 的显示文字\n   实际：\"5\"\n✓ 3. 检查 \"5\" 的可见状态\n   实际：true\n✓ 4. 点击 第 1 个 \"option\"\n✓ 5. 检查 第 1 个 \"option\" 的显示文字\n   实际：\"4\"\n✓ 6. 检查 \"4\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "submit-disabled-without-selection",
+          "status": "failed",
+          "message": "× 1. 检查 \"submit\" 的可操作状态\n预期：true\n实际：false"
+        },
+        {
+          "caseId": "submit-shows-feedback",
+          "status": "passed",
+          "message": "✓ 1. 点击 第 2 个 \"option\"\n✓ 2. 点击 \"submit\"\n✓ 3. 检查 \"feedback\" 的显示文字\n   实际：\"回答正确\"\n✓ 4. 检查 \"correct-answer\" 的显示文字\n   实际：\"正确答案：5\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "locked-after-submit",
+          "status": "failed",
+          "message": "✓ 1. 点击 第 1 个 \"option\"\n✓ 2. 点击 \"submit\"\n✓ 3. 检查 \"feedback\" 的显示文字\n   实际：\"回答错误\"\n✓ 4. 检查 \"correct-answer\" 的显示文字\n   实际：\"正确答案：5\"\n✓ 5. 点击 第 2 个 \"option\"\n✓ 6. 检查 第 1 个 \"option\" 的显示文字\n   实际：\"4\"\n✓ 7. 检查 第 2 个 \"option\" 的显示文字\n   实际：\"5\"\n× 8. 检查 \"submit\" 的可操作状态\n预期：true\n实际：false"
+        }
+      ],
+      "durationMs": 4092.422931
+    }
+  },
+  {
+    "name": "expense",
+    "generationFailed": true,
+    "issues": [
+      "reject-zero-amount 的实际断言 ['count', 'visible'] 与计划要求 ['count', 'text', 'visible'] 不一致"
+    ],
+    "independentCurrentStepPassed": true,
+    "scenarios": [
+      "空白备注拒绝",
+      "金额拒绝 \"0\"",
+      "金额拒绝 \"-5\"",
+      "金额拒绝 \"1.234\"",
+      "金额拒绝 \"abc\"",
+      "金额拒绝 \"\"",
+      "合法输入去空格并保留金额分类"
+    ],
+    "directCumulativeBrowserReport": {
+      "passed": true,
+      "results": [
+        {
+          "caseId": "add-food-record",
+          "status": "passed",
+          "message": "✓ 1. 在 \"note-input\" 输入 \"午餐\"\n✓ 2. 在 \"amount-input\" 输入 \"12.50\"\n✓ 3. 点击 \"category-select\"\n✓ 4. 在 \"category-select\" 按 \"ArrowDown\"\n✓ 5. 在 \"category-select\" 按 \"ArrowUp\"\n✓ 6. 在 \"category-select\" 按 \"Enter\"\n✓ 7. 点击 \"add-button\"\n✓ 8. 检查 \"expense-item\" 的数量\n   实际：1\n✓ 9. 检查 第 1 个 \"expense-item\" 的显示文字\n   实际：\"午餐12.50餐饮\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "add-transport-record",
+          "status": "passed",
+          "message": "✓ 1. 在 \"note-input\" 输入 \"地铁\"\n✓ 2. 在 \"amount-input\" 输入 \"3\"\n✓ 3. 点击 \"category-select\"\n✓ 4. 在 \"category-select\" 按 \"ArrowDown\"\n✓ 5. 在 \"category-select\" 按 \"ArrowDown\"\n✓ 6. 在 \"category-select\" 按 \"Enter\"\n✓ 7. 点击 \"add-button\"\n✓ 8. 检查 \"expense-item\" 的数量\n   实际：1\n✓ 9. 检查 第 1 个 \"expense-item\" 的显示文字\n   实际：\"地铁3.00交通\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reject-blank-note",
+          "status": "passed",
+          "message": "✓ 1. 在 \"note-input\" 输入 \"   \"\n✓ 2. 在 \"amount-input\" 输入 \"10\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 检查 \"expense-item\" 的数量\n   实际：0\n✓ 5. 检查 \"error-message\" 的可见状态\n   实际：true\n✓ 6. 在 \"note-input\" 输入 \"午餐\"\n✓ 7. 在 \"amount-input\" 输入 \"12.50\"\n✓ 8. 点击 \"add-button\"\n✓ 9. 检查 \"expense-item\" 的数量\n   实际：1\n✓ 10. 检查 第 1 个 \"expense-item\" 的显示文字\n   实际：\"午餐12.50餐饮\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reject-zero-amount",
+          "status": "passed",
+          "message": "✓ 1. 在 \"note-input\" 输入 \"测试\"\n✓ 2. 在 \"amount-input\" 输入 \"0\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 检查 \"expense-item\" 的数量\n   实际：0\n✓ 5. 检查 \"error-message\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reject-negative-amount",
+          "status": "passed",
+          "message": "✓ 1. 在 \"note-input\" 输入 \"测试\"\n✓ 2. 在 \"amount-input\" 输入 \"-5\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 检查 \"expense-item\" 的数量\n   实际：0\n✓ 5. 检查 \"error-message\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reject-three-decimals",
+          "status": "passed",
+          "message": "✓ 1. 在 \"note-input\" 输入 \"测试\"\n✓ 2. 在 \"amount-input\" 输入 \"1.234\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 检查 \"expense-item\" 的数量\n   实际：0\n✓ 5. 检查 \"error-message\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reject-non-numeric-amount",
+          "status": "passed",
+          "message": "✓ 1. 在 \"note-input\" 输入 \"测试\"\n✓ 2. 在 \"amount-input\" 输入 \"abc\"\n✓ 3. 点击 \"add-button\"\n✓ 4. 检查 \"expense-item\" 的数量\n   实际：0\n✓ 5. 检查 \"error-message\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 2440.8353749999997
+    }
+  }
+]

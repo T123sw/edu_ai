@@ -1,0 +1,45 @@
+{
+  "depth": "introductory",
+  "topic": "Transformer 架构",
+  "audience": "希望系统学习 Transformer 架构的学习者（具体背景未知）",
+  "language": "zh",
+  "exclusions": [],
+  "node_count": null,
+  "assumptions": [
+    "用户未指定课程总时长，采用默认 60 分钟",
+    "用户未指定材料语言，按提问语言推断为中文",
+    "用户未说明已有基础，按入门深度组织内容",
+    "用户未说明具体用途（如 NLP 应用、模型微调或研究），按通用架构原理理解组织内容"
+  ],
+  "requirements": [
+    {
+      "text": "讲授 Transformer 的核心概念与架构原理，使学习者理解其工作机制",
+      "source_ref": null,
+      "source_quote": "我想学习transformer",
+      "requirement_id": "req-goal-transformer",
+      "source_document_id": null
+    }
+  ],
+  "learning_goal": "系统学习 Transformer 架构的基本原理与结构，理解其核心机制与工作方式。",
+  "material_gaps": [
+    "用户未上传任何资料，Transformer 的架构细节、注意力计算、位置编码等知识需由研究阶段从公开来源补充"
+  ],
+  "source_policy": {
+    "mode": "open"
+  },
+  "total_minutes": 60,
+  "prior_knowledge": "未知",
+  "desired_outcomes": [
+    "能说明 Transformer 的整体结构与数据流",
+    "能解释自注意力机制的计算过程与作用",
+    "能区分编码器与解码器各子层（多头注意力、前馈网络、残差与归一化）的职责",
+    "能说明位置编码的必要性及 Transformer 相对循环网络的优势"
+  ],
+  "node_count_quote": null,
+  "source_policy_quote": null,
+  "required_resource_types": [
+    "report",
+    "quiz",
+    "classroom"
+  ]
+}

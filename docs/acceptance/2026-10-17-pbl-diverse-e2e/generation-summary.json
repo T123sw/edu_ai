@@ -1,0 +1,84 @@
+[
+  {
+    "case": "kanban",
+    "topic": "用 React 做本地任务看板，分待办、进行中、已完成三列。添加任务时标题去首尾空格，空白不能添加；每项可以用按钮前进或后退一个状态，首列无后退、末列无前进。可以删除任务。每列显示数量，总任务数不随移动变化。两条同名任务应能独立移动和删除。无需拖拽、后端或保存到服务器。拆成合理增量步骤。",
+    "exerciseId": "pbl_dca0a6ad32bd81416b04f7670b37d7ff",
+    "generationPassed": false,
+    "seconds": 330.15,
+    "idempotentCreate": true
+  },
+  {
+    "case": "quiz",
+    "topic": "用 React 做三道固定题的单选小测验。题目分别为 2+3 等于多少（选项4/5/6，正确5）、水的化学式（H2O/CO2/O2，正确H2O）、一周几天（5/6/7，正确7）。每次只显示一题和进度；没选答案不能提交；提交后显示对错和正确答案，本题不能再改选或重复计分；点击下一题进入下一题，第三题提交后显示总分（满分3）。重新开始后分数、进度、选项和反馈全部恢复初始。完全本地，无额外依赖，分步实现。",
+    "exerciseId": "pbl_6aab2d566ee5e9790a6cd68265f56725",
+    "generationPassed": false,
+    "seconds": 97.5,
+    "idempotentCreate": true
+  },
+  {
+    "case": "expense",
+    "topic": "用 React 做本地记账表。输入备注、金额，选择餐饮或交通分类，添加一条支出。备注去首尾空格不能空白；金额必须是大于0且最多两位小数的数字，0、负数和超过两位小数要拒绝。列表能删除记录，按全部/餐饮/交通筛选。显示总支出和当前筛选支出，均保留两位小数；总支出不受筛选影响。0.10加0.20必须显示0.30。添加成功后清空备注金额，保留所选分类。无后台无持久化，分步实现。",
+    "exerciseId": "pbl_f3c094e57cdce84206c49b4c1d01bc34",
+    "generationPassed": false,
+    "seconds": 100.01,
+    "idempotentCreate": true
+  },
+  {
+    "case": "csv",
+    "topic": "用 React 做本地成绩文本分析器。多行输入，每个非空行格式为 姓名,分数；不含引号或姓名内逗号。姓名去首尾空格不能空；分数必须为0到100的数字。点分析后显示有效行表格和有效人数、平均分（两位小数）、最高分；无有效记录时人数0、平均分和最高分显示—。无效行显示原始行号和原因，但不妨碍其他有效行统计。允许重复姓名。再次分析替换旧结果，清空按钮清除输入与所有结果。仅页面处理，不上传文件，不联网，分步实现。",
+    "exerciseId": "pbl_8c2f998b556807e9dfec062461c2ff34",
+    "generationPassed": true,
+    "seconds": 191.37,
+    "idempotentCreate": true,
+    "stepCount": 3,
+    "checkCount": 7
+  },
+  {
+    "case": "seats",
+    "topic": "用 React 做本地选座练习：2行3列，座位A1/A2/A3/B1/B2/B3，A2已售不可选。点击空位可选、再次点击取消；最多同时选择3个，第4个保持未选并提示最多3个。每个座位20元，显示已选数量与总价。确认按钮在未选择时不可用；确认后所选座位变成已售、选择清空、总价归零，并显示订单座位与金额。重置恢复仅A2已售、清空订单和提示。不需要真实支付或后端，分步实现。",
+    "exerciseId": "pbl_69a25b53ff47a759c544c731c1a95798",
+    "generationPassed": false,
+    "seconds": 295.42,
+    "idempotentCreate": true
+  },
+  {
+    "case": "wizard",
+    "topic": "用 React 做一个本地两步报名向导。第1步填写姓名和年龄：姓名去空格后非空，年龄必须是18到60的整数，通过后才能下一步。第2步选择线上或线下并勾选同意条款，点击提交后显示姓名、年龄和参加方式。第2步可返回第1步，已填内容保留；成功后点击重新填写，所有字段和错误恢复空白初始状态。拒绝18.5、17、61和空年龄。只做本地状态，不联网，分步实现。",
+    "exerciseId": "pbl_31f2c52574f0691cacd3ea723c5adb70",
+    "generationPassed": false,
+    "seconds": 230.42,
+    "idempotentCreate": true
+  },
+  {
+    "case": "fastapi",
+    "topic": "做一个 Python FastAPI 待办事项 REST API 后端，不要前端或浏览器模拟。SQLite存储；POST /todos 创建，GET /todos 列表，PATCH /todos/{id} 修改完成状态，DELETE /todos/{id} 删除；空标题422、不存在的ID404、创建返回201。要求真实启动HTTP服务，并使用HTTP请求验收，服务重启后数据保留。",
+    "exerciseId": "pbl_a85741d5655741081d3e9bf40ce9cff9",
+    "generationPassed": false,
+    "seconds": 210.93,
+    "idempotentCreate": true
+  },
+  {
+    "case": "express",
+    "topic": "用 Node.js Express 做商品库存 API 后端，不需要前端。GET /products，POST /products，POST /products/:id/stock 调整库存；不能出现负库存，未知商品404，非法数量400。用JSON文件持久化，实际启动服务并用HTTP调用验收，不要改成React页面或模拟接口。",
+    "exerciseId": "pbl_3e260748972848ea77596be30deb8b5a",
+    "generationPassed": false,
+    "seconds": 250.81,
+    "idempotentCreate": true
+  },
+  {
+    "case": "cli",
+    "topic": "做一个 Python 命令行CSV销售统计工具，不要网页。通过 python sales.py input.csv --output result.json 读取商品,数量,单价，计算总销售额与各商品销售额；用Decimal保留两位小数，非法行输出行号到stderr并以非零码退出。要有真实文件读写、命令行参数、退出码和临时目录验收。",
+    "exerciseId": "pbl_4e951c84ad3e39e20b5498b66753b89f",
+    "generationPassed": false,
+    "seconds": 266.02,
+    "idempotentCreate": true
+  },
+  {
+    "case": "fullstack",
+    "topic": "做一个全栈留言板，React前端配Python FastAPI后端和SQLite数据库。前端通过真实GET/POST /messages请求读取新增留言；刷新页面和后端重启后留言还存在。后端验证空内容并返回422。我要同时编写前后端代码、启动服务并做端到端验收，不接受本地数组或localStorage代替后端。",
+    "exerciseId": "pbl_d88389ced28a15707105b64ef3baa801",
+    "generationPassed": false,
+    "seconds": 236.65,
+    "idempotentCreate": true
+  }
+]

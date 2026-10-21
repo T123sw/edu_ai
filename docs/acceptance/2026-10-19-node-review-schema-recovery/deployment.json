@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-19T16:52:34.473603+00:00",
+  "status": "online_verified",
+  "source_files": {
+    "backend/src/app/course_preparation/harness_adapter.py": {
+      "sha256": "8c8b487849b5aa71a3d6bf7da050fea97a1a8ee42a684783be3ab99c7386b447",
+      "mtime": 1792426692.1826515
+    },
+    "backend/src/app/course_preparation/harness_provider.py": {
+      "sha256": "057a0a16deaa45fbfd89548e36b3bf20c1035a1503412431215ac5d8284e83aa",
+      "mtime": 1792426692.1826515
+    }
+  },
+  "services": {
+    "edu-ai-backend.service": {
+      "MainPID": "2747087",
+      "ExecMainStartTimestamp": "Mon 2026-10-19 16:50:39 UTC",
+      "ActiveState": "active",
+      "configuration": {
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "DURABLE_JOB_LIGHT_WORKERS": "2",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+      },
+      "cwd": "/home/zxqs_ep/Edu_AI/backend/src"
+    },
+    "edu-ai-durable-workers.service": {
+      "MainPID": "2747473",
+      "ExecMainStartTimestamp": "Mon 2026-10-19 16:51:16 UTC",
+      "ActiveState": "active",
+      "configuration": {
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "DURABLE_JOB_LIGHT_WORKERS": "2",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+      },
+      "cwd": "/home/zxqs_ep/Edu_AI/backend/src"
+    }
+  },
+  "health_http_status": 200,
+  "backend_restart_by": "user",
+  "supplemental_restart_by": "assistant_after_empty_queue",
+  "source_loading_evidence": "Both processes restarted after patched files were written; source paths and hashes verified.",
+  "resumed_preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda",
+  "attempt_no": 2
+}

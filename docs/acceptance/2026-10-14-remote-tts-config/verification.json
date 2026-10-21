@@ -1,0 +1,13 @@
+{
+  "model": "qwen-audio-3.1-tts-flash",
+  "voice": "longanhuan_v3.1",
+  "local_mode_preserved": true,
+  "remote_key_blank": true,
+  "env_and_example_updated": true,
+  "tests_passed": 50,
+  "real_remote_api_tested": false,
+  "real_remote_api_reason": "API key intentionally left blank",
+  "backend_restart_required": true,
+  "protocol_source": "https://help.aliyun.com/zh/model-studio/qwen-audio-tts-http-api",
+  "voice_source": "https://help.aliyun.com/zh/model-studio/qwen-audio-tts-voice-list"
+}

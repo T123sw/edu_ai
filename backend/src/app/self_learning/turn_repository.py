@@ -23,7 +23,7 @@ class TurnRepository(SessionRepository):
         return {k: getattr(row, k) for k in ('turn_id', 'session_id', 'request_id', 'owner', 'course_id', 'topic_id',
             'request', 'status', 'stage', 'token', 'lease_until', 'deadline', 'attempt', 'checkpoint', 'result', 'error_code')}
 
-    def accept(self, owner, sid, request, config_snapshot=None):
+    def accept(self, owner, sid, request, config_snapshot=None, *, topic_id=None):
         body = request.model_dump(mode='json')
         with self._write('learning-answer-queue') as db:
             session = self._owned(db, owner, sid)
@@ -35,16 +35,16 @@ class TurnRepository(SessionRepository):
             active = db.scalar(select(LearningAnswerRun).where(LearningAnswerRun.session_id == sid,
                 LearningAnswerRun.status.in_(['accepted', 'running'])))
             if active:
-                raise SessionConflict('当前知识点仍有答疑执行中，可以继续阅读或取消该轮次')
+                raise SessionConflict('当前课程仍有答疑执行中，可以继续阅读或取消该轮次')
             tid = 'answer-' + uuid4().hex
             row = LearningAnswerRun(turn_id=tid, session_id=sid, request_id=body['request_id'], owner=owner,
-                course_id=session.course_id, topic_id=session.topic_id, payload_hash=digest(body), request={**body, '_config_snapshot': config_snapshot or {}},
+                course_id=session.course_id, topic_id=topic_id or session.topic_id, payload_hash=digest(body), request={**body, '_config_snapshot': config_snapshot or {}},
                 status='accepted', stage='accepted', token='', lease_until=0, deadline=0, created_at=self.clock(), attempt=0, checkpoint={})
             db.add(row)
             # Lock the same session row as other appenders, even during mixed-worker drain.
             db.refresh(session, with_for_update=True)
             self._append(db, session, tid + ':user', 'user', body['question'], 'user_content',
-                         {'request_id': body['request_id'], 'resource_id': body['reading_context']['resource_ref']['material_id'], 'reading_context': body['reading_context']})
+                         {'topic_id': row.topic_id, 'request_id': body['request_id'], 'resource_id': body['reading_context']['resource_ref']['material_id'], 'reading_context': body['reading_context']})
             db.flush()
             return self.view(row)
 
@@ -137,7 +137,7 @@ class TurnRepository(SessionRepository):
                 session = self._owned(db, row.owner, row.session_id)
                 db.refresh(session, with_for_update=True)
                 self._append(db, session, row.turn_id + ':assistant', 'assistant', result['answer_markdown'], 'assistant_content',
-                    {'request_id': row.request_id, 'resource_id': row.request['reading_context']['resource_ref']['material_id'], 'answer_result': result})
+                    {'topic_id': row.topic_id, 'request_id': row.request_id, 'resource_id': row.request['reading_context']['resource_ref']['material_id'], 'answer_result': result})
 
     def control(self, owner, tid, operation):
         with self._write('learning-answer-queue') as db:
@@ -149,7 +149,7 @@ class TurnRepository(SessionRepository):
             elif operation == 'retry' and row.status in {'failed', 'canceled'}:
                 if db.scalar(select(LearningAnswerRun).where(LearningAnswerRun.session_id == row.session_id,
                     LearningAnswerRun.status.in_(['accepted', 'running']))):
-                    raise SessionConflict('当前知识点已有执行中的轮次')
+                    raise SessionConflict('当前课程已有执行中的轮次')
                 row.status = row.stage = 'accepted'
                 row.error_code, row.deadline, row.checkpoint = None, 0, {}
             return self.view(row)

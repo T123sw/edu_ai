@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-15",
+  "scope": "闪卡双面翻转、重新设计掌握进度、再练一次/已经掌握操作、移除闪卡导出入口",
+  "deployment": "已上线；发布前与线上各 8 项浏览器复验通过",
+  "preview": "http://127.0.0.1:5291",
+  "build": "/tmp/edu-flashcard-redesign-build",
+  "checks": {
+    "typescript": "passed: tsc -p tsconfig.self-learning.json",
+    "eslint": "0 errors; pre-existing react-refresh/only-export-components warning in FlashcardArtifactPreview.tsx",
+    "round_logic": "2 passed",
+    "browser_regression": "8 passed; four interaction cases rerun on final build: 4 passed",
+    "production_build": "passed",
+    "published_browser": "8 passed; deployed frontend with mocked business/auth APIs"
+  },
+  "browser_scope": [
+    "模拟业务 API，真实前端交互",
+    "桌面 1440px / 手机 390px",
+    "CSS 3D 翻转、正反面隔离、键盘及焦点恢复",
+    "已掌握 1/12、剩余 11、无导出/查看答案按钮",
+    "未掌握卡片重新入队、单卡重试、完成及重新开一轮",
+    "减少动态效果偏好、可访问描述、资料来源配置"
+  ],
+  "notes": [
+    "开发服务首次检查被测试的 **/api/** 模拟规则误拦截前端 API 模块，改用正式构建验证。",
+    "减少动态效果检查显式设置页面媒体偏好后通过，完整 8 项复验通过。",
+    "历史 tests/frontend/studioPanel.flashcard.test.ts 引用已不存在的 FlashcardEntryModal.tsx，无法运行；未改动该历史测试。",
+    "工作区包含既有未提交修改，本轮未提交或发布其他功能。"
+  ],
+  "files": {
+    "frontend/src/components/flashcards/FlashcardRound.tsx": "884a7d07a79cc0e51d517126d581a54acf58874881494f85318e31706e3e158e",
+    "frontend/src/components/flashcards/flashcards.css": "08cd40c7a60bc7aa56a9f84e007607e8a18189721674d955b54c5729571a1eff",
+    "frontend/src/components/teacher/FlashcardArtifactPreview.tsx": "c904a1f17eb935ffd40454855f7ac0d8dc6a0db8ecd7e6f8ed3217de5518d2f3",
+    "frontend/src/stitch/pages/CourseMaterialArtifactPreview.tsx": "ed795c51e9771c148375294045e8a5aaaf77e9425c16a3bcb26a430818e7529f",
+    "frontend/tests/live-learning/learning-tools.spec.ts": "8b1bda07795020224b96a764655e1cbf6bac1d02d27a53b41261a7dbdeb4796b",
+    "frontend/tests/live-learning/resource-config.spec.ts": "95b02e9ef1eb9fd9fa8879944eccabd08e71b5ab25984be3c34d90d30b91edcc"
+  },
+  "release": "/tmp/edu-flashcard-publish-release",
+  "publishedAt": "20261015T054408Z"
+}

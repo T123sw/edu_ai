@@ -1,0 +1,18 @@
+.theme-switcher { position: relative; display: inline-flex; flex: 0 0 auto; }
+.theme-switcher .theme-switcher-trigger { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid var(--shell-border, #dcded2); border-radius: 10px; background: var(--panel-surface, #fffef9); color: var(--muted-text, #727d6e); cursor: pointer; transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
+.theme-switcher-palette { display: block; width: 23px; height: 23px; }
+.theme-switcher .theme-switcher-trigger:hover, .theme-switcher .theme-switcher-trigger[aria-expanded='true'] { background: var(--accent-soft, #edf0e3); color: var(--accent-strong, #244b38); border-color: var(--accent-border, #d4ddc5); }
+.theme-switcher .theme-switcher-panel {
+  --profile-paper: var(--panel-surface, #fffef9); --profile-ink: var(--app-text, #203d33); --profile-muted: var(--muted-text, #727d6e); --profile-accent: var(--accent, #587247); --profile-line: var(--shell-border, #dcded2);
+  position: absolute; z-index: 1000; top: calc(100% + 12px); right: 0; width: min(300px, calc(100vw - 80px)); padding: 21px; border: 1px solid var(--profile-line); border-radius: 15px; background: var(--profile-paper); color: var(--profile-ink); box-shadow: 0 12px 48px #1c293324, 0 2px 8px #1c293308; text-align: left; font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.theme-switcher .profile-section-heading { margin: 0 0 20px; }
+.theme-switcher .profile-section-heading h2 { margin: 0; color: var(--profile-ink); font-family: inherit; font-size: 15px; font-weight: 600; letter-spacing: 0; }
+.theme-switcher .profile-section-heading p { margin: 7px 0 0; color: var(--profile-muted); font-size: 11px; line-height: 1.5; }
+.theme-switcher .profile-theme-options { gap: 18px 12px; }
+.theme-switcher .profile-theme-preview { height: 58px; }
+.theme-switcher .theme-mini-title { top: 12px; }
+.theme-switcher .theme-mini-card { top: 23px; height: 20px; }
+.theme-switcher .theme-mini-line { display: none; }
+.theme-switcher button:focus-visible { outline: 2px solid var(--accent, #587247); outline-offset: 4px; }
+@media (max-width: 700px) { .theme-switcher .theme-switcher-trigger { width: 30px; height: 30px; border-radius: 9px; } .theme-switcher-palette { width: 21px; height: 21px; } }

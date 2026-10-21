@@ -1,0 +1,93 @@
+{
+  "publishedAt": "20261014T085950Z",
+  "frontendPublished": true,
+  "checkerPublished": false,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-pbl-ai-sidebar-final",
+  "backup": "/tmp/edu-pbl-ai-sidebar-backup-20261014T085950Z",
+  "previousIndexSha256": "16dcba0c9ec786b00ca8fb54bd640b9e0a457bb3c410e0e71a55c5aab9b6ce04",
+  "releaseIndexSha256": "68eff5ae16f609d9b6b98be73297484f27fced46e31c5146a9eb396168b2e029",
+  "nginxIndexMatches": true,
+  "sourceManifest": {
+    "src/pbl/WorkbenchPanels.tsx": {
+      "previous": "a04e00cc1350edad159a0a753f39e86ceb20b859fc19170002df9120f86f8ec1",
+      "new": "06af4a42c6b5d1fbcc6d43b0806e0fb18faadf63c96aa6bdbfabd45002a92f0e"
+    },
+    "src/pbl/WorkbenchChrome.tsx": {
+      "previous": "43807109479264288b8d218282f760100abd9f0b2b73ad2720f070a143baa729",
+      "new": "33224ad27e84110e28223d6ae23a16901ec79782bcbd1bbc5107fe54a3fc267b"
+    },
+    "src/pbl/ProjectEditor.tsx": {
+      "previous": "74a7403f882f14e48f62617d939198acb74ae1c66cabf4a01167a848e27cbc44",
+      "new": "1661a65063fd749d72754de0ba51562caf509274314a4cadebf6cd3d7bd64462"
+    },
+    "src/pbl/SandpackWorkspace.tsx": {
+      "previous": "e76c1cbc8d86dd203d9b60d887ab70a8ed06de242bae735dafe82a2f0f8b0768",
+      "new": "c91116ee77bb12a4408bf85e052f4c81063ba3ef7b6b8538e68dd868d900e16d"
+    },
+    "src/pbl/AlgorithmWorkspace.tsx": {
+      "previous": "277c250ecd53da1f33fd80460f8fcaa874a927211ac534a2c8d3881d586c9e6e",
+      "new": "9305a964ba3581deeb81e14c5aadce0d770f00538392e3c6fe72c0820e691d5e"
+    },
+    "src/pbl/ProjectWorkspace.tsx": {
+      "previous": "655236a07cd9eeca7eea3053edd13077bea5b6887ba499cc5e054c37c1489ab1",
+      "new": "2ed2e10934fcd578fc61ac7dc06a3cb6c8d07990fd28c77af52e1dc688d947bc"
+    },
+    "src/pbl/projectWorkbench.css": {
+      "previous": "ede750a0a81a0da1840f7c9bfbb2260acb0a3ea5e4611417a60b809f15cc6e7e",
+      "new": "30eae830b689e06ea8ea1b040cca2d23d47e8037e0507bcb8c9854ddba31bea8"
+    },
+    "src/pbl/useWorkbenchTutor.ts": {
+      "previous": null,
+      "new": "3ec91ef757651ae903f2af2b07a3b6ffaee559562dd074cf92b2968491ccc313"
+    },
+    "tests/live-learning/pbl-project.spec.ts": {
+      "previous": "32c6efc43551a99cea17c583cf8c923fc03a4463d9608c6eed45ea94166b94c4",
+      "new": "c0ab03b881763c9a8198da3091de6b800adbd9b57833b4ebe25f170cb21a55b3"
+    },
+    "tests/live-learning/pbl-tutor.spec.ts": {
+      "previous": "7cab111e7710f2007e0ac6eaaa838f1fb09ac19fff11f662681c3f5e4e61c938",
+      "new": "f3b5c159c5248f9850e998c28cfa4c4c21ac10be6d03ce90662f458d506aa281"
+    },
+    "tests/live-learning/pbl-workbench-evidence.spec.ts": {
+      "previous": "5caa9088d447c6c8c68d25ad4ac08eec77d6c4137c1de5e8b31a82c4dfb5368a",
+      "new": "7b1b6fffcd28a9b5b02ebbe0152d6bf8d960f71cfe15827e68a10cfe951f4751"
+    },
+    "tests/live-learning/pbl.spec.ts": {
+      "previous": "244910d0edbc5e5238bc35a7b9a39b5d8abda7de222d8ec712982a48bac9859a",
+      "new": "61274b9695a197ac61abb9c7702ffbdb779bb03b2260e04b14f67e83f9fa80db"
+    }
+  },
+  "baselineReproduced": true,
+  "preservedPublishedFiles": {
+    "src/selfLearning/Classroom.tsx": "8dc3ec1661362515d6cb847104de95da6a413b4e4ccf7c6e793308f6bf6b6b02"
+  },
+  "sharedComponents": [
+    "WorkbenchHeading",
+    "WorkbenchBody",
+    "WorkbenchFooter",
+    "WorkbenchPanels"
+  ],
+  "verificationLimits": "Browser cases mock business/auth/storage/tutor APIs. Project and algorithm cases use real Sandpack previews and Worker execution; the dedicated sidebar geometry case deliberately blocks the external runtime. No real model calls or production learner-data writes.",
+  "backendChanges": false,
+  "productionBrowserChecks": {
+    "projectSidebarWidths": [
+      1440,
+      1024,
+      768,
+      390,
+      320
+    ],
+    "algorithmShellWidths": [
+      1440,
+      1024,
+      768,
+      700,
+      390,
+      320
+    ],
+    "businessApi": "mocked",
+    "externalRuntime": "blocked for geometry checks",
+    "sidebarSeparationAndDraftRetention": true
+  }
+}

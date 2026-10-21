@@ -1,0 +1,140 @@
+{
+  "requests": [
+    {
+      "status": 200,
+      "body": {
+        "request_id": "e9456b50-a621-4277-a1d8-f54c24ee928e",
+        "question_version": 1,
+        "option_ids": [
+          "option_2"
+        ],
+        "text": "",
+        "skipped": false,
+        "attempt_id": "attempt-62ac03a30a6247ce9e7cf51cec0ffbf5",
+        "check_id": "check-2c79937bc21349049b5320a68bfdb3a3",
+        "status": "graded",
+        "correct": true,
+        "evaluator": "deterministic",
+        "feedback": "b = a 使 b 和 a 绑定到同一个列表对象，因此通过 b.append(3) 修改列表时，a 也会看到相同的变化，所以 a 为 [1, 2, 3]。",
+        "evidence_refs": [
+          "attempt-62ac03a30a6247ce9e7cf51cec0ffbf5"
+        ],
+        "objective_ids": [],
+        "source_ref": {
+          "version": 1,
+          "course_id": "resource-e2e-b25c130f",
+          "material_id": "learning-copy-303a0a6fd61f4829a9ddade8e95b5498",
+          "material_type": "quiz"
+        },
+        "teaching_requested": false
+      }
+    },
+    {
+      "status": 200,
+      "body": {
+        "text": "[1, 2]；[1, 2, 3]",
+        "status": "graded",
+        "correct": true,
+        "skipped": false,
+        "check_id": "check-ab3f29937f8244099a62daf18304d755",
+        "feedback": "答案正确。a 保持为 [1, 2]，b 为 [1, 2, 3]，与参考答案一致。",
+        "evaluator": "model",
+        "attempt_id": "attempt-e3e7f9c7b4174ac3889e68a7c1d24123",
+        "option_ids": [],
+        "request_id": "e4e70118-8169-47df-82df-2f8ae14309cd",
+        "source_ref": {
+          "version": 1,
+          "course_id": "resource-e2e-b25c130f",
+          "material_id": "learning-copy-303a0a6fd61f4829a9ddade8e95b5498",
+          "material_type": "quiz"
+        },
+        "evidence_refs": [
+          "attempt-e3e7f9c7b4174ac3889e68a7c1d24123"
+        ],
+        "objective_ids": [],
+        "question_version": 1,
+        "teaching_requested": false
+      }
+    },
+    {
+      "status": 200,
+      "body": {
+        "text": "b=a 是两个名字指向同一列表，修改列表会彼此可见。b=a.copy() 新建外层列表，但内部嵌套列表仍共享，修改嵌套列表也会影响原列表。",
+        "status": "graded",
+        "correct": true,
+        "skipped": false,
+        "check_id": "check-2d96076c2c3049ad880e8fe9e8bc9af7",
+        "feedback": "回答正确。准确指出 b = a 是别名（两个名字指向同一列表对象），修改会相互可见；b = a.copy() 创建新外层列表，但嵌套列表仍共享，修改嵌套元素会相互影响。与参考答案一致。",
+        "evaluator": "model",
+        "attempt_id": "attempt-ed05ecc39a7b4b4db6593d26bc43303f",
+        "option_ids": [],
+        "request_id": "74480c70-b468-4a4d-8708-fea17fa737c0",
+        "source_ref": {
+          "version": 1,
+          "course_id": "resource-e2e-b25c130f",
+          "material_id": "learning-copy-303a0a6fd61f4829a9ddade8e95b5498",
+          "material_type": "quiz"
+        },
+        "evidence_refs": [
+          "attempt-ed05ecc39a7b4b4db6593d26bc43303f"
+        ],
+        "objective_ids": [],
+        "question_version": 1,
+        "teaching_requested": false
+      }
+    },
+    {
+      "status": 200,
+      "body": {
+        "text": "错误",
+        "status": "graded",
+        "correct": true,
+        "skipped": false,
+        "check_id": "check-89564f9430f142f9bc021b82114db554",
+        "feedback": "回答正确。整数是不可变对象，b = 2 是重新赋值，让 b 绑定到新的整数对象 2，并不会修改 a 原来绑定的整数 1，因此 a 仍为 1。",
+        "evaluator": "model",
+        "attempt_id": "attempt-28f1959e1e0b4c8087265a661eaf02c3",
+        "option_ids": [],
+        "request_id": "3e226503-4b8e-40f9-8beb-32e57368c20f",
+        "source_ref": {
+          "version": 1,
+          "course_id": "resource-e2e-b25c130f",
+          "material_id": "learning-copy-303a0a6fd61f4829a9ddade8e95b5498",
+          "material_type": "quiz"
+        },
+        "evidence_refs": [
+          "attempt-28f1959e1e0b4c8087265a661eaf02c3"
+        ],
+        "objective_ids": [],
+        "question_version": 1,
+        "teaching_requested": false
+      }
+    }
+  ],
+  "errors": [],
+  "types": [],
+  "inputs": [
+    {
+      "radios": 0,
+      "checkboxes": 4,
+      "textareas": 0
+    },
+    {
+      "radios": 0,
+      "checkboxes": 0,
+      "textareas": 1
+    },
+    {
+      "radios": 0,
+      "checkboxes": 0,
+      "textareas": 1
+    },
+    {
+      "radios": 0,
+      "checkboxes": 0,
+      "textareas": 1
+    }
+  ],
+  "savedAfterReload": true,
+  "passed": true
+}

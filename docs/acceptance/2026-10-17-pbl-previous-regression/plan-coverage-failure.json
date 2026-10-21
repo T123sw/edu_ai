@@ -1,0 +1,16 @@
+{
+  "passed": false,
+  "errorType": "DurableTaskExecutionError",
+  "error": "项目计划经过修复仍未通过检查",
+  "topic": "我想用 React 做一个阅读清单页面。页面包含书名输入框、“添加”按钮、书籍列表，以及“全部 / 未读 / 已读”三个筛选选项。添加书名后，新书出现在列表中，默认为未读，同时清空输入框。空白书名不能添加，页面要给出提示。每本书可以切换已读、未读状态，也可以删除。页面显示书籍总数和已读数量，筛选后只显示符合条件的书籍。",
+  "modelCalls": [
+    "plan",
+    "plan",
+    "plan"
+  ],
+  "elapsedSeconds": 21.21,
+  "productionDataModified": false,
+  "issues": [
+    "blank-guard 检查覆盖与本步需求不一致"
+  ]
+}

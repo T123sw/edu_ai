@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "delivery_state": "complete",
+  "manifest_id": "manifest_hf_five_minute_20261019",
+  "course_id": "bubble-sort-five-minute-20261019",
+  "version": 1,
+  "route_version": 1,
+  "space": "personal",
+  "goal": "新版教学简报与 HyperFrames general-video 的独立技术验证样片，约 4 分 55 秒。本课程仅展示本次已生成视频，不代表整门课程的报告和习题验收。",
+  "audience": "算法初学者",
+  "estimated_minutes": 5,
+  "assumptions": [],
+  "nodes": [
+    {
+      "node_id": "bubble_python",
+      "title": "写出并运行冒泡排序代码，分析复杂度与适用场景",
+      "order": 1,
+      "required": true,
+      "delivery_state": "ready",
+      "generation_status": null,
+      "pending_resource_types": [],
+      "objectives": [
+        {
+          "objective_id": "bubble_python_objective",
+          "text": "运行 Python 冒泡排序，解释循环边界、提前终止和复杂度。"
+        }
+      ],
+      "prerequisite_node_ids": [],
+      "estimated_minutes": 5,
+      "resources": [
+        {
+          "resource_id": "hf_five_minute_demo_20261019",
+          "resource_type": "classroom",
+          "version": 1,
+          "content_sha256": "5c194793c636a4cf01fbb100ff7c7c4dff47b22add1a82d134d8a074d04e4561",
+          "purpose": "查看新版约五分钟讲解视频。",
+          "required": true,
+          "order": 1,
+          "objective_ids": [
+            "bubble_python_objective"
+          ],
+          "objective_coverage": "planned",
+          "source_refs": []
+        }
+      ],
+      "checks": []
+    }
+  ],
+  "quality_report_id": "technical_preview_validation_20261019",
+  "limitations": [
+    "独立视频技术验证，未重新执行整门课程调研、报告与习题生成。",
+    "已验证媒体解码、时间轴和讲稿导入；未做完整教学事实审校。"
+  ],
+  "created_by_preparation_id": "prep_f671b0da7a474ac2827f3798362c85bd"
+}

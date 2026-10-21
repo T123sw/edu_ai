@@ -1,0 +1,12 @@
+{
+  "preparation_id": "prep_2afafafbdcbb413aa6c4777da255babd",
+  "seconds": 77.931,
+  "goal": "我想学习快速排序",
+  "status": "failed",
+  "stage": "research_scope",
+  "error": "AGENT_NO_PROGRESS",
+  "stopped_before_generation": false,
+  "passed": false,
+  "errors": [],
+  "httpErrors": []
+}

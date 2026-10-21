@@ -172,7 +172,8 @@ class LearningMigration:
                     differences.append({'topic_id':source_session['topic_id'],'reason':'missing_session'});continue
                 if session.import_metadata.get('legacy_session_id')!=source_session.get('session_id'):
                     differences.append({'topic_id':source_session['topic_id'],'reason':'legacy_session_identity_mismatch'})
-                rows=list(db.scalars(select(ConversationMessage).where(ConversationMessage.conversation_id==sid)))
+                history_sid=session.import_metadata.get('merged_into',sid)
+                rows=list(db.scalars(select(ConversationMessage).where(ConversationMessage.conversation_id==history_sid)))
                 by_id={m.message_id:m for m in rows}
                 for i,turn in enumerate(source_session['turns']):
                     key=str(turn.get('client_turn_id') or turn.get('turn_id') or f'legacy-{i}')

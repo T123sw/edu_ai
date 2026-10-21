@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "runtime": {
+    "template": "react-ts",
+    "entry": "/index.tsx",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  },
+  "steps": [
+    {
+      "id": "count-display",
+      "checks": 3,
+      "native": 3
+    },
+    {
+      "id": "clear-button",
+      "checks": 5,
+      "native": 5
+    }
+  ],
+  "runs": 8,
+  "files": [
+    "/index.tsx",
+    "/App.tsx",
+    "/charCount.ts",
+    "/styles.css",
+    "/tsconfig.json",
+    "/public/index.html"
+  ]
+}

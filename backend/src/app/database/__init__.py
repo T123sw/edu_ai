@@ -117,3 +117,7 @@ from .models import PreparationExecution, PreparationBudget, PreparationAction
 from app.course_preparation.publication_models import PublishedPreparationManifest, PublishedPreparationPointer
 
 from app.course_preparation.notification_models import PreparationCourseNotification
+
+from app.pbl import db_models as pbl_models
+
+from app.practice.guidance import db_models as practice_guidance_models

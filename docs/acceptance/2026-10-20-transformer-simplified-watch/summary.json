@@ -1,0 +1,3209 @@
+{
+  "preparation_id": "prep_117d20be16ac4d7d86675afce8e7324b",
+  "attempt": 1,
+  "status": "succeeded",
+  "as_of": "2026-10-20T08:56:02.196676+00:00",
+  "started_at": "2026-10-20T08:20:44.828375+00:00",
+  "finished_at": "2026-10-20T08:56:00.823798+00:00",
+  "seconds_since_start": 2115.995,
+  "original_started_at": "2026-10-20T08:20:44.828375+00:00",
+  "original_error": null,
+  "prior_attempts": [],
+  "timing_note": "Fresh attempt 1. Resource phases overlap and should not be added across videos. This is an observational run, not a controlled speed benchmark.",
+  "phase_boundaries": "Native preparation includes brief conversion, script/storyboard, narration, packet creation and their retries. Scene span includes admission queues and overlaps across workers. Render duration includes admission and polling latency. Narration synthesis is asynchronous; host tool elapsed is submission latency and is not reported as synthesis duration.",
+  "observation_note": "Entire observation is read-only; no retry, cancellation, restart or production changes. Previews are copied existing native snapshots.",
+  "delivery": {
+    "course_id": "learn-117d20be16ac4d7d86675afce8e7324b",
+    "signature": "6bfe0ba50d8ead30278a8ffafd2bf70491ef91d6c459ae5ee7a2cd0574a0142e",
+    "manifest_id": "manifest_377c3bbf6b8b60c3628c17d71c35f874",
+    "course_ready": true,
+    "path_available": true,
+    "course_available": true,
+    "manifest_version": 11,
+    "planned_resources": 15,
+    "available_resources": 15,
+    "excluded_artifact_ids": [],
+    "delivery_state": "complete"
+  },
+  "delivery_source": "Final succeeded event and latest manifest when terminal; partial-delivery checkpoint while running.",
+  "error": null,
+  "counts": {
+    "draft": 15
+  },
+  "counts_note": "Artifact counts retain failed historical versions; logical_latest_counts uses the latest submission for each node/type. Delivery availability is authoritative for published resources.",
+  "logical_latest_counts": {
+    "draft": 15
+  },
+  "automatic_replacement_delays": [],
+  "milestones": {
+    "first_nonempty_manifest": {
+      "version": 2,
+      "at": "2026-10-20 08:23:00.588879+00:00",
+      "seconds_since_start": 135.761,
+      "resources": 3
+    },
+    "initial_report_quiz_execution_finished_after_start_seconds": 175.701,
+    "report_quiz_execution_finished_after_start_seconds": 175.701,
+    "report_quiz_opened_after_start_seconds": 179.861,
+    "report_quiz_counts": {
+      "draft": 10
+    }
+  },
+  "stages": [
+    {
+      "stage": "normalize",
+      "started_at": "2026-10-20T08:20:45.103603+00:00",
+      "seconds": 4.617,
+      "complete": true
+    },
+    {
+      "stage": "research_scope",
+      "started_at": "2026-10-20T08:20:49.720627+00:00",
+      "seconds": 76.081,
+      "complete": true
+    },
+    {
+      "stage": "plan",
+      "started_at": "2026-10-20T08:22:05.801153+00:00",
+      "seconds": 4.211,
+      "complete": true
+    },
+    {
+      "stage": "research_nodes",
+      "started_at": "2026-10-20T08:22:10.011936+00:00",
+      "seconds": 29.278,
+      "complete": true
+    },
+    {
+      "stage": "produce",
+      "started_at": "2026-10-20T08:22:39.289838+00:00",
+      "seconds": 1951.704,
+      "complete": true
+    },
+    {
+      "stage": "review",
+      "started_at": "2026-10-20T08:55:10.994213+00:00",
+      "seconds": 47.225,
+      "complete": true
+    },
+    {
+      "stage": "commit",
+      "started_at": "2026-10-20T08:55:58.219399+00:00",
+      "seconds": 2.604,
+      "complete": true
+    }
+  ],
+  "availability": [
+    {
+      "version": 1,
+      "at": "2026-10-20 08:22:40.147608+00:00",
+      "seconds_since_start": 115.319,
+      "resources": 0
+    },
+    {
+      "version": 2,
+      "at": "2026-10-20 08:23:00.588879+00:00",
+      "seconds_since_start": 135.761,
+      "resources": 3
+    },
+    {
+      "version": 3,
+      "at": "2026-10-20 08:23:08.928946+00:00",
+      "seconds_since_start": 144.101,
+      "resources": 3
+    },
+    {
+      "version": 4,
+      "at": "2026-10-20 08:23:27.136770+00:00",
+      "seconds_since_start": 162.308,
+      "resources": 7
+    },
+    {
+      "version": 5,
+      "at": "2026-10-20 08:23:44.689727+00:00",
+      "seconds_since_start": 179.861,
+      "resources": 10
+    },
+    {
+      "version": 6,
+      "at": "2026-10-20 08:46:25.355785+00:00",
+      "seconds_since_start": 1540.527,
+      "resources": 11
+    },
+    {
+      "version": 7,
+      "at": "2026-10-20 08:47:02.299857+00:00",
+      "seconds_since_start": 1577.471,
+      "resources": 12
+    },
+    {
+      "version": 8,
+      "at": "2026-10-20 08:47:07.563157+00:00",
+      "seconds_since_start": 1582.735,
+      "resources": 13
+    },
+    {
+      "version": 9,
+      "at": "2026-10-20 08:51:14.880618+00:00",
+      "seconds_since_start": 1830.052,
+      "resources": 14
+    },
+    {
+      "version": 10,
+      "at": "2026-10-20 08:55:09.942702+00:00",
+      "seconds_since_start": 2065.114,
+      "resources": 15
+    },
+    {
+      "version": 11,
+      "at": "2026-10-20 08:56:00.761072+00:00",
+      "seconds_since_start": 2115.933,
+      "resources": 15
+    }
+  ],
+  "resources": [
+    {
+      "id": "artifact_3ece5fbad33f0a742879da18765404d4",
+      "node": "n1-motivation",
+      "type": "classroom",
+      "status": "draft",
+      "created_at": "2026-10-20T08:22:40.312969+00:00",
+      "started_at": 1792484560.4032428,
+      "finished_at": 1792485850.845708,
+      "execution_seconds": 1290.44,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 115.575,
+      "submitted_after_first_produce_seconds": 1.023,
+      "durable_queue_seconds": 0.09,
+      "first_opened_at": "2026-10-20 08:46:25.355785+00:00",
+      "open_after_task_start_seconds": 1540.527,
+      "brief_seconds": 15.792185068130493,
+      "scene_worker_groups": 4,
+      "tool_failures": [],
+      "runtime": {
+        "build_id": "30cd9852b05cf6058d02",
+        "loaded_at": 1792484428.7867246,
+        "pid": 2943045,
+        "stage_limits_scope": "shared-host",
+        "configuration": {
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "history": [
+          {
+            "build_id": "30cd9852b05cf6058d02",
+            "loaded_at": 1792484428.7867246,
+            "pid": 2943045,
+            "stage_limits_scope": "shared-host",
+            "configuration": {
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+            }
+          }
+        ]
+      },
+      "native_preparation_including_brief_seconds": 254.621,
+      "scene_span_including_queue_seconds": 581.585,
+      "scene_workers": [
+        {
+          "worker_id": "f35229554936471886adb565668f4126",
+          "status": "succeeded",
+          "submitted_at": 1792484816.3331888,
+          "started_at": 1792484817.5645318,
+          "finished_at": 1792485217.9116793,
+          "error": null
+        },
+        {
+          "worker_id": "c926979826e340a58c5eea8199ad4911",
+          "status": "succeeded",
+          "submitted_at": 1792484815.023937,
+          "started_at": 1792484815.5813851,
+          "finished_at": 1792485304.7608204,
+          "error": null
+        },
+        {
+          "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+          "status": "succeeded",
+          "submitted_at": 1792484815.8325834,
+          "started_at": 1792484817.172831,
+          "finished_at": 1792485357.6839192,
+          "error": null
+        },
+        {
+          "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+          "status": "succeeded",
+          "submitted_at": 1792484815.4428687,
+          "started_at": 1792484816.7479682,
+          "finished_at": 1792485396.609072,
+          "error": null
+        }
+      ],
+      "scene_phase_outcome": "succeeded",
+      "renders": [
+        {
+          "command_id": "ead170d1cc5a4fbe819e20947bb6e099",
+          "started_at": 1792485496.9434505,
+          "finished_at": 1792485832.1331923,
+          "exit_code": 0,
+          "seconds_including_admission_and_poll": 335.19,
+          "admission_wait_seconds": 0.001,
+          "native_phase_seconds": {
+            "compile": 1.259,
+            "browser_probe": 0.336,
+            "video_extract": 0.002,
+            "audio_process": 11.913,
+            "file_server": 0.011,
+            "capture_streaming": 298.109,
+            "assemble": 19.537
+          }
+        }
+      ],
+      "assembly_and_check_seconds": 100.334,
+      "post_render_seconds": 18.713,
+      "video_seconds": 291.6,
+      "scenes": 10,
+      "narrated_scenes": 10,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 291.6
+      },
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation",
+          "audio_seconds": 279.48,
+          "audio_lines": 10,
+          "frame_files": 10,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 33667344
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artifact_f87e8f7f3414b8a647efa54472efd88d",
+      "node": "n1-motivation",
+      "type": "report",
+      "status": "draft",
+      "created_at": "2026-10-20T08:22:40.727217+00:00",
+      "started_at": 1792484560.911922,
+      "finished_at": 1792484597.805814,
+      "execution_seconds": 36.89,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 116.084,
+      "submitted_after_first_produce_seconds": 1.437,
+      "durable_queue_seconds": 0.185,
+      "first_opened_at": "2026-10-20 08:23:27.136770+00:00",
+      "open_after_task_start_seconds": 162.308
+    },
+    {
+      "id": "artifact_2b55f12fe0f162e66fee18346e19963e",
+      "node": "n1-motivation",
+      "type": "quiz",
+      "status": "draft",
+      "created_at": "2026-10-20T08:22:41.219050+00:00",
+      "started_at": 1792484561.2917073,
+      "finished_at": 1792484577.6619823,
+      "execution_seconds": 16.37,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 116.463,
+      "submitted_after_first_produce_seconds": 1.929,
+      "durable_queue_seconds": 0.073,
+      "first_opened_at": "2026-10-20 08:23:00.588879+00:00",
+      "open_after_task_start_seconds": 135.761,
+      "questions": 6
+    },
+    {
+      "id": "artifact_1d89af9007473cb8248ed65bcad2242b",
+      "node": "n2-self-attention",
+      "type": "report",
+      "status": "draft",
+      "created_at": "2026-10-20T08:22:41.809899+00:00",
+      "started_at": 1792484562.0100396,
+      "finished_at": 1792484614.3775134,
+      "execution_seconds": 52.37,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 117.182,
+      "submitted_after_first_produce_seconds": 2.52,
+      "durable_queue_seconds": 0.2,
+      "first_opened_at": "2026-10-20 08:23:44.689727+00:00",
+      "open_after_task_start_seconds": 179.861
+    },
+    {
+      "id": "artifact_ed2f56e29c769223b3f0666c57663188",
+      "node": "n2-self-attention",
+      "type": "quiz",
+      "status": "draft",
+      "created_at": "2026-10-20T08:22:42.254841+00:00",
+      "started_at": 1792484562.32513,
+      "finished_at": 1792484578.4446816,
+      "execution_seconds": 16.12,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 117.497,
+      "submitted_after_first_produce_seconds": 2.965,
+      "durable_queue_seconds": 0.07,
+      "first_opened_at": "2026-10-20 08:23:00.588879+00:00",
+      "open_after_task_start_seconds": 135.761,
+      "questions": 7
+    },
+    {
+      "id": "artifact_f88d5cfe727d620ad76eb9fd0dd1999a",
+      "node": "n3-positional-encoding",
+      "type": "report",
+      "status": "draft",
+      "created_at": "2026-10-20T08:22:42.722382+00:00",
+      "started_at": 1792484562.7933404,
+      "finished_at": 1792484620.0123584,
+      "execution_seconds": 57.22,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 117.965,
+      "submitted_after_first_produce_seconds": 3.433,
+      "durable_queue_seconds": 0.071,
+      "first_opened_at": "2026-10-20 08:23:44.689727+00:00",
+      "open_after_task_start_seconds": 179.861
+    },
+    {
+      "id": "artifact_6aa5ecd0e00e6e458a800287f9f86b42",
+      "node": "n3-positional-encoding",
+      "type": "quiz",
+      "status": "draft",
+      "created_at": "2026-10-20T08:22:43.206906+00:00",
+      "started_at": 1792484563.3901255,
+      "finished_at": 1792484576.663768,
+      "execution_seconds": 13.27,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 118.562,
+      "submitted_after_first_produce_seconds": 3.917,
+      "durable_queue_seconds": 0.183,
+      "first_opened_at": "2026-10-20 08:23:00.588879+00:00",
+      "open_after_task_start_seconds": 135.761,
+      "questions": 6
+    },
+    {
+      "id": "artifact_84ab3817f07b52bdd2d7ccca1f2626db",
+      "node": "n4-encoder",
+      "type": "report",
+      "status": "draft",
+      "created_at": "2026-10-20T08:22:43.739341+00:00",
+      "started_at": 1792484564.053123,
+      "finished_at": 1792484598.214589,
+      "execution_seconds": 34.16,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 119.225,
+      "submitted_after_first_produce_seconds": 4.45,
+      "durable_queue_seconds": 0.314,
+      "first_opened_at": "2026-10-20 08:23:27.136770+00:00",
+      "open_after_task_start_seconds": 162.308
+    },
+    {
+      "id": "artifact_fbb14bbac20447e41c23de3f6981e9b9",
+      "node": "n4-encoder",
+      "type": "quiz",
+      "status": "draft",
+      "created_at": "2026-10-20T08:23:01.303558+00:00",
+      "started_at": 1792484581.485515,
+      "finished_at": 1792484599.7487192,
+      "execution_seconds": 18.26,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 136.657,
+      "submitted_after_first_produce_seconds": 22.014,
+      "durable_queue_seconds": 0.182,
+      "first_opened_at": "2026-10-20 08:23:27.136770+00:00",
+      "open_after_task_start_seconds": 162.308,
+      "questions": 9
+    },
+    {
+      "id": "artifact_a64f247a637a1c2db73b6cac9ac8b048",
+      "node": "n5-decoder-and-flow",
+      "type": "report",
+      "status": "draft",
+      "created_at": "2026-10-20T08:23:02.036246+00:00",
+      "started_at": 1792484582.2401047,
+      "finished_at": 1792484620.529862,
+      "execution_seconds": 38.29,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 137.412,
+      "submitted_after_first_produce_seconds": 22.746,
+      "durable_queue_seconds": 0.204,
+      "first_opened_at": "2026-10-20 08:23:44.689727+00:00",
+      "open_after_task_start_seconds": 179.861
+    },
+    {
+      "id": "artifact_599eb8000a9e7b29a6d1ed0ea4acefcb",
+      "node": "n5-decoder-and-flow",
+      "type": "quiz",
+      "status": "draft",
+      "created_at": "2026-10-20T08:23:02.783381+00:00",
+      "started_at": 1792484582.8812826,
+      "finished_at": 1792484600.8000317,
+      "execution_seconds": 17.92,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 138.053,
+      "submitted_after_first_produce_seconds": 23.494,
+      "durable_queue_seconds": 0.098,
+      "first_opened_at": "2026-10-20 08:23:27.136770+00:00",
+      "open_after_task_start_seconds": 162.308,
+      "questions": 7
+    },
+    {
+      "id": "artifact_b6b5f8aa26ce63ee7ade5beefb8ae6a8",
+      "node": "n2-self-attention",
+      "type": "classroom",
+      "status": "draft",
+      "created_at": "2026-10-20T08:23:27.789274+00:00",
+      "started_at": 1792484607.8564985,
+      "finished_at": 1792486024.068734,
+      "execution_seconds": 1416.21,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 163.028,
+      "submitted_after_first_produce_seconds": 48.499,
+      "durable_queue_seconds": 0.067,
+      "first_opened_at": "2026-10-20 08:47:07.563157+00:00",
+      "open_after_task_start_seconds": 1582.735,
+      "brief_seconds": 17.50184726715088,
+      "scene_worker_groups": 3,
+      "tool_failures": [
+        {
+          "at": 1792484665.3817728,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.001748830545693636,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md"
+        }
+      ],
+      "runtime": {
+        "build_id": "30cd9852b05cf6058d02",
+        "loaded_at": 1792483018.3855925,
+        "pid": 2916307,
+        "stage_limits_scope": "shared-host",
+        "configuration": {
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "history": [
+          {
+            "build_id": "30cd9852b05cf6058d02",
+            "loaded_at": 1792483018.3855925,
+            "pid": 2916307,
+            "stage_limits_scope": "shared-host",
+            "configuration": {
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+            }
+          }
+        ]
+      },
+      "native_preparation_including_brief_seconds": 284.574,
+      "scene_span_including_queue_seconds": 559.858,
+      "scene_workers": [
+        {
+          "worker_id": "def07ef2a16b4f8fb58b7a2fc04d2cb2",
+          "status": "succeeded",
+          "submitted_at": 1792484892.4309762,
+          "started_at": 1792484893.9702895,
+          "finished_at": 1792485265.6699598,
+          "error": null
+        },
+        {
+          "worker_id": "08a782a2a5f94d73b4415c00b4435d68",
+          "status": "succeeded",
+          "submitted_at": 1792484894.106892,
+          "started_at": 1792484895.513532,
+          "finished_at": 1792485427.4868145,
+          "error": null
+        },
+        {
+          "worker_id": "5dbe37ecaaf74001b1f2fd2215bcf0f3",
+          "status": "succeeded",
+          "submitted_at": 1792484892.9645615,
+          "started_at": 1792484895.1470113,
+          "finished_at": 1792485452.2892735,
+          "error": null
+        }
+      ],
+      "scene_phase_outcome": "succeeded",
+      "renders": [
+        {
+          "command_id": "d0edc58ba02447cb97a0b47cf6c2fc91",
+          "started_at": 1792485591.7598412,
+          "finished_at": 1792486009.7084496,
+          "exit_code": 0,
+          "seconds_including_admission_and_poll": 417.949,
+          "admission_wait_seconds": 0.0,
+          "native_phase_seconds": {
+            "compile": 1.603,
+            "browser_probe": 0.4,
+            "video_extract": 0.001,
+            "audio_process": 16.336,
+            "file_server": 0.024,
+            "capture_streaming": 374.805,
+            "assemble": 20.246
+          }
+        }
+      ],
+      "assembly_and_check_seconds": 139.471,
+      "post_render_seconds": 14.36,
+      "video_seconds": 327.5,
+      "scenes": 9,
+      "narrated_scenes": 9,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 327.5
+      },
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention",
+          "audio_seconds": 321.312,
+          "audio_lines": 9,
+          "frame_files": 9,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 31983691
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artifact_1119e3b97e9c560fe561b2128247f194",
+      "node": "n3-positional-encoding",
+      "type": "classroom",
+      "status": "draft",
+      "created_at": "2026-10-20T08:23:28.651609+00:00",
+      "started_at": 1792484608.9304783,
+      "finished_at": 1792486010.6249416,
+      "execution_seconds": 1401.69,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 164.102,
+      "submitted_after_first_produce_seconds": 49.362,
+      "durable_queue_seconds": 0.279,
+      "first_opened_at": "2026-10-20 08:47:02.299857+00:00",
+      "open_after_task_start_seconds": 1577.471,
+      "brief_seconds": 15.622442960739136,
+      "scene_worker_groups": 4,
+      "tool_failures": [],
+      "runtime": {
+        "build_id": "30cd9852b05cf6058d02",
+        "loaded_at": 1792483018.3855925,
+        "pid": 2916307,
+        "stage_limits_scope": "shared-host",
+        "configuration": {
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "history": [
+          {
+            "build_id": "30cd9852b05cf6058d02",
+            "loaded_at": 1792483018.3855925,
+            "pid": 2916307,
+            "stage_limits_scope": "shared-host",
+            "configuration": {
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+            }
+          }
+        ]
+      },
+      "native_preparation_including_brief_seconds": 302.446,
+      "scene_span_including_queue_seconds": 442.908,
+      "scene_workers": [
+        {
+          "worker_id": "2bfa881300934c82b86b9a3f8dde065e",
+          "status": "succeeded",
+          "submitted_at": 1792484912.5127225,
+          "started_at": 1792484913.97897,
+          "finished_at": 1792485354.2841074,
+          "error": null
+        },
+        {
+          "worker_id": "10400b52fe5c4610aa54fdc12ce63202",
+          "status": "succeeded",
+          "submitted_at": 1792484911.3764129,
+          "started_at": 1792484912.3843272,
+          "finished_at": 1792485339.686708,
+          "error": null
+        },
+        {
+          "worker_id": "2f12b9b2bf6e46bbb0dbfce32f17ffb8",
+          "status": "succeeded",
+          "submitted_at": 1792484911.9915802,
+          "started_at": 1792484913.576021,
+          "finished_at": 1792485264.4542108,
+          "error": null
+        },
+        {
+          "worker_id": "9f8253e13bb840baa6a5562e6f94aaf9",
+          "status": "succeeded",
+          "submitted_at": 1792484913.3094578,
+          "started_at": 1792484915.4772418,
+          "finished_at": 1792485273.510682,
+          "error": null
+        }
+      ],
+      "scene_phase_outcome": "succeeded",
+      "renders": [
+        {
+          "command_id": "c2b3b1ab8fc740fa8002843753764f4b",
+          "started_at": 1792485566.6853993,
+          "finished_at": 1792485994.7268553,
+          "exit_code": 0,
+          "seconds_including_admission_and_poll": 428.041,
+          "admission_wait_seconds": 0.0,
+          "native_phase_seconds": {
+            "compile": 1.679,
+            "browser_probe": 0.416,
+            "video_extract": 0.002,
+            "audio_process": 13.998,
+            "file_server": 0.008,
+            "capture_streaming": 374.541,
+            "assemble": 32.306
+          }
+        }
+      ],
+      "assembly_and_check_seconds": 212.401,
+      "post_render_seconds": 15.898,
+      "video_seconds": 292.1,
+      "scenes": 11,
+      "narrated_scenes": 11,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 292.1
+      },
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding",
+          "audio_seconds": 277.68,
+          "audio_lines": 11,
+          "frame_files": 11,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 33611329
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artifact_0190d63f52071cd7b9165ac310356d0f",
+      "node": "n4-encoder",
+      "type": "classroom",
+      "status": "draft",
+      "created_at": "2026-10-20T08:23:29.540754+00:00",
+      "started_at": 1792484609.6685224,
+      "finished_at": 1792486272.1644993,
+      "execution_seconds": 1662.5,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 164.84,
+      "submitted_after_first_produce_seconds": 50.251,
+      "durable_queue_seconds": 0.128,
+      "first_opened_at": "2026-10-20 08:51:14.880618+00:00",
+      "open_after_task_start_seconds": 1830.052,
+      "brief_seconds": 13.363787174224854,
+      "scene_worker_groups": 4,
+      "tool_failures": [
+        {
+          "at": 1792484690.4603302,
+          "tool": "read_file",
+          "ok": false,
+          "elapsed": 0.0004223249852657318,
+          "path": "/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md"
+        }
+      ],
+      "runtime": {
+        "build_id": "30cd9852b05cf6058d02",
+        "loaded_at": 1792483018.3855925,
+        "pid": 2916307,
+        "stage_limits_scope": "shared-host",
+        "configuration": {
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "history": [
+          {
+            "build_id": "30cd9852b05cf6058d02",
+            "loaded_at": 1792483018.3855925,
+            "pid": 2916307,
+            "stage_limits_scope": "shared-host",
+            "configuration": {
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+            }
+          }
+        ]
+      },
+      "native_preparation_including_brief_seconds": 355.78,
+      "scene_span_including_queue_seconds": 788.243,
+      "scene_workers": [
+        {
+          "worker_id": "c21db90420594971bb96596d3bcb383a",
+          "status": "succeeded",
+          "submitted_at": 1792484965.4482534,
+          "started_at": 1792484966.31408,
+          "finished_at": 1792485424.3873613,
+          "error": null
+        },
+        {
+          "worker_id": "271d1ea4846142238e39ca300909f93f",
+          "status": "succeeded",
+          "submitted_at": 1792484967.2316837,
+          "started_at": 1792484968.796587,
+          "finished_at": 1792485474.7463837,
+          "error": null
+        },
+        {
+          "worker_id": "e5c216cebd3848d39d3ed7f8f30f1d94",
+          "status": "succeeded",
+          "submitted_at": 1792484966.565477,
+          "started_at": 1792484967.763663,
+          "finished_at": 1792485634.5183783,
+          "error": null
+        },
+        {
+          "worker_id": "9835302b3d3345d399abb0ae821b496a",
+          "status": "succeeded",
+          "submitted_at": 1792484965.907452,
+          "started_at": 1792484967.3551245,
+          "finished_at": 1792485753.6910837,
+          "error": null
+        }
+      ],
+      "scene_phase_outcome": "succeeded",
+      "renders": [
+        {
+          "command_id": "3d699484fa104c40bcb7bec88bd18073",
+          "started_at": 1792485851.7942579,
+          "finished_at": 1792486259.7977247,
+          "exit_code": 0,
+          "seconds_including_admission_and_poll": 408.003,
+          "admission_wait_seconds": 0.0,
+          "native_phase_seconds": {
+            "compile": 1.727,
+            "browser_probe": 0.473,
+            "video_extract": 0.002,
+            "audio_process": 15.003,
+            "file_server": 0.011,
+            "capture_streaming": 370.714,
+            "assemble": 15.672
+          }
+        }
+      ],
+      "assembly_and_check_seconds": 98.103,
+      "post_render_seconds": 12.367,
+      "video_seconds": 296.766667,
+      "scenes": 12,
+      "narrated_scenes": 12,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 296.766667
+      },
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/videos/transformer-encoder-structure",
+          "audio_seconds": 291.936,
+          "audio_lines": 12,
+          "frame_files": 12,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 35199304
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "artifact_4511f8c5a1a43c23e3aaa36cdf9c4012",
+      "node": "n5-decoder-and-flow",
+      "type": "classroom",
+      "status": "draft",
+      "created_at": "2026-10-20T08:23:30.496883+00:00",
+      "started_at": 1792484610.5704787,
+      "finished_at": 1792486507.334907,
+      "execution_seconds": 1896.76,
+      "task_error": null,
+      "error": null,
+      "start_after_task_start_seconds": 165.742,
+      "submitted_after_first_produce_seconds": 51.207,
+      "durable_queue_seconds": 0.074,
+      "first_opened_at": "2026-10-20 08:55:09.942702+00:00",
+      "open_after_task_start_seconds": 2065.114,
+      "brief_seconds": 16.92451024055481,
+      "scene_worker_groups": 5,
+      "tool_failures": [],
+      "runtime": {
+        "build_id": "30cd9852b05cf6058d02",
+        "loaded_at": 1792484428.7867246,
+        "pid": 2943045,
+        "stage_limits_scope": "shared-host",
+        "configuration": {
+          "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+          "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+          "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+          "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+          "HYPERFRAMES_RENDER_WORKERS": "4",
+          "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+          "TTS_REMOTE_CONCURRENCY": "8",
+          "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+        },
+        "history": [
+          {
+            "build_id": "30cd9852b05cf6058d02",
+            "loaded_at": 1792484428.7867246,
+            "pid": 2943045,
+            "stage_limits_scope": "shared-host",
+            "configuration": {
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+            }
+          }
+        ]
+      },
+      "native_preparation_including_brief_seconds": 413.65,
+      "scene_span_including_queue_seconds": 914.172,
+      "scene_workers": [
+        {
+          "worker_id": "95ccfc58080b48149154b5d76772ab60",
+          "status": "succeeded",
+          "submitted_at": 1792485025.09636,
+          "started_at": 1792485219.9280114,
+          "finished_at": 1792485709.7851768,
+          "error": null
+        },
+        {
+          "worker_id": "43ff539e902f48cbaf00cd3b3f1bdf29",
+          "status": "succeeded",
+          "submitted_at": 1792485024.2207508,
+          "started_at": 1792485025.670768,
+          "finished_at": 1792485603.208149,
+          "error": null
+        },
+        {
+          "worker_id": "70fcbe64d0664e6d8f6bb75c721c748f",
+          "status": "succeeded",
+          "submitted_at": 1792485027.0635908,
+          "started_at": 1792485269.4775305,
+          "finished_at": 1792485580.6523924,
+          "error": null
+        },
+        {
+          "worker_id": "0aef2dc0784349f2a3527227d6cfeffc",
+          "status": "succeeded",
+          "submitted_at": 1792485025.9477565,
+          "started_at": 1792485277.0102,
+          "finished_at": 1792485880.0962868,
+          "error": null
+        },
+        {
+          "worker_id": "297b39813ab1472cbbc72846aae94c25",
+          "status": "succeeded",
+          "submitted_at": 1792485024.4805584,
+          "started_at": 1792485269.047491,
+          "finished_at": 1792485938.3931472,
+          "error": null
+        }
+      ],
+      "scene_phase_outcome": "succeeded",
+      "renders": [
+        {
+          "command_id": "6e7f85173e43486d91ee0b95b3b40d41",
+          "started_at": 1792486071.135882,
+          "finished_at": 1792486494.8306193,
+          "exit_code": 0,
+          "seconds_including_admission_and_poll": 423.695,
+          "admission_wait_seconds": 0.0,
+          "native_phase_seconds": {
+            "compile": 1.987,
+            "browser_probe": 0.499,
+            "video_extract": 0.002,
+            "audio_process": 14.536,
+            "file_server": 0.008,
+            "capture_streaming": 373.542,
+            "assemble": 28.711
+          }
+        }
+      ],
+      "assembly_and_check_seconds": 132.743,
+      "post_render_seconds": 12.504,
+      "video_seconds": 316.066667,
+      "scenes": 14,
+      "narrated_scenes": 14,
+      "verification": {
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 316.066667
+      },
+      "projects": [
+        {
+          "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow",
+          "audio_seconds": 309.744,
+          "audio_lines": 14,
+          "frame_files": 14,
+          "renders": [
+            {
+              "name": "video.mp4",
+              "size": 34704313
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "concurrency_observations": {
+    "method": "30-second snapshots, supplemented by exact worker lifecycle timestamps; sampled peaks are lower bounds",
+    "sample_count": 64,
+    "sampled_peaks": {
+      "resources": 8,
+      "videos": 5,
+      "scene_workers": 16
+    },
+    "scene_workers": [
+      {
+        "node": "n1-motivation",
+        "worker_id": "f35229554936471886adb565668f4126",
+        "status": "succeeded",
+        "submitted_at": 1792484816.3331888,
+        "started_at": 1792484817.5645318,
+        "finished_at": 1792485217.9116793,
+        "error": null,
+        "queue_seconds": 1.231,
+        "execution_seconds": 400.347
+      },
+      {
+        "node": "n1-motivation",
+        "worker_id": "c926979826e340a58c5eea8199ad4911",
+        "status": "succeeded",
+        "submitted_at": 1792484815.023937,
+        "started_at": 1792484815.5813851,
+        "finished_at": 1792485304.7608204,
+        "error": null,
+        "queue_seconds": 0.557,
+        "execution_seconds": 489.179
+      },
+      {
+        "node": "n1-motivation",
+        "worker_id": "388d4f136cec44b6b9e679b3792def2c",
+        "status": "succeeded",
+        "submitted_at": 1792484815.8325834,
+        "started_at": 1792484817.172831,
+        "finished_at": 1792485357.6839192,
+        "error": null,
+        "queue_seconds": 1.34,
+        "execution_seconds": 540.511
+      },
+      {
+        "node": "n1-motivation",
+        "worker_id": "71bdfa929a6f4b59babd8d2e63a3c96d",
+        "status": "succeeded",
+        "submitted_at": 1792484815.4428687,
+        "started_at": 1792484816.7479682,
+        "finished_at": 1792485396.609072,
+        "error": null,
+        "queue_seconds": 1.305,
+        "execution_seconds": 579.861
+      },
+      {
+        "node": "n2-self-attention",
+        "worker_id": "def07ef2a16b4f8fb58b7a2fc04d2cb2",
+        "status": "succeeded",
+        "submitted_at": 1792484892.4309762,
+        "started_at": 1792484893.9702895,
+        "finished_at": 1792485265.6699598,
+        "error": null,
+        "queue_seconds": 1.539,
+        "execution_seconds": 371.7
+      },
+      {
+        "node": "n2-self-attention",
+        "worker_id": "08a782a2a5f94d73b4415c00b4435d68",
+        "status": "succeeded",
+        "submitted_at": 1792484894.106892,
+        "started_at": 1792484895.513532,
+        "finished_at": 1792485427.4868145,
+        "error": null,
+        "queue_seconds": 1.407,
+        "execution_seconds": 531.973
+      },
+      {
+        "node": "n2-self-attention",
+        "worker_id": "5dbe37ecaaf74001b1f2fd2215bcf0f3",
+        "status": "succeeded",
+        "submitted_at": 1792484892.9645615,
+        "started_at": 1792484895.1470113,
+        "finished_at": 1792485452.2892735,
+        "error": null,
+        "queue_seconds": 2.182,
+        "execution_seconds": 557.142
+      },
+      {
+        "node": "n3-positional-encoding",
+        "worker_id": "2bfa881300934c82b86b9a3f8dde065e",
+        "status": "succeeded",
+        "submitted_at": 1792484912.5127225,
+        "started_at": 1792484913.97897,
+        "finished_at": 1792485354.2841074,
+        "error": null,
+        "queue_seconds": 1.466,
+        "execution_seconds": 440.305
+      },
+      {
+        "node": "n3-positional-encoding",
+        "worker_id": "10400b52fe5c4610aa54fdc12ce63202",
+        "status": "succeeded",
+        "submitted_at": 1792484911.3764129,
+        "started_at": 1792484912.3843272,
+        "finished_at": 1792485339.686708,
+        "error": null,
+        "queue_seconds": 1.008,
+        "execution_seconds": 427.302
+      },
+      {
+        "node": "n3-positional-encoding",
+        "worker_id": "2f12b9b2bf6e46bbb0dbfce32f17ffb8",
+        "status": "succeeded",
+        "submitted_at": 1792484911.9915802,
+        "started_at": 1792484913.576021,
+        "finished_at": 1792485264.4542108,
+        "error": null,
+        "queue_seconds": 1.584,
+        "execution_seconds": 350.878
+      },
+      {
+        "node": "n3-positional-encoding",
+        "worker_id": "9f8253e13bb840baa6a5562e6f94aaf9",
+        "status": "succeeded",
+        "submitted_at": 1792484913.3094578,
+        "started_at": 1792484915.4772418,
+        "finished_at": 1792485273.510682,
+        "error": null,
+        "queue_seconds": 2.168,
+        "execution_seconds": 358.033
+      },
+      {
+        "node": "n4-encoder",
+        "worker_id": "c21db90420594971bb96596d3bcb383a",
+        "status": "succeeded",
+        "submitted_at": 1792484965.4482534,
+        "started_at": 1792484966.31408,
+        "finished_at": 1792485424.3873613,
+        "error": null,
+        "queue_seconds": 0.866,
+        "execution_seconds": 458.073
+      },
+      {
+        "node": "n4-encoder",
+        "worker_id": "271d1ea4846142238e39ca300909f93f",
+        "status": "succeeded",
+        "submitted_at": 1792484967.2316837,
+        "started_at": 1792484968.796587,
+        "finished_at": 1792485474.7463837,
+        "error": null,
+        "queue_seconds": 1.565,
+        "execution_seconds": 505.95
+      },
+      {
+        "node": "n4-encoder",
+        "worker_id": "e5c216cebd3848d39d3ed7f8f30f1d94",
+        "status": "succeeded",
+        "submitted_at": 1792484966.565477,
+        "started_at": 1792484967.763663,
+        "finished_at": 1792485634.5183783,
+        "error": null,
+        "queue_seconds": 1.198,
+        "execution_seconds": 666.755
+      },
+      {
+        "node": "n4-encoder",
+        "worker_id": "9835302b3d3345d399abb0ae821b496a",
+        "status": "succeeded",
+        "submitted_at": 1792484965.907452,
+        "started_at": 1792484967.3551245,
+        "finished_at": 1792485753.6910837,
+        "error": null,
+        "queue_seconds": 1.448,
+        "execution_seconds": 786.336
+      },
+      {
+        "node": "n5-decoder-and-flow",
+        "worker_id": "95ccfc58080b48149154b5d76772ab60",
+        "status": "succeeded",
+        "submitted_at": 1792485025.09636,
+        "started_at": 1792485219.9280114,
+        "finished_at": 1792485709.7851768,
+        "error": null,
+        "queue_seconds": 194.832,
+        "execution_seconds": 489.857
+      },
+      {
+        "node": "n5-decoder-and-flow",
+        "worker_id": "43ff539e902f48cbaf00cd3b3f1bdf29",
+        "status": "succeeded",
+        "submitted_at": 1792485024.2207508,
+        "started_at": 1792485025.670768,
+        "finished_at": 1792485603.208149,
+        "error": null,
+        "queue_seconds": 1.45,
+        "execution_seconds": 577.537
+      },
+      {
+        "node": "n5-decoder-and-flow",
+        "worker_id": "70fcbe64d0664e6d8f6bb75c721c748f",
+        "status": "succeeded",
+        "submitted_at": 1792485027.0635908,
+        "started_at": 1792485269.4775305,
+        "finished_at": 1792485580.6523924,
+        "error": null,
+        "queue_seconds": 242.414,
+        "execution_seconds": 311.175
+      },
+      {
+        "node": "n5-decoder-and-flow",
+        "worker_id": "0aef2dc0784349f2a3527227d6cfeffc",
+        "status": "succeeded",
+        "submitted_at": 1792485025.9477565,
+        "started_at": 1792485277.0102,
+        "finished_at": 1792485880.0962868,
+        "error": null,
+        "queue_seconds": 251.062,
+        "execution_seconds": 603.086
+      },
+      {
+        "node": "n5-decoder-and-flow",
+        "worker_id": "297b39813ab1472cbbc72846aae94c25",
+        "status": "succeeded",
+        "submitted_at": 1792485024.4805584,
+        "started_at": 1792485269.047491,
+        "finished_at": 1792485938.3931472,
+        "error": null,
+        "queue_seconds": 244.567,
+        "execution_seconds": 669.346
+      }
+    ],
+    "render_command_peak_including_admission_and_polling": 3
+  },
+  "content_spotcheck": {
+    "performed": false,
+    "reason": "This run tracks production behavior; no model review or semantic repair was initiated by the observer."
+  },
+  "visual_spotcheck": {
+    "performed": true,
+    "scope": "Read existing native contact sheets; no new render or playback was triggered by observer.",
+    "reviewed": [
+      {
+        "node": "n1-motivation",
+        "image": "previews/n1-motivation-7125e5bc-7654-449f-8046-941335907240-contact-sheet-1.jpg",
+        "observations": [
+          "Nine sampled images contain titles, labels or diagrams; no entirely blank sampled frame.",
+          "Dark blue/black theme; sampled Seq2Seq, attention weighting and encoder/decoder diagrams are present.",
+          "Some diagram labels occupy a small fraction of the frame; legibility at final display size has not been tested."
+        ]
+      },
+      {
+        "node": "n2-self-attention",
+        "image": "previews/n2-self-attention-2afc023a-aa9b-4dae-b03e-84a50cadf345-contact-sheet-1.jpg",
+        "observations": [
+          "Nine sampled images show Q/K/V projections, dot products, softmax, weighted sum, a three-token numerical demonstration and multi-head concatenation.",
+          "Dark blue grid theme; no entirely blank sampled frame; small secondary diagram labels require final-size inspection."
+        ]
+      },
+      {
+        "node": "n3-positional-encoding",
+        "image": "previews/n3-positional-encoding-d798efa2-0f4f-4895-beec-25a33d666568-contact-sheet-1.jpg",
+        "observations": [
+          "Nine sampled images show token order, permutation, sequential/parallel structure, input position addition and sine/cosine encoding.",
+          "Dark blue grid theme; no entirely blank sampled frame."
+        ]
+      },
+      {
+        "node": "n4-encoder",
+        "image": "previews/n4-encoder-aeb3814d-a6fe-42b6-8eae-ccf542fb0b7d-contact-sheet-1.jpg",
+        "observations": [
+          "Nine sampled images show stacked encoder layers, input addition, attention, residual connections, layer normalization and feed-forward structure.",
+          "Dark blue grid theme; no entirely blank sampled frame. Small labels remain a final-display legibility limitation."
+        ]
+      },
+      {
+        "node": "n5-decoder-and-flow",
+        "image": "previews/n5-decoder-and-flow-aee7790c-d11c-43e0-bb63-377a144270ea-contact-sheet-1.jpg",
+        "observations": [
+          "Nine sampled images show encoder/decoder comparison, causal and padding masks, shifted targets, cross-attention Q/K/V sources.",
+          "No entirely blank sampled frame. Cross-attention title wraps its final character onto a separate line; secondary labels are small in contact sheet.",
+          "All five reviewed sheets share a dark blue palette; spacing and title treatments vary."
+        ]
+      }
+    ],
+    "not_performed": [
+      "frame-by-frame playback",
+      "semantic/numeric review",
+      "interactive UI checks"
+    ]
+  },
+  "media_probe": [
+    {
+      "node": "n1-motivation",
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/renders/video.mp4",
+      "returncode": 0,
+      "data": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "mime_codec_string": "avc1.640032",
+            "width": 1920,
+            "height": 1080,
+            "coded_width": 1920,
+            "coded_height": 1080,
+            "has_b_frames": 0,
+            "sample_aspect_ratio": "1:1",
+            "display_aspect_ratio": "16:9",
+            "pix_fmt": "yuv420p",
+            "level": 50,
+            "color_range": "tv",
+            "color_space": "bt709",
+            "color_transfer": "bt709",
+            "color_primaries": "bt709",
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "30/1",
+            "avg_frame_rate": "30/1",
+            "time_base": "1/15360",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 4478976,
+            "duration": "291.600000",
+            "bit_rate": "732661",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "8748",
+            "extradata_size": 50,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler",
+              "encoder": "Lavc63.1.101 libx264"
+            }
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_long_name": "AAC (Advanced Audio Coding)",
+            "profile": "LC",
+            "codec_type": "audio",
+            "codec_tag_string": "mp4a",
+            "codec_tag": "0x6134706d",
+            "mime_codec_string": "mp4a.40.2",
+            "sample_fmt": "fltp",
+            "sample_rate": "48000",
+            "channels": 2,
+            "channel_layout": "stereo",
+            "bits_per_sample": 0,
+            "initial_padding": 1024,
+            "id": "0x2",
+            "r_frame_rate": "0/0",
+            "avg_frame_rate": "0/0",
+            "time_base": "1/48000",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 13996800,
+            "duration": "291.600000",
+            "bit_rate": "184029",
+            "nb_frames": "13670",
+            "extradata_size": 5,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "SoundHandler"
+            }
+          }
+        ],
+        "format": {
+          "filename": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation/renders/video.mp4",
+          "nb_streams": 2,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "291.600000",
+          "size": "33667344",
+          "bit_rate": "923658",
+          "probe_score": 100,
+          "tags": {
+            "minor_version": "512;512",
+            "major_brand": "isom;isom",
+            "compatible_brands": "isomiso2avc1mp41;isomiso2avc1mp41",
+            "hyperframes_version": "0.8.168",
+            "hyperframes_renderer": "hyperframes",
+            "encoder": "Lavf63.1.101"
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "node": "n2-self-attention",
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/renders/video.mp4",
+      "returncode": 0,
+      "data": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "mime_codec_string": "avc1.640032",
+            "width": 1920,
+            "height": 1080,
+            "coded_width": 1920,
+            "coded_height": 1080,
+            "has_b_frames": 0,
+            "sample_aspect_ratio": "1:1",
+            "display_aspect_ratio": "16:9",
+            "pix_fmt": "yuv420p",
+            "level": 50,
+            "color_range": "tv",
+            "color_space": "bt709",
+            "color_transfer": "bt709",
+            "color_primaries": "bt709",
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "30/1",
+            "avg_frame_rate": "30/1",
+            "time_base": "1/15360",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 5030400,
+            "duration": "327.500000",
+            "bit_rate": "586029",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "9825",
+            "extradata_size": 50,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler",
+              "encoder": "Lavc63.1.101 libx264"
+            }
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_long_name": "AAC (Advanced Audio Coding)",
+            "profile": "LC",
+            "codec_type": "audio",
+            "codec_tag_string": "mp4a",
+            "codec_tag": "0x6134706d",
+            "mime_codec_string": "mp4a.40.2",
+            "sample_fmt": "fltp",
+            "sample_rate": "48000",
+            "channels": 2,
+            "channel_layout": "stereo",
+            "bits_per_sample": 0,
+            "initial_padding": 1024,
+            "id": "0x2",
+            "r_frame_rate": "0/0",
+            "avg_frame_rate": "0/0",
+            "time_base": "1/48000",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 15720000,
+            "duration": "327.500000",
+            "bit_rate": "188289",
+            "nb_frames": "15353",
+            "extradata_size": 5,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "SoundHandler"
+            }
+          }
+        ],
+        "format": {
+          "filename": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention/renders/video.mp4",
+          "nb_streams": 2,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "327.500000",
+          "size": "31983691",
+          "bit_rate": "781281",
+          "probe_score": 100,
+          "tags": {
+            "minor_version": "512;512",
+            "major_brand": "isom;isom",
+            "compatible_brands": "isomiso2avc1mp41;isomiso2avc1mp41",
+            "hyperframes_version": "0.8.168",
+            "hyperframes_renderer": "hyperframes",
+            "encoder": "Lavf63.1.101"
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "node": "n3-positional-encoding",
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/renders/video.mp4",
+      "returncode": 0,
+      "data": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "mime_codec_string": "avc1.640032",
+            "width": 1920,
+            "height": 1080,
+            "coded_width": 1920,
+            "coded_height": 1080,
+            "has_b_frames": 0,
+            "sample_aspect_ratio": "1:1",
+            "display_aspect_ratio": "16:9",
+            "pix_fmt": "yuv420p",
+            "level": 50,
+            "color_range": "tv",
+            "color_space": "bt709",
+            "color_transfer": "bt709",
+            "color_primaries": "bt709",
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "30/1",
+            "avg_frame_rate": "30/1",
+            "time_base": "1/15360",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 4486656,
+            "duration": "292.100000",
+            "bit_rate": "730816",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "8763",
+            "extradata_size": 50,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler",
+              "encoder": "Lavc63.1.101 libx264"
+            }
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_long_name": "AAC (Advanced Audio Coding)",
+            "profile": "LC",
+            "codec_type": "audio",
+            "codec_tag_string": "mp4a",
+            "codec_tag": "0x6134706d",
+            "mime_codec_string": "mp4a.40.2",
+            "sample_fmt": "fltp",
+            "sample_rate": "48000",
+            "channels": 2,
+            "channel_layout": "stereo",
+            "bits_per_sample": 0,
+            "initial_padding": 1024,
+            "id": "0x2",
+            "r_frame_rate": "0/0",
+            "avg_frame_rate": "0/0",
+            "time_base": "1/48000",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 14020800,
+            "duration": "292.100000",
+            "bit_rate": "182759",
+            "nb_frames": "13694",
+            "extradata_size": 5,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "SoundHandler"
+            }
+          }
+        ],
+        "format": {
+          "filename": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding/renders/video.mp4",
+          "nb_streams": 2,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "292.100000",
+          "size": "33611329",
+          "bit_rate": "920543",
+          "probe_score": 100,
+          "tags": {
+            "minor_version": "512;512",
+            "major_brand": "isom;isom",
+            "compatible_brands": "isomiso2avc1mp41;isomiso2avc1mp41",
+            "hyperframes_version": "0.8.168",
+            "hyperframes_renderer": "hyperframes",
+            "encoder": "Lavf63.1.101"
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "node": "n4-encoder",
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/videos/transformer-encoder-structure/renders/video.mp4",
+      "returncode": 0,
+      "data": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "mime_codec_string": "avc1.640032",
+            "width": 1920,
+            "height": 1080,
+            "coded_width": 1920,
+            "coded_height": 1080,
+            "has_b_frames": 0,
+            "sample_aspect_ratio": "1:1",
+            "display_aspect_ratio": "16:9",
+            "pix_fmt": "yuv420p",
+            "level": 50,
+            "color_range": "tv",
+            "color_space": "bt709",
+            "color_transfer": "bt709",
+            "color_primaries": "bt709",
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "30/1",
+            "avg_frame_rate": "30/1",
+            "time_base": "1/15360",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 4558336,
+            "duration": "296.766667",
+            "bit_rate": "752212",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "8903",
+            "extradata_size": 50,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler",
+              "encoder": "Lavc63.1.101 libx264"
+            }
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_long_name": "AAC (Advanced Audio Coding)",
+            "profile": "LC",
+            "codec_type": "audio",
+            "codec_tag_string": "mp4a",
+            "codec_tag": "0x6134706d",
+            "mime_codec_string": "mp4a.40.2",
+            "sample_fmt": "fltp",
+            "sample_rate": "48000",
+            "channels": 2,
+            "channel_layout": "stereo",
+            "bits_per_sample": 0,
+            "initial_padding": 1024,
+            "id": "0x2",
+            "r_frame_rate": "0/0",
+            "avg_frame_rate": "0/0",
+            "time_base": "1/48000",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 14244800,
+            "duration": "296.766667",
+            "bit_rate": "189694",
+            "nb_frames": "13912",
+            "extradata_size": 5,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "SoundHandler"
+            }
+          }
+        ],
+        "format": {
+          "filename": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/videos/transformer-encoder-structure/renders/video.mp4",
+          "nb_streams": 2,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "296.766667",
+          "size": "35199304",
+          "bit_rate": "948874",
+          "probe_score": 100,
+          "tags": {
+            "minor_version": "512;512",
+            "major_brand": "isom;isom",
+            "compatible_brands": "isomiso2avc1mp41;isomiso2avc1mp41",
+            "hyperframes_version": "0.8.168",
+            "hyperframes_renderer": "hyperframes",
+            "encoder": "Lavf63.1.101"
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "node": "n5-decoder-and-flow",
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/renders/video.mp4",
+      "returncode": 0,
+      "data": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "mime_codec_string": "avc1.640032",
+            "width": 1920,
+            "height": 1080,
+            "coded_width": 1920,
+            "coded_height": 1080,
+            "has_b_frames": 0,
+            "sample_aspect_ratio": "1:1",
+            "display_aspect_ratio": "16:9",
+            "pix_fmt": "yuv420p",
+            "level": 50,
+            "color_range": "tv",
+            "color_space": "bt709",
+            "color_transfer": "bt709",
+            "color_primaries": "bt709",
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "30/1",
+            "avg_frame_rate": "30/1",
+            "time_base": "1/15360",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 4854784,
+            "duration": "316.066667",
+            "bit_rate": "683065",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "9482",
+            "extradata_size": 50,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler",
+              "encoder": "Lavc63.1.101 libx264"
+            }
+          },
+          {
+            "index": 1,
+            "codec_name": "aac",
+            "codec_long_name": "AAC (Advanced Audio Coding)",
+            "profile": "LC",
+            "codec_type": "audio",
+            "codec_tag_string": "mp4a",
+            "codec_tag": "0x6134706d",
+            "mime_codec_string": "mp4a.40.2",
+            "sample_fmt": "fltp",
+            "sample_rate": "48000",
+            "channels": 2,
+            "channel_layout": "stereo",
+            "bits_per_sample": 0,
+            "initial_padding": 1024,
+            "id": "0x2",
+            "r_frame_rate": "0/0",
+            "avg_frame_rate": "0/0",
+            "time_base": "1/48000",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 15171200,
+            "duration": "316.066667",
+            "bit_rate": "188375",
+            "nb_frames": "14817",
+            "extradata_size": 5,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "SoundHandler"
+            }
+          }
+        ],
+        "format": {
+          "filename": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow/renders/video.mp4",
+          "nb_streams": 2,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "316.066667",
+          "size": "34704313",
+          "bit_rate": "878404",
+          "probe_score": 100,
+          "tags": {
+            "minor_version": "512;512",
+            "major_brand": "isom;isom",
+            "compatible_brands": "isomiso2avc1mp41;isomiso2avc1mp41",
+            "hyperframes_version": "0.8.168",
+            "hyperframes_renderer": "hyperframes",
+            "encoder": "Lavf63.1.101"
+          }
+        }
+      },
+      "error": null
+    }
+  ],
+  "playback_checks": "playback-checks.json",
+  "observed_issues": {
+    "as_of": "2026-10-20T08:56:02.196676+00:00",
+    "resource_failures": [],
+    "protocol_recoveries": [
+      {
+        "action_id": "paction_732a1170281c4682859562b2894b3f9a",
+        "at": "2026-10-20 08:21:48.221772+00:00",
+        "status": "completed",
+        "phase": "learning_path",
+        "protocol_attempt": 1,
+        "usage": {
+          "total_tokens": 54807,
+          "prompt_tokens": 54054,
+          "completion_tokens": 753,
+          "prompt_tokens_details": {
+            "cached_tokens": 53632
+          },
+          "prompt_cache_hit_tokens": 53632,
+          "prompt_cache_miss_tokens": 422
+        },
+        "finish_reasons": [
+          "tool_calls"
+        ],
+        "node": null,
+        "resource_type": null
+      },
+      {
+        "action_id": "paction_c2840ae0b26b4a4e937deaa5ecc6613c",
+        "at": "2026-10-20 08:23:05.805101+00:00",
+        "status": "completed",
+        "phase": "resource_write",
+        "protocol_attempt": 1,
+        "usage": {
+          "total_tokens": 17730,
+          "prompt_tokens": 14559,
+          "completion_tokens": 3171,
+          "prompt_tokens_details": {
+            "cached_tokens": 14336
+          },
+          "prompt_cache_hit_tokens": 14336,
+          "prompt_cache_miss_tokens": 223
+        },
+        "finish_reasons": [
+          "tool_calls"
+        ],
+        "node": "n3-positional-encoding",
+        "resource_type": "report"
+      },
+      {
+        "action_id": "paction_29f70ae150814145a297a7405aeff957",
+        "at": "2026-10-20 08:32:15.314242+00:00",
+        "status": "completed",
+        "phase": "native_video",
+        "protocol_attempt": 1,
+        "usage": {
+          "total_tokens": 87198,
+          "prompt_tokens": 86791,
+          "completion_tokens": 407,
+          "prompt_tokens_details": {
+            "cached_tokens": 86656
+          },
+          "prompt_cache_hit_tokens": 86656,
+          "prompt_cache_miss_tokens": 135,
+          "completion_tokens_details": {
+            "reasoning_tokens": 216
+          }
+        },
+        "finish_reasons": [
+          "tool_calls"
+        ],
+        "node": "n1-motivation",
+        "resource_type": "classroom"
+      }
+    ],
+    "session_errors": [],
+    "native_tool_failures": [
+      {
+        "node": "n2-self-attention",
+        "session": "hyperframes-497d9fbc00934fe5a8e675c50051fec1.jsonl",
+        "tool": "read_file",
+        "called_at": 1792484664.563,
+        "returned_at": 1792484665.384,
+        "arguments": "{\"path\": \"/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md\"}",
+        "result": {
+          "ok": false,
+          "error": "[Errno 2] No such file or directory: '/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md'",
+          "command_id": null,
+          "exit_code": null,
+          "output_file": null
+        }
+      },
+      {
+        "node": "n4-encoder",
+        "session": "hyperframes-34565a572dcf4c2d94e064767f1c764c.jsonl",
+        "tool": "read_file",
+        "called_at": 1792484689.941,
+        "returned_at": 1792484690.463,
+        "arguments": "{\"path\": \"/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md\"}",
+        "result": {
+          "ok": false,
+          "error": "[Errno 2] No such file or directory: '/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md'",
+          "command_id": null,
+          "exit_code": null,
+          "output_file": null
+        }
+      }
+    ],
+    "nonzero_command_count": 17,
+    "nonzero_command_detail": "nonzero-commands.json",
+    "transport_log_scan": {
+      "scope": "Copied native command logs only; model retries without logged exceptions are not excluded",
+      "matches": []
+    },
+    "recovered_browser_check": {
+      "node": "n3-positional-encoding",
+      "failed_command": "2ca94ded56de47969d2173f85b6cd515",
+      "message": "Native browser check incomplete; no successful receipt saved",
+      "successful_followup_command": "eb8bde5240234d0685959f997a5f5b11",
+      "followup_exit_code": 0,
+      "status": "recovered_by_generator"
+    },
+    "other_command_errors": [
+      "Exploratory reads/listings used nonexistent reference files or not-yet-created scene directories.",
+      "One environment probe used the unavailable 'which' command (exit 127)."
+    ],
+    "narration_repetition": {
+      "node": "n4-encoder",
+      "prepare_narration_calls": 2,
+      "initial_audio_seconds": 245.832,
+      "later_audio_seconds": 291.936,
+      "note": "Repeated narration preparation after content changes; not evidence of HTTP throttling."
+    },
+    "layout_and_runtime_checks": [
+      {
+        "node": "n1-motivation",
+        "native_ok": false,
+        "sections": {
+          "lint": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 15,
+            "finding_codes": {
+              "studio_missing_editable_id": 10,
+              "overlapping_gsap_tweens": 4,
+              "composition_file_too_large": 1
+            }
+          },
+          "runtime": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 22,
+            "finding_codes": {
+              "console_warning": 12,
+              "clip_media_fit": 10
+            }
+          },
+          "layout": {
+            "ok": false,
+            "errors": 2,
+            "warnings": 0,
+            "finding_codes": {
+              "text_not_painted": 2,
+              "connector_orphan": 1,
+              "text_box_overflow": 7,
+              "canvas_overflow": 6,
+              "escaped_container": 3,
+              "container_overflow": 6,
+              "text_occluded": 1
+            }
+          },
+          "motion": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 0,
+            "finding_codes": {}
+          },
+          "contrast": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 2,
+            "finding_codes": {
+              "contrast_aa_failure": 2
+            }
+          }
+        }
+      },
+      {
+        "node": "n2-self-attention",
+        "native_ok": true,
+        "sections": {
+          "lint": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 11,
+            "finding_codes": {
+              "studio_missing_editable_id": 9,
+              "overlapping_gsap_tweens": 1,
+              "composition_file_too_large": 1
+            }
+          },
+          "runtime": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 9,
+            "finding_codes": {
+              "clip_media_fit": 9
+            }
+          },
+          "layout": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 0,
+            "finding_codes": {
+              "panel_out_of_canvas": 2,
+              "content_overlap": 12,
+              "text_box_overflow": 2,
+              "canvas_overflow": 2,
+              "connector_orphan": 3,
+              "container_overflow": 3
+            }
+          },
+          "motion": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 0,
+            "finding_codes": {}
+          },
+          "contrast": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 0,
+            "finding_codes": {}
+          }
+        }
+      },
+      {
+        "node": "n3-positional-encoding",
+        "native_ok": false,
+        "sections": {
+          "lint": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 22,
+            "finding_codes": {
+              "studio_missing_editable_id": 22
+            }
+          },
+          "runtime": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 0,
+            "finding_codes": {}
+          },
+          "layout": {
+            "ok": false,
+            "errors": 5,
+            "warnings": 0,
+            "finding_codes": {
+              "text_not_painted": 5,
+              "text_box_overflow": 7,
+              "canvas_overflow": 7,
+              "container_overflow": 7,
+              "content_overlap": 1,
+              "escaped_container": 1
+            }
+          },
+          "motion": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 0,
+            "finding_codes": {}
+          },
+          "contrast": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 3,
+            "finding_codes": {
+              "contrast_aa_failure": 3
+            }
+          }
+        }
+      },
+      {
+        "node": "n4-encoder",
+        "native_ok": false,
+        "sections": {
+          "lint": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 0,
+            "finding_codes": {}
+          },
+          "runtime": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 0,
+            "finding_codes": {}
+          },
+          "layout": {
+            "ok": false,
+            "errors": 5,
+            "warnings": 0,
+            "finding_codes": {
+              "text_not_painted": 5,
+              "text_occluded": 7,
+              "container_overflow": 6,
+              "canvas_overflow": 2,
+              "connector_orphan": 4,
+              "text_box_overflow": 1
+            }
+          },
+          "motion": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 0,
+            "finding_codes": {}
+          },
+          "contrast": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 3,
+            "finding_codes": {
+              "contrast_aa_failure": 3
+            }
+          }
+        }
+      },
+      {
+        "node": "n5-decoder-and-flow",
+        "native_ok": false,
+        "sections": {
+          "lint": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 19,
+            "finding_codes": {
+              "studio_missing_editable_id": 17,
+              "gsap_repeated_fromto_without_baseline": 1,
+              "composition_file_too_large": 1
+            }
+          },
+          "runtime": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 14,
+            "finding_codes": {
+              "clip_media_fit": 14
+            }
+          },
+          "layout": {
+            "ok": false,
+            "errors": 11,
+            "warnings": 0,
+            "finding_codes": {
+              "text_not_painted": 9,
+              "content_overlap": 2,
+              "container_overflow": 14,
+              "text_occluded": 3,
+              "text_box_overflow": 3,
+              "canvas_overflow": 3
+            }
+          },
+          "motion": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 0,
+            "finding_codes": {}
+          },
+          "contrast": {
+            "ok": true,
+            "errors": 0,
+            "warnings": 5,
+            "finding_codes": {
+              "contrast_aa_failure": 5
+            }
+          }
+        }
+      }
+    ],
+    "check_interpretation": "Native lint/runtime/layout findings are retained separately from the playback-first release decision. Native ok=false does not mean resource generation failed. Layout/contrast findings were advisory under the existing release policy; some refer to decorative ghost text. No claim that every finding is a visible defect or that every finished frame has been visually verified.",
+    "visual_spotcheck": {
+      "performed": true,
+      "scope": "Read existing native contact sheets; no new render or playback was triggered by observer.",
+      "reviewed": [
+        {
+          "node": "n1-motivation",
+          "image": "previews/n1-motivation-7125e5bc-7654-449f-8046-941335907240-contact-sheet-1.jpg",
+          "observations": [
+            "Nine sampled images contain titles, labels or diagrams; no entirely blank sampled frame.",
+            "Dark blue/black theme; sampled Seq2Seq, attention weighting and encoder/decoder diagrams are present.",
+            "Some diagram labels occupy a small fraction of the frame; legibility at final display size has not been tested."
+          ]
+        },
+        {
+          "node": "n2-self-attention",
+          "image": "previews/n2-self-attention-2afc023a-aa9b-4dae-b03e-84a50cadf345-contact-sheet-1.jpg",
+          "observations": [
+            "Nine sampled images show Q/K/V projections, dot products, softmax, weighted sum, a three-token numerical demonstration and multi-head concatenation.",
+            "Dark blue grid theme; no entirely blank sampled frame; small secondary diagram labels require final-size inspection."
+          ]
+        },
+        {
+          "node": "n3-positional-encoding",
+          "image": "previews/n3-positional-encoding-d798efa2-0f4f-4895-beec-25a33d666568-contact-sheet-1.jpg",
+          "observations": [
+            "Nine sampled images show token order, permutation, sequential/parallel structure, input position addition and sine/cosine encoding.",
+            "Dark blue grid theme; no entirely blank sampled frame."
+          ]
+        },
+        {
+          "node": "n4-encoder",
+          "image": "previews/n4-encoder-aeb3814d-a6fe-42b6-8eae-ccf542fb0b7d-contact-sheet-1.jpg",
+          "observations": [
+            "Nine sampled images show stacked encoder layers, input addition, attention, residual connections, layer normalization and feed-forward structure.",
+            "Dark blue grid theme; no entirely blank sampled frame. Small labels remain a final-display legibility limitation."
+          ]
+        },
+        {
+          "node": "n5-decoder-and-flow",
+          "image": "previews/n5-decoder-and-flow-aee7790c-d11c-43e0-bb63-377a144270ea-contact-sheet-1.jpg",
+          "observations": [
+            "Nine sampled images show encoder/decoder comparison, causal and padding masks, shifted targets, cross-attention Q/K/V sources.",
+            "No entirely blank sampled frame. Cross-attention title wraps its final character onto a separate line; secondary labels are small in contact sheet.",
+            "All five reviewed sheets share a dark blue palette; spacing and title treatments vary."
+          ]
+        }
+      ],
+      "not_performed": [
+        "frame-by-frame playback",
+        "semantic/numeric review",
+        "interactive UI checks"
+      ]
+    },
+    "limitations": [
+      "No semantic/numerical content review, extra model call, re-render, or interactive playback.",
+      "A successful generation status does not establish all educational content is correct.",
+      "Concurrency peaks use 30-second sampling and are lower bounds."
+    ],
+    "production_review_reported_limitations": {
+      "source": "manifests.json, final manifest v11 limitations",
+      "note": "Existing production review findings, not an independent observer content review.",
+      "examples": [
+        "n1 报告中“我爱学习”一句的“4 个词（按分词可能是 3 个）”表述自相矛盾，属润色级瑕疵，建议后续统一为 3 个词，不影响核心概念正确性。",
+        "习题与课堂正文按策略不在本轮内容审阅范围，其正确性未由本审阅确认。",
+        "报告正文中“我爱学习”一句被描述为“输入是 4 个词（我 / 爱 / 学习，按分词可能是 3 个）”，括号内自相矛盾，属表述瑕疵，不影响核心概念正确性，建议后续润色时统一为 3 个词。"
+      ]
+    }
+  },
+  "fix": "../2026-10-20-generation-simplification/summary.json",
+  "quiz_generation": [
+    {
+      "node": "n1-motivation",
+      "status": "draft",
+      "questions": 6,
+      "review_policy": "quiz-structure-only-v1",
+      "review_decision": "skipped",
+      "model_calls": 1,
+      "model_phases": [
+        "resource_write"
+      ]
+    },
+    {
+      "node": "n2-self-attention",
+      "status": "draft",
+      "questions": 7,
+      "review_policy": "quiz-structure-only-v1",
+      "review_decision": "skipped",
+      "model_calls": 1,
+      "model_phases": [
+        "resource_write"
+      ]
+    },
+    {
+      "node": "n3-positional-encoding",
+      "status": "draft",
+      "questions": 6,
+      "review_policy": "quiz-structure-only-v1",
+      "review_decision": "skipped",
+      "model_calls": 1,
+      "model_phases": [
+        "resource_write"
+      ]
+    },
+    {
+      "node": "n4-encoder",
+      "status": "draft",
+      "questions": 9,
+      "review_policy": "quiz-structure-only-v1",
+      "review_decision": "skipped",
+      "model_calls": 1,
+      "model_phases": [
+        "resource_write"
+      ]
+    },
+    {
+      "node": "n5-decoder-and-flow",
+      "status": "draft",
+      "questions": 7,
+      "review_policy": "quiz-structure-only-v1",
+      "review_decision": "skipped",
+      "model_calls": 1,
+      "model_phases": [
+        "resource_write"
+      ]
+    }
+  ],
+  "narration_commands": [
+    {
+      "node": "n1-motivation",
+      "command_id": "a8a4caa86aed4b5fb1215bdf477c4220",
+      "started_at": 1792484706.885,
+      "finished_observed_at": 1792484727.1,
+      "seconds_including_polling": 20.215,
+      "exit_code": 0
+    },
+    {
+      "node": "n2-self-attention",
+      "command_id": "3a3d31458f7e440f8c4e4c7dcf91e4cf",
+      "started_at": 1792484761.592,
+      "finished_observed_at": 1792484785.216,
+      "seconds_including_polling": 23.624,
+      "exit_code": 0
+    },
+    {
+      "node": "n3-positional-encoding",
+      "command_id": "8bf0a7ab48734dc4b151979faf5acc53",
+      "started_at": 1792484797.173,
+      "finished_observed_at": 1792484820.691,
+      "seconds_including_polling": 23.518,
+      "exit_code": 0
+    },
+    {
+      "node": "n4-encoder",
+      "command_id": "631253856a04451888b5ada1a702167c",
+      "started_at": 1792484773.13,
+      "finished_observed_at": 1792484795.062,
+      "seconds_including_polling": 21.932,
+      "exit_code": 0
+    },
+    {
+      "node": "n4-encoder",
+      "command_id": "fad504eaf4c845a1992e4b6f1570caf4",
+      "started_at": 1792484825.082,
+      "finished_observed_at": 1792484843.802,
+      "seconds_including_polling": 18.72,
+      "exit_code": 0
+    },
+    {
+      "node": "n5-decoder-and-flow",
+      "command_id": "d7caacb84cb64b30a70deafa386af05f",
+      "started_at": 1792484844.821,
+      "finished_observed_at": 1792484909.254,
+      "seconds_including_polling": 64.433,
+      "exit_code": 0
+    }
+  ],
+  "narration_timing_note": "Speech command request to first observed completion; includes command setup and polling latency. Multiple commands may reuse cached speech or regenerate changed lines; audio length is not synthesis time.",
+  "runtime_builds": [
+    {
+      "artifact": "artifact_0190d63f52071cd7b9165ac310356d0f",
+      "build_id": "30cd9852b05cf6058d02",
+      "loaded_at": 1792483018.3855925,
+      "pid": 2916307,
+      "stage_limits_scope": "shared-host",
+      "configuration": {
+        "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "HYPERFRAMES_RENDER_WORKERS": "4",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+      },
+      "history": [
+        {
+          "build_id": "30cd9852b05cf6058d02",
+          "loaded_at": 1792483018.3855925,
+          "pid": 2916307,
+          "stage_limits_scope": "shared-host",
+          "configuration": {
+            "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+            "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+            "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+            "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+            "HYPERFRAMES_RENDER_WORKERS": "4",
+            "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+            "TTS_REMOTE_CONCURRENCY": "8",
+            "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+          }
+        }
+      ]
+    },
+    {
+      "artifact": "artifact_4511f8c5a1a43c23e3aaa36cdf9c4012",
+      "build_id": "30cd9852b05cf6058d02",
+      "loaded_at": 1792484428.7867246,
+      "pid": 2943045,
+      "stage_limits_scope": "shared-host",
+      "configuration": {
+        "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "HYPERFRAMES_RENDER_WORKERS": "4",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+      },
+      "history": [
+        {
+          "build_id": "30cd9852b05cf6058d02",
+          "loaded_at": 1792484428.7867246,
+          "pid": 2943045,
+          "stage_limits_scope": "shared-host",
+          "configuration": {
+            "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+            "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+            "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+            "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+            "HYPERFRAMES_RENDER_WORKERS": "4",
+            "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+            "TTS_REMOTE_CONCURRENCY": "8",
+            "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+          }
+        }
+      ]
+    },
+    {
+      "artifact": "artifact_3ece5fbad33f0a742879da18765404d4",
+      "build_id": "30cd9852b05cf6058d02",
+      "loaded_at": 1792484428.7867246,
+      "pid": 2943045,
+      "stage_limits_scope": "shared-host",
+      "configuration": {
+        "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "HYPERFRAMES_RENDER_WORKERS": "4",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+      },
+      "history": [
+        {
+          "build_id": "30cd9852b05cf6058d02",
+          "loaded_at": 1792484428.7867246,
+          "pid": 2943045,
+          "stage_limits_scope": "shared-host",
+          "configuration": {
+            "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+            "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+            "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+            "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+            "HYPERFRAMES_RENDER_WORKERS": "4",
+            "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+            "TTS_REMOTE_CONCURRENCY": "8",
+            "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+          }
+        }
+      ]
+    },
+    {
+      "artifact": "artifact_b6b5f8aa26ce63ee7ade5beefb8ae6a8",
+      "build_id": "30cd9852b05cf6058d02",
+      "loaded_at": 1792483018.3855925,
+      "pid": 2916307,
+      "stage_limits_scope": "shared-host",
+      "configuration": {
+        "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "HYPERFRAMES_RENDER_WORKERS": "4",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+      },
+      "history": [
+        {
+          "build_id": "30cd9852b05cf6058d02",
+          "loaded_at": 1792483018.3855925,
+          "pid": 2916307,
+          "stage_limits_scope": "shared-host",
+          "configuration": {
+            "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+            "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+            "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+            "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+            "HYPERFRAMES_RENDER_WORKERS": "4",
+            "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+            "TTS_REMOTE_CONCURRENCY": "8",
+            "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+          }
+        }
+      ]
+    },
+    {
+      "artifact": "artifact_1119e3b97e9c560fe561b2128247f194",
+      "build_id": "30cd9852b05cf6058d02",
+      "loaded_at": 1792483018.3855925,
+      "pid": 2916307,
+      "stage_limits_scope": "shared-host",
+      "configuration": {
+        "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+        "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+        "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+        "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+        "HYPERFRAMES_RENDER_WORKERS": "4",
+        "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+        "TTS_REMOTE_CONCURRENCY": "8",
+        "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+      },
+      "history": [
+        {
+          "build_id": "30cd9852b05cf6058d02",
+          "loaded_at": 1792483018.3855925,
+          "pid": 2916307,
+          "stage_limits_scope": "shared-host",
+          "configuration": {
+            "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+            "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+            "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+            "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+            "HYPERFRAMES_RENDER_WORKERS": "4",
+            "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+            "TTS_REMOTE_CONCURRENCY": "8",
+            "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+          }
+        }
+      ]
+    }
+  ],
+  "session_error_events": [],
+  "protocol_recoveries": [
+    {
+      "action_id": "paction_732a1170281c4682859562b2894b3f9a",
+      "at": "2026-10-20 08:21:48.221772+00:00",
+      "status": "completed",
+      "phase": "learning_path",
+      "protocol_attempt": 1,
+      "usage": {
+        "total_tokens": 54807,
+        "prompt_tokens": 54054,
+        "completion_tokens": 753,
+        "prompt_tokens_details": {
+          "cached_tokens": 53632
+        },
+        "prompt_cache_hit_tokens": 53632,
+        "prompt_cache_miss_tokens": 422
+      },
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "node": null,
+      "resource_type": null
+    },
+    {
+      "action_id": "paction_c2840ae0b26b4a4e937deaa5ecc6613c",
+      "at": "2026-10-20 08:23:05.805101+00:00",
+      "status": "completed",
+      "phase": "resource_write",
+      "protocol_attempt": 1,
+      "usage": {
+        "total_tokens": 17730,
+        "prompt_tokens": 14559,
+        "completion_tokens": 3171,
+        "prompt_tokens_details": {
+          "cached_tokens": 14336
+        },
+        "prompt_cache_hit_tokens": 14336,
+        "prompt_cache_miss_tokens": 223
+      },
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "node": "n3-positional-encoding",
+      "resource_type": "report"
+    },
+    {
+      "action_id": "paction_29f70ae150814145a297a7405aeff957",
+      "at": "2026-10-20 08:32:15.314242+00:00",
+      "status": "completed",
+      "phase": "native_video",
+      "protocol_attempt": 1,
+      "usage": {
+        "total_tokens": 87198,
+        "prompt_tokens": 86791,
+        "completion_tokens": 407,
+        "prompt_tokens_details": {
+          "cached_tokens": 86656
+        },
+        "prompt_cache_hit_tokens": 86656,
+        "prompt_cache_miss_tokens": 135,
+        "completion_tokens_details": {
+          "reasoning_tokens": 216
+        }
+      },
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "node": "n1-motivation",
+      "resource_type": "classroom"
+    }
+  ],
+  "failed_model_actions": [],
+  "native_tool_failures": [
+    {
+      "node": "n2-self-attention",
+      "session": "hyperframes-497d9fbc00934fe5a8e675c50051fec1.jsonl",
+      "tool": "read_file",
+      "called_at": 1792484664.563,
+      "returned_at": 1792484665.384,
+      "arguments": "{\"path\": \"/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md\"}",
+      "result": {
+        "ok": false,
+        "error": "[Errno 2] No such file or directory: '/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md'",
+        "command_id": null,
+        "exit_code": null,
+        "output_file": null
+      }
+    },
+    {
+      "node": "n4-encoder",
+      "session": "hyperframes-34565a572dcf4c2d94e064767f1c764c.jsonl",
+      "tool": "read_file",
+      "called_at": 1792484689.941,
+      "returned_at": 1792484690.463,
+      "arguments": "{\"path\": \"/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md\"}",
+      "result": {
+        "ok": false,
+        "error": "[Errno 2] No such file or directory: '/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/hyperframes-animation/references/blueprints-index.md'",
+        "command_id": null,
+        "exit_code": null,
+        "output_file": null
+      }
+    }
+  ],
+  "nonzero_native_commands": [
+    {
+      "node": "n1-motivation",
+      "session": "hyperframes-122e7ee044ba4decb868c7182d7e9030.jsonl",
+      "tool": "run_command",
+      "called_at": 1792484842.144,
+      "returned_at": 1792484843.532,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && ls -la && ls -la compositions/frames/ 2>/dev/null && ls assets/ assets/fonts/ 2>/dev/null\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "c23e5acba0664a8a9b5af504fac5d59e",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/c23e5acba0664a8a9b5af504fac5d59e.log"
+      }
+    },
+    {
+      "node": "n1-motivation",
+      "session": "hyperframes-3d83f99b5e56438d9e1708f028c66952.jsonl",
+      "tool": "run_command",
+      "called_at": 1792484886.582,
+      "returned_at": 1792484886.992,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/Edu_AI/vendor/hyperframes && sed -n 1,160p references/sub-compositions.md\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "7c7fd1af4fba4b8181ecaadf6265a99e",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/7c7fd1af4fba4b8181ecaadf6265a99e.log"
+      }
+    },
+    {
+      "node": "n1-motivation",
+      "session": "hyperframes-5e04a62544514ebfa571f2a357a5541e.jsonl",
+      "tool": "run_command",
+      "called_at": 1792484591.667,
+      "returned_at": 1792484592.12,
+      "arguments": "{\"command\": \"ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/; echo ---; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/; echo ---; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/ /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/references/\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "88b1158af49a45fba9a4fe1687b30c82",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/88b1158af49a45fba9a4fe1687b30c82.log"
+      }
+    },
+    {
+      "node": "n2-self-attention",
+      "session": "hyperframes-82c782da9b2743899ee3bd2f6920d1b5.jsonl",
+      "tool": "run_command",
+      "called_at": 1792485003.223,
+      "returned_at": 1792485004.16,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/videos/transformer-self-attention && ls -la && echo \\\"---frames---\\\" && ls -la compositions/frames 2>/dev/null && echo \\\"---assets---\\\" && ls -la assets 2>/dev/null | head -20 && echo \\\"---fonts---\\\" && ls assets/fonts 2>/dev/null\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "53eb5320e057424a91cb6ae7407eb4ec",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/.host/53eb5320e057424a91cb6ae7407eb4ec.log"
+      }
+    },
+    {
+      "node": "n2-self-attention",
+      "session": "hyperframes-497d9fbc00934fe5a8e675c50051fec1.jsonl",
+      "tool": "run_command",
+      "called_at": 1792484643.549,
+      "returned_at": 1792484644.156,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984 && ls -la && echo \\\"--- videos ---\\\" && ls -la videos 2>/dev/null && echo \\\"--- host ---\\\" && ls -la .host\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "73b415a680f24df5a40757a3b8f2a74f",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984/.host/73b415a680f24df5a40757a3b8f2a74f.log"
+      }
+    },
+    {
+      "node": "n3-positional-encoding",
+      "session": "hyperframes-c1fcbd1203b04ba1aa392103fc7f9f6c.jsonl",
+      "tool": "poll_command",
+      "called_at": 1792485390.798,
+      "returned_at": 1792485393.838,
+      "arguments": "{\"command_id\": \"2ca94ded56de47969d2173f85b6cd515\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "2ca94ded56de47969d2173f85b6cd515",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/.host/2ca94ded56de47969d2173f85b6cd515.log"
+      }
+    },
+    {
+      "node": "n3-positional-encoding",
+      "session": "hyperframes-bf3059d610e5496494bda8b9ab642179.jsonl",
+      "tool": "run_command",
+      "called_at": 1792484933.429,
+      "returned_at": 1792484934.033,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding && ls && echo \\\"---\\\" && ls assets assets/fonts 2>/dev/null && echo \\\"--- frames:\\\" && ls compositions/frames 2>/dev/null\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "a101482487b743bb8a6a71278ac5eb34",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/.host/a101482487b743bb8a6a71278ac5eb34.log"
+      }
+    },
+    {
+      "node": "n4-encoder",
+      "session": "hyperframes-7991e95be4ef4a1c86fa909956656674.jsonl",
+      "tool": "run_command",
+      "called_at": 1792484997.477,
+      "returned_at": 1792484998.368,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/videos/transformer-encoder-structure && ls -la && ls -la assets 2>/dev/null && ls -la assets/fonts 2>/dev/null && ls -la compositions/frames 2>/dev/null\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "ad6a4b8e398b49c3b0cc8da1973afc71",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/.host/ad6a4b8e398b49c3b0cc8da1973afc71.log"
+      }
+    },
+    {
+      "node": "n4-encoder",
+      "session": "hyperframes-7991e95be4ef4a1c86fa909956656674.jsonl",
+      "tool": "poll_command",
+      "called_at": 1792485680.128,
+      "returned_at": 1792485681.188,
+      "arguments": "{\"command_id\": \"30c1f4dc53dd4c878fc797f6ca37ec9f\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "30c1f4dc53dd4c878fc797f6ca37ec9f",
+        "exit_code": 1,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/.host/30c1f4dc53dd4c878fc797f6ca37ec9f.log"
+      }
+    },
+    {
+      "node": "n4-encoder",
+      "session": "hyperframes-10f600acef624ad6b881213fb66e2af4.jsonl",
+      "tool": "run_command",
+      "called_at": 1792484998.325,
+      "returned_at": 1792484999.253,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/videos/transformer-encoder-structure && ls -la && ls -la compositions compositions/frames 2>/dev/null && ls assets assets/fonts 2>/dev/null\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "3a7839851e1a4d5d987354b9db6b79d3",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/.host/3a7839851e1a4d5d987354b9db6b79d3.log"
+      }
+    },
+    {
+      "node": "n4-encoder",
+      "session": "hyperframes-ceb5589706bf4ca1b31d75524a11453c.jsonl",
+      "tool": "run_command",
+      "called_at": 1792484995.468,
+      "returned_at": 1792484996.331,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/videos/transformer-encoder-structure && ls -la && ls -la assets assets/fonts 2>/dev/null && ls -la compositions/frames 2>/dev/null\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "605a52aa27cb4c7290e62f89eebc484a",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/.host/605a52aa27cb4c7290e62f89eebc484a.log"
+      }
+    },
+    {
+      "node": "n4-encoder",
+      "session": "hyperframes-ceb5589706bf4ca1b31d75524a11453c.jsonl",
+      "tool": "run_command",
+      "called_at": 1792485350.199,
+      "returned_at": 1792485351.721,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/videos/transformer-encoder-structure/compositions/frames && for f in f01-open f02-stack f03-input; do echo \\\"=== $f ===\\\"; head -c 40 $f.html; echo; tail -c 40 $f.html; echo; echo \\\"-- forbidden --\\\"; grep -n -i -E \\\"<!doctype|<html|<head|<body|<audio|<img|https?://|transition:|\\\\.repeat\\\\(|repeat:-1|yoyo|Date\\\\.now|Math\\\\.random\\\" $f.html || echo none; echo \\\"-- ids --\\\"; grep -o 'id=\\\"[^\\\"]*\\\"' $f.html | sort -u | tr '\\\\n' ' '; echo; echo \\\"-- fonts --\\\"; grep -o 'font-family:[^;]*' $f.html | sort -u; echo \\\"-- timeline --\\\"; grep -n \\\"__timelines\\\" $f.html; done\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "044104f5c86d4c4ab254d47053a3cb6d",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c97dcc8d03e35c46235d312d50b77b1321e41fadef992a36bdaf51b1aa9b4fd4/.host/044104f5c86d4c4ab254d47053a3cb6d.log"
+      }
+    },
+    {
+      "node": "n5-decoder-and-flow",
+      "session": "hyperframes-6b78badaed3c43b4ba221b47c8cf1569.jsonl",
+      "tool": "run_command",
+      "called_at": 1792485059.377,
+      "returned_at": 1792485061.143,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow && ls -la && ls compositions 2>/dev/null && ls compositions/frames 2>/dev/null && ls assets/fonts 2>/dev/null && ls assets 2>/dev/null\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "e28cba3db8a147cc8da59fd14e03c466",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/.host/e28cba3db8a147cc8da59fd14e03c466.log"
+      }
+    },
+    {
+      "node": "n5-decoder-and-flow",
+      "session": "hyperframes-ea5ddcaebdce4c5593622709af73758a.jsonl",
+      "tool": "run_command",
+      "called_at": 1792484649.776,
+      "returned_at": 1792484650.24,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef && ls -la && echo \\\"--- videos ---\\\" && ls -la videos 2>/dev/null && echo \\\"--- original ---\\\" && ls -la original 2>/dev/null | head -40 && echo \\\"--- skills ---\\\" && ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "41dafe217dcc401897f1e09d152421ce",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/.host/41dafe217dcc401897f1e09d152421ce.log"
+      }
+    },
+    {
+      "node": "n5-decoder-and-flow",
+      "session": "hyperframes-8428ee60914b455f8dc8bd4e4446ca25.jsonl",
+      "tool": "run_command",
+      "called_at": 1792485312.841,
+      "returned_at": 1792485314.99,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow && ls -la && ls compositions 2>/dev/null && ls compositions/frames 2>/dev/null && ls assets/fonts 2>/dev/null\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "28bf8dc0b63b432c8e676e45e802eed6",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/.host/28bf8dc0b63b432c8e676e45e802eed6.log"
+      }
+    },
+    {
+      "node": "n5-decoder-and-flow",
+      "session": "hyperframes-8428ee60914b455f8dc8bd4e4446ca25.jsonl",
+      "tool": "poll_command",
+      "called_at": 1792485904.162,
+      "returned_at": 1792485904.853,
+      "arguments": "{\"command_id\": \"a92b7806e35641a59f5ff2adbd8d702c\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "a92b7806e35641a59f5ff2adbd8d702c",
+        "exit_code": 127,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/.host/a92b7806e35641a59f5ff2adbd8d702c.log"
+      }
+    },
+    {
+      "node": "n5-decoder-and-flow",
+      "session": "hyperframes-db020fbff4354194a2e1825a7d5bedd9.jsonl",
+      "tool": "run_command",
+      "called_at": 1792485317.374,
+      "returned_at": 1792485319.02,
+      "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/videos/n5-decoder-mask-dataflow && ls -la && echo --- && ls compositions 2>/dev/null && echo --- && ls compositions/frames 2>/dev/null\"}",
+      "result": {
+        "ok": true,
+        "error": null,
+        "command_id": "3e2cbe37b8434332865d15f0f424bc1f",
+        "exit_code": 2,
+        "output_file": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef/.host/3e2cbe37b8434332865d15f0f424bc1f.log"
+      }
+    }
+  ],
+  "error_note": "Native exploratory tool/command errors and recovered protocol corrections are distinct from failed resources.",
+  "observation_start": {
+    "preparation_id": "prep_117d20be16ac4d7d86675afce8e7324b",
+    "started_observing_at": "2026-10-20T08:23:01.444654+00:00",
+    "task_created_at": "2026-10-20T08:20:44.828375+00:00",
+    "read_only": true,
+    "services": {
+      "edu-ai-backend": "MainPID=2943045\nActiveState=active\nActiveEnterTimestamp=Tue 2026-10-20 08:20:23 UTC",
+      "edu-ai-durable-workers": "MainPID=2916307\nActiveState=active\nActiveEnterTimestamp=Tue 2026-10-20 07:56:56 UTC"
+    },
+    "observed_source_changes": "quiz structure-only, native SSE heartbeat, interleaved capture; runtime behavior to be confirmed from actual receipts/logs"
+  },
+  "native_model_response_observation": {
+    "completed_steps": 812,
+    "longest_response_wait_seconds": 334.072,
+    "responses_over_300_seconds": [
+      {
+        "node": "n5-decoder-and-flow",
+        "session": "hyperframes-6b78badaed3c43b4ba221b47c8cf1569.jsonl",
+        "turn": 1,
+        "step": 5,
+        "started_at": 1792485071.144,
+        "response_at": 1792485405.216,
+        "first_chunk_wait_seconds": 334.057,
+        "response_wait_seconds": 334.072,
+        "usage": {
+          "inputTokens": 1492,
+          "outputTokens": 68599,
+          "totalTokens": 108619,
+          "cacheReadTokens": 38528,
+          "reasoningTokens": 64614
+        },
+        "tools": [
+          "mcp__hyperframes__write_file"
+        ]
+      }
+    ],
+    "note": "SDK step start to first/full assistant response; may include provider protocol correction. Heartbeat comments are not model output. Pending waits use last copied trace."
+  }
+}

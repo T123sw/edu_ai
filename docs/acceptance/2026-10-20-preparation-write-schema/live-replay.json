@@ -1,0 +1,111 @@
+{
+  "production_task_mutated": false,
+  "injected_response_count": 1,
+  "scope": "Schema recovery only; content review is separately covered by native tests.",
+  "status": "recovered",
+  "envelope": {
+    "applied_requirements": [
+      {
+        "requirement_id": "req-order",
+        "locator": {
+          "question_id": "q1"
+        },
+        "explanation": "q1 题干先给出 add(a=12,b=30) 的具体调用例子，再问程序职责，符合先例后理"
+      },
+      {
+        "requirement_id": "req-order",
+        "locator": {
+          "question_id": "q2"
+        },
+        "explanation": "q2 题干先给出缺少 b 参数的调用例子，再问缺失参数，符合先例后理"
+      }
+    ],
+    "objective_bindings": [
+      {
+        "objective_id": "tools:o1",
+        "locator": {
+          "question_id": "q1"
+        },
+        "role": "check"
+      },
+      {
+        "objective_id": "tools:o2",
+        "locator": {
+          "question_id": "q2"
+        },
+        "role": "check"
+      }
+    ],
+    "question_time_estimates": [
+      {
+        "question_id": "q1",
+        "thinking_seconds": 30,
+        "reason": "需先读懂 add(a=12,b=30) 例子，再区分模型输出与程序执行的职责，排除干扰项"
+      },
+      {
+        "question_id": "q2",
+        "thinking_seconds": 30,
+        "reason": "需识别缺少 b 参数后校验失败、工具不执行这一结果，判断哪个参数缺失"
+      }
+    ],
+    "content": {
+      "title": "工具调用：职责与参数校验",
+      "questions": [
+        {
+          "id": "q1",
+          "type": "single_choice",
+          "stem": "模型输出工具调用 add(a=12, b=30)，程序校验名称、权限和参数后执行，得到结果 42。在这个过程中，程序（而非模型）的职责是什么？",
+          "answer": "B",
+          "explanation": "A 错误：输出工具名和参数是模型的职责，不是程序。B 正确：程序负责校验工具名称、权限和参数，并在通过后真正执行工具，得到 42。C 错误：程序不负责决定调用哪个工具，那是模型根据任务做出的选择。D 错误：程序不负责生成参数值，参数由模型给出。",
+          "difficulty": "easy",
+          "options": [
+            "输出工具名和参数",
+            "校验名称、权限和参数并执行工具",
+            "决定调用哪个工具",
+            "生成参数的具体数值"
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "single_choice",
+          "stem": "模型输出工具调用 add(a=12)，缺少参数 b。程序校验后失败，工具没有执行。这里缺失的是哪个参数？",
+          "answer": "B",
+          "explanation": "A 错误：a 已经给出（a=12），并未缺失。B 正确：add 需要 a 和 b 两个参数，例子中只给了 a=12，缺少 b，因此校验失败、工具不执行。C 错误：工具名 add 已正确给出，不是缺失项。D 错误：结果 42 是执行成功后才产生的，此时工具尚未执行，谈不上缺失结果。",
+          "difficulty": "easy",
+          "options": [
+            "参数 a",
+            "参数 b",
+            "工具名 add",
+            "结果 42"
+          ]
+        }
+      ]
+    }
+  },
+  "seconds": 9.86502480134368,
+  "calls": [
+    {
+      "index": 0,
+      "source": "injected_missing_envelope"
+    },
+    {
+      "index": 1,
+      "source": "real_provider",
+      "feedback": "上一轮工具参数不符合当前 schema，整批工具均未执行。请按工具 schema 重新提交完整结构化结果，补齐必填字段、移除未定义字段。保持独立判断，保留真实 blocking_issues，不将格式修正当成内容通过。具体错误：$ (additionalProperties): Additional properties are not allowed ('questions', 'title' were unexpected)",
+      "seconds": 8.574220631737262,
+      "http_status": 200
+    }
+  ],
+  "actions": [
+    {
+      "model": "deepseek-v4-pro",
+      "phase": "resource_write",
+      "protocol_recovery_attempt": 0
+    },
+    {
+      "model": "deepseek-v4-pro",
+      "phase": "resource_write",
+      "protocol_recovery_attempt": 1
+    }
+  ]
+}

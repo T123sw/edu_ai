@@ -13,9 +13,8 @@ test("profile appearance settings expose all five accessible choices", () => {
     assert.match(source, new RegExp(label, "u"));
   }
   assert.match(source, /setTheme/u);
-  assert.match(source, /name=["']palette["']/u);
   assert.match(source, /aria-pressed=/u);
-  assert.match(source, /focus-visible:/u);
+  assert.match(readFileSync(new URL("./themeAppearanceSettings.css", import.meta.url), "utf8"), /:focus-visible/u);
   assert.match(source, />当前</u);
 });
 

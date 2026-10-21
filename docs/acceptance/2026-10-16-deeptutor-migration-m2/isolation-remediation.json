@@ -1,0 +1,12 @@
+{
+  "cause": "Legacy tests inherited PostgreSQL persistence despite temporary file roots",
+  "test_jobs_restored_from_last_historical_event": [
+    "job-1",
+    "legacy-job"
+  ],
+  "test_material_removed": "course-1/report/report-1",
+  "recent_fixture_versions_removed": 2,
+  "other_jobs_changed_in_regression_window": 0,
+  "exact_pretest_job_row_snapshot_available": false,
+  "note": "Historical test snapshots restored; no claim of byte-exact restoration of undocumented pre-test fixture state."
+}

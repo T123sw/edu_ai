@@ -1,0 +1,14 @@
+{
+  "savedStepsReusedExactly": true,
+  "previousChecksUnchanged": true,
+  "referenceHashes": [
+    "cd15e4ad1c8b69e0379f0e65aa211e0cba27c28532f7cdbbc40628a396fbd2ee",
+    "692f00a9fe13a5eb74adbfe2faa72156ae6e5c70e8ea7068560ea13b8741c93c",
+    "4008d59c5b395d784b21619dd4c380378839d424df3cf12bdb90d434fd8c8331"
+  ],
+  "repairTotals": {
+    "filter-and-stats": 6
+  },
+  "currentBudgetUsed": {},
+  "generationJobId": "job_7a969b3d19b145e7"
+}

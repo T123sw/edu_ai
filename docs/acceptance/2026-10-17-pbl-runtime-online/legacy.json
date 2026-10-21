@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "runtime": "react_app",
+  "template": "react-app-v1",
+  "preview": true,
+  "nativeChecks": 6,
+  "filesPreserved": true
+}

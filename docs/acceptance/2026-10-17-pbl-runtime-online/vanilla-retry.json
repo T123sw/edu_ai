@@ -1,0 +1,11 @@
+{
+  "name": "vanilla-live",
+  "id": "pbl_8d8b532ba6fd7c103d7aa1878232ff91",
+  "seconds": 218,
+  "success": true,
+  "template": "vanilla",
+  "steps": 2,
+  "checks": 7,
+  "error": null,
+  "jobId": "job_b742c78a37784374"
+}

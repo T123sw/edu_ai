@@ -1,0 +1,600 @@
+{
+  "ok": false,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 15,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"hf1-stage\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/01-hook.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"hf1-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/01-hook.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f02-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/02-rule.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"p03-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "gsap_repeated_fromto_without_baseline",
+        "severity": "warning",
+        "message": "2 tl.fromTo() calls target \"#p03-c0\" with no stable baseline. The last-authored fromTo \"from\" values become the element's resting state for any seek before the first tween actually runs, because GSAP applies fromTo from-values at authoring time (immediateRender), not at tween position.",
+        "selector": "#p03-c0",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add `immediateRender: false` to every fromTo except the earliest-positioned one (at 0.26s), so pre-first-tween seeks keep its \"from\" values. A hiding `tl.set(..., 0)` baseline trips gsap_timeline_set_initial_hide, and a `gsap.set` authored before the fromTo calls is overwritten by them."
+      },
+      {
+        "code": "gsap_repeated_fromto_without_baseline",
+        "severity": "warning",
+        "message": "5 tl.fromTo() calls target \"proxy (unresolved DOM association)\" with no stable baseline. The last-authored fromTo \"from\" values become the element's resting state for any seek before the first tween actually runs, because GSAP applies fromTo from-values at authoring time (immediateRender), not at tween position.",
+        "selector": "proxy (unresolved DOM association)",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add `immediateRender: false` to every fromTo except the earliest-positioned one (at 1.5s), so pre-first-tween seeks keep its \"from\" values. A hiding `tl.set(..., 0)` baseline trips gsap_timeline_set_initial_hide, and a `gsap.set` authored before the fromTo calls is overwritten by them."
+      },
+      {
+        "code": "gsap_repeated_fromto_without_baseline",
+        "severity": "warning",
+        "message": "2 tl.fromTo() calls target \"#p03-c1\" with no stable baseline. The last-authored fromTo \"from\" values become the element's resting state for any seek before the first tween actually runs, because GSAP applies fromTo from-values at authoring time (immediateRender), not at tween position.",
+        "selector": "#p03-c1",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add `immediateRender: false` to every fromTo except the earliest-positioned one (at 2.88s), so pre-first-tween seeks keep its \"from\" values. A hiding `tl.set(..., 0)` baseline trips gsap_timeline_set_initial_hide, and a `gsap.set` authored before the fromTo calls is overwritten by them."
+      },
+      {
+        "code": "gsap_repeated_fromto_without_baseline",
+        "severity": "warning",
+        "message": "2 tl.fromTo() calls target \"#p03-c2\" with no stable baseline. The last-authored fromTo \"from\" values become the element's resting state for any seek before the first tween actually runs, because GSAP applies fromTo from-values at authoring time (immediateRender), not at tween position.",
+        "selector": "#p03-c2",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add `immediateRender: false` to every fromTo except the earliest-positioned one (at 4.36s), so pre-first-tween seeks keep its \"from\" values. A hiding `tl.set(..., 0)` baseline trips gsap_timeline_set_initial_hide, and a `gsap.set` authored before the fromTo calls is overwritten by them."
+      },
+      {
+        "code": "gsap_repeated_fromto_without_baseline",
+        "severity": "warning",
+        "message": "2 tl.fromTo() calls target \"#p03-c3\" with no stable baseline. The last-authored fromTo \"from\" values become the element's resting state for any seek before the first tween actually runs, because GSAP applies fromTo from-values at authoring time (immediateRender), not at tween position.",
+        "selector": "#p03-c3",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add `immediateRender: false` to every fromTo except the earliest-positioned one (at 6.56s), so pre-first-tween seeks keep its \"from\" values. A hiding `tl.set(..., 0)` baseline trips gsap_timeline_set_initial_hide, and a `gsap.set` authored before the fromTo calls is overwritten by them."
+      },
+      {
+        "code": "gsap_repeated_fromto_without_baseline",
+        "severity": "warning",
+        "message": "2 tl.fromTo() calls target \"#p03-c4\" with no stable baseline. The last-authored fromTo \"from\" values become the element's resting state for any seek before the first tween actually runs, because GSAP applies fromTo from-values at authoring time (immediateRender), not at tween position.",
+        "selector": "#p03-c4",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add `immediateRender: false` to every fromTo except the earliest-positioned one (at 7.36s), so pre-first-tween seeks keep its \"from\" values. A hiding `tl.set(..., 0)` baseline trips gsap_timeline_set_initial_hide, and a `gsap.set` authored before the fromTo calls is overwritten by them."
+      },
+      {
+        "code": "composition_file_too_large",
+        "severity": "warning",
+        "message": "This HTML composition file has 320 lines. Smaller sub-compositions are easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Split this sub-composition further into smaller .html files, then mount them from the parent with data-composition-src so each file stays small enough to inspect, revise, and validate independently."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"f04-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/04-bubbling.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"hf5-bg\" data-start=\"0\" data-track-index=\"0\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/05-passes.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "studio_missing_editable_id",
+        "severity": "warning",
+        "message": "<div class=\"hf5-stage\" data-start=\"0\" data-track-index=\"1\"> has no id, so Studio cannot use a stable edit target for its timeline and canvas controls.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/05-passes.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Add a stable, human-readable id such as id=\"hero-title\" or id=\"scene-1-card\" to every timeline-visible element you want agents or Studio to edit."
+      },
+      {
+        "code": "overlapping_gsap_tweens",
+        "severity": "warning",
+        "message": "GSAP tweens overlap on \"#f06-ledger\" for y between 11.16s and 11.20s.",
+        "selector": "#f06-ledger",
+        "dataAttributes": {},
+        "sourceFile": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/compositions/frames/06-takeaway.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Shorten the earlier tween, move the later tween, or add `overwrite: \"auto\"`."
+      }
+    ],
+    "filesScanned": 7
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": false,
+    "errorCount": 1,
+    "warningCount": 2,
+    "infoCount": 2,
+    "findings": [
+      {
+        "code": "content_overlap",
+        "severity": "error",
+        "time": 14.12,
+        "selector": "#p03-c0",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 1777.61,
+          "top": 84,
+          "right": 1824,
+          "bottom": 113,
+          "width": 46.39,
+          "height": 29
+        },
+        "containerSelector": "#p03-c1",
+        "text": "0 / 5",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 1777.61,
+          "y": 84,
+          "width": 46.39,
+          "height": 29
+        },
+        "firstSeen": 14.12,
+        "lastSeen": 15.051,
+        "occurrences": 2,
+        "heldMs": 931.0000000000009,
+        "times": [
+          14.12,
+          15.051
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "warning",
+        "time": 14.12,
+        "selector": "#p03-c2",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 1777.61,
+          "top": 90,
+          "right": 1824,
+          "bottom": 119,
+          "width": 46.39,
+          "height": 29
+        },
+        "containerSelector": "#p03-c3",
+        "text": "2 / 5",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 1777.61,
+          "y": 90,
+          "width": 46.39,
+          "height": 29
+        },
+        "firstSeen": 14.12,
+        "lastSeen": 18.743,
+        "occurrences": 2,
+        "heldMs": 0,
+        "times": [
+          14.12,
+          18.743
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "warning",
+        "time": 14.12,
+        "selector": "#p03-c3",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 1777.61,
+          "top": 90,
+          "right": 1824,
+          "bottom": 119,
+          "width": 46.39,
+          "height": 29
+        },
+        "containerSelector": "#p03-c4",
+        "text": "3 / 5",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 1777.61,
+          "y": 90,
+          "width": 46.39,
+          "height": 29
+        },
+        "firstSeen": 14.12,
+        "lastSeen": 19.594,
+        "occurrences": 2,
+        "heldMs": 0,
+        "times": [
+          14.12,
+          19.594
+        ]
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 14.12,
+        "selector": "#p03-c1",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 1777.61,
+          "top": 90,
+          "right": 1824,
+          "bottom": 119,
+          "width": 46.39,
+          "height": 29
+        },
+        "containerSelector": "#p03-c2",
+        "text": "1 / 5",
+        "fixHint": "Give each block its own zone, or put data-layout-allow-overlap on the text or on a container inside the scene. A marker on the scene root does not apply.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 1777.61,
+          "y": 90,
+          "width": 46.39,
+          "height": 29
+        },
+        "firstSeen": 14.12,
+        "lastSeen": 14.12,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          14.12
+        ]
+      },
+      {
+        "code": "connector_orphan",
+        "severity": "info",
+        "time": 25.416,
+        "selector": "path.f04-arrow-shaft",
+        "message": "Connector shaft is visible while its endpoint #p03-t2 is not on stage.",
+        "rect": {
+          "left": 1066,
+          "top": 206,
+          "right": 1066,
+          "bottom": 642,
+          "width": 0,
+          "height": 436
+        },
+        "containerSelector": "svg.f04-arrow",
+        "fixHint": "Show the shaft only after both ends are on, and hide it with the earlier exit. Do not give the line its own clock.",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/04-bubbling.html",
+        "bbox": {
+          "x": 1066,
+          "y": 206,
+          "width": 0,
+          "height": 436
+        },
+        "firstSeen": 25.416,
+        "lastSeen": 25.416,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          25.416
+        ]
+      }
+    ],
+    "duration": 50.832,
+    "samples": [
+      2.824,
+      8.472,
+      14.12,
+      19.768,
+      25.416,
+      31.064,
+      36.712,
+      42.36,
+      48.008
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 5,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 4,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.68:1; WCAG AA requires 4.5:1.",
+        "text": "比较",
+        "fg": "rgb(154,154,154)",
+        "bg": "rgb(253,250,231)",
+        "ratio": 2.68,
+        "requiredRatio": 4.5,
+        "suggestedColor": "rgb(115,115,115)",
+        "large": false,
+        "selector": "div > div:nth-of-type(3) > div > div:nth-of-type(2) > div:nth-of-type(4) > span:nth-of-type(1)",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/03-pass.html",
+        "bbox": {
+          "x": 1651.265625,
+          "y": 91.234375,
+          "width": 42.734375,
+          "height": 29
+        },
+        "time": 14.12,
+        "times": [
+          14.12
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.37:1; WCAG AA requires 3:1.",
+        "text": "01",
+        "fg": "rgb(153,157,240)",
+        "bg": "rgb(253,250,231)",
+        "ratio": 2.37,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(134,138,211)",
+        "large": true,
+        "selector": "#f04-index-1",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/04-bubbling.html",
+        "bbox": {
+          "x": 96,
+          "y": 229,
+          "width": 76,
+          "height": 30
+        },
+        "time": 25.416,
+        "times": [
+          25.416
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.37:1; WCAG AA requires 3:1.",
+        "text": "02",
+        "fg": "rgb(153,157,240)",
+        "bg": "rgb(253,250,231)",
+        "ratio": 2.37,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(134,138,211)",
+        "large": true,
+        "selector": "#f04-index-2",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/04-bubbling.html",
+        "bbox": {
+          "x": 96,
+          "y": 387,
+          "width": 76,
+          "height": 30
+        },
+        "time": 25.416,
+        "times": [
+          25.416
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 2.37:1; WCAG AA requires 3:1.",
+        "text": "03",
+        "fg": "rgb(153,157,240)",
+        "bg": "rgb(253,250,231)",
+        "ratio": 2.37,
+        "requiredRatio": 3,
+        "suggestedColor": "rgb(134,138,211)",
+        "large": true,
+        "selector": "#f04-index-3",
+        "dataAttributes": {},
+        "sourceFile": "compositions/frames/04-bubbling.html",
+        "bbox": {
+          "x": 96,
+          "y": 545,
+          "width": 76,
+          "height": 30
+        },
+        "time": 25.416,
+        "times": [
+          25.416
+        ]
+      }
+    ],
+    "enabled": true,
+    "samples": [
+      2.824,
+      14.12,
+      25.416,
+      36.712,
+      48.008
+    ],
+    "checked": 67,
+    "passed": 63
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "saved": {
+    "id": "8be92cb6-46d2-4a6e-89fc-76a665af9d67",
+    "revision": null,
+    "report": "/home/zxqs_ep/data/main-review/hyperframes-speed-20261019/full/workflows/00a9ddc9fe2ce639d3ee120e1179ce4383d8112439ef33e603af27767c2da8e4/videos/bubble-sort-principle/.hyperframes/artifacts/checks/8be92cb6-46d2-4a6e-89fc-76a665af9d67.json",
+    "attribution": "unversioned"
+  },
+  "_meta": {
+    "version": "0.8.168",
+    "updateAvailable": false
+  }
+}

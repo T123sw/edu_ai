@@ -1,0 +1,2 @@
+.sl-practice-resources { display: grid; gap: 40px; }
+.sl-practice-resources > section + section { border-top: 1px solid var(--edu-line, #e2e6d8); padding-top: 32px; }

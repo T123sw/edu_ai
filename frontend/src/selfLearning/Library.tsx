@@ -1,3 +1,5 @@
+import {useRecentOpens} from '../recent/context';
+import {materialRecentKey,recentKey} from '../recent/store';
 import { useEffect, useState } from "react";
 import { allResources, kindLabel, resourceDurationLabel, type Classroom, type LearningResource } from "./model";
 import { LearningContent, reportParagraphs } from "./Content";
@@ -13,6 +15,8 @@ type Props = {
   onPin?: (id: string) => void | Promise<void>; onAddToLearning?: (resource: LearningResource, chapterId: string) => void | Promise<void>;
 };
 export function ResourceCenter({ resources, classroomId, room, resourceId, workbenchHref, workbenchForResource, onDownload, onRename, onRemove, onPin, onAddToLearning }: Props) {
+  const recent=useRecentOpens();
+  const openedKey=(r:LearningResource)=>r.remote?materialRecentKey(r.remote.materialType,r.remote.materialId,r.remote.courseId):recentKey('local-resource',r.id);
   const [filter, setFilter] = useState("all");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(resources.some(r => r.id === resourceId && (!classroomId || !r.courseId || r.courseId === classroomId)) ? resourceId : undefined);
@@ -34,17 +38,19 @@ export function ResourceCenter({ resources, classroomId, room, resourceId, workb
   const courseResources = room ? allResources(room) : [];
   const mine = resources.filter(r => !classroomId || !r.courseId || r.courseId === classroomId);
   const source = mine;
-  const visible = source.filter(r =>
+  const visible = recent.sort(source,openedKey,(a,b)=>b.createdAt-a.createdAt).filter(r =>
     (filter === "all" || r.kind === filter) && (!pinnedOnly || r.pinned) &&
     (chapter === "all" || r.chapterId === chapter) &&
     `${r.title} ${r.topic}`.toLowerCase().includes(query.trim().toLowerCase()),
-  ).sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || b.createdAt - a.createdAt);
+  ).sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned));
   const current = visible.find(r => r.id === selected) || visible[0];
   const attached = current && courseResources.find(r => r.id === current.id || r.sourceResourceId === current.id);
   const studioHref = current && workbenchForResource ? workbenchForResource(current.id) : reviewEnabled() && room && current ? reviewWorkbenchHref(room, current.id)
     : workbenchHref || (classroomId ? `#/studio?classroom=${classroomId}` : "#/studio");
   useEffect(() => { if (!notice) return; const timeout = setTimeout(() => setNotice(""), 3500); return () => clearTimeout(timeout); }, [notice]);
   function choose(id?: string) {
+    const resource=source.find(r=>r.id===id);
+    if(resource)recent.mark(openedKey(resource));
     setSelected(id); setDialog(null);
     const params = new URLSearchParams();
     if (classroomId) params.set("classroom", classroomId);

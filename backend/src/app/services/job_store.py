@@ -21,6 +21,11 @@ log = logging.getLogger("job_store")
 
 
 class JobKind(str, Enum):
+    GENERATE_EXAM = "generate_exam"
+    GENERATE_PODCAST = "generate_podcast"
+    GENERATE_SCENARIO = "generate_scenario"
+    GENERATE_PRACTICE = "generate_practice"
+    GENERATE_PBL = "generate_pbl"
     REVISE_ARTIFACT = "revise_artifact"
     GENERATE_CLASSROOM = "generate_classroom"
     RENDER_VIDEO = "render_video"
@@ -312,6 +317,52 @@ def update_job(
         patch["updated_at"] = now
         patch["version"] = job.version + 1
         updated = job.model_copy(update=patch)
+        _write(updated)
+        return updated
+
+
+def reconcile_pbl_enqueue_job(edu_job_id: str, *, owner_user_id: str, running: bool = False) -> EduJob:
+    """Recover only a failed PBL enqueue after its request/queue state is reconciled.
+
+    This is not a general terminal-job reset. Callers serialize the stable exercise
+    request and verify that its durable task is absent, pending, or leased first.
+    """
+    with _lock():
+        job = _read_path(_path(edu_job_id))
+        if job is None:
+            raise KeyError(edu_job_id)
+        _ensure_owner(job, owner_user_id)
+        if job.kind != JobKind.GENERATE_PBL or job.status != JobStatus.FAILED or job.error_code != "TASK_ENQUEUE_FAILED":
+            raise ValueError("only a failed PBL enqueue can be reconciled")
+        now = _now()
+        updated = job.model_copy(update={
+            "status": JobStatus.RUNNING if running else JobStatus.QUEUED,
+            "step": "running" if running else "queued", "progress": 1 if running else 0,
+            "message": "编程练习任务已恢复", "error_code": None, "error_message": None, "error": None,
+            "finished_at": None, "started_at": now if running else None,
+            "cancelable": True, "retryable": False, "updated_at": now, "version": job.version + 1,
+        })
+        _write(updated)
+        return updated
+
+
+def reconcile_exam_enqueue_job(edu_job_id: str, *, owner_user_id: str, running: bool = False) -> EduJob:
+    """Repair the narrow cross-store enqueue acknowledgement for exam tasks."""
+    with _lock():
+        job = _read_path(_path(edu_job_id))
+        if job is None:
+            raise KeyError(edu_job_id)
+        _ensure_owner(job, owner_user_id)
+        if job.kind != JobKind.GENERATE_EXAM or job.status != JobStatus.FAILED or job.error_code != "TASK_ENQUEUE_FAILED":
+            raise ValueError("only a failed exam enqueue can be reconciled")
+        now = _now()
+        updated = job.model_copy(update={
+            "status": JobStatus.RUNNING if running else JobStatus.QUEUED,
+            "step": "running" if running else "queued", "progress": 1 if running else 0,
+            "message": "试卷生成任务已恢复", "error_code": None, "error_message": None, "error": None,
+            "finished_at": None, "started_at": now if running else None,
+            "cancelable": True, "retryable": False, "updated_at": now, "version": job.version + 1,
+        })
         _write(updated)
         return updated
 

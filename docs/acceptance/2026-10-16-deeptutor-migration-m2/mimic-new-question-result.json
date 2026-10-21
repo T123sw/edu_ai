@@ -1,0 +1,154 @@
+{
+  "type": "result",
+  "source": "deep_question",
+  "stage": "",
+  "content": "",
+  "metadata": {
+    "response": "### Question 1\n\nWhich statement about merge sort is correct?\n\nA. It requires the input array to be already sorted.\nB. It splits the array in half, sorts each half, then merges them.\nC. It always runs in linear time regardless of the input.\nD. It sorts in place without using any extra memory.\n- A. It requires the input array to be already sorted.\n- B. It splits the array in half, sorts each half, then merges them.\n- C. It always runs in linear time regardless of the input.\n- D. It sorts in place without using any extra memory.\n\n**Answer:** B\n\n**Explanation:** Merge sort is a divide-and-conquer algorithm: it divides the array into two halves, recursively sorts each half, and then merges the two sorted halves into one sorted array. It does not need a pre-sorted input (A is false), it runs in O(n log n) time rather than linear time (C is false), and it typically requires O(n) auxiliary space for merging, so it is not an in-place sort (D is false).\n\n### Question 2\n\nFill in the blank: The worst-case time complexity of merge sort on an input of size $n$ is ______.\n\n**Answer:** O(n log n)\n\n**Explanation:** Merge sort repeatedly divides the array into two halves (about $\\log n$ levels of splitting) and then merges the pieces back together, with each level of merging doing $O(n)$ work. Multiplying the $\\log n$ levels by the $O(n)$ work per level gives a worst-case time complexity of $O(n \\log n)$, which holds regardless of how the input is arranged.",
+    "summary": {
+      "success": true,
+      "source": "exam",
+      "requested": 2,
+      "template_count": 2,
+      "completed": 2,
+      "failed": 0,
+      "templates": [
+        {
+          "question_id": "q_1",
+          "topic": "Which statement about quick sort is correct?\nA. It is always stable. B. It partitions around a pivot.\nC. It always takes linear time. D. It needs a sorted input.",
+          "question_type": "choice",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "Which statement about quick sort is correct?\nA. It is always stable. B. It partitions around a pivot.\nC. It always takes linear time. D. It needs a sorted input.",
+          "reference_answer": "B"
+        },
+        {
+          "question_id": "q_2",
+          "topic": "Fill in the blank: Merge sort has worst-case time complexity ______.",
+          "question_type": "fill_in_blank",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "Fill in the blank: Merge sort has worst-case time complexity ______.",
+          "reference_answer": "O(n log n)"
+        }
+      ],
+      "results": [
+        {
+          "qa_pair": {
+            "question_id": "q_1",
+            "question": "Which statement about merge sort is correct?\n\nA. It requires the input array to be already sorted.\nB. It splits the array in half, sorts each half, then merges them.\nC. It always runs in linear time regardless of the input.\nD. It sorts in place without using any extra memory.",
+            "question_type": "choice",
+            "options": {
+              "A": "It requires the input array to be already sorted.",
+              "B": "It splits the array in half, sorts each half, then merges them.",
+              "C": "It always runs in linear time regardless of the input.",
+              "D": "It sorts in place without using any extra memory."
+            },
+            "correct_answer": "B",
+            "explanation": "Merge sort is a divide-and-conquer algorithm: it divides the array into two halves, recursively sorts each half, and then merges the two sorted halves into one sorted array. It does not need a pre-sorted input (A is false), it runs in O(n log n) time rather than linear time (C is false), and it typically requires O(n) auxiliary space for merging, so it is not an in-place sort (D is false).",
+            "difficulty": "easy",
+            "concentration": "Which statement about quick sort is correct?\nA. It is always stable. B. It partitions around a pivot.\nC. It always takes linear time. D. It needs a sorted input."
+          },
+          "metadata": {}
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_2",
+            "question": "Fill in the blank: The worst-case time complexity of merge sort on an input of size $n$ is ______.",
+            "question_type": "fill_in_blank",
+            "options": null,
+            "correct_answer": "O(n log n)",
+            "explanation": "Merge sort repeatedly divides the array into two halves (about $\\log n$ levels of splitting) and then merges the pieces back together, with each level of merging doing $O(n)$ work. Multiplying the $\\log n$ levels by the $O(n)$ work per level gives a worst-case time complexity of $O(n \\log n)$, which holds regardless of how the input is arranged.",
+            "difficulty": "easy",
+            "concentration": "Fill in the blank: Merge sort has worst-case time complexity ______."
+          },
+          "metadata": {}
+        }
+      ],
+      "analysis": ""
+    },
+    "mode": "mimic",
+    "metadata": {
+      "cost_summary": {
+        "total_cost_usd": 0.0010053,
+        "total_tokens": 5493,
+        "total_calls": 2,
+        "prompt_tokens": 5090,
+        "completion_tokens": 403
+      },
+      "usage_summary": {
+        "prompt_tokens": 5763,
+        "completion_tokens": 569,
+        "total_tokens": 6332,
+        "cache_read_input_tokens": 4608,
+        "cache_creation_input_tokens": 0,
+        "reasoning_tokens": 0,
+        "duration_seconds": 5.127958904951811,
+        "total_calls": 3,
+        "cache_reported_calls": 3,
+        "cache_input_tokens": 5763,
+        "cache_hit_rate": 0.799583550234253,
+        "ttft_seconds": 0.622057614615187,
+        "ttft_calls": 2,
+        "generation_seconds": 2.1885206308215857,
+        "timed_completion_tokens": 403,
+        "tokens_per_second": 184.1426552367985,
+        "estimated_calls": 0,
+        "call_details": [
+          {
+            "call_id": "b728df8cd5974cec8f66d90ca1aa9c10",
+            "prompt_tokens": 673,
+            "completion_tokens": 166,
+            "total_tokens": 839,
+            "cache_read_input_tokens": 512,
+            "model": "deepseek-v4-flash",
+            "provider": "OpenAICompatProvider",
+            "status": "completed",
+            "estimated": false,
+            "duration_seconds": 1.687428898178041,
+            "ttft_seconds": null,
+            "generation_seconds": null,
+            "tokens_per_second": null,
+            "cache_hit_rate": 0.7607726597325408
+          },
+          {
+            "call_id": "92ccbe6312ab46f9819b2253d27faba2",
+            "prompt_tokens": 2539,
+            "completion_tokens": 257,
+            "total_tokens": 2796,
+            "cache_read_input_tokens": 2048,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.9612955879420042,
+            "ttft_seconds": 0.7061052513308823,
+            "generation_seconds": 1.2495024497620761,
+            "tokens_per_second": 205.681869650545,
+            "cache_hit_rate": 0.8066167782591571
+          },
+          {
+            "call_id": "0e0a8ddb96c4409885a4c2c05bb12697",
+            "prompt_tokens": 2551,
+            "completion_tokens": 146,
+            "total_tokens": 2697,
+            "cache_read_input_tokens": 2048,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.4792344188317657,
+            "ttft_seconds": 0.5380099778994918,
+            "generation_seconds": 0.9390181810595095,
+            "tokens_per_second": 155.48154758331285,
+            "cache_hit_rate": 0.8028224225793806
+          }
+        ]
+      }
+    }
+  },
+  "session_id": "unified_1792134477461_dd913080",
+  "turn_id": "turn_1792134478518_55f54ba575",
+  "seq": 13,
+  "timestamp": 1792134486.0447223
+}

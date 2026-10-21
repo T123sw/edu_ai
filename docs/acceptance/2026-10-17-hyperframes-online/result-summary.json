@@ -1,0 +1,53 @@
+{
+  "status": "preview-ready-production-e2e-pending",
+  "duration": 35.952,
+  "segments": 2,
+  "project": {
+    "id": "hf_bias_reviewed",
+    "digest": "20502977e920df74801ddb674257fa44f9ce939f02080bf90e4120a66953e11e",
+    "entry": "index.html"
+  },
+  "native_motion_samples": 300,
+  "native_checks_passed": true,
+  "manual_corrections": [
+    "Corrected x-axis tick labels in both scenes: left -1, right +1; original model labels were 1 and 2."
+  ],
+  "production_api_generation": false,
+  "streams": [
+    {
+      "codec_type": "video",
+      "codec_name": "h264",
+      "width": 1920,
+      "height": 1080,
+      "r_frame_rate": "30/1",
+      "duration": "35.966667"
+    },
+    {
+      "codec_type": "audio",
+      "codec_name": "aac",
+      "width": null,
+      "height": null,
+      "r_frame_rate": "0/0",
+      "duration": "35.966667"
+    }
+  ],
+  "files": {
+    "lesson.mp4": {
+      "path": "/home/zxqs_ep/data/main-review/hyperframes-online-preview/lesson.mp4",
+      "sha256": "7550b7a13a8c1ea48961e2500bd7431baef2e660ef89bfb96099d38c8a5a5bca",
+      "bytes": 3302980
+    },
+    "lesson.srt": {
+      "path": "/home/zxqs_ep/data/main-review/hyperframes-online-preview/lesson.srt",
+      "sha256": "0f6461de6eaab62b56f28a83d873fd02988ab54eb75ab214aff68d1d64fd9d39",
+      "bytes": 486
+    },
+    "project.zip": {
+      "path": "/home/zxqs_ep/data/main-review/hyperframes-online-preview/project.zip",
+      "sha256": "dd767bd45d1afce0322fcaed18047e329464e98a0b1874da7892964eaddb733f",
+      "bytes": 771483
+    }
+  },
+  "remaining_blocker": "System service restart requires administrator; sudo -n and systemctl --no-ask-password refused",
+  "activation_script": "/home/zxqs_ep/Edu_AI/scripts/deploy-hyperframes-service.sh"
+}

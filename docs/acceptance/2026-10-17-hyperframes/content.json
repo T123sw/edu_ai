@@ -1,0 +1,185 @@
+{
+  "format": "hyperframes/v1",
+  "title": "神经元为什么需要偏置",
+  "project": {
+    "id": "hf_real_chinese_bias",
+    "digest": "7a143ffa2fed43a33b32c20c05b25c2e5606e86b5ade3396e9f2d50535de8f96",
+    "entry": "index.html"
+  },
+  "timeline": {
+    "duration": 36.432,
+    "segments": [
+      {
+        "id": "seg1",
+        "title": "只有wx的直线必须穿过原点",
+        "narration": "在神经元中，如果没有偏置，输出就是z等于w乘以x。这是一条过原点的直线。当x等于0时，z也等于0，直线被固定在原点，无法上下移动。",
+        "visual_description": "显示坐标轴，横轴x，纵轴z。一条过原点的直线，标注z=wx。在x=0处高亮显示z=0。",
+        "objective_ids": [
+          "obj1"
+        ],
+        "source_ids": [
+          "src1"
+        ],
+        "start": 0.0,
+        "end": 17.016,
+        "audio_path": "assets/seg1.mp3",
+        "events": [
+          {
+            "start": 0.0,
+            "end": 0.9,
+            "target": ".axis-line",
+            "description": "坐标轴淡入，横轴 x、纵轴 z 出现"
+          },
+          {
+            "start": 0.9,
+            "end": 1.6,
+            "target": "#formula",
+            "description": "公式 z = w · x 从上方落入"
+          },
+          {
+            "start": 2.0,
+            "end": 3.2,
+            "target": "#fn-line",
+            "description": "直线从左下向右上绘制，穿过原点"
+          },
+          {
+            "start": 3.4,
+            "end": 4.0,
+            "target": "#origin-ring",
+            "description": "原点高亮环弹出，强调直线被钉在原点"
+          },
+          {
+            "start": 4.4,
+            "end": 5.0,
+            "target": "#callout",
+            "description": "标注 x = 0 → z = 0 滑入"
+          },
+          {
+            "start": 5.4,
+            "end": 6.0,
+            "target": "#caption",
+            "description": "字幕「没有偏置：直线被钉在原点」上浮"
+          },
+          {
+            "start": 6.4,
+            "end": 7.75,
+            "target": "#fn-line",
+            "description": "直线尝试上移 46px 后被弹回原点，演示无法平移"
+          },
+          {
+            "start": 9.0,
+            "end": 10.05,
+            "target": "#fn-line",
+            "description": "第二次更小的上移尝试，仍被拉回"
+          },
+          {
+            "start": 15.4,
+            "end": 17.016,
+            "target": "#fn-line",
+            "description": "出口：直线加速向上滑出画面，为下一段的上移做矢量衔接"
+          }
+        ]
+      },
+      {
+        "id": "seg2",
+        "title": "偏置b使直线上下移动",
+        "narration": "加入偏置b后，公式变为z等于wx加b。当x等于0时，z等于b，直线整体上下平移。偏置b决定了直线与纵轴的交点，让神经元可以拟合不经过原点的数据。",
+        "visual_description": "坐标轴不变，直线向上平移，显示新的截距b。标注z=wx+b，并突出b点。",
+        "objective_ids": [
+          "obj2"
+        ],
+        "source_ids": [
+          "src2"
+        ],
+        "start": 17.016,
+        "end": 36.432,
+        "audio_path": "assets/seg2.mp3",
+        "events": [
+          {
+            "start": 17.016,
+            "end": 18.116,
+            "target": "#fn-line",
+            "description": "入口：直线从下方 120px 处减速飞入，延续向上的运动矢量"
+          },
+          {
+            "start": 17.166,
+            "end": 17.766,
+            "target": "#ghost-line",
+            "description": "过原点的旧直线以虚线幽灵形式淡入，作为对照"
+          },
+          {
+            "start": 18.116,
+            "end": 18.816,
+            "target": "#formula",
+            "description": "公式更新为 z = w · x + b，b 高亮为橙色"
+          },
+          {
+            "start": 19.016,
+            "end": 19.716,
+            "target": "#b-bracket",
+            "description": "从横轴向下绘制到截距的虚线标尺"
+          },
+          {
+            "start": 20.216,
+            "end": 20.816,
+            "target": "#b-ring",
+            "description": "截距点 b 弹出高亮环"
+          },
+          {
+            "start": 20.516,
+            "end": 21.016,
+            "target": "#b-label",
+            "description": "标签 b 滑入"
+          },
+          {
+            "start": 21.216,
+            "end": 21.816,
+            "target": "#callout",
+            "description": "标注 x = 0 → z = b 滑入"
+          },
+          {
+            "start": 22.216,
+            "end": 22.816,
+            "target": "#caption",
+            "description": "字幕「偏置 b 决定与纵轴的交点」上浮"
+          },
+          {
+            "start": 23.216,
+            "end": 25.316,
+            "target": "#fn-line",
+            "description": "直线下移到 b=0 再回到 b，演示 b 控制上下平移"
+          },
+          {
+            "start": 25.416,
+            "end": 27.316,
+            "target": "#fn-line",
+            "description": "第二次更小的平移，说明 b 是自由参数"
+          },
+          {
+            "start": 27.416,
+            "end": 28.316,
+            "target": "#b-ring",
+            "description": "截距环单次脉冲，强调 b 的位置"
+          },
+          {
+            "start": 29.216,
+            "end": 31.516,
+            "target": "#fn-line",
+            "description": "直线轻微上移再回落，收束到稳定构图"
+          },
+          {
+            "start": 32.016,
+            "end": 33.416,
+            "target": "#fn-line",
+            "description": "结尾：直线与 b 标记一起轻微上抬，画面缓出"
+          }
+        ]
+      }
+    ]
+  },
+  "exports": {
+    "video": "exports/lesson.mp4",
+    "subtitles": "exports/lesson.srt",
+    "project": "exports/project.zip"
+  }
+}

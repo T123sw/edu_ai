@@ -3,6 +3,43 @@ from app.services.visual_assets.pipeline import VisualAssetPipeline
 from app.services.visual_assets.planner import parse_visual_brief
 
 
+def test_optional_visual_budget_skips_remaining_downloads_and_slots(monkeypatch):
+    clock = [0.0]
+    monkeypatch.setattr('app.services.visual_assets.pipeline.time.monotonic', lambda: clock[0])
+    brief = parse_visual_brief({'outline': [{'section_id': 'core', 'title': '核心'}],
+        'visuals': [{'slot_id': str(i), 'section_id': 'core', 'purpose': '展示流程', 'query': 'sort'} for i in range(3)]}, resource_type='report', topic='排序')
+    searches, downloads = [], []
+    def search(**kwargs):
+        searches.append(kwargs)
+        return [{'url': f'https://example.com/{i}.png'} for i in range(6)]
+    def download(candidate, **kwargs):
+        downloads.append(kwargs)
+        clock[0] += 16
+        return {}
+    result = VisualAssetPipeline(web_search=search, localize=download).run(
+        brief, course_id='c1', owner='alice', selected_document_ids=[], time_budget_seconds=30)
+    assert len(searches) == 1
+    assert len(downloads) == 2
+    assert all(0 < call['timeout_s'] <= 4 for call in downloads)
+    assert result.selected == ()
+    assert result.rejected_counts['time_budget'] > 0
+
+
+def test_bounded_visual_search_stops_after_best_usable_candidate():
+    brief = parse_visual_brief({'outline': [{'section_id': 'core', 'title': '核心'}],
+        'visuals': [{'section_id': 'core', 'purpose': '展示流程', 'query': 'sort'}]}, resource_type='report', topic='排序')
+    downloads = []
+    def download(candidate, **kwargs):
+        downloads.append(candidate['url'])
+        return {**candidate, 'local_url': '/images/good.png', 'content_hash': 'good'}
+    result = VisualAssetPipeline(web_search=lambda **kwargs: [
+        {'url': 'https://example.com/small.png', 'width': 300, 'height': 300},
+        {'url': 'https://example.com/best.png', 'width': 1200, 'height': 900}], localize=download).run(
+        brief, course_id='c1', owner='alice', selected_document_ids=[], time_budget_seconds=30)
+    assert downloads == ['https://example.com/best.png']
+    assert len(result.selected) == 1
+
+
 def test_pipeline_prefers_qualified_knowledge_image_and_deduplicates_web():
     brief = parse_visual_brief(
         {

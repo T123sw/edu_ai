@@ -1,0 +1,23 @@
+[
+  {
+    "name": "kentucky",
+    "url": "https://cdn.oen.manifoldapp.org/store/resource/3/3/4/3349134a-5195-4cce-ab9d-a9642c1e6cb6/attachment/3db37eadef4affa47c411ff696700751.pdf",
+    "pages": 4,
+    "sha256": "3ff0112b00d45cb1675ac1d8de160a62fb6104c98282b575888d2b84b7ccf070",
+    "text_characters": 4002
+  },
+  {
+    "name": "princeton",
+    "url": "https://www.cs.princeton.edu/courses/archive/spring24/cos226/exams/mid-s23.pdf",
+    "pages": 14,
+    "sha256": "1d9eb03c60288fe11f9f15d7fb995bdcb287fd10664fb70d4575c604aba20f73",
+    "text_characters": 11155
+  },
+  {
+    "name": "shanghai",
+    "url": "https://sist.shanghaitech.edu.cn/_upload/article/files/75/59/fd9393164d1da45108bd21fc296c/8f6c6eea-1f18-4b08-bfdb-919dcfdf475e.pdf",
+    "pages": 8,
+    "sha256": "99f4ac54b951bbd15279665a3c1e3c0d2bac5b6326b714fd07121e8fef6be997",
+    "text_characters": 7225
+  }
+]

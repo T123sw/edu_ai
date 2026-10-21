@@ -1,0 +1,146 @@
+[
+  {
+    "sample": "quick",
+    "width": 1440,
+    "phase": "demonstrate",
+    "ok": true,
+    "canvas": {
+      "x": 233,
+      "y": 194,
+      "width": 700,
+      "height": 260
+    }
+  },
+  {
+    "sample": "quick",
+    "width": 1440,
+    "phase": "guided",
+    "ok": true,
+    "canvas": {
+      "x": 233,
+      "y": 194,
+      "width": 700,
+      "height": 260
+    }
+  },
+  {
+    "sample": "quick",
+    "width": 1440,
+    "phase": "explore",
+    "ok": true,
+    "canvas": {
+      "x": 233,
+      "y": 117,
+      "width": 700,
+      "height": 260
+    }
+  },
+  {
+    "sample": "quick",
+    "width": 390,
+    "phase": "demonstrate",
+    "ok": true,
+    "canvas": {
+      "x": 25,
+      "y": 309.09375,
+      "width": 340,
+      "height": 260
+    }
+  },
+  {
+    "sample": "quick",
+    "width": 390,
+    "phase": "guided",
+    "ok": true,
+    "canvas": {
+      "x": 25,
+      "y": 201.09375,
+      "width": 340,
+      "height": 260
+    }
+  },
+  {
+    "sample": "quick",
+    "width": 390,
+    "phase": "explore",
+    "ok": true,
+    "canvas": {
+      "x": 25,
+      "y": 201.09375,
+      "width": 340,
+      "height": 260
+    }
+  },
+  {
+    "sample": "bubble",
+    "width": 1440,
+    "phase": "demonstrate",
+    "ok": true,
+    "canvas": {
+      "x": 233,
+      "y": 162,
+      "width": 700,
+      "height": 280
+    }
+  },
+  {
+    "sample": "bubble",
+    "width": 1440,
+    "phase": "guided",
+    "ok": true,
+    "canvas": {
+      "x": 233,
+      "y": 162,
+      "width": 700,
+      "height": 280
+    }
+  },
+  {
+    "sample": "bubble",
+    "width": 1440,
+    "phase": "explore",
+    "ok": true,
+    "canvas": {
+      "x": 233,
+      "y": 162,
+      "width": 700,
+      "height": 280
+    }
+  },
+  {
+    "sample": "bubble",
+    "width": 390,
+    "phase": "demonstrate",
+    "ok": true,
+    "canvas": {
+      "x": 25,
+      "y": 241.09375,
+      "width": 340,
+      "height": 280
+    }
+  },
+  {
+    "sample": "bubble",
+    "width": 390,
+    "phase": "guided",
+    "ok": true,
+    "canvas": {
+      "x": 25,
+      "y": 133.09375,
+      "width": 340,
+      "height": 280
+    }
+  },
+  {
+    "sample": "bubble",
+    "width": 390,
+    "phase": "explore",
+    "ok": true,
+    "canvas": {
+      "x": 25,
+      "y": 133.09375,
+      "width": 340,
+      "height": 280
+    }
+  }
+]

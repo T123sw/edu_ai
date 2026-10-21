@@ -524,6 +524,11 @@ export function resolveImageApiKey(providerId: string, clientKey?: string): stri
   return resolveSectionApiKey('image', providerId, clientKey);
 }
 
+/** First operator-configured model is the automatic classroom generation default. */
+export function resolveImageModel(providerId: string): string | undefined {
+  return getConfig().image[providerId]?.models?.[0];
+}
+
 export function resolveImageBaseUrl(
   providerId: string,
   clientBaseUrl?: string,
@@ -542,6 +547,10 @@ export function getServerVideoProviders(): Record<string, Record<string, never>>
 
 export function resolveVideoApiKey(providerId: string, clientKey?: string): string {
   return resolveSectionApiKey('video', providerId, clientKey);
+}
+
+export function resolveVideoModel(providerId: string): string | undefined {
+  return getConfig().video[providerId]?.models?.[0];
 }
 
 export function resolveVideoBaseUrl(

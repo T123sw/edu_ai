@@ -1,0 +1,33 @@
+{
+  "checked_at": "2026-10-21T02:15:09.485905+00:00",
+  "status": "partial_worker_restarted_backend_requires_sudo",
+  "source_snapshot_unchanged": true,
+  "active_tasks_before_restart": 0,
+  "database_revision": "20261014_0040",
+  "database_head": "20261014_0040",
+  "worker": {
+    "MainPID": "3534175",
+    "ExecMainStartTimestamp": "Wed 2026-10-21 02:14:28 UTC",
+    "ActiveState": "active",
+    "SubState": "running"
+  },
+  "worker_ready_log": true,
+  "backend": {
+    "MainPID": "3381907",
+    "ExecMainStartTimestamp": "Tue 2026-10-20 12:38:55 UTC",
+    "ActiveState": "active",
+    "SubState": "running"
+  },
+  "backend_restart_error": "sudo: a password is required",
+  "required_command": "sudo systemctl restart edu-ai-backend.service",
+  "health": {
+    "/backend/health": 200,
+    "/backend/health/database": 200,
+    "/": 200
+  },
+  "notes": [
+    "No frontend deployment required.",
+    "Main backend still runs the previous process; full activation is not complete.",
+    "No application task records or historical conversations were changed."
+  ]
+}

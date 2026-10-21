@@ -1,0 +1,360 @@
+{
+  "type": "result",
+  "source": "deep_question",
+  "stage": "",
+  "content": "",
+  "metadata": {
+    "response": "### Question 1\n\nA list of 8 distinct numbers is sorted with quick sort, and the first element is chosen as the pivot. After the very first partitioning step, where does that pivot end up?\n- A. At the front of the list, since it was the first element\n- B. At the position it will occupy in the final sorted list, with all smaller elements to its left and all larger elements to its right\n- C. At the middle index of the list, because partitioning always splits the list in half\n- D. At the end of the list, because the pivot is moved aside until the recursion finishes\n\n**Answer:** B\n\n**Explanation:** Quick sort's core step is partitioning around a pivot: elements smaller than the pivot are moved to its left and elements larger than it to its right. Once that step finishes, the pivot sits at its final sorted position, and only the left and right sublists still need to be sorted recursively. The split is not necessarily in the middle (option C is false — a bad pivot can give a very uneven split), the pivot is not left at the front (A), and it is not parked at the end (D).\n\n### Question 2\n\nA developer benchmarks merge sort on a list of 8,192 records and finds it takes 0.40 seconds. On the same machine, a list of 32,768 records (four times as many) is sorted. Assuming the input size is large enough that the worst-case growth rate dominates and constant factors are unchanged, the new run should take approximately ____ seconds.\n\n**Answer:** 1.92\n\n**Explanation:** Merge sort's worst-case running time is Θ(n log n). Increasing n by a factor of 4 multiplies the work by 4 × (log₂(32768) / log₂(8192)) = 4 × (15 / 13) ≈ 4.615. Thus the time becomes 0.40 × 4.615 ≈ 1.85–1.92 seconds (about 1.9 s), not 1.6 s (linear) or 6.4 s (quadratic).",
+    "summary": {
+      "success": false,
+      "source": "exam",
+      "requested": 2,
+      "template_count": 2,
+      "completed": 1,
+      "failed": 1,
+      "templates": [
+        {
+          "question_id": "q_cf2025d40ee30ba68089",
+          "topic": "Properties of quick sort (partitioning around a pivot)",
+          "question_type": "choice",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "Which statement about quick sort is correct? A. It is always stable. B. It partitions around a pivot. C. It always takes linear time. D. It needs a sorted input.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_cf2025d40ee30ba68089",
+            "source_hash": "8d086e482fe9a60159a779cda3e1a0b4ff2bdf331e31b916f380bf2b2b61dd98",
+            "ordinal": 1,
+            "original_number": "1",
+            "section": "",
+            "question_type": "choice",
+            "concept": "Properties of quick sort (partitioning around a pivot)",
+            "source_text": "1. Which statement about quick sort is correct?\n\nA. It is always stable. B. It partitions around a pivot.\n\nC. It always takes linear time. D. It needs a sorted input.\n",
+            "reference_question": "Which statement about quick sort is correct? A. It is always stable. B. It partitions around a pivot. C. It always takes linear time. D. It needs a sorted input.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 3,
+            "source_end_line": 7,
+            "source_document_id": "paper",
+            "source_original_hash": "9b46f16642aadca0716376cfa9a6eb429b25de98fdcc0baa29267cd07dd52ba7"
+          }
+        },
+        {
+          "question_id": "q_9dfc4b9b79a3d232df8d",
+          "topic": "Worst-case time complexity of merge sort",
+          "question_type": "fill_in_blank",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "Fill in the blank: Merge sort has worst-case time complexity",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_9dfc4b9b79a3d232df8d",
+            "source_hash": "8d086e482fe9a60159a779cda3e1a0b4ff2bdf331e31b916f380bf2b2b61dd98",
+            "ordinal": 2,
+            "original_number": "2",
+            "section": "",
+            "question_type": "fill_in_blank",
+            "concept": "Worst-case time complexity of merge sort",
+            "source_text": "2. Fill in the blank: Merge sort has worst-case time complexity",
+            "reference_question": "Fill in the blank: Merge sort has worst-case time complexity",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 9,
+            "source_end_line": 9,
+            "source_document_id": "paper",
+            "source_original_hash": "9b46f16642aadca0716376cfa9a6eb429b25de98fdcc0baa29267cd07dd52ba7"
+          }
+        }
+      ],
+      "blueprint": {
+        "version": 1,
+        "questions": [
+          {
+            "question_id": "q_cf2025d40ee30ba68089",
+            "source_hash": "8d086e482fe9a60159a779cda3e1a0b4ff2bdf331e31b916f380bf2b2b61dd98",
+            "ordinal": 1,
+            "original_number": "1",
+            "section": "",
+            "question_type": "choice",
+            "concept": "Properties of quick sort (partitioning around a pivot)",
+            "source_text": "1. Which statement about quick sort is correct?\n\nA. It is always stable. B. It partitions around a pivot.\n\nC. It always takes linear time. D. It needs a sorted input.\n",
+            "reference_question": "Which statement about quick sort is correct? A. It is always stable. B. It partitions around a pivot. C. It always takes linear time. D. It needs a sorted input.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 3,
+            "source_end_line": 7,
+            "source_document_id": "paper",
+            "source_original_hash": "9b46f16642aadca0716376cfa9a6eb429b25de98fdcc0baa29267cd07dd52ba7"
+          },
+          {
+            "question_id": "q_9dfc4b9b79a3d232df8d",
+            "source_hash": "8d086e482fe9a60159a779cda3e1a0b4ff2bdf331e31b916f380bf2b2b61dd98",
+            "ordinal": 2,
+            "original_number": "2",
+            "section": "",
+            "question_type": "fill_in_blank",
+            "concept": "Worst-case time complexity of merge sort",
+            "source_text": "2. Fill in the blank: Merge sort has worst-case time complexity",
+            "reference_question": "Fill in the blank: Merge sort has worst-case time complexity",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 9,
+            "source_end_line": 9,
+            "source_document_id": "paper",
+            "source_original_hash": "9b46f16642aadca0716376cfa9a6eb429b25de98fdcc0baa29267cd07dd52ba7"
+          }
+        ]
+      },
+      "results": [
+        {
+          "qa_pair": {
+            "question_id": "q_cf2025d40ee30ba68089",
+            "question": "A list of 8 distinct numbers is sorted with quick sort, and the first element is chosen as the pivot. After the very first partitioning step, where does that pivot end up?",
+            "question_type": "choice",
+            "options": {
+              "A": "At the front of the list, since it was the first element",
+              "B": "At the position it will occupy in the final sorted list, with all smaller elements to its left and all larger elements to its right",
+              "C": "At the middle index of the list, because partitioning always splits the list in half",
+              "D": "At the end of the list, because the pivot is moved aside until the recursion finishes"
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "B",
+            "explanation": "Quick sort's core step is partitioning around a pivot: elements smaller than the pivot are moved to its left and elements larger than it to its right. Once that step finishes, the pivot sits at its final sorted position, and only the left and right sublists still need to be sorted recursively. The split is not necessarily in the middle (option C is false — a bad pivot can give a very uneven split), the pivot is not left at the front (A), and it is not parked at the end (D).",
+            "difficulty": "easy",
+            "concentration": "Properties of quick sort (partitioning around a pivot)"
+          },
+          "metadata": {
+            "blueprint_id": "q_cf2025d40ee30ba68089",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_9dfc4b9b79a3d232df8d",
+            "question": "A developer benchmarks merge sort on a list of 8,192 records and finds it takes 0.40 seconds. On the same machine, a list of 32,768 records (four times as many) is sorted. Assuming the input size is large enough that the worst-case growth rate dominates and constant factors are unchanged, the new run should take approximately ____ seconds.",
+            "question_type": "fill_in_blank",
+            "options": null,
+            "correct_answers": [],
+            "blank_answers": [
+              "1.92"
+            ],
+            "children": [],
+            "correct_answer": "1.92",
+            "explanation": "Merge sort's worst-case running time is Θ(n log n). Increasing n by a factor of 4 multiplies the work by 4 × (log₂(32768) / log₂(8192)) = 4 × (15 / 13) ≈ 4.615. Thus the time becomes 0.40 × 4.615 ≈ 1.85–1.92 seconds (about 1.9 s), not 1.6 s (linear) or 6.4 s (quadratic).",
+            "difficulty": "easy",
+            "concentration": "Worst-case time complexity of merge sort"
+          },
+          "metadata": {
+            "issues": [
+              "answer_valid",
+              "The numeric answer 1.92 is inconsistent with the stated calculation: 0.40 × 4 × (15/13) ≈ 1.846, not 1.92; the explanation's range 1.85–1.92 is internally inconsistent with its own formula.",
+              "The blank expects a single value but the explanation gives an approximate range, making the exact required answer ambiguous."
+            ],
+            "blueprint_id": "q_9dfc4b9b79a3d232df8d",
+            "review_passed": false
+          }
+        }
+      ],
+      "analysis": ""
+    },
+    "mode": "mimic",
+    "metadata": {
+      "cost_summary": {
+        "total_cost_usd": 0.00257925,
+        "total_tokens": 12614,
+        "total_calls": 6,
+        "prompt_tokens": 11087,
+        "completion_tokens": 1527
+      },
+      "usage_summary": {
+        "prompt_tokens": 13566,
+        "completion_tokens": 1859,
+        "total_tokens": 15425,
+        "cache_read_input_tokens": 6272,
+        "cache_creation_input_tokens": 0,
+        "reasoning_tokens": 0,
+        "duration_seconds": 13.912841693032533,
+        "total_calls": 8,
+        "cache_reported_calls": 8,
+        "cache_input_tokens": 13566,
+        "cache_hit_rate": 0.46233230134158926,
+        "ttft_seconds": 0.5978677622818699,
+        "ttft_calls": 6,
+        "generation_seconds": 7.46929328283295,
+        "timed_completion_tokens": 1527,
+        "tokens_per_second": 204.4370119338573,
+        "estimated_calls": 0,
+        "call_details": [
+          {
+            "call_id": "0cebd95d20af4bc7a19c600dc039b2fc",
+            "prompt_tokens": 1339,
+            "completion_tokens": 185,
+            "total_tokens": 1524,
+            "cache_read_input_tokens": 896,
+            "model": "deepseek-v4-flash",
+            "provider": "OpenAICompatProvider",
+            "status": "completed",
+            "estimated": false,
+            "duration_seconds": 1.6291823908686638,
+            "ttft_seconds": null,
+            "generation_seconds": null,
+            "tokens_per_second": null,
+            "cache_hit_rate": 0.6691560866318148
+          },
+          {
+            "call_id": "b64e06d104914049bd616e7c74615cdb",
+            "prompt_tokens": 1140,
+            "completion_tokens": 147,
+            "total_tokens": 1287,
+            "cache_read_input_tokens": 896,
+            "model": "deepseek-v4-flash",
+            "provider": "OpenAICompatProvider",
+            "status": "completed",
+            "estimated": false,
+            "duration_seconds": 1.214185506105423,
+            "ttft_seconds": null,
+            "generation_seconds": null,
+            "tokens_per_second": null,
+            "cache_hit_rate": 0.7859649122807018
+          },
+          {
+            "call_id": "49f62c2c06bf4d2fac47e77978b4cce0",
+            "prompt_tokens": 3185,
+            "completion_tokens": 266,
+            "total_tokens": 3451,
+            "cache_read_input_tokens": 1408,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.7952755247242749,
+            "ttft_seconds": 0.5098894806578755,
+            "generation_seconds": 1.2816380290314555,
+            "tokens_per_second": 207.54690011891924,
+            "cache_hit_rate": 0.4420722135007849
+          },
+          {
+            "call_id": "12231d7497774ec88d18b1ef93c9387a",
+            "prompt_tokens": 1177,
+            "completion_tokens": 214,
+            "total_tokens": 1391,
+            "cache_read_input_tokens": 256,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.5068984236568213,
+            "ttft_seconds": 0.5565682668238878,
+            "generation_seconds": 0.9463810478337109,
+            "tokens_per_second": 226.12456207766542,
+            "cache_hit_rate": 0.21750212404418012
+          },
+          {
+            "call_id": "d11b1604375544d8a69fff96723f8b51",
+            "prompt_tokens": 3136,
+            "completion_tokens": 227,
+            "total_tokens": 3363,
+            "cache_read_input_tokens": 1408,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.6613658000715077,
+            "ttft_seconds": 0.6126529821194708,
+            "generation_seconds": 1.0470948638394475,
+            "tokens_per_second": 216.79029077427145,
+            "cache_hit_rate": 0.4489795918367347
+          },
+          {
+            "call_id": "bfefe298f1004219b5bb154166aab478",
+            "prompt_tokens": 1083,
+            "completion_tokens": 252,
+            "total_tokens": 1335,
+            "cache_read_input_tokens": 256,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.7590586221776903,
+            "ttft_seconds": 0.5783952479250729,
+            "generation_seconds": 1.1792355449870229,
+            "tokens_per_second": 213.69776468430078,
+            "cache_hit_rate": 0.2363804247460757
+          },
+          {
+            "call_id": "0fb5e0de41c343a089f34cb564fe7aba",
+            "prompt_tokens": 1427,
+            "completion_tokens": 236,
+            "total_tokens": 1663,
+            "cache_read_input_tokens": 512,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.422830053139478,
+            "ttft_seconds": 0.759373065084219,
+            "generation_seconds": 1.6619933159090579,
+            "tokens_per_second": 141.99816433733096,
+            "cache_hit_rate": 0.3587946741415557
+          },
+          {
+            "call_id": "112db16afff34479b27cdb7cfd5737e0",
+            "prompt_tokens": 1079,
+            "completion_tokens": 332,
+            "total_tokens": 1411,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.9240453722886741,
+            "ttft_seconds": 0.570327531080693,
+            "generation_seconds": 1.3529504812322557,
+            "tokens_per_second": 245.389616697292,
+            "cache_hit_rate": 0.593141797961075
+          }
+        ]
+      }
+    }
+  },
+  "session_id": "unified_1792225766894_1c8684cb",
+  "turn_id": "turn_1792225767754_a5e4d341d0",
+  "seq": 241,
+  "timestamp": 1792225786.2021258
+}

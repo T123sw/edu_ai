@@ -1,0 +1,195 @@
+{
+  "id": "pbl_92787ec536e4d2b60f2c05e1b45072d4",
+  "generation_state": "failed",
+  "created_at": 1792130371.919913,
+  "updated_at": 1792130445.0832589,
+  "createdUtc": "2026-10-16T05:59:31.919913+00:00",
+  "failedUtc": "2026-10-16T06:00:45.083259+00:00",
+  "planSteps": [
+    {
+      "id": "add-and-list",
+      "title": "添加书籍并显示列表"
+    },
+    {
+      "id": "empty-guard",
+      "title": "空白书名提示"
+    },
+    {
+      "id": "toggle-and-delete",
+      "title": "切换已读状态与删除"
+    },
+    {
+      "id": "stats-and-filter",
+      "title": "统计数量与筛选"
+    }
+  ],
+  "completedStepCount": 1,
+  "repairs": {
+    "empty-guard": 3
+  },
+  "issues": [
+    "参考实现未通过累计检查: [{'caseId': 'add-book-appears', 'status': 'passed', 'message': '✓ 1. 在 \"book-input\" 输入 \"活着\"\\n✓ 2. 点击 \"add-button\"\\n✓ 3. 检查 \"book-list\" 的显示文字\\n   实际：\"活着\"\\n本项操作与预期全部通过。'}, {'caseId': 'add-clears-input', 'status': 'passed', 'message': '✓ 1. 在 \"book-input\" 输入 \"活着\"\\n✓ 2. 点击 \"add-button\"\\n✓ 3. 检查 \"book-input\" 的输入值\\n   实际：\"\"\\n本项操作与预期全部通过。'}, {'caseId': 'empty-no-add', 'status': 'failed', 'message': '✓ 1. 在 \"book-input\" 输入 \"   \"\\n✓ 2. 点击 \"add-button\"\\n× 3. 检查 \"book-list\" 的数量\\n预期：0\\n实际：1'}, {'caseId': 'empty-shows-message', 'status': 'passed', 'message': '✓ 1. 在 \"book-input\" 输入 \"   \"\\n✓ 2. 点击 \"add-button\"\\n✓ 3. 检查 \"empty-message\" 的可见状态\\n   实际：true\\n✓ 4. 检查 \"empty-message\" 的显示文字\\n   实际：\"书名不能为空\"\\n本项操作与预期全部通过。'}]"
+  ],
+  "originalCheck": {
+    "id": "empty-no-add",
+    "label": "输入只有空格的书名并点击“添加”后，列表中没有新增书籍",
+    "actions": [
+      {
+        "type": "fill",
+        "target": {
+          "role": null,
+          "name": null,
+          "testId": "book-input"
+        },
+        "value": "   ",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "role": null,
+          "name": null,
+          "testId": "add-button"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "role": null,
+          "name": null,
+          "testId": "book-list"
+        },
+        "value": null,
+        "assertion": "count",
+        "expected": 0,
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  "correctedCheck": {
+    "id": "empty-no-add",
+    "label": "输入只有空格的书名并点击“添加”后，列表中没有新增书籍",
+    "actions": [
+      {
+        "type": "fill",
+        "target": {
+          "role": null,
+          "name": null,
+          "testId": "book-input"
+        },
+        "value": "   ",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "role": null,
+          "name": null,
+          "testId": "add-button"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "role": "listitem"
+        },
+        "value": null,
+        "assertion": "count",
+        "expected": 0,
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  "original": {
+    "passed": false,
+    "results": [
+      {
+        "caseId": "add-book-appears",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"活着\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-list\" 的显示文字\n   实际：\"活着\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "add-clears-input",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"活着\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "empty-no-add",
+        "status": "failed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n× 3. 检查 \"book-list\" 的数量\n预期：0\n实际：1"
+      },
+      {
+        "caseId": "empty-shows-message",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"empty-message\" 的可见状态\n   实际：true\n✓ 4. 检查 \"empty-message\" 的显示文字\n   实际：\"书名不能为空\"\n本项操作与预期全部通过。"
+      }
+    ],
+    "durationMs": 2608.552439
+  },
+  "correctedTargetOnly": {
+    "passed": true,
+    "results": [
+      {
+        "caseId": "add-book-appears",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"活着\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-list\" 的显示文字\n   实际：\"活着\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "add-clears-input",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"活着\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "empty-no-add",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"listitem\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "empty-shows-message",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"empty-message\" 的可见状态\n   实际：true\n✓ 4. 检查 \"empty-message\" 的显示文字\n   实际：\"书名不能为空\"\n本项操作与预期全部通过。"
+      }
+    ],
+    "durationMs": 1396.7775040000001
+  },
+  "negativeControl": {
+    "passed": false,
+    "results": [
+      {
+        "caseId": "add-book-appears",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"活着\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-list\" 的显示文字\n   实际：\"活着\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "add-clears-input",
+        "status": "passed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"活着\"\n✓ 2. 点击 \"add-button\"\n✓ 3. 检查 \"book-input\" 的输入值\n   实际：\"\"\n本项操作与预期全部通过。"
+      },
+      {
+        "caseId": "empty-no-add",
+        "status": "failed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n× 3. 检查 \"listitem\" 的数量\n预期：0\n实际：1"
+      },
+      {
+        "caseId": "empty-shows-message",
+        "status": "failed",
+        "message": "✓ 1. 在 \"book-input\" 输入 \"   \"\n✓ 2. 点击 \"add-button\"\n× 3. 检查 \"empty-message\" 的可见状态\n预期：true\n实际：false"
+      }
+    ],
+    "durationMs": 3876.227133
+  }
+}

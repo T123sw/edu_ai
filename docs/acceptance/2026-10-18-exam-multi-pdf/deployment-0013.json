@@ -1,0 +1,100 @@
+{
+  "checked_at": "2026-10-18T06:15:13.364191+00:00",
+  "service": "MainPID=2181257\nExecMainStartTimestamp=Sun 2026-10-18 06:15:11 UTC\nActiveState=active\n",
+  "health": {
+    "status": "ok",
+    "version": "1.6.14",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "scope": "internal_bridge",
+    "exam_ready": false
+  },
+  "lock": {
+    "repository": "https://github.com/HKUDS/DeepTutor.git",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "version": "1.6.14",
+    "license": "Apache-2.0",
+    "patches": [
+      {
+        "file": "0013-code-fence-json.patch",
+        "sha256": "a7f63a0026cbb2782507bf02e789c79e6acd90ac409578c748c9a8ad24959242"
+      }
+    ],
+    "previous_patch_sets": [
+      [
+        {
+          "file": "0001-exam-foundation.patch",
+          "sha256": "424d88d55cbd39078b9937917c14366d9b0ac648a1ce0e9dfacbb7e3f69fc358"
+        }
+      ],
+      [
+        {
+          "file": "0002-runtime-integration.patch",
+          "sha256": "4b1f287cfd287b3a6c8088ade78c17499ef9d4ef2d2bbc450dd83ab182bc8720"
+        }
+      ],
+      [
+        {
+          "file": "0003-exam-blueprint.patch",
+          "sha256": "404ca259b6630fb603cbf3643e6972559dc3d95c159b5269e91b9978413db8a6"
+        }
+      ],
+      [
+        {
+          "file": "0004-complete-exam-extraction.patch",
+          "sha256": "4921327a0583d39514b9c2af1ca603614a5c542f80e166519d5a6a5fa1c7369a"
+        }
+      ],
+      [
+        {
+          "file": "0005-drain-terminal-events.patch",
+          "sha256": "1561ace1b09ac495b37708f793ba51db922592a8f01a5d0cf6ea4ca829e743d4"
+        }
+      ],
+      [
+        {
+          "file": "0006-independent-exam-checks.patch",
+          "sha256": "7c34c783c702b239bd862fc44d7e598497b9cd6b32eca58d61d6295f24babc8a"
+        }
+      ],
+      [
+        {
+          "file": "0007-computed-exam-evidence.patch",
+          "sha256": "06b61ce69eac98bb3e199dd3a47db96adb33ff4e5cdfd646e1fcb64cab64f0fe"
+        }
+      ],
+      [
+        {
+          "file": "0008-bounded-exam-calculations.patch",
+          "sha256": "7421e0a7c1c2f690d5ac0371d5823e194dace0ce06a60314552e9335fb8c3057"
+        }
+      ],
+      [
+        {
+          "file": "0009-tree-index-conventions.patch",
+          "sha256": "d9f76e9c0cfacb6b813267f74e6234962a00bd7ae66f0c51a4584da2b1c73dbe"
+        }
+      ],
+      [
+        {
+          "file": "0010-exam-paper-compatibility.patch",
+          "sha256": "38c2eb7e93ade1e20b81d9ef315dd7ae8c2b6ceccc981f201c6175433abd54ee"
+        }
+      ],
+      [
+        {
+          "file": "0011-extraction-boundaries.patch",
+          "sha256": "9d9a6c75141413173369e7d0bc63fd0e23baf0629801286e4fa568dc313bc0a3"
+        }
+      ],
+      [
+        {
+          "file": "0012-compound-option-mapping.patch",
+          "sha256": "b012728d34d268fa4d60dba5f2dda74b37a3f8bf60fb93b959ce3760694e98eb"
+        }
+      ]
+    ]
+  },
+  "bridge_api_sha256": "b6ba8c205e89579d4bc5b2e23f6ef4a9759e68d0ae85adcf080d9d8dd36a1321",
+  "service_tests": 152,
+  "boundary": "0013 JSON code-fence parsing and explicit parent hierarchy validation deployed after active upstream turns reached zero; full source preserved. Main backend and frontend unchanged."
+}

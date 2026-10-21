@@ -1,0 +1,92 @@
+[
+  {
+    "project": "signup",
+    "defect": "禁用状态丢失",
+    "rejected": true,
+    "failed": [
+      {
+        "caseId": "check-submit-disabled-empty",
+        "status": "failed",
+        "message": "输入为空时提交按钮禁用：未通过\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false"
+      },
+      {
+        "caseId": "check-submit-disabled-spaces",
+        "status": "failed",
+        "message": "仅输入空格时提交按钮仍禁用：未通过\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false"
+      },
+      {
+        "caseId": "check-submit-enabled-valid",
+        "status": "failed",
+        "message": "输入非空白姓名后提交按钮可用，清空后重新禁用：未通过\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false"
+      },
+      {
+        "caseId": "check-reset-clears",
+        "status": "failed",
+        "message": "点击重新填写后输入框清空、成功提示消失、提交按钮重新禁用：未通过\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false\n重新填写后可以再次提交新的姓名：通过"
+      }
+    ],
+    "durationMs": 7849.942613
+  },
+  {
+    "project": "signup",
+    "defect": "重新填写残留结果",
+    "rejected": true,
+    "failed": [
+      {
+        "caseId": "check-reset-clears",
+        "status": "failed",
+        "message": "点击重新填写后输入框清空、成功提示消失、提交按钮重新禁用：未通过\nexpect(received).toBeNull()\n\nReceived: <p data-testid=\"success-message\">报名成功：王五</p>\n重新填写后可以再次提交新的姓名：未通过\nexpect(received).toBeNull()\n\nReceived: <p data-testid=\"success-message\">报名成功：孙七</p>"
+      }
+    ],
+    "durationMs": 8168.338193000001
+  },
+  {
+    "project": "reading",
+    "defect": "切换一项误改全部",
+    "rejected": true,
+    "failed": [
+      {
+        "caseId": "toggle-read-independent",
+        "status": "failed",
+        "message": "切换第一本书的已读状态不影响第二本：未通过\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"未读\"\nReceived: \"已读\"\n切换第二本书的已读状态不影响第一本：未通过\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"未读\"\nReceived: \"已读\"\n再次点击同一本书可切回未读：通过"
+      },
+      {
+        "caseId": "duplicate-names-independent",
+        "status": "failed",
+        "message": "同名书各自独立切换已读：未通过\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"未读\"\nReceived: \"已读\"\n删除第二个同名书，第一个保留且保持已读：通过\n删除第一个同名书，第二个保留且为未读：未通过\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"未读\"\nReceived: \"已读\""
+      }
+    ],
+    "durationMs": 6915.657178999998
+  },
+  {
+    "project": "reading",
+    "defect": "删除一项误清空全部",
+    "rejected": true,
+    "failed": [
+      {
+        "caseId": "delete-one-book",
+        "status": "failed",
+        "message": "删除第一本书后只剩第二本：未通过\nUnable to find an element by: [data-testid=\"book-item\"]\n\nIgnored nodes: comments, script, style\n<body>\n  <div>\n    <main\n      class=\"app\"\n    >\n      <h1>\n        我的阅读清单\n      </h1>\n      <div\n        class=\"add-row\"\n      >\n        <input\n          data-testid=\"book-input\"\n          placeholder=\"输入书名\"\n          type=\"text\"\n          value=\"\"\n        />\n        <button\n          data-testid=\"add-button\"\n          type=\"button\"\n        >\n          添加\n        </button>\n      </div>\n      <ul\n        class=\"book-list\"\n        data-testid=\"book-list\"\n      />\n    </main>\n  </div>\n</body>\n删除第二本书后只剩第一本：未通过\nUnable to find an element by: [data-testid=\"book-item\"]\n\nIgnored nodes: comments, script, style\n<body>\n  <div>\n    <main\n      class=\"app\"\n    >\n      <h1>\n        我的阅读清单\n      </h1>\n      <div\n        class=\"add-row\"\n      >\n        <input\n          data-testid=\"book-input\"\n          placeholder=\"输入书名\"\n          type=\"text\"\n          value=\"\"\n        />\n        <button\n          data-testid=\"add-button\"\n          type=\"button\"\n        >\n          添加\n        </button>\n      </div>\n      <ul\n        class=\"book-list\"\n        data-testid=\"book-list\"\n      />\n    </main>\n  </div>\n</body>\n删除其他书不影响已读状态：未通过\nUnable to find an element by: [data-testid=\"book-item\"]\n\nIgnored nodes: comments, script, style\n<body>\n  <div>\n    <main\n      class=\"app\"\n    >\n      <h1>\n        我的阅读清单\n      </h1>\n      <div\n        class=\"add-row\"\n      >\n        <input\n          data-testid=\"book-input\"\n          placeholder=\"输入书名\"\n          type=\"text\"\n          value=\"\"\n        />\n        <button\n          data-testid=\"add-button\"\n          type=\"button\"\n        >\n          添加\n        </button>\n      </div>\n      <ul\n        class=\"book-list\"\n        data-testid=\"book-list\"\n      />\n    </main>\n  </div>\n</body>"
+      },
+      {
+        "caseId": "duplicate-names-independent",
+        "status": "failed",
+        "message": "同名书各自独立切换已读：通过\n删除第二个同名书，第一个保留且保持已读：未通过\nUnable to find an element by: [data-testid=\"book-item\"]\n\nIgnored nodes: comments, script, style\n<body>\n  <div>\n    <main\n      class=\"app\"\n    >\n      <h1>\n        我的阅读清单\n      </h1>\n      <div\n        class=\"add-row\"\n      >\n        <input\n          data-testid=\"book-input\"\n          placeholder=\"输入书名\"\n          type=\"text\"\n          value=\"\"\n        />\n        <button\n          data-testid=\"add-button\"\n          type=\"button\"\n        >\n          添加\n        </button>\n      </div>\n      <ul\n        class=\"book-list\"\n        data-testid=\"book-list\"\n      />\n    </main>\n  </div>\n</body>\n删除第一个同名书，第二个保留且为未读：未通过\nUnable to find an element by: [data-testid=\"book-item\"]\n\nIgnored nodes: comments, script, style\n<body>\n  <div>\n    <main\n      class=\"app\"\n    >\n      <h1>\n        我的阅读清单\n      </h1>\n      <div\n        class=\"add-row\"\n      >\n        <input\n          data-testid=\"book-input\"\n          placeholder=\"输入书名\"\n          type=\"text\"\n          value=\"\"\n        />\n        <button\n          data-testid=\"add-button\"\n          type=\"button\"\n        >\n          添加\n        </button>\n      </div>\n      <ul\n        class=\"book-list\"\n        data-testid=\"book-list\"\n      />\n    </main>\n  </div>\n</body>"
+      }
+    ],
+    "durationMs": 7741.326191
+  },
+  {
+    "project": "reading",
+    "defect": "允许空白条目",
+    "rejected": true,
+    "failed": [
+      {
+        "caseId": "reject-blank-input",
+        "status": "failed",
+        "message": "空输入点击添加后列表仍为空：未通过\nexpect(received).toHaveLength(expected)\n\nExpected length: 0\nReceived length: 1\nReceived array:  [<li class=\"book-item\" data-testid=\"book-item\"><span class=\"book-title\" /><span class=\"read-status\" data-testid=\"read-status\">未读</span><button data-testid=\"toggle-read\" type=\"button\">切换已读</button><button data-testid=\"delete-book\" type=\"button\">删除</button></li>]\n只有空格的输入点击添加后列表仍为空：未通过\nexpect(received).toHaveLength(expected)\n\nExpected length: 0\nReceived length: 1\nReceived array:  [<li class=\"book-item\" data-testid=\"book-item\"><span class=\"book-title\" /><span class=\"read-status\" data-testid=\"read-status\">未读</span><button data-testid=\"toggle-read\" type=\"button\">切换已读</button><button data-testid=\"delete-book\" type=\"button\">删除</button></li>]\n已有条目时空白输入不改变列表：未通过\nexpect(received).toHaveLength(expected)\n\nExpected length: 1\nReceived length: 2\nReceived array:  [<li class=\"book-item\" data-testid=\"book-item\"><span class=\"book-title\">三体</span><span class=\"read-status\" data-testid=\"read-status\">未读</span><button data-testid=\"toggle-read\" type=\"button\">切换已读</button><button data-testid=\"delete-book\" type=\"button\">删除</button></li>, <li class=\"book-item\" data-testid=\"book-item\"><span class=\"book-title\" /><span class=\"read-status\" data-testid=\"read-status\">未读</span><button data-testid=\"toggle-read\" type=\"button\">切换已读</button><button data-testid=\"delete-book\" type=\"button\">删除</button></li>]"
+      }
+    ],
+    "durationMs": 7206.934516000001
+  }
+]

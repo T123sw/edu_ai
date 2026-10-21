@@ -15,7 +15,6 @@ test("report fields map to the durable report command", () => {
     depth: "deep",
     structureEmphasis: "先结论后证据",
     specialRequirements: "列出三项改进建议",
-    includeVisuals: true,
   };
   const payload = reportDefinition.serialize({ courseId: "course-1", source, config });
   assert.equal(payload.question, "学习行为分析");
@@ -25,7 +24,7 @@ test("report fields map to the durable report command", () => {
     depth: "deep",
     structure_emphasis: "先结论后证据",
     special_requirements: "列出三项改进建议",
-    include_visuals: true,
+    include_visuals: false,
   });
 });
 
@@ -38,7 +37,6 @@ test("lesson plan effective generation fields are serialized", () => {
     lessonType: "inquiry_lesson",
     teachingProcess: "问题导入—实验探究—归纳应用",
     specialRequirements: "保留五分钟课堂检测",
-    includeVisuals: true,
   };
   const payload = lessonPlanDefinition.serialize({ courseId: "course-1", source, config });
   assert.equal(payload.duration_minutes, 45);
@@ -57,7 +55,6 @@ test("blog tone and length reach the durable command", () => {
     length: "long",
     structure: "概念—例子—总结",
     specialRequirements: "加入一个生活类比",
-    includeVisuals: true,
   };
   const payload = blogDefinition.serialize({ courseId: "course-1", source, config });
   assert.equal(payload.tone, "popular");

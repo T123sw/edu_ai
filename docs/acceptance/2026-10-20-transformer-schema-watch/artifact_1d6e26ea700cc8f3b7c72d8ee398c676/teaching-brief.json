@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 14.043644666671753,
+  "decisions": {
+    "reason": "用户请求中 requested_video_minutes 为 null，未提出任何视频时长要求，因此采用 defaults.target_minutes=5 的默认目标（300s），并明确标注为默认值而非用户指定。节点学习预算 14 分钟包含阅读与练习，不作为成片时长。配音：defaults.narration=true 且用户未要求静音，故保留中文旁白；画幅沿用 defaults.aspect=16:9 与课程视觉约定。交付类型为约 5 分钟的常规教学解释视频，按原生路由走 general-video，flow=automation、storyboard=no。缺失信息假设：学习者具体背景未知，按入门深度组织；无用户上传素材，画面全部自绘；教师演示的手算过程写入视频必须覆盖项，课堂练习与自测留给习题，详细阅读留给报告。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792477945.6703777,
+  "brief_sha256": "3e52767226f1e07e6d56b56dd5032e0ece66599a3e66c096699c372379f28b32",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"自注意力把每个词元变成查询、键、值三个向量，用缩放点积算出它该关注谁\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n这是「我想学习 transformer」系列课程中的一个节点视频，面向希望系统学习 Transformer 架构的学习者（具体背景未知，按入门深度组织）。本节点只讲一件事：自注意力机制里 Q/K/V 是什么，以及缩放点积注意力怎么一步步算出来。语气清晰、克制、以板书式讲解为主，像一位老师在白板前边写边讲，而不是念公式。\n\n学习者刚看完上一节点「整体结构：编码器-解码器与端到端数据流」，已经知道数据流是：分词与词表索引 → 词嵌入 → 加位置编码 → 编码器栈 → 解码器栈 → 线性层与 softmax 输出下一个词元概率。本视频从这里接上：进入编码器栈内部，看注意力子层到底在算什么。\n\n## Assets\n\n- 无用户上传素材；画面全部为自绘的示意图、矩阵与数值表格，不引用外部图片或截图。\n\n## Customizations\n\n- 用 3 个词元、dk=2 的玩具数值做一次完整手算演示：注意力分数矩阵 → 除以 √dk → softmax 权重（每行和为 1）→ 对 V 加权求和得到输出。数值必须在画面上逐步出现，不要一次性铺满。\n- 公式 Attention(Q,K,V)=softmax(QK^T/√dk)V 出现时，逐项标注 Q、K、V、dk 的维度，标注与公式同屏但分步高亮。\n- 缩放因子的解释用对比呈现：同一组分数在 dk=2 与 dk=64 下 softmax 输出的差别（后者更尖锐、梯度更小），而不是只念一句结论。\n\n## Notes\n\n必须讲清的内容（对应本节点教学目标）：\n\n1. 注意力函数的定义：把查询与一组键值对映射为输出，输出是值的加权和，权重由查询与对应键的相容性函数给出。\n2. 缩放点积注意力的四步计算：Q 与所有 K 做点积 → 除以 √dk → softmax 归一化得到权重 → 对 V 加权求和；并写出矩阵形式 softmax(QK^T/√dk)V。\n3. 为什么要除以 √dk：dk 较大时点积幅值变大，会把 softmax 推入梯度极小的区域；论文脚注给出的直观解释是 q、k 各分量独立、均值 0 方差 1 时，点积的方差为 dk。\n4. 自注意力中 Q、K、V 都来自同一序列（上一层输出），用于刻画序列内部各位置之间的关系；与编码器-解码器注意力（Q 来自解码器、K/V 来自编码器输出）的区别只需一句话点明，不展开。\n\n演示深度：入门级原理理解。视频必须覆盖教师演示部分——玩具数值手算与公式逐项标注；课堂练习「把 dk 从 2 改为 64，讨论不缩放时 softmax 会怎样变化」只作为视频结尾的思考提示，不要求视频内作答，具体计算练习留给配套习题。\n\n来源：论文《Attention Is All You Need》(Vaswani et al., 2017, NeurIPS)，https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf 的 3.2、3.2.1 节及脚注 4；中文讲解参考 https://cloud.tencent.com/developer/article/2608139 的注意力机制章节（含「Transformer is powerful.」翻译案例中 Q/K/V 的角色说明）。\n\n排除项：不涉及多头注意力的投影矩阵细节（h=8、dk=dv=64 等超参数属后续节点）、不涉及掩码、不涉及从零实现代码、不涉及训练与调参。论文中的 N=6、dmodel=512、h=8、dff=2048 是 2017 年原始 base 模型设定，不代表所有后续变体，本视频不把它们当作普遍规律陈述。\n\n画幅与视觉：16:9，1920×1080。沿用课程视觉约定：字体 Noto Sans SC，背景 #0f172a，前景 #f8fafc，强调色 #38bdf8；正文不小于 32px，图示标签不小于 28px，标题不小于 48px。矩阵与数值表格信息密度高时拆成多步呈现，不要缩小字号硬塞。\n\n语音：需要中文配音（旁白），与画面同步讲解。\n\n时长：用户未指定视频时长，按默认约 5 分钟（300s）安排，围绕上述四点做充分解释与手算演示；本节点 14 分钟的学习预算包含阅读与练习，不等同于视频时长。不为了凑时长加入无关内容，也不压成一分钟概述。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

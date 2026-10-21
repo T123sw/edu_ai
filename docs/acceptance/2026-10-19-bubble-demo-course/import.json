@@ -1,0 +1,32 @@
+{
+  "course_id": "bubble-sort-demo-20261019",
+  "title": "冒泡排序入门 · 教学演示",
+  "owner": "teacher",
+  "path": "/#/classroom/bubble-sort-demo-20261019",
+  "imported_at": "2026-10-19T04:19:33.918901+00:00",
+  "materials": [
+    {
+      "id": "bubble_demo_basic_20261019",
+      "title": "基本思想：相邻比较与交换",
+      "project": {
+        "id": "bubble_demo_20261019_basic",
+        "digest": "935602e0b6bea68071251d9234a1c9b08d5e85ba8568dd0bcd362465a12b96b4",
+        "entry": "index.html"
+      },
+      "duration": 38.233333,
+      "segments": 4
+    },
+    {
+      "id": "bubble_demo_trace_20261019",
+      "title": "手工追踪：看懂前两趟排序",
+      "project": {
+        "id": "bubble_demo_20261019_trace",
+        "digest": "9dcb8d457b626c3facbccdd7c982f0312ec4718c736ebc46b3dcf594ff23ba43",
+        "entry": "index.html"
+      },
+      "duration": 71.666667,
+      "segments": 5
+    }
+  ],
+  "original_task_modified": false
+}

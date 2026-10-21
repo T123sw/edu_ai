@@ -1,0 +1,75 @@
+[
+  {
+    "case": "old_binary",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "候选答案标为B，但独立计算显示查找83只需3次比较（mid依次为6、9、11），正确答案应为A。",
+      "候选解析第3步错误地认为mid=11处元素为75，实际下标11的元素是83，导致后续多算一次比较并得出4次。",
+      "解析与正确选项不一致，最终答案错误。"
+    ],
+    "seconds": 4.51
+  },
+  {
+    "case": "old_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 4-1 = 3, not 15",
+      "arithmetic_claim_invalid: 4-1 = 3, not 15",
+      "arithmetic_claim_invalid: 4-1 = 3, not 15"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "new_arithmetic",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: 2328-2000 = 328, not 276",
+      "arithmetic_claim_invalid: 276 / 82 = 3.3658536585365852, not 4"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "new_tree",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "arithmetic_claim_invalid: -1 = -1, not 1023"
+    ],
+    "seconds": 0.0
+  },
+  {
+    "case": "old_partition",
+    "expected_accept": false,
+    "accepted": false,
+    "issues": [
+      "answer_valid",
+      "requirements_met",
+      "题目描述的双指针交换式划分实际结果为 (19,23,31,35) 47 (56,74,68)，不在任何选项中，题目与所给答案不自洽。",
+      "解析中称交换后左侧为 (31,23,35,19)、右侧为 (56,74,68)，但按解析自身的交换步骤（68↔31、56↔19）应得 (19,23,31,35) 与 (56,74,68)，解析推导与结论矛盾。",
+      "选项 B 的左侧 (31,23,35,19) 与解析所述扫描交换结果不一致，正确答案缺乏一致依据。"
+    ],
+    "seconds": 7.53
+  },
+  {
+    "case": "correct_binary",
+    "expected_accept": true,
+    "accepted": true,
+    "issues": [],
+    "seconds": 3.55
+  },
+  {
+    "case": "correct_partition",
+    "expected_accept": true,
+    "accepted": false,
+    "issues": [
+      "unresolved_independent_calculation",
+      "calculation_checks_invalid"
+    ],
+    "seconds": 4.15
+  }
+]

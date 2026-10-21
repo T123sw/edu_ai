@@ -1,0 +1,35 @@
+{
+  "typecheck": "passed",
+  "lint": "passed",
+  "productionBuild": "passed",
+  "previewBrowserTests": {
+    "passed": 11,
+    "skipped": 1,
+    "logs": [
+      "browser-preview.log",
+      "browser-offline.log"
+    ]
+  },
+  "coverage": [
+    "顶部检查与工程菜单",
+    "删除底栏和辅导内部收起按钮",
+    "320–1920px 无横向溢出",
+    "工作区铺满至底部边距",
+    "检查请求和下一步",
+    "辅导切换、草稿与错误重试",
+    "离线草稿刷新恢复和同步",
+    "算法及既有计算器三步题面回归"
+  ],
+  "businessApisMocked": true,
+  "previewRuntime": "布局测试阻断外部 Sandpack；本次未重新验证真实代码运行或模型输出",
+  "screenshots": [
+    "desktop.png",
+    "mobile.png"
+  ],
+  "liveBrowserTests": {
+    "passed": 11,
+    "skipped": 1,
+    "log": "browser-live.log",
+    "businessApisMocked": true
+  }
+}

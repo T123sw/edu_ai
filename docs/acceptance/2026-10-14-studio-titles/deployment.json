@@ -1,0 +1,66 @@
+{
+  "verifiedAt": "2026-10-14T05:01:18.457246+00:00",
+  "frontendPublished": true,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-studio-titles-release",
+  "publicationOrigin": "included in concurrent reconciled PBL release at 2026-10-14T04:58:59Z; all 476 release files match production",
+  "releaseIndexSha256": "975f6cd68aceb71ba8edb215ea25df335da99836ed8a19ef82dd7e3c73d0d92c",
+  "backup": "/tmp/edu-pbl-preview-backup-20261014T045859Z",
+  "changes": [
+    "工具卡片移除标题上方动作说明及下方描述，仅保留标题和插图",
+    "本课资源与我的资源仅显示学习报告、习题、闪卡、思维导图、播客、情景案例六类，默认学习报告",
+    "移除全部、研究记录、历史教案、历史文章、课堂分类入口；未删除存量数据"
+  ],
+  "checks": {
+    "application_types": "passed",
+    "eslint_StudioHome": "passed",
+    "build": "passed",
+    "production_browser": {
+      "passed": 3,
+      "api": "mocked business responses"
+    },
+    "layout": [
+      {
+        "width": 1440,
+        "titles": [
+          "学习报告",
+          "习题",
+          "闪卡",
+          "思维导图",
+          "播客",
+          "情景案例"
+        ],
+        "filters": [
+          "学习报告1",
+          "习题0",
+          "闪卡0",
+          "思维导图0",
+          "播客0",
+          "情景案例0"
+        ],
+        "overflow": false
+      },
+      {
+        "width": 390,
+        "titles": [
+          "学习报告",
+          "习题",
+          "闪卡",
+          "思维导图",
+          "播客",
+          "情景案例"
+        ],
+        "filters": [
+          "学习报告1",
+          "习题0",
+          "闪卡0",
+          "思维导图0",
+          "播客0",
+          "情景案例0"
+        ],
+        "overflow": false
+      }
+    ],
+    "nginx_index_matches": true
+  }
+}

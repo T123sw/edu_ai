@@ -21,10 +21,15 @@ class GenerationAdapter:
         if existing is None:
             self.task_store.enqueue(task_id=job_id,workflow_type='preparation_resource',handler_version=1,
                 owner_user_id=context.owner_user_id,course_id=None,scope_type='preparation',scope_id=context.preparation_id,
-                command={'artifact_id':artifact['artifact_id']},config_snapshot_id=None,idempotency_key=job_id,
-                max_attempts=2,deadline_at=datetime.fromisoformat(context.deadline))
-        elif existing.owner_user_id!=context.owner_user_id or existing.command!={'artifact_id':artifact['artifact_id']}:
+                command={'artifact_id':artifact['artifact_id'], 'resource_type':spec['resource_type']},config_snapshot_id=None,idempotency_key=job_id,
+                max_attempts=2,deadline_at=datetime.fromisoformat(context.deadline) if context.deadline else None)
+        elif existing.owner_user_id!=context.owner_user_id or existing.command not in ({'artifact_id':artifact['artifact_id']}, {'artifact_id':artifact['artifact_id'], 'resource_type':spec['resource_type']}):
             raise PermissionError('CHILD_JOB_IDENTITY_CONFLICT')
+        # Enqueue uses the queue's own transaction. Catch cancellation committed
+        # between artifact creation and enqueue, before returning the receipt.
+        parent = self.repository.get_public(context.owner_user_id, context.preparation_id)
+        if parent['status'] == 'canceled' or parent['attempt_no'] != context.attempt_no:
+            self.task_store.request_cancel(job_id, owner_user_id=context.owner_user_id)
         return {'artifact_id':artifact['artifact_id'],'job_id':job_id}
 
     def reconcile(self,context,spec,action_id):
@@ -34,16 +39,24 @@ class GenerationAdapter:
 
     def resume_review(self,context,artifact_id,*,recovery_key):
         receipt=self.artifacts.resume_review(context,artifact_id,recovery_key=recovery_key)
+        return self._enqueue_recovery(context,artifact_id,receipt)
+
+    def resume_classroom_delivery(self,context,artifact_id):
+        receipt=self.artifacts.resume_classroom_delivery(context,artifact_id)
+        return self._enqueue_recovery(context,artifact_id,receipt)
+
+    def _enqueue_recovery(self,context,artifact_id,receipt):
         job_id=receipt['job_id']
-        command={'artifact_id':artifact_id}
+        artifact = self.artifacts.get(context.owner_user_id, artifact_id)
+        command={'artifact_id':artifact_id, 'resource_type':artifact['resource_type']}
         existing=self.task_store.get_durable(job_id)
         if existing is None:
             self.task_store.enqueue(task_id=job_id,workflow_type='preparation_resource',handler_version=1,
                 owner_user_id=context.owner_user_id,course_id=None,scope_type='preparation',scope_id=context.preparation_id,
                 command=command,config_snapshot_id=None,idempotency_key=job_id,
-                max_attempts=2,deadline_at=datetime.fromisoformat(context.deadline))
+                max_attempts=2,deadline_at=datetime.fromisoformat(context.deadline) if context.deadline else None)
             existing=self.task_store.get_durable(job_id)
-        if (existing is None or existing.owner_user_id!=context.owner_user_id or existing.command!=command
+        if (existing is None or existing.owner_user_id!=context.owner_user_id or existing.command not in (command, {'artifact_id':artifact_id})
                 or existing.workflow_type!='preparation_resource' or existing.scope_id!=context.preparation_id):
             raise PermissionError('CHILD_JOB_IDENTITY_CONFLICT')
         return receipt
@@ -57,17 +70,22 @@ class GenerationAdapter:
             if job.status in ('failed','canceled') and artifact['status'] not in ('failed',):
                 artifact={**artifact,'status':'failed','error_code':job.error_code or 'CHILD_FAILED'}
             return artifact
-        if not artifact['content'] or digest(artifact['content'])!=artifact['content_digest']:
-            raise ValueError('ARTIFACT_CONTENT_MISSING_OR_CHANGED')
-        from app.chat.harness.reviewed_report import verified_review
-        from app.chat.harness.reviewed_resource import verified_resource,validate_resource
-        if artifact['resource_type']=='report': valid=verified_review(artifact['content'])
-        else:
-            validate_resource(artifact['resource_type'],artifact['content']['content'])
-            checked={**artifact['content'],**artifact['content']['content']} if artifact['resource_type']=='classroom' else artifact['content']
-            valid=verified_resource(checked,artifact['resource_type'])
-        if not valid: raise ValueError('ARTIFACT_REVIEW_MISSING_OR_STALE')
+        verify_draft(artifact)
         return artifact
+
+
+def verify_draft(artifact):
+    """Verify the resource's existing receipt; this performs no model calls."""
+    if not artifact['content'] or digest(artifact['content'])!=artifact['content_digest']:
+        raise ValueError('ARTIFACT_CONTENT_MISSING_OR_CHANGED')
+    from app.chat.harness.reviewed_report import verified_review
+    from app.chat.harness.reviewed_resource import verified_resource,validate_resource
+    if artifact['resource_type']=='report': valid=verified_review(artifact['content'])
+    else:
+        validate_resource(artifact['resource_type'],artifact['content']['content'])
+        checked={**artifact['content'],**artifact['content']['content']} if artifact['resource_type']=='classroom' else artifact['content']
+        valid=verified_resource(checked,artifact['resource_type'])
+    if not valid: raise ValueError('ARTIFACT_REVIEW_MISSING_OR_STALE')
 
 
 def automatic_payload(spec,artifact):
@@ -109,14 +127,20 @@ class PreparationResourceHandler:
             existing=store.get(context.owner_user_id,command['artifact_id'])
             if existing['status']=='draft': return {'saved':True,'result_ref':{'kind':'preparation_draft','artifact_id':existing['artifact_id']}}
             raise RuntimeError('RESOURCE_ALREADY_RUNNING')
+        from ..resource_heartbeat import ResourceHeartbeat
+        heartbeat=ResourceHeartbeat(store,artifact,context)
         try:
+            heartbeat.start()
             from ..research_dependencies import agent_factory
             username=PreparationMemory(app.repository).subject(context.owner_user_id)
             configured=agent_factory(username,artifact['spec']['config_snapshot']).model.gateway
             parent=app.repository.get_public(context.owner_user_id,artifact['preparation_id'])
             port=store.checkpoint_port(artifact)
+            def guard():
+                heartbeat.check()
+                return port.load_review_candidate()
             gateway=PreparationHarnessGateway(configured,store,artifact,deadline=parent['budget']['deadline'],
-                canceled=context.is_cancel_requested,guard=port.load_review_candidate)
+                canceled=context.is_cancel_requested,guard=guard)
             payload=automatic_payload(artifact['spec'],artifact)
             payload.spec_digest=artifact['spec_digest']
             if artifact['resource_type']=='report':
@@ -131,6 +155,7 @@ class PreparationResourceHandler:
                 result=ReviewedResourceGenerator(gateway=gateway,progress=context.progress,checkpoint=port).generate(payload,
                     job_id=context.task_id,config_snapshot_id='')['artifacts'][0]
             if context.is_cancel_requested(): raise RuntimeError('CANCELED')
+            heartbeat.check()
             saved=store.save(artifact,result)
             return {'saved':True,'result_ref':{'kind':'preparation_draft','artifact_id':saved['artifact_id']}}
         except Exception as exc:
@@ -147,8 +172,12 @@ class PreparationResourceHandler:
             elif isinstance(exc,PermissionError):code='RESOURCE_PERMISSION_DENIED';category=('permission','none')
             elif isinstance(exc,StaleLease):code='RESOURCE_LEASE_EXPIRED';category=('permission','none')
             if detail is None and category:
+                metric = str(exc).split(':', 1)[-1] if isinstance(exc, BudgetExceeded) else None
                 detail=FailureDetail(code=code,phase=getattr(exc,'preparation_phase','resource_write'),
                     category=category[0],retry_scope=category[1],artifact_id=artifact['artifact_id'],
+                    budget_metric=metric if metric in ('calls','tokens','cost_micro_usd') else None,
                     message='生成调用未完成：'+code)
             store.fail(artifact,detail or code)
             raise
+        finally:
+            heartbeat.close()

@@ -1,0 +1,181 @@
+{
+  "status": "recovered",
+  "decision": {
+    "node_key": "n2-self-attention",
+    "sufficient": true,
+    "reason": "当前节点三个目标均有实质依据：source_2 给出 Q/K/V 的检索式直觉（查询在找什么、键是内容标签、值是被取走的信息），并完整推导 Q=XW_Q、K=XW_K、V=XW_V → S=QK^T → 除以 √d_k → softmax 沿最后一维（key 维）按行归一化 → 输出 AV，与目标要求的步骤顺序一致；source_1 明确 softmax 按行归一化，source_3 以 \"it 指代 cat/bank\" 例子说明 QKV 语义，source_4 说明缩放因子防止点积过大使 softmax 进入梯度饱和区。缩放原因方面，source_2 给出方差随 d_k 线性增长、标准差约 √d_k、不缩放导致近似 one-hot 与梯度消失的推导，source_4 亦佐证。节点活动中的 n=3、d_k=2 手算推演与\"每行权重和为 1\"的检查，可由上述公式与按行归一化说明直接支撑，属教学者自行构造的小算例，无需额外来源。self_check 的公式与维度问题均被覆盖。未发现与目标冲突或需扩展的主题，故无需追加检索。",
+    "source_ids": [
+      "ev_cf807b1a738b6c6375a3ff43",
+      "ev_b65c279e9d830a24a6006942",
+      "ev_8d31cb8c47a018f3e14d01a8",
+      "ev_6f83a834a32bd420dd30f8bd"
+    ],
+    "gap_queries": []
+  },
+  "seconds": 4.665899368003011,
+  "model": "deepseek-v4-flash",
+  "calls": [
+    {
+      "index": 0,
+      "kind": "recorded_response_replay"
+    },
+    {
+      "index": 1,
+      "kind": "real_provider_request",
+      "feedback": "上一轮工具参数不符合当前 schema，整批工具均未执行。请按工具 schema 重新提交完整结构化结果，补齐必填字段、移除未定义字段。保持独立判断，保留真实 blocking_issues，不将格式修正当成内容通过。具体错误：assess_node_evidence.$: Additional properties are not allowed ('sufficient_again' was unexpected)",
+      "seconds": 3.064994466956705,
+      "http_status": 200
+    }
+  ],
+  "input_state_unchanged": true,
+  "original_task_mutated": false,
+  "sources_reread": false,
+  "ledger": [
+    {
+      "reserved": {
+        "input_upper_bound": 52944,
+        "output_limit": 384000,
+        "model": "deepseek-v4-flash",
+        "deadline": 3149670.155234621
+      },
+      "usage": {
+        "total_tokens": 14153,
+        "prompt_tokens": 13636,
+        "completion_tokens": 517,
+        "prompt_tokens_details": {
+          "cached_tokens": 512
+        },
+        "prompt_cache_hit_tokens": 512,
+        "prompt_cache_miss_tokens": 13124
+      },
+      "response_data": {
+        "runtime": "deepseek-harness",
+        "protocol_recovery_attempt": 0,
+        "requested_output_tokens": 384000,
+        "effective_output_tokens": 384000,
+        "phase": "research_nodes",
+        "spec_digest": "8974417db104a53fed9df5658aaf4a71bfdae533ad238acfa1aa1a32e4f502b4",
+        "context_digest": "8974417db104a53fed9df5658aaf4a71bfdae533ad238acfa1aa1a32e4f502b4",
+        "provider": "configured",
+        "model": "deepseek-v4-flash",
+        "skill": {
+          "name": "review-learning-path",
+          "sha256": "af9b8c868e1f91f947c33e8c608d020831ac8aef387c109f77b7b64a56ff93fa",
+          "loaded": true
+        },
+        "response": {
+          "id": "2e2b701b-32d3-43b4-b1b3-11f88f2458b6",
+          "model": "deepseek-flash",
+          "usage": {
+            "total_tokens": 14153,
+            "prompt_tokens": 13636,
+            "completion_tokens": 517,
+            "prompt_tokens_details": {
+              "cached_tokens": 512
+            },
+            "prompt_cache_hit_tokens": 512,
+            "prompt_cache_miss_tokens": 13124
+          },
+          "object": "chat.completion",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                  {
+                    "id": "call_00_VrhaJwklB4JfyVeJGOAe8312",
+                    "type": "function",
+                    "index": 0,
+                    "function": {
+                      "name": "mcp__preparation__assess_node_evidence",
+                      "arguments": "{\"sufficient\": true, \"reason\": \"本节点三个目标均有实质依据。Q/K/V 角色：source_2 明确给出 Q=「我在找什么」、K=「位置 j 的内容标签」、V=「实际取走的信息」，source_3 用 \\\"it 指代 cat/bank\\\" 的例子说明检索式直觉，source_1 给出 Q=XW_Q、K=XW_K、V=XW_V 的线性投影定义。计算步骤：source_1、source_2、source_3、source_4 均按「线性投影→QK^T→除以 √d_k→softmax→加权求和 V」顺序给出，source_2 给出背诵版公式 Attention(Q,K,V)=softmax(QK^T/√d_k)V，source_3 给出逐元素 a_ij=exp(e_ij)/Σexp(e_ij) 与 c_i=Σa_ij v_j，足以支撑手算推演。缩放原因：source_2 给出完整方差推导（q_r、k_r 独立零均值方差 1 时点积方差为 d_k、标准差 √d_k，不缩放则 softmax 近似 one-hot 导致梯度消失），source_4 与 source_3 亦说明点积幅度随 d_k 增大使 softmax 进入梯度极小区域。softmax 维度：source_1 明确「按行归一化」，source_2 明确「对最后一维（key 维）做，每一行对应位置 i 对所有 j 的注意力分布」，与目标一致。n=3、d_k=2 的小矩阵手算属教学自设练习，所需公式与步骤均已具备，无需额外来源。未发现来源间冲突；source_2 的面试导向表述不影响入门深度使用。\", \"source_refs\": [\"source_1\", \"source_2\", \"source_3\", \"source_4\"], \"gap_queries\": [], \"sufficient_again\": true}"
+                    }
+                  }
+                ]
+              },
+              "logprobs": null,
+              "finish_reason": "tool_calls"
+            }
+          ],
+          "created": 1792425540,
+          "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+        }
+      }
+    },
+    {
+      "reserved": {
+        "input_upper_bound": 53350,
+        "output_limit": 384000,
+        "model": "deepseek-v4-flash",
+        "deadline": 3149670.155234621
+      },
+      "usage": {
+        "prompt_tokens": 13715,
+        "completion_tokens": 392,
+        "total_tokens": 14107,
+        "prompt_tokens_details": {
+          "cached_tokens": 12160
+        },
+        "prompt_cache_hit_tokens": 12160,
+        "prompt_cache_miss_tokens": 1555
+      },
+      "response_data": {
+        "runtime": "deepseek-harness",
+        "protocol_recovery_attempt": 1,
+        "requested_output_tokens": 384000,
+        "effective_output_tokens": 384000,
+        "phase": "research_nodes",
+        "spec_digest": "8974417db104a53fed9df5658aaf4a71bfdae533ad238acfa1aa1a32e4f502b4",
+        "context_digest": "8974417db104a53fed9df5658aaf4a71bfdae533ad238acfa1aa1a32e4f502b4",
+        "provider": "configured",
+        "model": "deepseek-v4-flash",
+        "skill": {
+          "name": "review-learning-path",
+          "sha256": "af9b8c868e1f91f947c33e8c608d020831ac8aef387c109f77b7b64a56ff93fa",
+          "loaded": true
+        },
+        "response": {
+          "id": "8b5fca08-15ee-4214-aad0-62ca8e6181b7",
+          "object": "chat.completion",
+          "created": 1792426863,
+          "model": "deepseek-flash",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                  {
+                    "index": 0,
+                    "id": "call_00_Lgxr9jftYtqFUUd1ezLo7602",
+                    "type": "function",
+                    "function": {
+                      "name": "mcp__preparation__assess_node_evidence",
+                      "arguments": "{\"sufficient\": true, \"reason\": \"当前节点三个目标均有实质依据：source_2 给出 Q/K/V 的检索式直觉（查询在找什么、键是内容标签、值是被取走的信息），并完整推导 Q=XW_Q、K=XW_K、V=XW_V → S=QK^T → 除以 √d_k → softmax 沿最后一维（key 维）按行归一化 → 输出 AV，与目标要求的步骤顺序一致；source_1 明确 softmax 按行归一化，source_3 以 \\\"it 指代 cat/bank\\\" 例子说明 QKV 语义，source_4 说明缩放因子防止点积过大使 softmax 进入梯度饱和区。缩放原因方面，source_2 给出方差随 d_k 线性增长、标准差约 √d_k、不缩放导致近似 one-hot 与梯度消失的推导，source_4 亦佐证。节点活动中的 n=3、d_k=2 手算推演与\\\"每行权重和为 1\\\"的检查，可由上述公式与按行归一化说明直接支撑，属教学者自行构造的小算例，无需额外来源。self_check 的公式与维度问题均被覆盖。未发现与目标冲突或需扩展的主题，故无需追加检索。\", \"source_refs\": [\"source_1\", \"source_2\", \"source_3\", \"source_4\"], \"gap_queries\": []}"
+                    }
+                  }
+                ]
+              },
+              "logprobs": null,
+              "finish_reason": "tool_calls"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 13715,
+            "completion_tokens": 392,
+            "total_tokens": 14107,
+            "prompt_tokens_details": {
+              "cached_tokens": 12160
+            },
+            "prompt_cache_hit_tokens": 12160,
+            "prompt_cache_miss_tokens": 1555
+          },
+          "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "scope": "counterexamples in auto-accepted generated questions; not a full-paper audit",
+  "generation_id": "examgen_1cf94151a7b8fea9aeb81a100d9992cc",
+  "checks": [
+    {
+      "ordinal": 7,
+      "kind": "binary_search",
+      "expected_comparisons": 3,
+      "trace": [
+        {
+          "position": 6,
+          "value": 47
+        },
+        {
+          "position": 9,
+          "value": 68
+        },
+        {
+          "position": 11,
+          "value": 83
+        }
+      ],
+      "generated_comparisons": 4,
+      "passed": false
+    },
+    {
+      "ordinal": 8,
+      "kind": "two_pointer_partition_matching_explanation",
+      "expected_sequence": [
+        19,
+        23,
+        31,
+        35,
+        47,
+        56,
+        74,
+        68
+      ],
+      "generated_option_B": [
+        31,
+        23,
+        35,
+        19,
+        47,
+        56,
+        74,
+        68
+      ],
+      "passed": false
+    },
+    {
+      "ordinal": 26,
+      "kind": "complete_binary_tree",
+      "node": 1024,
+      "expected_subtree": "left",
+      "expected_leaves_before": 18,
+      "generated_subtree": "right",
+      "generated_leaves_before": 0,
+      "passed": false
+    }
+  ],
+  "conclusion": "model review has false positives; generated paper is not quality-approved for an examination"
+}

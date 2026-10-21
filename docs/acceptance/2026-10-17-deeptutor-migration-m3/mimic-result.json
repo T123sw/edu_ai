@@ -1,0 +1,1939 @@
+{
+  "type": "result",
+  "source": "deep_question",
+  "stage": "",
+  "content": "",
+  "metadata": {
+    "response": "### Question 1\n\nConsider partitioning the array `[7, 2, 9, 4, 6, 1, 8]` using the last element (8) as the pivot, with the standard Lomuto scheme that moves all elements smaller than the pivot to the left. Which statement about the array immediately after this single partition step is true?\n- A. The array is fully sorted.\n- B. Elements smaller than 8 all lie to the left of 8, and elements larger than 8 all lie to its right.\n- C. The pivot ends up at index 0.\n- D. The two sides of the pivot must contain the same number of elements.\n\n**Answer:** B\n\n**Explanation:** A partition step only rearranges elements so that everything less than the pivot is on one side and everything greater is on the other; the pivot lands in its final sorted position, but the two sides are not themselves sorted. Here the pivot 8 ends at the last index (index 6), with the six smaller elements (7, 2, 4, 6, 1) to its left — not a fully sorted array, not at index 0, and the sides are unequal in size (6 vs 0).\n\n### Question 2\n\nA merge sort implementation merges two sorted halves using the comparison `if (a[i] <= b[j]) take a[i]; else take b[j];`. Records are sorted by a `key` field only, and two records in the input share the same key — one from the left half, one from the right half. Which statement best explains what happens to these two tied records in the merged output?\n- A. The right-half record is emitted first, because the right half is scanned with the stricter comparison.\n- B. The left-half record is emitted first, because the `<=` test lets the left element win a tie.\n- C. Their relative order becomes unpredictable, since ties are broken by the array's memory addresses.\n- D. Their relative order is reversed, because merging always interleaves the two halves alternately.\n\n**Answer:** B\n\n**Explanation:** Stability means equal keys keep their original relative order. In the merge step, the left half holds the records that appeared earlier in the input, so whenever the keys tie the `<=` test selects the left element first. That tie-breaking rule is exactly what makes standard merge sort stable — no extra key comparison or auxiliary field is needed. Option A describes the opposite rule (`<` would let the right element win a tie and break stability), option C invents a mechanism merge sort does not use, and option D misdescribes merging, which repeatedly takes from whichever half has the smaller current key rather than alternating.\n\n### Question 3\n\nA max-heap is stored in the array `[50, 30, 40, 10, 25, 35, 38, 5, 20, 22, 24]` (indices 0–10, 0-based, children of index `i` at `2i+1` and `2i+2`). A delete-max operation is performed once. Which sequence is the resulting array after the operation completes?\n- A. [40, 30, 38, 10, 25, 35, 24, 5, 20, 22]\n- B. [50, 40, 30, 38, 10, 25, 35, 5, 20, 22, 24]\n- C. [40, 30, 38, 10, 25, 35, 22, 5, 20, 24]\n- D. [30, 40, 38, 10, 25, 35, 24, 5, 20, 22]\n\n**Answer:** A\n\n**Explanation:** Deleting the maximum means removing the root (50) and moving the last element (24) into index 0, giving `[24, 30, 40, 10, 25, 35, 38, 5, 20, 22]`. Then sift down: 24's children are 30 and 40, so swap with the larger child 40 → `[40, 30, 24, 10, 25, 35, 38, 5, 20, 22]`. Now at index 2, 24's children are 35 and 38; swap with 38 → `[40, 30, 38, 10, 25, 35, 24, 5, 20, 22]`. Index 6 is a leaf, so the sift-down stops. The heap size drops from 11 to 10, and the result is option A. Option B merely shifts elements right without restoring the heap property; option C swaps 24 with 22 instead of the larger child; option D swaps the root with the smaller child 30, violating the max-heap property.\n\n### Question 4\n\nA left-to-right bubble sort is run on the array `[4, 9, 1, 7, 3]`. After exactly one complete pass finishes, which statement about the array is true?\n- A. The array becomes `[1, 3, 4, 7, 9]`, because one pass fully sorts it.\n- B. The array becomes `[4, 1, 7, 3, 9]`, since the largest value has bubbled to the last position.\n- C. The array becomes `[1, 4, 9, 7, 3]`, since the smallest value has bubbled to the first position.\n- D. The array is unchanged, because a pass only compares elements and never moves them.\n\n**Answer:** B\n\n**Explanation:** In a left-to-right bubble-sort pass, adjacent pairs are compared and swapped whenever the left element is larger, so the largest element is carried along and deposited at the right end. Tracing `[4, 9, 1, 7, 3]`: compare 4 and 9 → no swap; compare 9 and 1 → swap, giving `[4, 1, 9, 7, 3]`; compare 9 and 7 → swap, giving `[4, 1, 7, 9, 3]`; compare 9 and 3 → swap, giving `[4, 1, 7, 3, 9]`. The largest value 9 has reached the last position, but the rest of the array is still unsorted, so one pass guarantees only that the largest unsorted item is in place — not a fully sorted array, not the smallest at the front, and not an unchanged array.\n\n### Question 5\n\nAn insertion sort implementation processes the array `[2, 3, 5, 8, 6, 9, 11, 12]` from left to right. Which statement best describes the work this particular input causes?\n- A. Almost every element is already in place, so the total number of shifts is very small and the run is close to linear time.\n- B. The array is in decreasing order, so every element must travel all the way to the front, giving quadratic time.\n- C. The array is in random order, so the run takes the same time as on any other input of the same length.\n- D. The array contains distinct keys, so the run is quadratic regardless of their arrangement.\n\n**Answer:** A\n\n**Explanation:** Insertion sort scans left to right and shifts an element left only while it is smaller than its left neighbour. Here only `6` is out of place (it moves past `8`), so just one shift occurs and each remaining element is compared once and left alone. The total work is therefore roughly proportional to n — the best case for insertion sort, which is nearly sorted input. Options B, C and D are wrong because the array is neither reversed nor random, and having distinct keys does not by itself force quadratic behaviour.\n\n### Question 6\n\nA selection sort implementation sorts an array in **ascending** order by repeatedly scanning the unsorted suffix for the smallest remaining element and swapping it into the next position. It is run on `[6, 2, 9, 4, 1, 8]`. Which statement correctly describes the state of the array after the **first two** swaps have been completed?\n- A. The array is `[1, 2, 9, 4, 6, 8]`, and the first two positions now hold the two smallest elements in sorted order.\n- B. The array is `[1, 2, 6, 4, 9, 8]`, because each swap also shifts the displaced element to the end.\n- C. The array is `[2, 6, 9, 4, 1, 8]`, because the first pass only moves the minimum of the first two elements.\n- D. The array is `[1, 2, 4, 6, 8, 9]`, because selection sort fully sorts the array after two passes.\n\n**Answer:** A\n\n**Explanation:** Selection sort finds the minimum of the whole unsorted suffix and swaps it into the first unsorted slot. Pass 1: the minimum of `[6, 2, 9, 4, 1, 8]` is `1` at index 4, so swapping it with index 0 gives `[1, 2, 9, 4, 6, 8]`. Pass 2: the minimum of the suffix `[2, 9, 4, 6, 8]` is already `2` at index 1, so the swap leaves the array unchanged. After two passes the prefix `[1, 2]` is the two smallest elements in sorted order, while the rest remains unsorted — option D is wrong because selection sort does not finish sorting in two passes, and B and C misdescribe the swap.\n\n### Question 7\n\nA team must sort 1,000,000 records whose keys are integers in the range 0 to 999 (inclusive). They are considering counting sort instead of a comparison-based sort. Which statement best explains why counting sort is a good fit for this data?\n- A. Because the keys are arbitrary real numbers that can be compared with `<` and `>`.\n- B. Because the keys are integers confined to a small bounded range, so a count array of size 1000 suffices.\n- C. Because the records are stored in a linked list, which counting sort traverses efficiently.\n- D. Because counting sort never needs to read the key values, only the record positions.\n\n**Answer:** B\n\n**Explanation:** Counting sort works by tallying how many keys have each value, so it needs an array indexed by key value. That is only practical when the keys are integers lying in a small, known range — here 0 to 999, so a count array of 1000 slots covers every possible key and the sort runs in O(n + k) time. Arbitrary real keys (A) cannot index a count array, counting sort does read the keys (D is false), and it works on arrays, not specially on linked lists (C is false).\n\n### Question 8\n\nA programmer implements LSD radix sort on two-digit decimal keys by sorting the whole list on the units digit first, then sorting the whole list on the tens digit. The digit-sorting routine used for the second pass is a fast but **unstable** sort. What is the consequence for the input `[21, 13, 11, 24]`?\n- A. The output is correct regardless, because the tens-digit pass alone determines the final order of all keys.\n- B. The output may be wrong: records sharing a tens digit can end up out of units-digit order, e.g. `[11, 13, 21, 24]` could come out as `[13, 11, 21, 24]`.\n- C. The output may be wrong: records sharing a units digit can end up out of tens-digit order, e.g. `[11, 21]` could come out as `[21, 11]`.\n- D. The output is always correct, because an unstable sort is equivalent to a stable sort when keys are single digits.\n\n**Answer:** B\n\n**Explanation:** LSD radix sort relies on each pass being **stable**: after the units pass the list is ordered by the last digit, and the tens pass must preserve that relative order among records with the same tens digit. With an unstable tens pass, ties on the tens digit (here 11 and 13, both with tens digit 1) may be reordered, so the units-digit ordering established earlier is destroyed and the final list is wrong. Option C reverses the roles of the passes, and options A and D wrongly claim stability is unnecessary.\n\n### Question 9\n\nA file of student records is sorted by `name` and then re-sorted by `grade`. Two students, Ana and Ben, both have grade `B`, and Ana appeared before Ben in the original file. After the second sort, Ana still appears before Ben. Which property of the second sorting algorithm does this outcome demonstrate?\n- A. It is stable: records with equal keys keep their original relative order.\n- B. It is in-place: it rearranges records without extra arrays.\n- C. It is adaptive: it runs faster on nearly sorted input.\n- D. It is comparison-based: it orders records by comparing keys.\n\n**Answer:** A\n\n**Explanation:** Stability is about ties, not memory or speed. A stable sort guarantees that records whose keys compare equal come out in the same relative order they had in the input. Since Ana and Ben share the key `B` and Ana was ahead before the sort, seeing Ana ahead after the sort is exactly the tie-preserving behavior that defines a stable sort. In-place, adaptive, and comparison-based describe other, unrelated properties of sorting algorithms.\n\n### Question 10\n\nA developer must sort a 500,000-element array on a device with only a few kilobytes of free RAM beyond the array itself. They compare two candidate algorithms: **Algorithm X**, which rearranges the elements by swapping them within the original array and needs only a couple of loop counters, and **Algorithm Y**, which copies the data into a second array of the same size, sorts there, and copies back. Which statement best captures the difference between the two algorithms in terms of memory use?\n- A. Algorithm X is in-place because it keeps auxiliary storage to a constant amount, while Algorithm Y needs auxiliary storage proportional to the input size.\n- B. Algorithm X is in-place because it uses fewer comparisons, while Algorithm Y uses more comparisons and therefore more memory.\n- C. Algorithm X is in-place because it removes duplicate keys, while Algorithm Y keeps all duplicates in memory.\n- D. Algorithm X is in-place because it sorts the array faster, while Algorithm Y is slower and so holds data longer.\n\n**Answer:** A\n\n**Explanation:** An in-place sorting algorithm is defined by its extra memory use: apart from the input array itself, it needs only a constant, O(1) amount of auxiliary storage (a few variables, indices, or a temporary swap slot). Algorithm X swaps elements within the original array, so it qualifies. Algorithm Y allocates a second array of the same size, which is O(n) auxiliary storage, so it is not in-place. Speed, comparison counts, and duplicate handling are not what defines in-place sorting.\n\n### Question 11\n\nA merge sort implementation splits an array of $n$ elements into two halves, recursively sorts each half, and merges them in linear time. Suppose the input array is already sorted in reverse order, and $n = 2^{10}$. The number of element comparisons performed by the merge steps at each level of the recursion is proportional to the total number of elements being merged at that level. The worst-case running time of this merge sort, expressed in Big-O notation, is ____.\n\n**Answer:** O(n log n)\n\n**Explanation:** Merge sort always divides the array into two halves, so the recursion tree has $\\log_2 n$ levels. At each level, the total work across all merges is linear in the number of elements, $\\Theta(n)$. Multiplying gives $\\Theta(n \\log n)$ in all cases, including the worst case. For $n = 2^{10}$, this is about $10n$ work, i.e., $O(n \\log n)$.\n\n### Question 12\n\nA quicksort implementation always chooses the **last** element of the current subarray as the pivot and uses Lomuto partitioning. It is run on the array `[1, 2, 3, 4, 5, 6, 7, 8]`, which is already sorted in ascending order. At every level of recursion the pivot ends up at one end of its subarray, so the partition sizes are $0$ and $k-1$ for a subarray of size $k$. The total work done by all partitioning steps on this input, expressed in Big-O notation, is ____.\n\n**Answer:** O(n^2)\n\n**Explanation:** With the last element as pivot on an already sorted array, each partition puts the pivot in its final position and leaves all remaining $k-1$ elements on one side, so the recursion depth is $n-1$ and the partition costs are $(n-1) + (n-2) + \\cdots + 1 = n(n-1)/2$. This quadratic total, $\\Theta(n^2)$, is the worst case of quicksort, arising whenever partitions are repeatedly unbalanced (for example, sorted or reverse-sorted input with a first/last-element pivot). Choosing a random or median-of-three pivot, or using an $O(n \\log n)$ worst-case variant such as introsort, avoids this behaviour.\n\n### Question 13\n\nA max-heap is being built bottom-up from an array of $n = 2^{20}$ elements. The implementation calls sift-down on each internal node, starting from the last internal node and moving toward the root. Suppose the total number of element comparisons performed by all sift-down calls is $C(n)$. For this bottom-up construction, $C(n)$ grows asymptotically as ____.\n\n**Answer:** O(n)\n\n**Explanation:** In bottom-up heap construction, a node at height $h$ costs $O(h)$ to sift down, and there are at most $n/2^{h+1}$ nodes at height $h$. Summing $h \\cdot n/2^{h+1}$ over all heights gives a geometric series bounded by a constant times $n$, so the total comparison count is $O(n)$. This is better than building the heap by $n$ successive insertions, which can cost $O(n \\log n)$ in the worst case.\n\n### Question 14\n\nA counting sort is run on n = 5000 keys drawn from the integer range 0 to k-1, where k = 2000000. The implementation allocates and zeroes a count array of size k, builds the histogram, converts it to prefix sums, and then places the keys into the output. Ignoring constant factors, the total running time in Big-O notation in terms of n and k is ____.\n\n**Answer:** O(n + k)\n\n**Explanation:** Counting sort always touches all k counters (to zero them, build the histogram, and compute prefix sums) and all n keys (to count and place them), so its total work is proportional to n + k, i.e. O(n + k). Here k = 2,000,000 is much larger than n = 5,000, so the k term dominates: the sort is effectively linear in the range size, not in the number of keys, and would be far slower than an O(n log n) comparison sort for this input.\n\n### Question 15\n\nA comparison sort is modelled as a binary decision tree: each internal node is one comparison, each leaf is one of the $n!$ possible input orderings, and every leaf must be reachable. For $n = 8$ distinct keys, the tightest lower bound on the number of comparisons any comparison sort must make in the worst case is the smallest integer $h$ with $2^h \\ge 8!$. That value of $h$ is ____.\n\n**Answer:** 16\n\n**Explanation:** A binary tree of height $h$ has at most $2^h$ leaves, and the tree must have at least $n! = 8! = 40320$ leaves to distinguish all input orderings. Since $2^{15} = 32768 < 40320$ and $2^{16} = 65536 \\ge 40320$, the smallest feasible height is $h = 16$. So any comparison sort needs at least 16 comparisons in the worst case for 8 distinct keys — matching $\\lceil \\log_2(8!) \\rceil = \\lceil 15.30 \\rceil = 16$, which is why the general bound is $\\Omega(n \\log n)$.",
+    "summary": {
+      "success": false,
+      "source": "exam",
+      "requested": 15,
+      "template_count": 15,
+      "completed": 12,
+      "failed": 3,
+      "templates": [
+        {
+          "question_id": "q_2e04a708d6d7e118c901",
+          "topic": "Quicksort partition behavior",
+          "question_type": "choice",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "Which statement about quicksort partition is true? A. All items become sorted. B. Items are grouped relative to a pivot. C. Every split is equal. D. The pivot must be the smallest item.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_2e04a708d6d7e118c901",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 1,
+            "original_number": "1",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Quicksort partition behavior",
+            "source_text": "1. Which statement about quicksort partition is true?\nA. All items become sorted. B. Items are grouped relative to a pivot.\nC. Every split is equal. D. The pivot must be the smallest item.\n",
+            "reference_question": "Which statement about quicksort partition is true? A. All items become sorted. B. Items are grouped relative to a pivot. C. Every split is equal. D. The pivot must be the smallest item.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 2,
+            "source_end_line": 4,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_6a54e24eaf51e22c47ea",
+          "topic": "Stability of merge sort",
+          "question_type": "choice",
+          "difficulty": "medium",
+          "source": "mimic",
+          "reference_question": "Why is standard merge sort stable? A. It never compares keys. B. It uses a heap. C. Ties can be taken from the left half first. D. It uses random pivots.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_6a54e24eaf51e22c47ea",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 2,
+            "original_number": "2",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Stability of merge sort",
+            "source_text": "2. Why is standard merge sort stable?\nA. It never compares keys. B. It uses a heap.\nC. Ties can be taken from the left half first. D. It uses random pivots.\n",
+            "reference_question": "Why is standard merge sort stable? A. It never compares keys. B. It uses a heap. C. Ties can be taken from the left half first. D. It uses random pivots.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 5,
+            "source_end_line": 7,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_746a4023e924c2424687",
+          "topic": "Max-heap deletion operation",
+          "question_type": "choice",
+          "difficulty": "medium",
+          "source": "mimic",
+          "reference_question": "What does removing the maximum from a max-heap require? A. Remove any leaf. B. Reverse the whole heap. C. Sort all leaves. D. Replace the root by the last item and sift down.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_746a4023e924c2424687",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 3,
+            "original_number": "3",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Max-heap deletion operation",
+            "source_text": "3. What does removing the maximum from a max-heap require?\nA. Remove any leaf. B. Reverse the whole heap.\nC. Sort all leaves. D. Replace the root by the last item and sift down.\n",
+            "reference_question": "What does removing the maximum from a max-heap require? A. Remove any leaf. B. Reverse the whole heap. C. Sort all leaves. D. Replace the root by the last item and sift down.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 8,
+            "source_end_line": 10,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_c80641186723b35bbb4a",
+          "topic": "Bubble sort pass invariant",
+          "question_type": "choice",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "What does one complete left-to-right bubble-sort pass ensure? A. The smallest is last. B. Everything is sorted. C. The largest unsorted item reaches the right end. D. No swaps occur.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_c80641186723b35bbb4a",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 4,
+            "original_number": "4",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Bubble sort pass invariant",
+            "source_text": "4. What does one complete left-to-right bubble-sort pass ensure?\nA. The smallest is last. B. Everything is sorted.\nC. The largest unsorted item reaches the right end. D. No swaps occur.\n",
+            "reference_question": "What does one complete left-to-right bubble-sort pass ensure? A. The smallest is last. B. Everything is sorted. C. The largest unsorted item reaches the right end. D. No swaps occur.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 11,
+            "source_end_line": 13,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_50adf21e5ff9fa09a3e2",
+          "topic": "Insertion sort best-case inputs",
+          "question_type": "choice",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "Which input usually favors insertion sort? A. Nearly sorted input. B. Only reversed input. C. Only random input. D. Only all-distinct keys.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_50adf21e5ff9fa09a3e2",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 5,
+            "original_number": "5",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Insertion sort best-case inputs",
+            "source_text": "5. Which input usually favors insertion sort?\nA. Nearly sorted input. B. Only reversed input.\nC. Only random input. D. Only all-distinct keys.\n",
+            "reference_question": "Which input usually favors insertion sort? A. Nearly sorted input. B. Only reversed input. C. Only random input. D. Only all-distinct keys.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 14,
+            "source_end_line": 16,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_fb1aafb68fbea9787f6a",
+          "topic": "Selection sort mechanism",
+          "question_type": "choice",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "What does selection sort do at each position? A. Pick a random pivot. B. Merge two halves. C. Build a frequency array. D. Select the minimum remaining item.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_fb1aafb68fbea9787f6a",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 6,
+            "original_number": "6",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Selection sort mechanism",
+            "source_text": "6. What does selection sort do at each position?\nA. Pick a random pivot. B. Merge two halves.\nC. Build a frequency array. D. Select the minimum remaining item.\n",
+            "reference_question": "What does selection sort do at each position? A. Pick a random pivot. B. Merge two halves. C. Build a frequency array. D. Select the minimum remaining item.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 17,
+            "source_end_line": 19,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_5e7e970d56b3a44d898c",
+          "topic": "Counting sort applicability",
+          "question_type": "choice",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "What makes counting sort useful? A. Arbitrary real keys. B. A small bounded integer key range. C. No access to keys. D. Only linked lists.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_5e7e970d56b3a44d898c",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 7,
+            "original_number": "7",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Counting sort applicability",
+            "source_text": "7. What makes counting sort useful?\nA. Arbitrary real keys. B. A small bounded integer key range.\nC. No access to keys. D. Only linked lists.\n",
+            "reference_question": "What makes counting sort useful? A. Arbitrary real keys. B. A small bounded integer key range. C. No access to keys. D. Only linked lists.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 20,
+            "source_end_line": 22,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_5dbc62d196d04974dd72",
+          "topic": "LSD radix sort stability requirement",
+          "question_type": "choice",
+          "difficulty": "medium",
+          "source": "mimic",
+          "reference_question": "What does LSD radix sort need from each digit-sorting pass? A. Instability. B. Randomness. C. Stability. D. Recursion.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_5dbc62d196d04974dd72",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 8,
+            "original_number": "8",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "LSD radix sort stability requirement",
+            "source_text": "8. What does LSD radix sort need from each digit-sorting pass?\nA. Instability. B. Randomness. C. Stability. D. Recursion.\n",
+            "reference_question": "What does LSD radix sort need from each digit-sorting pass? A. Instability. B. Randomness. C. Stability. D. Recursion.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 23,
+            "source_end_line": 24,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_28d25435868032ab323c",
+          "topic": "Definition of sorting stability",
+          "question_type": "choice",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "What does stability mean in sorting records by key? A. Equal-key records keep their relative order. B. Values never move. C. Keys cannot repeat. D. The algorithm uses constant memory.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_28d25435868032ab323c",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 9,
+            "original_number": "9",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Definition of sorting stability",
+            "source_text": "9. What does stability mean in sorting records by key?\nA. Equal-key records keep their relative order. B. Values never move.\nC. Keys cannot repeat. D. The algorithm uses constant memory.\n",
+            "reference_question": "What does stability mean in sorting records by key? A. Equal-key records keep their relative order. B. Values never move. C. Keys cannot repeat. D. The algorithm uses constant memory.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 25,
+            "source_end_line": 27,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_b9cd943b22f4c48cd612",
+          "topic": "In-place sorting memory usage",
+          "question_type": "choice",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "What does an in-place sorting algorithm primarily minimize? A. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_b9cd943b22f4c48cd612",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 10,
+            "original_number": "10",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "In-place sorting memory usage",
+            "source_text": "10. What does an in-place sorting algorithm primarily minimize?\nA. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates.\n",
+            "reference_question": "What does an in-place sorting algorithm primarily minimize? A. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 28,
+            "source_end_line": 29,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_5e2bb505c521eeef5d29",
+          "topic": "Merge sort worst-case time complexity",
+          "question_type": "fill_in_blank",
+          "difficulty": "easy",
+          "source": "mimic",
+          "reference_question": "The worst-case running time of standard merge sort is ____.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_5e2bb505c521eeef5d29",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 11,
+            "original_number": "11",
+            "section": "Section II: five fill-in-the-blank questions.",
+            "question_type": "fill_in_blank",
+            "concept": "Merge sort worst-case time complexity",
+            "source_text": "11. The worst-case running time of standard merge sort is ____.\n",
+            "reference_question": "The worst-case running time of standard merge sort is ____.",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              1
+            ],
+            "source_start_line": 31,
+            "source_end_line": 31,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_96a4db8f949cadee39c3",
+          "topic": "Quicksort worst-case time complexity",
+          "question_type": "fill_in_blank",
+          "difficulty": "medium",
+          "source": "mimic",
+          "reference_question": "The worst case of quicksort with repeatedly unbalanced partitions is ____.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_96a4db8f949cadee39c3",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 12,
+            "original_number": "12",
+            "section": "Section II: five fill-in-the-blank questions.",
+            "question_type": "fill_in_blank",
+            "concept": "Quicksort worst-case time complexity",
+            "source_text": "12. The worst case of quicksort with repeatedly unbalanced partitions is ____.\n",
+            "reference_question": "The worst case of quicksort with repeatedly unbalanced partitions is ____.",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              1
+            ],
+            "source_start_line": 32,
+            "source_end_line": 32,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_441d4bc80bc12448f2c6",
+          "topic": "Heap construction time complexity",
+          "question_type": "fill_in_blank",
+          "difficulty": "medium",
+          "source": "mimic",
+          "reference_question": "Bottom-up heap construction on n items takes ____ time.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_441d4bc80bc12448f2c6",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 13,
+            "original_number": "13",
+            "section": "Section II: five fill-in-the-blank questions.",
+            "question_type": "fill_in_blank",
+            "concept": "Heap construction time complexity",
+            "source_text": "13. Bottom-up heap construction on n items takes ____ time.\n",
+            "reference_question": "Bottom-up heap construction on n items takes ____ time.",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              1
+            ],
+            "source_start_line": 33,
+            "source_end_line": 33,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_5ad1ff2ed47bfbf1fdc5",
+          "topic": "Counting sort time complexity",
+          "question_type": "fill_in_blank",
+          "difficulty": "medium",
+          "source": "mimic",
+          "reference_question": "Sorting n keys from a range of k integers with counting sort takes ____ time.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_5ad1ff2ed47bfbf1fdc5",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 14,
+            "original_number": "14",
+            "section": "Section II: five fill-in-the-blank questions.",
+            "question_type": "fill_in_blank",
+            "concept": "Counting sort time complexity",
+            "source_text": "14. Sorting n keys from a range of k integers with counting sort takes ____ time.\n",
+            "reference_question": "Sorting n keys from a range of k integers with counting sort takes ____ time.",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              1
+            ],
+            "source_start_line": 34,
+            "source_end_line": 34,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        },
+        {
+          "question_id": "q_5198fee6972b46e63436",
+          "topic": "Comparison sort lower bound",
+          "question_type": "fill_in_blank",
+          "difficulty": "hard",
+          "source": "mimic",
+          "reference_question": "Any comparison sort requires at least ____ comparisons in the worst case.",
+          "reference_answer": null,
+          "blueprint": {
+            "question_id": "q_5198fee6972b46e63436",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 15,
+            "original_number": "15",
+            "section": "Section II: five fill-in-the-blank questions.",
+            "question_type": "fill_in_blank",
+            "concept": "Comparison sort lower bound",
+            "source_text": "15. Any comparison sort requires at least ____ comparisons in the worst case.",
+            "reference_question": "Any comparison sort requires at least ____ comparisons in the worst case.",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              1
+            ],
+            "source_start_line": 35,
+            "source_end_line": 35,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        }
+      ],
+      "blueprint": {
+        "version": 1,
+        "questions": [
+          {
+            "question_id": "q_2e04a708d6d7e118c901",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 1,
+            "original_number": "1",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Quicksort partition behavior",
+            "source_text": "1. Which statement about quicksort partition is true?\nA. All items become sorted. B. Items are grouped relative to a pivot.\nC. Every split is equal. D. The pivot must be the smallest item.\n",
+            "reference_question": "Which statement about quicksort partition is true? A. All items become sorted. B. Items are grouped relative to a pivot. C. Every split is equal. D. The pivot must be the smallest item.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 2,
+            "source_end_line": 4,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_6a54e24eaf51e22c47ea",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 2,
+            "original_number": "2",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Stability of merge sort",
+            "source_text": "2. Why is standard merge sort stable?\nA. It never compares keys. B. It uses a heap.\nC. Ties can be taken from the left half first. D. It uses random pivots.\n",
+            "reference_question": "Why is standard merge sort stable? A. It never compares keys. B. It uses a heap. C. Ties can be taken from the left half first. D. It uses random pivots.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 5,
+            "source_end_line": 7,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_746a4023e924c2424687",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 3,
+            "original_number": "3",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Max-heap deletion operation",
+            "source_text": "3. What does removing the maximum from a max-heap require?\nA. Remove any leaf. B. Reverse the whole heap.\nC. Sort all leaves. D. Replace the root by the last item and sift down.\n",
+            "reference_question": "What does removing the maximum from a max-heap require? A. Remove any leaf. B. Reverse the whole heap. C. Sort all leaves. D. Replace the root by the last item and sift down.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 8,
+            "source_end_line": 10,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_c80641186723b35bbb4a",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 4,
+            "original_number": "4",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Bubble sort pass invariant",
+            "source_text": "4. What does one complete left-to-right bubble-sort pass ensure?\nA. The smallest is last. B. Everything is sorted.\nC. The largest unsorted item reaches the right end. D. No swaps occur.\n",
+            "reference_question": "What does one complete left-to-right bubble-sort pass ensure? A. The smallest is last. B. Everything is sorted. C. The largest unsorted item reaches the right end. D. No swaps occur.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 11,
+            "source_end_line": 13,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_50adf21e5ff9fa09a3e2",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 5,
+            "original_number": "5",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Insertion sort best-case inputs",
+            "source_text": "5. Which input usually favors insertion sort?\nA. Nearly sorted input. B. Only reversed input.\nC. Only random input. D. Only all-distinct keys.\n",
+            "reference_question": "Which input usually favors insertion sort? A. Nearly sorted input. B. Only reversed input. C. Only random input. D. Only all-distinct keys.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 14,
+            "source_end_line": 16,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_fb1aafb68fbea9787f6a",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 6,
+            "original_number": "6",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Selection sort mechanism",
+            "source_text": "6. What does selection sort do at each position?\nA. Pick a random pivot. B. Merge two halves.\nC. Build a frequency array. D. Select the minimum remaining item.\n",
+            "reference_question": "What does selection sort do at each position? A. Pick a random pivot. B. Merge two halves. C. Build a frequency array. D. Select the minimum remaining item.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 17,
+            "source_end_line": 19,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_5e7e970d56b3a44d898c",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 7,
+            "original_number": "7",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Counting sort applicability",
+            "source_text": "7. What makes counting sort useful?\nA. Arbitrary real keys. B. A small bounded integer key range.\nC. No access to keys. D. Only linked lists.\n",
+            "reference_question": "What makes counting sort useful? A. Arbitrary real keys. B. A small bounded integer key range. C. No access to keys. D. Only linked lists.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 20,
+            "source_end_line": 22,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_5dbc62d196d04974dd72",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 8,
+            "original_number": "8",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "LSD radix sort stability requirement",
+            "source_text": "8. What does LSD radix sort need from each digit-sorting pass?\nA. Instability. B. Randomness. C. Stability. D. Recursion.\n",
+            "reference_question": "What does LSD radix sort need from each digit-sorting pass? A. Instability. B. Randomness. C. Stability. D. Recursion.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 23,
+            "source_end_line": 24,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_28d25435868032ab323c",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 9,
+            "original_number": "9",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "Definition of sorting stability",
+            "source_text": "9. What does stability mean in sorting records by key?\nA. Equal-key records keep their relative order. B. Values never move.\nC. Keys cannot repeat. D. The algorithm uses constant memory.\n",
+            "reference_question": "What does stability mean in sorting records by key? A. Equal-key records keep their relative order. B. Values never move. C. Keys cannot repeat. D. The algorithm uses constant memory.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 25,
+            "source_end_line": 27,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_b9cd943b22f4c48cd612",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 10,
+            "original_number": "10",
+            "section": "Section I: ten single-choice questions.",
+            "question_type": "choice",
+            "concept": "In-place sorting memory usage",
+            "source_text": "10. What does an in-place sorting algorithm primarily minimize?\nA. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates.\n",
+            "reference_question": "What does an in-place sorting algorithm primarily minimize? A. Input size. B. Auxiliary storage. C. Key values. D. Number of duplicates.",
+            "reference_answer": "",
+            "option_keys": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "blank_count": 0,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              0
+            ],
+            "source_start_line": 28,
+            "source_end_line": 29,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_5e2bb505c521eeef5d29",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 11,
+            "original_number": "11",
+            "section": "Section II: five fill-in-the-blank questions.",
+            "question_type": "fill_in_blank",
+            "concept": "Merge sort worst-case time complexity",
+            "source_text": "11. The worst-case running time of standard merge sort is ____.\n",
+            "reference_question": "The worst-case running time of standard merge sort is ____.",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              1
+            ],
+            "source_start_line": 31,
+            "source_end_line": 31,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_96a4db8f949cadee39c3",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 12,
+            "original_number": "12",
+            "section": "Section II: five fill-in-the-blank questions.",
+            "question_type": "fill_in_blank",
+            "concept": "Quicksort worst-case time complexity",
+            "source_text": "12. The worst case of quicksort with repeatedly unbalanced partitions is ____.\n",
+            "reference_question": "The worst case of quicksort with repeatedly unbalanced partitions is ____.",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              1
+            ],
+            "source_start_line": 32,
+            "source_end_line": 32,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_441d4bc80bc12448f2c6",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 13,
+            "original_number": "13",
+            "section": "Section II: five fill-in-the-blank questions.",
+            "question_type": "fill_in_blank",
+            "concept": "Heap construction time complexity",
+            "source_text": "13. Bottom-up heap construction on n items takes ____ time.\n",
+            "reference_question": "Bottom-up heap construction on n items takes ____ time.",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              1
+            ],
+            "source_start_line": 33,
+            "source_end_line": 33,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_5ad1ff2ed47bfbf1fdc5",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 14,
+            "original_number": "14",
+            "section": "Section II: five fill-in-the-blank questions.",
+            "question_type": "fill_in_blank",
+            "concept": "Counting sort time complexity",
+            "source_text": "14. Sorting n keys from a range of k integers with counting sort takes ____ time.\n",
+            "reference_question": "Sorting n keys from a range of k integers with counting sort takes ____ time.",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              1
+            ],
+            "source_start_line": 34,
+            "source_end_line": 34,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          },
+          {
+            "question_id": "q_5198fee6972b46e63436",
+            "source_hash": "91085becf890bfb133ace08230be7f642d04cfdf0879389c1b4b9372a4d26c42",
+            "ordinal": 15,
+            "original_number": "15",
+            "section": "Section II: five fill-in-the-blank questions.",
+            "question_type": "fill_in_blank",
+            "concept": "Comparison sort lower bound",
+            "source_text": "15. Any comparison sort requires at least ____ comparisons in the worst case.",
+            "reference_question": "Any comparison sort requires at least ____ comparisons in the worst case.",
+            "reference_answer": "",
+            "option_keys": [],
+            "blank_count": 1,
+            "children": [],
+            "images": [],
+            "page_indices": [
+              1
+            ],
+            "source_start_line": 35,
+            "source_end_line": 35,
+            "source_document_id": "paper",
+            "source_original_hash": "fb26a01ec871f357c30f8baa6cef877af8e7a9a7b5bbca490c08a2500f81946c"
+          }
+        ]
+      },
+      "results": [
+        {
+          "qa_pair": {
+            "question_id": "q_2e04a708d6d7e118c901",
+            "question": "Consider partitioning the array `[7, 2, 9, 4, 6, 1, 8]` using the last element (8) as the pivot, with the standard Lomuto scheme that moves all elements smaller than the pivot to the left. Which statement about the array immediately after this single partition step is true?",
+            "question_type": "choice",
+            "options": {
+              "A": "The array is fully sorted.",
+              "B": "Elements smaller than 8 all lie to the left of 8, and elements larger than 8 all lie to its right.",
+              "C": "The pivot ends up at index 0.",
+              "D": "The two sides of the pivot must contain the same number of elements."
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "B",
+            "explanation": "A partition step only rearranges elements so that everything less than the pivot is on one side and everything greater is on the other; the pivot lands in its final sorted position, but the two sides are not themselves sorted. Here the pivot 8 ends at the last index (index 6), with the six smaller elements (7, 2, 4, 6, 1) to its left — not a fully sorted array, not at index 0, and the sides are unequal in size (6 vs 0).",
+            "difficulty": "easy",
+            "concentration": "Quicksort partition behavior"
+          },
+          "metadata": {
+            "blueprint_id": "q_2e04a708d6d7e118c901",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_6a54e24eaf51e22c47ea",
+            "question": "A merge sort implementation merges two sorted halves using the comparison `if (a[i] <= b[j]) take a[i]; else take b[j];`. Records are sorted by a `key` field only, and two records in the input share the same key — one from the left half, one from the right half. Which statement best explains what happens to these two tied records in the merged output?",
+            "question_type": "choice",
+            "options": {
+              "A": "The right-half record is emitted first, because the right half is scanned with the stricter comparison.",
+              "B": "The left-half record is emitted first, because the `<=` test lets the left element win a tie.",
+              "C": "Their relative order becomes unpredictable, since ties are broken by the array's memory addresses.",
+              "D": "Their relative order is reversed, because merging always interleaves the two halves alternately."
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "B",
+            "explanation": "Stability means equal keys keep their original relative order. In the merge step, the left half holds the records that appeared earlier in the input, so whenever the keys tie the `<=` test selects the left element first. That tie-breaking rule is exactly what makes standard merge sort stable — no extra key comparison or auxiliary field is needed. Option A describes the opposite rule (`<` would let the right element win a tie and break stability), option C invents a mechanism merge sort does not use, and option D misdescribes merging, which repeatedly takes from whichever half has the smaller current key rather than alternating.",
+            "difficulty": "medium",
+            "concentration": "Stability of merge sort"
+          },
+          "metadata": {
+            "blueprint_id": "q_6a54e24eaf51e22c47ea",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_746a4023e924c2424687",
+            "question": "A max-heap is stored in the array `[50, 30, 40, 10, 25, 35, 38, 5, 20, 22, 24]` (indices 0–10, 0-based, children of index `i` at `2i+1` and `2i+2`). A delete-max operation is performed once. Which sequence is the resulting array after the operation completes?",
+            "question_type": "choice",
+            "options": {
+              "A": "[40, 30, 38, 10, 25, 35, 24, 5, 20, 22]",
+              "B": "[50, 40, 30, 38, 10, 25, 35, 5, 20, 22, 24]",
+              "C": "[40, 30, 38, 10, 25, 35, 22, 5, 20, 24]",
+              "D": "[30, 40, 38, 10, 25, 35, 24, 5, 20, 22]"
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "A",
+            "explanation": "Deleting the maximum means removing the root (50) and moving the last element (24) into index 0, giving `[24, 30, 40, 10, 25, 35, 38, 5, 20, 22]`. Then sift down: 24's children are 30 and 40, so swap with the larger child 40 → `[40, 30, 24, 10, 25, 35, 38, 5, 20, 22]`. Now at index 2, 24's children are 35 and 38; swap with 38 → `[40, 30, 38, 10, 25, 35, 24, 5, 20, 22]`. Index 6 is a leaf, so the sift-down stops. The heap size drops from 11 to 10, and the result is option A. Option B merely shifts elements right without restoring the heap property; option C swaps 24 with 22 instead of the larger child; option D swaps the root with the smaller child 30, violating the max-heap property.",
+            "difficulty": "medium",
+            "concentration": "Max-heap deletion operation"
+          },
+          "metadata": {
+            "blueprint_id": "q_746a4023e924c2424687",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_c80641186723b35bbb4a",
+            "question": "A left-to-right bubble sort is run on the array `[4, 9, 1, 7, 3]`. After exactly one complete pass finishes, which statement about the array is true?",
+            "question_type": "choice",
+            "options": {
+              "A": "The array becomes `[1, 3, 4, 7, 9]`, because one pass fully sorts it.",
+              "B": "The array becomes `[4, 1, 7, 3, 9]`, since the largest value has bubbled to the last position.",
+              "C": "The array becomes `[1, 4, 9, 7, 3]`, since the smallest value has bubbled to the first position.",
+              "D": "The array is unchanged, because a pass only compares elements and never moves them."
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "B",
+            "explanation": "In a left-to-right bubble-sort pass, adjacent pairs are compared and swapped whenever the left element is larger, so the largest element is carried along and deposited at the right end. Tracing `[4, 9, 1, 7, 3]`: compare 4 and 9 → no swap; compare 9 and 1 → swap, giving `[4, 1, 9, 7, 3]`; compare 9 and 7 → swap, giving `[4, 1, 7, 9, 3]`; compare 9 and 3 → swap, giving `[4, 1, 7, 3, 9]`. The largest value 9 has reached the last position, but the rest of the array is still unsorted, so one pass guarantees only that the largest unsorted item is in place — not a fully sorted array, not the smallest at the front, and not an unchanged array.",
+            "difficulty": "easy",
+            "concentration": "Bubble sort pass invariant"
+          },
+          "metadata": {
+            "blueprint_id": "q_c80641186723b35bbb4a",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_50adf21e5ff9fa09a3e2",
+            "question": "An insertion sort implementation processes the array `[2, 3, 5, 8, 6, 9, 11, 12]` from left to right. Which statement best describes the work this particular input causes?",
+            "question_type": "choice",
+            "options": {
+              "A": "Almost every element is already in place, so the total number of shifts is very small and the run is close to linear time.",
+              "B": "The array is in decreasing order, so every element must travel all the way to the front, giving quadratic time.",
+              "C": "The array is in random order, so the run takes the same time as on any other input of the same length.",
+              "D": "The array contains distinct keys, so the run is quadratic regardless of their arrangement."
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "A",
+            "explanation": "Insertion sort scans left to right and shifts an element left only while it is smaller than its left neighbour. Here only `6` is out of place (it moves past `8`), so just one shift occurs and each remaining element is compared once and left alone. The total work is therefore roughly proportional to n — the best case for insertion sort, which is nearly sorted input. Options B, C and D are wrong because the array is neither reversed nor random, and having distinct keys does not by itself force quadratic behaviour.",
+            "difficulty": "easy",
+            "concentration": "Insertion sort best-case inputs"
+          },
+          "metadata": {
+            "blueprint_id": "q_50adf21e5ff9fa09a3e2",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_fb1aafb68fbea9787f6a",
+            "question": "A selection sort implementation sorts an array in **ascending** order by repeatedly scanning the unsorted suffix for the smallest remaining element and swapping it into the next position. It is run on `[6, 2, 9, 4, 1, 8]`. Which statement correctly describes the state of the array after the **first two** swaps have been completed?",
+            "question_type": "choice",
+            "options": {
+              "A": "The array is `[1, 2, 9, 4, 6, 8]`, and the first two positions now hold the two smallest elements in sorted order.",
+              "B": "The array is `[1, 2, 6, 4, 9, 8]`, because each swap also shifts the displaced element to the end.",
+              "C": "The array is `[2, 6, 9, 4, 1, 8]`, because the first pass only moves the minimum of the first two elements.",
+              "D": "The array is `[1, 2, 4, 6, 8, 9]`, because selection sort fully sorts the array after two passes."
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "A",
+            "explanation": "Selection sort finds the minimum of the whole unsorted suffix and swaps it into the first unsorted slot. Pass 1: the minimum of `[6, 2, 9, 4, 1, 8]` is `1` at index 4, so swapping it with index 0 gives `[1, 2, 9, 4, 6, 8]`. Pass 2: the minimum of the suffix `[2, 9, 4, 6, 8]` is already `2` at index 1, so the swap leaves the array unchanged. After two passes the prefix `[1, 2]` is the two smallest elements in sorted order, while the rest remains unsorted — option D is wrong because selection sort does not finish sorting in two passes, and B and C misdescribe the swap.",
+            "difficulty": "easy",
+            "concentration": "Selection sort mechanism"
+          },
+          "metadata": {
+            "blueprint_id": "q_fb1aafb68fbea9787f6a",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_5e7e970d56b3a44d898c",
+            "question": "A team must sort 1,000,000 records whose keys are integers in the range 0 to 999 (inclusive). They are considering counting sort instead of a comparison-based sort. Which statement best explains why counting sort is a good fit for this data?",
+            "question_type": "choice",
+            "options": {
+              "A": "Because the keys are arbitrary real numbers that can be compared with `<` and `>`.",
+              "B": "Because the keys are integers confined to a small bounded range, so a count array of size 1000 suffices.",
+              "C": "Because the records are stored in a linked list, which counting sort traverses efficiently.",
+              "D": "Because counting sort never needs to read the key values, only the record positions."
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "B",
+            "explanation": "Counting sort works by tallying how many keys have each value, so it needs an array indexed by key value. That is only practical when the keys are integers lying in a small, known range — here 0 to 999, so a count array of 1000 slots covers every possible key and the sort runs in O(n + k) time. Arbitrary real keys (A) cannot index a count array, counting sort does read the keys (D is false), and it works on arrays, not specially on linked lists (C is false).",
+            "difficulty": "easy",
+            "concentration": "Counting sort applicability"
+          },
+          "metadata": {
+            "blueprint_id": "q_5e7e970d56b3a44d898c",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_5dbc62d196d04974dd72",
+            "question": "A programmer implements LSD radix sort on two-digit decimal keys by sorting the whole list on the units digit first, then sorting the whole list on the tens digit. The digit-sorting routine used for the second pass is a fast but **unstable** sort. What is the consequence for the input `[21, 13, 11, 24]`?",
+            "question_type": "choice",
+            "options": {
+              "A": "The output is correct regardless, because the tens-digit pass alone determines the final order of all keys.",
+              "B": "The output may be wrong: records sharing a tens digit can end up out of units-digit order, e.g. `[11, 13, 21, 24]` could come out as `[13, 11, 21, 24]`.",
+              "C": "The output may be wrong: records sharing a units digit can end up out of tens-digit order, e.g. `[11, 21]` could come out as `[21, 11]`.",
+              "D": "The output is always correct, because an unstable sort is equivalent to a stable sort when keys are single digits."
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "B",
+            "explanation": "LSD radix sort relies on each pass being **stable**: after the units pass the list is ordered by the last digit, and the tens pass must preserve that relative order among records with the same tens digit. With an unstable tens pass, ties on the tens digit (here 11 and 13, both with tens digit 1) may be reordered, so the units-digit ordering established earlier is destroyed and the final list is wrong. Option C reverses the roles of the passes, and options A and D wrongly claim stability is unnecessary.",
+            "difficulty": "medium",
+            "concentration": "LSD radix sort stability requirement"
+          },
+          "metadata": {
+            "blueprint_id": "q_5dbc62d196d04974dd72",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_28d25435868032ab323c",
+            "question": "A file of student records is sorted by `name` and then re-sorted by `grade`. Two students, Ana and Ben, both have grade `B`, and Ana appeared before Ben in the original file. After the second sort, Ana still appears before Ben. Which property of the second sorting algorithm does this outcome demonstrate?",
+            "question_type": "choice",
+            "options": {
+              "A": "It is stable: records with equal keys keep their original relative order.",
+              "B": "It is in-place: it rearranges records without extra arrays.",
+              "C": "It is adaptive: it runs faster on nearly sorted input.",
+              "D": "It is comparison-based: it orders records by comparing keys."
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "A",
+            "explanation": "Stability is about ties, not memory or speed. A stable sort guarantees that records whose keys compare equal come out in the same relative order they had in the input. Since Ana and Ben share the key `B` and Ana was ahead before the sort, seeing Ana ahead after the sort is exactly the tie-preserving behavior that defines a stable sort. In-place, adaptive, and comparison-based describe other, unrelated properties of sorting algorithms.",
+            "difficulty": "easy",
+            "concentration": "Definition of sorting stability"
+          },
+          "metadata": {
+            "blueprint_id": "q_28d25435868032ab323c",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_b9cd943b22f4c48cd612",
+            "question": "A developer must sort a 500,000-element array on a device with only a few kilobytes of free RAM beyond the array itself. They compare two candidate algorithms: **Algorithm X**, which rearranges the elements by swapping them within the original array and needs only a couple of loop counters, and **Algorithm Y**, which copies the data into a second array of the same size, sorts there, and copies back. Which statement best captures the difference between the two algorithms in terms of memory use?",
+            "question_type": "choice",
+            "options": {
+              "A": "Algorithm X is in-place because it keeps auxiliary storage to a constant amount, while Algorithm Y needs auxiliary storage proportional to the input size.",
+              "B": "Algorithm X is in-place because it uses fewer comparisons, while Algorithm Y uses more comparisons and therefore more memory.",
+              "C": "Algorithm X is in-place because it removes duplicate keys, while Algorithm Y keeps all duplicates in memory.",
+              "D": "Algorithm X is in-place because it sorts the array faster, while Algorithm Y is slower and so holds data longer."
+            },
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "A",
+            "explanation": "An in-place sorting algorithm is defined by its extra memory use: apart from the input array itself, it needs only a constant, O(1) amount of auxiliary storage (a few variables, indices, or a temporary swap slot). Algorithm X swaps elements within the original array, so it qualifies. Algorithm Y allocates a second array of the same size, which is O(n) auxiliary storage, so it is not in-place. Speed, comparison counts, and duplicate handling are not what defines in-place sorting.",
+            "difficulty": "easy",
+            "concentration": "In-place sorting memory usage"
+          },
+          "metadata": {
+            "blueprint_id": "q_b9cd943b22f4c48cd612",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_5e2bb505c521eeef5d29",
+            "question": "A merge sort implementation splits an array of $n$ elements into two halves, recursively sorts each half, and merges them in linear time. Suppose the input array is already sorted in reverse order, and $n = 2^{10}$. The number of element comparisons performed by the merge steps at each level of the recursion is proportional to the total number of elements being merged at that level. The worst-case running time of this merge sort, expressed in Big-O notation, is ____.",
+            "question_type": "fill_in_blank",
+            "options": null,
+            "correct_answers": [],
+            "blank_answers": [
+              "O(n log n)"
+            ],
+            "children": [],
+            "correct_answer": "O(n log n)",
+            "explanation": "Merge sort always divides the array into two halves, so the recursion tree has $\\log_2 n$ levels. At each level, the total work across all merges is linear in the number of elements, $\\Theta(n)$. Multiplying gives $\\Theta(n \\log n)$ in all cases, including the worst case. For $n = 2^{10}$, this is about $10n$ work, i.e., $O(n \\log n)$.",
+            "difficulty": "easy",
+            "concentration": "Merge sort worst-case time complexity"
+          },
+          "metadata": {
+            "issues": [
+              "novel_question",
+              "requirements_met",
+              "no_substantive_task_change",
+              "The candidate asks for the same named fact as the source (worst-case Big-O of merge sort); the reverse-order input and n = 2^10 are decorative and do not change the required reasoning or answer.",
+              "The added scenario does not create a materially different task, so it is a rephrasing rather than a novel question."
+            ],
+            "blueprint_id": "q_5e2bb505c521eeef5d29",
+            "review_passed": false
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_96a4db8f949cadee39c3",
+            "question": "A quicksort implementation always chooses the **last** element of the current subarray as the pivot and uses Lomuto partitioning. It is run on the array `[1, 2, 3, 4, 5, 6, 7, 8]`, which is already sorted in ascending order. At every level of recursion the pivot ends up at one end of its subarray, so the partition sizes are $0$ and $k-1$ for a subarray of size $k$. The total work done by all partitioning steps on this input, expressed in Big-O notation, is ____.",
+            "question_type": "fill_in_blank",
+            "options": null,
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "O(n^2)",
+            "explanation": "With the last element as pivot on an already sorted array, each partition puts the pivot in its final position and leaves all remaining $k-1$ elements on one side, so the recursion depth is $n-1$ and the partition costs are $(n-1) + (n-2) + \\cdots + 1 = n(n-1)/2$. This quadratic total, $\\Theta(n^2)$, is the worst case of quicksort, arising whenever partitions are repeatedly unbalanced (for example, sorted or reverse-sorted input with a first/last-element pivot). Choosing a random or median-of-three pivot, or using an $O(n \\log n)$ worst-case variant such as introsort, avoids this behaviour.",
+            "difficulty": "medium",
+            "concentration": "Quicksort worst-case time complexity"
+          },
+          "metadata": {
+            "blueprint_id": "q_96a4db8f949cadee39c3",
+            "review_passed": true
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_441d4bc80bc12448f2c6",
+            "question": "A max-heap is being built bottom-up from an array of $n = 2^{20}$ elements. The implementation calls sift-down on each internal node, starting from the last internal node and moving toward the root. Suppose the total number of element comparisons performed by all sift-down calls is $C(n)$. For this bottom-up construction, $C(n)$ grows asymptotically as ____.",
+            "question_type": "fill_in_blank",
+            "options": null,
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "O(n)",
+            "explanation": "In bottom-up heap construction, a node at height $h$ costs $O(h)$ to sift down, and there are at most $n/2^{h+1}$ nodes at height $h$. Summing $h \\cdot n/2^{h+1}$ over all heights gives a geometric series bounded by a constant times $n$, so the total comparison count is $O(n)$. This is better than building the heap by $n$ successive insertions, which can cost $O(n \\log n)$ in the worst case.",
+            "difficulty": "medium",
+            "concentration": "Heap construction time complexity"
+          },
+          "metadata": {
+            "issues": [
+              "novel_question",
+              "requirements_met",
+              "no_substantive_task_change",
+              "The candidate is essentially the same fill-in-the-blank fact as the source: both ask for the asymptotic complexity of bottom-up heap construction, with the same answer O(n).",
+              "The added n = 2^20 value and comparison-count framing do not materially change the task or reasoning; the concrete number is unused in the asymptotic answer.",
+              "No meaningful new scenario, conditions, or values alter what the student must reason about."
+            ],
+            "blueprint_id": "q_441d4bc80bc12448f2c6",
+            "review_passed": false
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_5ad1ff2ed47bfbf1fdc5",
+            "question": "A counting sort is run on n = 5000 keys drawn from the integer range 0 to k-1, where k = 2000000. The implementation allocates and zeroes a count array of size k, builds the histogram, converts it to prefix sums, and then places the keys into the output. Ignoring constant factors, the total running time in Big-O notation in terms of n and k is ____.",
+            "question_type": "fill_in_blank",
+            "options": null,
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "O(n + k)",
+            "explanation": "Counting sort always touches all k counters (to zero them, build the histogram, and compute prefix sums) and all n keys (to count and place them), so its total work is proportional to n + k, i.e. O(n + k). Here k = 2,000,000 is much larger than n = 5,000, so the k term dominates: the sort is effectively linear in the range size, not in the number of keys, and would be far slower than an O(n log n) comparison sort for this input.",
+            "difficulty": "medium",
+            "concentration": "Counting sort time complexity"
+          },
+          "metadata": {
+            "issues": [
+              "novel_question",
+              "requirements_met",
+              "no_substantive_task_change",
+              "The candidate asks for the same named fact/formula (counting sort complexity O(n+k)) as the source; the added scenario and numbers do not change the required reasoning.",
+              "The concrete values n=5000 and k=2000000 are decorative and not actually used to determine the Big-O answer.",
+              "Not a meaningful new task or condition; it is a rephrasing of the same fill-in-the-blank complexity question."
+            ],
+            "blueprint_id": "q_5ad1ff2ed47bfbf1fdc5",
+            "review_passed": false
+          }
+        },
+        {
+          "qa_pair": {
+            "question_id": "q_5198fee6972b46e63436",
+            "question": "A comparison sort is modelled as a binary decision tree: each internal node is one comparison, each leaf is one of the $n!$ possible input orderings, and every leaf must be reachable. For $n = 8$ distinct keys, the tightest lower bound on the number of comparisons any comparison sort must make in the worst case is the smallest integer $h$ with $2^h \\ge 8!$. That value of $h$ is ____.",
+            "question_type": "fill_in_blank",
+            "options": null,
+            "correct_answers": [],
+            "blank_answers": [],
+            "children": [],
+            "correct_answer": "16",
+            "explanation": "A binary tree of height $h$ has at most $2^h$ leaves, and the tree must have at least $n! = 8! = 40320$ leaves to distinguish all input orderings. Since $2^{15} = 32768 < 40320$ and $2^{16} = 65536 \\ge 40320$, the smallest feasible height is $h = 16$. So any comparison sort needs at least 16 comparisons in the worst case for 8 distinct keys — matching $\\lceil \\log_2(8!) \\rceil = \\lceil 15.30 \\rceil = 16$, which is why the general bound is $\\Omega(n \\log n)$.",
+            "difficulty": "hard",
+            "concentration": "Comparison sort lower bound"
+          },
+          "metadata": {
+            "blueprint_id": "q_5198fee6972b46e63436",
+            "review_passed": true
+          }
+        }
+      ],
+      "analysis": ""
+    },
+    "mode": "mimic",
+    "metadata": {
+      "cost_summary": {
+        "total_cost_usd": 0.020631899999999998,
+        "total_tokens": 107357,
+        "total_calls": 36,
+        "prompt_tokens": 97294,
+        "completion_tokens": 10063
+      },
+      "usage_summary": {
+        "prompt_tokens": 99039,
+        "completion_tokens": 12264,
+        "total_tokens": 111303,
+        "cache_read_input_tokens": 50688,
+        "cache_creation_input_tokens": 0,
+        "reasoning_tokens": 0,
+        "duration_seconds": 77.38748390926048,
+        "total_calls": 37,
+        "cache_reported_calls": 37,
+        "cache_input_tokens": 99039,
+        "cache_hit_rate": 0.5117983824553963,
+        "ttft_seconds": 0.705473338913483,
+        "ttft_calls": 36,
+        "generation_seconds": 45.62891421886161,
+        "timed_completion_tokens": 10063,
+        "tokens_per_second": 220.53998374215666,
+        "estimated_calls": 0,
+        "call_details": [
+          {
+            "call_id": "797a3028b360475d9ad40ba0f3a794f4",
+            "prompt_tokens": 1745,
+            "completion_tokens": 2201,
+            "total_tokens": 3946,
+            "cache_read_input_tokens": 1536,
+            "model": "deepseek-v4-flash",
+            "provider": "OpenAICompatProvider",
+            "status": "completed",
+            "estimated": false,
+            "duration_seconds": 6.248286420945078,
+            "ttft_seconds": null,
+            "generation_seconds": null,
+            "tokens_per_second": null,
+            "cache_hit_rate": 0.8802292263610315
+          },
+          {
+            "call_id": "b1e1a8584a614d79956583a8f5998062",
+            "prompt_tokens": 3577,
+            "completion_tokens": 282,
+            "total_tokens": 3859,
+            "cache_read_input_tokens": 2560,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.287869854364544,
+            "ttft_seconds": 0.9918363192118704,
+            "generation_seconds": 1.2799899489618838,
+            "tokens_per_second": 220.31422998962748,
+            "cache_hit_rate": 0.7156835336874476
+          },
+          {
+            "call_id": "86710215fc6046f79e506ba8a2b8fb47",
+            "prompt_tokens": 1211,
+            "completion_tokens": 256,
+            "total_tokens": 1467,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.7325857779942453,
+            "ttft_seconds": 0.7058866987936199,
+            "generation_seconds": 1.0257478142157197,
+            "tokens_per_second": 249.57401463802873,
+            "cache_hit_rate": 0.5284888521882741
+          },
+          {
+            "call_id": "d2a684c8b45043b58b0a67bf39ce8c6e",
+            "prompt_tokens": 3633,
+            "completion_tokens": 330,
+            "total_tokens": 3963,
+            "cache_read_input_tokens": 2560,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.6521276677958667,
+            "ttft_seconds": 0.9005199009552598,
+            "generation_seconds": 1.7501752651296556,
+            "tokens_per_second": 188.55254475074136,
+            "cache_hit_rate": 0.7046518029176989
+          },
+          {
+            "call_id": "7e46d2ded1ca4cd8baf6e4e33202d2c9",
+            "prompt_tokens": 1315,
+            "completion_tokens": 218,
+            "total_tokens": 1533,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.3520476892590523,
+            "ttft_seconds": 0.4645248861052096,
+            "generation_seconds": 0.8856430961750448,
+            "tokens_per_second": 246.14881653965148,
+            "cache_hit_rate": 0.4866920152091255
+          },
+          {
+            "call_id": "2746939737ce44fea75aa69a8bb71c40",
+            "prompt_tokens": 3718,
+            "completion_tokens": 510,
+            "total_tokens": 4228,
+            "cache_read_input_tokens": 2560,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.823215637821704,
+            "ttft_seconds": 0.8133414438925683,
+            "generation_seconds": 1.985143853817135,
+            "tokens_per_second": 256.9083338818727,
+            "cache_hit_rate": 0.6885422270037654
+          },
+          {
+            "call_id": "b71b0ca4ea7b46dba980e51fe7112588",
+            "prompt_tokens": 1586,
+            "completion_tokens": 246,
+            "total_tokens": 1832,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.6551866671070457,
+            "ttft_seconds": 0.6111533800140023,
+            "generation_seconds": 1.0361690493300557,
+            "tokens_per_second": 237.41299757896985,
+            "cache_hit_rate": 0.403530895334174
+          },
+          {
+            "call_id": "15d3cf3ebeb14f63b72dfdc2c5db569c",
+            "prompt_tokens": 3809,
+            "completion_tokens": 403,
+            "total_tokens": 4212,
+            "cache_read_input_tokens": 2432,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.349219356663525,
+            "ttft_seconds": 0.8014912665821612,
+            "generation_seconds": 1.5470062093809247,
+            "tokens_per_second": 260.5031560676612,
+            "cache_hit_rate": 0.6384877920714098
+          },
+          {
+            "call_id": "a38a8b68599e4b71b22f96080836b928",
+            "prompt_tokens": 1574,
+            "completion_tokens": 227,
+            "total_tokens": 1801,
+            "cache_read_input_tokens": 384,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.8652042909525335,
+            "ttft_seconds": 0.8740573888644576,
+            "generation_seconds": 0.9897131710313261,
+            "tokens_per_second": 229.3593807218466,
+            "cache_hit_rate": 0.24396442185514614
+          },
+          {
+            "call_id": "6e2144feeaf34c91a13c80d84dc0fc85",
+            "prompt_tokens": 3839,
+            "completion_tokens": 294,
+            "total_tokens": 4133,
+            "cache_read_input_tokens": 2304,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.0147490217350423,
+            "ttft_seconds": 0.5150835420936346,
+            "generation_seconds": 1.4980414737947285,
+            "tokens_per_second": 196.2562486706465,
+            "cache_hit_rate": 0.6001562907007033
+          },
+          {
+            "call_id": "aad17a3b2e6840ab8348d1144480d127",
+            "prompt_tokens": 1484,
+            "completion_tokens": 214,
+            "total_tokens": 1698,
+            "cache_read_input_tokens": 384,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.8308425550349057,
+            "ttft_seconds": 0.7812927048653364,
+            "generation_seconds": 1.0488499151542783,
+            "tokens_per_second": 204.03300501628217,
+            "cache_hit_rate": 0.2587601078167116
+          },
+          {
+            "call_id": "c905f0d58eda48e4b05016dd491ee5e4",
+            "prompt_tokens": 3896,
+            "completion_tokens": 452,
+            "total_tokens": 4348,
+            "cache_read_input_tokens": 2432,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.48904148908332,
+            "ttft_seconds": 0.7076661959290504,
+            "generation_seconds": 1.7806272199377418,
+            "tokens_per_second": 253.8431373725736,
+            "cache_hit_rate": 0.6242299794661191
+          },
+          {
+            "call_id": "f057e6ad2b454980a8b5133bacb50d5a",
+            "prompt_tokens": 1703,
+            "completion_tokens": 284,
+            "total_tokens": 1987,
+            "cache_read_input_tokens": 384,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.654483085963875,
+            "ttft_seconds": 0.6394771179184318,
+            "generation_seconds": 1.0133714289404452,
+            "tokens_per_second": 280.25262197982335,
+            "cache_hit_rate": 0.22548443922489725
+          },
+          {
+            "call_id": "2fc861c2f65540d0a88c757dd6c81c9e",
+            "prompt_tokens": 3969,
+            "completion_tokens": 291,
+            "total_tokens": 4260,
+            "cache_read_input_tokens": 2560,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.2268384946510196,
+            "ttft_seconds": 0.8633778230287135,
+            "generation_seconds": 1.3617759570479393,
+            "tokens_per_second": 213.69153897446566,
+            "cache_hit_rate": 0.6449987402368355
+          },
+          {
+            "call_id": "2a9cab84f0194d308d9d9b2651a4d62c",
+            "prompt_tokens": 1617,
+            "completion_tokens": 204,
+            "total_tokens": 1821,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.977860005106777,
+            "ttft_seconds": 1.0670905001461506,
+            "generation_seconds": 0.90992994280532,
+            "tokens_per_second": 224.1930838884878,
+            "cache_hit_rate": 0.39579468150896724
+          },
+          {
+            "call_id": "dbd5fe1f8a014431af23cf32730236f8",
+            "prompt_tokens": 4013,
+            "completion_tokens": 376,
+            "total_tokens": 4389,
+            "cache_read_input_tokens": 2560,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.3851533560082316,
+            "ttft_seconds": 0.5333190080709755,
+            "generation_seconds": 1.851091117132455,
+            "tokens_per_second": 203.12344244969722,
+            "cache_hit_rate": 0.6379267381011712
+          },
+          {
+            "call_id": "461cc94fed254bd4aad5405266d5b656",
+            "prompt_tokens": 1751,
+            "completion_tokens": 297,
+            "total_tokens": 2048,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.2891860571689904,
+            "ttft_seconds": 0.8558319392614067,
+            "generation_seconds": 1.4320488800294697,
+            "tokens_per_second": 207.3951553901485,
+            "cache_hit_rate": 0.36550542547115933
+          },
+          {
+            "call_id": "8bc70631456a43f4a76198171453b633",
+            "prompt_tokens": 4104,
+            "completion_tokens": 243,
+            "total_tokens": 4347,
+            "cache_read_input_tokens": 2560,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.0597722698003054,
+            "ttft_seconds": 0.7395399920642376,
+            "generation_seconds": 1.3183593107387424,
+            "tokens_per_second": 184.32000898437545,
+            "cache_hit_rate": 0.6237816764132553
+          },
+          {
+            "call_id": "bc51c653eed14654a33a6ee1cb162984",
+            "prompt_tokens": 1725,
+            "completion_tokens": 179,
+            "total_tokens": 1904,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.3709656107239425,
+            "ttft_seconds": 0.5265991310589015,
+            "generation_seconds": 0.8435911280103028,
+            "tokens_per_second": 212.18810162476467,
+            "cache_hit_rate": 0.3710144927536232
+          },
+          {
+            "call_id": "45036e83a2ca45c7bd0108f36525a884",
+            "prompt_tokens": 4155,
+            "completion_tokens": 343,
+            "total_tokens": 4498,
+            "cache_read_input_tokens": 2432,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.273093330208212,
+            "ttft_seconds": 0.5661039240658283,
+            "generation_seconds": 1.7046075062826276,
+            "tokens_per_second": 201.2193415409787,
+            "cache_hit_rate": 0.5853188929001203
+          },
+          {
+            "call_id": "46f2b02e9f20417d82ca020f0b1e6acb",
+            "prompt_tokens": 1861,
+            "completion_tokens": 221,
+            "total_tokens": 2082,
+            "cache_read_input_tokens": 384,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.0394311738200486,
+            "ttft_seconds": 0.8611877667717636,
+            "generation_seconds": 1.1773609379306436,
+            "tokens_per_second": 187.7079431465041,
+            "cache_hit_rate": 0.2063406770553466
+          },
+          {
+            "call_id": "6a5a52142bf24fb1a089089feae67f5f",
+            "prompt_tokens": 4198,
+            "completion_tokens": 239,
+            "total_tokens": 4437,
+            "cache_read_input_tokens": 2560,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.921056745108217,
+            "ttft_seconds": 0.7466194061562419,
+            "generation_seconds": 1.1729509821161628,
+            "tokens_per_second": 203.7595804462447,
+            "cache_hit_rate": 0.6098141972367794
+          },
+          {
+            "call_id": "80afe86eb89e46c5af88a11ffbb7854a",
+            "prompt_tokens": 1800,
+            "completion_tokens": 262,
+            "total_tokens": 2062,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.5695180539041758,
+            "ttft_seconds": 0.36990593699738383,
+            "generation_seconds": 1.1988225472159684,
+            "tokens_per_second": 218.5477747381745,
+            "cache_hit_rate": 0.35555555555555557
+          },
+          {
+            "call_id": "9d9c65919f3640958ee8136efd827e02",
+            "prompt_tokens": 1477,
+            "completion_tokens": 248,
+            "total_tokens": 1725,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.901219077873975,
+            "ttft_seconds": 0.8124033990316093,
+            "generation_seconds": 1.0873346547596157,
+            "tokens_per_second": 228.0806547592535,
+            "cache_hit_rate": 0.4333107650643196
+          },
+          {
+            "call_id": "b0e5e3f275544b498b7d417e2940733b",
+            "prompt_tokens": 1796,
+            "completion_tokens": 298,
+            "total_tokens": 2094,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.3070453978143632,
+            "ttft_seconds": 0.6820399919524789,
+            "generation_seconds": 1.6242035627365112,
+            "tokens_per_second": 183.4745390521862,
+            "cache_hit_rate": 0.35634743875278396
+          },
+          {
+            "call_id": "ef50c860ddd648d18042d8f95be8878a",
+            "prompt_tokens": 4309,
+            "completion_tokens": 313,
+            "total_tokens": 4622,
+            "cache_read_input_tokens": 2560,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.1588955922052264,
+            "ttft_seconds": 0.6902401042170823,
+            "generation_seconds": 1.467180645558983,
+            "tokens_per_second": 213.334329993666,
+            "cache_hit_rate": 0.5941053608725922
+          },
+          {
+            "call_id": "7d7aaba12eee4147953d65200007ff3d",
+            "prompt_tokens": 1983,
+            "completion_tokens": 204,
+            "total_tokens": 2187,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.412068699952215,
+            "ttft_seconds": 0.5327457357198,
+            "generation_seconds": 0.8778546839021146,
+            "tokens_per_second": 232.3847030048393,
+            "cache_hit_rate": 0.3227433182047403
+          },
+          {
+            "call_id": "9b3e306eed0f429a9d5c4c7818d5fdff",
+            "prompt_tokens": 4420,
+            "completion_tokens": 293,
+            "total_tokens": 4713,
+            "cache_read_input_tokens": 2304,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.8743162057362497,
+            "ttft_seconds": 0.5075732106342912,
+            "generation_seconds": 1.3546707541681826,
+            "tokens_per_second": 216.28871746028997,
+            "cache_hit_rate": 0.5212669683257919
+          },
+          {
+            "call_id": "6b719f8b372746f28a90be4bd45f3bb0",
+            "prompt_tokens": 2080,
+            "completion_tokens": 307,
+            "total_tokens": 2387,
+            "cache_read_input_tokens": 384,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.0153189338743687,
+            "ttft_seconds": 0.7539032301865518,
+            "generation_seconds": 1.2598956618458033,
+            "tokens_per_second": 243.67097157095637,
+            "cache_hit_rate": 0.18461538461538463
+          },
+          {
+            "call_id": "0ea3be852c71425c85698b5a295cda02",
+            "prompt_tokens": 1525,
+            "completion_tokens": 232,
+            "total_tokens": 1757,
+            "cache_read_input_tokens": 512,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.6405068007297814,
+            "ttft_seconds": 0.6477498030290008,
+            "generation_seconds": 0.9907305557280779,
+            "tokens_per_second": 234.17063161992166,
+            "cache_hit_rate": 0.3357377049180328
+          },
+          {
+            "call_id": "1c77e283fcca49e6b78fff1a736722d5",
+            "prompt_tokens": 2013,
+            "completion_tokens": 278,
+            "total_tokens": 2291,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.9785072626546025,
+            "ttft_seconds": 0.6619790829718113,
+            "generation_seconds": 1.3157912977039814,
+            "tokens_per_second": 211.27970711244416,
+            "cache_hit_rate": 0.31793343268753105
+          },
+          {
+            "call_id": "e98750140e654b60b7732f3dd2337263",
+            "prompt_tokens": 4523,
+            "completion_tokens": 276,
+            "total_tokens": 4799,
+            "cache_read_input_tokens": 2560,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.225188286975026,
+            "ttft_seconds": 0.6895287847146392,
+            "generation_seconds": 1.5351823554374278,
+            "tokens_per_second": 179.7832023162863,
+            "cache_hit_rate": 0.565996020340482
+          },
+          {
+            "call_id": "8e37528f6ede4f4db1e02869cbaec5e7",
+            "prompt_tokens": 2165,
+            "completion_tokens": 249,
+            "total_tokens": 2414,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.5827669370919466,
+            "ttft_seconds": 0.5309038171544671,
+            "generation_seconds": 1.0504106217995286,
+            "tokens_per_second": 237.05015432290799,
+            "cache_hit_rate": 0.2956120092378753
+          },
+          {
+            "call_id": "09d6c831ad064f5199bd5de2536b1f59",
+            "prompt_tokens": 1507,
+            "completion_tokens": 240,
+            "total_tokens": 1747,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 2.233502139803022,
+            "ttft_seconds": 1.2141414661891758,
+            "generation_seconds": 1.0169771937653422,
+            "tokens_per_second": 235.99349274628642,
+            "cache_hit_rate": 0.42468480424684807
+          },
+          {
+            "call_id": "8985a55bec7249e5a69a281c144a5db2",
+            "prompt_tokens": 2123,
+            "completion_tokens": 265,
+            "total_tokens": 2388,
+            "cache_read_input_tokens": 640,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.6920507308095694,
+            "ttft_seconds": 0.5599323338828981,
+            "generation_seconds": 1.1306246928870678,
+            "tokens_per_second": 234.38370103461864,
+            "cache_hit_rate": 0.30146019783325484
+          },
+          {
+            "call_id": "acdca81bf5e84be0aff9b98b121839d5",
+            "prompt_tokens": 4590,
+            "completion_tokens": 282,
+            "total_tokens": 4872,
+            "cache_read_input_tokens": 2432,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.9431491778232157,
+            "ttft_seconds": 0.601169184781611,
+            "generation_seconds": 1.3404487641528249,
+            "tokens_per_second": 210.37730612421163,
+            "cache_hit_rate": 0.5298474945533769
+          },
+          {
+            "call_id": "85bcbf81424a4793b15c3407d7afdb27",
+            "prompt_tokens": 2245,
+            "completion_tokens": 207,
+            "total_tokens": 2452,
+            "cache_read_input_tokens": 384,
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek",
+            "status": "interrupted",
+            "estimated": false,
+            "duration_seconds": 1.3552140546962619,
+            "ttft_seconds": 0.5768237835727632,
+            "generation_seconds": 0.7665920192375779,
+            "tokens_per_second": 270.02629143709845,
+            "cache_hit_rate": 0.1710467706013363
+          }
+        ]
+      }
+    }
+  },
+  "session_id": "unified_1792217146161_f22eb08a",
+  "turn_id": "turn_1792217147038_54d7cd64aa",
+  "seq": 762,
+  "timestamp": 1792217232.7156467
+}

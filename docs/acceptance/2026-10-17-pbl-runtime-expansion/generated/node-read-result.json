@@ -1,0 +1,15 @@
+{
+  "name": "node-read",
+  "id": "pbl_b5287650b12800c019458b89c8f430e4",
+  "success": true,
+  "runtime": {
+    "template": "node",
+    "entry": "/index.js",
+    "dependencies": {
+      "express": "4.19.2"
+    },
+    "moduleType": "commonjs"
+  },
+  "seconds": 244.06,
+  "modelCalls": 7
+}

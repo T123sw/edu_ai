@@ -1,0 +1,1186 @@
+{
+  "phase": "repair_step",
+  "data": {
+    "topic": "用 React 做一个本地两步报名向导。第1步填写姓名和年龄：姓名去空格后非空，年龄必须是18到60的整数，通过后才能下一步。第2步选择线上或线下并勾选同意条款，点击提交后显示姓名、年龄和参加方式。第2步可返回第1步，已填内容保留；成功后点击重新填写，所有字段和错误恢复空白初始状态。拒绝18.5、17、61和空年龄。只做本地状态，不联网，分步实现。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "本地两步报名向导",
+      "goal": "用 React 实现一个纯本地两步报名向导：第 1 步填写姓名与年龄（姓名去空格后非空，年龄为 18 到 60 的整数），校验通过后才能进入第 2 步；第 2 步选择线上或线下并勾选同意条款，提交后显示姓名、年龄和参加方式；第 2 步可返回第 1 步且已填内容保留；成功后点击重新填写，所有字段与错误恢复空白初始状态。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "step1-validation",
+          "description": "第 1 步填写姓名和年龄：姓名去掉首尾空格后必须非空；年龄必须是 18 到 60 之间的整数（拒绝 18.5、17、61 和空年龄）。校验不通过时停留在第 1 步并给出错误提示，通过后才能进入第 2 步。"
+        },
+        {
+          "id": "step2-form",
+          "description": "第 2 步可选择线上或线下参加方式，并勾选同意条款；两项都满足后点击提交，页面显示姓名、年龄和参加方式。"
+        },
+        {
+          "id": "back-preserve",
+          "description": "第 2 步可以返回第 1 步，返回后姓名和年龄的已填内容保留。"
+        },
+        {
+          "id": "reset-blank",
+          "description": "提交成功后点击重新填写，所有字段、选择、勾选和错误提示都恢复到空白初始状态，回到第 1 步。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "step1-basic-info",
+          "title": "第 1 步：填写并校验姓名与年龄",
+          "objective": "实现第 1 步表单，校验姓名非空与年龄为 18 到 60 的整数，通过后进入第 2 步占位页。",
+          "dependsOn": [],
+          "entryCondition": "从初始工程开始，页面只有空白骨架。",
+          "deliverable": "页面显示第 1 步表单：姓名输入框、年龄输入框和“下一步”按钮。点击“下一步”时校验：姓名去空格后为空、年龄为空、年龄不是整数、年龄小于 18 或大于 60 都显示错误提示并停留在第 1 步；全部合法时进入第 2 步占位页。",
+          "requirementIds": [
+            "step1-validation"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "check-step1-empty-name",
+            "check-step1-age-not-integer",
+            "check-step1-age-too-young",
+            "check-step1-age-too-old",
+            "check-step1-empty-age",
+            "check-step1-valid-next"
+          ]
+        },
+        {
+          "id": "step2-submit",
+          "title": "第 2 步：选择参加方式并提交显示结果",
+          "objective": "实现第 2 步的参加方式选择、同意条款勾选与提交后显示结果。",
+          "dependsOn": [
+            "step1-basic-info"
+          ],
+          "entryCondition": "第 1 步已能校验并进入第 2 步占位页。",
+          "deliverable": "第 2 步显示线上/线下单选、同意条款复选框和“提交”按钮。未选择参加方式或未勾选条款时提交不显示结果；两者都满足后点击提交，页面显示姓名、年龄和参加方式。",
+          "requirementIds": [
+            "step2-form"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "check-step2-submit-online",
+            "check-step2-submit-offline",
+            "check-step2-blocked-without-consent"
+          ]
+        },
+        {
+          "id": "step3-back-and-reset",
+          "title": "第 3 步：返回保留内容与重新填写",
+          "objective": "实现第 2 步返回第 1 步保留已填内容，以及成功后重新填写恢复空白初始状态。",
+          "dependsOn": [
+            "step2-submit"
+          ],
+          "entryCondition": "第 2 步已能提交并显示结果。",
+          "deliverable": "第 2 步提供“返回”按钮，点击回到第 1 步且姓名、年龄保留；提交成功后的结果区提供“重新填写”按钮，点击后回到第 1 步，姓名、年龄、参加方式、同意勾选和错误提示全部清空。",
+          "requirementIds": [
+            "back-preserve",
+            "reset-blank"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "check-step3-back-preserves",
+            "check-step3-reset-blank"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "check-step1-empty-name",
+          "stepId": "step1-basic-info",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "step1-validation"
+          ],
+          "setup": "打开页面，处于第 1 步初始状态。",
+          "actions": [
+            "在姓名输入框填入“   ”",
+            "在年龄输入框填入“30”",
+            "点击“下一步”按钮",
+            "断言仍显示第 1 步的姓名输入框",
+            "断言出现姓名错误提示"
+          ],
+          "expected": [
+            "停留在第 1 步",
+            "显示姓名不能为空的错误提示"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-step1-age-not-integer",
+          "stepId": "step1-basic-info",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "step1-validation"
+          ],
+          "setup": "打开页面，处于第 1 步初始状态。",
+          "actions": [
+            "在姓名输入框填入“张三”",
+            "在年龄输入框填入“18.5”",
+            "点击“下一步”按钮",
+            "断言仍显示第 1 步的姓名输入框",
+            "断言出现年龄错误提示"
+          ],
+          "expected": [
+            "停留在第 1 步",
+            "显示年龄必须为整数的错误提示"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-step1-age-too-young",
+          "stepId": "step1-basic-info",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "step1-validation"
+          ],
+          "setup": "打开页面，处于第 1 步初始状态。",
+          "actions": [
+            "在姓名输入框填入“张三”",
+            "在年龄输入框填入“17”",
+            "点击“下一步”按钮",
+            "断言仍显示第 1 步的姓名输入框",
+            "断言出现年龄范围错误提示"
+          ],
+          "expected": [
+            "停留在第 1 步",
+            "显示年龄需在 18 到 60 之间的错误提示"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-step1-age-too-old",
+          "stepId": "step1-basic-info",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "step1-validation"
+          ],
+          "setup": "打开页面，处于第 1 步初始状态。",
+          "actions": [
+            "在姓名输入框填入“张三”",
+            "在年龄输入框填入“61”",
+            "点击“下一步”按钮",
+            "断言仍显示第 1 步的姓名输入框",
+            "断言出现年龄范围错误提示"
+          ],
+          "expected": [
+            "停留在第 1 步",
+            "显示年龄需在 18 到 60 之间的错误提示"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-step1-empty-age",
+          "stepId": "step1-basic-info",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "step1-validation"
+          ],
+          "setup": "打开页面，处于第 1 步初始状态。",
+          "actions": [
+            "在姓名输入框填入“张三”",
+            "年龄输入框保持为空",
+            "点击“下一步”按钮",
+            "断言仍显示第 1 步的姓名输入框",
+            "断言出现年龄错误提示"
+          ],
+          "expected": [
+            "停留在第 1 步",
+            "显示年龄不能为空或需在范围内的错误提示"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-step1-valid-next",
+          "stepId": "step1-basic-info",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "step1-validation"
+          ],
+          "setup": "打开页面，处于第 1 步初始状态。",
+          "actions": [
+            "在姓名输入框填入“张三”",
+            "在年龄输入框填入“30”",
+            "点击“下一步”按钮",
+            "断言进入第 2 步，显示参加方式选择控件"
+          ],
+          "expected": [
+            "进入第 2 步",
+            "显示线上/线下选择控件"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-step2-submit-online",
+          "stepId": "step2-submit",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "step2-form"
+          ],
+          "setup": "打开页面，填写姓名“张三”、年龄“30”，点击“下一步”进入第 2 步。",
+          "actions": [
+            "选择“线上”参加方式",
+            "勾选同意条款",
+            "点击“提交”按钮",
+            "断言结果区显示姓名“张三”",
+            "断言结果区显示年龄“30”",
+            "断言结果区显示参加方式“线上”"
+          ],
+          "expected": [
+            "显示姓名张三",
+            "显示年龄30",
+            "显示参加方式线上"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-step2-submit-offline",
+          "stepId": "step2-submit",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "step2-form"
+          ],
+          "setup": "打开页面，填写姓名“李四”、年龄“45”，点击“下一步”进入第 2 步。",
+          "actions": [
+            "选择“线下”参加方式",
+            "勾选同意条款",
+            "点击“提交”按钮",
+            "断言结果区显示姓名“李四”",
+            "断言结果区显示年龄“45”",
+            "断言结果区显示参加方式“线下”"
+          ],
+          "expected": [
+            "显示姓名李四",
+            "显示年龄45",
+            "显示参加方式线下"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-step2-blocked-without-consent",
+          "stepId": "step2-submit",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "step2-form"
+          ],
+          "setup": "打开页面，填写姓名“张三”、年龄“30”，点击“下一步”进入第 2 步。",
+          "actions": [
+            "选择“线上”参加方式",
+            "不勾选同意条款",
+            "点击“提交”按钮",
+            "断言结果区未显示姓名“张三”"
+          ],
+          "expected": [
+            "未勾选条款时提交不显示结果"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-step3-back-preserves",
+          "stepId": "step3-back-and-reset",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "back-preserve"
+          ],
+          "setup": "打开页面，填写姓名“张三”、年龄“30”，点击“下一步”进入第 2 步。",
+          "actions": [
+            "点击“返回”按钮",
+            "断言回到第 1 步",
+            "断言姓名输入框的值为“张三”",
+            "断言年龄输入框的值为“30”"
+          ],
+          "expected": [
+            "回到第 1 步",
+            "姓名和年龄保留"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        },
+        {
+          "id": "check-step3-reset-blank",
+          "stepId": "step3-back-and-reset",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "reset-blank"
+          ],
+          "setup": "打开页面，填写姓名“张三”、年龄“30”，点击“下一步”进入第 2 步，选择“线上”、勾选同意条款并点击“提交”。",
+          "actions": [
+            "点击“重新填写”按钮",
+            "断言回到第 1 步",
+            "断言姓名输入框的值为空",
+            "断言年龄输入框的值为空",
+            "断言页面不显示姓名错误提示"
+          ],
+          "expected": [
+            "回到第 1 步",
+            "姓名和年龄清空",
+            "错误提示清空"
+          ],
+          "requiredAssertions": [],
+          "viewport": null
+        }
+      ]
+    },
+    "step": {
+      "id": "step2-submit",
+      "title": "第 2 步：选择参加方式并提交显示结果",
+      "objective": "实现第 2 步的参加方式选择、同意条款勾选与提交后显示结果。",
+      "dependsOn": [
+        "step1-basic-info"
+      ],
+      "entryCondition": "第 1 步已能校验并进入第 2 步占位页。",
+      "deliverable": "第 2 步显示线上/线下单选、同意条款复选框和“提交”按钮。未选择参加方式或未勾选条款时提交不显示结果；两者都满足后点击提交，页面显示姓名、年龄和参加方式。",
+      "requirementIds": [
+        "step2-form"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "check-step2-submit-online",
+        "check-step2-submit-offline",
+        "check-step2-blocked-without-consent"
+      ]
+    },
+    "requiredChecks": [
+      {
+        "id": "check-step2-submit-online",
+        "stepId": "step2-submit",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "step2-form"
+        ],
+        "setup": "打开页面，填写姓名“张三”、年龄“30”，点击“下一步”进入第 2 步。",
+        "actions": [
+          "选择“线上”参加方式",
+          "勾选同意条款",
+          "点击“提交”按钮",
+          "断言结果区显示姓名“张三”",
+          "断言结果区显示年龄“30”",
+          "断言结果区显示参加方式“线上”"
+        ],
+        "expected": [
+          "显示姓名张三",
+          "显示年龄30",
+          "显示参加方式线上"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "check-step2-submit-offline",
+        "stepId": "step2-submit",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "step2-form"
+        ],
+        "setup": "打开页面，填写姓名“李四”、年龄“45”，点击“下一步”进入第 2 步。",
+        "actions": [
+          "选择“线下”参加方式",
+          "勾选同意条款",
+          "点击“提交”按钮",
+          "断言结果区显示姓名“李四”",
+          "断言结果区显示年龄“45”",
+          "断言结果区显示参加方式“线下”"
+        ],
+        "expected": [
+          "显示姓名李四",
+          "显示年龄45",
+          "显示参加方式线下"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "check-step2-blocked-without-consent",
+        "stepId": "step2-submit",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "step2-form"
+        ],
+        "setup": "打开页面，填写姓名“张三”、年龄“30”，点击“下一步”进入第 2 步。",
+        "actions": [
+          "选择“线上”参加方式",
+          "不勾选同意条款",
+          "点击“提交”按钮",
+          "断言结果区未显示姓名“张三”"
+        ],
+        "expected": [
+          "未勾选条款时提交不显示结果"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      }
+    ],
+    "previousFiles": {
+      "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nexport default function App() {\n  const [step, setStep] = useState(1);\n  const [name, setName] = useState('');\n  const [age, setAge] = useState('');\n  const [errors, setErrors] = useState({ name: '', age: '' });\n\n  function handleNext() {\n    const nextErrors = { name: '', age: '' };\n\n    if (name.trim() === '') {\n      nextErrors.name = '姓名不能为空';\n    }\n\n    const trimmedAge = age.trim();\n    if (trimmedAge === '') {\n      nextErrors.age = '年龄不能为空';\n    } else {\n      const ageNumber = Number(trimmedAge);\n      if (!Number.isInteger(ageNumber)) {\n        nextErrors.age = '年龄必须是整数';\n      } else if (ageNumber < 18 || ageNumber > 60) {\n        nextErrors.age = '年龄必须是 18 到 60 之间的整数';\n      }\n    }\n\n    setErrors(nextErrors);\n\n    if (nextErrors.name === '' && nextErrors.age === '') {\n      setStep(2);\n    }\n  }\n\n  if (step === 2) {\n    return (\n      <main className=\"wizard\">\n        <h1>报名向导</h1>\n        <section data-testid=\"step2-placeholder\" className=\"card\">\n          <h2>第 2 步</h2>\n          <p>请选择参加方式</p>\n          <label>\n            <input type=\"radio\" name=\"mode\" value=\"online\" /> 线上\n          </label>\n          <label>\n            <input type=\"radio\" name=\"mode\" value=\"offline\" /> 线下\n          </label>\n        </section>\n      </main>\n    );\n  }\n\n  return (\n    <main className=\"wizard\">\n      <h1>报名向导</h1>\n      <section className=\"card\">\n        <h2>第 1 步：填写基本信息</h2>\n        <div className=\"field\">\n          <label htmlFor=\"name\">姓名</label>\n          <input\n            id=\"name\"\n            data-testid=\"name-input\"\n            type=\"text\"\n            placeholder=\"请输入姓名\"\n            value={name}\n            onChange={(e) => setName(e.target.value)}\n          />\n          {errors.name && (\n            <p className=\"error\" data-testid=\"name-error\">\n              {errors.name}\n            </p>\n          )}\n        </div>\n        <div className=\"field\">\n          <label htmlFor=\"age\">年龄</label>\n          <input\n            id=\"age\"\n            data-testid=\"age-input\"\n            type=\"text\"\n            placeholder=\"请输入年龄\"\n            value={age}\n            onChange={(e) => setAge(e.target.value)}\n          />\n          {errors.age && (\n            <p className=\"error\" data-testid=\"age-error\">\n              {errors.age}\n            </p>\n          )}\n        </div>\n        <button type=\"button\" data-testid=\"next-button\" onClick={handleNext}>\n          下一步\n        </button>\n      </section>\n    </main>\n  );\n}\n",
+      "/src/styles.css": "* { box-sizing: border-box; }\n\nbody {\n  margin: 0;\n  font-family: system-ui, sans-serif;\n  background: #f5f6f8;\n  color: #1f2933;\n}\n\n.wizard {\n  padding: 16px;\n  max-width: 480px;\n  margin: 0 auto;\n}\n\n.wizard h1 {\n  font-size: 20px;\n  margin: 0 0 12px;\n}\n\n.card {\n  background: #fff;\n  border-radius: 8px;\n  padding: 16px;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);\n}\n\n.card h2 {\n  font-size: 16px;\n  margin: 0 0 12px;\n}\n\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: 4px;\n  margin-bottom: 12px;\n  min-width: 0;\n}\n\n.field label {\n  font-size: 14px;\n  color: #52606d;\n}\n\n.field input {\n  padding: 8px;\n  border: 1px solid #cbd2d9;\n  border-radius: 6px;\n  font-size: 14px;\n  width: 100%;\n}\n\n.error {\n  margin: 0;\n  color: #cf1124;\n  font-size: 13px;\n}\n\nbutton {\n  padding: 8px 16px;\n  border: none;\n  border-radius: 6px;\n  background: #2563eb;\n  color: #fff;\n  font-size: 14px;\n  cursor: pointer;\n}\n\nbutton:hover {\n  background: #1d4ed8;\n}\n\nlabel {\n  display: block;\n  margin-bottom: 8px;\n  font-size: 14px;\n}\n"
+    },
+    "previousChecks": [
+      {
+        "id": "check-step1-empty-name",
+        "label": "姓名只填空格时点击下一步，停留在第 1 步并显示姓名错误提示",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "testId": "name-input"
+            },
+            "value": "   "
+          },
+          {
+            "type": "fill",
+            "target": {
+              "testId": "age-input"
+            },
+            "value": "30"
+          },
+          {
+            "type": "click",
+            "target": {
+              "testId": "next-button"
+            }
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "name-input"
+            },
+            "assertion": "visible"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "name-error"
+            },
+            "assertion": "visible"
+          }
+        ]
+      },
+      {
+        "id": "check-step1-age-not-integer",
+        "label": "年龄填 18.5 时点击下一步，停留在第 1 步并显示年龄错误提示",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "testId": "name-input"
+            },
+            "value": "张三"
+          },
+          {
+            "type": "fill",
+            "target": {
+              "testId": "age-input"
+            },
+            "value": "18.5"
+          },
+          {
+            "type": "click",
+            "target": {
+              "testId": "next-button"
+            }
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "name-input"
+            },
+            "assertion": "visible"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "age-error"
+            },
+            "assertion": "visible"
+          }
+        ]
+      },
+      {
+        "id": "check-step1-age-too-young",
+        "label": "年龄填 17 时点击下一步，停留在第 1 步并显示年龄错误提示",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "testId": "name-input"
+            },
+            "value": "张三"
+          },
+          {
+            "type": "fill",
+            "target": {
+              "testId": "age-input"
+            },
+            "value": "17"
+          },
+          {
+            "type": "click",
+            "target": {
+              "testId": "next-button"
+            }
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "name-input"
+            },
+            "assertion": "visible"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "age-error"
+            },
+            "assertion": "visible"
+          }
+        ]
+      },
+      {
+        "id": "check-step1-age-too-old",
+        "label": "年龄填 61 时点击下一步，停留在第 1 步并显示年龄错误提示",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "testId": "name-input"
+            },
+            "value": "张三"
+          },
+          {
+            "type": "fill",
+            "target": {
+              "testId": "age-input"
+            },
+            "value": "61"
+          },
+          {
+            "type": "click",
+            "target": {
+              "testId": "next-button"
+            }
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "name-input"
+            },
+            "assertion": "visible"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "age-error"
+            },
+            "assertion": "visible"
+          }
+        ]
+      },
+      {
+        "id": "check-step1-empty-age",
+        "label": "年龄留空时点击下一步，停留在第 1 步并显示年龄错误提示",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "testId": "name-input"
+            },
+            "value": "张三"
+          },
+          {
+            "type": "click",
+            "target": {
+              "testId": "next-button"
+            }
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "name-input"
+            },
+            "assertion": "visible"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "age-error"
+            },
+            "assertion": "visible"
+          }
+        ]
+      },
+      {
+        "id": "check-step1-valid-next",
+        "label": "姓名张三、年龄 30 时点击下一步进入第 2 步；年龄 18 与 60 边界值也能进入第 2 步",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "testId": "name-input"
+            },
+            "value": "张三"
+          },
+          {
+            "type": "fill",
+            "target": {
+              "testId": "age-input"
+            },
+            "value": "30"
+          },
+          {
+            "type": "click",
+            "target": {
+              "testId": "next-button"
+            }
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "step2-placeholder"
+            },
+            "assertion": "visible"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": "radio",
+              "name": "线上"
+            },
+            "assertion": "visible"
+          },
+          {
+            "type": "assert",
+            "target": {
+              "role": "radio",
+              "name": "线下"
+            },
+            "assertion": "visible"
+          }
+        ]
+      }
+    ],
+    "issues": [
+      "参考实现未通过累计检查（先核对需求、本步检查和代码；本步验收可修复，前序检查保留）: [{\"caseId\": \"check-step2-submit-online\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"name-input\\\" 输入 \\\"张三\\\"\\n✓ 2. 在 \\\"age-input\\\" 输入 \\\"30\\\"\\n✓ 3. 点击 \\\"next-button\\\"\\n✓ 4. 点击 \\\"线上\\\"\\n✓ 5. 点击 \\\"同意条款\\\"\\n✓ 6. 点击 \\\"submit-button\\\"\\n✓ 7. 检查 \\\"result-panel\\\" 的可见状态\\n   实际：true\\n× 8. 检查 \\\"result-panel\\\" 的显示文字\\n预期：\\\"报名成功\\\\n姓名：张三\\\\n年龄：30\\\\n参加方式：线上\\\"\\n实际：\\\"报名成功姓名：张三年龄：30参加方式：线上\\\"\"}, {\"caseId\": \"check-step2-submit-offline\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"name-input\\\" 输入 \\\"李四\\\"\\n✓ 2. 在 \\\"age-input\\\" 输入 \\\"45\\\"\\n✓ 3. 点击 \\\"next-button\\\"\\n✓ 4. 点击 \\\"线下\\\"\\n✓ 5. 点击 \\\"同意条款\\\"\\n✓ 6. 点击 \\\"submit-button\\\"\\n✓ 7. 检查 \\\"result-panel\\\" 的可见状态\\n   实际：true\\n× 8. 检查 \\\"result-panel\\\" 的显示文字\\n预期：\\\"报名成功\\\\n姓名：李四\\\\n年龄：45\\\\n参加方式：线下\\\"\\n实际：\\\"报名成功姓名：李四年龄：45参加方式：线下\\\"\"}, {\"caseId\": \"check-step2-blocked-without-consent\", \"status\": \"failed\", \"message\": \"✓ 1. 在 \\\"name-input\\\" 输入 \\\"张三\\\"\\n✓ 2. 在 \\\"age-input\\\" 输入 \\\"30\\\"\\n✓ 3. 点击 \\\"next-button\\\"\\n✓ 4. 点击 \\\"线上\\\"\\n✓ 5. 点击 \\\"submit-button\\\"\\n✓ 6. 检查 \\\"result-panel\\\" 的数量\\n   实际：0\\n✓ 7. 点击 \\\"同意条款\\\"\\n✓ 8. 点击 \\\"线上\\\"\\n✓ 9. 点击 \\\"submit-button\\\"\\n× 10. 检查 \\\"result-panel\\\" 的数量\\n预期：0\\n实际：1\"}]"
+    ],
+    "priorCandidate": {
+      "unit": {
+        "stepId": "step2-submit",
+        "title": "第 2 步：选择参加方式并提交显示结果",
+        "objective": "实现第 2 步的参加方式选择、同意条款勾选与提交后显示结果。",
+        "instructionsMarkdown": "现在把第 2 步从占位页变成真正的报名确认页。\n\n第 2 步需要包含：\n\n- 参加方式选择：两个单选项，分别是“线上”和“线下”，同一时间只能选一个。\n- 一个“同意条款”复选框。\n- 一个“提交”按钮。\n\n点击“提交”时：\n\n- 如果还没选参加方式，或者没有勾选同意条款，就不显示报名结果，页面停留在第 2 步。\n- 如果已经选了参加方式并且勾选了同意条款，就在页面上显示报名结果，结果里要能看到第 1 步填写的姓名、年龄，以及本步选择的参加方式（线上或线下）。\n\n例如姓名填“张三”、年龄填“30”、选择“线上”并勾选条款后提交，结果区应显示“张三”“30”“线上”。\n\n本步暂不要求“返回”和“重新填写”按钮，它们会在下一步加入。\n\n### 代码约定\n\n为了让系统能识别页面部件，请使用以下标记（它们只是供程序定位，不会改变外观）：\n\n- 第 2 步整体容器加 `data-testid=\"step2-placeholder\"`（沿用上一步已有的标记）。\n- “线上”单选项的可见文字为“线上”，“线下”单选项的可见文字为“线下”，使用标准单选按钮（`type=\"radio\"`），让它们的可访问名称就是“线上”“线下”。\n- “同意条款”复选框的可见文字包含“同意条款”。\n- “提交”按钮加 `data-testid=\"submit-button\"`，按钮文字为“提交”。\n- 报名结果区加 `data-testid=\"result-panel\"`，里面分别显示姓名、年龄和参加方式。",
+        "explanationMarkdown": "第 2 步需要新增几个状态：参加方式（线上/线下）、是否勾选同意条款，以及是否已提交。\n\n提交时先做校验：参加方式为空或未勾选条款，就不把“已提交”置为真，结果区不出现。两者都满足时，把“已提交”置为真，页面根据已提交状态渲染结果区，结果区读取第 1 步保存的姓名、年龄和本步的参加方式。\n\n单选按钮用受控组件：`checked` 绑定当前参加方式，`onChange` 更新它。复选框同理绑定布尔状态。这样返回第 1 步再回来时，选择也能保留（下一步会用到）。",
+        "hints": [
+          "参加方式可以用一个字符串状态保存，例如 `mode`，值为 `'online'` 或 `'offline'`，初始为空字符串。",
+          "同意条款用一个布尔状态 `agreed`，初始为 `false`。",
+          "提交时判断 `mode` 非空且 `agreed` 为真，才把 `submitted` 置为 `true`。",
+          "结果区只在 `submitted` 为真时渲染，显示姓名、年龄和参加方式的中文文字。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx",
+          "/src/styles.css"
+        ],
+        "checkIds": [
+          "check-step2-submit-online",
+          "check-step2-submit-offline",
+          "check-step2-blocked-without-consent"
+        ]
+      },
+      "behaviorCases": [
+        {
+          "requirementId": "step2-form",
+          "setup": "第 1 步已填姓名“张三”、年龄“30”并进入第 2 步，未选参加方式、未勾选条款",
+          "action": "选择“线上”，勾选同意条款，点击“提交”",
+          "expected": "结果区出现，显示姓名“张三”、年龄“30”、参加方式“线上”",
+          "checkId": "check-step2-submit-online"
+        },
+        {
+          "requirementId": "step2-form",
+          "setup": "第 1 步已填姓名“李四”、年龄“45”并进入第 2 步，未选参加方式、未勾选条款",
+          "action": "选择“线下”，勾选同意条款，点击“提交”",
+          "expected": "结果区出现，显示姓名“李四”、年龄“45”、参加方式“线下”",
+          "checkId": "check-step2-submit-offline"
+        },
+        {
+          "requirementId": "step2-form",
+          "setup": "第 1 步已填姓名“张三”、年龄“30”并进入第 2 步",
+          "action": "选择“线上”，不勾选同意条款，点击“提交”",
+          "expected": "不显示报名结果，结果区不出现",
+          "checkId": "check-step2-blocked-without-consent"
+        },
+        {
+          "requirementId": "step2-form",
+          "setup": "第 1 步已填姓名“张三”、年龄“30”并进入第 2 步",
+          "action": "不选参加方式，勾选同意条款，点击“提交”",
+          "expected": "不显示报名结果，结果区不出现",
+          "checkId": "check-step2-blocked-without-consent"
+        }
+      ],
+      "checks": [
+        {
+          "id": "check-step2-submit-online",
+          "label": "姓名张三、年龄30、选择线上并勾选条款后提交，结果区显示姓名张三、年龄30、参加方式线上",
+          "actions": [
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "name-input"
+              },
+              "value": "张三",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "age-input"
+              },
+              "value": "30",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "next-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": "radio",
+                "name": "线上",
+                "testId": null
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": "checkbox",
+                "name": "同意条款",
+                "testId": null
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "submit-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "result-panel"
+              },
+              "value": null,
+              "assertion": "visible",
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "result-panel"
+              },
+              "value": null,
+              "assertion": "text",
+              "expected": "报名成功\n姓名：张三\n年龄：30\n参加方式：线上",
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-step2-submit-offline",
+          "label": "姓名李四、年龄45、选择线下并勾选条款后提交，结果区显示姓名李四、年龄45、参加方式线下",
+          "actions": [
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "name-input"
+              },
+              "value": "李四",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "age-input"
+              },
+              "value": "45",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "next-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": "radio",
+                "name": "线下",
+                "testId": null
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": "checkbox",
+                "name": "同意条款",
+                "testId": null
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "submit-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "result-panel"
+              },
+              "value": null,
+              "assertion": "visible",
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "result-panel"
+              },
+              "value": null,
+              "assertion": "text",
+              "expected": "报名成功\n姓名：李四\n年龄：45\n参加方式：线下",
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        },
+        {
+          "id": "check-step2-blocked-without-consent",
+          "label": "选择线上但不勾选条款时提交不显示结果；不选参加方式但勾选条款时提交也不显示结果",
+          "actions": [
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "name-input"
+              },
+              "value": "张三",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "age-input"
+              },
+              "value": "30",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "next-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": "radio",
+                "name": "线上",
+                "testId": null
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "submit-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "result-panel"
+              },
+              "value": null,
+              "assertion": "count",
+              "expected": 0,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": "checkbox",
+                "name": "同意条款",
+                "testId": null
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": "radio",
+                "name": "线上",
+                "testId": null
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "submit-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "result-panel"
+              },
+              "value": null,
+              "assertion": "count",
+              "expected": 0,
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        }
+      ],
+      "faultyFiles": {},
+      "faultyCheckId": null,
+      "referenceFiles": {
+        "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nexport default function App() {\n  const [step, setStep] = useState(1);\n  const [name, setName] = useState('');\n  const [age, setAge] = useState('');\n  const [errors, setErrors] = useState({ name: '', age: '' });\n  const [mode, setMode] = useState('');\n  const [agreed, setAgreed] = useState(false);\n  const [submitted, setSubmitted] = useState(false);\n\n  function handleNext() {\n    const nextErrors = { name: '', age: '' };\n\n    if (name.trim() === '') {\n      nextErrors.name = '姓名不能为空';\n    }\n\n    const trimmedAge = age.trim();\n    if (trimmedAge === '') {\n      nextErrors.age = '年龄不能为空';\n    } else {\n      const ageNumber = Number(trimmedAge);\n      if (!Number.isInteger(ageNumber)) {\n        nextErrors.age = '年龄必须是整数';\n      } else if (ageNumber < 18 || ageNumber > 60) {\n        nextErrors.age = '年龄必须是 18 到 60 之间的整数';\n      }\n    }\n\n    setErrors(nextErrors);\n\n    if (nextErrors.name === '' && nextErrors.age === '') {\n      setStep(2);\n    }\n  }\n\n  function handleSubmit() {\n    if (mode !== '' && agreed) {\n      setSubmitted(true);\n    }\n  }\n\n  if (step === 2) {\n    return (\n      <main className=\"wizard\">\n        <h1>报名向导</h1>\n        <section data-testid=\"step2-placeholder\" className=\"card\">\n          <h2>第 2 步：确认报名</h2>\n          <div className=\"field\">\n            <span className=\"field-label\">参加方式</span>\n            <label className=\"option\">\n              <input\n                type=\"radio\"\n                name=\"mode\"\n                value=\"online\"\n                checked={mode === 'online'}\n                onChange={() => setMode('online')}\n              />\n              线上\n            </label>\n            <label className=\"option\">\n              <input\n                type=\"radio\"\n                name=\"mode\"\n                value=\"offline\"\n                checked={mode === 'offline'}\n                onChange={() => setMode('offline')}\n              />\n              线下\n            </label>\n          </div>\n          <div className=\"field\">\n            <label className=\"option\">\n              <input\n                type=\"checkbox\"\n                checked={agreed}\n                onChange={(e) => setAgreed(e.target.checked)}\n              />\n              同意条款\n            </label>\n          </div>\n          <button type=\"button\" data-testid=\"submit-button\" onClick={handleSubmit}>\n            提交\n          </button>\n          {submitted && (\n            <div data-testid=\"result-panel\" className=\"result\">\n              <h3>报名成功</h3>\n              <p>姓名：{name.trim()}</p>\n              <p>年龄：{age.trim()}</p>\n              <p>参加方式：{mode === 'online' ? '线上' : '线下'}</p>\n            </div>\n          )}\n        </section>\n      </main>\n    );\n  }\n\n  return (\n    <main className=\"wizard\">\n      <h1>报名向导</h1>\n      <section className=\"card\">\n        <h2>第 1 步：填写基本信息</h2>\n        <div className=\"field\">\n          <label htmlFor=\"name\">姓名</label>\n          <input\n            id=\"name\"\n            data-testid=\"name-input\"\n            type=\"text\"\n            placeholder=\"请输入姓名\"\n            value={name}\n            onChange={(e) => setName(e.target.value)}\n          />\n          {errors.name && (\n            <p className=\"error\" data-testid=\"name-error\">\n              {errors.name}\n            </p>\n          )}\n        </div>\n        <div className=\"field\">\n          <label htmlFor=\"age\">年龄</label>\n          <input\n            id=\"age\"\n            data-testid=\"age-input\"\n            type=\"text\"\n            placeholder=\"请输入年龄\"\n            value={age}\n            onChange={(e) => setAge(e.target.value)}\n          />\n          {errors.age && (\n            <p className=\"error\" data-testid=\"age-error\">\n              {errors.age}\n            </p>\n          )}\n        </div>\n        <button type=\"button\" data-testid=\"next-button\" onClick={handleNext}>\n          下一步\n        </button>\n      </section>\n    </main>\n  );\n}\n",
+        "/src/styles.css": "* { box-sizing: border-box; }\n\nbody {\n  margin: 0;\n  font-family: system-ui, sans-serif;\n  background: #f5f6f8;\n  color: #1f2933;\n}\n\n.wizard {\n  padding: 16px;\n  max-width: 480px;\n  margin: 0 auto;\n}\n\n.wizard h1 {\n  font-size: 20px;\n  margin: 0 0 12px;\n}\n\n.card {\n  background: #fff;\n  border-radius: 8px;\n  padding: 16px;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);\n}\n\n.card h2 {\n  font-size: 16px;\n  margin: 0 0 12px;\n}\n\n.field {\n  display: flex;\n  flex-direction: column;\n  gap: 4px;\n  margin-bottom: 12px;\n  min-width: 0;\n}\n\n.field label {\n  font-size: 14px;\n  color: #52606d;\n}\n\n.field-label {\n  font-size: 14px;\n  color: #52606d;\n}\n\n.field input[type=\"text\"] {\n  padding: 8px;\n  border: 1px solid #cbd2d9;\n  border-radius: 6px;\n  font-size: 14px;\n  width: 100%;\n}\n\n.option {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  margin-bottom: 4px;\n  font-size: 14px;\n}\n\n.error {\n  margin: 0;\n  color: #cf1124;\n  font-size: 13px;\n}\n\n.result {\n  margin-top: 12px;\n  padding: 12px;\n  background: #f0f7ff;\n  border-radius: 6px;\n}\n\n.result h3 {\n  margin: 0 0 8px;\n  font-size: 15px;\n}\n\n.result p {\n  margin: 4px 0;\n  font-size: 14px;\n}\n\nbutton {\n  padding: 8px 16px;\n  border: none;\n  border-radius: 6px;\n  background: #2563eb;\n  color: #fff;\n  font-size: 14px;\n  cursor: pointer;\n}\n\nbutton:hover {\n  background: #1d4ed8;\n}\n"
+      }
+    },
+    "previousCheckReport": {
+      "stepId": "step2-submit",
+      "referenceHash": "a923911eb61555d7c288e684af9a62819877c86552b13473a47c3e3f5cb54afc",
+      "previousHash": "d8ec6470680fc5c3c19c10944c63b1dbcf830f32729423db588702b0933a5c11",
+      "checkIds": [
+        "check-step1-empty-name",
+        "check-step1-age-not-integer",
+        "check-step1-age-too-young",
+        "check-step1-age-too-old",
+        "check-step1-empty-age",
+        "check-step1-valid-next"
+      ],
+      "passed": true,
+      "results": [
+        {
+          "caseId": "check-step1-empty-name",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"   \"\n✓ 2. 在 \"age-input\" 输入 \"30\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 5. 检查 \"name-error\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "check-step1-age-not-integer",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 在 \"age-input\" 输入 \"18.5\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 5. 检查 \"age-error\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "check-step1-age-too-young",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 在 \"age-input\" 输入 \"17\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 5. 检查 \"age-error\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "check-step1-age-too-old",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 在 \"age-input\" 输入 \"61\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 5. 检查 \"age-error\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "check-step1-empty-age",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 点击 \"next-button\"\n✓ 3. 检查 \"name-input\" 的可见状态\n   实际：true\n✓ 4. 检查 \"age-error\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "check-step1-valid-next",
+          "status": "passed",
+          "message": "✓ 1. 在 \"name-input\" 输入 \"张三\"\n✓ 2. 在 \"age-input\" 输入 \"30\"\n✓ 3. 点击 \"next-button\"\n✓ 4. 检查 \"step2-placeholder\" 的可见状态\n   实际：true\n✓ 5. 检查 \"线上\" 的可见状态\n   实际：true\n✓ 6. 检查 \"线下\" 的可见状态\n   实际：true\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 2055.9756580000003
+    }
+  },
+  "startedAt": 1792229017.1210506
+}

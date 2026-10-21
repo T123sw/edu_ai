@@ -330,41 +330,33 @@ class MaterialPublicationResponse(BaseModel):
     material: Dict[str, Any]
 
 
+from app.schemas.video_preferences import VideoPreferences
+
+
 class GenerateClassroomRequest(BaseModel):
+    video_preferences: VideoPreferences | None = None
+    scope_type: Optional[str] = None
+    scope_id: Optional[str] = None
     topic: Optional[str] = Field(default=None, max_length=200)
     audience: str = Field(default="", max_length=200)
-    objectives: List[str] = Field(default_factory=list, max_length=12)
-    scene_count: int = Field(default=6, ge=1, le=30)
-    duration_minutes: int = Field(default=25, ge=5, le=180)
-    teaching_style: Literal["guided", "lecture", "inquiry"] = "guided"
+    objectives: List[str] = Field(default_factory=list)
+    scene_count: int | None = Field(default=None, ge=1)
+    duration_minutes: float | None = Field(default=None, gt=0)
+    teaching_style: Literal["guided", "lecture", "inquiry"] | None = None
     source_mode: GenerationSourceMode = "course_auto"
     selected_doc_ids: List[str] = Field(default_factory=list)
     """SPEC-04 §1 GenerateClassroomInput 的 edu_ai 子集（图片/视频生成 flags 仍不开放，见 §0.1 D2）。"""
 
     requirement: str = Field(..., description="课件需求文本")
     enable_web_search: bool = Field(
-        default=False, description="是否启用 sidecar 内建 web search（edu_ai 默认走 SPEC-00 独立检索层，这里通常不开）"
+        default=False, description="是否请求补充网络资料（由 Edu_AI 资料检索层处理）"
     )
-    enable_tts: bool = Field(
-        default=True,
-        description="是否由 Edu_AI 通过运行时 TTS 配置生成真人配音；失败时退回前端浏览器 TTS/静音等待兜底",
+    enable_tts: bool | None = Field(
+        default=None,
+        description="用户配音要求；未指定时由 HyperFrames 根据需求安排",
     )
-    voice: Literal[
-        "",
-        "alloy",
-        "nova",
-        "shimmer",
-        "vivian",
-        "serena",
-        "uncle_fu",
-        "dylan",
-        "eric",
-        "ryan",
-        "aiden",
-        "ono_anna",
-        "sohee",
-    ] = "vivian"
-    include_visuals: bool = True
+    voice: str = Field(default="", max_length=200, description="未选音色时使用当前语音服务默认值")
+    include_visuals: bool | None = None
     idempotency_key: Optional[str] = Field(default=None, min_length=1, max_length=160)
 
 

@@ -1,0 +1,635 @@
+{
+  "passed": true,
+  "modelCalls": [
+    "plan",
+    "review_plan",
+    "build_step",
+    "build_step",
+    "build_step",
+    "build_step",
+    "repair_step"
+  ],
+  "stepCount": 4,
+  "firstStepChecks": [
+    {
+      "id": "shell-display-initial",
+      "label": "刚打开页面时，屏幕显示 0",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "0",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "shell-buttons-present",
+      "label": "0-9、小数点、加减乘除、等号和清空共 17 个按钮都可见且可点击",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "0",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "0",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "1",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "1",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "2",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "2",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "3",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "3",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "4",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "4",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "5",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "5",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "6",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "6",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "7",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "7",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "8",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "8",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "9",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "9",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": ".",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": ".",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "+",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "+",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "-",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "-",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "×",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "×",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "÷",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "÷",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "=",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "C",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": "C",
+            "testId": null
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "shell-layout-desktop",
+      "label": "桌面窗口下：屏幕在所有按钮上方，按钮互不重叠，屏幕和按钮都完整显示在窗口内",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "above",
+          "expected": null,
+          "relativeTo": {
+            "role": "button",
+            "name": null,
+            "testId": null
+          }
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": null,
+            "testId": null
+          },
+          "value": null,
+          "assertion": "not_overlapping",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "within_viewport",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": null,
+            "testId": null
+          },
+          "value": null,
+          "assertion": "within_viewport",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": "desktop"
+    },
+    {
+      "id": "shell-layout-mobile",
+      "label": "手机窗口下：屏幕在所有按钮上方，按钮互不重叠，屏幕和按钮都完整显示在窗口内",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "above",
+          "expected": null,
+          "relativeTo": {
+            "role": "button",
+            "name": null,
+            "testId": null
+          }
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": null,
+            "testId": null
+          },
+          "value": null,
+          "assertion": "not_overlapping",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": null,
+            "name": null,
+            "testId": "display"
+          },
+          "value": null,
+          "assertion": "within_viewport",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "role": "button",
+            "name": null,
+            "testId": null
+          },
+          "value": null,
+          "assertion": "within_viewport",
+          "expected": null,
+          "relativeTo": null
+        }
+      ],
+      "viewport": "mobile"
+    }
+  ],
+  "mutations": {
+    "overlap": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shell-display-initial",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"display\" 的可见状态\n   实际：true\n✓ 2. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-buttons-present",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"0\" 的可见状态\n   实际：true\n✓ 2. 检查 \"0\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"1\" 的可见状态\n   实际：true\n✓ 4. 检查 \"1\" 的可操作状态\n   实际：true\n✓ 5. 检查 \"2\" 的可见状态\n   实际：true\n✓ 6. 检查 \"2\" 的可操作状态\n   实际：true\n✓ 7. 检查 \"3\" 的可见状态\n   实际：true\n✓ 8. 检查 \"3\" 的可操作状态\n   实际：true\n✓ 9. 检查 \"4\" 的可见状态\n   实际：true\n✓ 10. 检查 \"4\" 的可操作状态\n   实际：true\n✓ 11. 检查 \"5\" 的可见状态\n   实际：true\n✓ 12. 检查 \"5\" 的可操作状态\n   实际：true\n✓ 13. 检查 \"6\" 的可见状态\n   实际：true\n✓ 14. 检查 \"6\" 的可操作状态\n   实际：true\n✓ 15. 检查 \"7\" 的可见状态\n   实际：true\n✓ 16. 检查 \"7\" 的可操作状态\n   实际：true\n✓ 17. 检查 \"8\" 的可见状态\n   实际：true\n✓ 18. 检查 \"8\" 的可操作状态\n   实际：true\n✓ 19. 检查 \"9\" 的可见状态\n   实际：true\n✓ 20. 检查 \"9\" 的可操作状态\n   实际：true\n✓ 21. 检查 \".\" 的可见状态\n   实际：true\n✓ 22. 检查 \".\" 的可操作状态\n   实际：true\n✓ 23. 检查 \"+\" 的可见状态\n   实际：true\n✓ 24. 检查 \"+\" 的可操作状态\n   实际：true\n✓ 25. 检查 \"-\" 的可见状态\n   实际：true\n✓ 26. 检查 \"-\" 的可操作状态\n   实际：true\n✓ 27. 检查 \"×\" 的可见状态\n   实际：true\n✓ 28. 检查 \"×\" 的可操作状态\n   实际：true\n✓ 29. 检查 \"÷\" 的可见状态\n   实际：true\n✓ 30. 检查 \"÷\" 的可操作状态\n   实际：true\n✓ 31. 检查 \"=\" 的可见状态\n   实际：true\n✓ 32. 检查 \"=\" 的可操作状态\n   实际：true\n✓ 33. 检查 \"C\" 的可见状态\n   实际：true\n✓ 34. 检查 \"C\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-layout-desktop",
+          "status": "failed",
+          "message": "× 1. 检查 \"display\" 位于 \"button\" 上方\n预期：true\n实际：\"上方部件没有完整位于所有指定控件上方\""
+        },
+        {
+          "caseId": "shell-layout-mobile",
+          "status": "failed",
+          "message": "× 1. 检查 \"display\" 位于 \"button\" 上方\n预期：true\n实际：\"上方部件没有完整位于所有指定控件上方\""
+        }
+      ],
+      "durationMs": 3786.4657790000006
+    },
+    "overflow": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "shell-display-initial",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"display\" 的可见状态\n   实际：true\n✓ 2. 检查 \"display\" 的显示文字\n   实际：\"0\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-buttons-present",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"0\" 的可见状态\n   实际：true\n✓ 2. 检查 \"0\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"1\" 的可见状态\n   实际：true\n✓ 4. 检查 \"1\" 的可操作状态\n   实际：true\n✓ 5. 检查 \"2\" 的可见状态\n   实际：true\n✓ 6. 检查 \"2\" 的可操作状态\n   实际：true\n✓ 7. 检查 \"3\" 的可见状态\n   实际：true\n✓ 8. 检查 \"3\" 的可操作状态\n   实际：true\n✓ 9. 检查 \"4\" 的可见状态\n   实际：true\n✓ 10. 检查 \"4\" 的可操作状态\n   实际：true\n✓ 11. 检查 \"5\" 的可见状态\n   实际：true\n✓ 12. 检查 \"5\" 的可操作状态\n   实际：true\n✓ 13. 检查 \"6\" 的可见状态\n   实际：true\n✓ 14. 检查 \"6\" 的可操作状态\n   实际：true\n✓ 15. 检查 \"7\" 的可见状态\n   实际：true\n✓ 16. 检查 \"7\" 的可操作状态\n   实际：true\n✓ 17. 检查 \"8\" 的可见状态\n   实际：true\n✓ 18. 检查 \"8\" 的可操作状态\n   实际：true\n✓ 19. 检查 \"9\" 的可见状态\n   实际：true\n✓ 20. 检查 \"9\" 的可操作状态\n   实际：true\n✓ 21. 检查 \".\" 的可见状态\n   实际：true\n✓ 22. 检查 \".\" 的可操作状态\n   实际：true\n✓ 23. 检查 \"+\" 的可见状态\n   实际：true\n✓ 24. 检查 \"+\" 的可操作状态\n   实际：true\n✓ 25. 检查 \"-\" 的可见状态\n   实际：true\n✓ 26. 检查 \"-\" 的可操作状态\n   实际：true\n✓ 27. 检查 \"×\" 的可见状态\n   实际：true\n✓ 28. 检查 \"×\" 的可操作状态\n   实际：true\n✓ 29. 检查 \"÷\" 的可见状态\n   实际：true\n✓ 30. 检查 \"÷\" 的可操作状态\n   实际：true\n✓ 31. 检查 \"=\" 的可见状态\n   实际：true\n✓ 32. 检查 \"=\" 的可操作状态\n   实际：true\n✓ 33. 检查 \"C\" 的可见状态\n   实际：true\n✓ 34. 检查 \"C\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "shell-layout-desktop",
+          "status": "failed",
+          "message": "✓ 1. 检查 \"display\" 位于 \"button\" 上方\n   实际：true\n✓ 2. 检查 \"button\" 的排列（互不重叠）\n   实际：true\n✓ 3. 检查 \"display\" 的位置（完整位于检查窗口内）\n   实际：true\n× 4. 检查 \"button\" 的位置（完整位于检查窗口内）\n预期：true\n实际：\"有控件超出当前检查窗口\""
+        },
+        {
+          "caseId": "shell-layout-mobile",
+          "status": "failed",
+          "message": "✓ 1. 检查 \"display\" 位于 \"button\" 上方\n   实际：true\n✓ 2. 检查 \"button\" 的排列（互不重叠）\n   实际：true\n✓ 3. 检查 \"display\" 的位置（完整位于检查窗口内）\n   实际：true\n× 4. 检查 \"button\" 的位置（完整位于检查窗口内）\n预期：true\n实际：\"有控件超出当前检查窗口\""
+        }
+      ],
+      "durationMs": 4879.0039369999995
+    }
+  },
+  "productionDataModified": false,
+  "elapsedSeconds": 134.89
+}

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><script>
+(()=>{
+ let results = {}, timer;
+ const snapshot = () => ({parameters:Object.fromEntries(Array.from(document.querySelectorAll('[data-param]')).map(e=>[e.dataset.param,e.type==='checkbox'?e.checked:e.value])),results});
+ const send = () => parent.postMessage({type:'edu-practice-state',state:snapshot()},'*');
+ window.EduPractice={report(value){if(value && typeof value==='object') results=value;clearTimeout(timer);timer=setTimeout(send,100)},snapshot};
+ document.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(send,150)});
+ document.addEventListener('change',()=>{clearTimeout(timer);timer=setTimeout(send,150)});
+ document.addEventListener('click',()=>{clearTimeout(timer);timer=setTimeout(send,200)});
+ window.addEventListener('error',e=>parent.postMessage({type:'edu-practice-error',message:String(e.message).slice(0,300)},'*'));
+ window.addEventListener('unhandledrejection',()=>parent.postMessage({type:'edu-practice-error',message:'实验运行发生异常，请重置或重新生成'},'*'));
+ window.addEventListener('DOMContentLoaded',()=>setTimeout(send,250));
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>摩擦力与小车滑行距离 · 交互实验</title>
+<style>
+  :root{
+    --bg:#f4f9fb;
+    --ink:#123a5c;
+    --teal:#0f9b8e;
+    --teal-dark:#0b7a70;
+    --line:#cfe3e8;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.5;
+    padding:14px;
+  }
+  .wrap{max-width:1100px;margin:0 auto;}
+  h1{font-size:1.25rem;margin:0 0 4px;color:var(--teal-dark);}
+  .sub{font-size:.82rem;color:#4a6b82;margin-bottom:12px;}
+  .grid{display:grid;grid-template-columns:1fr;gap:12px;}
+  @media(min-width:820px){
+    .grid{grid-template-columns:300px 1fr;}
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .card h2{
+    font-size:.95rem;margin:0 0 10px;color:var(--teal-dark);
+    border-left:4px solid var(--teal);padding-left:8px;
+  }
+  label.param{display:block;font-size:.85rem;margin-bottom:2px;font-weight:600;}
+  .val{color:var(--teal-dark);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--teal);margin:2px 0 10px;}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+  button{
+    font-family:inherit;font-size:.88rem;font-weight:600;
+    border:none;border-radius:8px;padding:8px 16px;cursor:pointer;
+    transition:.15s;
+  }
+  button[data-action="run"]{background:var(--teal);color:#fff;}
+  button[data-action="run"]:hover{background:var(--teal-dark);}
+  button[data-action="pause"]{background:#e6f4f2;color:var(--teal-dark);}
+  button[data-action="reset"]{background:#eef3f6;color:#33566e;}
+  button:disabled{opacity:.5;cursor:not-allowed;}
+  canvas{width:100%;display:block;border-radius:8px;}
+  .readouts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+  .ro{background:#f0f8f7;border:1px solid var(--line);border-radius:8px;padding:6px 8px;text-align:center;}
+  .ro .k{font-size:.72rem;color:#4a6b82;}
+  .ro .v{font-size:1rem;font-weight:700;color:var(--teal-dark);}
+  .formula{font-size:.8rem;background:#f7fbfc;border:1px dashed var(--line);border-radius:8px;padding:8px 10px;margin-top:10px;color:#2c4f68;}
+  .formula b{color:var(--teal-dark);}
+  .steps{font-size:.82rem;margin-top:10px;}
+  .steps li{margin-bottom:6px;}
+  .q{color:var(--teal-dark);font-weight:600;}
+  .note{font-size:.75rem;color:#5d7d92;margin-top:8px;}
+  .legend{display:flex;gap:14px;font-size:.75rem;color:#4a6b82;margin-top:6px;flex-wrap:wrap;}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>摩擦力与小车滑行距离</h1>
+  <div class="sub">调整初速度 v₀ 与摩擦系数 μ，观察小车在水平面上的匀减速滑行。g = 9.8 m/s²</div>
+
+  <div class="grid">
+    <!-- 控制区 -->
+    <div class="card">
+      <h2>实验参数</h2>
+
+      <label class="param" for="v0">初速度 v₀ = <span class="val" id="v0v">4.0</span> m/s</label>
+      <input type="range" id="v0" data-param="v0" min="0" max="10" step="0.1" value="4">
+
+      <label class="param" for="mu">摩擦系数 μ = <span class="val" id="muv">0.20</span></label>
+      <input type="range" id="mu" data-param="mu" min="0" max="1" step="0.01" value="0.2">
+
+      <div class="btns">
+        <button data-action="run">开始</button>
+        <button data-action="pause" disabled>暂停</button>
+        <button data-action="reset">重置</button>
+      </div>
+
+      <div class="readouts">
+        <div class="ro"><div class="k">速度 v (m/s)</div><div class="v" id="roV">4.00</div></div>
+        <div class="ro"><div class="k">距离 s (m)</div><div class="v" id="roS">0.00</div></div>
+        <div class="ro"><div class="k">时间 t (s)</div><div class="v" id="roT">0.00</div></div>
+      </div>
+
+      <div class="formula">
+        <b>核心公式</b><br>
+        f = μmg，a = −μg<br>
+        s = v₀² / (2μg)<br>
+        t<sub>stop</sub> = v₀ / (μg)<br>
+        v² = v₀² − 2μgs
+      </div>
+      <div class="note">模型假设：水平面、N = mg、忽略空气阻力、μ 为常数滑动摩擦系数、小车视为质点。</div>
+    </div>
+
+    <!-- 可视化区 -->
+    <div class="card">
+      <h2>滑行模拟</h2>
+      <canvas id="scene" height="150"></canvas>
+      <div class="legend">
+        <span><span class="dot" style="background:#0f9b8e"></span>小车</span>
+        <span><span class="dot" style="background:#e07a5f"></span>摩擦力方向（与运动相反）</span>
+        <span><span class="dot" style="background:#9bb7c4"></span>停止位置标记</span>
+      </div>
+
+      <h2 style="margin-top:14px;">速度–时间图像</h2>
+      <canvas id="chart" height="200"></canvas>
+      <div class="legend">
+        <span><span class="dot" style="background:#0f9b8e"></span>v–t 直线（斜率 = −μg）</span>
+        <span><span class="dot" style="background:#e07a5f"></span>当前时刻</span>
+      </div>
+
+      <div class="steps">
+        <b>实验步骤</b>
+        <ol>
+          <li>固定 μ = 0.2，依次设 v₀ = 2、4、6 m/s，记录滑行距离。<span class="q">v₀ 加倍，s 变几倍？</span></li>
+          <li>固定 v₀ = 4 m/s，依次设 μ = 0.1、0.2、0.4，记录滑行距离。<span class="q">μ 加倍，s 变几分之几？</span></li>
+          <li>组合 (v₀=2, μ=0.4) 与 (v₀=4, μ=0.2)，比较 s。<span class="q">v₀ 加倍且 μ 减半，s 如何变？</span></li>
+          <li>观察 v–t 图斜率。<span class="q">斜率代表什么？μ 如何影响它？</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const G = 9.8;
+  const $ = id => document.getElementById(id);
+
+  const v0El = $("v0"), muEl = $("mu");
+  const v0v = $("v0v"), muv = $("muv");
+  const roV = $("roV"), roS = $("roS"), roT = $("roT");
+  const btnRun = document.querySelector('[data-action="run"]');
+  const btnPause = document.querySelector('[data-action="pause"]');
+  const btnReset = document.querySelector('[data-action="reset"]');
+
+  const scene = $("scene"), chart = $("chart");
+  const sctx = scene.getContext("2d"), cctx = chart.getContext("2d");
+
+  // 状态
+  let v0 = 4, mu = 0.2;
+  let t = 0, v = v0, s = 0;
+  let running = false, paused = false;
+  let rafId = null, lastTs = 0;
+  let lastReport = 0;
+
+  // 物理量
+  function accel(){ return -mu * G; }
+  function stopTime(){ return mu > 0 ? v0 / (mu * G) : Infinity; }
+  function stopDist(){ return mu > 0 ? (v0*v0) / (2*mu*G) : Infinity; }
+
+  // 画布尺寸（DPR 适配）
+  function fitCanvas(c){
+    const dpr = window.devicePixelRatio || 1;
+    const w = c.clientWidth || 600;
+    const h = parseInt(c.getAttribute("height"),10);
+    c.width = Math.round(w*dpr);
+    c.height = Math.round(h*dpr);
+    c.style.height = h + "px";
+    const ctx = c.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {w, h, ctx};
+  }
+
+  // ---------- 场景绘制 ----------
+  function drawScene(){
+    const {w,h,ctx} = fitCanvas(scene);
+    ctx.clearRect(0,0,w,h);
+
+    const padL = 30, padR = 30, groundY = h - 34;
+    const trackW = w - padL - padR;
+
+    // 地面
+    ctx.strokeStyle = "#9bb7c4"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(padL, groundY); ctx.lineTo(w-padR, groundY); ctx.stroke();
+
+    // 距离标尺
+    const maxS = Math.max(stopDist(), 1);
+    const scale = trackW / maxS;
+    ctx.fillStyle = "#7d99a8"; ctx.font = "11px sans-serif";
+    ctx.fillText("0 m", padL-6, groundY+16);
+    ctx.fillText(maxS.toFixed(1)+" m", w-padR-30, groundY+16);
+
+    // 停止位置标记
+    if(mu > 0 && isFinite(maxS)){
+      const sx = padL + maxS*scale;
+      ctx.strokeStyle = "#9bb7c4"; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(sx, groundY-46); ctx.lineTo(sx, groundY); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // 小车位置
+    const carX = padL + Math.min(s, maxS) * scale;
+    const carW = 34, carH = 20;
+    const carY = groundY - carH;
+
+    // 摩擦力箭头（运动时）
+    if(running && v > 0.001 && mu > 0){
+      ctx.strokeStyle = "#e07a5f"; ctx.fillStyle = "#e07a5f"; ctx.lineWidth = 2;
+      const ax = carX + carW/2, ay = carY + carH/2;
+      const len = 26;
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax - len, ay); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(ax - len, ay);
+      ctx.lineTo(ax - len + 7, ay - 4);
+      ctx.lineTo(ax - len + 7, ay + 4);
+      ctx.closePath(); ctx.fill();
+      ctx.font = "11px sans-serif";
+      ctx.fillText("f", ax - len - 4, ay - 8);
+    }
+
+    // 车身
+    ctx.fillStyle = "#0f9b8e";
+    ctx.beginPath();
+    if(ctx.roundRect){ ctx.roundRect(carX, carY, carW, carH, 5); } else { ctx.rect(carX, carY, carW, carH); }
+    ctx.fill();
+    // 车轮
+    ctx.fillStyle = "#123a5c";
+    ctx.beginPath(); ctx.arc(carX+8, groundY-2, 5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(carX+carW-8, groundY-2, 5, 0, Math.PI*2); ctx.fill();
+
+    // 速度标注
+    ctx.fillStyle = "#123a5c"; ctx.font = "12px sans-serif";
+    ctx.fillText("v = " + v.toFixed(2) + " m/s", carX - 6, carY - 8);
+  }
+
+  // ---------- v-t 图 ----------
+  function drawChart(){
+    const {w,h,ctx} = fitCanvas(chart);
+    ctx.clearRect(0,0,w,h);
+
+    const padL = 46, padR = 16, padT = 14, padB = 34;
+    const plotW = w - padL - padR, plotH = h - padT - padB;
+
+    const tStop = stopTime();
+    const tMax = (isFinite(tStop) && tStop > 0) ? tStop * 1.15 : 2;
+    const vMax = Math.max(v0, 1) * 1.15;
+
+    const X = tt => padL + (tt / tMax) * plotW;
+    const Y = vv => padT + plotH - (vv / vMax) * plotH;
+
+    // 坐标轴
+    ctx.strokeStyle = "#9bb7c4"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT+plotH); ctx.lineTo(padL+plotW, padT+plotH); ctx.stroke();
+
+    // 网格与刻度
+    ctx.fillStyle = "#7d99a8"; ctx.font = "10px sans-serif";
+    ctx.strokeStyle = "#e3eef1"; ctx.lineWidth = 1;
+    for(let i=0;i<=4;i++){
+      const vv = vMax*i/4;
+      const yy = Y(vv);
+      ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL+plotW, yy); ctx.stroke();
+      ctx.fillText(vv.toFixed(1), 6, yy+3);
+    }
+    for(let i=0;i<=4;i++){
+      const tt = tMax*i/4;
+      const xx = X(tt);
+      ctx.beginPath(); ctx.moveTo(xx, padT); ctx.lineTo(xx, padT+plotH); ctx.stroke();
+      ctx.fillText(tt.toFixed(2), xx-12, padT+plotH+14);
+    }
+
+    // 轴名
+    ctx.fillStyle = "#123a5c"; ctx.font = "11px sans-serif";
+    ctx.fillText("t (s)", padL+plotW-24, padT+plotH+26);
+    ctx.save();
+    ctx.translate(12, padT+plotH/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText("v (m/s)", -22, 0);
+    ctx.restore();
+
+    // v-t 直线
+    if(mu > 0 && isFinite(tStop) && tStop > 0){
+      ctx.strokeStyle = "#0f9b8e"; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(X(0), Y(v0));
+      ctx.lineTo(X(tStop), Y(0));
+      ctx.stroke();
+    } else if(mu === 0){
+      ctx.strokeStyle = "#0f9b8e"; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(X(0), Y(v0));
+      ctx.lineTo(X(tMax), Y(v0));
+      ctx.stroke();
+    }
+
+    // 当前点
+    const curT = Math.min(t, tMax);
+    const curV = Math.max(v, 0);
+    ctx.fillStyle = "#e07a5f";
+    ctx.beginPath(); ctx.arc(X(curT), Y(curV), 4.5, 0, Math.PI*2); ctx.fill();
+  }
+
+  // ---------- 数值更新 ----------
+  function updateReadouts(){
+    roV.textContent = v.toFixed(2);
+    roS.textContent = s.toFixed(2);
+    roT.textContent = t.toFixed(2);
+  }
+
+  // ---------- 上报（关键修复：初始化时强制上报） ----------
+  function report(force){
+    const now = performance.now();
+    if(!force && now - lastReport < 500) return;
+    lastReport = now;
+    if(window.EduPractice && typeof window.EduPractice.report === "function"){
+      window.EduPractice.report({
+        "初速度v0(m/s)": +v0.toFixed(2),
+        "摩擦系数mu": +mu.toFixed(2),
+        "加速度a(m/s2)": +(mu>0 ? -mu*G : 0).toFixed(3),
+        "当前速度v(m/s)": +v.toFixed(3),
+        "滑行距离s(m)": +s.toFixed(3),
+        "当前时间t(s)": +t.toFixed(3),
+        "理论停止距离(m)": +(mu>0 ? stopDist() : Infinity).toFixed(3),
+        "理论停止时间(s)": +(mu>0 ? stopTime() : Infinity).toFixed(3)
+      });
+    }
+  }
+
+  // ---------- 动画循环 ----------
+  function loop(ts){
+    if(!running || paused){ rafId = null; return; }
+    if(!lastTs) lastTs = ts;
+    let dt = (ts - lastTs) / 1000;
+    lastTs = ts;
+    if(dt > 0.05) dt = 0.05;
+
+    if(mu > 0){
+      t += dt;
+      const tStop = stopTime();
+      if(t >= tStop){
+        t = tStop;
+        v = 0;
+        s = stopDist();
+        running = false;
+        btnRun.disabled = false;
+        btnPause.disabled = true;
+        btnPause.textContent = "暂停";
+        paused = false;
+        updateReadouts(); drawScene(); drawChart(); report(true);
+        return;
+      }
+      v = v0 - mu*G*t;
+      s = v0*t - 0.5*mu*G*t*t;
+    } else {
+      t += dt;
+      v = v0;
+      s = v0 * t;
+    }
+
+    updateReadouts(); drawScene(); drawChart(); report(false);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function start(){
+    if(running && !paused) return;
+    if(paused){
+      paused = false;
+      running = true;
+      lastTs = 0;
+      btnPause.textContent = "暂停";
+      btnPause.disabled = false;
+      btnRun.disabled = true;
+      rafId = requestAnimationFrame(loop);
+      return;
+    }
+    v0 = parseFloat(v0El.value);
+    mu = parseFloat(muEl.value);
+    t = 0; v = v0; s = 0;
+    running = true; paused = false;
+    lastTs = 0;
+    btnRun.disabled = true;
+    btnPause.disabled = false;
+    btnPause.textContent = "暂停";
+    updateReadouts(); drawScene(); drawChart(); report(true);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function pauseToggle(){
+    if(!running) return;
+    paused = !paused;
+    btnPause.textContent = paused ? "继续" : "暂停";
+    if(paused){
+      if(rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+      report(true);
+    } else {
+      lastTs = 0;
+      rafId = requestAnimationFrame(loop);
+    }
+  }
+
+  function reset(){
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    running = false; paused = false;
+    btnRun.disabled = false;
+    btnPause.disabled = true;
+    btnPause.textContent = "暂停";
+    v0El.value = 4; muEl.value = 0.2;
+    v0 = 4; mu = 0.2;
+    v0v.textContent = v0.toFixed(1);
+    muv.textContent = mu.toFixed(2);
+    t = 0; v = v0; s = 0;
+    updateReadouts(); drawScene(); drawChart(); report(true);
+  }
+
+  // ---------- 参数变化 ----------
+  function onParamChange(){
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    running = false; paused = false;
+    btnRun.disabled = false;
+    btnPause.disabled = true;
+    btnPause.textContent = "暂停";
+
+    v0 = parseFloat(v0El.value);
+    mu = parseFloat(muEl.value);
+    v0v.textContent = v0.toFixed(1);
+    muv.textContent = mu.toFixed(2);
+
+    t = 0; v = v0; s = 0;
+    updateReadouts(); drawScene(); drawChart(); report(true);
+  }
+
+  v0El.addEventListener("input", onParamChange);
+  muEl.addEventListener("input", onParamChange);
+  btnRun.addEventListener("click", start);
+  btnPause.addEventListener("click", pauseToggle);
+  btnReset.addEventListener("click", reset);
+  window.addEventListener("resize", function(){
+    drawScene(); drawChart();
+  });
+
+  // 初始化（关键修复：强制上报）
+  function init(){
+    v0 = parseFloat(v0El.value);
+    mu = parseFloat(muEl.value);
+    v0v.textContent = v0.toFixed(1);
+    muv.textContent = mu.toFixed(2);
+    t = 0; v = v0; s = 0;
+    updateReadouts(); drawScene(); drawChart();
+    // 强制上报初始结果，确保宿主能收到非空数据
+    report(true);
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

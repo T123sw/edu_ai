@@ -1,0 +1,19 @@
+{
+  "at": 1792392501.3809936,
+  "stats": {
+    "batch_size": 4,
+    "cache_size": 256,
+    "cache_entries": 11,
+    "active_requests": 0,
+    "queued_requests": 0,
+    "requests": 11,
+    "cache_hits": 1,
+    "batch_calls": 3,
+    "fallback_calls": 0,
+    "sentences": 11,
+    "audio_ms": 506880,
+    "infer_ms": 424807,
+    "model_calls": 3,
+    "max_batch_observed": 4
+  }
+}

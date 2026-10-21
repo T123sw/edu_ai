@@ -1,0 +1,212 @@
+{
+  "selected": [
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/f502cfb795d26d814d53f1c76743296bd1be091eb021e0ce9444cbc7cdf8a3b5",
+      "title": "写出并运行冒泡排序代码，分析复杂度与适用场景",
+      "requirement_ids": [
+        "req-implementation",
+        "req-bubble-sort-core"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/1786ebb27e37fa4f280550c3fcec8524ea89b0ce034c9251bb1e20a545407dc5",
+      "title": "核心运算：缩放点积注意力与多头注意力的张量形状",
+      "requirement_ids": [
+        "req-transformer-implementation"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/025f8423ba992273fe2a5406a6c3f6aaf2d48efeb90f310ac77838cb1cbc3fb2",
+      "title": "正确性依据、复杂度与稳定性",
+      "requirement_ids": [
+        "req-bubble-sort-topic"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/026f506184b04a256c6c9f60b27051c32effce941681fc0b7d6778e020d6b261",
+      "title": "冒泡排序的基本思想与“冒泡”规律",
+      "requirement_ids": [
+        "req-bubble-principle"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/6e9f333c67a49f8523a83d21b028861cc9126b37bcc125a6d44e25d6ec4867c5",
+      "title": "为什么需要 Transformer：循环结构的瓶颈与注意力的登场",
+      "requirement_ids": [
+        "req-goal-transformer"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/13921f99179dbdc3dec619b7b8e000fd258bde8b937167b70bfdcf24d10e3bb1",
+      "title": "自注意力与多头注意力：Q/K/V 与缩放点积计算思路",
+      "requirement_ids": [
+        "req-transformer-basics"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/1cab0e1b7ecece1cdb9e3a60387edcc88f47614f904791f7a7af033ad5f34e1d",
+      "title": "位置编码与逐位置前馈网络：补回顺序信息与逐位置非线性",
+      "requirement_ids": [
+        "req-transformer-basics"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d368355729670ce20ea0f76e6eb21418159c71429428d7f9a6c1e0b35cf5726a",
+      "title": "冒泡排序的排序思想与相邻交换规则",
+      "requirement_ids": [
+        "req-bubble-sort-topic"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/07758713e18078d79d68f6c1f901a72594b849920eb664eed07d5c12c3f4efcd",
+      "title": "多头注意力：多个子空间并行关注",
+      "requirement_ids": [
+        "req-goal-transformer"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/fd56d2ab4699a4543fd7411d34b525b58ffbb930243a42680196dd1639c2cc4c",
+      "title": "复杂度与稳定性分析：为什么冒泡排序“易懂但少用”",
+      "requirement_ids": [
+        "req-bubble-complexity"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/53eef335747f24409a9aa1b7c9cb178b5bdb0afd05353410ec4941739c05799d",
+      "title": "输入侧：嵌入层与正弦位置编码的实现",
+      "requirement_ids": [
+        "req-transformer-implementation"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/a298c176f634d2732abcf9b8aecf4dd64d3583a0ffcac6e46dd4bf35a2450161",
+      "title": "读懂并写出带标志位的冒泡排序实现",
+      "requirement_ids": [
+        "req-bubble-sort-topic"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/b966f00aaa08fe3ce52fad5f4e82f63ca5404009331fdd721660db1ed53618de",
+      "title": "手工逐趟追踪 [5,1,4,2,8] 的比较与交换",
+      "requirement_ids": [
+        "req-manual-trace",
+        "req-bubble-sort-core"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/9a1c5cb06ba9c3a50e6adeec109bb8955d66dc4def787166ba5c465845e4f3c8",
+      "title": "位置编码、残差与层归一化、前馈网络：让注意力真正可用",
+      "requirement_ids": [
+        "req-goal-transformer"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/662ba27468512e487c028a88bac28a9611778c0eebd498151548770abc88afe6",
+      "title": "整体结构与数据流：编码器-解码器、子层、残差与掩码",
+      "requirement_ids": [
+        "req-transformer-basics"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/d3fa231ac6ca8c4e44e586037cf695fbd0d6ed2bd431bf8432bcdfa2b2f08aa1",
+      "title": "为什么需要 Transformer：循环网络的串行瓶颈与设计决策",
+      "requirement_ids": [
+        "req-transformer-basics"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/c698f9b224c10853dd92a4cfdc831b941459371343b0f86b9db6d8db2e5dbc97",
+      "title": "取舍判断：自注意力 vs 循环网络，以及“完全并行”的边界",
+      "requirement_ids": [
+        "req-transformer-basics"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/a5830aaec2d0aa220f586493697ddb42ee4788a771deb1f3fe57f84d8c79143d",
+      "title": "冒泡排序的基本思想与相邻交换规则",
+      "requirement_ids": [
+        "req-bubble-sort-core"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/f5410bde633b04d292a0f3ba14b0252b685eee799b397bdc34878e57ea155f13",
+      "title": "串起来：一次前向的数据流与 make_model 组装",
+      "requirement_ids": [
+        "req-transformer-implementation"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/87330ebb3c1f41462d002004fa6f15ead2b67d21408d0114f3e855665cc16f1d",
+      "title": "手工追踪完整排序过程与提前结束条件",
+      "requirement_ids": [
+        "req-bubble-sort-topic"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/946d9a0c2e0eae78cfa28cdc696dbaf5785c03a8b2e61f37ef481e3ca7a17d01",
+      "title": "自注意力与缩放点积：Q、K、V 如何算出加权和",
+      "requirement_ids": [
+        "req-goal-transformer"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/5797e5d216e846b6b3bdea929b135d2ec866d7569eb4b2b10bed4663edd4ee15",
+      "title": "每趟归位一个最大值：不变式与比较范围收缩",
+      "requirement_ids": [
+        "req-bubble-sort-core"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/263693756ed6ddd3e8c63e02ee3cfbc70d0fd1b26dc8e2e6dbde8f1f0cd9630d",
+      "title": "从伪代码到可运行实现：循环边界、交换与提前结束优化",
+      "requirement_ids": [
+        "req-bubble-code",
+        "req-bubble-principle"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/f72af13bd9463f86a35eb8efe306d34e38326f38103d745f4e710b763cf5d287",
+      "title": "先看骨架：Transformer 的类结构与超参数",
+      "requirement_ids": [
+        "req-transformer-implementation"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/5d63f6ed169a0507563e592112e9ce50a45ed58a3ffb979900ed6173e90f3808",
+      "title": "稳定训练：前馈网络、残差连接与层归一化",
+      "requirement_ids": [
+        "req-transformer-implementation"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/4e62521751bc9ff7a21701a1867deb287237f01e45947deee32502694cd48245",
+      "title": "编码器-解码器结构与训练/推理流程",
+      "requirement_ids": [
+        "req-goal-transformer"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/038588d24a1d345718a00327ba777c5b5be68a3b5b679c663a80f028df4ebe5b",
+      "title": "Transformer 与循环网络：并行计算与长距离依赖",
+      "requirement_ids": [
+        "req-transformer-basics"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/649d8c84e2413adbf3e4b5ba71e925a03c44b2f685dd3c3ecc923ef270757efb",
+      "title": "手工追踪：5 1 4 2 8 的完整排序过程",
+      "requirement_ids": [
+        "req-bubble-trace",
+        "req-bubble-principle"
+      ]
+    },
+    {
+      "path": "/home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/0a461ffe27c4c001f87ce7ec37f275ac1abb39241589effc8e6e52cad15f77c5",
+      "title": "掩码与解码器：三层子结构与自回归约束",
+      "requirement_ids": [
+        "req-transformer-implementation"
+      ]
+    }
+  ],
+  "retained": []
+}

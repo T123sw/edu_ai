@@ -1,0 +1,16 @@
+{
+  "case": "Kentucky first compound question; children use two options A/B",
+  "before": {
+    "issues": [
+      "q_57b6ca88b258e89d7080:choice_option_keys_mismatch",
+      "q_01e881b61e8e3b18fe01:choice_option_keys_mismatch"
+    ],
+    "blueprint_id": "q_aff43354dc70391083ec",
+    "review_passed": false
+  },
+  "after": {
+    "blueprint_id": "q_aff43354dc70391083ec",
+    "review_passed": true
+  },
+  "boundary": "Two real targeted generation runs, plus deterministic normalization regressions. Does not replace production PDF E2E."
+}

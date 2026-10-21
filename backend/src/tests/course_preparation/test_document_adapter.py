@@ -164,3 +164,31 @@ def test_asset_references_are_owner_version_hash_bound(db_engine):
     assert store.read_asset('alice',ref,asset_id=asset['asset_id'],content_sha256=asset['content_sha256'])['data'].startswith('data:image/png')
     with pytest.raises(PermissionError): store.read_asset('bob',ref,asset_id=asset['asset_id'],content_sha256=asset['content_sha256'])
     with pytest.raises(PermissionError): store.read_asset('alice',ref,asset_id=asset['asset_id'],content_sha256='wrong')
+
+
+def test_old_local_cache_reparsed_once_without_changing_source_version(db_engine):
+    from sqlalchemy.orm import Session
+    from app.database.models import PreparationDocumentVersion
+    from app.course_preparation.adapters.document_store import DocumentStore
+    from app.course_preparation.schemas import UploadRef
+    from app.integrations.pdf.base import ParsedPdf
+    PreparationDocumentVersion.__table__.create(db_engine)
+    source=docx_bytes()
+    class Reader:
+        def read_bytes(self, owner, doc):return {'filename':'notes.docx'},source
+    calls=[]
+    class Local:
+        def parse(self,data,**kwargs):
+            calls.append(data)
+            return ParsedPdf(text='Recovered full document including image and layout evidence.',
+                             metadata={'parser':'mineru-local','adapterRevision':'mineru-local-v2'})
+    store=DocumentStore(db_engine,Reader(),DocumentParser(mineru_factory=Local))
+    ref=UploadRef(**store.register('alice','local-document'))
+    with Session(db_engine) as session,session.begin():
+        row=session.get(PreparationDocumentVersion,('alice','local-document',ref.version))
+        row.parsed={'parser':'mineru-local','content':'old result','defects':['PAGE_COVERAGE_UNVERIFIED']}
+    first=store.parse('alice',ref)
+    assert first['parser_revision']=='mineru-local-v2' and not first['defects']
+    import json
+    assert store.parse('alice',ref)==json.loads(json.dumps(first)) and len(calls)==1
+    assert store.register('alice','local-document')['version']==ref.version

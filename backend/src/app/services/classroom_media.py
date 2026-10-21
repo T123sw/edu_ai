@@ -22,8 +22,8 @@ from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urlsplit
 
-from app.integrations.openmaic import OpenMaicClient
-from app.services.openmaic_tts_service import OpenMaicTtsService
+from typing import Any
+from app.services.tts_service import SpeechService
 from core.course_storage import CourseStorageManager
 
 _FALLBACK_EXTENSION = ".bin"
@@ -46,7 +46,7 @@ async def migrate_classroom_speech_audio(
     scenes: list[dict[str, Any]],
     course_id: str,
     classroom_id: str,
-    active_client: OpenMaicClient,
+    active_client: Any,
     course_storage_manager: CourseStorageManager,
 ) -> int:
     """就地改写 `scenes` 里 speech action 的 `audioUrl`：把指向 sidecar 的
@@ -89,10 +89,10 @@ async def synthesize_classroom_speech_audio(
     course_id: str,
     classroom_id: str,
     course_storage_manager: CourseStorageManager,
-    tts_service: OpenMaicTtsService | None = None,
+    tts_service: SpeechService | None = None,
 ) -> int:
     """Fill missing narration with the server-owned classroom TTS profile."""
-    service = tts_service or OpenMaicTtsService()
+    service = tts_service or SpeechService()
     audio_dir: Optional[Path] = None
     generated = 0
     for scene in scenes:

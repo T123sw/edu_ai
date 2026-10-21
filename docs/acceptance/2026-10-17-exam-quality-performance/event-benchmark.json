@@ -1,0 +1,15 @@
+{
+  "schema_isolated": true,
+  "event_count": 34769,
+  "source_payload_bytes": 3677120,
+  "previous_repository_1000_seconds": 7.435,
+  "new_repository_1000_seconds": 1.051,
+  "full_handler_seconds": 32.679,
+  "reads": {
+    "lease": 140,
+    "cancel": 69
+  },
+  "all_events_preserved": true,
+  "questions": 32,
+  "last_seq": 34769
+}

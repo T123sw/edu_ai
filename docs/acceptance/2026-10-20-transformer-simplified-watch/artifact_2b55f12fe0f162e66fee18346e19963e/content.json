@@ -1,0 +1,107 @@
+{
+  "title": "为什么需要 Transformer：Seq2Seq 与注意力动机",
+  "content": {
+    "title": "为什么需要 Transformer：Seq2Seq 与注意力动机 · 随堂练习",
+    "questions": [
+      {
+        "id": "n1-q1",
+        "stem": "Transformer 是在哪一年、由哪篇论文提出的？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "2017 年，Google 团队的《Attention Is All You Need》",
+          "2014 年，Google 团队的《Sequence to Sequence Learning with Neural Networks》",
+          "2015 年，微软团队的《Deep Residual Learning for Image Recognition》",
+          "2018 年，OpenAI 团队的《Improving Language Understanding by Generative Pre-Training》"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：Transformer 是 2017 年 Google 团队在《Attention Is All You Need》中提出的基于多头注意力的 Seq2Seq 模型。B 错误：2014 年的 Seq2Seq 论文提出的是用 RNN/LSTM 做编码器-解码器，不是 Transformer。C 错误：ResNet 是图像领域的残差网络论文，与 Transformer 无关。D 错误：GPT 是 2018 年基于 Transformer 解码器构建的预训练语言模型，属于后续工作，不是 Transformer 的提出论文。"
+      },
+      {
+        "id": "n1-q2",
+        "stem": "关于 Transformer 的整体结构，下列说法正确的有哪些？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,D,E",
+        "options": [
+          "整体由编码器和解码器两部分组成",
+          "核心计算依赖多头注意力机制",
+          "编码器内部使用循环神经网络逐时间步传递状态",
+          "完全不使用 CNN 或 RNN 结构",
+          "解码器中的注意力层可以同时看到输入序列的所有位置"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：Transformer 与 Seq2Seq 一样分为编码器和解码器两部分。B 正确：它是基于多头注意力（Multi-Head Attention）的模型，注意力是核心计算。C 错误：Transformer 恰恰抛弃了 RNN，编码器由多头自注意力层和前馈网络层堆叠而成，不存在逐时间步传递隐状态的循环结构。D 正确：论文模型没有使用任何 CNN 或 RNN 结构，仅用注意力自动捕捉序列不同位置之间的关联。E 正确：解码器中的编码器-解码器注意力层，其 Query 来自解码器，Key 和 Value 来自编码器输出，因此每个解码位置都能关注到输入序列的每一个位置。"
+      },
+      {
+        "id": "n1-q3",
+        "stem": "判断：在 Transformer 的编码器-解码器结构中，编码器负责把输入序列编码为语义表示，解码器据此逐步生成输出序列。",
+        "type": "true_false",
+        "answer": "正确",
+        "difficulty": "easy",
+        "explanation": "正确。编码器-解码器结构最初用于机器翻译、问答、文档摘要等输入输出长度不定的序列到序列任务：编码器把输入序列（如中文句子）编码为语义表示，解码器以该表示为依据生成输出序列（如英文译文）。在 Transformer 中，编码器只推理一次，解码器则像 RNN 那样循环推理、逐个词生成结果，直到输出结束符。"
+      },
+      {
+        "id": "n1-q4",
+        "stem": "用一句话概括注意力机制的计算思路，最准确的是：",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "用 Query 与 Key 计算权重，再用权重对 Value 加权求和",
+          "用 Value 与 Key 计算权重，再用权重对 Query 加权求和",
+          "对所有 Value 取平均，得到注意力输出",
+          "用 Query 与 Value 做内积得到权重，再对 Key 加权求和"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：注意力机制本质是一个加权求和过程，第一步用 Query 和 Key 计算权重（相似度），第二步用权重对 Value 加权求和得到注意力输出。B 错误：权重由 Query 与 Key 的相似度决定，不是 Value 与 Key，加权的对象也是 Value 而不是 Query。C 错误：取平均相当于所有权重相等，丢掉了“按相似度分配权重”这一关键，不是注意力机制。D 错误：内积是在 Query 与 Key 之间进行的，加权对象是 Value，选项把两者颠倒了。"
+      },
+      {
+        "id": "n1-q5",
+        "stem": "与 RNN 相比，注意力机制（以及基于它的 Transformer）具有哪些优势？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "每一步计算不依赖上一步的结果，可以高度并行计算",
+          "任意两个位置之间的距离为 1，便于建模长距离依赖",
+          "能自动捕捉输入序列不同位置之间的关联",
+          "天然保留了序列中词语的先后顺序信息，无需额外处理",
+          "参数量一定比 CNN 和 RNN 更少，因此对算力要求更低"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：注意力每一步计算不依赖上一步结果，因此可以像 CNN 一样并行处理，契合 GPU 硬件。B 正确：Transformer 中任意两个词的距离都是 1，对解决长距离依赖问题非常有效，而 RNN 受信息传递容量和梯度消失影响，实际只能建立短距离依赖。C 正确：注意力机制自动捕捉输入序列不同位置处的相对关联，善于处理较长文本。D 错误：恰恰相反，Transformer 没有 RNN 的循环结构，所有时间步同时输入，本身不含先后顺序信息，必须靠位置编码补充。E 错误：注意力机制参数少、复杂度相对更小是常见说法，但“一定比 CNN 和 RNN 更少”过于绝对，且 Transformer 抛弃 RNN/CNN 后也丧失了部分局部特征捕捉能力，不能作为无条件的优势结论。"
+      },
+      {
+        "id": "n1-q6",
+        "stem": "不看资料，用 3 句话说明：（1）Transformer 由哪两部分组成；（2）它替代了什么结构；（3）注意力机制的两步计算分别是什么。",
+        "type": "short_answer",
+        "answer": "（1）Transformer 由编码器和解码器两部分组成，整体是一个基于多头注意力的 Seq2Seq 模型。（2）它替代了编码器-解码器中常用的 CNN、RNN（含 GRU、LSTM）等结构，整个模型不使用 CNN 或 RNN，仅用注意力实现。（3）注意力机制第一步用 Query 与 Key 计算权重（相似度），第二步用这些权重对 Value 加权求和，得到注意力输出。",
+        "difficulty": "medium",
+        "explanation": "本题对应节点自检。三句话分别覆盖：结构组成（编码器 + 解码器）、被替代的结构（CNN/RNN，改用注意力）、注意力的两步计算（Q 与 K 算权重 → 权重对 V 加权求和）。若只答出“加权求和”而未说明权重来自 Query 与 Key 的相似度，或未说明加权对象是 Value，则第（3）点不完整。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "unknown",
+        "method": "生成后不要求逐题估时。",
+        "value_minutes": null
+      },
+      "spec_digest": "7876870709ee23b0da7eb55d28ac99abbb1092720fd78c720c3ab0e6d1d50c97",
+      "schema_version": 1,
+      "alignment_policy": "quiz-structure-only-v1",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "3c0491795017bf63c77d52d1aee57bcca7b9a635fd9a649c92c4a2fa29bc8490"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "quiz-structure-only-v1",
+      "reason": "结构可展示即可交付；不执行模型审阅、数值审查或自动内容修订。",
+      "decision": "skipped",
+      "resource_type": "quiz",
+      "content_sha256": "5ee38d8cbb246a674cbf137cd61656c874dc970dfea772aae536fa45e44cfe02",
+      "preparation_sha256": "e39413181bbdd968559401b9c7c1446ce07e6152cee77cabbc04c7c7afb85537"
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "preparation_id": "prep_7e7c132ad8864ea293c97b527a0c76f6",
+  "action_counts": {
+    "model_completion": 4
+  },
+  "model_phases": {
+    "intent": {
+      "calls": 4,
+      "total_tokens": 25045,
+      "prompt_tokens": 23611,
+      "completion_tokens": 1434,
+      "max_input_bytes_upper_bound": 32163,
+      "tools": {
+        "mcp__preparation__save_preparation_brief": 3,
+        "skill": 1
+      },
+      "model_names": [
+        "deepseek-v4-flash"
+      ],
+      "skills": [
+        "understand-learning-request"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "stage": "normalize",
+      "started_at": 1791914493.7166758,
+      "seconds": 27.357556343078613,
+      "next_stage": null,
+      "error": {
+        "code": "BUDGET_EXHAUSTED",
+        "message": "BUDGET_EXHAUSTED: Harness 当前决策调用次数或时间已耗尽"
+      }
+    }
+  ],
+  "nodes": 0,
+  "findings": 0,
+  "sources": 0,
+  "resource_spec_count": 0,
+  "resources_generated": {
+    "preparation_artifacts": 0,
+    "prepared_manifest_versions": 0
+  },
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 4,
+      "tokens": 25045,
+      "cost_micro_usd": 250450
+    },
+    "deadline": "2026-10-13 19:01:33.463266+00:00"
+  },
+  "status": {
+    "preparation_id": "prep_7e7c132ad8864ea293c97b527a0c76f6",
+    "attempt_no": 1,
+    "status": "failed",
+    "stage": "normalize",
+    "revision": 9,
+    "error_code": "BUDGET_EXHAUSTED",
+    "result_ref": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 4,
+        "tokens": 25045,
+        "cost_micro_usd": 250450
+      },
+      "deadline": "2026-10-13T19:01:33.463266+00:00"
+    }
+  },
+  "context_restarts": 0,
+  "node_research_repairs": 0
+}

@@ -48,6 +48,9 @@ class DurableTaskExecutor:
         lease_seconds: float = 45,
         heartbeat_interval: float = 10,
         poll_interval: float = 0.5,
+        workflow_types: tuple[str, ...] | None = None,
+        excluded_workflow_types: tuple[str, ...] = (),
+        light_resources_only: bool = False,
     ) -> None:
         if lease_seconds <= 0:
             raise ValueError("lease_seconds must be positive")
@@ -58,6 +61,9 @@ class DurableTaskExecutor:
         if poll_interval <= 0:
             raise ValueError("poll_interval must be positive")
         self.task_store = task_store
+        self.light_resources_only = light_resources_only
+        self.workflow_types = workflow_types
+        self.excluded_workflow_types = excluded_workflow_types
         self.handler_registry = handler_registry
         self.completion_service = completion_service
         self.worker_id = str(
@@ -124,10 +130,18 @@ class DurableTaskExecutor:
             recovery = self.task_store.recover_expired_leases(now=active_now)
             self._publish_recovery(recovery)
             self._next_recovery_at = active_now + self.recovery_interval
+        selection = {}
+        if self.workflow_types is not None:
+            selection['workflow_types'] = self.workflow_types
+        if self.excluded_workflow_types:
+            selection['excluded_workflow_types'] = self.excluded_workflow_types
+        if self.light_resources_only:
+            selection['light_resources_only'] = True
         task = self.task_store.claim_next(
             lease_owner=self.worker_id,
             lease_seconds=self.lease_seconds,
             now=active_now,
+            **selection,
         )
         if task is None:
             return False
@@ -208,7 +222,7 @@ class DurableTaskExecutor:
         heartbeat_stop = threading.Event()
         heartbeat_thread = threading.Thread(
             target=self._heartbeat_loop,
-            args=(task.task_id, heartbeat_stop),
+            args=(task, heartbeat_stop, fixed_now),
             daemon=True,
             name=f"{self.worker_id}-heartbeat",
         )
@@ -216,6 +230,9 @@ class DurableTaskExecutor:
         try:
             context = DurableExecutionContext(
                 task_id=task.task_id,
+                lease_owner=self.worker_id,
+                attempt_count=task.attempt_count,
+                is_lease_valid=lambda: self._lease_is_valid(task),
                 owner_user_id=task.owner_user_id,
                 course_id=task.course_id,
                 config_snapshot_id=task.config_snapshot_id,
@@ -227,7 +244,7 @@ class DurableTaskExecutor:
                 ),
                 is_cancel_requested=lambda: self.task_store.is_cancel_requested(
                     task.task_id
-                ),
+                ) or self._deadline_exceeded(task, now=fixed_now),
             )
             command = dict(task.command or {})
             snapshot = command.get("runtime_config_snapshot")
@@ -267,6 +284,15 @@ class DurableTaskExecutor:
         except RetryableTaskError as exc:
             self._requeue_retryable(task, exc)
         except DurableTaskExecutionError as exc:
+            if exc.code == "PBL_STALE_ATTEMPT" and not self._lease_is_valid(task) and not self.task_store.is_cancel_requested(task.task_id):
+                # A fenced-out attempt must not fail a newer attempt of the same job.
+                return
+            if self.task_store.is_cancel_requested(task.task_id):
+                self.completion_service.cancel(task, lease_owner=self.worker_id, now=fixed_now)
+                return
+            if self._deadline_exceeded(task, now=fixed_now):
+                self._fail_deadline(task, now=fixed_now)
+                return
             log.exception(
                 "Durable task %s failed with public error code %s",
                 task.task_id,
@@ -298,6 +324,16 @@ class DurableTaskExecutor:
             heartbeat_stop.set()
             heartbeat_thread.join(timeout=self.heartbeat_interval + 0.5)
 
+    def _lease_is_valid(self, claimed: DurableTask) -> bool:
+        current = self.task_store.get_durable(claimed.task_id)
+        now = time.time()
+        return bool(current and current.status == "leased"
+                    and current.lease_owner == self.worker_id
+                    and current.attempt_count == claimed.attempt_count
+                    and current.lease_expires_at and current.lease_expires_at > now
+                    and not current.cancel_requested
+                    and (current.deadline_at is None or current.deadline_at > now))
+
     def _converge_terminal_request(
         self,
         task: DurableTask,
@@ -323,7 +359,7 @@ class DurableTaskExecutor:
             task,
             lease_owner=self.worker_id,
             error_code="GENERATION_DEADLINE_EXCEEDED",
-            error="Generation deadline exceeded",
+            error="生成等待超时，请稍后重试",
             now=now,
         )
 
@@ -351,12 +387,18 @@ class DurableTaskExecutor:
 
     def _heartbeat_loop(
         self,
-        task_id: str,
+        task: DurableTask,
         stop_event: threading.Event,
+        fixed_now: float | None = None,
     ) -> None:
         while not stop_event.wait(self.heartbeat_interval):
+            # A live worker can still be blocked on provider keepalive bytes.
+            # Publish the deadline independently of the synchronous handler.
+            if self._deadline_exceeded(task, now=fixed_now):
+                self._fail_deadline(task, now=fixed_now)
+                return
             renewed = self.task_store.heartbeat(
-                task_id,
+                task.task_id,
                 lease_owner=self.worker_id,
                 lease_seconds=self.lease_seconds,
             )
@@ -370,6 +412,14 @@ class DurableTaskExecutor:
         step: str,
         message: str,
     ) -> None:
+        current = self.task_store.get_durable(task_id)
+        if (
+            current is None
+            or current.status != "leased"
+            or current.lease_owner != self.worker_id
+            or self._deadline_exceeded(current, now=None)
+        ):
+            return
         normalized_progress = max(0, min(99, int(progress)))
         payload = {
             "progress": normalized_progress,

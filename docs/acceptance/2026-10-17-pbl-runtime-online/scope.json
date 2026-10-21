@@ -1,0 +1,35 @@
+{
+  "source": "/tmp/edu-pbl-runtime-online-source",
+  "base": "/tmp/edu-experiment-unified-scroll-source",
+  "frontendChangedFiles": [
+    "frontend/src/pbl/PblWorkspace.tsx",
+    "frontend/src/pbl/NativeProjectTests.tsx",
+    "frontend/src/pbl/ProjectChecks.tsx",
+    "frontend/src/pbl/ProjectWorkspace.tsx",
+    "frontend/src/pbl/projectWorkbench.css",
+    "frontend/src/pbl/types.ts",
+    "frontend/src/pbl/WorkbenchBrief.tsx",
+    "frontend/src/pbl/nativeTestPrelude.ts",
+    "frontend/src/pbl/usePblWorkspace.ts",
+    "frontend/src/pbl/projectRuntime.ts",
+    "frontend/src/pbl/ProjectEditor.tsx",
+    "frontend/src/pbl/nativeTests.ts",
+    "frontend/src/pbl/nativeTests.test.ts",
+    "frontend/src/pbl/projectTypes.ts",
+    "frontend/src/pbl/runtime/SandpackPreviewHarness.tsx",
+    "frontend/src/pbl/runtime/SandpackTestHarness.tsx"
+  ],
+  "sharedFiles": [
+    "shared/pbl-runtimes.json"
+  ],
+  "runtimeHotfixes": [
+    "frontend/scripts/pbl-ui-check.mjs"
+  ],
+  "pythonFixAwaitingRestart": [
+    "backend/src/app/pbl/project_schemas.py"
+  ],
+  "generationInstructionsUpdated": [
+    "backend/src/app/pbl/skills/build-pbl-project-v5/references/acceptance.md",
+    "backend/src/app/pbl/skills/build-pbl-project-v5/references/planning.md"
+  ]
+}

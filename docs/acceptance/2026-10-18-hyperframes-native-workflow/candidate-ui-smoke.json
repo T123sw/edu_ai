@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "scope": "Isolated release homepage with live read-only backend; no new generation submitted",
+  "errors": [],
+  "mobile_overflow": false
+}

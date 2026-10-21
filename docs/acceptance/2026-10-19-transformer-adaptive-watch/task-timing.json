@@ -1,0 +1,97 @@
+[
+  {
+    "task_id": "prepstep_f32c09c1f99d1c51f7234a1818df9745",
+    "workflow_type": "preparation_step",
+    "status": "succeeded",
+    "created_at": "2026-10-19T15:57:23.234612",
+    "started_at": 1792425443.2471266,
+    "finished_at": 1792425448.595215,
+    "updated_at": 1792425448.595215,
+    "attempt_count": 1,
+    "lease_owner": null,
+    "error_code": null,
+    "error": null,
+    "progress": null,
+    "command": {
+      "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda"
+    },
+    "queue_seconds": 0.012515,
+    "execution_seconds": 5.348089
+  },
+  {
+    "task_id": "prepstep_e9206d4d40ac58044213c1d860f68d58",
+    "workflow_type": "preparation_step",
+    "status": "succeeded",
+    "created_at": "2026-10-19T15:57:28.620870",
+    "started_at": 1792425448.6581426,
+    "finished_at": 1792425529.7854362,
+    "updated_at": 1792425529.7854362,
+    "attempt_count": 1,
+    "lease_owner": null,
+    "error_code": null,
+    "error": null,
+    "progress": null,
+    "command": {
+      "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda"
+    },
+    "queue_seconds": 0.037272,
+    "execution_seconds": 81.127294
+  },
+  {
+    "task_id": "prepstep_2d519229f545fccdf91382bb02634701",
+    "workflow_type": "preparation_step",
+    "status": "succeeded",
+    "created_at": "2026-10-19T15:58:49.860222",
+    "started_at": 1792425530.1035395,
+    "finished_at": 1792425534.0836718,
+    "updated_at": 1792425534.0836718,
+    "attempt_count": 1,
+    "lease_owner": null,
+    "error_code": null,
+    "error": null,
+    "progress": null,
+    "command": {
+      "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda"
+    },
+    "queue_seconds": 0.243317,
+    "execution_seconds": 3.980132
+  },
+  {
+    "task_id": "prepstep_3cd1de29aa6a91413e9eb3344808a307",
+    "workflow_type": "preparation_step",
+    "status": "succeeded",
+    "created_at": "2026-10-19T15:58:54.255064",
+    "started_at": 1792425534.5538747,
+    "finished_at": 1792425538.9574392,
+    "updated_at": 1792425538.9574392,
+    "attempt_count": 1,
+    "lease_owner": null,
+    "error_code": null,
+    "error": null,
+    "progress": null,
+    "command": {
+      "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda"
+    },
+    "queue_seconds": 0.298811,
+    "execution_seconds": 4.403564
+  },
+  {
+    "task_id": "prepstep_6df936379a3919123acf86cd249ba171",
+    "workflow_type": "preparation_step",
+    "status": "succeeded",
+    "created_at": "2026-10-19T15:58:59.098169",
+    "started_at": 1792425539.3399122,
+    "finished_at": 1792425544.692982,
+    "updated_at": 1792425544.692982,
+    "attempt_count": 1,
+    "lease_owner": null,
+    "error_code": null,
+    "error": null,
+    "progress": null,
+    "command": {
+      "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda"
+    },
+    "queue_seconds": 0.241743,
+    "execution_seconds": 5.35307
+  }
+]

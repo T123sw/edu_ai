@@ -1,0 +1,79 @@
+{
+  "preparation_id": "prep_95f2f8fee55d43538396f4e5035661af",
+  "status": "failed",
+  "stage": "review",
+  "error_code": "CONTEXT_BUDGET_EXCEEDED",
+  "budget": {
+    "consumed": {
+      "calls": 76,
+      "tokens": 945463,
+      "cost_micro_usd": 9454630
+    },
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "deadline": "2026-10-13T19:49:00.314723+00:00"
+  },
+  "read_only": true,
+  "failure": {
+    "title": "部分内容生成失败，课程尚未完成",
+    "reason": "本次有 8 份学习内容未完成：一次处理的内容过多、本次生成额度不足、部分学习内容仍需修正。",
+    "next_step": "请先查看下方各项原因。若涉及生成额度或单次处理上限，直接重试可能仍失败；可缩小课程范围重新创建，或联系维护人员调整。",
+    "stage": "汇总与检查学习内容",
+    "saved_resources": 4,
+    "planned_resources": 12,
+    "resource_issues": [
+      {
+        "resource_title": "手工追踪：示例数组的划分与递归",
+        "resource_type": "AI 课堂",
+        "step": "制作课堂",
+        "reason": "本次制作已达到系统设置的生成额度或执行限制，剩余内容没有完成。"
+      },
+      {
+        "resource_title": "手工追踪：示例数组的划分与递归",
+        "resource_type": "习题",
+        "step": "检查学习资料",
+        "reason": "本次制作已达到系统设置的生成额度或执行限制，剩余内容没有完成。"
+      },
+      {
+        "resource_title": "分区过程：基准选择与双指针扫描",
+        "resource_type": "AI 课堂",
+        "step": "制作课堂",
+        "reason": "本次制作已达到系统设置的生成额度或执行限制，剩余内容没有完成。"
+      },
+      {
+        "resource_title": "分区过程：基准选择与双指针扫描",
+        "resource_type": "习题",
+        "step": "检查学习资料",
+        "reason": "系统检查发现部分内容不够完整或前后不一致，尚未形成可交付的课程。"
+      },
+      {
+        "resource_title": "分治思想与快速排序三步流程",
+        "resource_type": "AI 课堂",
+        "step": "制作课堂",
+        "reason": "系统在这一步一次装入的资料或页面内容过多，超过了当前单次处理上限。"
+      },
+      {
+        "resource_title": "复杂度、稳定性与优化方向",
+        "resource_type": "AI 课堂",
+        "step": "制作课堂",
+        "reason": "本次制作已达到系统设置的生成额度或执行限制，剩余内容没有完成。"
+      },
+      {
+        "resource_title": "复杂度、稳定性与优化方向",
+        "resource_type": "习题",
+        "step": "制作学习资料",
+        "reason": "本次制作已达到系统设置的生成额度或执行限制，剩余内容没有完成。"
+      },
+      {
+        "resource_title": "复杂度、稳定性与优化方向",
+        "resource_type": "学习报告",
+        "step": "检查学习资料",
+        "reason": "本次制作已达到系统设置的生成额度或执行限制，剩余内容没有完成。"
+      }
+    ]
+  }
+}

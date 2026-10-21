@@ -1,0 +1,1252 @@
+{
+  "title": "整体结构与数据流：编码器-解码器、子层、残差与掩码",
+  "content": {
+    "title": "Transformer 整体结构与数据流：编码器-解码器、子层、残差与掩码",
+    "questions": [
+      {
+        "id": "q1-encoder-decoder-flow",
+        "stem": "按原论文第 3 节的描述，Transformer 中编码器与解码器各自承担什么职责？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "编码器把输入符号序列 (x1,…,xn) 映射为连续表示 z=(z1,…,zn)；解码器以 z 为条件，自回归地一次生成一个输出符号，生成下一个符号时把已生成的符号作为额外输入",
+          "编码器把输入序列直接映射为输出符号序列；解码器只负责把编码器输出的符号重新排序",
+          "编码器与解码器都只做自回归生成，区别在于编码器生成输入、解码器生成输出",
+          "编码器把输入序列压缩成单个固定长度向量；解码器只依据这个向量一次性输出全部符号"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 正确：原文说编码器把输入符号表示序列 (x1,…,xn) 映射为连续表示序列 z=(z1,…,zn)，解码器在给定 z 后一次生成一个输出符号，且每一步是自回归的，把先前生成的符号作为额外输入。B 错误：编码器输出的是连续表示 z，不是输出符号序列；解码器也不是做排序。C 错误：编码器不是自回归生成器，它一次处理整条输入序列并输出等长的表示序列。D 错误：Transformer 的编码器输出是与输入等长的表示序列 z，而不是单个固定长度向量；解码器也不是一次性输出全部符号，而是逐符号生成。"
+      },
+      {
+        "id": "q2-sub-layer-count",
+        "stem": "关于原论文中编码器层与解码器层的子层构成，下列哪项描述正确？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "编码器层有 3 个子层，解码器层有 2 个子层",
+          "编码器层有 2 个子层（多头自注意力、逐位置前馈网络），解码器层有 3 个子层（掩码多头自注意力、对编码器输出做多头注意力的交叉注意力、逐位置前馈网络）",
+          "编码器层与解码器层都只有 1 个子层，即多头注意力",
+          "编码器层有 2 个子层（多头自注意力、交叉注意力），解码器层有 2 个子层（掩码自注意力、前馈网络）"
+        ],
+        "difficulty": "easy",
+        "explanation": "B 正确：原文说编码器每层有两个子层，第一个是多头自注意力，第二个是逐位置全连接前馈网络；解码器在编码器的两个子层之外插入第三个子层，对编码器栈的输出做多头注意力，即交叉注意力。A 错误：把两者数量对调了，编码器没有交叉注意力子层，因此只有 2 个子层。C 错误：前馈网络是每层必备的子层，不能省略。D 错误：交叉注意力只出现在解码器层，编码器层没有；解码器层也漏掉了第三个子层。"
+      },
+      {
+        "id": "q3-cross-attention-qkv",
+        "stem": "在解码器的交叉注意力（编码器-解码器注意力）子层中，查询、键、值分别来自哪里？选出所有正确说法。",
+        "type": "multiple_choice",
+        "answer": "A,B",
+        "options": [
+          "查询来自上一层解码器的输出",
+          "键和值来自编码器栈的输出",
+          "查询来自编码器栈的输出",
+          "键和值来自上一层解码器的输出"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：原文说在编码器-解码器注意力层中，查询来自上一层解码器。B 正确：同一处说明键和值（memory keys and values）来自编码器栈的输出，因此解码器每个位置都能关注输入序列的所有位置。C 错误：若查询来自编码器输出，就变成编码器内部的自注意力，解码器无法用自身当前状态去检索输入信息。D 错误：键和值若来自解码器自身，就退化为解码器自注意力，无法读取编码器给出的 z。"
+      },
+      {
+        "id": "q4-layernorm-dimension",
+        "stem": "原论文中每个子层的输出写作 LayerNorm(x + Sublayer(x))，并要求所有子层与嵌入层输出维度为 d_model=512。对这一写法与维度要求，下列解释哪项正确？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "x + Sublayer(x) 中的加法是残差连接，要求 x 与 Sublayer(x) 维度相同才能逐元素相加，因此统一为 512 维；LayerNorm 作用在相加结果上",
+          "LayerNorm 作用在 Sublayer(x) 上，残差连接加在 LayerNorm 之后，因此维度统一是为了让 LayerNorm 的输入更大",
+          "x + Sublayer(x) 表示把两个向量拼接，拼接后维度为 1024，所以 d_model 必须取 512",
+          "统一为 512 维是为了让多头注意力的每个头维度为 512，与残差连接无关"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 正确：原文说每个子层输出为 LayerNorm(x + Sublayer(x))，其中 Sublayer(x) 是该子层实现的函数；残差连接要求 x 与子层输出可逐元素相加，因此所有子层与嵌入层输出都取 d_model=512，归一化施加在相加结果上。B 错误：顺序颠倒了，原文是先做残差相加再层归一化，即 LayerNorm(x + Sublayer(x))，不是 Sublayer 先归一化再加。C 错误：残差连接是逐元素相加而不是拼接，拼接会使维度变成 1024，与 x 无法相加。D 错误：原论文中多头注意力把 512 维分成 h=8 个头，每个头维度为 512/8=64，不是每头 512；且统一维度正是为残差连接服务。"
+      },
+      {
+        "id": "q5-decoder-mask",
+        "stem": "解码器自注意力子层为什么要加掩码，掩码在缩放点积注意力中如何实现？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "为了让解码器只关注编码器输出，实现方式是把编码器输出置零",
+          "为了防止位置关注其后的位置，从而保持自回归性质；实现方式是在缩放点积注意力中把 softmax 输入里对应非法连接的值设为 −∞",
+          "为了加快训练速度，实现方式是随机丢弃一部分注意力权重",
+          "为了让每个位置只能关注自身，实现方式是把除对角线外的所有权重设为 0"
+        ],
+        "difficulty": "medium",
+        "explanation": "B 正确：原文说解码器自注意力子层被修改为阻止位置关注其后的位置，以保持自回归性质；实现方式是在缩放点积注意力中把 softmax 输入里对应非法连接的值设为 −∞，softmax 后这些位置权重为 0。A 错误：掩码针对的是解码器自注意力内部的位置关系，与编码器输出无关，置零编码器输出会破坏交叉注意力。C 错误：随机丢弃是正则化手段，不能保证因果性，且与原文实现不符。D 错误：原文允许每个位置关注到并包括自身在内的解码器位置，即允许关注自身及之前的位置，不是只关注自身。"
+      },
+      {
+        "id": "q6-mask-plus-shift",
+        "stem": "判断：解码器自注意力中的掩码，配合输出嵌入右移一位，共同保证位置 i 的预测只依赖位置小于 i 的已知输出。",
+        "type": "true_false",
+        "answer": "正确",
+        "options": [],
+        "difficulty": "medium",
+        "explanation": "正确：原文明确说这种掩码（阻止关注后续位置）与输出嵌入偏移一位（右移一位）相结合，确保位置 i 的预测只能依赖位置小于 i 的已知输出。掩码负责切断向后的信息流，右移一位负责让位置 i 的输入对齐到位置 i 之前的已知输出，两者缺一不可。"
+      },
+      {
+        "id": "q7-forward-dataflow",
+        "stem": "请按顺序写出 Transformer 一次前向的数据流清单，从输入嵌入开始，到线性层加 softmax 输出概率为止，并说明 z 在其中的位置。",
+        "type": "short_answer",
+        "answer": "输入符号序列 → 输入嵌入（加位置编码）→ 编码器栈（N=6 层，每层：多头自注意力子层 → LayerNorm(x+Sublayer(x)) → 逐位置前馈网络子层 → LayerNorm(x+Sublayer(x))）→ 得到连续表示 z → 解码器栈（N=6 层，每层：掩码多头自注意力 → 交叉注意力（查询来自解码器、键值来自 z）→ 逐位置前馈网络，每个子层都套残差与层归一化）→ 线性层 → softmax → 输出下一个符号的概率分布。",
+        "difficulty": "medium",
+        "explanation": "评分要点：①编码器在前、解码器在后；②z 是编码器栈的输出，作为解码器交叉注意力的键和值；③解码器三个子层的顺序为掩码自注意力、交叉注意力、前馈网络；④每个子层都有残差与层归一化；⑤最后经线性层与 softmax 得到概率分布。漏掉 z 的位置或把交叉注意力放在掩码自注意力之前，说明数据流理解有误。"
+      },
+      {
+        "id": "q8-why-mask-one-sentence",
+        "stem": "用一两句话说明：解码器为什么必须对自注意力加掩码？如果不加掩码，在训练时会出什么问题？",
+        "type": "short_answer",
+        "answer": "因为解码器是自回归的，生成位置 i 时只能看到位置小于 i 的已知输出；若不加掩码，训练时位置 i 就能直接看到位置 i 及之后的目标符号，模型会“抄答案”，学不到真正的预测能力，推理时也无法保持自回归性质。",
+        "difficulty": "medium",
+        "explanation": "评分要点：①点出自回归性质要求位置 i 只依赖位置小于 i 的已知输出；②指出不加掩码会造成信息泄漏（看到未来符号），训练与推理行为不一致。只答“为了并行训练”而不说明因果性，属于不完整。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 12.05
+      },
+      "spec_digest": "f9c0951debc7510f4b95b1aef4ca16f26a4f2d1279e9a816d7c7da6c3ed368f4",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q1-encoder-decoder-flow"
+          },
+          "objective_id": "n2-overall-architecture:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q7-forward-dataflow"
+          },
+          "objective_id": "n2-overall-architecture:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q2-sub-layer-count"
+          },
+          "objective_id": "n2-overall-architecture:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q3-cross-attention-qkv"
+          },
+          "objective_id": "n2-overall-architecture:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q4-layernorm-dimension"
+          },
+          "objective_id": "n2-overall-architecture:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q5-decoder-mask"
+          },
+          "objective_id": "n2-overall-architecture:o4"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q6-mask-plus-shift"
+          },
+          "objective_id": "n2-overall-architecture:o4"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q8-why-mask-one-sentence"
+          },
+          "objective_id": "n2-overall-architecture:o4"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q1-encoder-decoder-flow"
+          },
+          "explanation": "考查编码器-解码器总体结构与自回归数据流，落实“编码器-解码器”这一核心组成。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q2-sub-layer-count"
+          },
+          "explanation": "考查编码器 2 个子层与解码器 3 个子层的构成，落实“前馈网络”与整体结构。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q3-cross-attention-qkv"
+          },
+          "explanation": "考查交叉注意力中查询/键值的来源，落实自注意力在模型中的使用方式。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q4-layernorm-dimension"
+          },
+          "explanation": "考查 LayerNorm(x + Sublayer(x)) 与 d_model=512 的统一维度要求，落实整体结构的维度约束。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q5-decoder-mask"
+          },
+          "explanation": "考查解码器掩码的作用与 −∞ 实现方式，落实自注意力机制的计算思路。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q6-mask-plus-shift"
+          },
+          "explanation": "考查掩码与右移一位共同保证自回归性质。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q7-forward-dataflow"
+          },
+          "explanation": "要求完整复述一次前向数据流，综合落实编码器-解码器、子层与 z 的位置。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q8-why-mask-one-sentence"
+          },
+          "explanation": "要求用一句话解释掩码必要性，落实自注意力机制的作用理解。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需回忆编码器输出为等长表示序列 z、解码器逐符号自回归生成，并逐一排除“压缩成单向量”“编码器也自回归”等常见误解。",
+          "question_id": "q1-encoder-decoder-flow",
+          "thinking_seconds": 35
+        },
+        {
+          "reason": "需分别数出编码器 2 个子层与解码器 3 个子层，并确认交叉注意力只属于解码器。",
+          "question_id": "q2-sub-layer-count",
+          "thinking_seconds": 30
+        },
+        {
+          "reason": "需区分三种多头注意力用法，判断交叉注意力中查询来自解码器、键值来自编码器输出，并排除对调选项。",
+          "question_id": "q3-cross-attention-qkv",
+          "thinking_seconds": 40
+        },
+        {
+          "reason": "需理解残差相加要求维度一致、归一化施加在相加结果上，并核算 512/8=64 以排除“每头 512 维”的干扰项。",
+          "question_id": "q4-layernorm-dimension",
+          "thinking_seconds": 55
+        },
+        {
+          "reason": "需回忆掩码目的（阻止关注后续位置）与实现（softmax 输入置 −∞），并排除随机丢弃、只关注自身等错误说法。",
+          "question_id": "q5-decoder-mask",
+          "thinking_seconds": 40
+        },
+        {
+          "reason": "需判断掩码与右移一位两个条件是否共同构成保证，确认缺一不可。",
+          "question_id": "q6-mask-plus-shift",
+          "thinking_seconds": 25
+        },
+        {
+          "reason": "需按顺序组织嵌入、编码器栈、z、解码器三个子层、线性与 softmax，并说明 z 作为交叉注意力键值的位置。",
+          "question_id": "q7-forward-dataflow",
+          "thinking_seconds": 120
+        },
+        {
+          "reason": "需从自回归性质出发说明信息泄漏问题，并指出训练与推理行为不一致的后果。",
+          "question_id": "q8-why-mask-one-sentence",
+          "thinking_seconds": 60
+        }
+      ],
+      "teaching_context_digest": "5110a660219d70debdfd9ed36a0d0fd0a9a7360ec41f0c8fb331e01a6d658d92"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "8 道题覆盖 req-transformer-basics 在本节点的分工：q1 编码器-解码器数据流、q2 子层构成、q3 交叉注意力 QKV 来源、q4 LayerNorm(x+Sublayer(x)) 与 d_model=512、q5/q6/q8 掩码与右移一位、q7 完整前向数据流，均与节点目标 o1–o4 对应，未越界到位置编码细节。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题独立求解后，q1=A、q2=B、q3=A,B、q4=A、q5=B、q6=正确、q7/q8 参考答案与论文第 3、3.1、3.2.3 节一致；q4 解析中 512/8=64 的数值正确，q5 中 softmax 输入置 −∞ 后权重为 0 的说明正确，未发现事实错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "习题类资源按逐题求解核验：8 题均有可独立推导的答案，干扰项对应真实误区（编码器压缩为单向量、交叉注意力放在编码器、残差为拼接、每头 512 维、掩码只关注自身），解析给出具体错误原因而非猜测。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序由整体数据流（q1）→子层构成（q2、q3）→残差与维度（q4）→掩码（q5、q6、q8）→综合复述（q7），与节点活动“手绘子层框图、写数据流清单、一句话解释掩码”一致；难度 easy/medium 分布符合入门深度，中文表述，未预设先修知识。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "所有断言均可回溯到 research_context 中标注的 Vaswani 等 2017 论文第 3、3.1、3.2.3 节原文（编码器映射为 z、解码器自回归、N=6、两个/三个子层、LayerNorm(x+Sublayer(x))、d_model=512、掩码置 −∞ 与右移一位），未出现无依据的外部断言。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "8 题覆盖节点四个目标，题型含单选、多选、判断、简答，每题均有 answer、explanation、difficulty；q7、q8 简答题给出评分要点，q6 判断题无 options 符合契约，未遗漏节点自检要点（交叉注意力 QKV 来源、掩码与右移共同保证自回归）。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "version": 1,
+          "decision": "revise",
+          "structural_issues": [
+            "本轮输出格式或映射校验失败：preparation_content_envelope_missing。按本轮格式重交完整封装及必需教学映射；原生题目 JSON 应放在 content 字段内。"
+          ]
+        },
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "8 道题覆盖 req-transformer-basics 在本节点的分工：q1 编码器-解码器数据流、q2 子层构成、q3 交叉注意力 QKV 来源、q4 LayerNorm(x+Sublayer(x)) 与 d_model=512、q5/q6/q8 掩码与右移一位、q7 完整前向数据流，均与节点目标 o1–o4 对应，未越界到位置编码细节。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解后，q1=A、q2=B、q3=A,B、q4=A、q5=B、q6=正确、q7/q8 参考答案与论文第 3、3.1、3.2.3 节一致；q4 解析中 512/8=64 的数值正确，q5 中 softmax 输入置 −∞ 后权重为 0 的说明正确，未发现事实错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题类资源按逐题求解核验：8 题均有可独立推导的答案，干扰项对应真实误区（编码器压缩为单向量、交叉注意力放在编码器、残差为拼接、每头 512 维、掩码只关注自身），解析给出具体错误原因而非猜测。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序由整体数据流（q1）→子层构成（q2、q3）→残差与维度（q4）→掩码（q5、q6、q8）→综合复述（q7），与节点活动“手绘子层框图、写数据流清单、一句话解释掩码”一致；难度 easy/medium 分布符合入门深度，中文表述，未预设先修知识。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "所有断言均可回溯到 research_context 中标注的 Vaswani 等 2017 论文第 3、3.1、3.2.3 节原文（编码器映射为 z、解码器自回归、N=6、两个/三个子层、LayerNorm(x+Sublayer(x))、d_model=512、掩码置 −∞ 与右移一位），未出现无依据的外部断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "8 题覆盖节点四个目标，题型含单选、多选、判断、简答，每题均有 answer、explanation、difficulty；q7、q8 简答题给出评分要点，q6 判断题无 options 符合契约，未遗漏节点自检要点（交叉注意力 QKV 来源、掩码与右移共同保证自回归）。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q3 为多选题，正确答案位于 A、B 两个连续位置，可考虑打乱选项顺序以减少答案位置规律。",
+              "q7 参考答案较长，可考虑在解析中补一句“位置编码加在输入嵌入上”的说明，帮助初学者对齐论文图 1。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1-encoder-decoder-flow",
+                "option_checks": [
+                  {
+                    "reasoning": "与原文“encoder maps ... to a sequence of continuous representations z”及“decoder generates ... one element at a time ... auto-regressive”完全一致，正确。",
+                    "option_text": "编码器把输入符号序列 (x1,…,xn) 映射为连续表示 z=(z1,…,zn)；解码器以 z 为条件，自回归地一次生成一个输出符号，生成下一个符号时把已生成的符号作为额外输入",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原文说编码器把输入符号表示序列 (x1,…,xn) 映射为连续表示序列 z=(z1,…,zn)，解码器在给定 z 后一次生成一个输出符号，且每一步是自回归的，把先前生成的符号作为额外输入。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析摘录准确复述原文两点：编码器输出等长连续表示 z、解码器逐符号自回归并消费已生成符号，与选项内容对应。"
+                  },
+                  {
+                    "reasoning": "编码器输出的是连续表示 z 而非输出符号序列，解码器也不是排序器，错误。",
+                    "option_text": "编码器把输入序列直接映射为输出符号序列；解码器只负责把编码器输出的符号重新排序",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：编码器输出的是连续表示 z，不是输出符号序列；解码器也不是做排序。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析分句“编码器输出的是连续表示 z，不是输出符号序列”与“解码器也不是做排序”分别对应选项两处错误，均成立。"
+                  },
+                  {
+                    "reasoning": "编码器一次处理整条输入并输出等长表示序列，不是自回归生成器，错误。",
+                    "option_text": "编码器与解码器都只做自回归生成，区别在于编码器生成输入、解码器生成输出",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：编码器不是自回归生成器，它一次处理整条输入序列并输出等长的表示序列。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出编码器非自回归、输出等长表示序列，与原文一致，批评成立。"
+                  },
+                  {
+                    "reasoning": "编码器输出与输入等长的表示序列 z，不是单个固定向量；解码器逐符号生成而非一次性输出，错误。",
+                    "option_text": "编码器把输入序列压缩成单个固定长度向量；解码器只依据这个向量一次性输出全部符号",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：Transformer 的编码器输出是与输入等长的表示序列 z，而不是单个固定长度向量；解码器也不是一次性输出全部符号，而是逐符号生成。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析两句分别否定“单个固定长度向量”和“一次性输出全部符号”，均与原文相符。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文第 3 节：编码器把输入符号表示序列 (x1,…,xn) 映射为连续表示 z=(z1,…,zn)；解码器给定 z 后一次生成一个输出符号，每步自回归，把先前生成的符号作为额外输入。故 A 正确，B、C、D 均与原文不符。"
+              },
+              {
+                "question_id": "q2-sub-layer-count",
+                "option_checks": [
+                  {
+                    "reasoning": "数量对调，编码器无交叉注意力子层，只有 2 个子层，错误。",
+                    "option_text": "编码器层有 3 个子层，解码器层有 2 个子层",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：把两者数量对调了，编码器没有交叉注意力子层，因此只有 2 个子层。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出数量对调且编码器无交叉注意力，与原文一致。"
+                  },
+                  {
+                    "reasoning": "编码器 2 个子层、解码器 3 个子层（掩码自注意力、交叉注意力、前馈网络），与原文一致，正确。",
+                    "option_text": "编码器层有 2 个子层（多头自注意力、逐位置前馈网络），解码器层有 3 个子层（掩码多头自注意力、对编码器输出做多头注意力的交叉注意力、逐位置前馈网络）",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：原文说编码器每层有两个子层，第一个是多头自注意力，第二个是逐位置全连接前馈网络；解码器在编码器的两个子层之外插入第三个子层，对编码器栈的输出做多头注意力，即交叉注意力。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析摘录准确复述编码器两子层与解码器插入的第三子层，与选项内容对应。"
+                  },
+                  {
+                    "reasoning": "每层都含前馈网络子层，不可能只有 1 个子层，错误。",
+                    "option_text": "编码器层与解码器层都只有 1 个子层，即多头注意力",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：前馈网络是每层必备的子层，不能省略。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出前馈网络是每层必备子层，与原文“second is a ... feed-forward network”一致。"
+                  },
+                  {
+                    "reasoning": "交叉注意力只在解码器，编码器层没有；且解码器漏掉第三子层，错误。",
+                    "option_text": "编码器层有 2 个子层（多头自注意力、交叉注意力），解码器层有 2 个子层（掩码自注意力、前馈网络）",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：交叉注意力只出现在解码器层，编码器层没有；解码器层也漏掉了第三个子层。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析两句分别指出交叉注意力位置错误与解码器漏子层，均成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文 3.1 节：编码器每层两个子层（多头自注意力、逐位置全连接前馈网络）；解码器在此外插入第三个子层，对编码器栈输出做多头注意力（交叉注意力）。故 B 正确。"
+              },
+              {
+                "question_id": "q3-cross-attention-qkv",
+                "option_checks": [
+                  {
+                    "reasoning": "查询来自上一层解码器输出，与原文一致，正确。",
+                    "option_text": "查询来自上一层解码器的输出",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原文说在编码器-解码器注意力层中，查询来自上一层解码器。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析摘录准确复述原文“queries come from the previous decoder layer”。"
+                  },
+                  {
+                    "reasoning": "键和值来自编码器栈输出，使解码器每个位置可关注输入序列所有位置，正确。",
+                    "option_text": "键和值来自编码器栈的输出",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：同一处说明键和值（memory keys and values）来自编码器栈的输出，因此解码器每个位置都能关注输入序列的所有位置。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析摘录与原文“memory keys and values come from the output of the encoder”一致。"
+                  },
+                  {
+                    "reasoning": "查询若来自编码器输出则不是交叉注意力，解码器无法用自身状态检索输入，错误。",
+                    "option_text": "查询来自编码器栈的输出",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：若查询来自编码器输出，就变成编码器内部的自注意力，解码器无法用自身当前状态去检索输入信息。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出查询来源错误导致失去交叉注意力语义，推理成立。"
+                  },
+                  {
+                    "reasoning": "键值若来自解码器自身则退化为解码器自注意力，无法读取 z，错误。",
+                    "option_text": "键和值来自上一层解码器的输出",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：键和值若来自解码器自身，就退化为解码器自注意力，无法读取编码器给出的 z。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出键值来源错误会退化为自注意力，与原文三种注意力用法一致。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文 3.2.3 节：编码器-解码器注意力层中查询来自上一层解码器，键和值来自编码器栈输出。故 A、B 正确，C、D 错误。"
+              },
+              {
+                "question_id": "q4-layernorm-dimension",
+                "option_checks": [
+                  {
+                    "reasoning": "残差逐元素相加要求维度一致，归一化施加在相加结果上，与原文一致，正确。",
+                    "option_text": "x + Sublayer(x) 中的加法是残差连接，要求 x 与 Sublayer(x) 维度相同才能逐元素相加，因此统一为 512 维；LayerNorm 作用在相加结果上",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 正确：原文说每个子层输出为 LayerNorm(x + Sublayer(x))，其中 Sublayer(x) 是该子层实现的函数；残差连接要求 x 与子层输出可逐元素相加，因此所有子层与嵌入层输出都取 d_model=512，归一化施加在相加结果上。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析摘录准确复述 LayerNorm(x+Sublayer(x)) 与维度统一原因，与选项对应。"
+                  },
+                  {
+                    "reasoning": "顺序颠倒：原文是先残差相加再层归一化，不是先归一化再加，错误。",
+                    "option_text": "LayerNorm 作用在 Sublayer(x) 上，残差连接加在 LayerNorm 之后，因此维度统一是为了让 LayerNorm 的输入更大",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 错误：顺序颠倒了，原文是先做残差相加再层归一化，即 LayerNorm(x + Sublayer(x))，不是 Sublayer 先归一化再加。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出顺序颠倒并引用 LayerNorm(x+Sublayer(x))，批评成立。"
+                  },
+                  {
+                    "reasoning": "残差是逐元素相加而非拼接，拼接成 1024 维无法与 x 相加，错误。",
+                    "option_text": "x + Sublayer(x) 表示把两个向量拼接，拼接后维度为 1024，所以 d_model 必须取 512",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：残差连接是逐元素相加而不是拼接，拼接会使维度变成 1024，与 x 无法相加。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出加法非拼接，与残差连接定义一致。"
+                  },
+                  {
+                    "reasoning": "512 维被分成 8 个头，每头 64 维，不是每头 512；统一维度正是为残差服务，错误。",
+                    "option_text": "统一为 512 维是为了让多头注意力的每个头维度为 512，与残差连接无关",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：原论文中多头注意力把 512 维分成 h=8 个头，每个头维度为 512/8=64，不是每头 512；且统一维度正是为残差连接服务。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析给出 512/8=64 的正确计算并指出统一维度为残差服务，均成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [
+                  {
+                    "claimed": "64",
+                    "excerpt": "D 错误：原论文中多头注意力把 512 维分成 h=8 个头，每个头维度为 512/8=64，不是每头 512；",
+                    "expression": "512/8",
+                    "end_segment": 4,
+                    "source_field": "explanation",
+                    "start_segment": 4,
+                    "decimal_places": 0
+                  }
+                ],
+                "independent_solution": "原文：每个子层输出为 LayerNorm(x + Sublayer(x))，残差要求 x 与子层输出逐元素相加，故所有子层与嵌入层输出维度统一为 d_model=512；多头注意力把 512 维分成 h=8 个头，每头 512/8=64 维。故 A 正确。"
+              },
+              {
+                "question_id": "q5-decoder-mask",
+                "option_checks": [
+                  {
+                    "reasoning": "掩码针对解码器自注意力内部位置关系，与编码器输出无关，置零编码器输出会破坏交叉注意力，错误。",
+                    "option_text": "为了让解码器只关注编码器输出，实现方式是把编码器输出置零",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错误：掩码针对的是解码器自注意力内部的位置关系，与编码器输出无关，置零编码器输出会破坏交叉注意力。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出掩码对象是解码器内部位置关系，批评成立。"
+                  },
+                  {
+                    "reasoning": "目的为阻止关注后续位置以保持自回归，实现为 softmax 输入置 −∞，与原文一致，正确。",
+                    "option_text": "为了防止位置关注其后的位置，从而保持自回归性质；实现方式是在缩放点积注意力中把 softmax 输入里对应非法连接的值设为 −∞",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 正确：原文说解码器自注意力子层被修改为阻止位置关注其后的位置，以保持自回归性质；实现方式是在缩放点积注意力中把 softmax 输入里对应非法连接的值设为 −∞，softmax 后这些位置权重为 0。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析摘录准确复述目的与实现方式，并正确说明 softmax 后权重为 0。"
+                  },
+                  {
+                    "reasoning": "随机丢弃是正则化手段，不能保证因果性，错误。",
+                    "option_text": "为了加快训练速度，实现方式是随机丢弃一部分注意力权重",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错误：随机丢弃是正则化手段，不能保证因果性，且与原文实现不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出随机丢弃不能保证因果性且与原文实现不符，成立。"
+                  },
+                  {
+                    "reasoning": "原文允许关注到并包括自身在内的位置，不是只关注自身，错误。",
+                    "option_text": "为了让每个位置只能关注自身，实现方式是把除对角线外的所有权重设为 0",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错误：原文允许每个位置关注到并包括自身在内的解码器位置，即允许关注自身及之前的位置，不是只关注自身。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析引用“up to and including that position”，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "论文 3.1 节：解码器自注意力被修改为阻止位置关注其后位置，以保持自回归性质；3.2.1 节说明实现方式是在缩放点积注意力中把 softmax 输入中对应非法连接的值设为 −∞，softmax 后权重为 0。故 B 正确。"
+              },
+              {
+                "question_id": "q6-mask-plus-shift",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "原文：掩码（阻止关注后续位置）与输出嵌入偏移一位相结合，确保位置 i 的预测只依赖位置小于 i 的已知输出。掩码切断向后信息流，右移一位使位置 i 的输入对齐到之前的已知输出，两者缺一不可，故判断为正确。"
+              },
+              {
+                "question_id": "q7-forward-dataflow",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "数据流：输入符号序列→输入嵌入（加位置编码）→编码器栈（每层多头自注意力、前馈网络，各带残差与层归一化）→z→解码器栈（每层掩码自注意力、交叉注意力（Q 来自解码器、KV 来自 z）、前馈网络，各带残差与层归一化）→线性层→softmax→下一符号概率分布。参考答案与之一致。"
+              },
+              {
+                "question_id": "q8-why-mask-one-sentence",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "解码器自回归，生成位置 i 时只能看到位置小于 i 的已知输出；不加掩码则训练时位置 i 可直接看到位置 i 及之后的目标符号，造成信息泄漏，模型学不到预测能力，推理时也无法保持自回归性质。参考答案与之一致。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 直接考查编码器映射为 z、解码器自回归逐符号生成，真实支持“编码器-解码器”核心组成。",
+                "locator": {
+                  "question_id": "q1-encoder-decoder-flow"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 逐项核对编码器 2 个子层与解码器 3 个子层，落实前馈网络与整体结构。",
+                "locator": {
+                  "question_id": "q2-sub-layer-count"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 考查交叉注意力中查询来自解码器、键值来自编码器输出，落实自注意力使用方式。",
+                "locator": {
+                  "question_id": "q3-cross-attention-qkv"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 考查 LayerNorm(x+Sublayer(x)) 与 d_model=512 的维度约束，含 512/8=64 的正确核算。",
+                "locator": {
+                  "question_id": "q4-layernorm-dimension"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 考查掩码目的与 softmax 输入置 −∞ 的实现，落实自注意力计算思路。",
+                "locator": {
+                  "question_id": "q5-decoder-mask"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 判断题考查掩码与右移一位共同保证自回归性质，答案与原文一致。",
+                "locator": {
+                  "question_id": "q6-mask-plus-shift"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 要求完整复述前向数据流并说明 z 的位置，综合落实编码器-解码器与子层结构。",
+                "locator": {
+                  "question_id": "q7-forward-dataflow"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 要求一句话解释掩码必要性，落实自注意力机制作用理解。",
+                "locator": {
+                  "question_id": "q8-why-mask-one-sentence"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1 的检测题，覆盖编码器映射为 z 与解码器自回归生成的数据流。",
+                "locator": {
+                  "question_id": "q1-encoder-decoder-flow"
+                },
+                "binding_id": "n2-overall-architecture:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 作为 o1 的练习，要求按顺序写出含 z 的完整前向数据流。",
+                "locator": {
+                  "question_id": "q7-forward-dataflow"
+                },
+                "binding_id": "n2-overall-architecture:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o2 的检测题，覆盖编码器两子层与解码器三子层构成。",
+                "locator": {
+                  "question_id": "q2-sub-layer-count"
+                },
+                "binding_id": "n2-overall-architecture:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的检测题，覆盖交叉注意力子层的 QKV 来源。",
+                "locator": {
+                  "question_id": "q3-cross-attention-qkv"
+                },
+                "binding_id": "n2-overall-architecture:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o3 的检测题，覆盖 LayerNorm(x+Sublayer(x)) 写法与 d_model=512 统一维度。",
+                "locator": {
+                  "question_id": "q4-layernorm-dimension"
+                },
+                "binding_id": "n2-overall-architecture:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o4 的检测题，覆盖掩码目的与 −∞ 实现。",
+                "locator": {
+                  "question_id": "q5-decoder-mask"
+                },
+                "binding_id": "n2-overall-architecture:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 作为 o4 的检测题，覆盖掩码与右移一位共同保证位置 i 只依赖更早输出。",
+                "locator": {
+                  "question_id": "q6-mask-plus-shift"
+                },
+                "binding_id": "n2-overall-architecture:o4",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 作为 o4 的练习，要求说明不加掩码导致的信息泄漏与自回归性质破坏。",
+                "locator": {
+                  "question_id": "q8-why-mask-one-sentence"
+                },
+                "binding_id": "n2-overall-architecture:o4",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 2,
+          "decision": "pass",
+          "content_sha256": "6519f8bf9d8377eafea6e0adac46e8340b83ddfbca115455e20aa304596363c1"
+        }
+      ],
+      "version": 2,
+      "decision": "pass",
+      "suggestions": [
+        "q3 为多选题，正确答案位于 A、B 两个连续位置，可考虑打乱选项顺序以减少答案位置规律。",
+        "q7 参考答案较长，可考虑在解析中补一句“位置编码加在输入嵌入上”的说明，帮助初学者对齐论文图 1。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "6519f8bf9d8377eafea6e0adac46e8340b83ddfbca115455e20aa304596363c1",
+      "question_checks": [
+        {
+          "question_id": "q1-encoder-decoder-flow",
+          "option_checks": [
+            {
+              "reasoning": "与原文“encoder maps ... to a sequence of continuous representations z”及“decoder generates ... one element at a time ... auto-regressive”完全一致，正确。",
+              "option_text": "编码器把输入符号序列 (x1,…,xn) 映射为连续表示 z=(z1,…,zn)；解码器以 z 为条件，自回归地一次生成一个输出符号，生成下一个符号时把已生成的符号作为额外输入",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原文说编码器把输入符号表示序列 (x1,…,xn) 映射为连续表示序列 z=(z1,…,zn)，解码器在给定 z 后一次生成一个输出符号，且每一步是自回归的，把先前生成的符号作为额外输入。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析摘录准确复述原文两点：编码器输出等长连续表示 z、解码器逐符号自回归并消费已生成符号，与选项内容对应。"
+            },
+            {
+              "reasoning": "编码器输出的是连续表示 z 而非输出符号序列，解码器也不是排序器，错误。",
+              "option_text": "编码器把输入序列直接映射为输出符号序列；解码器只负责把编码器输出的符号重新排序",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：编码器输出的是连续表示 z，不是输出符号序列；解码器也不是做排序。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析分句“编码器输出的是连续表示 z，不是输出符号序列”与“解码器也不是做排序”分别对应选项两处错误，均成立。"
+            },
+            {
+              "reasoning": "编码器一次处理整条输入并输出等长表示序列，不是自回归生成器，错误。",
+              "option_text": "编码器与解码器都只做自回归生成，区别在于编码器生成输入、解码器生成输出",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：编码器不是自回归生成器，它一次处理整条输入序列并输出等长的表示序列。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出编码器非自回归、输出等长表示序列，与原文一致，批评成立。"
+            },
+            {
+              "reasoning": "编码器输出与输入等长的表示序列 z，不是单个固定向量；解码器逐符号生成而非一次性输出，错误。",
+              "option_text": "编码器把输入序列压缩成单个固定长度向量；解码器只依据这个向量一次性输出全部符号",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：Transformer 的编码器输出是与输入等长的表示序列 z，而不是单个固定长度向量；解码器也不是一次性输出全部符号，而是逐符号生成。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析两句分别否定“单个固定长度向量”和“一次性输出全部符号”，均与原文相符。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "论文第 3 节：编码器把输入符号表示序列 (x1,…,xn) 映射为连续表示 z=(z1,…,zn)；解码器给定 z 后一次生成一个输出符号，每步自回归，把先前生成的符号作为额外输入。故 A 正确，B、C、D 均与原文不符。"
+        },
+        {
+          "question_id": "q2-sub-layer-count",
+          "option_checks": [
+            {
+              "reasoning": "数量对调，编码器无交叉注意力子层，只有 2 个子层，错误。",
+              "option_text": "编码器层有 3 个子层，解码器层有 2 个子层",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 错误：把两者数量对调了，编码器没有交叉注意力子层，因此只有 2 个子层。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出数量对调且编码器无交叉注意力，与原文一致。"
+            },
+            {
+              "reasoning": "编码器 2 个子层、解码器 3 个子层（掩码自注意力、交叉注意力、前馈网络），与原文一致，正确。",
+              "option_text": "编码器层有 2 个子层（多头自注意力、逐位置前馈网络），解码器层有 3 个子层（掩码多头自注意力、对编码器输出做多头注意力的交叉注意力、逐位置前馈网络）",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：原文说编码器每层有两个子层，第一个是多头自注意力，第二个是逐位置全连接前馈网络；解码器在编码器的两个子层之外插入第三个子层，对编码器栈的输出做多头注意力，即交叉注意力。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析摘录准确复述编码器两子层与解码器插入的第三子层，与选项内容对应。"
+            },
+            {
+              "reasoning": "每层都含前馈网络子层，不可能只有 1 个子层，错误。",
+              "option_text": "编码器层与解码器层都只有 1 个子层，即多头注意力",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：前馈网络是每层必备的子层，不能省略。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出前馈网络是每层必备子层，与原文“second is a ... feed-forward network”一致。"
+            },
+            {
+              "reasoning": "交叉注意力只在解码器，编码器层没有；且解码器漏掉第三子层，错误。",
+              "option_text": "编码器层有 2 个子层（多头自注意力、交叉注意力），解码器层有 2 个子层（掩码自注意力、前馈网络）",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：交叉注意力只出现在解码器层，编码器层没有；解码器层也漏掉了第三个子层。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析两句分别指出交叉注意力位置错误与解码器漏子层，均成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "论文 3.1 节：编码器每层两个子层（多头自注意力、逐位置全连接前馈网络）；解码器在此外插入第三个子层，对编码器栈输出做多头注意力（交叉注意力）。故 B 正确。"
+        },
+        {
+          "question_id": "q3-cross-attention-qkv",
+          "option_checks": [
+            {
+              "reasoning": "查询来自上一层解码器输出，与原文一致，正确。",
+              "option_text": "查询来自上一层解码器的输出",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原文说在编码器-解码器注意力层中，查询来自上一层解码器。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析摘录准确复述原文“queries come from the previous decoder layer”。"
+            },
+            {
+              "reasoning": "键和值来自编码器栈输出，使解码器每个位置可关注输入序列所有位置，正确。",
+              "option_text": "键和值来自编码器栈的输出",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：同一处说明键和值（memory keys and values）来自编码器栈的输出，因此解码器每个位置都能关注输入序列的所有位置。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析摘录与原文“memory keys and values come from the output of the encoder”一致。"
+            },
+            {
+              "reasoning": "查询若来自编码器输出则不是交叉注意力，解码器无法用自身状态检索输入，错误。",
+              "option_text": "查询来自编码器栈的输出",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：若查询来自编码器输出，就变成编码器内部的自注意力，解码器无法用自身当前状态去检索输入信息。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出查询来源错误导致失去交叉注意力语义，推理成立。"
+            },
+            {
+              "reasoning": "键值若来自解码器自身则退化为解码器自注意力，无法读取 z，错误。",
+              "option_text": "键和值来自上一层解码器的输出",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：键和值若来自解码器自身，就退化为解码器自注意力，无法读取编码器给出的 z。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出键值来源错误会退化为自注意力，与原文三种注意力用法一致。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "论文 3.2.3 节：编码器-解码器注意力层中查询来自上一层解码器，键和值来自编码器栈输出。故 A、B 正确，C、D 错误。"
+        },
+        {
+          "question_id": "q4-layernorm-dimension",
+          "option_checks": [
+            {
+              "reasoning": "残差逐元素相加要求维度一致，归一化施加在相加结果上，与原文一致，正确。",
+              "option_text": "x + Sublayer(x) 中的加法是残差连接，要求 x 与 Sublayer(x) 维度相同才能逐元素相加，因此统一为 512 维；LayerNorm 作用在相加结果上",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 正确：原文说每个子层输出为 LayerNorm(x + Sublayer(x))，其中 Sublayer(x) 是该子层实现的函数；残差连接要求 x 与子层输出可逐元素相加，因此所有子层与嵌入层输出都取 d_model=512，归一化施加在相加结果上。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析摘录准确复述 LayerNorm(x+Sublayer(x)) 与维度统一原因，与选项对应。"
+            },
+            {
+              "reasoning": "顺序颠倒：原文是先残差相加再层归一化，不是先归一化再加，错误。",
+              "option_text": "LayerNorm 作用在 Sublayer(x) 上，残差连接加在 LayerNorm 之后，因此维度统一是为了让 LayerNorm 的输入更大",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 错误：顺序颠倒了，原文是先做残差相加再层归一化，即 LayerNorm(x + Sublayer(x))，不是 Sublayer 先归一化再加。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出顺序颠倒并引用 LayerNorm(x+Sublayer(x))，批评成立。"
+            },
+            {
+              "reasoning": "残差是逐元素相加而非拼接，拼接成 1024 维无法与 x 相加，错误。",
+              "option_text": "x + Sublayer(x) 表示把两个向量拼接，拼接后维度为 1024，所以 d_model 必须取 512",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：残差连接是逐元素相加而不是拼接，拼接会使维度变成 1024，与 x 无法相加。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出加法非拼接，与残差连接定义一致。"
+            },
+            {
+              "reasoning": "512 维被分成 8 个头，每头 64 维，不是每头 512；统一维度正是为残差服务，错误。",
+              "option_text": "统一为 512 维是为了让多头注意力的每个头维度为 512，与残差连接无关",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：原论文中多头注意力把 512 维分成 h=8 个头，每个头维度为 512/8=64，不是每头 512；且统一维度正是为残差连接服务。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析给出 512/8=64 的正确计算并指出统一维度为残差服务，均成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "calculation_checks": [
+            {
+              "claimed": "64",
+              "excerpt": "D 错误：原论文中多头注意力把 512 维分成 h=8 个头，每个头维度为 512/8=64，不是每头 512；",
+              "expression": "512/8",
+              "end_segment": 4,
+              "source_field": "explanation",
+              "start_segment": 4,
+              "decimal_places": 0
+            }
+          ],
+          "independent_solution": "原文：每个子层输出为 LayerNorm(x + Sublayer(x))，残差要求 x 与子层输出逐元素相加，故所有子层与嵌入层输出维度统一为 d_model=512；多头注意力把 512 维分成 h=8 个头，每头 512/8=64 维。故 A 正确。"
+        },
+        {
+          "question_id": "q5-decoder-mask",
+          "option_checks": [
+            {
+              "reasoning": "掩码针对解码器自注意力内部位置关系，与编码器输出无关，置零编码器输出会破坏交叉注意力，错误。",
+              "option_text": "为了让解码器只关注编码器输出，实现方式是把编码器输出置零",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 错误：掩码针对的是解码器自注意力内部的位置关系，与编码器输出无关，置零编码器输出会破坏交叉注意力。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出掩码对象是解码器内部位置关系，批评成立。"
+            },
+            {
+              "reasoning": "目的为阻止关注后续位置以保持自回归，实现为 softmax 输入置 −∞，与原文一致，正确。",
+              "option_text": "为了防止位置关注其后的位置，从而保持自回归性质；实现方式是在缩放点积注意力中把 softmax 输入里对应非法连接的值设为 −∞",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 正确：原文说解码器自注意力子层被修改为阻止位置关注其后的位置，以保持自回归性质；实现方式是在缩放点积注意力中把 softmax 输入里对应非法连接的值设为 −∞，softmax 后这些位置权重为 0。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析摘录准确复述目的与实现方式，并正确说明 softmax 后权重为 0。"
+            },
+            {
+              "reasoning": "随机丢弃是正则化手段，不能保证因果性，错误。",
+              "option_text": "为了加快训练速度，实现方式是随机丢弃一部分注意力权重",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错误：随机丢弃是正则化手段，不能保证因果性，且与原文实现不符。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出随机丢弃不能保证因果性且与原文实现不符，成立。"
+            },
+            {
+              "reasoning": "原文允许关注到并包括自身在内的位置，不是只关注自身，错误。",
+              "option_text": "为了让每个位置只能关注自身，实现方式是把除对角线外的所有权重设为 0",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错误：原文允许每个位置关注到并包括自身在内的解码器位置，即允许关注自身及之前的位置，不是只关注自身。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析引用“up to and including that position”，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "论文 3.1 节：解码器自注意力被修改为阻止位置关注其后位置，以保持自回归性质；3.2.1 节说明实现方式是在缩放点积注意力中把 softmax 输入中对应非法连接的值设为 −∞，softmax 后权重为 0。故 B 正确。"
+        },
+        {
+          "question_id": "q6-mask-plus-shift",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "原文：掩码（阻止关注后续位置）与输出嵌入偏移一位相结合，确保位置 i 的预测只依赖位置小于 i 的已知输出。掩码切断向后信息流，右移一位使位置 i 的输入对齐到之前的已知输出，两者缺一不可，故判断为正确。"
+        },
+        {
+          "question_id": "q7-forward-dataflow",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "数据流：输入符号序列→输入嵌入（加位置编码）→编码器栈（每层多头自注意力、前馈网络，各带残差与层归一化）→z→解码器栈（每层掩码自注意力、交叉注意力（Q 来自解码器、KV 来自 z）、前馈网络，各带残差与层归一化）→线性层→softmax→下一符号概率分布。参考答案与之一致。"
+        },
+        {
+          "question_id": "q8-why-mask-one-sentence",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "解码器自回归，生成位置 i 时只能看到位置小于 i 的已知输出；不加掩码则训练时位置 i 可直接看到位置 i 及之后的目标符号，造成信息泄漏，模型学不到预测能力，推理时也无法保持自回归性质。参考答案与之一致。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q1 直接考查编码器映射为 z、解码器自回归逐符号生成，真实支持“编码器-解码器”核心组成。",
+          "locator": {
+            "question_id": "q1-encoder-decoder-flow"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 逐项核对编码器 2 个子层与解码器 3 个子层，落实前馈网络与整体结构。",
+          "locator": {
+            "question_id": "q2-sub-layer-count"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 考查交叉注意力中查询来自解码器、键值来自编码器输出，落实自注意力使用方式。",
+          "locator": {
+            "question_id": "q3-cross-attention-qkv"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 考查 LayerNorm(x+Sublayer(x)) 与 d_model=512 的维度约束，含 512/8=64 的正确核算。",
+          "locator": {
+            "question_id": "q4-layernorm-dimension"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 考查掩码目的与 softmax 输入置 −∞ 的实现，落实自注意力计算思路。",
+          "locator": {
+            "question_id": "q5-decoder-mask"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 判断题考查掩码与右移一位共同保证自回归性质，答案与原文一致。",
+          "locator": {
+            "question_id": "q6-mask-plus-shift"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 要求完整复述前向数据流并说明 z 的位置，综合落实编码器-解码器与子层结构。",
+          "locator": {
+            "question_id": "q7-forward-dataflow"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 要求一句话解释掩码必要性，落实自注意力机制作用理解。",
+          "locator": {
+            "question_id": "q8-why-mask-one-sentence"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 作为 o1 的检测题，覆盖编码器映射为 z 与解码器自回归生成的数据流。",
+          "locator": {
+            "question_id": "q1-encoder-decoder-flow"
+          },
+          "binding_id": "n2-overall-architecture:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 作为 o1 的练习，要求按顺序写出含 z 的完整前向数据流。",
+          "locator": {
+            "question_id": "q7-forward-dataflow"
+          },
+          "binding_id": "n2-overall-architecture:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 作为 o2 的检测题，覆盖编码器两子层与解码器三子层构成。",
+          "locator": {
+            "question_id": "q2-sub-layer-count"
+          },
+          "binding_id": "n2-overall-architecture:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 作为 o2 的检测题，覆盖交叉注意力子层的 QKV 来源。",
+          "locator": {
+            "question_id": "q3-cross-attention-qkv"
+          },
+          "binding_id": "n2-overall-architecture:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 作为 o3 的检测题，覆盖 LayerNorm(x+Sublayer(x)) 写法与 d_model=512 统一维度。",
+          "locator": {
+            "question_id": "q4-layernorm-dimension"
+          },
+          "binding_id": "n2-overall-architecture:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 作为 o4 的检测题，覆盖掩码目的与 −∞ 实现。",
+          "locator": {
+            "question_id": "q5-decoder-mask"
+          },
+          "binding_id": "n2-overall-architecture:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 作为 o4 的检测题，覆盖掩码与右移一位共同保证位置 i 只依赖更早输出。",
+          "locator": {
+            "question_id": "q6-mask-plus-shift"
+          },
+          "binding_id": "n2-overall-architecture:o4",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 作为 o4 的练习，要求说明不加掩码导致的信息泄漏与自回归性质破坏。",
+          "locator": {
+            "question_id": "q8-why-mask-one-sentence"
+          },
+          "binding_id": "n2-overall-architecture:o4",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "b7f15dc787c4578e5f44a17fe58dab5c8d715af9a8be7beaa01ed75d527cbcd7",
+      "numeric_verification": {
+        "version": 1,
+        "coverage": "source_bound_claims_and_literal_softmax",
+        "questions": [
+          {
+            "checks": [],
+            "question_index": 0
+          },
+          {
+            "checks": [],
+            "question_index": 1
+          },
+          {
+            "checks": [],
+            "question_index": 2
+          },
+          {
+            "checks": [
+              {
+                "status": "pass",
+                "claimed": "64",
+                "excerpt": "D 错误：原论文中多头注意力把 512 维分成 h=8 个头，每个头维度为 512/8=64，不是每头 512；",
+                "computed": 64.0,
+                "expression": "512/8",
+                "end_segment": 4,
+                "source_field": "explanation",
+                "start_segment": 4,
+                "decimal_places": 0
+              }
+            ],
+            "question_index": 3
+          },
+          {
+            "checks": [],
+            "question_index": 4
+          },
+          {
+            "checks": [],
+            "question_index": 5
+          },
+          {
+            "checks": [],
+            "question_index": 6
+          },
+          {
+            "checks": [],
+            "question_index": 7
+          }
+        ]
+      },
+      "option_binding_version": 1
+    }
+  }
+}

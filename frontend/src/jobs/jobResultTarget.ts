@@ -1,4 +1,4 @@
-import { buildClassroomPlayerHash } from "../openmaic/classroomGenerationFlow";
+import { buildClassroomPlayerHash } from "../classroom/classroomGenerationFlow";
 import { buildRoleCourseHash } from "../stitch/shared/routes/roleCourseRouteResolver";
 import { buildTeacherCourseHash } from "../stitch/teacherRoutes";
 import type { JobRecord } from "./types";
@@ -18,6 +18,9 @@ export function getJobResultHash(job: JobRecord): string | null {
   if (result?.resource_type === "artifact_revision" && courseId && materialId) {
     return buildRoleCourseHash(result.actor_role === 'student' ? 'student' : 'teacher', 'resources', courseId,
       { material_type: materialType, material_id: materialId });
+  }
+  if (result?.resource_type === "pbl_exercise" && result.exercise_id) {
+    return "#/practice/code/" + encodeURIComponent(String(result.exercise_id));
   }
   if (!courseId || !materialId) return null;
   if (

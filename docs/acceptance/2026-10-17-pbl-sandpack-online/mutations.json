@@ -1,0 +1,54 @@
+[
+  {
+    "project": "signup",
+    "defect": "禁用状态丢失",
+    "rejected": true,
+    "failedCheckIds": [
+      "check-submit-disabled-initial",
+      "check-submit-disabled-spaces",
+      "check-submit-enabled-valid",
+      "check-reset-clears"
+    ],
+    "durationMs": 15825.003874
+  },
+  {
+    "project": "signup",
+    "defect": "重新填写残留结果",
+    "rejected": true,
+    "failedCheckIds": [
+      "check-reset-clears"
+    ],
+    "durationMs": 13970.98716
+  },
+  {
+    "project": "reading",
+    "defect": "切换一项误改全部",
+    "rejected": true,
+    "failedCheckIds": [
+      "toggle-read-independent",
+      "duplicate-titles-independent"
+    ],
+    "durationMs": 33552.065788
+  },
+  {
+    "project": "reading",
+    "defect": "删除一项误清空全部",
+    "rejected": true,
+    "failedCheckIds": [
+      "delete-one-book",
+      "delete-keeps-others",
+      "duplicate-titles-independent"
+    ],
+    "durationMs": 28581.129576
+  },
+  {
+    "project": "reading",
+    "defect": "允许空白条目",
+    "rejected": true,
+    "failedCheckIds": [
+      "reject-empty-title",
+      "reject-whitespace-title"
+    ],
+    "durationMs": 18122.560426999997
+  }
+]

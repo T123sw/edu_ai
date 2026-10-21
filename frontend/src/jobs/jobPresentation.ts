@@ -1,15 +1,20 @@
 import { isActiveJob, type JobRecord } from "./types";
 
 const JOB_KIND_LABELS: Record<string, string> = {
+  course_preparation: "课程准备",
   revise_artifact: "AI 资料修改",
   generate_classroom: "AI 课堂生成",
   render_video: "课堂视频导出",
+  generate_podcast: "播客生成",
+  generate_scenario: "情景案例生成",
   generate_report: "报告生成",
   generate_lesson_plan: "教案生成",
   generate_blog: "教学博客生成",
   generate_quiz: "习题生成",
   generate_flashcard: "闪卡生成",
   generate_graph: "思维导图生成",
+  generate_practice: "互动实验生成",
+  generate_pbl: "编程练习生成",
   generate_game: "小游戏生成",
   ingest_video: "视频入库",
   rag_import: "知识库索引",
@@ -27,6 +32,8 @@ export type JobUserMessage = {
 };
 
 const JOB_ERROR_MESSAGES: Record<string, JobUserMessage> = {
+  PODCAST_AUDIO_FAILED: { title: "播客配音未完成", detail: "讲稿已保存，请稍后重试配音。" },
+  STUDIO_CONTENT_INVALID: { title: "内容结构检查未通过", detail: "请重试，系统会重新整理讲稿或案例分支。" },
   SOURCE_SELECTION_REQUIRED: {
     title: "没有可用的参考资料",
     detail: "请选择课程知识或个人资料后再试。",
@@ -108,7 +115,7 @@ export function presentJobDetail(job: JobRecord): string {
   }
 
   if (job.status === "succeeded") {
-    if (job.kind === "revise_artifact") return job.message;
+    if (job.kind === "revise_artifact" || job.kind === "generate_practice") return job.message;
     return job.kind === "render_video"
       ? "导出完成，可以打开结果。"
       : "生成完成，结果已保存到课程资源。";
@@ -144,7 +151,7 @@ export function summarizeJobs(jobs: JobRecord[]): JobStatusSummary {
 export type JobPrimaryAction = "cancel" | "retry" | "open-result";
 
 export function isJobCenterVisible(job: JobRecord): boolean {
-  return job.status !== "canceled";
+  return Boolean(job.preparation) || job.status !== "canceled";
 }
 
 export function getJobPrimaryAction(

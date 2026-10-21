@@ -1,0 +1,234 @@
+{
+  "protocol": "edu-experiment/1",
+  "title": "滑动摩擦与停车距离",
+  "subject": "物理",
+  "overview": "初速度固定为 4 m/s，质量不变，重力加速度 9.8 m/s²。",
+  "objectives": [
+    "将动摩擦系数调为 0.4 并测量停车距离"
+  ],
+  "scientific_model": {
+    "assumptions": [
+      "浏览器内理想化模型"
+    ],
+    "rules": [
+      "在水平面恒定滑动摩擦模型中，停车距离 v²/(2μg)。"
+    ],
+    "limitations": [
+      "只验证当前模型条件，不替代真实实验"
+    ]
+  },
+  "state_fields": [
+    {
+      "path": [
+        "mu"
+      ],
+      "label": "mu",
+      "description": "当前实验的mu",
+      "unit": ""
+    },
+    {
+      "path": [
+        "velocity"
+      ],
+      "label": "velocity",
+      "description": "当前实验的velocity",
+      "unit": ""
+    },
+    {
+      "path": [
+        "distance"
+      ],
+      "label": "distance",
+      "description": "当前实验的distance",
+      "unit": ""
+    }
+  ],
+  "actions": [
+    {
+      "id": "measure",
+      "label": "执行操作",
+      "description": "将动摩擦系数调为 0.4 并测量停车距离",
+      "phases": [
+        "demonstrate",
+        "guided",
+        "explore"
+      ],
+      "parameters": [
+        {
+          "name": "mu",
+          "label": "动摩擦系数",
+          "type": "number",
+          "default": 0.2,
+          "minimum": 0.1,
+          "maximum": 0.8,
+          "options": []
+        }
+      ]
+    }
+  ],
+  "checkpoints": {
+    "start": {
+      "mu": 0.2,
+      "velocity": 4,
+      "distance": 0
+    }
+  },
+  "demo_checkpoint": "start",
+  "demo_steps": [
+    {
+      "id": "demo",
+      "title": "观察一次关键操作",
+      "before": "初速度固定为 4 m/s，质量不变，重力加速度 9.8 m/s²。",
+      "after": "停车距离约为 2.041 m；摩擦系数增大，停车距离减小。",
+      "commands": [
+        {
+          "action": "measure",
+          "input": {
+            "mu": 0.4
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "path": [
+            "input",
+            "mu"
+          ],
+          "op": "near",
+          "value": 0.4,
+          "tolerance": 0.0001
+        },
+        {
+          "path": [
+            "after",
+            "distance"
+          ],
+          "op": "near",
+          "value": 2.0408163265306123,
+          "tolerance": 1e-06
+        }
+      ]
+    }
+  ],
+  "guided_checkpoint": "start",
+  "tasks": [
+    {
+      "id": "practice",
+      "title": "亲手试一次",
+      "objective": "将动摩擦系数调为 0.4 并测量停车距离",
+      "prompt": "将动摩擦系数调为 0.4 并测量停车距离",
+      "checkpoint": "start",
+      "allowed_actions": [
+        "measure"
+      ],
+      "submission": "on_action",
+      "submit_action": "measure",
+      "assessment": "deterministic",
+      "checks": [
+        {
+          "path": [
+            "input",
+            "mu"
+          ],
+          "op": "near",
+          "value": 0.4,
+          "tolerance": 0.0001
+        },
+        {
+          "path": [
+            "after",
+            "distance"
+          ],
+          "op": "near",
+          "value": 2.0408163265306123,
+          "tolerance": 1e-06
+        }
+      ],
+      "rubric": [],
+      "success": "停车距离约为 2.041 m；摩擦系数增大，停车距离减小。",
+      "retry": "请根据本任务说明重新尝试。",
+      "recovery": "rollback",
+      "hints": [
+        "在水平面恒定滑动摩擦模型中，停车距离 v²/(2μg)。"
+      ]
+    }
+  ],
+  "explore_checkpoint": "start",
+  "exploration_prompts": [
+    "比较 μ=0.2 和 μ=0.4 的停车距离，保持初速度相同。"
+  ],
+  "teaching_context": {
+    "background": "初速度固定为 4 m/s，质量不变，重力加速度 9.8 m/s²。",
+    "misconceptions": [
+      "完成一次任务不表示整个实验目标都已掌握"
+    ]
+  },
+  "validation_cases": [
+    {
+      "id": "correct",
+      "task_id": "practice",
+      "commands": [
+        {
+          "action": "measure",
+          "input": {
+            "mu": 0.4
+          }
+        }
+      ],
+      "expected": "pass",
+      "assertions": [
+        {
+          "path": [
+            "input",
+            "mu"
+          ],
+          "op": "near",
+          "value": 0.4,
+          "tolerance": 0.0001
+        },
+        {
+          "path": [
+            "after",
+            "distance"
+          ],
+          "op": "near",
+          "value": 2.0408163265306123,
+          "tolerance": 1e-06
+        }
+      ]
+    },
+    {
+      "id": "incorrect",
+      "task_id": "practice",
+      "commands": [
+        {
+          "action": "measure",
+          "input": {
+            "mu": 0.2
+          }
+        }
+      ],
+      "expected": "fail",
+      "assertions": [
+        {
+          "path": [
+            "after",
+            "mu"
+          ],
+          "op": "near",
+          "value": 0.2,
+          "tolerance": 1e-06
+        },
+        {
+          "path": [
+            "after",
+            "distance"
+          ],
+          "op": "near",
+          "value": 4.081632653061224,
+          "tolerance": 1e-06
+        }
+      ]
+    }
+  ]
+}

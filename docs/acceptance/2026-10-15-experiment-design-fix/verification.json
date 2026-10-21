@@ -1,0 +1,53 @@
+{
+  "status": "validated-awaiting-backend-restart",
+  "failed_job": "practice_47be683aa123c52a7dda9f5aa0380a12",
+  "topic": "冒泡排序",
+  "failure_stage": "experiment_design",
+  "root_error": "显式提交不能另设自动提交动作",
+  "sourceManifest": {
+    "backend/src/app/practice/experiment/contracts.py": "d7c91bfb3dac8e21e6563fdca8142f3d5902d9285a563d51d9660f38158da5b4",
+    "backend/src/app/practice/experiment/design.py": "7e28fa270631e0fc5a9943aa7c1f0d9b323e5312197e2c47532863b50d3cc892",
+    "backend/src/app/practice/experiment/generation.py": "46d3d716414d540476450a554a563344caecb9d27659d0489cbda2b15139737b",
+    "backend/src/app/practice/skills/design-experiment/references/output.md": "eee06cbb4206c434bea52fa4b07134b150ea909654a2c409ce48dd683daccd05",
+    "backend/src/app/practice/skills/design-experiment/references/schema.json": "4a7be5f26f3524402d0dd65da358a32adbe19293aad473862216ea2798c6ba18",
+    "backend/src/tests/practice/test_experiment.py": "857e5de6739b8228eaa57cdcc059d344a00ba9c51b20d90e2ed51258a6d393cc"
+  },
+  "backendRegressionPassed": 47,
+  "frontendChangeRequired": false,
+  "productionJobModified": false,
+  "backendPidBefore": 291392,
+  "createdAt": "2026-10-15T06:56:09.917037+00:00",
+  "skillValidationPassed": true,
+  "backendRestarted": false,
+  "restartBlock": "sudo: a password is required",
+  "backendPidAfter": 291392,
+  "updatedAt": "2026-10-15T07:03:55.553936+00:00",
+  "realModelDesignCheck": {
+    "ok": true,
+    "scope": "real model design phase only; no production job or resource writes",
+    "seconds": 21.15,
+    "topic": "冒泡排序",
+    "demo_steps": 9,
+    "tasks": [
+      {
+        "id": "task_compare_decision",
+        "submission": "explicit_submit",
+        "submit_action": null
+      },
+      {
+        "id": "task_no_swap",
+        "submission": "explicit_submit",
+        "submit_action": null
+      },
+      {
+        "id": "task_early_exit",
+        "submission": "explicit_submit",
+        "submit_action": null
+      }
+    ],
+    "adjustments": [],
+    "revision": "742c1421577995bf89be09bd3a042561820f470a9099f6f275f3260e2e6f2893",
+    "attempts": 1
+  },
+  "fullNativeGenerationVerified": false
+}

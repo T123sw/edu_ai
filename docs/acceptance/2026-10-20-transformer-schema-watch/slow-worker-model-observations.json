@@ -1,0 +1,849 @@
+[
+  {
+    "at": "2026-10-20 06:31:50.973486+00:00",
+    "id": "paction_ee78c76e9cab413b95d9879ea6ccca29",
+    "status": "completed",
+    "phase": "resource_write",
+    "recovery": 1,
+    "usage": {
+      "total_tokens": 12783,
+      "prompt_tokens": 10617,
+      "completion_tokens": 2166,
+      "prompt_tokens_details": {
+        "cached_tokens": 10368
+      },
+      "prompt_cache_hit_tokens": 10368,
+      "prompt_cache_miss_tokens": 249
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__preparation__submit_resource_json"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:21.513100+00:00",
+    "id": "paction_9ee57ad91d0b4d02a905948aaf62b0c2",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 102622,
+      "prompt_tokens": 101846,
+      "completion_tokens": 776,
+      "prompt_tokens_details": {
+        "cached_tokens": 97280
+      },
+      "prompt_cache_hit_tokens": 97280,
+      "prompt_cache_miss_tokens": 4566,
+      "completion_tokens_details": {
+        "reasoning_tokens": 451
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__run_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:21.893537+00:00",
+    "id": "paction_8929a87dc70744c09b6285fd135539fb",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 95159,
+      "prompt_tokens": 92522,
+      "completion_tokens": 2637,
+      "prompt_tokens_details": {
+        "cached_tokens": 92288
+      },
+      "prompt_cache_hit_tokens": 92288,
+      "prompt_cache_miss_tokens": 234,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1893
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__edit_file",
+      "mcp__hyperframes__edit_file",
+      "mcp__hyperframes__edit_file",
+      "mcp__hyperframes__edit_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:22.137070+00:00",
+    "id": "paction_8bdeeeb75fd94687b5ea6be8190204ec",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 108670,
+      "prompt_tokens": 108525,
+      "completion_tokens": 145,
+      "prompt_tokens_details": {
+        "cached_tokens": 108032
+      },
+      "prompt_cache_hit_tokens": 108032,
+      "prompt_cache_miss_tokens": 493,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__poll_workers"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:24.807935+00:00",
+    "id": "paction_a320cc5421f440779ee5d192bd62ea38",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 31484,
+      "prompt_tokens": 31087,
+      "completion_tokens": 397,
+      "prompt_tokens_details": {
+        "cached_tokens": 17536
+      },
+      "prompt_cache_hit_tokens": 17536,
+      "prompt_cache_miss_tokens": 13551,
+      "completion_tokens_details": {
+        "reasoning_tokens": 233
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__run_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:25.626879+00:00",
+    "id": "paction_b17b9ea2a7d1457f86a18bff3cbdafa8",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 104765,
+      "prompt_tokens": 103994,
+      "completion_tokens": 771,
+      "prompt_tokens_details": {
+        "cached_tokens": 103680
+      },
+      "prompt_cache_hit_tokens": 103680,
+      "prompt_cache_miss_tokens": 314,
+      "completion_tokens_details": {
+        "reasoning_tokens": 520
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__edit_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:25.862298+00:00",
+    "id": "paction_143e677372fc40e883f602dd82fda3a3",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 114444,
+      "prompt_tokens": 114302,
+      "completion_tokens": 142,
+      "prompt_tokens_details": {
+        "cached_tokens": 113792
+      },
+      "prompt_cache_hit_tokens": 113792,
+      "prompt_cache_miss_tokens": 510,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__poll_workers"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:26.952111+00:00",
+    "id": "paction_0574840061574e4baeab6ad8f89f7b88",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 107173,
+      "prompt_tokens": 106509,
+      "completion_tokens": 664,
+      "prompt_tokens_details": {
+        "cached_tokens": 106368
+      },
+      "prompt_cache_hit_tokens": 106368,
+      "prompt_cache_miss_tokens": 141,
+      "completion_tokens_details": {
+        "reasoning_tokens": 349
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__run_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:29.041354+00:00",
+    "id": "paction_4fee31b1d4154c6081bc56cc6a99562f",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 103109,
+      "prompt_tokens": 103019,
+      "completion_tokens": 90,
+      "prompt_tokens_details": {
+        "cached_tokens": 102528
+      },
+      "prompt_cache_hit_tokens": 102528,
+      "prompt_cache_miss_tokens": 491,
+      "completion_tokens_details": {
+        "reasoning_tokens": 25
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__poll_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:29.965568+00:00",
+    "id": "paction_1e685eca32df4c3db29d808bd3516133",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 130233,
+      "prompt_tokens": 130102,
+      "completion_tokens": 131,
+      "prompt_tokens_details": {
+        "cached_tokens": 129536
+      },
+      "prompt_cache_hit_tokens": 129536,
+      "prompt_cache_miss_tokens": 566,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__poll_workers"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:30.988327+00:00",
+    "id": "paction_6c8990ff3fa843ecba43401a3e4164c9",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 106572,
+      "prompt_tokens": 31730,
+      "completion_tokens": 74842,
+      "prompt_tokens_details": {
+        "cached_tokens": 31360
+      },
+      "prompt_cache_hit_tokens": 31360,
+      "prompt_cache_miss_tokens": 370,
+      "completion_tokens_details": {
+        "reasoning_tokens": 63438
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__write_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:34.098864+00:00",
+    "id": "paction_21fc106cdef146eb8d179651573812c9",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 105130,
+      "prompt_tokens": 104859,
+      "completion_tokens": 271,
+      "prompt_tokens_details": {
+        "cached_tokens": 104704
+      },
+      "prompt_cache_hit_tokens": 104704,
+      "prompt_cache_miss_tokens": 155,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__edit_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:35.384658+00:00",
+    "id": "paction_1a67c8fbca744fafa8209ddb9647b7e9",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 107740,
+      "prompt_tokens": 107515,
+      "completion_tokens": 225,
+      "prompt_tokens_details": {
+        "cached_tokens": 107136
+      },
+      "prompt_cache_hit_tokens": 107136,
+      "prompt_cache_miss_tokens": 379,
+      "completion_tokens_details": {
+        "reasoning_tokens": 162
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__poll_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:35.746342+00:00",
+    "id": "paction_1bbe39ac7a464751ad2a8e0f1a6a87b0",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 105482,
+      "prompt_tokens": 103681,
+      "completion_tokens": 1801,
+      "prompt_tokens_details": {
+        "cached_tokens": 103040
+      },
+      "prompt_cache_hit_tokens": 103040,
+      "prompt_cache_miss_tokens": 641,
+      "completion_tokens_details": {
+        "reasoning_tokens": 805
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__write_file",
+      "mcp__hyperframes__write_file",
+      "mcp__hyperframes__write_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:35.880705+00:00",
+    "id": "paction_9cdf051d1e0a47af8026e84c90d1a31b",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 94615,
+      "prompt_tokens": 94015,
+      "completion_tokens": 600,
+      "prompt_tokens_details": {
+        "cached_tokens": 93696
+      },
+      "prompt_cache_hit_tokens": 93696,
+      "prompt_cache_miss_tokens": 319,
+      "completion_tokens_details": {
+        "reasoning_tokens": 376
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__run_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:39.573806+00:00",
+    "id": "paction_b6244a80aa154104b7c957a2e20841db",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 106356,
+      "prompt_tokens": 105226,
+      "completion_tokens": 1130,
+      "prompt_tokens_details": {
+        "cached_tokens": 105088
+      },
+      "prompt_cache_hit_tokens": 105088,
+      "prompt_cache_miss_tokens": 138,
+      "completion_tokens_details": {
+        "reasoning_tokens": 135
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__finish_work"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:40.097199+00:00",
+    "id": "paction_33a6a472a6294aab8c611d5b517c844c",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 96668,
+      "prompt_tokens": 95548,
+      "completion_tokens": 1120,
+      "prompt_tokens_details": {
+        "cached_tokens": 95104
+      },
+      "prompt_cache_hit_tokens": 95104,
+      "prompt_cache_miss_tokens": 444,
+      "completion_tokens_details": {
+        "reasoning_tokens": 238
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__write_file",
+      "mcp__hyperframes__write_file",
+      "mcp__hyperframes__write_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:42.077222+00:00",
+    "id": "paction_e0ef8da7dc3e428a9cea8baff77e27a6",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 94969,
+      "prompt_tokens": 91500,
+      "completion_tokens": 3469,
+      "prompt_tokens_details": {
+        "cached_tokens": 91264
+      },
+      "prompt_cache_hit_tokens": 91264,
+      "prompt_cache_miss_tokens": 236,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2513
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__edit_file",
+      "mcp__hyperframes__edit_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:42.202600+00:00",
+    "id": "paction_20246dee117447efbe2fdef0310be878",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 133539,
+      "prompt_tokens": 133371,
+      "completion_tokens": 168,
+      "prompt_tokens_details": {
+        "cached_tokens": 132864
+      },
+      "prompt_cache_hit_tokens": 132864,
+      "prompt_cache_miss_tokens": 507,
+      "completion_tokens_details": {
+        "reasoning_tokens": 22
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__poll_workers"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:43.331153+00:00",
+    "id": "paction_9c7ed16cf4b84d75a529322b66284491",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 111701,
+      "prompt_tokens": 108789,
+      "completion_tokens": 2912,
+      "prompt_tokens_details": {
+        "cached_tokens": 107648
+      },
+      "prompt_cache_hit_tokens": 107648,
+      "prompt_cache_miss_tokens": 1141,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2557
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__edit_file",
+      "mcp__hyperframes__run_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:44.028249+00:00",
+    "id": "paction_ae6cb440539b4c65b5c900b491bb249c",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 95702,
+      "prompt_tokens": 94891,
+      "completion_tokens": 811,
+      "prompt_tokens_details": {
+        "cached_tokens": 94592
+      },
+      "prompt_cache_hit_tokens": 94592,
+      "prompt_cache_miss_tokens": 299,
+      "completion_tokens_details": {
+        "reasoning_tokens": 621
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__edit_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:48.182664+00:00",
+    "id": "paction_5a1b8bf8b845401eb65da5efd0ed75cd",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 98778,
+      "prompt_tokens": 97835,
+      "completion_tokens": 943,
+      "prompt_tokens_details": {
+        "cached_tokens": 97664
+      },
+      "prompt_cache_hit_tokens": 97664,
+      "prompt_cache_miss_tokens": 171,
+      "completion_tokens_details": {
+        "reasoning_tokens": 523
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__edit_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:43:49.177255+00:00",
+    "id": "paction_caa09858e560443fab8738d5c8ecec3b",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 97292,
+      "prompt_tokens": 95109,
+      "completion_tokens": 2183,
+      "prompt_tokens_details": {
+        "cached_tokens": 94848
+      },
+      "prompt_cache_hit_tokens": 94848,
+      "prompt_cache_miss_tokens": 261,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1988
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__edit_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:48:15.554676+00:00",
+    "id": "paction_1b1ca49208a94828829aa0f27ecd8b3f",
+    "status": "completed",
+    "phase": null,
+    "recovery": 1,
+    "usage": {
+      "total_tokens": 99798,
+      "prompt_tokens": 98548,
+      "completion_tokens": 1250,
+      "prompt_tokens_details": {
+        "cached_tokens": 98304
+      },
+      "prompt_cache_hit_tokens": 98304,
+      "prompt_cache_miss_tokens": 244,
+      "completion_tokens_details": {
+        "reasoning_tokens": 1089
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__run_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:53:43.054762+00:00",
+    "id": "paction_571045a9158b40d0a787f39725dc64e7",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 128880,
+      "prompt_tokens": 128430,
+      "completion_tokens": 450,
+      "prompt_tokens_details": {
+        "cached_tokens": 128256
+      },
+      "prompt_cache_hit_tokens": 128256,
+      "prompt_cache_miss_tokens": 174,
+      "completion_tokens_details": {
+        "reasoning_tokens": 188
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__run_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:53:45.725008+00:00",
+    "id": "paction_0ffb5f5bda2b41a3a3311cf0b6635e08",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 208895,
+      "prompt_tokens": 208760,
+      "completion_tokens": 135,
+      "prompt_tokens_details": {
+        "cached_tokens": 200960
+      },
+      "prompt_cache_hit_tokens": 200960,
+      "prompt_cache_miss_tokens": 7800,
+      "completion_tokens_details": {
+        "reasoning_tokens": 72
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__poll_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:53:48.243852+00:00",
+    "id": "paction_5afd49080a3348e3b913c72f529a466d",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 129128,
+      "prompt_tokens": 129015,
+      "completion_tokens": 113,
+      "prompt_tokens_details": {
+        "cached_tokens": 128768
+      },
+      "prompt_cache_hit_tokens": 128768,
+      "prompt_cache_miss_tokens": 247,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__render_project"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:53:49.205425+00:00",
+    "id": "paction_972c9e7894db4463a7fb4c02e610c848",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 91823,
+      "prompt_tokens": 31730,
+      "completion_tokens": 60093,
+      "prompt_tokens_details": {
+        "cached_tokens": 31488
+      },
+      "prompt_cache_hit_tokens": 31488,
+      "prompt_cache_miss_tokens": 242,
+      "completion_tokens_details": {
+        "reasoning_tokens": 47391
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__write_file"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  },
+  {
+    "at": "2026-10-20 06:53:51.812169+00:00",
+    "id": "paction_941a315150b14c30954ccf26dd7b7fcb",
+    "status": "completed",
+    "phase": null,
+    "recovery": 0,
+    "usage": {
+      "total_tokens": 129326,
+      "prompt_tokens": 129264,
+      "completion_tokens": 62,
+      "prompt_tokens_details": {
+        "cached_tokens": 129024
+      },
+      "prompt_cache_hit_tokens": 129024,
+      "prompt_cache_miss_tokens": 240,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "finish": "tool_calls",
+    "tool_names": [
+      "mcp__hyperframes__poll_command"
+    ],
+    "receipt_keys": [
+      "usage",
+      "cost_basis",
+      "model_response"
+    ]
+  }
+]

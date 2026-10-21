@@ -1,0 +1,23 @@
+{
+  "calls": 1,
+  "seconds": 14.035312175750732,
+  "decisions": {
+    "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置为空，有效个人偏好为空，故采用 defaults 的 target_minutes=5.0 与 narration=true，按约 300s 组织充分解释与示例；节点 14 分钟学习预算含阅读与练习，不作为成片时长。画幅沿用 defaults 的 16:9，与课程视觉契约 1920x1080 一致。语言按用户提问语言推断为中文。交付类型为约 5 分钟常规教学解释，按原生路由走 general-video，flow=automation、storyboard=no。用户未要求题目，自测与分组互问不写入视频要求，仅保留两项教师演示活动（三色标注三种注意力 Q/K/V 来源、4 词序列掩码矩阵演示）作为视频必须覆盖内容。",
+    "narration": true,
+    "target_minutes": 5,
+    "duration_source": "default"
+  },
+  "started_at": 1792477984.9221025,
+  "brief_sha256": "4d0246fc7b44949a36f71e03d0c8651bfdf59a06da5f7c690be3744a98c01cef",
+  "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"多头注意力把 Q/K/V 投影成多组并行注意力，编码器每层 2 个子层、解码器每层 3 个子层，每个子层都是 LayerNorm(x + Sublayer(x))\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\naudience: \"希望系统学习 Transformer 架构的学习者（具体背景未知，按入门深度组织）\"\nangle: concept\n---\n\n## Intent\n\n这是一节面向“想系统学习 Transformer”的学习者的入门级原理讲解视频，属于课程节点「多头注意力与编码器/解码器各子层职责」。目标不是复述论文，而是让学习者看完后能说清三件事：多头注意力为什么比单头强、三种注意力用法各自的 Q/K/V 从哪来、编码器与解码器的子层差异以及 Add&Norm 在做什么。语气清晰、克制、以图示与逐步拆解为主，避免堆砌公式而不解释。\n\n本节点先修是「自注意力：Q/K/V 与缩放点积计算」，因此视频可以默认学习者已经知道 Attention(Q,K,V)=softmax(QK^T/√dk)V 与除以 √dk 的理由，不必重新推导，但要在用到时一句话点回。\n\n## Customizations\n\n- 视觉遵循课程统一契约：画布 1920x1080，字体 Noto Sans SC，背景 #0f172a，前景 #f8fafc，强调色 #38bdf8；正文最小 32px，图示标签最小 28px，标题最小 48px。密集图示要拆成多步呈现，不要缩小字号硬塞。\n- 课堂演示活动必须由视频覆盖：在架构图上用三种颜色标出编码器自注意力、解码器掩码自注意力、编码器-解码器注意力，并逐一写出各自的 Q/K/V 来源。\n- 课堂演示活动必须由视频覆盖：给定一个 4 词序列，画出解码器掩码矩阵，标出被置为 −∞ 的位置并解释为什么必须阻止信息向左流动（保持自回归性质）。\n- 多头注意力用“投影 → 并行 → 拼接 → 再投影”的分步动画演示，公式 MultiHead(Q,K,V)=Concat(head1..headh)W^O，head_i=Attention(QW_i^Q, KW_i^K, VW_i^V) 与图示同步出现。\n- FFN 与 Add&Norm 用同一张子层示意图讲清：FFN(x)=max(0, xW1+b1)W2+b2 对每个位置独立且相同地作用，可视为两个核大小为 1 的卷积；每个子层输出为 LayerNorm(x + Sublayer(x))。\n\n## Notes\n\n必须讲清的内容与演示深度：\n\n1. 多头注意力：把 Q、K、V 用不同的可学习线性投影映射 h 次到 dk、dk、dv 维，并行执行注意力后拼接并再次投影；它让模型能在不同位置联合关注不同表示子空间的信息，单头平均会抑制这一点。原论文取 h=8、dk=dv=dmodel/h=64，因每个头维度降低，总计算成本与全维单头注意力相近。\n2. 三种注意力用法：编码器自注意力（Q/K/V 都来自上一层编码器输出，每个位置可关注上一层所有位置）；解码器掩码自注意力（每个位置只能关注到当前位置及之前，把 softmax 输入中非法连接置为 −∞）；编码器-解码器注意力（Q 来自上一层解码器，K/V 来自编码器输出，使解码器每个位置都能关注输入序列全部位置）。\n3. 逐位置前馈网络：对每个位置分别且相同地施加两次线性变换、中间夹 ReLU；不同位置共享同一组变换，但不同层参数不同；输入输出维度 dmodel=512，内层 dff=2048。\n4. 残差连接 + 层归一化：每个子层输出为 LayerNorm(x + Sublayer(x))；为便于残差连接，所有子层与嵌入层输出维度都是 dmodel=512。\n5. 结构差异：编码器由 N=6 个相同层堆叠，每层 2 个子层（多头自注意力、逐位置 FFN）；解码器同样 6 层，在编码器两个子层之外插入第三个子层（对编码器输出做多头注意力）。\n\n来源：全部知识依据来自公开论文《Attention Is All You Need》（https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf）第 3.1、3.2.2、3.2.3、3.3 节。用户未上传任何资料。\n\n排除项与边界：\n\n- 不涉及从零实现可运行 Transformer 代码、训练与调参。\n- N=6、dmodel=512、h=8、dff=2048 是 2017 年原始 base 模型设定，须明确说明不代表所有后续变体。\n- 不重复推导缩放点积注意力与 √dk 的细节（属先修节点），只用一句话回指。\n- 位置编码、Transformer 相对循环网络的优势属其他节点，本视频不展开。\n- 分组互问、自测题等独立练习不放进视频，留给习题；详细阅读留给报告。\n\n语音与时长：需要中文配音旁白（narration=true）。用户未指定视频时长，按默认约 5 分钟（300s）安排充分解释与示例；节点 14 分钟学习预算包含阅读与练习，不等同视频时长。\n",
+  "schema_version": 1,
+  "effective_preferences": {
+    "defaults": {
+      "aspect": "16:9",
+      "narration": true,
+      "duration_mode": "target",
+      "target_minutes": 5.0
+    },
+    "explicit": {}
+  }
+}

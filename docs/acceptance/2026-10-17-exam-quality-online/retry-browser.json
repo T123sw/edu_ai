@@ -1,0 +1,789 @@
+{
+  "boundary": "Production Nginx, real authentication, browser upload, API, durable worker, MinerU and DeepTutor. Dedicated test account.",
+  "startedAt": "2026-10-17T16:10:21.999Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 200,
+      "method": "GET"
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-17T16:10:25.715Z",
+      "text": "性能与质量上线复测：依据整份原卷生成新的数据结构模拟试卷，保持原题顺序、题型和对应考点，保留子题结构，使用新的有效数据，不照抄原题。\n\n生成中 · 正在生成题目"
+    },
+    {
+      "at": "2026-10-17T16:18:45.810Z",
+      "text": "性能与质量上线复测：依据整份原卷生成新的数据结构模拟试卷，保持原题顺序、题型和对应考点，保留子题结构，使用新的有效数据，不照抄原题。\n\n生成失败 · 任务执行失败\n\n本次未生成完整试卷，重试将保留已通过的题目。\n\n重试生成"
+    }
+  ],
+  "errors": [],
+  "retries": 0,
+  "completed": false,
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "finishedAt": "2026-10-17T16:18:46.431Z"
+}

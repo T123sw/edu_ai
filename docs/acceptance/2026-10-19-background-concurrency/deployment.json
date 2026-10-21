@@ -1,0 +1,52 @@
+{
+  "status": "published-and-verified",
+  "sourceManifest": {
+    "backend/src/app/chat/tasks/task_store.py": "02a89ad69ee5ffa72fb69480d33ab618a883fa43e99643f0af359c6c849ce297",
+    "backend/src/app/chat/tasks/postgres_task_store.py": "a46bee2ba48509475a02c6d19555fc2a565bb96e492d3c45327e4ed680d2445b",
+    "backend/src/app/services/durable_task_executor.py": "69d7384b31b81a46eb580aef09091c806e694edbbb4634d335720148a5792f8f",
+    "backend/src/app/services/durable_executor_pool.py": "e9df35fe17054a0e9fa1fc4a0bb68fb7e145c9881d3566a4667e3302de8738f9",
+    "backend/src/app/services/durable_job_runtime.py": "fb931a78a95b9bee43f61218ea138224022c71fed1768469eba7ff05a933b0c6",
+    "backend/src/app/services/durable_worker.py": "91e5ba3b7560481627b6760ffade2d8d2ec01041bb106aeffe074fc4fedf8e7a",
+    "backend/src/core/config.py": "4ad284f6a3b059978b9db6eb4d4dda229b952140213a036fd3fe7db032f70ad3",
+    "backend/src/app/course_preparation/production_stages.py": "2fdb433a290e1204b953ca4b3283b9696d6c38effc847aab29b07a30b49561e6",
+    "backend/src/app/integrations/hyperframes/workflow_agent.py": "ac5b89988c6fb743ee7b167329a716546a65a19bfd7bdbe020a8c3ceb4e0b0fb",
+    "backend/src/app/integrations/hyperframes/workflow_workers.py": "bc6b9eb18228848175c343f495619b9042dd08fe3e9948b7de9aad7c972f3eb2",
+    "deploy/systemd/edu-ai-durable-workers.service": "1617f277a4b008a0de23807126b553caae1a93d9d368c976c11f70ed9d673fc9"
+  },
+  "initialMainPid": 2345017,
+  "additionalGenerationWorkers": 5,
+  "dedicatedControlWorkers": 2,
+  "existingGeneralWorkers": 3,
+  "courseResourceConcurrency": 4,
+  "existingWorkPreserved": true,
+  "verifiedAt": "2026-10-19T04:15:35.772227+00:00",
+  "workerPid": 2412277,
+  "mainBackendRestarted": false,
+  "serviceEnabled": true,
+  "linger": true,
+  "checks": {
+    "testsPassed": 83,
+    "testsSkipped": 6,
+    "postgresConcurrentClaimAndScheduling": true,
+    "fourRealResourcesRunningTogether": true,
+    "originalStartedAtAttemptAndLeaseOwnerPreserved": true,
+    "apiHealth": 200
+  },
+  "limits": [
+    "Capacity is bounded; excess tasks still queue.",
+    "Existing two video sessions keep their loaded serial scene implementation; newly claimed resources use the existing parallel frame implementation.",
+    "The six global frame slots are per process, not a distributed cross-process limit."
+  ],
+  "configuration": {
+    "main": {
+      "DURABLE_JOB_WORKERS": 3,
+      "DURABLE_JOB_CONTROL_WORKERS": 0
+    },
+    "additionalService": {
+      "generationWorkers": 5,
+      "controlWorkers": 2
+    },
+    "COURSE_PREPARATION_RESOURCE_CONCURRENCY": 4
+  },
+  "envBackup": "/home/zxqs_ep/data/edu_ai/backups/concurrency-20261019.env"
+}

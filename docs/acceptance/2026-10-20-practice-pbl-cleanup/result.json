@@ -1,0 +1,189 @@
+{
+  "kept": [
+    "pbl_21f2da17fb283afb361837799aed787c",
+    "pbl_f68a8c30ed541638347f1ee9dd701055"
+  ],
+  "deletedProjects": [
+    "pbl_18fa019c570001cf47cd40a1dc418073",
+    "pbl_3124a96374e8380769800fea066021b1",
+    "pbl_447bc9fe9b715ff47354e03868f3fd47",
+    "pbl_48a21a73983a19b86e96cc5edd36dddd",
+    "pbl_5880f37834bfd306e4f25a0eefec6212",
+    "pbl_5c9f08603b63b9130cb7f88409b8369e",
+    "pbl_5dc671faa1ff0e5d2f3fa966627ab4c1",
+    "pbl_65330c4a2de42e33daf589fc48098364",
+    "pbl_770f06c4f591cad565fb173ea03a37b9",
+    "pbl_8927da86033f17c41b89ff64b96598ea",
+    "pbl_8d8b532ba6fd7c103d7aa1878232ff91",
+    "pbl_92787ec536e4d2b60f2c05e1b45072d4",
+    "pbl_a84d35189f9cc27862a94f165a673b77",
+    "pbl_b33fe35781ba590d346b053f240b447b",
+    "pbl_b9e006fc07bae9b3f16f0bc5c57155f0"
+  ],
+  "deletedJobs": [
+    "job_1f682b31a94146a6",
+    "job_3aeff94f1c8d45a8",
+    "job_3fb54a2da8664107",
+    "job_54ed9f94b4854bae",
+    "job_7d0d516e7a7b42b1",
+    "job_ab728d996512424d",
+    "job_b742c78a37784374",
+    "pbl_18fa019c570001cf47cd40a1dc418073",
+    "pbl_2f36868f8546999ecbbd045bd65b43b7",
+    "pbl_3124a96374e8380769800fea066021b1",
+    "pbl_3b54deb1e8c67c697a999ed5b1ff8cb0",
+    "pbl_447bc9fe9b715ff47354e03868f3fd47",
+    "pbl_48a21a73983a19b86e96cc5edd36dddd",
+    "pbl_4ea3a8b109c47443b3c43ef6d1fce32d",
+    "pbl_4f568878d9cf1e8a09ae6b269ac9183c",
+    "pbl_54f5afa74835608ddebfa116a2f87380",
+    "pbl_5880f37834bfd306e4f25a0eefec6212",
+    "pbl_5ac85b735fde7afab09e8212e6caee56",
+    "pbl_5c9f08603b63b9130cb7f88409b8369e",
+    "pbl_5dc671faa1ff0e5d2f3fa966627ab4c1",
+    "pbl_65330c4a2de42e33daf589fc48098364",
+    "pbl_770f06c4f591cad565fb173ea03a37b9",
+    "pbl_7c4c46447cc8b057a16827e5363783a5",
+    "pbl_8927da86033f17c41b89ff64b96598ea",
+    "pbl_8d8b532ba6fd7c103d7aa1878232ff91",
+    "pbl_92787ec536e4d2b60f2c05e1b45072d4",
+    "pbl_9852f45dddcd50f29b05f2b6c078eaba",
+    "pbl_994c6900eaee3aee0b2fbb963d73be90",
+    "pbl_9b68b0e92dbcc3d7f2bd867dda5cf56f",
+    "pbl_9c4ecb09ed3234a3ffa8f6252c28c8b0",
+    "pbl_a84d35189f9cc27862a94f165a673b77",
+    "pbl_b21e26e2f47bc2f40b5519fe3fe39622",
+    "pbl_b33fe35781ba590d346b053f240b447b",
+    "pbl_b9e006fc07bae9b3f16f0bc5c57155f0",
+    "pbl_eddfcdd453ff61710bed54db7102bc57",
+    "pbl_f402ac13e0ff55a31a04e615a7d788dc",
+    "practice_0b922b7ced3ede29bb1542463bb52895",
+    "practice_0ea4343e06197b531fd767ebbc5a717b",
+    "practice_289c568969485348808f76997ef40576",
+    "practice_3dc0bc2275eb8e6dd2e9412dd059988b",
+    "practice_3f60923207dac4589abd65cc1d19e33b",
+    "practice_4066691d3732c56e8c087ca9f8389060",
+    "practice_47be683aa123c52a7dda9f5aa0380a12",
+    "practice_5b8a3567562383a9e719085b55bf5f01",
+    "practice_6e557e64a2f693ffce97c98ea6258fb1",
+    "practice_7069af4007cb31d7735ac7420381406e",
+    "practice_7627cd8cbc6a02a42bf92576ba63a9c5",
+    "practice_762c389e5614798fa39791c95d6f7558",
+    "practice_78bf451e20930097cf17371cc4bea3a5",
+    "practice_792ef220f0ee56f7576d4417540dc83f",
+    "practice_b0688a45b12689bbbe6f80c49363edf3",
+    "practice_d15a0350026547e771db346c381664d5",
+    "practice_dbd01b5a0821a1b3d09e1c41a7194331"
+  ],
+  "deletedDurableTasks": [
+    "practice_0b922b7ced3ede29bb1542463bb52895",
+    "job_7d0d516e7a7b42b1",
+    "practice_6e557e64a2f693ffce97c98ea6258fb1",
+    "practice_5b8a3567562383a9e719085b55bf5f01",
+    "pbl_b9e006fc07bae9b3f16f0bc5c57155f0",
+    "practice_7069af4007cb31d7735ac7420381406e",
+    "practice_b0688a45b12689bbbe6f80c49363edf3",
+    "job_b742c78a37784374",
+    "practice_47be683aa123c52a7dda9f5aa0380a12",
+    "pbl_92787ec536e4d2b60f2c05e1b45072d4",
+    "pbl_8d8b532ba6fd7c103d7aa1878232ff91",
+    "pbl_b33fe35781ba590d346b053f240b447b",
+    "pbl_5c9f08603b63b9130cb7f88409b8369e",
+    "practice_289c568969485348808f76997ef40576",
+    "practice_0ea4343e06197b531fd767ebbc5a717b",
+    "practice_3dc0bc2275eb8e6dd2e9412dd059988b",
+    "practice_3f60923207dac4589abd65cc1d19e33b",
+    "pbl_3124a96374e8380769800fea066021b1",
+    "pbl_770f06c4f591cad565fb173ea03a37b9",
+    "pbl_5880f37834bfd306e4f25a0eefec6212",
+    "pbl_a84d35189f9cc27862a94f165a673b77",
+    "pbl_447bc9fe9b715ff47354e03868f3fd47",
+    "job_3fb54a2da8664107",
+    "practice_d15a0350026547e771db346c381664d5",
+    "pbl_18fa019c570001cf47cd40a1dc418073",
+    "job_1f682b31a94146a6",
+    "pbl_5dc671faa1ff0e5d2f3fa966627ab4c1",
+    "practice_7627cd8cbc6a02a42bf92576ba63a9c5",
+    "pbl_65330c4a2de42e33daf589fc48098364",
+    "job_3aeff94f1c8d45a8",
+    "practice_dbd01b5a0821a1b3d09e1c41a7194331",
+    "practice_792ef220f0ee56f7576d4417540dc83f",
+    "practice_4066691d3732c56e8c087ca9f8389060",
+    "pbl_8927da86033f17c41b89ff64b96598ea",
+    "pbl_48a21a73983a19b86e96cc5edd36dddd",
+    "practice_78bf451e20930097cf17371cc4bea3a5",
+    "practice_762c389e5614798fa39791c95d6f7558"
+  ],
+  "practiceJobCount": 20,
+  "practiceLogicalCount": 17,
+  "practiceStateRows": 147,
+  "keptIntegrityBefore": {
+    "pbl_exercises": {
+      "count": 2,
+      "sha256": "026e4097e314cd043cc5fbf453e79d89eb53d04b9da823cebe974f486d01576d"
+    },
+    "pbl_workspaces": {
+      "count": 2,
+      "sha256": "064f2669216b6ca38d67afed576b4c75646ee797b2a996fe65fb89505e696ea2"
+    },
+    "pbl_runs": {
+      "count": 7,
+      "sha256": "250f0977928e99fc20bfa00c98210f854753c7293060999a2577fb4cc50af4f1"
+    },
+    "pbl_tutor_turns": {
+      "count": 2,
+      "sha256": "49ca1a13ee0a019983b9b733e60352a9898cded602a817c8561ef1ab2eb9ef67"
+    }
+  },
+  "status": "deleted-and-online-verified",
+  "deletedCounts": {
+    "pbl_tutor_turns": 2,
+    "pbl_runs": 31,
+    "pbl_workspaces": 9,
+    "pbl_exercises": 15,
+    "job_events": 464,
+    "jobs": 53,
+    "durable_tasks": 37,
+    "practice_state_records": 147
+  },
+  "keptIntegrityAfter": {
+    "pbl_exercises": {
+      "count": 2,
+      "sha256": "026e4097e314cd043cc5fbf453e79d89eb53d04b9da823cebe974f486d01576d"
+    },
+    "pbl_workspaces": {
+      "count": 2,
+      "sha256": "064f2669216b6ca38d67afed576b4c75646ee797b2a996fe65fb89505e696ea2"
+    },
+    "pbl_runs": {
+      "count": 7,
+      "sha256": "250f0977928e99fc20bfa00c98210f854753c7293060999a2577fb4cc50af4f1"
+    },
+    "pbl_tutor_turns": {
+      "count": 2,
+      "sha256": "49ca1a13ee0a019983b9b733e60352a9898cded602a817c8561ef1ab2eb9ef67"
+    }
+  },
+  "timestamp": 1792486206.026158,
+  "removedLegacyJobFiles": [],
+  "onlineVerification": {
+    "practiceItems": 0,
+    "pblItems": [
+      {
+        "exerciseId": "pbl_21f2da17fb283afb361837799aed787c",
+        "topic": "我想学习快速排序",
+        "status": "succeeded",
+        "jobId": "pbl_21f2da17fb283afb361837799aed787c"
+      },
+      {
+        "exerciseId": "pbl_f68a8c30ed541638347f1ee9dd701055",
+        "topic": "我想实现一个计算器",
+        "status": "succeeded",
+        "jobId": "pbl_f68a8c30ed541638347f1ee9dd701055"
+      }
+    ],
+    "preservedWorkspaceFilesMatchDatabase": true,
+    "deletedExperimentReturns404": true,
+    "deletedPblReturns404": true
+  }
+}

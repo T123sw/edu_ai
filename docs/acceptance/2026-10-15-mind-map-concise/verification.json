@@ -1,0 +1,80 @@
+{
+  "success": true,
+  "verifiedAt": "2026-10-15T06:12:16.043837+00:00",
+  "checks": {
+    "typecheck": "passed",
+    "eslint": "passed",
+    "build": "passed",
+    "frontendUnitTests": 4,
+    "backendUnitTests": 5,
+    "realModel": {
+      "success": true,
+      "elapsedSeconds": 3.65,
+      "nodeCount": 20,
+      "summaryLengths": [
+        0,
+        13,
+        11,
+        9,
+        12,
+        11,
+        11,
+        12,
+        12,
+        15,
+        10,
+        12,
+        11,
+        12,
+        12,
+        8,
+        10,
+        16,
+        10,
+        17
+      ],
+      "scope": "Real model, pre-change graph service, updated frontend request instructions, in-memory save only; no production resource writes."
+    },
+    "previewBrowserTests": 4,
+    "publishedBrowserTests": 4,
+    "realModelDisplayWidths": [
+      1440,
+      390
+    ],
+    "onlineEntryAssetsVerified": 2,
+    "backendHealth": "ok"
+  },
+  "realModel": {
+    "success": true,
+    "elapsedSeconds": 3.65,
+    "nodeCount": 20,
+    "summaryLengths": [
+      0,
+      13,
+      11,
+      9,
+      12,
+      11,
+      11,
+      12,
+      12,
+      15,
+      10,
+      12,
+      11,
+      12,
+      12,
+      8,
+      10,
+      16,
+      10,
+      17
+    ],
+    "scope": "Real model, pre-change graph service, updated frontend request instructions, in-memory save only; no production resource writes."
+  },
+  "browserScope": "Real deployed frontend with mocked business APIs; actual model output rendered unchanged.",
+  "existingMaps": "Saved maps remain unchanged and require regeneration for concise summaries.",
+  "pagePrompt": "Updated generation request instructions work with the pre-change backend service, verified with the actual configured model.",
+  "backendDefaultPromptReloadVerified": false,
+  "releaseIndexSha256": "b07d97e3acb72ebcff51be816217a58562a237b3aefd044024ef0204d38cbc9d"
+}

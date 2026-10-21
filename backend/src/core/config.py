@@ -58,12 +58,26 @@ class Config:
     QWEN_API_KEY = os.getenv("QWEN_API_KEY", "")
     VISION_MODEL_ID = os.getenv("VISION_MODEL_ID", "qwen3.5-plus")
 
+    # Speech deployment switch: true uses local TTS_*; false uses TTS_REMOTE_*.
+    # Saved profiles and historical task snapshots cannot override either mode.
+    TTS_LOCAL_ONLY = _env_bool("TTS_LOCAL_ONLY", False)
+    TTS_API_BASE = os.getenv(
+        "TTS_API_BASE", os.getenv("LOCAL_TTS_BASE_URL", "http://127.0.0.1:8188/v1")
+    )
+    TTS_MODEL = os.getenv("TTS_MODEL", os.getenv("LOCAL_TTS_MODEL", "qwen3-tts"))
+    TTS_VOICE = os.getenv(
+        "TTS_VOICE", os.getenv("LOCAL_TTS_DEFAULT_VOICE", "vivian")
+    )
+    TTS_TIMEOUT_SECONDS = float(
+        os.getenv("TTS_TIMEOUT_SECONDS", os.getenv("LOCAL_TTS_TIMEOUT_SECONDS", "120"))
+    )
+
     # Shared OpenMAIC classroom speech profile for narration and live answers.
     # Provider selection is server-owned and never accepted from the browser.
     OPENMAIC_LIVE_TTS_PROVIDER = os.getenv(
-        "OPENMAIC_LIVE_TTS_PROVIDER", "qwen-tts"
+        "OPENMAIC_LIVE_TTS_PROVIDER", "qwen3-tts"
     )
-    OPENMAIC_LIVE_TTS_VOICE = os.getenv("OPENMAIC_LIVE_TTS_VOICE", "Cherry")
+    OPENMAIC_LIVE_TTS_VOICE = os.getenv("OPENMAIC_LIVE_TTS_VOICE", "vivian")
     OPENMAIC_LIVE_TTS_SPEED = min(
         2.0,
         max(0.5, float(os.getenv("OPENMAIC_LIVE_TTS_SPEED", "1.0"))),
@@ -104,6 +118,10 @@ class Config:
     EMBEDDING_BATCH_SIZE = int(os.getenv("EMBEDDING_BATCH_SIZE", "64"))
     EMBEDDING_MAX_WORKERS = int(os.getenv("EMBEDDING_MAX_WORKERS", "4"))
     DURABLE_JOB_WORKERS = max(1, int(os.getenv("DURABLE_JOB_WORKERS", "3")))
+    DURABLE_JOB_LIGHT_WORKERS = max(0, int(os.getenv("DURABLE_JOB_LIGHT_WORKERS", "2")))
+    DURABLE_JOB_CONTROL_WORKERS = max(0, int(os.getenv("DURABLE_JOB_CONTROL_WORKERS", "2")))
+    COURSE_PREPARATION_RESOURCE_CONCURRENCY = max(1, min(32, int(os.getenv("COURSE_PREPARATION_RESOURCE_CONCURRENCY", "8"))))
+    COURSE_PREPARATION_VIDEO_CONCURRENCY = max(1, int(os.getenv("COURSE_PREPARATION_VIDEO_CONCURRENCY", "8")))
 
     # 存储路径
     STORAGE_ROOT = Path(os.getenv("STORAGE_ROOT", "storage"))

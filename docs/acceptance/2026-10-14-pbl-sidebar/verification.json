@@ -1,0 +1,48 @@
+{
+  "typecheck": "passed: tsconfig.self-learning.json",
+  "eslint": "passed: three modified TSX components",
+  "build": "passed",
+  "sourceAndAllPublishedAssetsMatch": true,
+  "browserUniqueCases": 6,
+  "developmentSuite": {
+    "passed": 5,
+    "externalRuntimeTimeout": 1
+  },
+  "developmentRerunAfterAutoScroll": {
+    "passed": 1,
+    "externalRuntimeTimeout": 2
+  },
+  "finalProductionBuildRerun": {
+    "passed": 2,
+    "covers": [
+      "preview clicks, cumulative checks, code edit invalidation, saved files and steps restored",
+      "preview counter and tutor draft retained across panels and step changes, resize and explicit preview reset"
+    ]
+  },
+  "algorithmShellWidths": [
+    1440,
+    1024,
+    768,
+    700,
+    390,
+    320
+  ],
+  "projectWidths": [
+    1440,
+    1024,
+    900,
+    768,
+    720,
+    701,
+    700,
+    390
+  ],
+  "actualCalculatorReadOnlyWidths": [
+    1440,
+    1024,
+    390,
+    320
+  ],
+  "mobileCurrentStepScroll": "passed: next-step to fourth step at 390px",
+  "limitations": "Browser tests mock business/auth/storage APIs and use real Sandpack React previews. Algorithm sidebar geometry was checked with its external runtime deliberately blocked; algorithm execution was not re-tested in this layout-only change. Development-server runs encountered external Sandpack connection timeouts (initial suite: 5 passed, 1 timeout; rerun: 1 passed, 2 timeouts). Both affected cases passed against the final production build. Actual calculator replay is read-only; no production learner code or progress was changed."
+}

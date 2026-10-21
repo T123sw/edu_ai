@@ -1,0 +1,42 @@
+{
+  "base": "http://127.0.0.1",
+  "lessons": [
+    {
+      "index": 1,
+      "duration": 294.5,
+      "width": 1920,
+      "height": 1080,
+      "audio": {
+        "time": 2.032,
+        "paused": false,
+        "muted": false,
+        "state": "running",
+        "rms": 0.05423912215351003
+      },
+      "seek": 190,
+      "readingSeconds": 191.203125
+    }
+  ],
+  "errors": [],
+  "videoResponses": [
+    {
+      "status": 206,
+      "range": "bytes=0-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=8355840-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=0-"
+    },
+    {
+      "status": 206,
+      "range": "bytes=8683520-"
+    }
+  ],
+  "nativeHtmlRequests": 0,
+  "refreshedPosition": 191.203125,
+  "passed": true
+}

@@ -1,0 +1,7 @@
+{
+  "id": "pbl_8927da86033f17c41b89ff64b96598ea",
+  "status": "failed",
+  "errorCode": "UNSUPPORTED_PROJECT_RUNTIME",
+  "message": "当前可运行 HTML/JavaScript/TypeScript、React、Vue、Svelte 和 Node 无请求体接口；带请求体的写接口、其他语言或外部服务暂不支持",
+  "artifactPublished": false
+}

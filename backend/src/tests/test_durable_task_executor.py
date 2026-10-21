@@ -185,6 +185,45 @@ def test_executor_heartbeats_while_handler_is_blocked(monkeypatch, tmp_path):
     store.close()
 
 
+def test_deadline_fails_blocked_handler_and_rejects_late_progress(monkeypatch, tmp_path):
+    store, _, registry, executor = build_runtime(monkeypatch, tmp_path)
+    started, release = threading.Event(), threading.Event()
+    observed = {}
+
+    def blocked_provider(command, context):
+        observed["context"] = context
+        started.set()
+        assert release.wait(timeout=5)
+        context.progress(80, "saving", "late provider response")
+        return {"saved": True, "result_ref": {"resource_type": "test"}}
+
+    registry.register("report_direct", 1, blocked_provider)
+    store._conn.execute(
+        "UPDATE tasks SET deadline_at=? WHERE task_id='job-1'", (time.time() + 0.5,)
+    )
+    store._conn.commit()
+    executor.start()
+    try:
+        assert started.wait(timeout=2)
+        end = time.monotonic() + 2
+        while get_job("job-1").status != JobStatus.FAILED and time.monotonic() < end:
+            time.sleep(0.01)
+        assert not release.is_set()
+        assert store.get_durable("job-1").status == "failed"
+        assert get_job("job-1").error_code == "GENERATION_DEADLINE_EXCEEDED"
+        assert observed["context"].is_cancel_requested()
+        release.set()
+        executor.stop(grace_seconds=2)
+        assert not executor.is_running
+        assert get_job("job-1").status == JobStatus.FAILED
+        assert get_job("job-1").progress == 100
+        assert store.get_durable("job-1").status == "failed"
+    finally:
+        release.set()
+        executor.stop(grace_seconds=2)
+        store.close()
+
+
 def test_business_failure_preserves_its_stable_error_code(monkeypatch, tmp_path):
     store, _, registry, executor = build_runtime(monkeypatch, tmp_path)
 
@@ -281,3 +320,18 @@ def test_worker_loop_survives_a_transient_claim_failure(
     assert executor.is_running is True
     executor.stop(grace_seconds=1)
     store.close()
+
+
+def test_handler_cooperative_stop_on_deadline_is_timeout_not_user_cancel(monkeypatch,tmp_path):
+    store,manager,registry,executor=build_runtime(monkeypatch,tmp_path)
+    expired=False
+    monkeypatch.setattr(executor,'_deadline_exceeded',lambda *args,**kwargs:expired)
+    def handler(command,context):
+        nonlocal expired
+        expired=True
+        assert context.is_cancel_requested()
+        raise DurableTaskExecutionError('GENERATION_CANCELLED','stopped')
+    registry.register('report_direct',1,handler)
+    assert executor.run_once()
+    assert get_job('job-1').error_code=='GENERATION_DEADLINE_EXCEEDED'
+    assert store.get_durable('job-1').status=='failed'

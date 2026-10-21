@@ -1,0 +1,36 @@
+{
+  "preparation_id": "prep_b2f06dd7d6344386936420c991931ae4",
+  "attempt_no": 2,
+  "goal": "我想学习快速排序",
+  "error_code": "DEADLINE_EXCEEDED",
+  "production_backend": {
+    "pid": 3317359,
+    "started_at_utc": "2026-10-13T18:33:19+00:00",
+    "previous_fixes_loaded": true
+  },
+  "created_at_utc": "2026-10-13 17:43:14.966215+00:00",
+  "retry_at_utc": "2026-10-13 18:42:03.555349+00:00",
+  "deadline_utc": "2026-10-13 18:43:14.975915+00:00",
+  "remaining_seconds_at_retry": 71.420566,
+  "cause": "Manual retry retains the original absolute one-hour task deadline, including time spent failed and waiting. The resumed run reached resource generation but ran out of wall-clock time.",
+  "passed_stages": [
+    "plan",
+    "research_nodes"
+  ],
+  "planned_nodes": 4,
+  "resource_specs": 12,
+  "saved_private_drafts": [
+    "report",
+    "quiz"
+  ],
+  "classroom_status": "failed: BUDGET_EXHAUSTED: 备课父任务时限耗尽",
+  "published_versions": 0,
+  "not_triggered": [
+    "RESEARCH_CONTEXT_BUDGET",
+    "AI classroom extra model review"
+  ],
+  "inspection_only": true,
+  "production_mutations": false,
+  "suggested_immediate_path": "Submit the same requirement as a new task; the expired task cannot be retried with its existing deadline. New-task end-to-end delivery has not been verified here.",
+  "followup_design": "Distinguish automatic retry from user-initiated recovery. Preserve spent call/token/cost budgets, and explicitly define a bounded renewed execution window for manual recovery; expose expiry and remaining time in UI."
+}

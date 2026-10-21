@@ -1,0 +1,12 @@
+{
+  "frontend": "published",
+  "published_at": "2026-10-13T20:12:02.731848+00:00",
+  "source_build": "/home/zxqs_ep/Edu_AI/frontend/dist-preparation-no-content-caps",
+  "served_root": "/home/zxqs_ep/Edu_AI/frontend/dist",
+  "old_assets_retained": true,
+  "backend": "pending_restart",
+  "backend_pid_at_check": 3317359,
+  "restart_attempt": "sudo -n systemctl restart edu-ai-backend",
+  "restart_result": "sudo: a password is required",
+  "database_migration_required_for_this_change": false
+}

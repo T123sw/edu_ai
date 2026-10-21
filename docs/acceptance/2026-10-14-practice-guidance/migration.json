@@ -1,0 +1,16 @@
+{
+  "previous": [
+    "20261014_0039"
+  ],
+  "current": [
+    "20261014_0040"
+  ],
+  "newTables": [
+    "practice_sessions",
+    "practice_events",
+    "practice_journal_entries"
+  ],
+  "backup": "/home/zxqs_ep/Edu_AI/.runtime/backups/practice-guidance-20261014T071206Z",
+  "existingLearnerRowsModified": false,
+  "appliedAt": "20261014T071206Z"
+}

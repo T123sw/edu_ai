@@ -1,0 +1,41 @@
+{
+  "preparation_id": "prep_7e7c132ad8864ea293c97b527a0c76f6",
+  "seconds": 29.18,
+  "goal": "我想学习快速排序",
+  "status": "failed",
+  "stage": "normalize",
+  "error": "BUDGET_EXHAUSTED",
+  "stopped_before_generation": false,
+  "passed": false,
+  "errors": [],
+  "httpErrors": [
+    {
+      "path": "/backend/api/self-learning/state",
+      "status": 500
+    },
+    {
+      "path": "/backend/api/self-learning/state",
+      "status": 500
+    },
+    {
+      "path": "/backend/api/self-learning/state",
+      "status": 500
+    },
+    {
+      "path": "/backend/api/self-learning/state",
+      "status": 500
+    },
+    {
+      "path": "/backend/api/self-learning/state",
+      "status": 500
+    },
+    {
+      "path": "/backend/api/self-learning/state",
+      "status": 500
+    },
+    {
+      "path": "/backend/api/self-learning/state",
+      "status": 500
+    }
+  ]
+}

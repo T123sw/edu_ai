@@ -1,0 +1,161 @@
+{
+  "case": "shop_b",
+  "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+  "exerciseId": "pbl_805d41af6b4b874116a055337cb6385a",
+  "generationPassed": true,
+  "job": {
+    "schema_version": 2,
+    "version": 17,
+    "edu_job_id": "pbl_805d41af6b4b874116a055337cb6385a",
+    "kind": "generate_pbl",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "编程项目已就绪，可以开始实现",
+    "owner_user_id": "matrix_shop_b",
+    "owner": "matrix_shop_b",
+    "course_id": null,
+    "scope_type": "pbl",
+    "scope_id": "pbl_805d41af6b4b874116a055337cb6385a",
+    "input_summary": {
+      "title": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+      "topic": "我想用 React 做一个购物清单页面，练习状态管理和列表操作。输入商品名称，点击“添加”后加入列表，初始数量为 1，并清空输入框。空白名称不能添加，页面显示提示。每件商品都有增加、减少数量的按钮，数量最低为 1。可以切换“待购买 / 已购买”状态，也可以删除商品。支持按“全部 / 待购买 / 已购买”筛选。显示商品种类数和待购买总件数；统计基于整个清单，不受筛选影响。只在当前页面运行，不需要后端、登录或刷新后保存。我已经会基本 JSX，请按合理的功能增量拆分步骤，说明每步成果和验收要求。",
+      "exercise_id": "pbl_805d41af6b4b874116a055337cb6385a"
+    },
+    "result_ref": {
+      "exercise_id": "pbl_805d41af6b4b874116a055337cb6385a",
+      "resource_type": "pbl_exercise"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "provider_job_ref": null,
+    "sidecar_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-10-17T08:28:31.971510+00:00",
+    "started_at": "2026-10-17T08:29:07.377445+00:00",
+    "finished_at": "2026-10-17T08:31:41.910537+00:00",
+    "updated_at": "2026-10-17T08:31:41.910537+00:00"
+  },
+  "events": [
+    {
+      "seconds": 1.89,
+      "state": [
+        "queued",
+        "queued",
+        "编程练习已排队"
+      ]
+    },
+    {
+      "seconds": 38.17,
+      "state": [
+        "running",
+        "pbl_plan",
+        "正在拆解项目目标与步骤"
+      ]
+    },
+    {
+      "seconds": 46.54,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：添加商品与空白校验"
+      ]
+    },
+    {
+      "seconds": 52.83,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：添加商品与空白校验"
+      ]
+    },
+    {
+      "seconds": 70.23,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：增减数量与最低 1 件"
+      ]
+    },
+    {
+      "seconds": 77.23,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：增减数量与最低 1 件"
+      ]
+    },
+    {
+      "seconds": 79.59,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：增减数量与最低 1 件"
+      ]
+    },
+    {
+      "seconds": 99.23,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：切换购买状态与删除商品"
+      ]
+    },
+    {
+      "seconds": 105.48,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：切换购买状态与删除商品"
+      ]
+    },
+    {
+      "seconds": 109.69,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：切换购买状态与删除商品"
+      ]
+    },
+    {
+      "seconds": 137.11,
+      "state": [
+        "running",
+        "pbl_build_step",
+        "正在制作并检查：筛选与清单统计"
+      ]
+    },
+    {
+      "seconds": 145.56,
+      "state": [
+        "running",
+        "pbl_previous_checks",
+        "正在确认前序功能：筛选与清单统计"
+      ]
+    },
+    {
+      "seconds": 151.82,
+      "state": [
+        "running",
+        "pbl_build_checks",
+        "正在根据代码设计验收：筛选与清单统计"
+      ]
+    },
+    {
+      "seconds": 191.96,
+      "state": [
+        "succeeded",
+        "completed",
+        "编程项目已就绪，可以开始实现"
+      ]
+    }
+  ],
+  "seconds": 192.0,
+  "idempotentCreate": true,
+  "stepCount": 4,
+  "checkCount": 17
+}

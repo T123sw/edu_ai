@@ -1,0 +1,14 @@
+{
+  "source_snapshot": "/tmp/edu-remove-course-updates/source/frontend",
+  "published_at": "20261014T022316Z",
+  "uncommitted_source_changes": true,
+  "task": "remove-course-updates",
+  "backend_changed": false,
+  "previous_index_sha256": "01bf5407f8bcc34adb281c9edca97ef94ed5ce65e9deddc73f04f560fd946dd9",
+  "backup": "/tmp/edu-remove-course-updates/dist-backup-20261014T022316Z",
+  "http_verified": true,
+  "assets": [
+    "/assets/index-BWB7dyZ2.js",
+    "/assets/index-8vDhdg1F.css"
+  ]
+}

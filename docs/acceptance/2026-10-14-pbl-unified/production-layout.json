@@ -1,0 +1,65 @@
+{
+  "results": [
+    {
+      "width": 1440,
+      "overflow": false,
+      "preview": {
+        "x": 728,
+        "y": 308.59375,
+        "width": 687,
+        "height": 524.40625
+      }
+    },
+    {
+      "width": 1024,
+      "overflow": false,
+      "preview": {
+        "x": 520,
+        "y": 308.59375,
+        "width": 479,
+        "height": 524.40625
+      }
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "preview": {
+        "x": 392,
+        "y": 304.59375,
+        "width": 359,
+        "height": 530.40625
+      }
+    },
+    {
+      "width": 700,
+      "overflow": false,
+      "preview": {
+        "x": 13,
+        "y": 376.390625,
+        "width": 674,
+        "height": 462.609375
+      }
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "preview": {
+        "x": 13,
+        "y": 376.390625,
+        "width": 364,
+        "height": 462.609375
+      }
+    },
+    {
+      "width": 320,
+      "overflow": false,
+      "preview": {
+        "x": 13,
+        "y": 376.390625,
+        "width": 294,
+        "height": 462.609375
+      }
+    }
+  ],
+  "limits": "Production shell geometry only; business APIs mocked and external runtime deliberately blocked. Actual execution verified separately in release tests."
+}

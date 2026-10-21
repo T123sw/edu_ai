@@ -1,0 +1,32 @@
+[
+  {
+    "tool": "学习报告",
+    "heading": "制作一份学习报告",
+    "formVisible": true
+  },
+  {
+    "tool": "习题",
+    "heading": "制作一份习题",
+    "formVisible": true
+  },
+  {
+    "tool": "闪卡",
+    "heading": "制作一份闪卡",
+    "formVisible": true
+  },
+  {
+    "tool": "思维导图",
+    "heading": "制作一份思维导图",
+    "formVisible": true
+  },
+  {
+    "tool": "播客",
+    "heading": "制作一份播客",
+    "formVisible": true
+  },
+  {
+    "tool": "情景案例",
+    "heading": "制作一份情景案例",
+    "formVisible": true
+  }
+]

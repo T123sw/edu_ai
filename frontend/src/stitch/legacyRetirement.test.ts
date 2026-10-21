@@ -67,12 +67,14 @@ test('course cards contain no random or decorative progress calculation', () => 
   assert.doesNotMatch(card, /Math\.random|charCodeAt|progressPercent|decorativeProgress/u);
 });
 
-test('theme controls live in profile instead of a floating app control', () => {
+test('theme controls live beside the main avatar instead of in profile', () => {
   const app = source('./App.tsx');
   const profile = source('./pages/Profile.tsx');
   const shared = source('./shared.tsx');
   assert.doesNotMatch(app, /ThemeCustomizer/u);
   assert.doesNotMatch(shared, /function ThemeCustomizer/u);
   assert.match(shared, /palette:/u);
-  assert.match(profile, /ThemeAppearanceSettings/u);
+  assert.doesNotMatch(profile, /ThemeAppearanceSettings/u);
+  const live = source("../liveLearning/LiveApp.tsx");
+  assert.match(live, /ThemeSwitcher/u);
 });

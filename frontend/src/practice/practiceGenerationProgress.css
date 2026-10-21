@@ -1,0 +1,4 @@
+.sl-modal:has(.sl-practice-generation) { width: min(500px, calc(100vw - 32px)); }
+.sl-practice-generation { grid-template-columns: minmax(0, 1fr); }
+.sl-practice-generation .sl-prep-footer { flex-direction: column; }
+.sl-practice-generation .sl-prep-buttons { justify-content: center; }

@@ -1,0 +1,53 @@
+import { test, expect } from 'playwright/test';
+import fs from 'node:fs';
+import type { View } from '../../src/practice/experiment/model';
+
+for (const width of [1440, 390]) test(`real two-stage friction experiment (${width})`, async ({ page }) => {
+  const artifact = JSON.parse(fs.readFileSync('../.runtime/experiment-two-stage/local/artifact.json', 'utf8'));
+  let saved: { view: View } | null = null;
+  await page.setViewportSize({ width, height: width <= 760 ? 740 : 768 });
+  await page.addInitScript(() => { if (window === window.top) localStorage.setItem('edu-ai-auth', JSON.stringify({ token: 'test', user: { username: 'alice', role: 'student' } })); });
+  await page.route('**/api/**', async route => {
+    const path = new URL(route.request().url()).pathname;
+    if (path.endsWith('/auth/verify')) return route.fulfill({ json: { valid: true, user: { username: 'alice', role: 'student' } } });
+    if (path.endsWith('/self-learning/state')) return route.fulfill({ json: { version: 1, rooms: [], resources: [], jobs: [], serverJobs: [], shared: [] } });
+    if (path.endsWith('/experiment/runs/latest')) return route.fulfill({ json: saved });
+    if (path.endsWith('/experiment/runs')) { saved = { view: route.request().postDataJSON().view }; return route.fulfill({ json: saved }); }
+    if (path.endsWith('/experiment/tutor')) return route.fulfill({ json: { items: [], next_cursor: null } });
+    if (path.endsWith('/practice/experiment')) return route.fulfill({ json: { id: 'experiment', job: { status: 'succeeded' }, artifact, journal: { observations: [], messages: [] } } });
+    return route.fulfill({ json: { items: [] } });
+  });
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/#/practice/experiment');
+  const stage = page.frameLocator('iframe[title="实验展示"]');
+  expect(Object.keys(artifact.experiment.pages).sort()).toEqual(['demonstrate', 'explore']);
+  expect(artifact.experiment.spec.tasks).toEqual([]);
+  expect(artifact.experiment.spec.demo_steps.length).toBe(3);
+  for (const _ of artifact.experiment.spec.demo_steps) await page.getByRole('button', { name: '下一步', exact: true }).click();
+  await expect.poll(() => saved?.view.verdict).toBe('complete');
+  expect(saved!.view.state.v).toBe(0);
+  const originalDistance = saved!.view.state.s as number;
+  await page.getByRole('button', { name: '进入自由探索', exact: true }).click();
+  await expect(page.locator('.experiment-suggestion')).toBeVisible();
+  expect(artifact.experiment.spec.exploration_prompts.join('')).not.toContain('曲线');
+  await stage.locator('#inMu').fill('0.60');
+  await stage.locator('#btnApply').click();
+  await expect.poll(() => saved?.view.state.mu).toBe(0.6);
+  await stage.locator('#btnRun').click();
+  await expect.poll(() => saved?.view.state.finished, { timeout: 20000 }).toBe(true);
+  expect(saved!.view.state.v).toBe(0);
+  expect(saved!.view.state.s as number).toBeCloseTo(originalDistance / 3, 3);
+  const count = saved!.view.events.length;
+  await page.reload();
+  await expect(stage.locator('#inMu')).toHaveValue('0.60');
+  expect(saved!.view.events.length).toBe(count);
+  await stage.locator('#btnReset').click();
+  await expect.poll(() => saved?.view.state.t).toBe(0);
+  expect(saved!.view.state.mu).toBe(0.6);
+  await expect(page.getByRole('button', { name: '恢复初始设置', exact: true })).toHaveCount(0);
+  await expect(page.getByText('自由操作，无需按顺序完成', { exact: true })).toHaveCount(0);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: `../.runtime/experiment-two-stage/friction-${width}.png`, fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true);
+  expect(errors).toEqual([]);
+});

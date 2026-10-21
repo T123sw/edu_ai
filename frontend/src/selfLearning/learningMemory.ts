@@ -23,13 +23,12 @@ export function learningMemory(room: Classroom) {
   });
 }
 
-// Backend integration boundary: recent turns for this chapter plus compact facts,
-// never the full conversation transcripts from other chapters.
+// The course shares recent dialogue; learning facts retain their topic attribution.
 export function agentContext(room: Classroom, chapterId: string) {
   return {
     goal: room.goal,
     chapterId,
-    recentMessages: chapterMessages(room, chapterId).slice(-12),
+    recentMessages: room.messages.slice(-12),
     memory: learningMemory(room),
   };
 }

@@ -9,6 +9,7 @@ import vscDarkPlus from "react-syntax-highlighter/dist/esm/styles/prism/vsc-dark
 import { useAuthenticatedBlobUrl } from "../api/useAuthenticatedBlobUrl";
 import { normalizeKnowledgeMarkdown } from "./knowledgeMarkdown";
 import { reportReadingAnchors } from '../../liveLearning/reportReading';
+import './markdownPreview.css';
 
 type MarkdownPreviewProps = {
   content: string;
@@ -30,7 +31,7 @@ function MarkdownImage({ src, alt }: { src: string; alt?: string }) {
 
 export function MarkdownPreview({ content, imageUrls = {}, readingAnchors = false }: MarkdownPreviewProps) {
   return (
-    <div className="markdown-preview text-sm leading-7 text-(--app-text)">
+    <div className="markdown-preview markdown-document">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[reportAnchors, ...(readingAnchors ? [reportReadingAnchors] : []), rehypeKatex]}
@@ -40,13 +41,13 @@ export function MarkdownPreview({ content, imageUrls = {}, readingAnchors = fals
             return resolved ? <MarkdownImage src={resolved} alt={alt || undefined} /> : null;
           },
           table({ children, node: _node, ...props }) {
-            return <div className="my-5 overflow-x-auto"><table {...props} className="min-w-full border-collapse">{children}</table></div>;
+            return <div className="markdown-table-scroll" tabIndex={0} role="region" aria-label="表格，可横向滚动"><table {...props}>{children}</table></div>;
           },
-          th({ children }) {
-            return <th className="border border-(--app-border) bg-(--surface-subtle) px-3 py-2 text-left">{children}</th>;
+          th({ children, node: _node, ...props }) {
+            return <th {...props}>{children}</th>;
           },
-          td({ children }) {
-            return <td className="border border-(--app-border) px-3 py-2 align-top">{children}</td>;
+          td({ children, node: _node, ...props }) {
+            return <td {...props}>{children}</td>;
           },
           code(props) {
             const { className, children } = props;

@@ -8,6 +8,28 @@ def preparation_metadata(artifact):
     return artifact.get('content', {}).get('generation_state', {}).get('preparation', {})
 
 
+def optional_classroom_alignment(artifact):
+    meta = preparation_metadata(artifact)
+    return (artifact['resource_type'] == 'classroom'
+            and meta.get('generator') in {'openmaic-native', 'hyperframes-native', 'hyperframes-native-workflow'}
+            and meta.get('alignment_policy') == 'optional_native_classroom_v1')
+
+
+def objective_coverage_basis(artifact):
+    # These IDs describe the generation request, not verified page coverage.
+    return 'planned' if optional_alignment(artifact) else 'verified'
+
+
+def structural_quiz(artifact):
+    from app.chat.harness.quiz_policy import QUIZ_POLICY
+    return (artifact['resource_type'] == 'quiz'
+            and preparation_metadata(artifact).get('alignment_policy') == QUIZ_POLICY)
+
+
+def optional_alignment(artifact):
+    return optional_classroom_alignment(artifact) or structural_quiz(artifact)
+
+
 def content_locations(kind, body):
     """Stable IDs only; ordinal pages and invented scene/question aliases are invalid."""
     locations = {'section_id': set(), 'question_id': set(), 'scene_id': set(), 'action_id': set()}
@@ -74,7 +96,7 @@ def validate_artifact(artifact):
     objectives = set(spec['objective_ids'])
     requirements = {r['requirement_id'] for r in context.get('requirements', [])}
     bindings = meta.get('objective_bindings', [])
-    if not bindings:
+    if not bindings and not optional_alignment(artifact):
         raise ValueError('OBJECTIVE_BINDINGS_MISSING')
     for binding in bindings:
         if binding.get('objective_id') not in objectives or binding.get('role') not in ('explanation','practice','check'):
@@ -84,7 +106,7 @@ def validate_artifact(artifact):
         if applied.get('requirement_id') not in requirements or not str(applied.get('explanation', '')).strip():
             raise ValueError('APPLIED_REQUIREMENT_INVALID')
         resolve_locator(artifact['resource_type'], body, applied.get('locator'))
-    if 'requirement_ids' not in context and {a['requirement_id'] for a in meta.get('applied_requirements', [])} != requirements:
+    if not optional_alignment(artifact) and 'requirement_ids' not in context and {a['requirement_id'] for a in meta.get('applied_requirements', [])} != requirements:
         raise ValueError('APPLIED_REQUIREMENT_COVERAGE_MISSING')
     duration = meta.get('duration', {})
     basis, value = duration.get('basis'), duration.get('value_minutes')
@@ -115,7 +137,16 @@ def node_requirement_issues(artifacts, nodes):
         for row in rows:
             validate_artifact(row)
             covered.update(r['requirement_id'] for r in preparation_metadata(row).get('applied_requirements', []))
-        missing = expected - covered
+        def assigned(a):
+            teaching = a['spec'].get('teaching_context') or {}
+            return teaching.get('requirement_ids', [r['requirement_id'] for r in teaching.get('requirements', [])])
+        optional = {rid for a in rows if optional_alignment(a) for rid in assigned(a)}
+        # Node scope is shared by report/quiz/classroom, not an exclusive
+        # assignment to each resource. An unmapped native classroom or quiz may meet
+        # a requirement: absence of its optional labels is not proof of a gap
+        # and must not trigger a repair of a report or quiz. Reports retain
+        # independent content review; all supplied locators still get checked.
+        missing = expected - covered - optional
         if missing:
             # Repair one explanatory resource, preserving other valid resources.
             target = next((a for a in scoped if a['resource_type'] == 'report'), scoped[0])
@@ -134,7 +165,13 @@ def node_objective_issues(artifacts, nodes):
         expected = {node['node_key'] + ':o' + str(i + 1) for i, _ in enumerate(node['objectives'])}
         covered = {oid for a in rows if a['spec'].get('required', True) for oid in resource_objectives(a)}
         checked = {oid for a in rows for check in resource_checks(a, node['node_key']) for oid in check['objective_ids']}
-        missing_content, missing_checks = expected - covered, expected - checked
+        planned = {oid for a in rows if optional_classroom_alignment(a) and a['spec'].get('required', True)
+                   for oid in a['spec']['objective_ids']}
+        verified = {oid for a in rows if not optional_classroom_alignment(a) and a['spec'].get('required', True)
+                    for oid in resource_objectives(a)}
+        quiz_planned = {oid for a in rows if structural_quiz(a) and a['spec'].get('required', True)
+                        for oid in resource_objectives(a)}
+        missing_content, missing_checks = expected - covered, expected - checked - (planned - verified) - quiz_planned
         if missing_content or missing_checks:
             preferred = 'quiz' if missing_checks else 'report'
             target = next((a for a in rows if a['resource_type'] == preferred),
@@ -151,6 +188,8 @@ def resource_objectives(artifact):
     meta = preparation_metadata(artifact)
     if artifact['spec'].get('schema_version', 1) >= 2:
         validate_artifact(artifact)
+        if optional_alignment(artifact):
+            return list(artifact['spec']['objective_ids'])
         return list(dict.fromkeys(b['objective_id'] for b in meta['objective_bindings']))
     return list(artifact['spec'].get('objective_ids', []))
 

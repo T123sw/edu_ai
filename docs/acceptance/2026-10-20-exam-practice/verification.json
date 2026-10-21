@@ -1,0 +1,89 @@
+{
+  "status": "published-and-online-verified",
+  "sourceSnapshot": "/tmp/edu-exam-practice-source",
+  "release": "/tmp/edu-exam-practice-release",
+  "backendTests": 77,
+  "browserTests": 10,
+  "postgres": {
+    "isolatedPostgres": true,
+    "rollbackIncludesAnswerAndQueue": true,
+    "lightLaneClaimsExamBeforeVideo": true,
+    "productionBusinessWrites": false
+  },
+  "liveModel": [
+    {
+      "operation": "evaluate",
+      "seconds": 1.15,
+      "status": "graded",
+      "text": "第1空：作答“二”与参考答案“2”数值等价，正确。第2空：作答“四”与参考答案“4”数值等价，正确。两空均符合。"
+    },
+    {
+      "operation": "chat",
+      "seconds": 1.46,
+      "status": "succeeded",
+      "text": "这道题是第 11 题，有两个空：`1 + 1 = ____` 和 `2 + 2 = ____`。\n\n提示：两个空都是“同一个数加上它自己”。你可以先伸出 1 根手指，再伸出 1 根手指，数一数一共有几根；第二个空用同样的方法，先伸出 2 根，再伸出 2 根，数一数一共几根。\n\n先自己数一数，把两个空填上；需要我帮你核对思路时再告诉我。"
+    }
+  ],
+  "backendManifest": {
+    "backend/src/app/exam_practice/__init__.py": "f29e67b950a35350df7165d596615c216383fb981d9ddf66248dd3b2d6adafdc",
+    "backend/src/app/exam_practice/contracts.py": "29af466c67706f8c3ffdf8a9f9bdf2c6984a509188b0c0e785812604a2211755",
+    "backend/src/app/exam_practice/paper.py": "8cf293ddc3513c32291637d7fec1869c7924a4207835f74d6557e53897bb958f",
+    "backend/src/app/exam_practice/service.py": "366aa86b850b49817b16caf0bb28834a4b502a9b6fc00a129b2ce2c46b2eebe4",
+    "backend/src/app/exam_practice/worker.py": "0dbcd3259e7cf32638c67e60349529a8d213d38f3df496319a1cdd9bb2fcbe19",
+    "backend/src/app/api/exam_practice.py": "3a0ef1dbca261ba986318ec690f9fe1ee32b18a4137dcee2e1a6d2ca50632c4a",
+    "backend/src/app/api/exam_generations.py": "80f4f9a64ee3b2ad912c5caeaa481a3852ff89b6115e4c945a29d9f676515458",
+    "backend/src/app/bootstrap.py": "79845caa73abd41cf4a0059ddd85d8c5030acbd282e64d0bcc43533e011c5333",
+    "backend/src/app/services/durable_job_runtime.py": "6c5e38aae1ebf6c65a36dcf542a60645029e2437a638f16509937c2e7584da53",
+    "backend/src/app/chat/tasks/postgres_task_store.py": "1157be436252ecdd633fcadf722da68c4caef0a5af22c6afb5f3c1fbf6f17e8d",
+    "backend/src/app/chat/tasks/task_store.py": "90f8bf258e808e2359d5c8003ac15c499aee51ce24ea33d79a1ac52b9c420c38"
+  },
+  "activation": "Main backend restarted by administrator; new routes loaded. Frontend released and verified through Nginx.",
+  "storage": "Dedicated exam namespaces in existing app_state_records; answer and durable queue insertion share one transaction. No schema migration required.",
+  "finalBrowserTests": 21,
+  "queueAndPracticeTests": {
+    "passed": 20,
+    "skipped": 6,
+    "note": "PostgreSQL fixture cases require a dedicated test URL; separate isolated PostgreSQL verification passed."
+  },
+  "finalPracticeTests": 13,
+  "workerActivation": {
+    "status": "restarted-and-active",
+    "pid": 3167407,
+    "startedAt": "2026-10-20T10:38:20Z"
+  },
+  "frontendPublished": true,
+  "browserEnvironmentNote": "The legacy agent-turns suite expects a separate learning-fixture API and cannot run against a static preview. Classroom compatibility was verified with the mocked quiz-simplify and video-chat suites in the final 21-test run.",
+  "onlineBrowserTests": 21,
+  "onlineBrowserUsesMockedBusinessAPIs": true,
+  "onlineAPI": {
+    "checkedAt": "2026-10-20T10:57:19.273922+00:00",
+    "authenticatedListStatus": 200,
+    "routes": {
+      "practice": {
+        "authenticatedMissingPaper": 404,
+        "unauthenticated": 401
+      },
+      "practice-runs": {
+        "authenticatedMissingPaper": 404,
+        "unauthenticated": 401
+      },
+      "agent-turns": {
+        "authenticatedMissingPaper": 404,
+        "unauthenticated": 401
+      }
+    },
+    "productionBusinessWrites": false,
+    "note": "Browser behavior uses intercepted fixtures; real authenticated API reads verify route activation and access enforcement. Missing-paper checks do not constitute cross-owner isolation tests."
+  },
+  "mainActivation": {
+    "MainPID": "3287331",
+    "ExecMainStartTimestamp": "Tue 2026-10-20 10:52:33 UTC",
+    "ActiveState": "active"
+  },
+  "workerOnlineStatus": {
+    "MainPID": "3167407",
+    "ExecMainStartTimestamp": "Tue 2026-10-20 10:38:20 UTC",
+    "ActiveState": "active"
+  },
+  "verifiedAt": "2026-10-20T10:59:06.563263+00:00"
+}

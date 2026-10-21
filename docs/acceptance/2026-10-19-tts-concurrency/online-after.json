@@ -1,0 +1,38 @@
+[
+  {
+    "task_id": "generate_artifact_047b87bf19f1720d6baa0e0e5af5cd00",
+    "status": "leased",
+    "lease_owner": "durable-c33525b81f0a-1",
+    "attempt_count": 1,
+    "started_at": 1792389802.8637412,
+    "finished_at": null,
+    "heartbeat_at": 1792391137.3707721
+  },
+  {
+    "task_id": "generate_artifact_253128949c9f539f09fee8e21e827215",
+    "status": "leased",
+    "lease_owner": "durable-c33525b81f0a-3",
+    "attempt_count": 1,
+    "started_at": 1792389802.29258,
+    "finished_at": null,
+    "heartbeat_at": 1792391137.2957714
+  },
+  {
+    "task_id": "generate_artifact_2af5634bedb6b112e47c33b0f945fcdc",
+    "status": "leased",
+    "lease_owner": "durable-c33525b81f0a-4",
+    "attempt_count": 1,
+    "started_at": 1792389801.86703,
+    "finished_at": null,
+    "heartbeat_at": 1792391137.2909617
+  },
+  {
+    "task_id": "generate_artifact_a24c275bf74ec4d9c1b5a08456375920",
+    "status": "succeeded",
+    "lease_owner": null,
+    "attempt_count": 1,
+    "started_at": 1792389801.7512817,
+    "finished_at": 1792390966.777863,
+    "heartbeat_at": null
+  }
+]

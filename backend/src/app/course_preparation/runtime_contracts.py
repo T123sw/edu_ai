@@ -12,10 +12,22 @@ class BudgetCost(Contract):
 
 
 class BudgetLimits(BudgetCost):
+    retry_only: bool = False
     calls: int = Field(default=200, ge=1, strict=True)
     tokens: int = Field(default=2_000_000, ge=1, strict=True)
     cost_micro_usd: int = Field(default=10_000_000, ge=0, strict=True)
     seconds: int = Field(default=3600, ge=1, le=86400, strict=True)
+
+
+def budget_deadline(budget):
+    """The non-null legacy DB timestamp is inactive under retry-only policy."""
+    from .repository import aware
+    return None if budget.limits.get('retry_only') else aware(budget.deadline)
+
+
+def remaining_seconds(deadline):
+    from datetime import datetime, timezone
+    return float('inf') if deadline is None else (datetime.fromisoformat(deadline) - datetime.now(timezone.utc)).total_seconds()
 
 
 class ExecutionContext(Contract):

@@ -1,0 +1,19 @@
+{
+  "mode": "frozen real course metadata; empty and partial delivery",
+  "cases": [
+    {
+      "empty": true,
+      "slots": 12,
+      "pending": 12,
+      "passed": true
+    },
+    {
+      "empty": false,
+      "slots": 12,
+      "pending": 2,
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "passed": true
+}

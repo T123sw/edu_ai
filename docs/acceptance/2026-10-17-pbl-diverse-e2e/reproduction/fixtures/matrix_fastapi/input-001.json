@@ -1,0 +1,9 @@
+{
+  "phase": "plan",
+  "data": {
+    "topic": "做一个 Python FastAPI 待办事项 REST API 后端，不要前端或浏览器模拟。SQLite存储；POST /todos 创建，GET /todos 列表，PATCH /todos/{id} 修改完成状态，DELETE /todos/{id} 删除；空标题422、不存在的ID404、创建返回201。要求真实启动HTTP服务，并使用HTTP请求验收，服务重启后数据保留。",
+    "issues": [],
+    "priorPlan": null
+  },
+  "startedAt": 1792229042.2474945
+}

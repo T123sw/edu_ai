@@ -1,0 +1,236 @@
+{
+  "title": "自注意力与多头注意力：Q/K/V 与缩放点积计算思路",
+  "content": {
+    "title": "自注意力与多头注意力：Q/K/V 与缩放点积计算思路",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_5f4b2b9274cc91de16960330223cb76d",
+      "entry": "index.html",
+      "digest": "018539fc1808601acef495103d852228bfbdedd789c370c295d4165c9788078d"
+    },
+    "timeline": {
+      "duration": 305.2,
+      "segments": [
+        {
+          "id": "01-title",
+          "end": 13.8,
+          "start": 0.0,
+          "title": "开场：自注意力是什么",
+          "events": [],
+          "narration": "这一节拆开 Transformer 里最关键的一块：自注意力。一句话概括它的作用：让序列里每个位置，都去看同一序列的所有位置，再按相关性更新自己的表示。",
+          "audio_path": "assets/audio/4a7368ab10b2ad25727c194a48fb9a415c80f23713f9023cf9cc4b9a4683124f.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "标题 + 一句话定义：每个位置去看同一序列的所有位置"
+        },
+        {
+          "id": "02-why",
+          "end": 38.7,
+          "start": 13.8,
+          "title": "it 到底指向谁",
+          "events": [],
+          "narration": "先看一个具体的难处。The animal didn't cross the street because it was too tired，这里的 it 指 animal 还是 street？模型只能从句内关系里找答案：把 it 和 animal、street 放在一起比较，看谁更配“太累了”。自注意力让 it 向每个词发问，按相关性把内容取回来，重组成自己的新表示。",
+          "audio_path": "assets/audio/83fcefd0a00f19eb215e013a932b9f9e4f18abeaf7445ac7b437c7f348df350f.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "句子里的词元与 it 向 animal / street 的注意力弧线，右侧三条权重条"
+        },
+        {
+          "id": "03-vs-cross",
+          "end": 61.0,
+          "start": 38.7,
+          "title": "自注意力 vs 交叉注意力",
+          "events": [],
+          "narration": "别和上一节的交叉注意力混了。交叉注意力的查询来自解码器，键和值来自编码器，是两个序列之间的对齐；自注意力的查询、键、值都来自同一个序列，每个位置关注包括自己在内的所有位置。判断方法只有一条：看来源是不是同一个。",
+          "audio_path": "assets/audio/66254b2171a897fd226b523a6348740872a5130f5200b4e44a06ce1627aba21f.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左右两卡片对照，底部一条判据"
+        },
+        {
+          "id": "04-qkv",
+          "end": 91.9,
+          "start": 61.0,
+          "title": "为什么拆成 Q / K / V",
+          "events": [],
+          "narration": "为什么一个词要变成三个向量？同一个向量要同时演三个角色：向别人发问、被别人匹配、把自己的内容交出去。而“容易被找到”和“携带有用内容”是两回事，挤在一个向量里会互相牵制。Bahdanau 的 h 下标 j 已经一身两职，换成自注意力更尖锐。解法是乘三个不同的可学习矩阵：Query 负责发问，Key 负责被匹配，Value 负责被取走。",
+          "audio_path": "assets/audio/be88ac70396a7dbcb753a4060f17cdcc4c731cf7d396a668fa050d377905067a.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "一张“一身三职”的冲突卡 + Q/K/V 三张投影卡"
+        },
+        {
+          "id": "05-formula",
+          "end": 122.0,
+          "start": 91.9,
+          "title": "缩放点积注意力的四步",
+          "events": [],
+          "narration": "于是公式可以很短。先算查询和所有键的点积，得到打分；再逐项除以根号 dk；然后用 softmax 把分数变成加起来等于一的权重；最后用这些权重对 Value 加权求和。矩阵写法就是 softmax 括号 Q 乘 K 的转置，除以根号 dk，再乘 V。输出的每一行仍是一个向量，维度是 dv，也就是这个位置看过全句之后的新表示。",
+          "audio_path": "assets/audio/fd61eca6911fc6572ecccb805a938a5172eb4183d439157f7ff4328d467b2f06.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "公式逐段点亮 + 四个步骤条"
+        },
+        {
+          "id": "06-scaling",
+          "end": 148.8,
+          "start": 122.0,
+          "title": "为什么除以 √dk",
+          "events": [],
+          "narration": "为什么非要除根号 dk？假设 q 和 k 的各分量独立、均值零、方差一，点积的方差大约是 dk。dk 越大，分数越极端，最大的那个会把 softmax 推到接近 one-hot 的饱和区，那里输出几乎不变、梯度接近零，模型就学不动了。除根号 dk 把方差拉回一的量级，让 softmax 留在梯度健康的区间。",
+          "audio_path": "assets/audio/1b661402060f8344df97d23d72c62888f5fb1a651e2cda30f6df280fc363d8b9.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "方差随 dk 增长的条形，softmax 饱和的两组权重对比"
+        },
+        {
+          "id": "07-setup",
+          "end": 161.10000000000002,
+          "start": 148.8,
+          "title": "玩具矩阵：3 个词元，dk = 4",
+          "events": [],
+          "narration": "下面手算一遍。三个词元：猫、追、老鼠。每个词元的 dk 等于四，所以 Q、K、V 都是三行四列，根号 dk 等于二。",
+          "audio_path": "assets/audio/b7bbebf927b3c55e918e857aa03cf7d9d4cfd36b9747e88fef27680679d69bc9.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "Q、K、V 三个 3×4 矩阵并排，行标签为 猫 / 追 / 老鼠"
+        },
+        {
+          "id": "08-scores",
+          "end": 181.70000000000002,
+          "start": 161.10000000000002,
+          "title": "第一步 QKᵀ，第二步 ÷ √dk",
+          "events": [],
+          "narration": "第一步，Q 乘 K 的转置，形状变成三乘三：第 i 行第 j 列就是第 i 个查询和第 j 个键的点积。结果第一行是二、一、一，第二行是零、一、一，第三行是一、一、一。第二步除以根号 dk，第一行变成一、零点五、零点五。",
+          "audio_path": "assets/audio/0cc41101c6bc5b52445d7cda53a1eaba057da15d9cea7e92d733f467d3a14bb9.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "QKᵀ 得 3×3 打分，再除以 2"
+        },
+        {
+          "id": "09-softmax",
+          "end": 208.70000000000002,
+          "start": 181.70000000000002,
+          "title": "第三步 softmax 归一化",
+          "events": [],
+          "narration": "第三步，按行做 softmax。第一行取指数是二点七一八、一点六四九、一点六四九，和是六点零一六，归一化得到零点四五二、零点二七四、零点二七四。第二行是零点二三三、零点三八四、零点三八三。第三行三个分数相同，各三分之一。每一行的权重和都是 1。",
+          "audio_path": "assets/audio/0c630f6055572e0935f75b8c7d6202ecc820d99aa31129ff3a9396df10dad36c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "3×3 权重矩阵，每行和为 1；每行右侧一条权重条"
+        },
+        {
+          "id": "10-weighted",
+          "end": 234.3,
+          "start": 208.70000000000002,
+          "title": "第四步：对 V 加权求和",
+          "events": [],
+          "narration": "第四步，用权重对 V 加权求和。第一行等于零点四五二个 v1 加零点二七四个 v2 加零点二七四个 v3，逐维算是一点零零、一点一八、零点八二、零点七三。三行都这样算，输出仍然是三行四列。这就是猫这个位置看过全句之后的新表示。",
+          "audio_path": "assets/audio/bc0ef924d5bceee35cb47998d6e38b18bbfc7362b760411a05c1d5388bb22585.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "第一行的加权算式 → 3×4 输出矩阵"
+        },
+        {
+          "id": "11-multihead",
+          "end": 263.0,
+          "start": 234.3,
+          "title": "多头注意力：投影 → 并行 → 拼接 → 再投影",
+          "events": [],
+          "narration": "单头注意力只能给出一套平均后的关注模式。多头注意力把 Q、K、V 分别用 h 组不同的可学习矩阵投影到更低维，各自独立跑一遍刚才那四步，然后把 h 个结果拼接，再用一个输出矩阵投影回 d_model。投影、并行注意力、拼接、再投影。每个头能在不同的表示子空间里建立不同关联，不必把所有关系压进一套权重。",
+          "audio_path": "assets/audio/8d711d770031d4c86eb5afca01cd2318c6cf88014cbd5c4417797ff2b8e24398.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "四个站点的流水线：h 组投影 / 并行注意力 / 拼接 / W^O 投影"
+        },
+        {
+          "id": "12-config",
+          "end": 285.6,
+          "start": 263.0,
+          "title": "配置核对：h = 8，dk = dv = 64，8 × 64 = 512",
+          "events": [],
+          "narration": "原论文用八个头，每个头的 dk 和 dv 都等于 d_model 除以 h，base 配置下就是五百一十二除以八等于六十四。核对一下：八乘六十四正好是五百一十二，所以头不是额外加出来的宽度，而是把 d_model 分成八份。每头维度降低，总计算成本和全维单头相近。",
+          "audio_path": "assets/audio/aa681f173c3509d8f3a696f3f92bb7540a247dc0b4b25c731f8094bac6a74f7e.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "512 被切成 8 份，每份 64；等式核对"
+        },
+        {
+          "id": "13-recap",
+          "end": 305.2,
+          "start": 285.6,
+          "title": "回顾与自测提示",
+          "events": [],
+          "narration": "回顾一下：自注意力让每个位置看全序列，Q、K、V 拆开三种角色，缩放让 softmax 留在梯度健康的区间，多头把一套关注变成多套。自测：合上稿子，把从 Q、K、V 到输出的四步写一遍。",
+          "audio_path": "assets/audio/5717ab46a4aca5a7282842b91366d932fedd9d6141a08dcb0e056432b93c80bb.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "四条回顾要点 + 自测提示"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 305.2
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.086666666666667
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "9b7ad815a348524f966cd299cf6022900e9a42f2a4c5ffb396e3a57292a847ab",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 305.2
+      },
+      "content_digest": "ae6ce297fa015b81254368e4c125a843d4b088934d86edfaa2dfe2df7f9c9afb",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 5.086666666666667
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "3c621e292fecebd78e1f69fc46eb424b1fa084ced5e39c6f25a663c2b825f61e"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "fdb3def9237c81aef3a7ad33f7ed4b0cefceeda3602798005097b6a47911fbaf",
+      "preparation_sha256": "aaecfc998ca62992d9ea60f7a4f5afc383b7eafb6f5d61db84ef5d6e369936be"
+    }
+  }
+}

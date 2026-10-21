@@ -1,0 +1,60 @@
+[
+  {
+    "node": "n1-motivation",
+    "command_id": "c23e5acba0664a8a9b5af504fac5d59e",
+    "at": 1792484842.144,
+    "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/videos/transformer-attention-motivation && ls -la && ls -la compositions/frames/ 2>/dev/null && ls assets/ assets/fonts/ 2>/dev/null\"}",
+    "exit_code": 2,
+    "error_lines": [],
+    "excerpt": " 4096 Oct 20 08:26 .hyperframes\n-rw-rw-r-- 1 1009 1008  8626 Oct 20 08:23 AGENTS.md\n-rw-r----- 1 1009 1008  5377 Oct 20 08:23 BRIEF.md\n-rw-rw-r-- 1 1009 1008  8626 Oct 20 08:23 CLAUDE.md\n-rw-r----- 1 1009 1008  5947 Oct 20 08:24 SCRIPT.md\n-rw-r----- 1 1009 1008 21070 Oct 20 08:27 STORYBOARD.md\ndrwxr-x--- 4 1009 1008  4096 Oct 20 08:25 assets\n-rw-r----- 1 1009 1008  1856 Oct 20 08:25 audio_meta.json\n-rw-r----- 1 1009 1008  1180 Oct 20 08:27 audio_meta_assembly.json\n-rw-r----- 1 1009 1008  4850 Oct 20 08:25 audio_request.json\n-rw-r----- 1 1009 1008  5168 Oct 20 08:24 frame.md\n-rw-r----- 1 1009 1008   355 Oct 20 08:23 hyperframes.json\n-rw-rw-r-- 1 1009 1008  1339 Oct 20 08:23 index.html\n-rw-r----- 1 1009 1008   135 Oct 20 08:23 meta.json\n-rw-r----- 1 1009 1008   321 Oct 20 08:23 package.json\n"
+  },
+  {
+    "node": "n1-motivation",
+    "command_id": "7c7fd1af4fba4b8181ecaadf6265a99e",
+    "at": 1792484886.582,
+    "arguments": "{\"command\": \"cd /home/zxqs_ep/Edu_AI/vendor/hyperframes && sed -n 1,160p references/sub-compositions.md\"}",
+    "exit_code": 2,
+    "error_lines": [
+      "sed: can't read references/sub-compositions.md: No such file or directory"
+    ],
+    "excerpt": "sed: can't read references/sub-compositions.md: No such file or directory\n"
+  },
+  {
+    "node": "n1-motivation",
+    "command_id": "88b1158af49a45fba9a4fe1687b30c82",
+    "at": 1792484591.667,
+    "arguments": "{\"command\": \"ls -la /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/3be4e246a9edab4fd7ab295e0d4d7997314eaac2f3b2202fb5ec5de0ed0d2d2f/.host/; echo ---; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/; echo ---; ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/ /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/references/\"}",
+    "exit_code": 2,
+    "error_lines": [
+      "ls: cannot access '/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/references/': No such file or directory"
+    ],
+    "excerpt": "r----- 1 1009 1008 6621 Oct 20 08:22 teaching-brief.json\ndrwxr-x--- 3 1009 1008 4096 Oct 20 08:23 tmp\n-rw-r----- 1 1009 1008    0 Oct 20 08:22 worker.lock\ndrwxr-x--- 2 1009 1008 4096 Oct 20 08:22 workers\n---\nembedded-captions\nfaceless-explainer\nfigma\ngeneral-video\nhyperframes\nhyperframes-animation\nhyperframes-audio\nhyperframes-cli\nhyperframes-core\nhyperframes-creative\nhyperframes-keyframes\nhyperframes-registry\nhyperframes-studio\nmedia-use\nmotion-graphics\nmusic-to-video\npr-to-video\nproduct-launch-video\npython-encoding.test.mjs\nremotion-to-hyperframes\nslideshow\ntalking-head-recut\n---\nls: cannot access '/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/references/': No such file or directory\n/home/zxqs_ep/Edu_AI/vendor/hyperframes/skills/general-video/:\nSKILL.md\nscripts\nsub-agents\n"
+  },
+  {
+    "node": "n2-self-attention",
+    "command_id": "73b415a680f24df5a40757a3b8f2a74f",
+    "at": 1792484643.549,
+    "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/44bf14bde6da5a3bd262d2785f16022a49f5ea47fcde28abd85d53cf8ea31984 && ls -la && echo \\\"--- videos ---\\\" && ls -la videos 2>/dev/null && echo \\\"--- host ---\\\" && ls -la .host\"}",
+    "exit_code": 2,
+    "error_lines": [],
+    "excerpt": "total 56\ndrwx------ 3 1009 1008  4096 Oct 20 08:23 .\ndrwx------ 3 1009 1008    60 Oct 20 08:24 ..\ndrwxr-x--- 6 1009 1008  4096 Oct 20 08:24 .host\n-rw-r----- 1 1009 1008 49142 Oct 20 08:23 REQUEST.json\n--- videos ---\n"
+  },
+  {
+    "node": "n3-positional-encoding",
+    "command_id": "a101482487b743bb8a6a71278ac5eb34",
+    "at": 1792484933.429,
+    "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/cea3ba4e0c1389ba6edadfe65def8302d3c103cbdf1a171a75f9ea53b60bede5/videos/positional-encoding && ls && echo \\\"---\\\" && ls assets assets/fonts 2>/dev/null && echo \\\"--- frames:\\\" && ls compositions/frames 2>/dev/null\"}",
+    "exit_code": 2,
+    "error_lines": [],
+    "excerpt": "AGENTS.md\nBRIEF.md\nCLAUDE.md\nSCRIPT.md\nSTORYBOARD.md\nassets\naudio_meta.json\naudio_request.json\nframe.md\nhyperframes.json\nindex.html\nmeta.json\npackage.json\n---\nassets:\naudio\nfonts\ngsap.min.js\n\nassets/fonts:\nNotoSansSC-Variable.ttf\nOFL-NotoSansSC.txt\n--- frames:\n"
+  },
+  {
+    "node": "n5-decoder-and-flow",
+    "command_id": "41dafe217dcc401897f1e09d152421ce",
+    "at": 1792484649.776,
+    "arguments": "{\"command\": \"cd /home/zxqs_ep/data/edu_ai/course_data/hyperframes/workflows/64178ad73ee340726a96d3d72e9944809d203f66d55f9ce44fd5b2c70aae2cef && ls -la && echo \\\"--- videos ---\\\" && ls -la videos 2>/dev/null && echo \\\"--- original ---\\\" && ls -la original 2>/dev/null | head -40 && echo \\\"--- skills ---\\\" && ls /home/zxqs_ep/Edu_AI/vendor/hyperframes/skills\"}",
+    "exit_code": 2,
+    "error_lines": [],
+    "excerpt": "total 72\ndrwx------ 3 1009 1008  4096 Oct 20 08:23 .\ndrwx------ 3 1009 1008    60 Oct 20 08:24 ..\ndrwxr-x--- 6 1009 1008  4096 Oct 20 08:24 .host\n-rw-r----- 1 1009 1008 64832 Oct 20 08:23 REQUEST.json\n--- videos ---\n"
+  }
+]

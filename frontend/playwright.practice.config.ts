@@ -1,0 +1,2 @@
+import { defineConfig } from 'playwright/test';
+export default defineConfig({testDir:'./tests/live-learning',testMatch:['practice.spec.ts','practice-native.spec.ts'],workers:1,timeout:45000,reporter:[['list']],use:{baseURL:process.env.PRACTICE_FRONTEND_URL || 'http://127.0.0.1:5206',screenshot:'only-on-failure'},webServer:process.env.PRACTICE_FRONTEND_URL || process.env.PRACTICE_PREVIEW_RUNNING ? undefined : {command:'pnpm exec vite preview --outDir dist-practice --host 127.0.0.1 --port 5206 --strictPort',url:'http://127.0.0.1:5206',reuseExistingServer:false}});

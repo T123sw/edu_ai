@@ -14,11 +14,12 @@ class PreparationService:
     def get(self, owner, preparation_id):
         return self.repository.get_public(owner, preparation_id)
 
-    def cancel(self, owner, preparation_id, expected_revision=None):
-        return self.repository.cancel(owner, preparation_id, expected_revision=expected_revision)
+    def cancel(self, owner, preparation_id, expected_revision=None, *, expected_attempt_no=None):
+        return self.repository.cancel(owner, preparation_id, expected_revision=expected_revision,
+            **({'expected_attempt_no': expected_attempt_no} if expected_attempt_no is not None else {}))
 
-    def retry(self, owner, preparation_id):
-        value = self.repository.retry(owner, preparation_id)
+    def retry(self, owner, preparation_id, *, node_id=None):
+        value = self.repository.retry(owner, preparation_id, **({'node_id': node_id} if node_id is not None else {}))
         self.wake(preparation_id)
         return value
 

@@ -7,6 +7,8 @@ import { AIWorkspacePage } from '../stitch/pages/AIWorkspace';
 import { getCourse, getCourseMaterial, backendCourseToSummary } from '../stitch/api/courses';
 import { createRevisionIntent, dispatchRevisionIntent } from '../stitch/artifactRevision/intent';
 import { Brand } from '../selfLearning/ui';
+import { GlobalJobManager } from '../jobs/GlobalJobManager';
+import { JobCenterTrigger } from '../jobs/JobCenterDrawer';
 import '../stitch/styles.css';
 import '../selfLearning/workspace.css';
 import '../frontendReview/workbench.css';
@@ -46,8 +48,9 @@ function Workspace() {
         <a className="course-navigation__link" href={`/#/classroom/${courseId}`}><strong>AI 课堂</strong></a>
         <a className="course-navigation__link is-active" href={location.hash} aria-current="page"><strong>工作台</strong></a>
         <a className="course-navigation__link" href={`/#/resources?classroom=${courseId}`}><strong>资源中心</strong></a>
-      </nav><a className="course-shell__profile" aria-label="个人中心" href="?account=1#profile" title={user.username}>{user.username[0]}</a>
+      </nav><JobCenterTrigger placement="inline" courseId={courseId} /><a className="course-shell__profile" aria-label="个人中心" href="?account=1#profile" title={user.username}>{user.username[0]}</a>
     </header><AIWorkspacePage /></div>
+    <GlobalJobManager enabled showLauncher={false} currentCourseId={courseId} currentCourseTitle={course.title} />
   </UnifiedCourseShellProvider></CourseRouteProvider></AppShellProvider></AuthSessionProvider>;
 }
 export default function WorkbenchEntry() { return <AuthProvider><Workspace /></AuthProvider>; }

@@ -1,0 +1,11 @@
+{
+  "from": "0006",
+  "to": [
+    {
+      "file": "0007-computed-exam-evidence.patch",
+      "sha256": "91f40a1439ed21ea9d3d10bc9b8325450ca5671324310d2fec30e3452bfd1019"
+    }
+  ],
+  "idempotent": true,
+  "unrelated_work_preserved_by_separate_fixture_tests": true
+}

@@ -1,0 +1,19 @@
+{
+  "status": "visual_math_issue_found_before_render_finishes",
+  "evidence": {
+    "intro_origin_y": 450,
+    "intro_positive_2_tick_y": 390,
+    "intro_b2_marker_y": 330,
+    "implied_marker_y_value": 4.0,
+    "intro_x_unit_pixels": 90,
+    "intro_y_unit_pixels": 30,
+    "intro_b0_line": {
+      "x1": 80,
+      "y1": 810,
+      "x2": 800,
+      "y2": 90
+    },
+    "implied_b0_slope": 3.0
+  },
+  "finding": "The plotted positive-2 intercept sits at +4 according to the axis ticks, and the line slope is 3 under these tick units rather than 2. Original generated artifact is preserved for review."
+}

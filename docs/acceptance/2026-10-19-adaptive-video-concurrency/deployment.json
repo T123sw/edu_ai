@@ -1,0 +1,68 @@
+{
+  "at": "2026-10-19T15:55:38.801212+00:00",
+  "status": "online_verified",
+  "restart_performed_by": "user",
+  "health_http_status": 200,
+  "backend": {
+    "pid": 2738224,
+    "cwd": "/home/zxqs_ep/Edu_AI/backend/src",
+    "uid": 1009,
+    "environment": {
+      "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+      "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+      "DURABLE_JOB_WORKERS": "3",
+      "DURABLE_JOB_LIGHT_WORKERS": "2",
+      "DURABLE_JOB_CONTROL_WORKERS": "2",
+      "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+      "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+      "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+      "HYPERFRAMES_RENDER_WORKERS": "4",
+      "HYPERFRAMES_RENDER_MIN_FREE_MB": "2048",
+      "TTS_REMOTE_CONCURRENCY": "8",
+      "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+    },
+    "started_at": "2026-10-19T15:53:18Z"
+  },
+  "supplemental": {
+    "pid": 2738435,
+    "cwd": "/home/zxqs_ep/Edu_AI/backend/src",
+    "uid": 1009,
+    "environment": {
+      "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8",
+      "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+      "DURABLE_JOB_WORKERS": "3",
+      "DURABLE_JOB_LIGHT_WORKERS": "2",
+      "DURABLE_JOB_CONTROL_WORKERS": "2",
+      "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+      "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+      "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+      "HYPERFRAMES_RENDER_WORKERS": "4",
+      "HYPERFRAMES_RENDER_MIN_FREE_MB": "2048",
+      "TTS_REMOTE_CONCURRENCY": "8",
+      "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+    },
+    "started_at": "2026-10-19T15:53:47Z",
+    "build_id_from_startup_log": "25b83b0444ee7b5f1504",
+    "workers_ready_from_log": 5,
+    "control_workers_from_log": 0,
+    "light_workers_cli_default": 0
+  },
+  "source": {
+    "build_id": "25b83b0444ee7b5f1504",
+    "latest_mtime": 1792422090.9340003
+  },
+  "main_build_verification": "same source directory; process started after source modification; environment verified; main INFO fingerprint not present in journal",
+  "shared_stage_lock_namespace": {
+    "same_uid": 1009,
+    "private_tmp": false,
+    "tmp_device": 64769,
+    "tmp_inode": 262145
+  },
+  "configured_worker_layout": {
+    "main_general": 3,
+    "main_light": 2,
+    "main_control": 2,
+    "supplemental_general": 5
+  },
+  "full_five_video_course_retest": false
+}

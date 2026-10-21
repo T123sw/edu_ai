@@ -1,0 +1,1057 @@
+{
+  "schemaVersion": 2,
+  "runtimeKind": "sandpack_project",
+  "runtime": {
+    "template": "vue",
+    "entry": "/src/main.js",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  },
+  "templateVersion": "sandpack-project-v1",
+  "exerciseId": "pbl_9d5bf2a4de7156f8b7244f39d41649ff",
+  "artifactVersion": 1,
+  "topic": "使用 Vue 3 做一个本地活动报名页，不使用 React，分两步：第一步姓名为空或仅空格时禁用报名按钮；第二步提交有效姓名后显示报名成功和姓名，点击重新填写清空输入与结果。不要网络和后端。",
+  "title": "Vue 3 本地活动报名页",
+  "summary": "用 Vue 3 实现一个本地活动报名页：姓名为空或仅空格时报名按钮禁用；提交有效姓名后显示报名成功和姓名；点击重新填写清空输入与结果。全程无网络与后端。",
+  "plan": {
+    "schemaVersion": 1,
+    "title": "Vue 3 本地活动报名页",
+    "goal": "用 Vue 3 实现一个本地活动报名页：姓名为空或仅空格时报名按钮禁用；提交有效姓名后显示报名成功和姓名；点击重新填写清空输入与结果。全程无网络与后端。",
+    "runtimeKind": "sandpack_project",
+    "runtime": {
+      "template": "vue",
+      "entry": "/src/main.js",
+      "dependencies": {},
+      "moduleType": "commonjs"
+    },
+    "editableFiles": [
+      "/src/main.js",
+      "/src/App.vue",
+      "/src/styles.css",
+      "/public/index.html"
+    ],
+    "requirements": [
+      {
+        "id": "name-input",
+        "description": "页面提供姓名输入框，可输入任意文本，初始为空。"
+      },
+      {
+        "id": "submit-disabled",
+        "description": "姓名为空或仅含空格时，报名按钮处于禁用状态；姓名包含非空白字符时按钮可用。"
+      },
+      {
+        "id": "submit-success",
+        "description": "在按钮可用时点击报名，页面显示报名成功提示以及所填姓名。"
+      },
+      {
+        "id": "reset-form",
+        "description": "点击重新填写后，姓名输入框被清空，报名结果不再显示，按钮回到禁用状态。"
+      }
+    ],
+    "steps": [
+      {
+        "id": "step-1",
+        "title": "姓名校验与报名按钮",
+        "objective": "搭建活动报名页骨架，实现姓名输入框与报名按钮，并在姓名为空或仅空格时禁用按钮。",
+        "dependsOn": [],
+        "entryCondition": "从初始 Vue 工程开始，页面只有占位内容。",
+        "deliverable": "一个包含姓名输入框和报名按钮的报名页；输入框初始为空，姓名为空或仅空格时报名按钮禁用，输入非空白字符后按钮可用。",
+        "requirementIds": [
+          "name-input",
+          "submit-disabled"
+        ],
+        "focusFiles": [
+          "/src/App.vue",
+          "/src/styles.css"
+        ],
+        "newCheckIds": [
+          "check-input-initial",
+          "check-disabled-empty",
+          "check-disabled-spaces",
+          "check-enabled-valid"
+        ]
+      },
+      {
+        "id": "step-2",
+        "title": "报名成功与重新填写",
+        "objective": "在按钮可用时点击报名显示成功提示与姓名，并支持点击重新填写清空输入与结果。",
+        "dependsOn": [
+          "step-1"
+        ],
+        "entryCondition": "上一步的报名页已可运行，姓名输入与按钮禁用逻辑正常。",
+        "deliverable": "完整的报名页：点击可用状态的报名按钮后显示报名成功和所填姓名；点击重新填写后输入框清空、结果消失、按钮恢复禁用。",
+        "requirementIds": [
+          "name-input",
+          "submit-disabled",
+          "submit-success",
+          "reset-form"
+        ],
+        "focusFiles": [
+          "/src/App.vue",
+          "/src/styles.css"
+        ],
+        "newCheckIds": [
+          "check-submit-shows-success",
+          "check-submit-shows-name",
+          "check-reset-clears-input",
+          "check-reset-hides-result",
+          "check-reset-disables-button"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "id": "check-input-initial",
+        "stepId": "step-1",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "name-input"
+        ],
+        "setup": "打开报名页，不进行任何输入。",
+        "actions": [
+          "定位姓名输入框并读取其值"
+        ],
+        "expected": [
+          "姓名输入框存在且初始值为空"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "check-disabled-empty",
+        "stepId": "step-1",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "submit-disabled"
+        ],
+        "setup": "打开报名页，姓名输入框为空。",
+        "actions": [
+          "读取报名按钮的可用状态"
+        ],
+        "expected": [
+          "报名按钮处于禁用状态"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "check-disabled-spaces",
+        "stepId": "step-1",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "submit-disabled"
+        ],
+        "setup": "打开报名页。",
+        "actions": [
+          "在姓名输入框填入三个空格",
+          "读取报名按钮的可用状态"
+        ],
+        "expected": [
+          "仅含空格时报名按钮仍处于禁用状态"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "check-enabled-valid",
+        "stepId": "step-1",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "submit-disabled"
+        ],
+        "setup": "打开报名页。",
+        "actions": [
+          "在姓名输入框填入“张三”",
+          "读取报名按钮的可用状态"
+        ],
+        "expected": [
+          "姓名包含非空白字符时报名按钮可用"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "check-submit-shows-success",
+        "stepId": "step-2",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "submit-success"
+        ],
+        "setup": "打开报名页。",
+        "actions": [
+          "在姓名输入框填入“张三”",
+          "点击报名按钮",
+          "读取报名成功提示文字"
+        ],
+        "expected": [
+          "点击后页面显示报名成功提示"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "check-submit-shows-name",
+        "stepId": "step-2",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "submit-success"
+        ],
+        "setup": "打开报名页。",
+        "actions": [
+          "在姓名输入框填入“李四”",
+          "点击报名按钮",
+          "读取结果区域中显示的姓名"
+        ],
+        "expected": [
+          "结果区域显示所填姓名“李四”"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "check-reset-clears-input",
+        "stepId": "step-2",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "reset-form"
+        ],
+        "setup": "打开报名页，填入“张三”并点击报名，出现结果。",
+        "actions": [
+          "点击重新填写按钮",
+          "读取姓名输入框的值"
+        ],
+        "expected": [
+          "姓名输入框被清空"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "check-reset-hides-result",
+        "stepId": "step-2",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "reset-form"
+        ],
+        "setup": "打开报名页，填入“张三”并点击报名，出现结果。",
+        "actions": [
+          "点击重新填写按钮",
+          "检查报名结果区域是否仍显示"
+        ],
+        "expected": [
+          "报名结果不再显示"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      },
+      {
+        "id": "check-reset-disables-button",
+        "stepId": "step-2",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "reset-form",
+          "submit-disabled"
+        ],
+        "setup": "打开报名页，填入“张三”并点击报名，出现结果。",
+        "actions": [
+          "点击重新填写按钮",
+          "读取报名按钮的可用状态"
+        ],
+        "expected": [
+          "清空后报名按钮回到禁用状态"
+        ],
+        "requiredAssertions": [],
+        "viewport": null
+      }
+    ]
+  },
+  "starterFiles": {
+    "/src/main.js": "import { createApp } from 'vue'\nimport App from './App.vue'\nimport \"./styles.css\";\n\ncreateApp(App).mount('#app')\n",
+    "/src/App.vue": "<template>\n  <h1>Hello {{ msg }}</h1>\n</template>\n\n<script setup>\nimport { ref } from 'vue';\nconst msg = ref('world');\n</script>",
+    "/src/styles.css": "body {\n  font-family: sans-serif;\n  -webkit-font-smoothing: auto;\n  -moz-font-smoothing: auto;\n  -moz-osx-font-smoothing: grayscale;\n  font-smoothing: auto;\n  text-rendering: optimizeLegibility;\n  font-smooth: always;\n  -webkit-tap-highlight-color: transparent;\n  -webkit-touch-callout: none;\n}\n\nh1 {\n  font-size: 1.5rem;\n}",
+    "/public/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\" />\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\" />\n    <title>codesandbox</title>\n  </head>\n  <body>\n    <noscript>\n      <strong\n        >We're sorry but codesandbox doesn't work properly without JavaScript\n        enabled. Please enable it to continue.</strong\n      >\n    </noscript>\n    <div id=\"app\"></div>\n    <!-- built files will be auto injected -->\n  </body>\n</html>\n"
+  },
+  "tasks": [
+    {
+      "stepId": "step-1",
+      "title": "姓名校验与报名按钮",
+      "objective": "搭建活动报名页骨架，实现姓名输入框与报名按钮，并在姓名为空或仅空格时禁用按钮。",
+      "instructionsMarkdown": "本步要做出一个本地活动报名页的第一版：页面上有一个姓名输入框和一个“报名”按钮。\n\n- 姓名输入框初始为空，可以输入任意文字。\n- 当姓名为空、或者只输入了空格时，“报名”按钮处于禁用状态，不能点击。\n- 当姓名里含有非空白字符（例如“张三”）时，“报名”按钮变为可用。\n- 本步还不需要处理点击报名后的结果，按钮点击后暂时可以什么都不做。\n\n页面整体保持简洁即可，输入框上方可以有一句提示文字，例如“请输入姓名”。\n\n### 代码约定\n\n为了让系统能识别页面部件，请给以下元素加上标记（标记本身不会改变外观）：\n\n- 姓名输入框：加上 `data-testid=\"name-input\"`。\n- “报名”按钮：加上 `data-testid=\"submit-button\"`，按钮文字为“报名”。",
+      "explanationMarkdown": "在 Vue 3 中，可以用 `ref` 保存输入框的值，再用 `computed` 根据这个值算出按钮是否可用。\n\n判断“是否只含空白”可以用 `trim()`：`name.value.trim().length > 0` 为真时说明有实际内容。把按钮的 `:disabled` 绑定到这个计算结果上，Vue 会在输入变化时自动更新按钮状态。\n\n输入框用 `v-model` 双向绑定到 `name`，这样每次输入都会同步更新数据。",
+      "hints": [
+        "用 `ref('')` 保存姓名，初始为空字符串。",
+        "用 `computed` 计算 `name.value.trim().length > 0`，得到按钮是否可用。",
+        "在按钮上写 `:disabled=\"!canSubmit\"`，并在输入框上写 `v-model=\"name\"`。",
+        "记得给输入框和按钮加上题面要求的 `data-testid`。"
+      ],
+      "focusFiles": [
+        "/src/App.vue",
+        "/src/styles.css"
+      ],
+      "checkIds": [
+        "check-input-initial",
+        "check-disabled-empty",
+        "check-disabled-spaces",
+        "check-enabled-valid"
+      ],
+      "id": "step-1",
+      "cumulativeCheckIds": [
+        "check-input-initial",
+        "check-disabled-empty",
+        "check-disabled-spaces",
+        "check-enabled-valid"
+      ]
+    },
+    {
+      "stepId": "step-2",
+      "title": "报名成功与重新填写",
+      "objective": "在按钮可用时点击报名显示成功提示与姓名，并支持点击重新填写清空输入与结果。",
+      "instructionsMarkdown": "上一步的报名页已经能输入姓名，并在姓名为空或只有空格时禁用报名按钮。这一步把它补成完整的报名流程。\n\n**要做出的效果**\n\n1. 在姓名输入框填入有效姓名（例如“张三”），点击可用的“报名”按钮后，页面上出现报名结果：显示“报名成功”的提示，并显示刚才填写的姓名。\n2. 结果出现后，页面上出现一个“重新填写”按钮。点击它，姓名输入框被清空，报名结果不再显示，报名按钮回到禁用状态。\n\n**边界**\n\n- 只有姓名包含非空白字符时才能点击报名；姓名为空或仅空格时按钮仍禁用，点击不会产生结果。\n- 报名结果中显示的姓名应与输入框里填写的内容一致（首尾空格会被去掉）。\n- 重新填写后，页面回到初始状态：输入框为空、没有结果、按钮禁用。\n- 全程在本地完成，不发送网络请求。\n\n**代码约定**\n\n为了让系统能识别页面部件，请保留并补充以下标记（它们只是供程序定位，不会改变外观）：\n\n- 姓名输入框：`data-testid=\"name-input\"`（上一步已有）。\n- 报名按钮：`data-testid=\"submit-button\"`（上一步已有）。\n- 报名结果区域：用一个容器包裹成功提示和姓名，加上 `data-testid=\"result\"`。\n- 成功提示文字：单独放在一个元素里，加上 `data-testid=\"success-message\"`，文字为“报名成功”。\n- 结果中显示的姓名：单独放在一个元素里，加上 `data-testid=\"result-name\"`，内容为填写的姓名。\n- 重新填写按钮：`data-testid=\"reset-button\"`，文字为“重新填写”。",
+      "explanationMarkdown": "这一步引入“提交后的状态”。可以用一个响应式变量记录已报名的姓名，例如 `submittedName`，初始为 `null` 或空字符串表示还没有结果。\n\n点击报名时，把当前姓名（可先 `trim()` 去掉首尾空格）保存到 `submittedName`，页面根据它是否为空决定是否显示结果区域。这样“是否显示结果”和“显示什么姓名”都由同一份状态驱动，不会出现提示和姓名不一致。\n\n点击重新填写时，把输入框的 `name` 清空，同时把 `submittedName` 也清空。因为报名按钮的可用状态本来就由 `name` 是否含非空白字符决定，清空后按钮会自动回到禁用状态，不需要额外处理。\n\n注意结果区域要用 `v-if` 控制，未报名时整个容器不渲染，这样“结果不再显示”才是真的消失，而不是留一个空壳。",
+      "hints": [
+        "用一个 ref 记录已提交的姓名，初始为空，表示还没有报名结果。",
+        "点击报名时把输入内容保存到该 ref；结果区域用 v-if 判断它是否有值。",
+        "重新填写时同时清空输入框和已提交姓名两个状态。",
+        "按钮禁用逻辑沿用上一步的 computed，清空输入后它会自动变回禁用。"
+      ],
+      "focusFiles": [
+        "/src/App.vue",
+        "/src/styles.css"
+      ],
+      "checkIds": [
+        "check-submit-shows-success",
+        "check-submit-shows-name",
+        "check-reset-clears-input",
+        "check-reset-hides-result",
+        "check-reset-disables-button"
+      ],
+      "id": "step-2",
+      "cumulativeCheckIds": [
+        "check-input-initial",
+        "check-disabled-empty",
+        "check-disabled-spaces",
+        "check-enabled-valid",
+        "check-submit-shows-success",
+        "check-submit-shows-name",
+        "check-reset-clears-input",
+        "check-reset-hides-result",
+        "check-reset-disables-button"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "check-input-initial",
+      "label": "姓名输入框存在且初始为空",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": null,
+          "assertion": "value",
+          "expected": "",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-disabled-empty",
+      "label": "姓名为空时报名按钮禁用",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": false,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-disabled-spaces",
+      "label": "姓名仅含空格时报名按钮禁用，从可用状态改回空格也禁用",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "   ",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": false,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "   ",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": false,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-enabled-valid",
+      "label": "姓名含非空白字符时按钮可用，清空后回到禁用",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": false,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-submit-shows-success",
+      "label": "有效姓名点击报名后显示“报名成功”提示；仅空格时按钮禁用且不产生结果",
+      "actions": [
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "success-message"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "报名成功",
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "   ",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": false,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-submit-shows-name",
+      "label": "报名结果中显示所填姓名，含首尾空格时显示去空格后的姓名",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "李四",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "李四",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "reset-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "  王五  ",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result-name"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "王五",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-reset-clears-input",
+      "label": "点击重新填写后姓名输入框被清空",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "reset-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": null,
+          "assertion": "value",
+          "expected": "",
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-reset-hides-result",
+      "label": "点击重新填写后报名结果区域不再显示",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "success-message"
+          },
+          "value": null,
+          "assertion": "text",
+          "expected": "报名成功",
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "reset-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result"
+          },
+          "value": null,
+          "assertion": "count",
+          "expected": 0,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    },
+    {
+      "id": "check-reset-disables-button",
+      "label": "点击重新填写后报名按钮回到禁用状态",
+      "actions": [
+        {
+          "type": "fill",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "name-input"
+          },
+          "value": "张三",
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "result"
+          },
+          "value": null,
+          "assertion": "visible",
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "click",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "reset-button"
+          },
+          "value": null,
+          "assertion": null,
+          "expected": null,
+          "relativeTo": null
+        },
+        {
+          "type": "assert",
+          "target": {
+            "within": null,
+            "index": null,
+            "role": null,
+            "name": null,
+            "testId": "submit-button"
+          },
+          "value": null,
+          "assertion": "enabled",
+          "expected": false,
+          "relativeTo": null
+        }
+      ],
+      "viewport": null
+    }
+  ],
+  "validationSummary": {
+    "passed": true,
+    "templateVersion": "sandpack-project-v1",
+    "validatedSteps": 2,
+    "qualityWarnings": []
+  }
+}

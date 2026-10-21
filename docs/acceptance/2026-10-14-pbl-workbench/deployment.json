@@ -1,0 +1,145 @@
+{
+  "publishedAt": "20261014T055104Z",
+  "frontendPublished": true,
+  "checkerPublished": true,
+  "backendRestartRequired": false,
+  "release": "/tmp/edu-pbl-workbench-publish",
+  "backup": "/tmp/edu-pbl-workbench-backup-20261014T055104Z",
+  "previousIndexSha256": "e70ff6470fb8ae5df2fdc150a9174641be92a83dc95d9046706422d050840d46",
+  "releaseIndexSha256": "114f3bd4aaa97900569cd5378513cf40410b7447eb7204e03638cecfd54403fe",
+  "nginxIndexMatches": true,
+  "sourceManifest": {
+    "src/pbl/ProjectWorkspace.tsx": {
+      "previous": "a4dd4ede0bda7583c7545284618e54bdae05d9cfb1bb5c4866c55d9d0b600e02",
+      "new": "42c28d6e3013007324b126f0efb7eaf4385ab2bd2d3b160b864918fc739c947d"
+    },
+    "src/pbl/ProjectEditor.tsx": {
+      "previous": null,
+      "new": "b60240158de6e825e34019c22c0441d93f58f57c8fed78ea4cbf0c02db4dc11d"
+    },
+    "src/pbl/ProjectChecks.tsx": {
+      "previous": null,
+      "new": "46fc6b3d76daa2b004cd16760e4ec1f3c0ea89685b45611c6af7a320c4ddf1ee"
+    },
+    "src/pbl/projectWorkbench.css": {
+      "previous": null,
+      "new": "dbfb17984bfeca08923a54369cd5fe5983b614016076add7289ca0a421ba4b59"
+    },
+    "src/pbl/PblTutor.tsx": {
+      "previous": "e23ed3b73827f13adbcbc13d3c4c987dbeb7e67ee5f09733e9102402f63ed6a4",
+      "new": "f7bc036a12deaf9b2746fb9a80adaa3755b7c05c49731cd3d10cfdd89869c34a"
+    },
+    "scripts/check-pbl-project.mjs": {
+      "previous": "8fccf845324230f296a8eaea942e0ca58e3e786ed16da4a55f80552773017036",
+      "new": "d4e56dc1e4c1ce6ec3a07d10bcbe8687f7fc5f6f88f6af4f22847fe9b9c0ce7f"
+    },
+    "scripts/pbl-project-validation.test.mts": {
+      "previous": "5cf6049943d9299be48746b71e53b5d8e0d459d6caf12ae3a162c699eeb7d912",
+      "new": "f9433b71a01cb90a981a1fd5eb7d794bbc354c4ccf01f8fb780817f7d880c603"
+    },
+    "tests/live-learning/pbl-project.spec.ts": {
+      "previous": "1badbff31933dfac425285dc9563dd757f39b98bd66211a6ad07e9b4f5e600e5",
+      "new": "00cd1331452ae97251879a8bca0cd086318ea514b26f3e989527013b6a38bea9"
+    },
+    "tests/live-learning/pbl-tutor.spec.ts": {
+      "previous": "cb576aaa7f420995c3eae526ffbcd42bdd6421f0256a718786ab169034d537b2",
+      "new": "2250a532a7893466fe8b00bd56b729114e2df55d4ab2200c69ea6342e2326388"
+    },
+    "tests/live-learning/pbl-project-live.spec.ts": {
+      "previous": "09f13a7c7b6ce838c7fb3858aab1d5a81245ac6e1705267ecbb2760806ad160e",
+      "new": "b397a7e3abd75193838d6b533b95c6875ee1f7239df7c4d722e1a7743932c8ac"
+    },
+    "tests/live-learning/pbl-workbench-evidence.spec.ts": {
+      "previous": null,
+      "new": "d5e6e9991bccb6c4e79f3e5d59b052aff892efd8ce05ebebcf78206d612ef2a0"
+    }
+  },
+  "preservedConcurrentReleases": [
+    "report-no-images",
+    "practice-proportions",
+    "report-format",
+    "report-readability"
+  ],
+  "verificationLimits": "Browser tests mock business/auth/storage APIs; one flow invokes the real server checker. Existing backend integration uses isolated fixtures. Actual calculator replay is read-only; no production learner code or progress was changed.",
+  "deferred": [
+    "Backend application runtime and API preview tab",
+    "Visual screenshot-based grading"
+  ],
+  "productionVerification": {
+    "evidenceFlow": "passed: real checker with mocked business/auth/storage APIs",
+    "layout": {
+      "checks": [
+        {
+          "width": 1440,
+          "height": 900,
+          "preview": {
+            "x": 728,
+            "y": 308.59375,
+            "width": 687,
+            "height": 524.40625
+          },
+          "footer": {
+            "x": 24,
+            "y": 848,
+            "width": 1392,
+            "height": 40
+          },
+          "overflow": false
+        },
+        {
+          "width": 1024,
+          "height": 600,
+          "preview": {
+            "x": 520,
+            "y": 284.59375,
+            "width": 479,
+            "height": 254.40625
+          },
+          "footer": {
+            "x": 24,
+            "y": 548,
+            "width": 976,
+            "height": 40
+          },
+          "overflow": false
+        },
+        {
+          "width": 390,
+          "height": 844,
+          "preview": {
+            "x": 13,
+            "y": 376.390625,
+            "width": 364,
+            "height": 406.609375
+          },
+          "footer": {
+            "x": 12,
+            "y": 794,
+            "width": 366,
+            "height": 40
+          },
+          "overflow": false
+        },
+        {
+          "width": 320,
+          "height": 568,
+          "preview": {
+            "x": 13,
+            "y": 376.390625,
+            "width": 294,
+            "height": 130.609375
+          },
+          "footer": {
+            "x": 12,
+            "y": 518,
+            "width": 296,
+            "height": 40
+          },
+          "overflow": false
+        }
+      ],
+      "errors": []
+    },
+    "screenshots": "Real calculator artifact and saved starter code replayed read-only; no production workspace changes."
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "多PDF验收 kentucky-0013 1792304153956",
+  "startedAt": "2026-10-18T06:15:53.956Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-18T06:15:58.377Z",
+      "attempt": 0,
+      "generation_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "job_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T06:16:29.920Z",
+      "attempt": 0,
+      "generation_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "job_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T06:16:40.153Z",
+      "attempt": 0,
+      "generation_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "job_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T06:18:22.654Z",
+      "attempt": 0,
+      "generation_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "job_id": "examgen_999feff63616eb873d1cf26a5f446513",
+      "status": "succeeded",
+      "progress": 100,
+      "message": "试题生成结果已保存，尚待整卷校验",
+      "exam_ready": false,
+      "error_code": null
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_999feff63616eb873d1cf26a5f446513"
+  ],
+  "retries": 0,
+  "refresh_recovery": true,
+  "completed": true,
+  "questions": 4,
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 320,
+      "overflow": false
+    }
+  ],
+  "expected_questions": 4,
+  "source": "kentucky",
+  "finishedAt": "2026-10-18T06:18:27.992Z"
+}

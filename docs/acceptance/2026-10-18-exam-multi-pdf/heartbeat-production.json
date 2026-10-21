@@ -1,0 +1,14 @@
+{
+  "turn_id": "turn_1792301349858_0f0b3c1e20",
+  "duration_seconds": 40,
+  "heartbeats": 0,
+  "events": 15072,
+  "types": {
+    "progress": 20,
+    "stage_start": 1,
+    "thinking": 15050,
+    "content": 1
+  },
+  "transport_error": false,
+  "observed_seconds": 40.19
+}

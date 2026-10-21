@@ -1,4 +1,4 @@
-from app.course_preparation.adapters.classroom import TeachingScript,native_classroom
+from tests.course_preparation.legacy_classroom_fixtures import TeachingScript,native_classroom
 from app.artifact_revision.adapters import validate
 
 

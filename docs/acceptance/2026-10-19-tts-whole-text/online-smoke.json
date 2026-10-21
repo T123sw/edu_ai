@@ -1,0 +1,40 @@
+{
+  "health": {
+    "status": "ok",
+    "service": "local-tts",
+    "model_loaded": true,
+    "model": "qwen3-tts",
+    "device": "cuda:0",
+    "formats": [
+      "mp3",
+      "wav"
+    ]
+  },
+  "input": "快速排序先选取一个基准值，再比较左右两边的元素。这里保持完整的一段讲解，让语音模型根据标点自然处理停顿，不把基准值这样的词语从中间切开。",
+  "chars": 68,
+  "elapsed_seconds": 40.19,
+  "bytes": 230060,
+  "headers": {
+    "date": "Mon, 19 Oct 2026 05:22:30 GMT",
+    "server": "uvicorn",
+    "x-request-id": "req_bc55e24e7532",
+    "x-audio-format": "mp3",
+    "x-audio-duration-ms": "14320",
+    "x-audio-batch": "1",
+    "content-length": "230060",
+    "content-type": "audio/mpeg",
+    "connection": "close"
+  },
+  "stats": {
+    "batch_size": 1,
+    "cache_size": 256,
+    "cache_entries": 1,
+    "requests": 1,
+    "cache_hits": 0,
+    "batch_calls": 0,
+    "fallback_calls": 0,
+    "sentences": 1,
+    "audio_ms": 14320,
+    "infer_ms": 40015
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "title": "共享列表的意外修改",
+  "scenes": [
+    {
+      "id": "scene_start",
+      "title": "发现异常",
+      "ending": "",
+      "choices": [
+        {
+          "id": "choice_inspect",
+          "text": "先打印 id(daily_temps) 和函数内部 temps 的 id，确认它们是否指向同一个列表对象。",
+          "next_id": "scene_decision_fix",
+          "feedback": "你选择先观察对象身份。打印 id 后，你发现两个名字的 id 相同，说明它们绑定的是同一个列表对象。这帮助你确认了问题来源：函数参数 temps 和外部变量 daily_temps 指向同一列表，因此 append 修改会被外部看到。这个选择让你获得了关键信息，但还没有决定如何修改代码。"
+        },
+        {
+          "id": "choice_assume_copy",
+          "text": "认为函数参数会自动复制列表，所以问题可能出在别处，先检查 make_report 的代码。",
+          "next_id": "scene_decision_fix",
+          "feedback": "你选择先检查 make_report。阅读代码后发现 make_report 只是遍历并打印列表，没有修改列表。这个选择没有直接定位到共享对象的问题，但你排除了一个可能的原因。你仍然需要回到 add_reading 和 daily_temps 的关系上。"
+        }
+      ],
+      "takeaway": "",
+      "situation": "你写了一个程序：daily_temps = [22, 24, 19]；然后调用 add_reading(daily_temps, 25) 和 make_report(daily_temps)。add_reading 函数内部执行了 temps.append(reading)。运行后，make_report 打印出的列表包含了 25，而且 daily_temps 本身也变成了 [22, 24, 19, 25]。你原本以为 add_reading 只是返回一个新列表，不会影响原来的 daily_temps。现在你面对这个意外结果，需要决定下一步怎么做。"
+    },
+    {
+      "id": "scene_decision_fix",
+      "title": "决定如何修改",
+      "ending": "",
+      "choices": [
+        {
+          "id": "choice_copy",
+          "text": "采用方案 A：在 add_reading 内部先 temps = temps.copy()，再 append，并返回 temps；调用处用 new_temps = add_reading(daily_temps, 25)。",
+          "next_id": "scene_ending_copy",
+          "feedback": "你选择了先复制再修改。temps.copy() 创建了一个新列表，temps 这个名字重新绑定到新列表，后续 append 只影响新列表。外部 daily_temps 保持不变。调用处接收返回值后，new_temps 绑定到新列表。这个选择避免了意外共享，但要注意：如果列表里嵌套了可变对象，copy() 是浅复制，嵌套对象仍然共享。"
+        },
+        {
+          "id": "choice_concat",
+          "text": "采用方案 B：在 add_reading 内部写 temps = temps + [reading]，返回 temps；调用处用 new_temps = add_reading(daily_temps, 25)。",
+          "next_id": "scene_ending_concat",
+          "feedback": "你选择了用拼接创建新列表。temps + [reading] 会生成一个新列表，temps 重新绑定到新列表，原列表不受影响。调用处接收返回值后，new_temps 绑定到新列表。这个选择同样避免了修改原列表，而且写法简洁。注意：如果之后又对 new_temps 做原地修改，仍然要留意它是否与其他名字共享。"
+        },
+        {
+          "id": "choice_no_return",
+          "text": "仍然在函数内部 append，但调用处不接收返回值，认为这样就不会影响外部。",
+          "next_id": "scene_ending_no_return",
+          "feedback": "你选择不接收返回值。但函数内部仍然执行了 temps.append(reading)，而 temps 和 daily_temps 指向同一个列表，所以 daily_temps 还是会被修改。不接收返回值并不能阻止原地修改的影响。这个选择没有解决共享对象的问题。"
+        }
+      ],
+      "takeaway": "",
+      "situation": "你已经知道 add_reading 内部的 temps 和外部 daily_temps 可能指向同一个列表。现在你要修改 add_reading 函数，让它不再意外修改传入的列表。你考虑两种改法：方案 A 是在函数内部先写 temps = temps.copy()，然后再 append；方案 B 是直接写 temps = temps + [reading]，然后返回这个新列表。你还需要决定是否在调用处接收返回值。"
+    },
+    {
+      "id": "scene_ending_copy",
+      "title": "结局：复制后修改",
+      "ending": "你通过 temps.copy() 创建了新列表，避免了函数内部修改影响外部变量。daily_temps 没有被意外修改，new_temps 正确包含了新读数。",
+      "choices": [],
+      "takeaway": "复盘：变量是名字到对象的绑定。当两个名字绑定同一个可变对象时，通过一个名字做原地修改（如 append）会影响另一个名字看到的内容。使用 copy() 可以创建新列表，但要注意浅复制与嵌套对象共享的边界：如果列表元素本身是可变对象，浅复制后嵌套对象仍然共享。",
+      "situation": "你采用了先复制再修改的方案。运行程序后，daily_temps 保持为 [22, 24, 19]，new_temps 为 [22, 24, 19, 25]，报告只包含原始数据。程序行为符合预期。"
+    },
+    {
+      "id": "scene_ending_concat",
+      "title": "结局：拼接创建新列表",
+      "ending": "你通过列表拼接创建了新列表，并让 temps 重新绑定到新列表。原列表没有被修改，调用处正确接收了返回值。",
+      "choices": [],
+      "takeaway": "复盘：赋值会重新绑定名字。temps = temps + [reading] 不是原地修改，而是创建新列表并让 temps 指向它。原列表仍然由 daily_temps 绑定，因此不受影响。如果后续对 new_temps 做原地修改，仍需注意它是否与其他名字共享。",
+      "situation": "你采用了 temps = temps + [reading] 的方案。运行程序后，daily_temps 保持为 [22, 24, 19]，new_temps 为 [22, 24, 19, 25]，报告只包含原始数据。程序行为符合预期。"
+    },
+    {
+      "id": "scene_ending_no_return",
+      "title": "结局：问题依旧",
+      "ending": "你发现不接收返回值并不能阻止原地修改。因为 temps 和 daily_temps 仍然绑定同一个列表，append 的影响会通过 daily_temps 看到。",
+      "choices": [],
+      "takeaway": "复盘：是否接收返回值不影响函数内部对共享列表的原地修改。要避免意外修改，需要让函数内部操作新对象，或者明确函数会修改传入对象并在调用处接受这一行为。整数等不可变对象重新赋值不会修改原对象，但列表等可变对象的原地修改会。",
+      "situation": "你选择不接收返回值，但函数内部仍然执行了 append。运行程序后，daily_temps 变成了 [22, 24, 19, 25]，报告也包含了 25。问题没有解决。"
+    }
+  ],
+  "start_id": "scene_start",
+  "introduction": "你是一名刚学 Python 的初学者，正在写一个记录每日温度的小程序。程序里有一个函数负责给温度列表添加新数据，另一个函数负责生成报告。运行后你发现，报告里出现了本不该有的数据，而且原始记录也被改动了。你需要找出原因并决定如何修改代码。",
+  "learning_objectives": [
+    "理解 Python 变量是名字到对象的绑定，赋值会重新绑定名字。",
+    "区分可变对象（如列表）与不可变对象（如整数）在赋值和修改时的不同表现。",
+    "识别两个变量指向同一列表时，通过一个变量修改会影响另一个变量。",
+    "在调试中做出合理决策，避免意外共享可变对象。"
+  ]
+}

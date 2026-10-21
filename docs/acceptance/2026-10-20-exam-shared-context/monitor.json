@@ -1,0 +1,275 @@
+[
+  {
+    "at": "2026-10-20T11:57:52.423872+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "parsing",
+      "message": "正在读取上传资料",
+      "progress": 5
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T11:58:02.465648+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "exploring",
+      "message": "正在整理资料",
+      "progress": 20
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T11:58:52.673196+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 3/45 题，正在生成第 4 题",
+      "progress": 43
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T11:59:02.716257+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 7/45 题，正在生成第 8 题",
+      "progress": 48
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T11:59:12.759515+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 11/45 题，正在生成第 12 题",
+      "progress": 53
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T11:59:22.802279+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 16/45 题，正在生成第 17 题",
+      "progress": 59
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T11:59:32.845938+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 18/45 题，正在生成第 19 题",
+      "progress": 62
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T11:59:42.888646+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 22/45 题，正在生成第 23 题",
+      "progress": 66
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T11:59:52.931815+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 25/45 题，正在生成第 26 题",
+      "progress": 70
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:00:02.973625+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 27/45 题，正在生成第 28 题",
+      "progress": 73
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:00:23.058809+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 28/45 题，正在生成第 29 题",
+      "progress": 74
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:00:33.102108+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 30/45 题，正在生成第 31 题",
+      "progress": 76
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:00:43.145710+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 32/45 题，正在生成第 33 题",
+      "progress": 79
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:00:53.189232+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 34/45 题，正在生成第 35 题",
+      "progress": 81
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:01:03.230894+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 36/45 题，正在生成第 37 题",
+      "progress": 84
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:01:13.274823+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 37/45 题，正在生成第 38 题",
+      "progress": 85
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:01:23.309921+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 38/45 题，正在生成第 39 题",
+      "progress": 86
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:01:53.435876+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 40/45 题，正在生成第 41 题",
+      "progress": 88
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:02:03.478052+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 41/45 题，正在生成第 42 题",
+      "progress": 90
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:02:13.522033+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "leased",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "quizzing",
+      "message": "已处理 43/45 题，正在生成第 44 题",
+      "progress": 92
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  },
+  {
+    "at": "2026-10-20T12:02:43.655887+00:00",
+    "task_id": "job_2b08dfb1245e426e",
+    "status": "succeeded",
+    "error_code": null,
+    "error": null,
+    "progress": {
+      "step": "completed",
+      "message": "试卷已生成",
+      "progress": 99
+    },
+    "generation_id": "examgen_a605d9dd7ab2ce174085d8ce556e9b32"
+  }
+]

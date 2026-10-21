@@ -1,0 +1,29 @@
+[
+  {
+    "id": "bubble",
+    "width": 1440,
+    "ok": true,
+    "frozenAtSend": true,
+    "replyToOriginal": true,
+    "reload": true,
+    "errors": []
+  },
+  {
+    "id": "pages",
+    "width": 390,
+    "ok": true,
+    "frozenAtSend": true,
+    "replyToOriginal": true,
+    "reload": true,
+    "errors": []
+  },
+  {
+    "id": "friction",
+    "width": 900,
+    "ok": true,
+    "frozenAtSend": true,
+    "replyToOriginal": true,
+    "reload": true,
+    "errors": []
+  }
+]

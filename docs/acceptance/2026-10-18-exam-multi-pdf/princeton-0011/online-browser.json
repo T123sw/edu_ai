@@ -1,0 +1,137 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "多PDF验收 princeton-0011 1792301266178",
+  "startedAt": "2026-10-18T05:27:46.178Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/examgen_6422602b0fbfb736dba9385287ecc8e1/retry",
+      "status": 202
+    },
+    {
+      "path": "/backend/api/jobs/job_6e568749d707445f/retry",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-18T05:27:52.620Z",
+      "attempt": 0,
+      "generation_id": "examgen_6422602b0fbfb736dba9385287ecc8e1",
+      "job_id": "examgen_6422602b0fbfb736dba9385287ecc8e1",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:29:13.073Z",
+      "attempt": 0,
+      "generation_id": "examgen_6422602b0fbfb736dba9385287ecc8e1",
+      "job_id": "examgen_6422602b0fbfb736dba9385287ecc8e1",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:30:00.714Z",
+      "attempt": 0,
+      "generation_id": "examgen_6422602b0fbfb736dba9385287ecc8e1",
+      "job_id": "examgen_6422602b0fbfb736dba9385287ecc8e1",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:37:58.236Z",
+      "resume_attempt": 0,
+      "generation_id": "examgen_23c5f8dde8291646878a023d8d7e238f",
+      "job_id": "job_6e568749d707445f",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:39:02.699Z",
+      "resume_attempt": 0,
+      "generation_id": "examgen_23c5f8dde8291646878a023d8d7e238f",
+      "job_id": "job_6e568749d707445f",
+      "status": "running",
+      "progress": 35,
+      "message": "正在规划题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:39:08.224Z",
+      "resume_attempt": 0,
+      "generation_id": "examgen_23c5f8dde8291646878a023d8d7e238f",
+      "job_id": "job_6e568749d707445f",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:49:12.710Z",
+      "resume_attempt": 0,
+      "generation_id": "examgen_23c5f8dde8291646878a023d8d7e238f",
+      "job_id": "job_6e568749d707445f",
+      "status": "failed",
+      "progress": 100,
+      "message": "任务执行失败",
+      "exam_ready": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE"
+    },
+    {
+      "at": "2026-10-18T05:49:17.951Z",
+      "resume_attempt": 1,
+      "generation_id": "examgen_5e1bce1f44e36fbbf10cf456df1d3084",
+      "job_id": "job_99ef1f0317ce4b00",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T05:50:10.702Z",
+      "resume_attempt": 1,
+      "generation_id": "examgen_5e1bce1f44e36fbbf10cf456df1d3084",
+      "job_id": "job_99ef1f0317ce4b00",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_6422602b0fbfb736dba9385287ecc8e1",
+    "examgen_23c5f8dde8291646878a023d8d7e238f",
+    "examgen_5e1bce1f44e36fbbf10cf456df1d3084"
+  ],
+  "retries": 2,
+  "refresh_recovery": true,
+  "controlled_hotfix_interruption": true,
+  "interruption_reason": "Stopped extra 0011 retry after complete 3/9 result to deploy verified option-array fix; fresh PDFs will be uploaded under 0012.",
+  "resume_startedAt": "2026-10-18T05:37:46.103Z",
+  "failure": "Error: page.waitForTimeout: Target page, context or browser has been closed",
+  "controlled_0012_interruption": true
+}

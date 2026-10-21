@@ -7,13 +7,16 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
     const state = seedState();
     const course = state.rooms[0];
     const statuses = ['running', 'queued', 'cancel_requested', 'failed', 'partially_succeeded', 'canceled', 'succeeded'];
-    const jobs = statuses.map((status, i) => ({ edu_job_id: `test-job-${i}`, kind: i % 2 ? 'generate_report' : 'generate_classroom', status, course_id: course.id, progress: status === 'queued' ? -8 : 62, retryable: status === 'failed', message: status === 'running' ? '正在为你整理课程内容与讲解。' : '', error_message: status === 'failed' ? '生成服务暂时不可用，请稍后重试。' : '' }));
+    const jobs = statuses.map((status, i) => ({ edu_job_id: `test-job-${i}`, created_at: `2026-10-0${[1, 3, 2, 7, 5, 4, 6][i]}T10:00:00Z`, kind: i % 2 ? 'generate_report' : 'generate_classroom', status, course_id: course.id, progress: status === 'queued' ? -8 : 62, retryable: status === 'failed', message: status === 'running' ? '正在为你整理课程内容与讲解。' : '', error_message: status === 'failed' ? '生成服务暂时不可用，请稍后重试。' : '' }));
+    const preparation = { preparation_id: 'prep-hidden-id', created_at: '2026-10-05T11:00:00Z', status: 'failed', stage: 'review', revision: 3, error_code: 'MODEL_UNAVAILABLE', result_ref: { course_ready: false, course_available: true, available_resources: 2, planned_resources: 3, course_id: course.id } };
     let retries = 0;
     const errors: string[] = [];
     page.on('pageerror', e => errors.push(e.message));
     await page.addInitScript(() => localStorage.setItem('edu-ai-auth', JSON.stringify({ user: { username: 'design-test', role: 'teacher' }, token: 'mock-only' })));
     await page.route('**/api/**', async route => {
       const url = route.request().url();
+      if (new URL(url).pathname.startsWith('/src/')) return route.continue();
+      if (url.endsWith('/course-preparations')) return route.fulfill({ json: { preparations: [preparation] } });
       if (url.endsWith('/auth/verify')) return route.fulfill({ json: { valid: true, user: { username: 'design-test', role: 'teacher' } } });
       if (url.endsWith('/self-learning/state')) return route.fulfill({ json: { ...state, shared: [], serverJobs: jobs } });
       if (url.endsWith('/retry')) {
@@ -28,18 +31,30 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
     await launcher.click();
     const dialog = page.getByRole('dialog', { name: '后台任务' });
     await expect(dialog).toBeVisible();
-    await expect(dialog.locator('.sl-task-card')).toHaveCount(7);
-    await expect(dialog.locator('.sl-task-card').nth(1).getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    const filters = dialog.locator('.sl-task-filters');
+    await expect(filters.getByRole('button', { name: /已完成/ })).toHaveAttribute('aria-pressed', 'true');
+    await expect(dialog.locator('.sl-task-card')).toHaveCount(1);
+    await expect(dialog.locator('.sl-task-status')).toHaveText(['已完成']);
+    await page.screenshot({ path: info.outputPath('tasks-default.png') });
+    await filters.getByRole('button', { name: /全部/ }).click();
+    await expect(dialog.locator('.sl-task-card')).toHaveCount(8);
+    await expect(dialog.locator('.sl-task-filters button')).toHaveText(['已完成1', '进行中3', '需处理4', '全部8']);
+    await expect(dialog.locator('.sl-task-status')).toHaveText(['生成失败', '已完成', '部分完成', '部分完成', '已取消', '等待开始', '正在取消', '生成中']);
+    await expect(dialog.locator('.sl-task-summary')).toHaveCount(0);
+    await expect(dialog.getByLabel('课程准备阶段')).toHaveCount(0);
+    await expect(dialog.getByText(/任务编号|prep-hidden-id|理解需求|研究与规划|制作内容|检查与完善|交付课程/)).toHaveCount(0);
+    await expect(dialog.locator('.prep-task-error')).toBeVisible();
+    await expect(dialog.locator('.prep-task-error')).toContainText('响应超时');
+    await expect(dialog.locator('.sl-task-card').filter({ has: page.locator('.sl-task-status', { hasText: '等待开始' }) }).getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
     const box = await dialog.boundingBox();
     expect(box!.x).toBeGreaterThanOrEqual(0);
     expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
     expect(await dialog.evaluate(e => e.scrollWidth <= e.clientWidth)).toBe(true);
     await page.screenshot({ path: info.outputPath('tasks-all.png') });
-    const filters = dialog.locator('.sl-task-filters');
     await filters.getByRole('button', { name: /进行中/ }).click();
     await expect(dialog.locator('.sl-task-card')).toHaveCount(3);
     await filters.getByRole('button', { name: /需处理/ }).click();
-    await expect(dialog.locator('.sl-task-card')).toHaveCount(3);
+    await expect(dialog.locator('.sl-task-card')).toHaveCount(4);
     await dialog.getByText('查看失败原因', { exact: true }).first().click();
     await expect(dialog.getByText('生成服务暂时不可用，请稍后重试。', { exact: true })).toBeVisible();
     await page.screenshot({ path: info.outputPath('tasks-failed.png') });
@@ -53,7 +68,7 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
     await expect(dialog).toHaveCount(0);
     await expect(launcher).toBeFocused();
     await launcher.click();
-    await filters.getByRole('button', { name: /已完成/ }).click();
+    await expect(filters.getByRole('button', { name: /已完成/ })).toHaveAttribute('aria-pressed', 'true');
     await expect(dialog.locator('.sl-task-card')).toHaveCount(1);
     await expect(dialog.getByRole('progressbar')).toHaveCount(0);
     await dialog.getByRole('link', { name: '进入课堂' }).click();
@@ -65,7 +80,13 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
 
 test('task center empty state', async ({ page }, info) => {
   await page.addInitScript(() => localStorage.setItem('edu-ai-auth', JSON.stringify({ user: { username: 'design-test', role: 'teacher' }, token: 'mock-only' })));
-  await page.route('**/api/**', route => route.fulfill({ json: route.request().url().endsWith('/auth/verify') ? { valid: true, user: { username: 'design-test', role: 'teacher' } } : { ...seedState(), shared: [], serverJobs: [] } }));
+  await page.route('**/api/**', route => {
+    const url = route.request().url();
+    if (new URL(url).pathname.startsWith('/src/')) return route.continue();
+    if (url.endsWith('/course-preparations')) return route.fulfill({ json: { preparations: [] } });
+    if (url.endsWith('/notifications')) return route.fulfill({ json: { items: [] } });
+    return route.fulfill({ json: url.endsWith('/auth/verify') ? { valid: true, user: { username: 'design-test', role: 'teacher' } } : { ...seedState(), shared: [], serverJobs: [] } });
+  });
   await page.goto('/');
   await page.getByRole('button', { name: '后台任务', exact: true }).click();
   await expect(page.getByRole('heading', { name: '还没有生成任务' })).toBeVisible();

@@ -1,0 +1,19 @@
+{
+  "limits": {
+    "calls": 200,
+    "tokens": 2000000,
+    "seconds": 3600,
+    "cost_micro_usd": 10000000
+  },
+  "reserved": {
+    "calls": 0,
+    "tokens": 0,
+    "cost_micro_usd": 0
+  },
+  "consumed": {
+    "calls": 23,
+    "tokens": 350347,
+    "cost_micro_usd": 3503470
+  },
+  "deadline": "2026-10-13 19:05:12.213975+00:00"
+}

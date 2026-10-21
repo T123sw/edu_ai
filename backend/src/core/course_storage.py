@@ -94,6 +94,8 @@ def _default_course_storage_root(module_path: Path) -> Path:
 COURSE_STORAGE_ROOT = _default_course_storage_root(Path(__file__))
 
 TYPE_MAPPING = {
+    "podcast": "podcasts",
+    "scenario": "scenarios",
     "audio": "audio",
     "lesson_plan": "lesson_plans",
     "graph": "graphs",

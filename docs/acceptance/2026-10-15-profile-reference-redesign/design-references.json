@@ -1,0 +1,15 @@
+{
+  "references": [
+    {
+      "title": "My details settings page — Untitled UI, Jordan Hughes",
+      "url": "https://dribbble.com/shots/17219796-My-details-settings-page-Untitled-UI",
+      "usedFor": "Cover and overlapping avatar, clear profile identity, restrained borders and spacing. Reference viewed; original implementation with CSS/SVG, no third-party artwork embedded."
+    },
+    {
+      "title": "Linear — Profile",
+      "url": "https://linear.app/docs/profile",
+      "usedFor": "Account name, username, avatar and connection settings organization."
+    }
+  ],
+  "design": "One white profile surface; pastel abstract cover; circular avatar; accessible horizontal tabs for personal details, appearance and security; persistent AI service entry; neutral backgrounds and sans-serif typography. Existing role-neutral behavior and AI configuration constraints preserved."
+}

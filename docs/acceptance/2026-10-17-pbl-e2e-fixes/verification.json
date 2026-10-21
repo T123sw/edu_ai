@@ -1,0 +1,190 @@
+{
+  "productionDataModified": false,
+  "backendFullSuite": {
+    "passed": 217,
+    "skipped": 0
+  },
+  "finalLocatorCompatibilitySuite": {
+    "passed": 27,
+    "skipped": 0
+  },
+  "runtimeBrowserSuite": {
+    "passed": 14
+  },
+  "frontendOnlineSuite": {
+    "passed": 8
+  },
+  "typecheckPassed": true,
+  "lintPassed": true,
+  "buildPassed": true,
+  "projects": [
+    {
+      "case": "shop_a",
+      "exerciseId": "pbl_ead74be745a5f0cf9ed9eaa4a97be13f",
+      "steps": 4,
+      "checks": 17,
+      "browserPassed": true,
+      "previewViewports": [
+        {
+          "outerWidth": 390,
+          "width": 349,
+          "scrollWidth": 349
+        },
+        {
+          "outerWidth": 320,
+          "width": 279,
+          "scrollWidth": 279
+        }
+      ],
+      "recoveredAfterDeadlineFix": false
+    },
+    {
+      "case": "shop_b",
+      "exerciseId": "pbl_e74c597a1604ccbb88f3304f8b8d1439",
+      "steps": 4,
+      "checks": 17,
+      "browserPassed": true,
+      "previewViewports": [
+        {
+          "outerWidth": 390,
+          "width": 349,
+          "scrollWidth": 349
+        },
+        {
+          "outerWidth": 320,
+          "width": 279,
+          "scrollWidth": 279
+        }
+      ],
+      "recoveredAfterDeadlineFix": false
+    },
+    {
+      "case": "form",
+      "exerciseId": "pbl_71b51a688c434c1f0f87da315bacec7b",
+      "steps": 1,
+      "checks": 5,
+      "browserPassed": true,
+      "previewViewports": [
+        {
+          "outerWidth": 390,
+          "width": 349,
+          "scrollWidth": 349
+        },
+        {
+          "outerWidth": 320,
+          "width": 279,
+          "scrollWidth": 279
+        }
+      ],
+      "recoveredAfterDeadlineFix": false
+    },
+    {
+      "case": "layout",
+      "exerciseId": "pbl_4f6ee33f2ce560660e33ed674111db3f",
+      "steps": 1,
+      "checks": 7,
+      "browserPassed": true,
+      "previewViewports": [
+        {
+          "outerWidth": 390,
+          "width": 349,
+          "scrollWidth": 349
+        },
+        {
+          "outerWidth": 320,
+          "width": 279,
+          "scrollWidth": 279
+        }
+      ],
+      "recoveredAfterDeadlineFix": false
+    },
+    {
+      "case": "score",
+      "exerciseId": "pbl_30a7cbe3cae4183538dac3691a503e4b",
+      "steps": 4,
+      "checks": 14,
+      "browserPassed": true,
+      "previewViewports": [
+        {
+          "outerWidth": 390,
+          "width": 349,
+          "scrollWidth": 349
+        },
+        {
+          "outerWidth": 320,
+          "width": 279,
+          "scrollWidth": 279
+        }
+      ],
+      "recoveredAfterDeadlineFix": true
+    }
+  ],
+  "totalSteps": 14,
+  "mutationControls": {
+    "count": 8,
+    "detected": 8,
+    "correctBaselinesPassed": 8
+  },
+  "budgetRetry": {
+    "exerciseId": "pbl_0716a66b05a38397a54f708d3e384967",
+    "jobId": "pbl_0716a66b05a38397a54f708d3e384967",
+    "completedSteps": 3,
+    "repairs": {
+      "filter-and-stats": 3
+    },
+    "injectedFailure": true,
+    "retryJobId": "job_7a969b3d19b145e7",
+    "retryOfJobId": "job_2ba8e367261741f9",
+    "retryHttpStatus": 202,
+    "sameResourceAfterRetry": true,
+    "refreshFollowsRetry": true,
+    "ready": true,
+    "resourceLookup404": [],
+    "modelCalls": 2,
+    "phases": [
+      "repair_step",
+      "repair_checks"
+    ],
+    "preservedPreviousCheckCount": 10
+  },
+  "deadlineRetry": {
+    "exerciseId": "pbl_30a7cbe3cae4183538dac3691a503e4b",
+    "initialFailure": "GENERATION_CANCELLED",
+    "retryPassed": true,
+    "modelCalls": 3,
+    "stepCount": 4,
+    "checkCount": 14,
+    "queueWindow": 1800,
+    "executionWindow": 1800,
+    "actualExecutionDeadlineSeconds": 1800.0
+  },
+  "cancelRetry": {
+    "productionDataModified": false,
+    "exerciseId": "pbl_78abae3ef64f7aad2d104a6c477de2c9",
+    "pendingCodeBeforeCancel": true,
+    "cancelResponse": "cancel_requested",
+    "canceledWithoutPublication": true,
+    "retryJobId": "job_3ae98e1ba8404375",
+    "modelPhases": [
+      "plan",
+      "build_step",
+      "build_checks",
+      "build_checks"
+    ],
+    "passed": true,
+    "sameExerciseRetried": true,
+    "savedCodeReused": true,
+    "stepCount": 1,
+    "seconds": 110.95
+  },
+  "frontendPublished": true,
+  "backendRestartRequired": true,
+  "backendRestartBlocker": "sudo: a password is required",
+  "limitations": [
+    "定向样本验证不保证所有未来模型输出均完整",
+    "旧已发布项目不会静默更新验收",
+    "后端进程仍为原 PID 939101，需管理员重启"
+  ],
+  "standaloneMutationReplayPassed": true,
+  "isolatedServersStopped": true
+}

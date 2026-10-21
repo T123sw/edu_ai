@@ -1,5 +1,6 @@
 import { reportAnchors } from "../components/shared/reportAnchors";
 import type { ReadingSnapshot } from '../liveLearning/agentTurns';
+import type { PlaybackCommand } from '../classroom/playbackTypes';
 import { acceptReadingMessage, resourceRef, refKey } from '../liveLearning/readingContext';
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -38,6 +39,7 @@ export function LearningContent({
   evidence = emptyEvidence(),
   onEvidence,
   paused = false,
+  playbackCommand,
   onReading,
   onReadingSnapshot,
   onReferenceRequest,
@@ -47,6 +49,7 @@ export function LearningContent({
   evidence?: Evidence;
   onEvidence?: (patch: Partial<Evidence>) => void;
   paused?: boolean;
+  playbackCommand?: PlaybackCommand;
   onReadingSnapshot?: (snapshot: ReadingSnapshot) => void;
   onReferenceRequest?: (snapshot: ReadingSnapshot) => void;
   clearReferenceSignal?: number;
@@ -56,6 +59,7 @@ export function LearningContent({
   const stream = useRef(uid());
   const sequence = useRef(0);
   const lastPosition = useRef('');
+  const lastPositionFactAt = useRef(0);
   const opened = useRef(false);
   const reachedEnd = useRef(false);
   const onSnapshotRef = useRef(onReadingSnapshot);
@@ -104,6 +108,13 @@ export function LearningContent({
     frame.current?.contentWindow?.postMessage({ type: 'learning-pause', paused }, location.origin);
   }, [paused]);
   useEffect(() => {
+    if (!playbackCommand) return;
+    setPlaying(playbackCommand.action === 'resume' && !paused);
+    frame.current?.contentWindow?.postMessage({ type: 'learning-playback-command', command: playbackCommand }, location.origin);
+    // Only a new command may start playback; panel changes must not replay it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playbackCommand]);
+  useEffect(() => {
     const receive = (event: MessageEvent) => {
       if (event.origin !== location.origin || event.source !== frame.current?.contentWindow) return;
       const ref = resourceRef(resource);
@@ -118,7 +129,8 @@ export function LearningContent({
           onSnapshotRef.current?.(snapshot);
           if (event.data.intent === 'ask') referenceRequestRef.current?.(snapshot);
           const positionKey = JSON.stringify(event.data.locator);
-          if (lastPosition.current !== positionKey) {
+          if (lastPosition.current !== positionKey && (event.data.locator.kind !== 'hyperframes' || event.data.classroom?.status !== 'playing' || Date.now() - lastPositionFactAt.current >= 1000)) {
+            lastPositionFactAt.current = Date.now();
             lastPosition.current = positionKey;
             onReadingRef.current?.('reading_position_set', { stream_id: stream.current, sequence: sequence.current, locator: event.data.locator });
           }
@@ -136,8 +148,9 @@ export function LearningContent({
   if (resource.remote) {
     const params = new URLSearchParams({ course_id: resource.remote.courseId, material_id: resource.remote.materialId,
       material_type: resource.remote.materialType, version: String(resource.remote.version), visibility: resource.remote.visibility, position: String(initialPosition.current) });
+    if (initialLocator.current?.kind === 'hyperframes') { params.set('seconds', String(initialLocator.current.seconds)); if (initialLocator.current.segment_id) params.set('segment_id', initialLocator.current.segment_id); }
     if (initialLocator.current?.kind === 'classroom') params.set('scene_id', initialLocator.current.scene_id);
-    return <iframe ref={frame} onLoad={() => frame.current?.contentWindow?.postMessage({ type: 'learning-pause', paused }, location.origin)} className="sl-live-material" title={resource.title} src={`?learningPlayer=1#ai?${params}`} />;
+    return <iframe ref={frame} allowFullScreen onLoad={() => frame.current?.contentWindow?.postMessage({ type: 'learning-pause', paused }, location.origin)} className="sl-live-material" title={resource.title} src={`?learningPlayer=1#ai?${params}`} />;
   }
   if (!resource.ready)
     return (

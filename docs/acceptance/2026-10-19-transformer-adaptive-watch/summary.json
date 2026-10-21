@@ -1,0 +1,105 @@
+{
+  "preparation_id": "prep_531f57d76e274188b9bfd49fc9588dda",
+  "status": "failed",
+  "started_at": "2026-10-19T15:57:23.154773+00:00",
+  "finished_at": "2026-10-19T15:59:04.635394+00:00",
+  "elapsed_seconds": 101.480621,
+  "timing_basis": "Persisted stage event timestamps; wall-clock stage intervals include scheduling and bookkeeping. Task queue and execution measured separately; action timing overlaps these intervals and must not be added.",
+  "phase_timing": [
+    {
+      "stage": "accepted_to_first_stage",
+      "start": "2026-10-19T15:57:23.154773+00:00",
+      "end": "2026-10-19T15:57:23.338132+00:00",
+      "seconds": 0.183359
+    },
+    {
+      "stage": "normalize",
+      "start": "2026-10-19T15:57:23.338132+00:00",
+      "end": "2026-10-19T15:57:28.565301+00:00",
+      "seconds": 5.227169
+    },
+    {
+      "stage": "research_scope",
+      "start": "2026-10-19T15:57:28.565301+00:00",
+      "end": "2026-10-19T15:58:49.685225+00:00",
+      "seconds": 81.119924
+    },
+    {
+      "stage": "plan",
+      "start": "2026-10-19T15:58:49.685225+00:00",
+      "end": "2026-10-19T15:58:53.987352+00:00",
+      "seconds": 4.302127
+    },
+    {
+      "stage": "research_nodes",
+      "start": "2026-10-19T15:58:53.987352+00:00",
+      "end": "2026-10-19T15:59:04.635394+00:00",
+      "seconds": 10.648042
+    }
+  ],
+  "task_queue_seconds_sum": 0.833658,
+  "task_execution_seconds_sum": 100.212149,
+  "error": {
+    "code": "STEP_FAILED",
+    "stage": "research_nodes",
+    "node_key": "n2-self-attention",
+    "exception": "pydantic_core.ValidationError",
+    "schema": "NodeEvidenceAssessment",
+    "field": "sufficient_again",
+    "value": true,
+    "type": "extra_forbidden",
+    "source": "backend/src/app/course_preparation/node_research.py:44",
+    "model_declared_sufficient": true,
+    "last_successful_node": "n1-overview",
+    "automatic_protocol_retry_observed": false,
+    "no_resource_generation_reached": true
+  },
+  "intermediate_products": {
+    "course_title": "Transformer 模型入门：原理与核心结构（60 分钟）",
+    "nodes": 6,
+    "planned_learning_minutes": 60,
+    "path_review": "pass",
+    "completed_node_checks": [
+      "n1-overview"
+    ],
+    "searches": 2,
+    "fetch_source_reads": 18,
+    "evidence_entries": 18,
+    "unique_source_urls": 4,
+    "source_snapshots": 4,
+    "findings": 10,
+    "artifacts": 0,
+    "manifest_versions": 0
+  },
+  "not_started": [
+    "resource_production",
+    "report_generation",
+    "quiz_generation",
+    "teaching_brief_conversion",
+    "narration",
+    "tts",
+    "scene_generation",
+    "rendering",
+    "course_quality_review",
+    "delivery"
+  ],
+  "action_counts": {
+    "model_completion": 23,
+    "search": 2,
+    "extract": 4
+  },
+  "observation": {
+    "read_only_database": true,
+    "production_files_changed": false,
+    "service_commands_issued": false,
+    "task_retried": false,
+    "model_or_web_requests_from_observer": false,
+    "watcher_exited_after_terminal_state": true
+  },
+  "limitations": [
+    "This run failed before resource scheduling and cannot assess new video concurrency or TTS/render throughput.",
+    "There are no video images or media intermediate products.",
+    "Research-state calls count tool decisions; preparation actions count provider/source calls, and these are different metrics.",
+    "Durable preparation_step tasks are marked succeeded because the handler returned after persisting course failure; authoritative course attempt and event status is failed."
+  ]
+}

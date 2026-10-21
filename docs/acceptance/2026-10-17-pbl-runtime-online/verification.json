@@ -1,0 +1,39 @@
+{
+  "status": "published_with_known_issues_python_hotfix_awaiting_restart",
+  "testedAt": "2026-10-17T16:28:20.485173+00:00",
+  "production": true,
+  "realModelGeneration": true,
+  "realSandpack": true,
+  "backendTests": {
+    "passed": 242,
+    "skipped": 6
+  },
+  "uiRunnerRegression": {
+    "passed": 15,
+    "originalFailedCasesNowPassedWithoutCodeOrCheckChanges": 3
+  },
+  "mockedPageRegression": {
+    "passed": 6,
+    "skipped": 2
+  },
+  "liveWorkflowsPassed": 4,
+  "steps": 8,
+  "finalCumulativeChecks": 24,
+  "independentFrontendCasesPassed": 19,
+  "nodeCoreHttpCasesPassed": 7,
+  "nodeEditRestartPassed": true,
+  "nodeAdditionalInvalidInputsFailed": [
+    "Infinity",
+    "whitespace"
+  ],
+  "legacyReactPreviewAnd6NativeChecksPassed": true,
+  "protocolPassed": true,
+  "unsupportedRequestBodyExplicitlyRejectedAfterPromptFix": true,
+  "pythonUiEngineCompatibilityFixActive": false,
+  "remaining": [
+    "Python UI engine normalization awaits backend restart; sudo needs user password",
+    "Two concurrent browser slots return 503 when generation and student checking exceed capacity",
+    "Generated Node example and acceptance miss Infinity and whitespace invalid inputs",
+    "External Sandpack/CDN startup variance; Node request bodies, Python and real databases remain unsupported"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "scope": "删除课堂左侧资料补齐提示，修复习题空白加载和题目 Markdown 展示",
+  "root_cause": "LiveQuiz 在 mode 返回后、checks 返回前渲染空 section；checks 已含完整题目/作答，CheckCard 仍逐题重读，真实课堂出现空白及只有标题的卡片。",
+  "fixes": [
+    "移除课堂提示及对应样式，保留后台任务状态",
+    "作答记录等待或失败期间展示当前版本题干/选项，不提前展示答案；失败可重试",
+    "CheckCard 复用批量读取结果，提交后仍刷新后端作答；辅导状态仍按原逻辑轮询",
+    "题干、选项、答案反馈支持 Markdown 代码与公式"
+  ],
+  "verification": {
+    "typescript": "passed",
+    "eslint": "passed",
+    "build": "passed; existing large chunk advisory",
+    "targeted_browser_tests": {
+      "passed": 2,
+      "file": "frontend/tests/live-learning/quiz-loading.spec.ts",
+      "coverage": [
+        "等待时题目可读且不泄露参考答案",
+        "批量载入后零逐题冗余请求",
+        "提交后刷新结果并重载恢复",
+        "请求失败保留题目及重试",
+        "代码与公式渲染",
+        "390px 横向无溢出"
+      ]
+    },
+    "production_data": "从真实后端读取三份习题及检查记录，7 + 10 + 6 共 23 题，接口均 200；修复后使用这些实际响应进行浏览器回放，预览和线上构建全部显示题目及作答控件。",
+    "production_answers_submitted": false,
+    "additional_activity_suite": "未运行：现有集成环境要求显式 LEARNING_TEST_DATABASE_URL，当前未配置；定向浏览器检查使用隔离模拟接口通过。"
+  },
+  "backend_changes": false,
+  "deployment": "静态前端已备份发布，入口与静态资源 HTTP 通过；保留原有并行窗口改动。"
+}

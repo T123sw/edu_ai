@@ -54,8 +54,10 @@ test('Classroom playback surface binds the runtime and exposes QA to its host', 
   const source = readFileSync(sourcePath, 'utf8');
 
   assert.match(source, /onQaControllerChange/);
-  assert.match(source, /onRuntimeReady=/);
-  assert.match(source, /controller\.bindRuntime/);
+  assert.match(source, /HyperframesClassroom/);
+  const native = readFileSync(new URL('../../hyperframes/HyperframesClassroom.tsx', import.meta.url), 'utf8');
+  assert.match(native, /useClassroomInterruption/);
+  assert.match(native, /positionAt\(content, player.current.currentTime\)/);
   assert.doesNotMatch(source, /<ClassroomQaPanel/);
   assert.doesNotMatch(source, /讲解提词|secondaryPanel === "transcript"/);
 });

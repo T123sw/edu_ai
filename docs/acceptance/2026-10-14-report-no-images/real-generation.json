@@ -1,0 +1,23 @@
+{
+  "seconds": 13.73,
+  "characters": 5527,
+  "llm_calls": 1,
+  "old_include_visuals_true_ignored": true,
+  "image_pipeline_present": false,
+  "image_markdown_present": false,
+  "image_placeholder_present": false,
+  "stages": [
+    {
+      "progress": 15,
+      "step": "writing",
+      "seconds": 0.0
+    },
+    {
+      "progress": 90,
+      "step": "saving",
+      "seconds": 13.66
+    }
+  ],
+  "storage": "/tmp/edu-report-no-images-acdbvo59",
+  "production_resource_created": false
+}

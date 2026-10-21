@@ -1,0 +1,391 @@
+{
+  "title": "位置编码与逐位置前馈网络：补回顺序信息与逐位置非线性",
+  "content": "# 位置编码与逐位置前馈网络\n\n本节点接着上一节点的自注意力继续。上一节点你已经知道：自注意力让每个位置都能看到同一序列的所有位置，用 Q/K/V 与缩放点积算出加权和。这一节要补上两块内容：一是自注意力本身**看不见顺序**，所以必须显式把位置信息加进去；二是每层里除了注意力还有一个**逐位置前馈网络**，它负责在每个位置上做非线性变换。\n\n<a id=\"sec-why-position\"></a>\n## 一、先做个小实验：打乱词序，自注意力只是跟着重排\n\n先看一个具体例子，再解释原因。\n\n设输入序列只有三个位置，每个位置的向量维度为 2（为了手算方便，真实模型是 512 维）：\n\n- 位置 1：x₁ = (1, 0)\n- 位置 2：x₂ = (0, 1)\n- 位置 3：x₃ = (1, 1)\n\n为简化，假设 Q、K、V 三个投影矩阵都取单位矩阵，即 q = k = v = x。于是注意力分数矩阵 QKᵀ 为：\n\n```\n        k₁   k₂   k₃\nq₁      1    0    1\nq₂      0    1    1\nq₃      1    1    2\n```\n\n对每一行做 softmax（这里先忽略 √d_k 缩放，它只改变数值大小不改变结论）。第 1 行 (1, 0, 1) 的 softmax 约为 (0.42, 0.16, 0.42)；第 2 行 (0, 1, 1) 约为 (0.21, 0.42, 0.42)；第 3 行 (1, 1, 2) 约为 (0.21, 0.21, 0.58)。\n\n输出 = 权重 × V：\n\n- 输出₁ ≈ 0.42·(1,0) + 0.16·(0,1) + 0.42·(1,1) = (0.84, 0.58)\n- 输出₂ ≈ 0.21·(1,0) + 0.42·(0,1) + 0.42·(1,1) = (0.63, 0.84)\n- 输出₃ ≈ 0.21·(1,0) + 0.21·(0,1) + 0.58·(1,1) = (0.79, 0.79)\n\n现在把词序打乱成 x₂, x₃, x₁（即新位置 1 放原来的 x₂，新位置 2 放 x₃，新位置 3 放 x₁）。重新算一遍：分数矩阵的行列只是按同样的顺序重排，softmax 逐行进行，所以每行的权重集合不变，只是跟着换了位置；输出也就变成 (0.63, 0.84)、(0.79, 0.79)、(0.84, 0.58)——正好是原来三个输出按新顺序重排。\n\n**结论**：只做自注意力，输入怎么排，输出就怎么排，内容不会因为顺序变化而改变。这就是“对位置置换等变”（permutation equivariant）。\n\n<a id=\"sec-why-inject\"></a>\n## 二、为什么必须显式注入位置信息，且要与嵌入同维相加\n\n上面的实验说明：自注意力对每个位置的处理是“对称”的——它只知道有哪些向量、彼此多相似，不知道谁在前谁在后。而语言里“狗咬人”和“人咬狗”用的是同一批词，只是顺序不同，含义完全不同。\n\n原论文的表述是：由于模型既没有循环也没有卷积，为了让模型能利用序列的顺序，必须显式注入词元相对或绝对位置的信息（来源：Attention Is All You Need，第 3.5 节）。做法是把“位置编码”加到编码器和解码器栈底部的输入嵌入上。\n\n这里有一个关键细节：**位置编码的维度必须与嵌入相同，都是 d_model，这样才能直接相加**。相加而不是拼接，是因为拼接会让维度翻倍，后续所有子层的维度都要跟着改；同维相加则保持 d_model 不变，位置信息被“混入”每个词向量里，随数据流一起经过每一层。\n\n所以数据流是：\n\n```\n词元 → 嵌入（d_model 维） → 加上位置编码（d_model 维） → 进入第 1 层 → … → 第 N 层\n```\n\n注意位置编码只在栈底加一次，不是每层都加。\n\n<a id=\"sec-sinusoidal\"></a>\n## 三、正弦位置编码：公式、波长几何级数与相对位置线性关系\n\n原论文使用不同频率的正弦、余弦函数：\n\n```\nPE(pos, 2i)   = sin(pos / 10000^(2i/d_model))\nPE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))\n```\n\n其中 pos 是位置，i 是维度编号。也就是说，偶数维用 sin，奇数维用 cos，每一维对应一条正弦波。\n\n**波长是几何级数。** 第 i 对维度的角频率是 ω_i = 1/10000^(2i/d_model)，对应波长 λ_i = 2π/ω_i = 2π·10000^(2i/d_model)。当 i 从 0 增大到 d_model/2−1 时，波长从 2π 一路增长到 10000·2π，相邻维度之间按固定比例放大，构成几何级数。直观理解：低维（i 小）的波长短、变化快，能区分相邻位置；高维（i 大）的波长长、变化慢，能区分相距很远的位置。\n\n**手算几个值。** 取 d_model = 4，则 i 只能取 0 和 1：\n\n- i = 0：ω₀ = 1/10000^(0/4) = 1，波长 2π ≈ 6.28\n- i = 1：ω₁ = 1/10000^(2/4) = 1/100，波长 200π ≈ 628\n\n于是：\n\n| pos | PE(pos,0)=sin(pos) | PE(pos,1)=cos(pos) | PE(pos,2)=sin(pos/100) | PE(pos,3)=cos(pos/100) |\n|---|---|---|---|---|\n| 0 | 0.000 | 1.000 | 0.000 | 1.000 |\n| 1 | 0.841 | 0.540 | 0.010 | 1.000 |\n| 2 | 0.909 | −0.416 | 0.020 | 1.000 |\n| 3 | 0.141 | −0.990 | 0.030 | 1.000 |\n\n观察这张表：前两维（i=0）在 pos=0..3 之间剧烈变化，能清楚区分这四个位置；后两维（i=1）几乎不动，因为波长 628 远大于位置跨度 3。这正是“不同维度负责不同尺度”的含义。\n\n**为什么选正弦函数？** 论文给出两个理由：\n\n1. **便于学习按相对位置关注。** 对任意固定偏移 k，PE(pos+k) 可以表示为 PE(pos) 的线性函数。原因是 sin(a+b) = sin a·cos b + cos a·sin b，cos(a+b) = cos a·cos b − sin a·sin b——同一个频率上的 sin 和 cos 组合，就能把“平移 k”写成一次固定的线性变换。模型只要学会这个变换，就能用“相距 k 个位置”这种相对关系来分配注意力。\n2. **可能外推到训练时没见过的更长序列。** 正弦函数对任意 pos 都有定义，不像可学习嵌入那样受限于训练时见过的最大长度。\n\n**与可学习位置嵌入的对比。** 论文也试验了可学习的位置嵌入，发现两种版本结果几乎相同（见论文表 3 第 (E) 行），最终选择正弦版本，理由是上面第 2 点——可能外推到更长的序列。\n\n<a id=\"sec-ffn\"></a>\n## 四、逐位置前馈网络：每个位置分别且相同地施加\n\n编码器和解码器的每一层，除了注意力子层，还包含一个全连接前馈网络。它的公式是：\n\n```\nFFN(x) = max(0, xW₁ + b₁)W₂ + b₂\n```\n\n拆开看是三步：\n\n1. 线性变换：xW₁ + b₁，把 d_model 维升到 d_ff 维；\n2. ReLU 激活：max(0, ·)，逐元素取正部，引入非线性；\n3. 线性变换：再乘 W₂ 加 b₂，把 d_ff 维降回 d_model 维。\n\n原论文的配置是：输入输出维度 d_model = 512，内层维度 d_ff = 2048。所以 W₁ 是 512×2048，W₂ 是 2048×512。\n\n**“逐位置”是什么意思？** 论文说它“对每个位置分别且相同地施加”。这两点要分开理解：\n\n- **分别**：位置 1 的向量只和 W₁、W₂ 做运算，不与位置 2、3 的向量混合。FFN 内部没有任何跨位置的信息交换——跨位置的信息交换全部由注意力子层完成。\n- **相同**：所有位置共用同一组 W₁、b₁、W₂、b₂。位置 1 和位置 100 用的是同一套参数。\n\n**“不同层参数不同”**：虽然同一层内所有位置共享参数，但第 1 层和第 2 层的 FFN 参数是各自独立的。\n\n**为什么可以这样理解成卷积？** 论文指出，这也可以描述为两个核大小为 1 的卷积：核大小 1 意味着每次只看一个位置，不跨位置，正好对应“逐位置”。\n\n**它在整体结构中的角色**：注意力负责“从别的位置取信息”，FFN 负责“对取来的信息做非线性加工”。两者交替堆叠，构成每一层。\n\n<a id=\"sec-summary\"></a>\n## 五、小结与自检\n\n- 自注意力对位置置换等变，打乱词序输出只是跟着重排，所以必须显式注入位置信息。\n- 位置编码与嵌入同维（都是 d_model），直接相加，只在栈底加一次。\n- 正弦编码：偶数维 sin、奇数维 cos，波长从 2π 到 10000·2π 构成几何级数；固定偏移 k 下 PE(pos+k) 是 PE(pos) 的线性函数；论文实测与可学习嵌入结果几乎相同，选正弦是为了可能外推到更长序列。\n- FFN(x) = max(0, xW₁+b₁)W₂+b₂，对每个位置分别且相同地施加，d_model=512、d_ff=2048；同一层内位置共享参数，不同层参数不同。\n\n自检：能否不看正文说出位置编码为何要与嵌入同维相加？能否写出正弦公式并解释波长几何级数？能否写出 FFN 公式并指出“分别”“相同”“层间不同”三件事？\n\n> 说明：本节点依据 2017 年原始论文的编码器-解码器配置（d_model=512、d_ff=2048、N=6、h=8）。位置编码只覆盖正弦方案与可学习嵌入的对比，不展开旋转位置编码等后续方案；也不涉及具体框架的代码实现。",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 7.3
+      },
+      "sections": [
+        {
+          "section_id": "sec-why-position",
+          "content_sha256": "42882b7ebc80bc05e9b56def9e02bab549f0d5c96597828154611a4d1a6bba2b"
+        },
+        {
+          "section_id": "sec-why-inject",
+          "content_sha256": "988d294864e0a737aaf632e87fa93f9d98990465fa60d0c594efd9d4bc7509cc"
+        },
+        {
+          "section_id": "sec-sinusoidal",
+          "content_sha256": "f655a093683f32cae89aadbd03cc7794188b3f8da269d71df7ca78e5abbfd54d"
+        },
+        {
+          "section_id": "sec-ffn",
+          "content_sha256": "58bfdaf88da8da1f21e326284dd78fee490f9590a5f806e4d6ca9f2d85716668"
+        },
+        {
+          "section_id": "sec-summary",
+          "content_sha256": "ce33ba17f9db44097b349b010d930b5165c5d588e0e99c296487d2f31ca04ebc"
+        }
+      ],
+      "spec_digest": "389aad745df5e5c48ec0a2907ea02a63a58dab47af1074c1bbf0b9e0c64648df",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-why-position"
+          },
+          "objective_id": "n4-position-ffn:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-why-inject"
+          },
+          "objective_id": "n4-position-ffn:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-sinusoidal"
+          },
+          "objective_id": "n4-position-ffn:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-ffn"
+          },
+          "objective_id": "n4-position-ffn:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "objective_id": "n4-position-ffn:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "objective_id": "n4-position-ffn:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "objective_id": "n4-position-ffn:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec-why-position"
+          },
+          "explanation": "通过打乱词序的小实验说明自注意力对位置置换等变，落实“位置编码”这一核心组成的必要性论证。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-sinusoidal"
+          },
+          "explanation": "给出正弦位置编码公式、波长几何级数、相对位置线性关系与可学习嵌入对比，落实位置编码部分。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-ffn"
+          },
+          "explanation": "给出 FFN 公式、逐位置分别且相同施加、d_model=512 与 d_ff=2048，落实“前馈网络”这一核心组成。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "teaching_context_digest": "ca81d2959b1d1dc81d803733f99fd9071a10d472aab3e6adb124f3135446295d"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文按节点分工覆盖三项要求：sec-why-position 用打乱词序实验论证置换等变与位置信息必要性，sec-why-inject 说明同维相加与栈底注入，sec-sinusoidal 给出正弦公式、波长几何级数与相对位置线性关系，sec-ffn 给出 FFN 公式与 d_model=512、d_ff=2048。未越界讲授其他节点内容，也未伪称整课已满足。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "手算核对：x₁=(1,0)、x₂=(0,1)、x₃=(1,1) 时 QKᵀ 矩阵与各行 softmax（0.42/0.16/0.42 等）及输出 (0.84,0.58)、(0.63,0.84)、(0.79,0.79) 均正确；d_model=4 时 ω₀=1、ω₁=1/100，波长 2π 与 200π，表中 sin/cos 值（0.841、0.540、0.909、−0.416、0.141、−0.990、0.010~0.030）均正确。FFN 维度 W₁ 512×2048、W₂ 2048×512 与公式一致，sin(a+b) 展开论证相对位置线性关系成立。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "两个例子均给出完整可复算过程：置换实验包含分数矩阵、逐行 softmax、加权输出与重排后的对照结论；位置编码例子给出 pos=0..3、d_model=4 的完整数值表并解释不同维度波长差异。例子边界（忽略 √d_k 缩放不影响结论）已说明，合法输入域无问题。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：置换实验→为何注入且同维相加→正弦公式与波长/相对位置→FFN→小结自检，先现象后原理再公式，符合入门深度与节点活动顺序（打乱词序实验、手算 pos=0..3、正弦与可学习嵌入对比），未引入面试模板。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文对位置编码必要性、同维相加、正弦公式、波长几何级数、相对位置线性关系、可学习嵌入对比结论、FFN 公式与维度均标注来源为 Attention Is All You Need 第 3.3/3.5 节，与提供的证据原文一致；未声称核查外部全文。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三项节点目标均有解释与小结自检对应，自检问题覆盖同维相加理由、正弦公式与波长、FFN 的“分别/相同/层间不同”；文末说明限制（仅正弦方案、不展开旋转位置编码与代码实现），与节点 limitations 一致。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文按节点分工覆盖三项要求：sec-why-position 用打乱词序实验论证置换等变与位置信息必要性，sec-why-inject 说明同维相加与栈底注入，sec-sinusoidal 给出正弦公式、波长几何级数与相对位置线性关系，sec-ffn 给出 FFN 公式与 d_model=512、d_ff=2048。未越界讲授其他节点内容，也未伪称整课已满足。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "手算核对：x₁=(1,0)、x₂=(0,1)、x₃=(1,1) 时 QKᵀ 矩阵与各行 softmax（0.42/0.16/0.42 等）及输出 (0.84,0.58)、(0.63,0.84)、(0.79,0.79) 均正确；d_model=4 时 ω₀=1、ω₁=1/100，波长 2π 与 200π，表中 sin/cos 值（0.841、0.540、0.909、−0.416、0.141、−0.990、0.010~0.030）均正确。FFN 维度 W₁ 512×2048、W₂ 2048×512 与公式一致，sin(a+b) 展开论证相对位置线性关系成立。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "两个例子均给出完整可复算过程：置换实验包含分数矩阵、逐行 softmax、加权输出与重排后的对照结论；位置编码例子给出 pos=0..3、d_model=4 的完整数值表并解释不同维度波长差异。例子边界（忽略 √d_k 缩放不影响结论）已说明，合法输入域无问题。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：置换实验→为何注入且同维相加→正弦公式与波长/相对位置→FFN→小结自检，先现象后原理再公式，符合入门深度与节点活动顺序（打乱词序实验、手算 pos=0..3、正弦与可学习嵌入对比），未引入面试模板。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文对位置编码必要性、同维相加、正弦公式、波长几何级数、相对位置线性关系、可学习嵌入对比结论、FFN 公式与维度均标注来源为 Attention Is All You Need 第 3.3/3.5 节，与提供的证据原文一致；未声称核查外部全文。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三项节点目标均有解释与小结自检对应，自检问题覆盖同维相加理由、正弦公式与波长、FFN 的“分别/相同/层间不同”；文末说明限制（仅正弦方案、不展开旋转位置编码与代码实现），与节点 limitations 一致。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "sec-why-inject 中“拼接会让维度翻倍，后续所有子层的维度都要跟着改”是合理但非论文原文的推断，可标注为解释性说明以区分来源。",
+              "sec-sinusoidal 表格中 PE(pos,2)=sin(pos/100) 在 pos=1..3 的取值 0.010/0.020/0.030 可补一句“保留三位小数”以免读者误以为精确值。",
+              "可在 sec-ffn 末尾补一句 FFN 与注意力子层各自带残差与层归一化（若后续节点覆盖），或明确说明本节点不展开，避免读者误以为层内只有两个组件。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-why-position 的打乱词序实验确实论证了自注意力对位置置换等变，真实支持“位置编码必要性”这一核心组成的贡献。",
+                "locator": {
+                  "section_id": "sec-why-position"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-sinusoidal 给出正弦公式、波长几何级数、相对位置线性关系与可学习嵌入对比，内容与所述贡献一致。",
+                "locator": {
+                  "section_id": "sec-sinusoidal"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-ffn 给出 FFN 公式、逐位置分别且相同施加、d_model=512 与 d_ff=2048，落实前馈网络部分。",
+                "locator": {
+                  "section_id": "sec-ffn"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-why-position 通过具体数值实验说明输出仅随输入重排，支持目标 o1 的置换等变论证。",
+                "locator": {
+                  "section_id": "sec-why-position"
+                },
+                "binding_id": "n4-position-ffn:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-why-inject 说明必须显式注入位置信息、位置编码与嵌入同维相加且只在栈底加一次，支持目标 o1。",
+                "locator": {
+                  "section_id": "sec-why-inject"
+                },
+                "binding_id": "n4-position-ffn:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-sinusoidal 写出两条公式并解释波长几何级数与固定偏移 k 下的线性关系，支持目标 o2。",
+                "locator": {
+                  "section_id": "sec-sinusoidal"
+                },
+                "binding_id": "n4-position-ffn:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-ffn 写出 FFN 公式并说明分别、相同、层间不同及 512/2048 维度，支持目标 o3。",
+                "locator": {
+                  "section_id": "sec-ffn"
+                },
+                "binding_id": "n4-position-ffn:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-summary 小结首条复述置换等变与必须注入位置信息，作为 o1 的检查点有效。",
+                "locator": {
+                  "section_id": "sec-summary"
+                },
+                "binding_id": "n4-position-ffn:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-summary 小结第三条复述正弦公式、波长几何级数与相对位置线性关系，作为 o2 检查点有效。",
+                "locator": {
+                  "section_id": "sec-summary"
+                },
+                "binding_id": "n4-position-ffn:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-summary 小结第四条复述 FFN 公式、逐位置施加与 512/2048，并附自检问题，作为 o3 检查点有效。",
+                "locator": {
+                  "section_id": "sec-summary"
+                },
+                "binding_id": "n4-position-ffn:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "53d4b6818a63d4cf61c655e0a43584b4401d4f88a10f7cbce4e8e4232c3681c5",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "sec-why-inject 中“拼接会让维度翻倍，后续所有子层的维度都要跟着改”是合理但非论文原文的推断，可标注为解释性说明以区分来源。",
+        "sec-sinusoidal 表格中 PE(pos,2)=sin(pos/100) 在 pos=1..3 的取值 0.010/0.020/0.030 可补一句“保留三位小数”以免读者误以为精确值。",
+        "可在 sec-ffn 末尾补一句 FFN 与注意力子层各自带残差与层归一化（若后续节点覆盖），或明确说明本节点不展开，避免读者误以为层内只有两个组件。"
+      ],
+      "content_sha256": "53d4b6818a63d4cf61c655e0a43584b4401d4f88a10f7cbce4e8e4232c3681c5",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec-why-position 的打乱词序实验确实论证了自注意力对位置置换等变，真实支持“位置编码必要性”这一核心组成的贡献。",
+          "locator": {
+            "section_id": "sec-why-position"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-sinusoidal 给出正弦公式、波长几何级数、相对位置线性关系与可学习嵌入对比，内容与所述贡献一致。",
+          "locator": {
+            "section_id": "sec-sinusoidal"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-ffn 给出 FFN 公式、逐位置分别且相同施加、d_model=512 与 d_ff=2048，落实前馈网络部分。",
+          "locator": {
+            "section_id": "sec-ffn"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-why-position 通过具体数值实验说明输出仅随输入重排，支持目标 o1 的置换等变论证。",
+          "locator": {
+            "section_id": "sec-why-position"
+          },
+          "binding_id": "n4-position-ffn:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-why-inject 说明必须显式注入位置信息、位置编码与嵌入同维相加且只在栈底加一次，支持目标 o1。",
+          "locator": {
+            "section_id": "sec-why-inject"
+          },
+          "binding_id": "n4-position-ffn:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-sinusoidal 写出两条公式并解释波长几何级数与固定偏移 k 下的线性关系，支持目标 o2。",
+          "locator": {
+            "section_id": "sec-sinusoidal"
+          },
+          "binding_id": "n4-position-ffn:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-ffn 写出 FFN 公式并说明分别、相同、层间不同及 512/2048 维度，支持目标 o3。",
+          "locator": {
+            "section_id": "sec-ffn"
+          },
+          "binding_id": "n4-position-ffn:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-summary 小结首条复述置换等变与必须注入位置信息，作为 o1 的检查点有效。",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "binding_id": "n4-position-ffn:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-summary 小结第三条复述正弦公式、波长几何级数与相对位置线性关系，作为 o2 检查点有效。",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "binding_id": "n4-position-ffn:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-summary 小结第四条复述 FFN 公式、逐位置施加与 512/2048，并附自检问题，作为 o3 检查点有效。",
+          "locator": {
+            "section_id": "sec-summary"
+          },
+          "binding_id": "n4-position-ffn:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "900aa6cafdaa3801048e38213dea89440b8aa1ea2c7da196afd12bf18167723a"
+    }
+  }
+}

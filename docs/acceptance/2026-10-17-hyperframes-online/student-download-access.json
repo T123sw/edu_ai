@@ -1,0 +1,19 @@
+{
+  "video": {
+    "status": 206,
+    "bytes": 1024,
+    "contentRange": "bytes 0-1023/2577386"
+  },
+  "project": {
+    "status": 206,
+    "bytes": 1024,
+    "contentRange": "bytes 0-1023/708729"
+  },
+  "subtitles": {
+    "status": 206,
+    "bytes": 467,
+    "contentRange": "bytes 0-466/467"
+  },
+  "anonymousPlaybackDenied": 401,
+  "invalidCapabilityDenied": 401
+}

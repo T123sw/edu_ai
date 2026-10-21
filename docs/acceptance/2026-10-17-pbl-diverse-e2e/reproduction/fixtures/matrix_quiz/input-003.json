@@ -1,0 +1,432 @@
+{
+  "phase": "build_checks",
+  "data": {
+    "topic": "用 React 做三道固定题的单选小测验。题目分别为 2+3 等于多少（选项4/5/6，正确5）、水的化学式（H2O/CO2/O2，正确H2O）、一周几天（5/6/7，正确7）。每次只显示一题和进度；没选答案不能提交；提交后显示对错和正确答案，本题不能再改选或重复计分；点击下一题进入下一题，第三题提交后显示总分（满分3）。重新开始后分数、进度、选项和反馈全部恢复初始。完全本地，无额外依赖，分步实现。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "三道固定题的单选小测验",
+      "goal": "用 React 实现一个完全本地的三道固定单选题小测验：每次只显示一题和进度，未选择答案不能提交，提交后显示对错与正确答案且本题锁定不可改选、不重复计分，点击下一题进入下一题，第三题提交后显示总分（满分 3），重新开始后分数、进度、选项与反馈全部恢复初始。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "single-question-view",
+          "description": "页面每次只显示当前一道题的题干与三个选项，并显示当前进度（第几题/共 3 题）。"
+        },
+        {
+          "id": "submit-requires-selection",
+          "description": "未选择任何选项时提交按钮不可用（或提交无效），选择选项后才能提交。"
+        },
+        {
+          "id": "submit-feedback",
+          "description": "提交后显示本题对错反馈与正确答案；本题选项不能再改选，也不能重复提交计分。"
+        },
+        {
+          "id": "next-question",
+          "description": "提交后出现“下一题”按钮，点击进入下一题；第三题提交后不再进入下一题而显示总分。"
+        },
+        {
+          "id": "final-score",
+          "description": "第三题提交后显示总分，满分 3，分数等于答对题数。"
+        },
+        {
+          "id": "restart-reset",
+          "description": "点击“重新开始”后分数、进度、选项选择与反馈全部恢复初始状态，从第一题重新开始。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "quiz-shell",
+          "title": "搭建单题展示与进度",
+          "objective": "渲染第一题题干、三个选项与进度，并支持选择选项。",
+          "dependsOn": [],
+          "entryCondition": "从初始 React 工程开始，App.jsx 与 styles.css 为空壳。",
+          "deliverable": "页面显示第一题“2+3 等于多少”的题干、三个选项（4/5/6）和进度“第 1 题 / 共 3 题”；点击选项可选中并高亮当前选择。",
+          "requirementIds": [
+            "single-question-view"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "first-question-shown",
+            "option-selectable"
+          ]
+        },
+        {
+          "id": "submit-and-feedback",
+          "title": "提交判定与锁定",
+          "objective": "实现未选不能提交、提交后显示对错与正确答案并锁定本题。",
+          "dependsOn": [
+            "quiz-shell"
+          ],
+          "entryCondition": "上一步已完成第一题展示与选项选择。",
+          "deliverable": "未选择时提交按钮不可用；选择后提交，显示“回答正确/回答错误”与正确答案；提交后选项不可再改选，提交按钮不再可用。",
+          "requirementIds": [
+            "single-question-view",
+            "submit-requires-selection",
+            "submit-feedback"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "submit-disabled-without-selection",
+            "submit-shows-feedback",
+            "locked-after-submit"
+          ]
+        },
+        {
+          "id": "next-and-final-score",
+          "title": "下一题与总分",
+          "objective": "实现下一题切换与第三题提交后显示总分。",
+          "dependsOn": [
+            "submit-and-feedback"
+          ],
+          "entryCondition": "上一步已完成第一题提交与反馈。",
+          "deliverable": "提交后出现“下一题”按钮，点击进入第二题、第三题并更新进度；第三题提交后显示总分（满分 3），分数等于答对题数。",
+          "requirementIds": [
+            "single-question-view",
+            "submit-requires-selection",
+            "submit-feedback",
+            "next-question",
+            "final-score"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "next-question-advances",
+            "final-score-shown"
+          ]
+        },
+        {
+          "id": "restart",
+          "title": "重新开始",
+          "objective": "实现重新开始，恢复全部初始状态。",
+          "dependsOn": [
+            "next-and-final-score"
+          ],
+          "entryCondition": "上一步已完成三题流程与总分显示。",
+          "deliverable": "点击“重新开始”后回到第一题，进度为第 1 题，选项未选中，反馈与总分消失，分数归零。",
+          "requirementIds": [
+            "single-question-view",
+            "submit-requires-selection",
+            "submit-feedback",
+            "next-question",
+            "final-score",
+            "restart-reset"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "restart-resets"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "first-question-shown",
+          "stepId": "quiz-shell",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "single-question-view"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "断言题干文本包含“2+3 等于多少”",
+            "断言进度文本为“第 1 题 / 共 3 题”",
+            "断言三个选项 4、5、6 均可见"
+          ],
+          "expected": [
+            "显示第一题题干、进度与三个选项"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "option-selectable",
+          "stepId": "quiz-shell",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "single-question-view"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“5”",
+            "断言选项“5”处于选中状态（aria-checked 或选中标记）"
+          ],
+          "expected": [
+            "点击选项后该选项被选中"
+          ],
+          "requiredAssertions": [
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "submit-disabled-without-selection",
+          "stepId": "submit-and-feedback",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "submit-requires-selection"
+          ],
+          "setup": "打开页面初始状态，未选择任何选项。",
+          "actions": [
+            "断言提交按钮不可用"
+          ],
+          "expected": [
+            "未选择时提交按钮不可用"
+          ],
+          "requiredAssertions": [
+            "enabled"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "submit-shows-feedback",
+          "stepId": "submit-and-feedback",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "submit-feedback"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“5”",
+            "点击提交按钮",
+            "断言反馈文本包含“回答正确”",
+            "断言正确答案文本包含“5”"
+          ],
+          "expected": [
+            "提交正确选项后显示回答正确与正确答案"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "locked-after-submit",
+          "stepId": "submit-and-feedback",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "submit-feedback"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“4”",
+            "点击提交按钮",
+            "断言反馈文本包含“回答错误”",
+            "断言正确答案文本包含“5”",
+            "尝试点击选项“5”",
+            "断言选项“5”未被选中"
+          ],
+          "expected": [
+            "提交后显示错误反馈与正确答案，且不能改选"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "next-question-advances",
+          "stepId": "next-and-final-score",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "next-question"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“5”",
+            "点击提交按钮",
+            "点击“下一题”按钮",
+            "断言进度文本为“第 2 题 / 共 3 题”",
+            "断言题干文本包含“水的化学式”"
+          ],
+          "expected": [
+            "点击下一题后进入第二题并更新进度"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "final-score-shown",
+          "stepId": "next-and-final-score",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "final-score"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“5”",
+            "点击提交按钮",
+            "点击“下一题”按钮",
+            "点击选项“H2O”",
+            "点击提交按钮",
+            "点击“下一题”按钮",
+            "点击选项“7”",
+            "点击提交按钮",
+            "断言总分文本包含“3”"
+          ],
+          "expected": [
+            "三题全对后显示总分 3"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "restart-resets",
+          "stepId": "restart",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "restart-reset"
+          ],
+          "setup": "打开页面初始状态。",
+          "actions": [
+            "点击选项“5”",
+            "点击提交按钮",
+            "点击“下一题”按钮",
+            "点击“重新开始”按钮",
+            "断言进度文本为“第 1 题 / 共 3 题”",
+            "断言题干文本包含“2+3 等于多少”",
+            "断言提交按钮不可用"
+          ],
+          "expected": [
+            "重新开始后回到第一题且选项未选中、提交不可用"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "enabled"
+          ],
+          "viewport": null
+        }
+      ]
+    },
+    "step": {
+      "id": "quiz-shell",
+      "title": "搭建单题展示与进度",
+      "objective": "渲染第一题题干、三个选项与进度，并支持选择选项。",
+      "dependsOn": [],
+      "entryCondition": "从初始 React 工程开始，App.jsx 与 styles.css 为空壳。",
+      "deliverable": "页面显示第一题“2+3 等于多少”的题干、三个选项（4/5/6）和进度“第 1 题 / 共 3 题”；点击选项可选中并高亮当前选择。",
+      "requirementIds": [
+        "single-question-view"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "newCheckIds": [
+        "first-question-shown",
+        "option-selectable"
+      ]
+    },
+    "requiredChecks": [
+      {
+        "id": "first-question-shown",
+        "stepId": "quiz-shell",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "single-question-view"
+        ],
+        "setup": "打开页面初始状态。",
+        "actions": [
+          "断言题干文本包含“2+3 等于多少”",
+          "断言进度文本为“第 1 题 / 共 3 题”",
+          "断言三个选项 4、5、6 均可见"
+        ],
+        "expected": [
+          "显示第一题题干、进度与三个选项"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "option-selectable",
+        "stepId": "quiz-shell",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "single-question-view"
+        ],
+        "setup": "打开页面初始状态。",
+        "actions": [
+          "点击选项“5”",
+          "断言选项“5”处于选中状态（aria-checked 或选中标记）"
+        ],
+        "expected": [
+          "点击选项后该选项被选中"
+        ],
+        "requiredAssertions": [
+          "visible"
+        ],
+        "viewport": null
+      }
+    ],
+    "previousFiles": {
+      "/src/App.jsx": "import React from 'react';\nimport './styles.css';\nexport default function App() {\n  // TODO: 按左侧步骤逐步完成你的项目。\n  return <main><h1>我的项目</h1><p>从第一步开始实现。</p></main>;\n}\n",
+      "/src/styles.css": "body { margin: 0; font-family: sans-serif; }\nmain { padding: 24px; }\n"
+    },
+    "previousChecks": [],
+    "issues": [],
+    "priorCandidate": null,
+    "previousCheckReport": {
+      "stepId": "quiz-shell",
+      "referenceHash": "4e170ab41962a22dec37711cad6bf98bd3fb1c2ff8d7ac5c571cb53452e81d25",
+      "previousHash": "16855a1c7bcb0737c6bdcf69a17003ca4c075c74b89ba397db9cb4028ee57dce",
+      "checkIds": [],
+      "skipped": true,
+      "reason": "首步没有前序验收"
+    },
+    "unit": {
+      "stepId": "quiz-shell",
+      "title": "搭建单题展示与进度",
+      "objective": "渲染第一题题干、三个选项与进度，并支持选择选项。",
+      "instructionsMarkdown": "这一步先做出小测验的“第一屏”：页面上只显示第一道题，以及当前进度。\n\n需要做到：\n\n- 显示进度文字，内容为 `第 1 题 / 共 3 题`。\n- 显示第一题题干，内容包含 `2+3 等于多少`。\n- 显示三个选项按钮，文字分别是 `4`、`5`、`6`。\n- 点击某个选项后，该选项被选中并高亮（例如加边框或背景色），同一时间只有一个选项被选中。\n\n本步还不需要提交按钮和判分，先把题目、选项和选择状态做出来。\n\n### 代码约定\n\n为了让系统能识别页面部件，请给以下元素加上 `data-testid`（只是标记，不影响外观）：\n\n- 进度文字：`data-testid=\"progress\"`\n- 题干文字：`data-testid=\"question\"`\n- 每个选项按钮：`data-testid=\"option\"`，并设置 `role=\"radio\"` 与 `aria-checked`（选中为 `\"true\"`，未选中为 `\"false\"`）。",
+      "explanationMarkdown": "可以把三道题写成一个数组，每道题包含题干、选项和正确答案。本步先用数组里的第一道题渲染页面。\n\n用 `useState` 保存“当前选中的选项”。点击选项时更新这个状态，并根据它决定按钮是否高亮。进度文字可以直接由“当前题号 + 1”拼出来，为后面切换题目打基础。",
+      "hints": [
+        "把题目数据写成数组，每项包含 question、options、answer 三个字段。",
+        "用 useState 保存当前题号（从 0 开始）和当前选中的选项。",
+        "选项按钮的 aria-checked 根据“当前选中值是否等于该选项”来设置。",
+        "高亮样式可以用一个额外的 className，例如 selected。"
+      ],
+      "focusFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "checkIds": [
+        "first-question-shown",
+        "option-selectable"
+      ]
+    },
+    "referenceFiles": {
+      "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nconst QUESTIONS = [\n  { question: '2+3 等于多少？', options: ['4', '5', '6'], answer: '5' },\n  { question: '水的化学式是什么？', options: ['H2O', 'CO2', 'O2'], answer: 'H2O' },\n  { question: '一周有几天？', options: ['5', '6', '7'], answer: '7' },\n];\n\nexport default function App() {\n  const [current, setCurrent] = useState(0);\n  const [selected, setSelected] = useState(null);\n\n  const q = QUESTIONS[current];\n\n  return (\n    <main className=\"quiz\">\n      <p className=\"progress\" data-testid=\"progress\">\n        第 {current + 1} 题 / 共 {QUESTIONS.length} 题\n      </p>\n      <h1 className=\"question\" data-testid=\"question\">{q.question}</h1>\n      <div className=\"options\" role=\"radiogroup\">\n        {q.options.map((opt) => (\n          <button\n            key={opt}\n            type=\"button\"\n            role=\"radio\"\n            aria-checked={selected === opt ? 'true' : 'false'}\n            data-testid=\"option\"\n            className={'option' + (selected === opt ? ' selected' : '')}\n            onClick={() => setSelected(opt)}\n          >\n            {opt}\n          </button>\n        ))}\n      </div>\n    </main>\n  );\n}\n",
+      "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\nmain.quiz { padding: 24px; max-width: 480px; }\n.progress { color: #666; margin: 0 0 12px; }\n.question { font-size: 20px; margin: 0 0 16px; }\n.options { display: flex; flex-direction: column; gap: 10px; }\n.option {\n  padding: 10px 14px;\n  border: 1px solid #ccc;\n  border-radius: 8px;\n  background: #fff;\n  font-size: 16px;\n  text-align: left;\n  cursor: pointer;\n}\n.option.selected { border-color: #2f6fed; background: #e8f0ff; }\n"
+    },
+    "referenceHash": "4e170ab41962a22dec37711cad6bf98bd3fb1c2ff8d7ac5c571cb53452e81d25"
+  },
+  "startedAt": 1792228867.428538
+}

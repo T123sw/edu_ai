@@ -1,0 +1,55 @@
+{
+  "status": {
+    "frontend": "published and HTTP/browser checked",
+    "backend": "source implemented; production service has not restarted",
+    "restart_attempt": "sudo -n systemctl restart edu-ai-backend.service => sudo: a password is required",
+    "production_new_api_status": 404
+  },
+  "features": [
+    "AI 课堂首页右侧两个工具入口，主输入区与课程列表保留",
+    "深度研究生成一份包含来源的报告",
+    "按账号角色展示报告、习题、闪卡、思维导图、教案、博客配置",
+    "独立后台任务，刷新后恢复进度，取消和重试复用任务系统",
+    "我的课程 / 我的资源切换，私有资源预览、搜索、筛选与导出",
+    "报告、习题显式复制到指定课程知识点，保留原件"
+  ],
+  "storage": {
+    "namespace": "server-derived owner hash, existing versioned material store",
+    "course_record_created": false,
+    "course_membership_created": false,
+    "visibility": "private",
+    "partial_results_listed": false
+  },
+  "validation": {
+    "backend": "45 passed; models/search stubbed, real isolated storage and HTTP routes; role access, cross-user isolation, duplicate submission, configuration, cancellation, source grouping, frozen attachment, incomplete-result recovery",
+    "typescript": "passed with installed react-syntax-highlighter ambient types explicitly included",
+    "eslint": "passed for changed TSX files",
+    "vite": "passed; VITE_API_BASE_URL=/backend",
+    "browser": "4 widths: 1440, 1024, 390, 320; forest/ocean/sunset/dark; mocked authenticated APIs",
+    "production_browser": "1440 and 390 widths passed using mocked authenticated APIs",
+    "production_static": "Nginx index equals release, entry assets HTTP 200",
+    "baseline": "Reversed task frontend delta in isolated snapshot; resulting build index exactly matches previous live index"
+  },
+  "boundaries": [
+    "真实搜索及模型生成质量未在本轮验收；服务重启后需实际联调。",
+    "独立生成首版按主题创建，没有上传/选择资料配置。",
+    "思维导图、闪卡、教案和博客在我的资源使用；加入课堂目录目前仅开放报告和习题。",
+    "我的资源本轮列表为首页独立生成产物，未迁移旧课程工作台资源。",
+    "初次扩展回归受到 Config 自动覆盖环境变量的影响；最终使用禁用 dotenv 的严格隔离启动脚本，45 项全部通过。"
+  ],
+  "source_sha256": {
+    "frontend/src/studio/StudioHome.tsx": "52844f7a77a1f4b773a245795bf6c982146fa851f19529174106e3d3f83445ff",
+    "frontend/src/studio/studio.css": "fde86d6b833bdcacb76fdf81db1ee6264dfd6a6eecc44d5d9bd48bbc13cd7713",
+    "frontend/src/selfLearning/Home.tsx": "1d49468b162c63fcc759c760a3ada2654fba9863db7261488a6623c427d0d023",
+    "frontend/src/liveLearning/LiveApp.tsx": "afcd6b3f1003199321de82fc894ef0e472e259f17db40d0f97d5a2f5c9e1cd0b",
+    "frontend/src/liveLearning/TaskCenter.tsx": "d3148d6d921f656332747de7f899266ac3cdc485649046a1de147f7b5a0cba73",
+    "frontend/src/components/generation/forms/MindMapForm.tsx": "8702e2f862540bf3e361144c696545819872f8fba253ac3354f66cb57239e1b9",
+    "backend/src/app/api/personal_studio.py": "3345c1ed6c32a9ab735c158d5513a201dc8e4a3bb4039c2bdc641a855c6c5fcb",
+    "backend/src/app/services/personal_studio.py": "d8ec01c48ce3ea9bdf938228ee394fd18b76d21bc327584bf53bba61a3522e7e",
+    "backend/src/app/services/job_completion_service.py": "0cd076e03c83e4a790bd09e0762dac36bbb448fd009f87a6c9479da4ab875ef1",
+    "backend/src/app/services/job_reconciliation_service.py": "d3ba0315c6415efd62bf4c6f808b184008493937acd931ae19953281d064a8ef",
+    "backend/src/app/bootstrap.py": "9fa8227c4f468ac2f3d93df9ed2800fd33ad3729cb100e605bdc583dbb2e6876",
+    "backend/src/app/services/durable_job_runtime.py": "793b96d3a5c1a1db4b5dba7c12f82d30fa93fc889550dbba90f0826c0e01fd43",
+    "backend/src/tests/personal_studio/test_studio.py": "fd8be82b2b46d5e915957561d41662396abf2168ad3b0a0ef259d33cbf143a3f"
+  }
+}

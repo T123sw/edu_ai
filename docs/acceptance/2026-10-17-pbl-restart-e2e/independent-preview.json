@@ -1,0 +1,173 @@
+[
+  {
+    "name": "score",
+    "independentBusinessScenarios": [
+      "蓝队正数减分",
+      "红队零分下限",
+      "双方互不影响",
+      "领先与平局",
+      "重置双方"
+    ],
+    "viewports": [
+      {
+        "outerWidth": 1440,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 401,
+        "scrollWidth": 401,
+        "bodyWidth": 401,
+        "bodyHeight": 392,
+        "text": "双人比赛记分牌\n红队\n\n0\n\n加 1 分\n减 1 分\n蓝队\n\n0\n\n加 1 分\n减 1 分\n\n平局\n\n重置比赛"
+      },
+      {
+        "outerWidth": 390,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 349,
+        "scrollWidth": 349,
+        "bodyWidth": 349,
+        "bodyHeight": 392,
+        "text": "双人比赛记分牌\n红队\n\n0\n\n加 1 分\n减 1 分\n蓝队\n\n0\n\n加 1 分\n减 1 分\n\n平局\n\n重置比赛"
+      },
+      {
+        "outerWidth": 320,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 279,
+        "scrollWidth": 279,
+        "bodyWidth": 279,
+        "bodyHeight": 520,
+        "text": "双人比赛记分牌\n红队\n\n0\n\n加 1 分\n减 1 分\n蓝队\n\n0\n\n加 1 分\n减 1 分\n\n平局\n\n重置比赛"
+      }
+    ],
+    "passed": true
+  },
+  {
+    "name": "form",
+    "independentBusinessScenarios": [
+      "空白拦截",
+      "去掉首尾空格",
+      "修改清除成功消息",
+      "修改清除错误消息"
+    ],
+    "viewports": [
+      {
+        "outerWidth": 1440,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 401,
+        "scrollWidth": 401,
+        "bodyWidth": 401,
+        "bodyHeight": 226,
+        "text": "活动报名\n姓名\n报名\n\n请输入姓名"
+      },
+      {
+        "outerWidth": 390,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 349,
+        "scrollWidth": 349,
+        "bodyWidth": 349,
+        "bodyHeight": 226,
+        "text": "活动报名\n姓名\n报名\n\n请输入姓名"
+      },
+      {
+        "outerWidth": 320,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 279,
+        "scrollWidth": 279,
+        "bodyWidth": 279,
+        "bodyHeight": 226,
+        "text": "活动报名\n姓名\n报名\n\n请输入姓名"
+      }
+    ],
+    "passed": true
+  },
+  {
+    "name": "shop_b",
+    "independentBusinessScenarios": [
+      "空白拦截与清空输入",
+      "数量下限",
+      "两商品独立操作",
+      "购买状态往返",
+      "全部筛选恢复",
+      "筛选不影响统计",
+      "删除更新统计"
+    ],
+    "viewports": [
+      {
+        "outerWidth": 1440,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 401,
+        "scrollWidth": 401,
+        "bodyWidth": 401,
+        "bodyHeight": 283,
+        "text": "购物清单\n添加\n全部\n待购买\n已购买\n商品种类数：1\n待购买总件数：0\n牛奶\n减少\n2\n增加\n已购买\n删除"
+      },
+      {
+        "outerWidth": 390,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 349,
+        "scrollWidth": 349,
+        "bodyWidth": 349,
+        "bodyHeight": 319,
+        "text": "购物清单\n添加\n全部\n待购买\n已购买\n商品种类数：1\n待购买总件数：0\n牛奶\n减少\n2\n增加\n已购买\n删除"
+      },
+      {
+        "outerWidth": 320,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 279,
+        "scrollWidth": 279,
+        "bodyWidth": 279,
+        "bodyHeight": 319,
+        "text": "购物清单\n添加\n全部\n待购买\n已购买\n商品种类数：1\n待购买总件数：0\n牛奶\n减少\n2\n增加\n已购买\n删除"
+      }
+    ],
+    "passed": true
+  },
+  {
+    "name": "layout",
+    "independentBusinessScenarios": [
+      "标题与简介顺序",
+      "作品区域位置",
+      "三件作品均展示"
+    ],
+    "viewports": [
+      {
+        "outerWidth": 1440,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 401,
+        "scrollWidth": 401,
+        "bodyWidth": 401,
+        "bodyHeight": 293,
+        "text": "我的作品\n\n记录我的学习成果\n\n天气卡片\n\n用卡片展示一周天气变化。\n\n读书笔记\n\n整理我读过的书和摘抄。\n\n像素画\n\n用格子拼出简单的小图案。"
+      },
+      {
+        "outerWidth": 390,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 349,
+        "scrollWidth": 349,
+        "bodyWidth": 349,
+        "bodyHeight": 341,
+        "text": "我的作品\n\n记录我的学习成果\n\n天气卡片\n\n用卡片展示一周天气变化。\n\n读书笔记\n\n整理我读过的书和摘抄。\n\n像素画\n\n用格子拼出简单的小图案。"
+      },
+      {
+        "outerWidth": 320,
+        "outerNoOverflow": true,
+        "previewNoHorizontalOverflow": true,
+        "viewport": 279,
+        "scrollWidth": 279,
+        "bodyWidth": 279,
+        "bodyHeight": 389,
+        "text": "我的作品\n\n记录我的学习成果\n\n天气卡片\n\n用卡片展示一周天气变化。\n\n读书笔记\n\n整理我读过的书和摘抄。\n\n像素画\n\n用格子拼出简单的小图案。"
+      }
+    ],
+    "passed": true
+  }
+]

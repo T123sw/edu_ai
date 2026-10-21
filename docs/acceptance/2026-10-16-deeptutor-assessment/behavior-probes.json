@@ -1,0 +1,14 @@
+{
+  "upstream_commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+  "real_model_calls": 0,
+  "mimic_quiz_prompt": {
+    "reference_present": true,
+    "user_requirement_present": false
+  },
+  "empty_templates_override": {
+    "explore_calls": 1,
+    "result_mode": "custom"
+  },
+  "question_content_event_contains_correct_answer": true,
+  "scope": "Offline control-flow and prompt probes; not end-to-end generation validation"
+}

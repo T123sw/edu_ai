@@ -1,0 +1,104 @@
+{
+  "name": "score",
+  "exerciseId": "pbl_30a7cbe3cae4183538dac3691a503e4b",
+  "steps": [
+    {
+      "id": "page-shell",
+      "passed": true,
+      "cumulative": 4
+    },
+    {
+      "id": "increment-scores",
+      "passed": true,
+      "cumulative": 8
+    },
+    {
+      "id": "decrement-scores",
+      "passed": true,
+      "cumulative": 12
+    },
+    {
+      "id": "reset-match",
+      "passed": true,
+      "cumulative": 14
+    }
+  ],
+  "checks": 14,
+  "errors": [],
+  "requestFailures": [
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://col.csbops.io/data/sandpack",
+      "error": "net::ERR_TIMED_OUT"
+    },
+    {
+      "url": "https://2-19-8-sandpack.codesandbox.io/",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://col.csbops.io/data/sandpack",
+      "error": "net::ERR_TIMED_OUT"
+    }
+  ],
+  "emptyStarterRejected": true,
+  "previewText": "比赛记分牌\n红队\n0\n加 1 分\n减 1 分\n蓝队\n0\n加 1 分\n减 1 分\n\n平局\n\n重置比赛",
+  "previewRendered": true,
+  "previewControls": [
+    {
+      "tag": "BUTTON",
+      "text": "加 1 分",
+      "label": null,
+      "testId": "red-add",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "减 1 分",
+      "label": null,
+      "testId": "red-sub",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "加 1 分",
+      "label": null,
+      "testId": "blue-add",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "减 1 分",
+      "label": null,
+      "testId": "blue-sub",
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "重置比赛",
+      "label": null,
+      "testId": "reset",
+      "type": "button"
+    }
+  ],
+  "refreshPreservesCodeAndStep": true,
+  "regressionRejected": true,
+  "repairedCodePasses": true,
+  "mobileNoPageOverflow": true,
+  "previewViewports": [
+    {
+      "outerWidth": 390,
+      "width": 349,
+      "scrollWidth": 349
+    },
+    {
+      "outerWidth": 320,
+      "width": 279,
+      "scrollWidth": 279
+    }
+  ],
+  "privateAnswersExcluded": true,
+  "passed": true
+}

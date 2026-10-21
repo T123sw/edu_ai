@@ -1,0 +1,36 @@
+{
+  "productionDataModified": false,
+  "productCodeModified": false,
+  "overallAccepted": false,
+  "generation": {
+    "attempted": 5,
+    "published": 4,
+    "failed": 1
+  },
+  "browser": {
+    "projectsPassed": 4,
+    "steps": 10
+  },
+  "independentBusiness": {
+    "cases": 19,
+    "passed": true
+  },
+  "mutationChecks": {
+    "deliberateFaults": 8,
+    "missed": 5,
+    "detected": 3
+  },
+  "recoveryPostgresTests": {
+    "passed": 17,
+    "skipped": 0
+  },
+  "realCancellationRetryPassed": true,
+  "apiContractsPassed": true,
+  "openFindings": [
+    "old role/name changed while resolving repeated controls",
+    "incomplete behavioral acceptance coverage",
+    "retry UI navigates to task ID instead of exercise ID",
+    "explicit retry inherits exhausted repair budget",
+    "score preview overflows by 5px at 320px outer width"
+  ]
+}

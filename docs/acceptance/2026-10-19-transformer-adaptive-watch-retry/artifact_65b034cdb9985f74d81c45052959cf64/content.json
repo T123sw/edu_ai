@@ -1,0 +1,1279 @@
+{
+  "title": "逐位置前馈网络与一次完整前向流程",
+  "content": {
+    "title": "逐位置前馈网络与一次完整前向流程（习题）",
+    "questions": [
+      {
+        "id": "q1",
+        "stem": "关于 Transformer 每层中的逐位置前馈网络 FFN(x)=max(0, xW1+b1)W2+b2，下列说法正确的是：",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "序列中每个位置使用各自独立的一套 W1、W2 参数，因此不同位置学到不同的变换",
+          "同一层内所有位置共用同一套 W1、W2 参数，但不同层使用不同的参数",
+          "同一层内所有位置共用同一套参数，且所有层也共用同一套参数以节省参数量",
+          "前馈网络只作用于序列的第一个位置，其余位置直接跳过"
+        ],
+        "difficulty": "easy",
+        "explanation": "A 错：原文强调该网络“分别且相同地应用于每个位置”，同一层内参数在各位置间共享，位置之间不各自拥有参数。B 对：线性变换在不同位置上是相同的，但在不同层之间使用不同的参数，因此每层能学到不同的特征变换。C 错：前半句对，后半句错，原文明确说不同层使用不同参数，并非全模型共用一套。D 错：前馈网络对序列中每个位置都应用一次，不存在只处理第一个位置的说法。"
+      },
+      {
+        "id": "q2",
+        "stem": "原始论文中，前馈网络的输入/输出维度 d_model 与内层维度 d_ff 分别是：",
+        "type": "single_choice",
+        "answer": "C",
+        "options": [
+          "d_model=2048，d_ff=512",
+          "d_model=512，d_ff=512",
+          "d_model=512，d_ff=2048",
+          "d_model=1024，d_ff=2048"
+        ],
+        "difficulty": "easy",
+        "explanation": "原文写明“输入和输出的维度为 d_model = 512，而内层的维度为 d_ff = 2048”。A 把两个数字对调了，属于常见混淆。B 认为内层不扩张，与原文的 2048 不符。D 的 d_model=1024 在原文中没有依据，只有 d_ff=2048 是对的。"
+      },
+      {
+        "id": "q3",
+        "stem": "设某位置输入向量 x 的维度为 512，按原始论文的维度设置，第一层线性变换 xW1+b1 的输出维度是多少？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "512",
+          "2048",
+          "256",
+          "1024"
+        ],
+        "difficulty": "medium",
+        "explanation": "第一层把 d_model=512 维映射到内层 d_ff=2048 维，所以 xW1+b1 的结果是 2048 维，再经 ReLU 后由第二层 W2 映射回 512 维。A 是最终输出维度（第二层之后），不是第一层输出。C 的 256 相当于把 512 减半，没有依据。D 的 1024 既不是 d_model 也不是 d_ff。"
+      },
+      {
+        "id": "q4",
+        "stem": "关于前馈网络在 Transformer 中的作用与理解，下列哪些说法正确？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "两个线性变换之间夹着 ReLU，使这一子层具备非线性，而不只是再做一次线性映射",
+          "若去掉 ReLU，两个线性变换复合仍等价于一个线性变换，子层的表达能力会明显受限",
+          "前馈网络可以看作两个核大小为 1 的卷积，因为它在每个位置上独立地做相同的变换",
+          "前馈网络负责在序列位置之间交换信息，作用与多头注意力相同"
+        ],
+        "difficulty": "medium",
+        "explanation": "A 对：原文明确说包含两个线性变换并在其间使用 ReLU，ReLU 提供非线性，增强模型表达能力。B 对：两个线性映射的复合 W1W2 仍是线性映射，没有激活函数时整个子层退化为一次线性变换，这正是 ReLU 不可省的原因。C 对：原文给出的等价描述就是“两个核大小为 1 的卷积”，核大小为 1 意味着只看单个位置、各位置共享权重。D 错：前馈网络对每个位置独立处理，不在位置之间传递信息；跨位置的信息交互由注意力子层完成，两者分工不同。"
+      },
+      {
+        "id": "q5",
+        "stem": "编码器单层中，一个子层（例如多头注意力）的输出记为 x，该子层函数记为 Sublayer(·)。按 Add&Norm 的定义，送入下一个子层的张量是：",
+        "type": "single_choice",
+        "answer": "C",
+        "options": [
+          "Sublayer(x)",
+          "LayerNorm(x) + Sublayer(x)",
+          "LayerNorm(x + Sublayer(x))",
+          "x + LayerNorm(Sublayer(x))"
+        ],
+        "difficulty": "medium",
+        "explanation": "Add&Norm 的含义是先做残差相加 x + Sublayer(x)，再对结果做层归一化，即 LayerNorm(x + Sublayer(x))。A 漏掉了残差连接与归一化。B 把归一化只加在 x 上再与子层输出相加，顺序错误。D 先归一化子层输出再与 x 相加，同样不是原文的写法，残差路径上的 x 未经归一化就与归一化结果相加，与定义不符。"
+      },
+      {
+        "id": "q6",
+        "stem": "把编码器单层的一次前向流程按顺序排列，正确的是：",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "输入嵌入+位置编码 → 前馈网络 → Add&Norm → 多头注意力 → Add&Norm",
+          "输入嵌入+位置编码 → 多头注意力 → Add&Norm → 前馈网络 → Add&Norm",
+          "输入嵌入+位置编码 → Add&Norm → 多头注意力 → 前馈网络 → Add&Norm",
+          "输入嵌入+位置编码 → 多头注意力 → 前馈网络 → Add&Norm → Add&Norm"
+        ],
+        "difficulty": "medium",
+        "explanation": "编码器每层有两个子层，顺序是多头自注意力在前、逐位置前馈网络在后，每个子层后各接一个 Add&Norm，所以是 嵌入+位置编码 → 多头注意力 → Add&Norm → 前馈网络 → Add&Norm。A 把两个子层顺序颠倒了。C 在进入第一个子层前就加了 Add&Norm，而 Add&Norm 是子层之后的残差与归一化，位置错误。D 把两个 Add&Norm 都堆在末尾，等于两个子层都没有各自的残差归一化，与结构不符。"
+      },
+      {
+        "id": "q7",
+        "stem": "判断：在 Transformer 中，前馈网络子层与多头注意力子层一样，都会让不同位置之间互相交换信息。",
+        "type": "true_false",
+        "answer": "错误",
+        "difficulty": "easy",
+        "explanation": "前馈网络对每个位置分别且相同地应用，各位置之间不共享计算、也不互相读取，因此不承担位置间信息交换；位置之间的信息交互由多头注意力子层完成。两者是分工关系：注意力负责“看别的位置”，前馈网络负责“在单个位置上做非线性变换”。"
+      },
+      {
+        "id": "q8",
+        "stem": "请写出逐位置前馈网络的公式，并说明：为什么同一层内各位置共享参数，而不同层使用不同参数？",
+        "type": "short_answer",
+        "answer": "FFN(x)=max(0, xW1+b1)W2+b2。同一层内各位置共享同一套 W1、W2、b1、b2，是因为该网络“分别且相同地应用于每个位置”，相当于两个核大小为 1 的卷积，每个位置独立地做同一种变换，参数量不随序列长度增长。不同层使用不同参数，是为了让每一层学到不同的特征变换，逐层提取和组合更复杂的表示。",
+        "difficulty": "medium",
+        "explanation": "评分要点：①公式写对，含两次线性变换与中间的 ReLU（max(0,·)）；②指出同层内参数在各位置间共享、各位置独立计算；③指出不同层参数不同，目的是让各层学到不同的变换。只写公式不解释参数共享与分层差异的，只给部分分。"
+      },
+      {
+        "id": "q9",
+        "stem": "不看资料，写出编码器单层从输入嵌入到输出的完整数据流（用箭头表示），并说明前馈网络子层与注意力子层在功能上的分工。",
+        "type": "short_answer",
+        "answer": "数据流：输入嵌入 + 位置编码 → 多头自注意力 → Add&Norm（LayerNorm(x + Sublayer(x))）→ 逐位置前馈网络 FFN(x)=max(0, xW1+b1)W2+b2 → Add&Norm → 该层输出（送入下一层）。分工：注意力子层负责在序列位置之间汇聚信息，让每个位置根据相关性从其他位置取信息；前馈网络子层对每个位置独立地做同样的两层非线性变换，不跨位置交互，负责在单个位置上加工和变换表示。",
+        "difficulty": "hard",
+        "explanation": "评分要点：①顺序正确，多头注意力在前、前馈网络在后；②两个子层后各有一个 Add&Norm，且能写出 LayerNorm(x + Sublayer(x)) 的形式；③起点是嵌入与位置编码相加；④分工说明中，注意力负责跨位置信息汇聚，前馈网络负责逐位置的非线性变换，二者不混淆。顺序颠倒或漏掉一个 Add&Norm 的应扣分。"
+      }
+    ]
+  },
+  "artifact_type": "quiz",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+        "value_minutes": 12.05
+      },
+      "spec_digest": "686a4e0b6c96105adea4e876dedfdd4605d8220534ecba41c768a1712d8a2ca9",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q1"
+          },
+          "objective_id": "n5-ffn-pipeline:o1"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q8"
+          },
+          "objective_id": "n5-ffn-pipeline:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q2"
+          },
+          "objective_id": "n5-ffn-pipeline:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q3"
+          },
+          "objective_id": "n5-ffn-pipeline:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q4"
+          },
+          "objective_id": "n5-ffn-pipeline:o2"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q7"
+          },
+          "objective_id": "n5-ffn-pipeline:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q5"
+          },
+          "objective_id": "n5-ffn-pipeline:o3"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "question_id": "q6"
+          },
+          "objective_id": "n5-ffn-pipeline:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "question_id": "q9"
+          },
+          "objective_id": "n5-ffn-pipeline:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "question_id": "q1"
+          },
+          "explanation": "通过参数共享与分层参数的辨析，落实前馈网络这一核心机制的原理考查。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q4"
+          },
+          "explanation": "考查 ReLU 带来的非线性与核大小为 1 卷积的等价视角，落实前馈网络机制的理解。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q5"
+          },
+          "explanation": "考查 Add&Norm 即 LayerNorm(x + Sublayer(x))，落实残差连接与层归一化机制。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q6"
+          },
+          "explanation": "考查编码器单层中注意力、Add&Norm、前馈网络的先后顺序，落实整体结构理解。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "question_id": "q9"
+          },
+          "explanation": "要求完整复述编码器单层前向流程并说明子层分工，综合落实核心结构要求。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "question_time_estimates": [
+        {
+          "reason": "需回忆“分别且相同地应用于每个位置”与“不同层参数不同”两个限定，并逐一排除把参数按位置独立或全模型共享的干扰项。",
+          "question_id": "q1",
+          "thinking_seconds": 25
+        },
+        {
+          "reason": "直接回忆原始论文的 d_model=512 与 d_ff=2048 两个数值，并注意不要与对调版本混淆。",
+          "question_id": "q2",
+          "thinking_seconds": 15
+        },
+        {
+          "reason": "需把维度设置对应到第一层线性变换，判断 512→2048 的扩张方向，并区分第一层输出与最终输出。",
+          "question_id": "q3",
+          "thinking_seconds": 30
+        },
+        {
+          "reason": "多选需逐项判断：ReLU 的非线性作用、去掉激活后复合仍为线性、核大小为 1 卷积的等价视角、以及前馈网络是否跨位置交互，共四个独立判断。",
+          "question_id": "q4",
+          "thinking_seconds": 60
+        },
+        {
+          "reason": "需回忆 Add&Norm 的运算顺序，区分“先加后归一化”与几种把归一化位置放错的写法。",
+          "question_id": "q5",
+          "thinking_seconds": 35
+        },
+        {
+          "reason": "需按编码器单层结构排出两个子层与两个 Add&Norm 的先后，并排除子层颠倒、Add&Norm 前置或堆在末尾的选项。",
+          "question_id": "q6",
+          "thinking_seconds": 40
+        },
+        {
+          "reason": "需判断前馈网络是否跨位置交互，并与注意力子层的职责作对比。",
+          "question_id": "q7",
+          "thinking_seconds": 20
+        },
+        {
+          "reason": "需默写含 ReLU 的完整公式，并分别解释同层参数共享（核大小为 1 卷积视角）与分层参数不同的动机，属组织性作答。",
+          "question_id": "q8",
+          "thinking_seconds": 90
+        },
+        {
+          "reason": "需不看资料回忆整条数据流顺序、两个 Add&Norm 的位置与形式，并归纳注意力与前馈网络的功能分工，属综合复述。",
+          "question_id": "q9",
+          "thinking_seconds": 120
+        }
+      ],
+      "teaching_context_digest": "98be1b3e5a440bfac33868a307afa61c3b30b81d3ef23ab0b38f9c5b98e58bdd"
+    },
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "本节点分工为前馈网络与完整前向流程；q1/q4/q5/q6/q9 分别覆盖参数共享与分层参数、ReLU 非线性与核大小为1卷积视角、Add&Norm 形式、编码器单层顺序与完整数据流，真实支持 req-transformer-basics 中前馈网络、残差连接与层归一化部分。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题独立求解：q1=B、q2=C、q3=B、q4=A,B,C、q5=C、q6=B、q7=错误，与给定答案一致；FFN 公式、d_model=512/d_ff=2048、LayerNorm(x+Sublayer(x)) 等断言与来源一致，未发现事实错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "习题逐题求解并核对解析：各干扰项均对应可解释的真实误区（按位置独立参数、维度对调、归一化位置错放、子层顺序颠倒、Add&Norm 堆末尾），解析给出具体错误原因，无随意数字或猜测式解析。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目由易到难：先概念辨析（q1、q2、q7），再维度与作用理解（q3、q4），再 Add&Norm 与流程排序（q5、q6），最后简答复述（q8、q9），与节点活动“阅读/听讲—流程串联—口头讲解”顺序一致，适合入门受众。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "q2、q3 的维度数值与 q1、q4、q5、q6 的结构断言均可追溯到 research_context 中原始论文中文解读（3.3 节公式、d_model=512/d_ff=2048、核大小为1卷积）与博客对 Add&Norm 的说明，未出现无依据的外部断言。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三个节点目标均有练习与检测：o1 由 q1、q8 覆盖，o2 由 q2、q3、q4、q7 覆盖，o3 由 q5、q6、q9 覆盖；题型含单选、多选、判断、简答，语言为中文，深度为入门，未引入排除项之外的内容。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本节点分工为前馈网络与完整前向流程；q1/q4/q5/q6/q9 分别覆盖参数共享与分层参数、ReLU 非线性与核大小为1卷积视角、Add&Norm 形式、编码器单层顺序与完整数据流，真实支持 req-transformer-basics 中前馈网络、残差连接与层归一化部分。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题独立求解：q1=B、q2=C、q3=B、q4=A,B,C、q5=C、q6=B、q7=错误，与给定答案一致；FFN 公式、d_model=512/d_ff=2048、LayerNorm(x+Sublayer(x)) 等断言与来源一致，未发现事实错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题逐题求解并核对解析：各干扰项均对应可解释的真实误区（按位置独立参数、维度对调、归一化位置错放、子层顺序颠倒、Add&Norm 堆末尾），解析给出具体错误原因，无随意数字或猜测式解析。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目由易到难：先概念辨析（q1、q2、q7），再维度与作用理解（q3、q4），再 Add&Norm 与流程排序（q5、q6），最后简答复述（q8、q9），与节点活动“阅读/听讲—流程串联—口头讲解”顺序一致，适合入门受众。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "q2、q3 的维度数值与 q1、q4、q5、q6 的结构断言均可追溯到 research_context 中原始论文中文解读（3.3 节公式、d_model=512/d_ff=2048、核大小为1卷积）与博客对 Add&Norm 的说明，未出现无依据的外部断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个节点目标均有练习与检测：o1 由 q1、q8 覆盖，o2 由 q2、q3、q4、q7 覆盖，o3 由 q5、q6、q9 覆盖；题型含单选、多选、判断、简答，语言为中文，深度为入门，未引入排除项之外的内容。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q4 为多选题，正确答案 A,B,C 占前三项，建议调整选项顺序使正确项分布更分散，避免位置规律。",
+              "q1 与 q7 都涉及“前馈网络不跨位置交互”，考点略有重叠，可考虑将 q7 改为考查“不同层参数不同”的动机以增加区分度。",
+              "q9 简答题要求同时复述数据流与分工，作答负担较重，可考虑在题干中提示分两小问作答。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "question_id": "q1",
+                "option_checks": [
+                  {
+                    "reasoning": "原文为“分别且相同地应用于每个位置”，同层参数在各位置共享，A 说每位置独立参数，错误。",
+                    "option_text": "序列中每个位置使用各自独立的一套 W1、W2 参数，因此不同位置学到不同的变换",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 错：原文强调该网络“分别且相同地应用于每个位置”，同一层内参数在各位置间共享，位置之间不各自拥有参数。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出原文强调“分别且相同地应用于每个位置”、同层参数共享，与来源一致，对 A 的否定成立。"
+                  },
+                  {
+                    "reasoning": "同层位置共享参数、不同层参数不同，正是原文“线性变换在不同位置上是相同的，但在不同层之间使用不同的参数”，B 正确。",
+                    "option_text": "同一层内所有位置共用同一套 W1、W2 参数，但不同层使用不同的参数",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 对：线性变换在不同位置上是相同的，但在不同层之间使用不同的参数，因此每层能学到不同的特征变换。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析复述了原文的两层限定并说明每层学到不同变换，与来源一致。"
+                  },
+                  {
+                    "reasoning": "前半句“同层共用参数”正确，后半句“所有层共用一套”与原文“不同层使用不同参数”矛盾，整体错误。",
+                    "option_text": "同一层内所有位置共用同一套参数，且所有层也共用同一套参数以节省参数量",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 错：前半句对，后半句错，原文明确说不同层使用不同参数，并非全模型共用一套。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析准确区分了前半句正确、后半句错误，并给出原文依据，批评成立。"
+                  },
+                  {
+                    "reasoning": "前馈网络对序列每个位置都应用一次，不存在只处理第一个位置，D 错误。",
+                    "option_text": "前馈网络只作用于序列的第一个位置，其余位置直接跳过",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：前馈网络对序列中每个位置都应用一次，不存在只处理第一个位置的说法。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出前馈网络对每个位置都应用，否定 D 的理由成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "逐位置前馈网络在同一层内对所有位置使用同一套 W1、W2、b1、b2（“分别且相同地应用于每个位置”），但不同层使用不同参数。故 A 错（位置不各自拥有参数）、B 对、C 错（并非全模型共用）、D 错（每个位置都应用）。答案 B。"
+              },
+              {
+                "question_id": "q2",
+                "option_checks": [
+                  {
+                    "reasoning": "d_model=2048、d_ff=512 把两个数字对调，与原文不符。",
+                    "option_text": "d_model=2048，d_ff=512",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 把两个数字对调了，属于常见混淆。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析称 A 把两个数字对调，与原文 d_model=512、d_ff=2048 对照成立。"
+                  },
+                  {
+                    "reasoning": "d_ff=512 表示内层不扩张，与原文 2048 不符。",
+                    "option_text": "d_model=512，d_ff=512",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 认为内层不扩张，与原文的 2048 不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 B 认为内层不扩张、与 2048 不符，判断准确。"
+                  },
+                  {
+                    "reasoning": "d_model=512、d_ff=2048 与原文完全一致，C 正确。",
+                    "option_text": "d_model=512，d_ff=2048",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "原文写明“输入和输出的维度为 d_model = 512，而内层的维度为 d_ff = 2048”。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析逐字引用原文维度表述，与来源一致。"
+                  },
+                  {
+                    "reasoning": "d_model=1024 无原文依据，D 错误。",
+                    "option_text": "d_model=1024，d_ff=2048",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 的 d_model=1024 在原文中没有依据，只有 d_ff=2048 是对的。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 d_model=1024 无依据、仅 d_ff=2048 正确，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "原始论文 3.3 节写明输入输出维度 d_model=512、内层维度 d_ff=2048，对应选项 C。"
+              },
+              {
+                "question_id": "q3",
+                "option_checks": [
+                  {
+                    "reasoning": "512 是最终输出维度（第二层之后），不是第一层输出。",
+                    "option_text": "512",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 是最终输出维度（第二层之后），不是第一层输出。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 A 是第二层之后的输出维度，与维度设置一致。"
+                  },
+                  {
+                    "reasoning": "第一层输出维度为 d_ff=2048，B 正确。",
+                    "option_text": "2048",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "第一层把 d_model=512 维映射到内层 d_ff=2048 维，所以 xW1+b1 的结果是 2048 维，再经 ReLU 后由第二层 W2 映射回 512 维。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析说明 512→2048 的映射方向及第二层回到 512，推导正确。"
+                  },
+                  {
+                    "reasoning": "256 无任何维度依据，C 错误。",
+                    "option_text": "256",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 的 256 相当于把 512 减半，没有依据。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 256 相当于把 512 减半、无依据，批评成立。"
+                  },
+                  {
+                    "reasoning": "1024 既非 d_model 也非 d_ff，D 错误。",
+                    "option_text": "1024",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 的 1024 既不是 d_model 也不是 d_ff。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 1024 既不是 d_model 也不是 d_ff，判断准确。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "第一层线性变换把 512 维输入映射到内层 d_ff=2048 维，故 xW1+b1 输出 2048 维；第二层再映射回 512 维。答案 B。"
+              },
+              {
+                "question_id": "q4",
+                "option_checks": [
+                  {
+                    "reasoning": "两个线性变换之间夹 ReLU，使子层具备非线性，A 正确。",
+                    "option_text": "两个线性变换之间夹着 ReLU，使这一子层具备非线性，而不只是再做一次线性映射",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 对：原文明确说包含两个线性变换并在其间使用 ReLU，ReLU 提供非线性，增强模型表达能力。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用原文“两个线性变换并在其间使用 ReLU”，并说明其增强表达能力，成立。"
+                  },
+                  {
+                    "reasoning": "去掉 ReLU 后 max 消失，两个线性映射复合仍为线性映射，子层退化为一次线性变换，B 正确。",
+                    "option_text": "若去掉 ReLU，两个线性变换复合仍等价于一个线性变换，子层的表达能力会明显受限",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 对：两个线性映射的复合 W1W2 仍是线性映射，没有激活函数时整个子层退化为一次线性变换，这正是 ReLU 不可省的原因。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析关于线性复合仍为线性的推理正确，并正确指出这是 ReLU 不可省的原因。"
+                  },
+                  {
+                    "reasoning": "逐位置独立且相同的变换等价于核大小为 1 的卷积，C 正确。",
+                    "option_text": "前馈网络可以看作两个核大小为 1 的卷积，因为它在每个位置上独立地做相同的变换",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 对：原文给出的等价描述就是“两个核大小为 1 的卷积”，核大小为 1 意味着只看单个位置、各位置共享权重。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析引用原文“两个核大小为 1 的卷积”并解释核大小为 1 意味着只看单个位置、共享权重，成立。"
+                  },
+                  {
+                    "reasoning": "前馈网络对每个位置独立处理，不在位置之间传递信息，D 错误。",
+                    "option_text": "前馈网络负责在序列位置之间交换信息，作用与多头注意力相同",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 错：前馈网络对每个位置独立处理，不在位置之间传递信息；跨位置的信息交互由注意力子层完成，两者分工不同。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析分两句说明前馈网络不跨位置交互、跨位置交互由注意力完成，与来源一致，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "A 对：ReLU 提供非线性；B 对：无激活时 W1W2 复合仍为线性，表达能力受限；C 对：逐位置相同变换等价于两个核大小为 1 的卷积；D 错：前馈网络逐位置独立处理，不跨位置交互，跨位置交互由注意力完成。答案 A,B,C。"
+              },
+              {
+                "question_id": "q5",
+                "option_checks": [
+                  {
+                    "reasoning": "Sublayer(x) 缺少残差连接与归一化，A 错误。",
+                    "option_text": "Sublayer(x)",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 漏掉了残差连接与归一化。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 A 漏掉残差连接与归一化，判断准确。"
+                  },
+                  {
+                    "reasoning": "LayerNorm(x)+Sublayer(x) 把归一化只作用于 x 再相加，与定义不符，B 错误。",
+                    "option_text": "LayerNorm(x) + Sublayer(x)",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "B 把归一化只加在 x 上再与子层输出相加，顺序错误。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 B 把归一化只加在 x 上再与子层输出相加、顺序错误，成立。"
+                  },
+                  {
+                    "reasoning": "LayerNorm(x + Sublayer(x)) 正是 Add&Norm 的定义，C 正确。",
+                    "option_text": "LayerNorm(x + Sublayer(x))",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "Add&Norm 的含义是先做残差相加 x + Sublayer(x)，再对结果做层归一化，即 LayerNorm(x + Sublayer(x))。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析先残差相加再归一化的表述与来源一致。"
+                  },
+                  {
+                    "reasoning": "x + LayerNorm(Sublayer(x)) 先归一化子层输出再与未归一化的 x 相加，与定义不符，D 错误。",
+                    "option_text": "x + LayerNorm(Sublayer(x))",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 先归一化子层输出再与 x 相加，同样不是原文的写法，残差路径上的 x 未经归一化就与归一化结果相加，与定义不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 D 先归一化子层输出再与 x 相加、残差路径上的 x 未经归一化，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "Add&Norm 定义为先残差相加再层归一化，即 LayerNorm(x + Sublayer(x))，对应 C。"
+              },
+              {
+                "question_id": "q6",
+                "option_checks": [
+                  {
+                    "reasoning": "A 把前馈网络放在多头注意力之前，子层顺序颠倒。",
+                    "option_text": "输入嵌入+位置编码 → 前馈网络 → Add&Norm → 多头注意力 → Add&Norm",
+                    "option_index": 0,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "A 把两个子层顺序颠倒了。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 A 把两个子层顺序颠倒，与编码器结构一致。"
+                  },
+                  {
+                    "reasoning": "多头注意力在前、前馈网络在后，各接一个 Add&Norm，B 正确。",
+                    "option_text": "输入嵌入+位置编码 → 多头注意力 → Add&Norm → 前馈网络 → Add&Norm",
+                    "option_index": 1,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "编码器每层有两个子层，顺序是多头自注意力在前、逐位置前馈网络在后，每个子层后各接一个 Add&Norm，所以是 嵌入+位置编码 → 多头注意力 → Add&Norm → 前馈网络 → Add&Norm。",
+                    "independent_correct": true,
+                    "explanation_reasoning": "解析完整复述了正确顺序及两个 Add&Norm 的位置，与来源一致。"
+                  },
+                  {
+                    "reasoning": "C 在第一个子层之前就加 Add&Norm，位置错误。",
+                    "option_text": "输入嵌入+位置编码 → Add&Norm → 多头注意力 → 前馈网络 → Add&Norm",
+                    "option_index": 2,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "C 在进入第一个子层前就加了 Add&Norm，而 Add&Norm 是子层之后的残差与归一化，位置错误。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 Add&Norm 是子层之后的残差与归一化，C 位置错误，成立。"
+                  },
+                  {
+                    "reasoning": "D 把两个 Add&Norm 都堆在末尾，两个子层都没有各自的残差归一化，错误。",
+                    "option_text": "输入嵌入+位置编码 → 多头注意力 → 前馈网络 → Add&Norm → Add&Norm",
+                    "option_index": 3,
+                    "explanation_valid": true,
+                    "explanation_excerpt": "D 把两个 Add&Norm 都堆在末尾，等于两个子层都没有各自的残差归一化，与结构不符。",
+                    "independent_correct": false,
+                    "explanation_reasoning": "解析指出 D 使两个子层都缺少各自的残差归一化，与结构不符，批评成立。"
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "编码器单层：输入嵌入+位置编码 → 多头自注意力 → Add&Norm → 逐位置前馈网络 → Add&Norm，对应 B。"
+              },
+              {
+                "question_id": "q7",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "前馈网络对每个位置分别且相同地应用，各位置之间不互相读取，不承担位置间信息交换；跨位置交互由多头注意力完成。故题干说法错误。"
+              },
+              {
+                "question_id": "q8",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "公式 FFN(x)=max(0, xW1+b1)W2+b2；同层各位置共享同一套参数（等价于两个核大小为 1 的卷积，参数量不随序列长度增长），不同层使用不同参数以逐层学习不同特征变换。"
+              },
+              {
+                "question_id": "q9",
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 8,
+                "explanation_valid": true,
+                "calculation_checks": [],
+                "independent_solution": "数据流：输入嵌入+位置编码 → 多头自注意力 → Add&Norm（LayerNorm(x+Sublayer(x))）→ 逐位置前馈网络 → Add&Norm → 层输出。分工：注意力负责跨位置信息汇聚，前馈网络负责逐位置的非线性变换，不跨位置交互。"
+              }
+            ],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "q1 通过参数共享与分层参数辨析，真实考查前馈网络机制，支持 req-transformer-basics 中的前馈网络部分。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 考查 ReLU 非线性与核大小为 1 卷积的等价视角，落实前馈网络机制理解。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 直接考查 Add&Norm 即 LayerNorm(x + Sublayer(x))，落实残差连接与层归一化机制。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 考查编码器单层中注意力、Add&Norm、前馈网络的先后顺序，落实整体结构理解。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q9 要求复述编码器单层完整前向流程并说明子层分工，综合落实核心结构要求。",
+                "locator": {
+                  "question_id": "q9"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "q1 作为 o1 的练习，考查同层参数共享与分层参数不同，直接对应目标 o1。",
+                "locator": {
+                  "question_id": "q1"
+                },
+                "binding_id": "n5-ffn-pipeline:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q8 作为 o1 的检测，要求写出 FFN 公式并解释参数共享与分层差异，完整覆盖 o1。",
+                "locator": {
+                  "question_id": "q8"
+                },
+                "binding_id": "n5-ffn-pipeline:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q2 作为 o2 的练习，考查 d_model=512、d_ff=2048，对应 o2 的维度知识。",
+                "locator": {
+                  "question_id": "q2"
+                },
+                "binding_id": "n5-ffn-pipeline:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q3 作为 o2 的练习，考查第一层 512→2048 的维度映射，对应 o2 的维度设置。",
+                "locator": {
+                  "question_id": "q3"
+                },
+                "binding_id": "n5-ffn-pipeline:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q4 作为 o2 的检测，考查 ReLU 引入非线性与增强表示能力，对应 o2。",
+                "locator": {
+                  "question_id": "q4"
+                },
+                "binding_id": "n5-ffn-pipeline:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q7 作为 o2 的检测，考查前馈网络逐位置独立、不跨位置交互，与 o2 的非线性/表示能力及分工理解相关。",
+                "locator": {
+                  "question_id": "q7"
+                },
+                "binding_id": "n5-ffn-pipeline:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q5 作为 o3 的练习，考查 Add&Norm 形式，是完整前向流程中的关键环节。",
+                "locator": {
+                  "question_id": "q5"
+                },
+                "binding_id": "n5-ffn-pipeline:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q6 作为 o3 的练习，考查嵌入+位置编码 → 多头注意力 → Add&Norm → 前馈网络 → Add&Norm 的顺序。",
+                "locator": {
+                  "question_id": "q6"
+                },
+                "binding_id": "n5-ffn-pipeline:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "q9 作为 o3 的检测，要求完整复述数据流并说明分工，完整覆盖 o3。",
+                "locator": {
+                  "question_id": "q9"
+                },
+                "binding_id": "n5-ffn-pipeline:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "26a3512f449a916591c28abef00c8dc966f7a6594d804b19f4ed89462111d103"
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "suggestions": [
+        "q4 为多选题，正确答案 A,B,C 占前三项，建议调整选项顺序使正确项分布更分散，避免位置规律。",
+        "q1 与 q7 都涉及“前馈网络不跨位置交互”，考点略有重叠，可考虑将 q7 改为考查“不同层参数不同”的动机以增加区分度。",
+        "q9 简答题要求同时复述数据流与分工，作答负担较重，可考虑在题干中提示分两小问作答。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "26a3512f449a916591c28abef00c8dc966f7a6594d804b19f4ed89462111d103",
+      "question_checks": [
+        {
+          "question_id": "q1",
+          "option_checks": [
+            {
+              "reasoning": "原文为“分别且相同地应用于每个位置”，同层参数在各位置共享，A 说每位置独立参数，错误。",
+              "option_text": "序列中每个位置使用各自独立的一套 W1、W2 参数，因此不同位置学到不同的变换",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 错：原文强调该网络“分别且相同地应用于每个位置”，同一层内参数在各位置间共享，位置之间不各自拥有参数。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出原文强调“分别且相同地应用于每个位置”、同层参数共享，与来源一致，对 A 的否定成立。"
+            },
+            {
+              "reasoning": "同层位置共享参数、不同层参数不同，正是原文“线性变换在不同位置上是相同的，但在不同层之间使用不同的参数”，B 正确。",
+              "option_text": "同一层内所有位置共用同一套 W1、W2 参数，但不同层使用不同的参数",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 对：线性变换在不同位置上是相同的，但在不同层之间使用不同的参数，因此每层能学到不同的特征变换。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析复述了原文的两层限定并说明每层学到不同变换，与来源一致。"
+            },
+            {
+              "reasoning": "前半句“同层共用参数”正确，后半句“所有层共用一套”与原文“不同层使用不同参数”矛盾，整体错误。",
+              "option_text": "同一层内所有位置共用同一套参数，且所有层也共用同一套参数以节省参数量",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 错：前半句对，后半句错，原文明确说不同层使用不同参数，并非全模型共用一套。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析准确区分了前半句正确、后半句错误，并给出原文依据，批评成立。"
+            },
+            {
+              "reasoning": "前馈网络对序列每个位置都应用一次，不存在只处理第一个位置，D 错误。",
+              "option_text": "前馈网络只作用于序列的第一个位置，其余位置直接跳过",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错：前馈网络对序列中每个位置都应用一次，不存在只处理第一个位置的说法。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出前馈网络对每个位置都应用，否定 D 的理由成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "逐位置前馈网络在同一层内对所有位置使用同一套 W1、W2、b1、b2（“分别且相同地应用于每个位置”），但不同层使用不同参数。故 A 错（位置不各自拥有参数）、B 对、C 错（并非全模型共用）、D 错（每个位置都应用）。答案 B。"
+        },
+        {
+          "question_id": "q2",
+          "option_checks": [
+            {
+              "reasoning": "d_model=2048、d_ff=512 把两个数字对调，与原文不符。",
+              "option_text": "d_model=2048，d_ff=512",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 把两个数字对调了，属于常见混淆。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析称 A 把两个数字对调，与原文 d_model=512、d_ff=2048 对照成立。"
+            },
+            {
+              "reasoning": "d_ff=512 表示内层不扩张，与原文 2048 不符。",
+              "option_text": "d_model=512，d_ff=512",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 认为内层不扩张，与原文的 2048 不符。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 B 认为内层不扩张、与 2048 不符，判断准确。"
+            },
+            {
+              "reasoning": "d_model=512、d_ff=2048 与原文完全一致，C 正确。",
+              "option_text": "d_model=512，d_ff=2048",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "原文写明“输入和输出的维度为 d_model = 512，而内层的维度为 d_ff = 2048”。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析逐字引用原文维度表述，与来源一致。"
+            },
+            {
+              "reasoning": "d_model=1024 无原文依据，D 错误。",
+              "option_text": "d_model=1024，d_ff=2048",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 的 d_model=1024 在原文中没有依据，只有 d_ff=2048 是对的。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 d_model=1024 无依据、仅 d_ff=2048 正确，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "原始论文 3.3 节写明输入输出维度 d_model=512、内层维度 d_ff=2048，对应选项 C。"
+        },
+        {
+          "question_id": "q3",
+          "option_checks": [
+            {
+              "reasoning": "512 是最终输出维度（第二层之后），不是第一层输出。",
+              "option_text": "512",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 是最终输出维度（第二层之后），不是第一层输出。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 A 是第二层之后的输出维度，与维度设置一致。"
+            },
+            {
+              "reasoning": "第一层输出维度为 d_ff=2048，B 正确。",
+              "option_text": "2048",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "第一层把 d_model=512 维映射到内层 d_ff=2048 维，所以 xW1+b1 的结果是 2048 维，再经 ReLU 后由第二层 W2 映射回 512 维。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析说明 512→2048 的映射方向及第二层回到 512，推导正确。"
+            },
+            {
+              "reasoning": "256 无任何维度依据，C 错误。",
+              "option_text": "256",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 的 256 相当于把 512 减半，没有依据。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 256 相当于把 512 减半、无依据，批评成立。"
+            },
+            {
+              "reasoning": "1024 既非 d_model 也非 d_ff，D 错误。",
+              "option_text": "1024",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 的 1024 既不是 d_model 也不是 d_ff。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 1024 既不是 d_model 也不是 d_ff，判断准确。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "第一层线性变换把 512 维输入映射到内层 d_ff=2048 维，故 xW1+b1 输出 2048 维；第二层再映射回 512 维。答案 B。"
+        },
+        {
+          "question_id": "q4",
+          "option_checks": [
+            {
+              "reasoning": "两个线性变换之间夹 ReLU，使子层具备非线性，A 正确。",
+              "option_text": "两个线性变换之间夹着 ReLU，使这一子层具备非线性，而不只是再做一次线性映射",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 对：原文明确说包含两个线性变换并在其间使用 ReLU，ReLU 提供非线性，增强模型表达能力。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析引用原文“两个线性变换并在其间使用 ReLU”，并说明其增强表达能力，成立。"
+            },
+            {
+              "reasoning": "去掉 ReLU 后 max 消失，两个线性映射复合仍为线性映射，子层退化为一次线性变换，B 正确。",
+              "option_text": "若去掉 ReLU，两个线性变换复合仍等价于一个线性变换，子层的表达能力会明显受限",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 对：两个线性映射的复合 W1W2 仍是线性映射，没有激活函数时整个子层退化为一次线性变换，这正是 ReLU 不可省的原因。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析关于线性复合仍为线性的推理正确，并正确指出这是 ReLU 不可省的原因。"
+            },
+            {
+              "reasoning": "逐位置独立且相同的变换等价于核大小为 1 的卷积，C 正确。",
+              "option_text": "前馈网络可以看作两个核大小为 1 的卷积，因为它在每个位置上独立地做相同的变换",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 对：原文给出的等价描述就是“两个核大小为 1 的卷积”，核大小为 1 意味着只看单个位置、各位置共享权重。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析引用原文“两个核大小为 1 的卷积”并解释核大小为 1 意味着只看单个位置、共享权重，成立。"
+            },
+            {
+              "reasoning": "前馈网络对每个位置独立处理，不在位置之间传递信息，D 错误。",
+              "option_text": "前馈网络负责在序列位置之间交换信息，作用与多头注意力相同",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 错：前馈网络对每个位置独立处理，不在位置之间传递信息；跨位置的信息交互由注意力子层完成，两者分工不同。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析分两句说明前馈网络不跨位置交互、跨位置交互由注意力完成，与来源一致，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "A 对：ReLU 提供非线性；B 对：无激活时 W1W2 复合仍为线性，表达能力受限；C 对：逐位置相同变换等价于两个核大小为 1 的卷积；D 错：前馈网络逐位置独立处理，不跨位置交互，跨位置交互由注意力完成。答案 A,B,C。"
+        },
+        {
+          "question_id": "q5",
+          "option_checks": [
+            {
+              "reasoning": "Sublayer(x) 缺少残差连接与归一化，A 错误。",
+              "option_text": "Sublayer(x)",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 漏掉了残差连接与归一化。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 A 漏掉残差连接与归一化，判断准确。"
+            },
+            {
+              "reasoning": "LayerNorm(x)+Sublayer(x) 把归一化只作用于 x 再相加，与定义不符，B 错误。",
+              "option_text": "LayerNorm(x) + Sublayer(x)",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "B 把归一化只加在 x 上再与子层输出相加，顺序错误。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 B 把归一化只加在 x 上再与子层输出相加、顺序错误，成立。"
+            },
+            {
+              "reasoning": "LayerNorm(x + Sublayer(x)) 正是 Add&Norm 的定义，C 正确。",
+              "option_text": "LayerNorm(x + Sublayer(x))",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "Add&Norm 的含义是先做残差相加 x + Sublayer(x)，再对结果做层归一化，即 LayerNorm(x + Sublayer(x))。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析先残差相加再归一化的表述与来源一致。"
+            },
+            {
+              "reasoning": "x + LayerNorm(Sublayer(x)) 先归一化子层输出再与未归一化的 x 相加，与定义不符，D 错误。",
+              "option_text": "x + LayerNorm(Sublayer(x))",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 先归一化子层输出再与 x 相加，同样不是原文的写法，残差路径上的 x 未经归一化就与归一化结果相加，与定义不符。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 D 先归一化子层输出再与 x 相加、残差路径上的 x 未经归一化，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "Add&Norm 定义为先残差相加再层归一化，即 LayerNorm(x + Sublayer(x))，对应 C。"
+        },
+        {
+          "question_id": "q6",
+          "option_checks": [
+            {
+              "reasoning": "A 把前馈网络放在多头注意力之前，子层顺序颠倒。",
+              "option_text": "输入嵌入+位置编码 → 前馈网络 → Add&Norm → 多头注意力 → Add&Norm",
+              "option_index": 0,
+              "explanation_valid": true,
+              "explanation_excerpt": "A 把两个子层顺序颠倒了。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 A 把两个子层顺序颠倒，与编码器结构一致。"
+            },
+            {
+              "reasoning": "多头注意力在前、前馈网络在后，各接一个 Add&Norm，B 正确。",
+              "option_text": "输入嵌入+位置编码 → 多头注意力 → Add&Norm → 前馈网络 → Add&Norm",
+              "option_index": 1,
+              "explanation_valid": true,
+              "explanation_excerpt": "编码器每层有两个子层，顺序是多头自注意力在前、逐位置前馈网络在后，每个子层后各接一个 Add&Norm，所以是 嵌入+位置编码 → 多头注意力 → Add&Norm → 前馈网络 → Add&Norm。",
+              "independent_correct": true,
+              "explanation_reasoning": "解析完整复述了正确顺序及两个 Add&Norm 的位置，与来源一致。"
+            },
+            {
+              "reasoning": "C 在第一个子层之前就加 Add&Norm，位置错误。",
+              "option_text": "输入嵌入+位置编码 → Add&Norm → 多头注意力 → 前馈网络 → Add&Norm",
+              "option_index": 2,
+              "explanation_valid": true,
+              "explanation_excerpt": "C 在进入第一个子层前就加了 Add&Norm，而 Add&Norm 是子层之后的残差与归一化，位置错误。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 Add&Norm 是子层之后的残差与归一化，C 位置错误，成立。"
+            },
+            {
+              "reasoning": "D 把两个 Add&Norm 都堆在末尾，两个子层都没有各自的残差归一化，错误。",
+              "option_text": "输入嵌入+位置编码 → 多头注意力 → 前馈网络 → Add&Norm → Add&Norm",
+              "option_index": 3,
+              "explanation_valid": true,
+              "explanation_excerpt": "D 把两个 Add&Norm 都堆在末尾，等于两个子层都没有各自的残差归一化，与结构不符。",
+              "independent_correct": false,
+              "explanation_reasoning": "解析指出 D 使两个子层都缺少各自的残差归一化，与结构不符，批评成立。"
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "编码器单层：输入嵌入+位置编码 → 多头自注意力 → Add&Norm → 逐位置前馈网络 → Add&Norm，对应 B。"
+        },
+        {
+          "question_id": "q7",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "前馈网络对每个位置分别且相同地应用，各位置之间不互相读取，不承担位置间信息交换；跨位置交互由多头注意力完成。故题干说法错误。"
+        },
+        {
+          "question_id": "q8",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "公式 FFN(x)=max(0, xW1+b1)W2+b2；同层各位置共享同一套参数（等价于两个核大小为 1 的卷积，参数量不随序列长度增长），不同层使用不同参数以逐层学习不同特征变换。"
+        },
+        {
+          "question_id": "q9",
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 8,
+          "explanation_valid": true,
+          "calculation_checks": [],
+          "independent_solution": "数据流：输入嵌入+位置编码 → 多头自注意力 → Add&Norm（LayerNorm(x+Sublayer(x))）→ 逐位置前馈网络 → Add&Norm → 层输出。分工：注意力负责跨位置信息汇聚，前馈网络负责逐位置的非线性变换，不跨位置交互。"
+        }
+      ],
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "q1 通过参数共享与分层参数辨析，真实考查前馈网络机制，支持 req-transformer-basics 中的前馈网络部分。",
+          "locator": {
+            "question_id": "q1"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 考查 ReLU 非线性与核大小为 1 卷积的等价视角，落实前馈网络机制理解。",
+          "locator": {
+            "question_id": "q4"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 直接考查 Add&Norm 即 LayerNorm(x + Sublayer(x))，落实残差连接与层归一化机制。",
+          "locator": {
+            "question_id": "q5"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 考查编码器单层中注意力、Add&Norm、前馈网络的先后顺序，落实整体结构理解。",
+          "locator": {
+            "question_id": "q6"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q9 要求复述编码器单层完整前向流程并说明子层分工，综合落实核心结构要求。",
+          "locator": {
+            "question_id": "q9"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "q1 作为 o1 的练习，考查同层参数共享与分层参数不同，直接对应目标 o1。",
+          "locator": {
+            "question_id": "q1"
+          },
+          "binding_id": "n5-ffn-pipeline:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q8 作为 o1 的检测，要求写出 FFN 公式并解释参数共享与分层差异，完整覆盖 o1。",
+          "locator": {
+            "question_id": "q8"
+          },
+          "binding_id": "n5-ffn-pipeline:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q2 作为 o2 的练习，考查 d_model=512、d_ff=2048，对应 o2 的维度知识。",
+          "locator": {
+            "question_id": "q2"
+          },
+          "binding_id": "n5-ffn-pipeline:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q3 作为 o2 的练习，考查第一层 512→2048 的维度映射，对应 o2 的维度设置。",
+          "locator": {
+            "question_id": "q3"
+          },
+          "binding_id": "n5-ffn-pipeline:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q4 作为 o2 的检测，考查 ReLU 引入非线性与增强表示能力，对应 o2。",
+          "locator": {
+            "question_id": "q4"
+          },
+          "binding_id": "n5-ffn-pipeline:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q7 作为 o2 的检测，考查前馈网络逐位置独立、不跨位置交互，与 o2 的非线性/表示能力及分工理解相关。",
+          "locator": {
+            "question_id": "q7"
+          },
+          "binding_id": "n5-ffn-pipeline:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q5 作为 o3 的练习，考查 Add&Norm 形式，是完整前向流程中的关键环节。",
+          "locator": {
+            "question_id": "q5"
+          },
+          "binding_id": "n5-ffn-pipeline:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q6 作为 o3 的练习，考查嵌入+位置编码 → 多头注意力 → Add&Norm → 前馈网络 → Add&Norm 的顺序。",
+          "locator": {
+            "question_id": "q6"
+          },
+          "binding_id": "n5-ffn-pipeline:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "q9 作为 o3 的检测，要求完整复述数据流并说明分工，完整覆盖 o3。",
+          "locator": {
+            "question_id": "q9"
+          },
+          "binding_id": "n5-ffn-pipeline:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "727a873da2cb50b176a3de68fd0a008e7a5d9f9d01cc77a01d19e9b55c253e1b",
+      "numeric_verification": {
+        "version": 1,
+        "coverage": "source_bound_claims_and_literal_softmax",
+        "questions": [
+          {
+            "checks": [],
+            "question_index": 0
+          },
+          {
+            "checks": [],
+            "question_index": 1
+          },
+          {
+            "checks": [],
+            "question_index": 2
+          },
+          {
+            "checks": [],
+            "question_index": 3
+          },
+          {
+            "checks": [],
+            "question_index": 4
+          },
+          {
+            "checks": [],
+            "question_index": 5
+          },
+          {
+            "checks": [],
+            "question_index": 6
+          },
+          {
+            "checks": [],
+            "question_index": 7
+          },
+          {
+            "checks": [],
+            "question_index": 8
+          }
+        ]
+      },
+      "option_binding_version": 1
+    }
+  }
+}

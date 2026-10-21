@@ -1,0 +1,18 @@
+[
+  {
+    "document_id": "paper",
+    "role": "template",
+    "filename": "sample-paper.pdf",
+    "source_hash": "9b46f16642aadca0716376cfa9a6eb429b25de98fdcc0baa29267cd07dd52ba7",
+    "parser": "pypdf-validation-only",
+    "content": "Sorting practice paper\n1. Which statement about quick sort is correct?\nA. It is always stable. B. It partitions around a pivot.\nC. It always takes linear time. D. It needs a sorted input.\n2. Fill in the blank: Merge sort has worst-case time complexity ______.",
+    "content_list": [
+      {
+        "type": "text",
+        "text": "Sorting practice paper\n1. Which statement about quick sort is correct?\nA. It is always stable. B. It partitions around a pivot.\nC. It always takes linear time. D. It needs a sorted input.\n2. Fill in the blank: Merge sort has worst-case time complexity ______.",
+        "page_idx": 0
+      }
+    ],
+    "images": {}
+  }
+]

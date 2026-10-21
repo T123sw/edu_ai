@@ -1,0 +1,30 @@
+{
+  "authorizer.py": {
+    "before": "a32b0c7769f23ff6603f574e2bed96082d49e2786b78ee9a24bbd168473ba5d8",
+    "candidate": "0349219adc8707f580ca06c9c81d6290d9c77a3b5ef6f3ce23ecbe3fbbdec155"
+  },
+  "repository.py": {
+    "before": "fe14370cae20d445f81cde5223e2db4385ce9aa3152461f2857d9470efdcde09",
+    "candidate": "7f302c92931adc2ba69e9d9f7ed39acf8c23fdc284723b8789940b14f54ff545"
+  },
+  "lifecycle_repository.py": {
+    "before": "cddfbd0a6c1990a83107a56deaee2641a13e3d7b80a376608abe45dd3cc5e7d9",
+    "candidate": "0ca7a6e8679a1efe36203e8ac69f6b541000d27b2027719a3733e34831fda678"
+  },
+  "artifact_store.py": {
+    "before": "16a7e9f0b9187b50bd425d56ca739f24fe03cd8eb1e75a7e7329907a3b1f6454",
+    "candidate": "5209208736a9d1afffb2bb5a149084b878a77505147d01fa68c217c258ec44b9"
+  },
+  "progressive_delivery.py": {
+    "before": "e2bf38b3f375f754d9adb764d89fb547c3f7fa4cb0d594c00504af0219ad81e1",
+    "candidate": "2ee81526bcc1c1d302d17b9bb32fd912565956ad1f8d9393dfaf7c8c914f4958"
+  },
+  "adapters/document_store.py": {
+    "before": "fe7bfb5084873518a3d3e043d51982515e820ee9941edb8268f4c1d866240d03",
+    "candidate": "519f58603736c0ad02b394e5692586fe3adbb4e143c17f119e1212a8843d71db"
+  },
+  "adapters/targets.py": {
+    "before": "e93cf6148e70214e02405224d628037cc28b3df9553df883ba351f3c49838503",
+    "candidate": "24b160a32add610d14f961ee2b887820f51e4b450c182de054fcd164248caaff"
+  }
+}

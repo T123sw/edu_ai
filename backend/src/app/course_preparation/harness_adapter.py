@@ -20,16 +20,33 @@ class PreparationTools:
         self.lock = threading.Lock()
         self.result = None
         self.invalid = False
+        # One accepted decision completes this SDK turn. Business validation
+        # remains with its caller; a closing model reply adds no information.
+        self.stop_after_result = True
 
     def schemas(self):
         return [{'name': name, 'description': spec['description'], 'inputSchema': spec['parameters']}
                 for name, spec in self.tools.items()]
+
+    def validate_arguments(self, name, arguments):
+        from jsonschema import Draft202012Validator
+        from .harness_provider import ToolSchemaError
+        error = next(Draft202012Validator(self.tools[name]['parameters']).iter_errors(arguments), None)
+        if error is not None:
+            path = '.'.join(map(str, error.absolute_path)) or '$'
+            raise ToolSchemaError(f'{name}.{path}: {error.message}'[:1000])
 
     def call(self, name, arguments):
         with self.lock:
             if name not in self.tools or not isinstance(arguments, dict):
                 self.invalid = True
                 return {'ok': False, 'error': 'TOOL_NOT_AVAILABLE'}
+            from .harness_provider import ToolSchemaError
+            try:
+                self.validate_arguments(name, arguments)
+            except ToolSchemaError as exc:
+                self.invalid = True
+                return {'ok': False, 'error': exc.code, 'message': str(exc)}
             decision = (name, arguments)
             if self.result is not None and self.result != decision:
                 return {'ok': False, 'error': 'DEFERRED_TO_NEXT_STEP',
@@ -78,9 +95,13 @@ class HarnessPreparationAdapter(ResearchModelAdapter):
 
     def _run(self, context, tools, *, timeout, toolset, output_tokens=6000, temperature=.1):
         self.last_rejected_decision = None
+        if getattr(self, 'retry_only', False):
+            from .model_capacity import provider_output_limit
+            output_tokens = provider_output_limit(self.gateway.candidates[0])
         self.requested_output_tokens = output_tokens
         packet = context_packet(context, tools, max_tokens=self.context_tokens,
-                                output_tokens=output_tokens, native_skill=True)
+                                output_tokens=output_tokens, native_skill=True,
+                                enforce_capacity=not getattr(self, 'retry_only', False))
         output_tokens = packet['output_token_limit']
         self.last_packet_metadata = {k: v for k, v in packet.items() if k not in ('messages', 'skill')}
         self.last_packet_metadata['runtime'] = 'deepseek-harness'
@@ -107,7 +128,8 @@ class HarnessPreparationAdapter(ResearchModelAdapter):
                 continuous=getattr(toolset, 'continuous', False)))
             with harness_provider(self, timeout=timeout, toolset=toolset,
                                   output_tokens=output_tokens, temperature=temperature,
-                                  max_calls=60 if getattr(toolset, 'continuous', False) else 4) as (endpoint, credential, transport):
+                                  max_calls=(None if getattr(self, 'retry_only', False) else 60)
+                                  if getattr(toolset, 'continuous', False) else 4) as (endpoint, credential, transport):
                 harness = factory(provider='deepseek-official', model=self.gateway.candidates[0]['model_name'],
                     max_tokens=output_tokens, api_key=credential, base_url=endpoint, profile='sdk-minimal',
                     cwd=temp, dsh_home=str(Path(temp) / 'home'), patches=(str(patch),),

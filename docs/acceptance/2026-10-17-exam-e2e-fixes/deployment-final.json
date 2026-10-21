@@ -1,0 +1,14 @@
+{
+  "backend": "MainPID=1295789\nActiveEnterTimestamp=Sat 2026-10-17 09:36:38 UTC\n",
+  "new_history_api_loaded": false,
+  "new_paper_api_loaded": false,
+  "bridge_health": {
+    "status": "ok",
+    "version": "1.6.14",
+    "commit": "6cf793bd868ba5ecbe64722936d4be8fab5a01df",
+    "scope": "internal_bridge",
+    "exam_ready": false
+  },
+  "release_manifest_verified": true,
+  "frontend_published": false
+}

@@ -1,0 +1,188 @@
+{
+  "title": "为什么需要 Transformer：循环网络的串行瓶颈与设计决策",
+  "content": {
+    "title": "为什么需要 Transformer：循环网络的串行瓶颈与设计决策",
+    "format": "hyperframes/v1",
+    "exports": {
+      "video": "exports/lesson.mp4",
+      "project": "exports/project.zip",
+      "subtitles": "exports/lesson.srt"
+    },
+    "project": {
+      "id": "hf_resource_5738c863f8ed92df828e79604c6ddd25",
+      "entry": "index.html",
+      "digest": "8e365433cec3c1a3d6e276c3d5ebdbfb49c991b401a67844de0dd42636352617"
+    },
+    "timeline": {
+      "duration": 286.3,
+      "segments": [
+        {
+          "id": "frame01",
+          "end": 29.8,
+          "start": 0.0,
+          "title": "开场：一个问题",
+          "events": [],
+          "narration": "先问一个问题：为什么我们需要 Transformer？在这项工作出现之前，处理序列的主流做法是循环网络。它把一句话按位置切开，一个位置一个位置往前算。而 Transformer 的论文，第一段就点出了这种做法的代价：串行。接下来这几分钟，我们只讲清一件事：循环的代价到底是什么，Transformer 做了一次怎样的架构决策，以及拿掉循环之后，它必须补上哪两件事。",
+          "audio_path": "assets/audio/e194e5a1daaf6519383c755ac6a1b52b4afc3e3512f898046b0f52de10a9ffd3.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "标题落定，三个待答问题依次入位，右下方一条串行链作为预告亮起"
+        },
+        {
+          "id": "frame02",
+          "end": 64.3,
+          "start": 29.8,
+          "title": "沿位置分解",
+          "events": [],
+          "narration": "先看循环网络的计算方式。给定一条长度为 n 的输入序列，模型是沿着符号位置来分解计算的。在位置 t，模型产生一个隐藏状态，记作 h t；这个 h t，由上一时刻的隐藏状态 h t 减一，和位置 t 的输入 x t 共同决定。请注意箭头的方向：h t 要等 h t 减一，h t 减一又要等再前一个，一直退到序列开头。计算没有被分成 n 条并行的路，而是被串成了一条链。",
+          "audio_path": "assets/audio/b75c4f703cf8122a245ccdc39a73641805979e45a89f9274d424fbf84d7a648c.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "六个位置格就位，x 输入标签在下，隐藏状态 h 的依赖箭头逐条画出，右侧公式卡给出计算式"
+        },
+        {
+          "id": "frame03",
+          "end": 88.3,
+          "start": 64.3,
+          "title": "必须等前一步",
+          "events": [],
+          "narration": "把这条链摆到时间轴上，结论就很直观。位置一算完，位置二才开始；位置二算完，位置三才开始。每一步占用一格时间，谁也没法抢跑。论文把这个性质叫做固有串行性。它不是工程实现得不够好，而是计算图的形状本身决定的。序列有多长，这条链就有多长。",
+          "audio_path": "assets/audio/4f6c7dc4645bb4ae2d03bc7e6e639fb86baff530147b6fd57b018ded3c704468.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "时间轴上播放头逐格推进，每格必须等前一格完成，右上角步数计数器同步走到 6 / 6"
+        },
+        {
+          "id": "frame04",
+          "end": 124.3,
+          "start": 88.3,
+          "title": "顺序步数",
+          "events": [],
+          "narration": "串行本身还不是最要命的地方，要命的是它出现的位置。训练时我们最希望并行的地方，恰恰是同一个样本内部的不同位置。循环网络做不到：一个样本里的 n 个位置，只能排队算。序列一长，显存又限制了跨样本的批大小，这条链的长度没法用别的方式补回来。于是顺序步数停在 O(n)。换一种做法看：如果所有位置能在同一时刻一次算完，顺序步数就是 O(1)；序列再长，等待的轮次也不再增加。",
+          "audio_path": "assets/audio/89005483391ee12070b664b42a8d5d0f3b49cd4d6f48bba737b847f0f404997e.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左右分屏：左侧琥珀色六级阶梯与 O(n) 计数，右侧青色一次展开的全连接扇形与 O(1) 计数"
+        },
+        {
+          "id": "frame05",
+          "end": 150.5,
+          "start": 124.3,
+          "title": "架构决策",
+          "events": [],
+          "narration": "Transformer 的回应，是一次非常干脆的架构决策：不用循环，也不用卷积。整个模型只用两种部件搭起来——注意力，和逐位置的前馈网络。这句话听起来像口号，但它是可以逐条兑现的。论文的说法是，完全依靠注意力来建立输入与输出之间的全局依赖。接下来我们看，这个决定换来了什么。",
+          "audio_path": "assets/audio/eb3864ac7017b75cfdb2d55dd8c916a2c4db8333050f46c685daf57ac90441cd.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "循环与卷积被划掉，注意力与逐位置前馈两枚青色 chip 升到中央并组成整个模型"
+        },
+        {
+          "id": "frame06",
+          "end": 185.5,
+          "start": 150.5,
+          "title": "三项效果",
+          "events": [],
+          "narration": "第一项，消除串行瓶颈。编码器里所有位置的计算可以一次完成，训练时的解码器也是如此，顺序步数从 O(n) 降到 O(1)。第二项，建立直接连接。自注意力让每个位置直接读取序列中任意一个位置，路径长度是 O(1)，不必再沿着 n 个时间步传话。第三项，统一计算模式。整个模型由同构的层堆叠而成，每一层只有注意力子层和前馈子层两种部件。结构简单，也就更容易堆深。",
+          "audio_path": "assets/audio/6f4f0fbaef6ebd768925f84d9a6ba857d064620d234e000e697bdfea42f20bd0.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "三块编号结果卡依次组装：消除串行瓶颈、建立直接连接、统一计算模式，各配一张微型示意图"
+        },
+        {
+          "id": "frame07",
+          "end": 214.9,
+          "start": 185.5,
+          "title": "补上顺序信息",
+          "events": [],
+          "narration": "但拿掉循环，是有账单的。第一笔：顺序信息没有了。循环网络把顺序编码在时间步里，注意力却没有这个概念，它看到的更像一个集合。如果只把词同时丢进去，让每个位置直接读所有位置，那么猫追狗和狗追猫，在模型眼里没有区别。所以必须显式地注入位置信息，这就是位置编码：给每个位置一个可区分的信号，让顺序重新变得可知。",
+          "audio_path": "assets/audio/3fa0284b548085da29d5cdd9b6f5bf3c4ff52fe3ec25ea5636a9bafd1fc6eea1.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "两种词序坍缩成同一个堆，等号出现；随后位置编号重新贴上，两种词序重新分开"
+        },
+        {
+          "id": "frame08",
+          "end": 250.9,
+          "start": 214.9,
+          "title": "撑住深层堆叠",
+          "events": [],
+          "narration": "第二笔：深层堆叠的训练稳定性。循环网络靠时间步反复复用同一组参数，它的深度是有限的。Transformer 选择把同样的层堆很多次，深度一下子变成了显式设计出来的量。层一深，梯度就容易在传递中衰减，训练难以收敛。残差连接把子层的输入直接加到输出上，给梯度留了一条直通的路；归一化则把每一层的数值尺度稳住。这两件事加在一起，深堆叠才真的训得起来。",
+          "audio_path": "assets/audio/69024a31fa8b9882be5f14b7f2e346c9a8673da3b1456966ce3dc6af4150e036.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "左侧层堆叠升起，右侧信号线在无残差时逐层衰减；随后残差旁路弧线画出、归一化刻度加入，信号线重新变稳"
+        },
+        {
+          "id": "frame09",
+          "end": 286.3,
+          "start": 250.9,
+          "title": "佐证与收束",
+          "events": [],
+          "narration": "这些决定换来了什么？论文给了一个很简洁的数据点：这个模型在八块 P100 GPU 上训练十二个小时，就达到了当时新的翻译质量最优。十二小时在今天不算什么，但它说明了关键的一点：这个架构可以显著并行化，训练时间不再被序列长度线性锁住。所以，为什么需要 Transformer？因为它用一次明确的架构决策，把串行瓶颈换成了一笔必须付清的账：显式的位置信息，加上撑住深度的残差与归一化。",
+          "audio_path": "assets/audio/82655d4ca0c725bbf04786c9d9a42b9a4195474034c38ee98e31b17feb1b0687.mp3",
+          "source_ids": [],
+          "objective_ids": [],
+          "visual_description": "8 块 P100 与 12 小时两个数字计数到位，随后三行要点收回全片结论，来源标注留在右下"
+        }
+      ]
+    },
+    "verification": {
+      "method": "ffprobe_native_export_and_timeline_contract",
+      "passed": true,
+      "audio_stream": true,
+      "video_stream": true,
+      "content_review": "not_performed_by_host",
+      "duration_seconds": 286.3
+    }
+  },
+  "limitations": [],
+  "artifact_type": "classroom",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.7716666666666665
+      },
+      "generator": "hyperframes-native-workflow",
+      "spec_digest": "8ff619aeac7655c470ac8c2633e1d4fbeda9ff225e8365e4c3f519b6da830c5e",
+      "capabilities": {
+        "animation": true,
+        "narration": true,
+        "video_export": true,
+        "project_export": true
+      },
+      "render_checks": {
+        "issues": [],
+        "method": "ffprobe_native_export_and_timeline_contract",
+        "native": true,
+        "passed": true,
+        "audio_stream": true,
+        "video_stream": true,
+        "content_review": "not_performed_by_host",
+        "duration_seconds": 286.3
+      },
+      "content_digest": "ec26c86f98e633e77d492b34e9516418b80f022e0752e36684b4a5365049324c",
+      "media_duration": {
+        "basis": "measured",
+        "method": "ffprobe native rendered video",
+        "value_minutes": 4.7716666666666665
+      },
+      "schema_version": 1,
+      "alignment_policy": "optional_native_classroom_v1",
+      "alignment_status": "not_generated",
+      "objective_bindings": [],
+      "applied_requirements": [],
+      "teaching_context_digest": "d98eba356eaa88f09d39e0426ed0071b6a1fae524727f4a3b103d7ca8b872f31"
+    },
+    "resource_review": {
+      "method": "structural_validation",
+      "policy": "classroom-no-extra-review-v1",
+      "reason": "按用户要求，生成后不做额外模型审查；仅校验结构与可定位性。",
+      "decision": "skipped",
+      "resource_type": "classroom",
+      "content_sha256": "638115c325988a8fd4f30c3168145bf9ce2fb3d6ba1d46cd5b197f8a95082467",
+      "preparation_sha256": "5245de6dc1e3ea4c2e91f81a7bbf7a6720229e824ba6d52afe276a74cd79e48d"
+    }
+  }
+}

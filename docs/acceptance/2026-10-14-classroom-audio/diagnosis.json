@@ -1,0 +1,46 @@
+{
+  "course_id": "learn-f13e2b0434204729a7835fff8298595e",
+  "resources": [
+    {
+      "resource_id": "resource_c9f6cd1e447b80dbd4e2303e9c7af5f3",
+      "scenes": 9,
+      "speech_actions": 67,
+      "actions_with_audio": 0
+    },
+    {
+      "resource_id": "resource_e430b696a7531691d58c5f10fb281c5c",
+      "scenes": 6,
+      "speech_actions": 44,
+      "actions_with_audio": 0
+    },
+    {
+      "resource_id": "resource_22ad56d73f7a75d3b386609f3f5c1d3a",
+      "scenes": 8,
+      "speech_actions": 65,
+      "actions_with_audio": 0
+    },
+    {
+      "resource_id": "resource_68b4bad79240a6882987faede8d99160",
+      "scenes": 6,
+      "speech_actions": 49,
+      "actions_with_audio": 0
+    }
+  ],
+  "browser_before": {
+    "voices": 0,
+    "speech_error": "synthesis-failed",
+    "timeline_state": "playing"
+  },
+  "tts_provider": "local qwen3-tts",
+  "first_whole_action": {
+    "generation_seconds": 77.705,
+    "audio_duration_seconds": 36.216
+  },
+  "first_segment": {
+    "generation_seconds": 9.29,
+    "audio_duration_seconds": 4.128,
+    "mean_volume_db": -19.6,
+    "peak_volume_db": -3.1
+  },
+  "production_database_writes": 0
+}

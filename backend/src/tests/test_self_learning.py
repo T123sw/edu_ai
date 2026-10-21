@@ -11,6 +11,9 @@ from core.course_storage import CourseStorageManager
 
 @pytest.fixture
 def service(tmp_path, monkeypatch):
+    for flag in ['LEARNING_SESSION_V1_ENABLED', 'LEARNING_AGENT_V1_ENABLED', 'LEARNING_PROGRESS_V1_ENABLED',
+                 'LEARNING_ENRICHMENT_V1_ENABLED', 'LEARNING_PREPARATION_V1_ENABLED', 'LEARNING_SCOPED_ROLLOUT', 'COURSE_PREPARATION_ENABLED']:
+        monkeypatch.setenv(flag, 'false')
     for key in ['APP_STATE', 'MATERIAL', 'KNOWLEDGE', 'COURSE', 'COURSE_MEMBERSHIP']:
         monkeypatch.setenv(key + '_PERSISTENCE_MODE', 'json')
     manager = CourseStorageManager(root_path=str(tmp_path / 'courses'))
@@ -43,7 +46,7 @@ def test_account_isolation_and_restart(service):
         service.patch('course', 'alice', {'progress': {'outside': {'note': 'bad'}}})
 
 
-def test_dialogue_chapter_isolation_global_memory_and_idempotency(service):
+def test_dialogue_course_context_global_memory_and_idempotency(service):
     service.patch('course', 'alice', {'understanding': {'b': 'review'}})
     request = str(uuid4())
     service.answer('course', 'alice', 'a', '变量是什么', request, 'pending:a')
@@ -52,7 +55,7 @@ def test_dialogue_chapter_isolation_global_memory_and_idempotency(service):
     assert '条件' in service.test_model.calls[0][0]['content']
     assert 'review' in service.test_model.calls[0][0]['content']
     service.answer('course', 'alice', 'b', '条件是什么', str(uuid4()), 'pending:b')
-    assert all('变量是什么' not in m['content'] for m in service.test_model.calls[1])
+    assert any('变量是什么' in m['content'] for m in service.test_model.calls[1])
     assert service.room('course', 'bob')['messages'] == []
     assert len(service.room('course', 'alice')['messages']) == 4
 

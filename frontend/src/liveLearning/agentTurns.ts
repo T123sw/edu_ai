@@ -1,4 +1,4 @@
-import type { ClassroomReadingContext } from '../openmaic/classroomReading';
+import type { ClassroomReadingContext } from '../classroom/reading';
 import { serialPolling } from './serialPolling';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiRequest } from '../stitch/api/client';
@@ -15,7 +15,7 @@ export function answerErrorMessage(code?: string): string {
   return '本次答疑未完成，可以重试或继续阅读。';
 }
 export function useAnswerTurns(course: string, topic: string, enabled: boolean, owner: string) {
-  const key = JSON.stringify([owner, course, topic]);
+  const key = JSON.stringify([owner, course]);
   const path = `/api/self-learning/courses/${encodeURIComponent(course)}/topics/${encodeURIComponent(topic)}/agent-turns`;
   const [cache, setCache] = useState<Record<string, AnswerTurn[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -41,7 +41,7 @@ export function useAnswerTurns(course: string, topic: string, enabled: boolean, 
   }, [enabled, load]);
   const submit = async (question: string, reading: ReadingSnapshot) => {
     if (!authorized()) throw new Error('账号已切换，请刷新页面');
-    const snapshot = { ...reading };
+    const snapshot = structuredClone(reading);
     delete snapshot.question_prompt;
     const fingerprint = JSON.stringify([question, snapshot]);
     let pending = inflight.current.get(key);

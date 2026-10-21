@@ -1,0 +1,22 @@
+{
+  "model_boundary": "live",
+  "pdf_parser": "pypdf-validation-only",
+  "production_writes": false,
+  "cases": [
+    {
+      "mode": "mimic",
+      "saved": false,
+      "error_type": "DurableTaskExecutionError",
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE",
+      "seconds": 109.28,
+      "events": 2308
+    },
+    {
+      "mode": "mimic",
+      "attempt": "explicit_retry",
+      "saved": false,
+      "error_code": "EXAM_UPSTREAM_INCOMPLETE",
+      "seconds": 53.16
+    }
+  ]
+}

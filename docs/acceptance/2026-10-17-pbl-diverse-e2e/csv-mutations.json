@@ -1,0 +1,190 @@
+[
+  {
+    "name": "average-rounded-to-integer",
+    "baselinePasses": true,
+    "independentRequirementViolated": true,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "input-controls-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"score-input\" 的可见状态\n   实际：true\n✓ 2. 检查 \"score-input\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"analyze-button\" 的可见状态\n   实际：true\n✓ 4. 检查 \"analyze-button\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "valid-rows-table",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四, 75 \\n王五,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 的可见状态\n   实际：true\n✓ 4. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 5. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"李四75\"\n✓ 6. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n✓ 7. 在 \"score-input\" 输入 \"甲,0\\n乙,100\\n丙,101\\n丁,-1\"\n✓ 8. 点击 \"analyze-button\"\n✓ 9. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"甲0\"\n✓ 10. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"乙100\"\n✓ 11. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n✓ 12. 在 \"score-input\" 输入 \"张三,90\\n\\n ,50\\n李四,80\"\n✓ 13. 点击 \"analyze-button\"\n✓ 14. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 15. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"李四80\"\n✓ 16. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "invalid-lines-listed",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\\n\\n ,50\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"invalid-list\" 的可见状态\n   实际：true\n✓ 4. 检查 \"invalid-item\" 的数量\n   实际：2\n✓ 5. 检查 第 1 个 \"invalid-item\" 的显示文字\n   实际：\"第 2 行：分数不是数字\"\n✓ 6. 检查 第 2 个 \"invalid-item\" 的显示文字\n   实际：\"第 4 行：姓名为空\"\n✓ 7. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：2\n✓ 8. 在 \"score-input\" 输入 \"甲,50\\n乙 60\\n丙,120\"\n✓ 9. 点击 \"analyze-button\"\n✓ 10. 检查 \"invalid-item\" 的数量\n   实际：2\n✓ 11. 检查 第 1 个 \"invalid-item\" 的显示文字\n   实际：\"第 2 行：缺少逗号分隔\"\n✓ 12. 检查 第 2 个 \"invalid-item\" 的显示文字\n   实际：\"第 3 行：分数超出 0 到 100\"\n✓ 13. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：2\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-values",
+          "status": "failed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,80\\n王五,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"stat-count\" 的显示文字\n   实际：\"2\"\n✓ 4. 检查 \"stat-average\" 的显示文字\n   实际：\"85.00\"\n✓ 5. 检查 \"stat-max\" 的显示文字\n   实际：\"90\"\n✓ 6. 在 \"score-input\" 输入 \"甲,0\\n乙,100\\n甲,100\"\n✓ 7. 点击 \"analyze-button\"\n✓ 8. 检查 \"stat-count\" 的显示文字\n   实际：\"3\"\n× 9. 检查 \"stat-average\" 的显示文字\n预期：\"66.67\"\n实际：\"67.00\""
+        },
+        {
+          "caseId": "stats-empty",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,abc\\n李四,120\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"stat-count\" 的显示文字\n   实际：\"0\"\n✓ 4. 检查 \"stat-average\" 的显示文字\n   实际：\"—\"\n✓ 5. 检查 \"stat-max\" 的显示文字\n   实际：\"—\"\n✓ 6. 在 \"score-input\" 输入 \"\\n   \\n\"\n✓ 7. 点击 \"analyze-button\"\n✓ 8. 检查 \"stat-count\" 的显示文字\n   实际：\"0\"\n✓ 9. 检查 \"stat-average\" 的显示文字\n   实际：\"—\"\n✓ 10. 检查 \"stat-max\" 的显示文字\n   实际：\"—\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reanalyze-replaces",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 4. 检查 \"invalid-item\" 的数量\n   实际：1\n✓ 5. 在 \"score-input\" 输入 \"赵六,60\\n钱七,70\"\n✓ 6. 点击 \"analyze-button\"\n✓ 7. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n✓ 8. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"赵六60\"\n✓ 9. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"钱七70\"\n✓ 10. 检查 \"stat-count\" 的显示文字\n   实际：\"2\"\n✓ 11. 检查 \"stat-average\" 的显示文字\n   实际：\"65.00\"\n✓ 12. 检查 \"stat-max\" 的显示文字\n   实际：\"70\"\n✓ 13. 检查 \"invalid-item\" 的数量\n   实际：0\n✓ 14. 在 \"score-input\" 输入 \"丙,abc\\n丁,80\"\n✓ 15. 点击 \"analyze-button\"\n✓ 16. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：2\n✓ 17. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"丁80\"\n✓ 18. 检查 \"invalid-item\" 的数量\n   实际：1\n✓ 19. 检查 第 1 个 \"invalid-item\" 的显示文字\n   实际：\"第 1 行：分数不是数字\"\n✓ 20. 检查 \"stat-count\" 的显示文字\n   实际：\"1\"\n✓ 21. 检查 \"stat-average\" 的显示文字\n   实际：\"80.00\"\n✓ 22. 检查 \"stat-max\" 的显示文字\n   实际：\"80\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "clear-resets",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 的可见状态\n   实际：true\n✓ 4. 检查 \"stat-count\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"invalid-item\" 的数量\n   实际：1\n✓ 6. 点击 \"clear-button\"\n✓ 7. 检查 \"score-input\" 的输入值\n   实际：\"\"\n✓ 8. 检查 \"valid-table\" 的数量\n   实际：0\n✓ 9. 检查 \"stat-count\" 的数量\n   实际：0\n✓ 10. 检查 \"invalid-item\" 的数量\n   实际：0\n✓ 11. 在 \"score-input\" 输入 \"甲,50\\n乙,60\"\n✓ 12. 点击 \"analyze-button\"\n✓ 13. 检查 \"stat-count\" 的显示文字\n   实际：\"2\"\n✓ 14. 点击 \"clear-button\"\n✓ 15. 检查 \"score-input\" 的输入值\n   实际：\"\"\n✓ 16. 检查 \"valid-table\" 的数量\n   实际：0\n✓ 17. 检查 \"stat-average\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 4368.7884380000005
+    }
+  },
+  {
+    "name": "reanalyze-appends-old-records",
+    "baselinePasses": true,
+    "independentRequirementViolated": true,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "input-controls-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"score-input\" 的可见状态\n   实际：true\n✓ 2. 检查 \"score-input\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"analyze-button\" 的可见状态\n   实际：true\n✓ 4. 检查 \"analyze-button\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "valid-rows-table",
+          "status": "failed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四, 75 \\n王五,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 的可见状态\n   实际：true\n✓ 4. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 5. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"李四75\"\n✓ 6. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n✓ 7. 在 \"score-input\" 输入 \"甲,0\\n乙,100\\n丙,101\\n丁,-1\"\n✓ 8. 点击 \"analyze-button\"\n× 9. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n预期：\"甲0\"\n实际：\"张三90\""
+        },
+        {
+          "caseId": "invalid-lines-listed",
+          "status": "failed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\\n\\n ,50\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"invalid-list\" 的可见状态\n   实际：true\n✓ 4. 检查 \"invalid-item\" 的数量\n   实际：2\n✓ 5. 检查 第 1 个 \"invalid-item\" 的显示文字\n   实际：\"第 2 行：分数不是数字\"\n✓ 6. 检查 第 2 个 \"invalid-item\" 的显示文字\n   实际：\"第 4 行：姓名为空\"\n✓ 7. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：2\n✓ 8. 在 \"score-input\" 输入 \"甲,50\\n乙 60\\n丙,120\"\n✓ 9. 点击 \"analyze-button\"\n✓ 10. 检查 \"invalid-item\" 的数量\n   实际：2\n✓ 11. 检查 第 1 个 \"invalid-item\" 的显示文字\n   实际：\"第 2 行：缺少逗号分隔\"\n✓ 12. 检查 第 2 个 \"invalid-item\" 的显示文字\n   实际：\"第 3 行：分数超出 0 到 100\"\n× 13. 检查 \"valid-table\" 中的 \"row\" 的数量\n预期：2\n实际：3"
+        },
+        {
+          "caseId": "stats-values",
+          "status": "failed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,80\\n王五,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"stat-count\" 的显示文字\n   实际：\"2\"\n✓ 4. 检查 \"stat-average\" 的显示文字\n   实际：\"85.00\"\n✓ 5. 检查 \"stat-max\" 的显示文字\n   实际：\"90\"\n✓ 6. 在 \"score-input\" 输入 \"甲,0\\n乙,100\\n甲,100\"\n✓ 7. 点击 \"analyze-button\"\n× 8. 检查 \"stat-count\" 的显示文字\n预期：\"3\"\n实际：\"5\""
+        },
+        {
+          "caseId": "stats-empty",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,abc\\n李四,120\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"stat-count\" 的显示文字\n   实际：\"0\"\n✓ 4. 检查 \"stat-average\" 的显示文字\n   实际：\"—\"\n✓ 5. 检查 \"stat-max\" 的显示文字\n   实际：\"—\"\n✓ 6. 在 \"score-input\" 输入 \"\\n   \\n\"\n✓ 7. 点击 \"analyze-button\"\n✓ 8. 检查 \"stat-count\" 的显示文字\n   实际：\"0\"\n✓ 9. 检查 \"stat-average\" 的显示文字\n   实际：\"—\"\n✓ 10. 检查 \"stat-max\" 的显示文字\n   实际：\"—\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reanalyze-replaces",
+          "status": "failed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 4. 检查 \"invalid-item\" 的数量\n   实际：1\n✓ 5. 在 \"score-input\" 输入 \"赵六,60\\n钱七,70\"\n✓ 6. 点击 \"analyze-button\"\n× 7. 检查 \"valid-table\" 中的 \"row\" 的数量\n预期：3\n实际：4"
+        },
+        {
+          "caseId": "clear-resets",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 的可见状态\n   实际：true\n✓ 4. 检查 \"stat-count\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"invalid-item\" 的数量\n   实际：1\n✓ 6. 点击 \"clear-button\"\n✓ 7. 检查 \"score-input\" 的输入值\n   实际：\"\"\n✓ 8. 检查 \"valid-table\" 的数量\n   实际：0\n✓ 9. 检查 \"stat-count\" 的数量\n   实际：0\n✓ 10. 检查 \"invalid-item\" 的数量\n   实际：0\n✓ 11. 在 \"score-input\" 输入 \"甲,50\\n乙,60\"\n✓ 12. 点击 \"analyze-button\"\n✓ 13. 检查 \"stat-count\" 的显示文字\n   实际：\"2\"\n✓ 14. 点击 \"clear-button\"\n✓ 15. 检查 \"score-input\" 的输入值\n   实际：\"\"\n✓ 16. 检查 \"valid-table\" 的数量\n   实际：0\n✓ 17. 检查 \"stat-average\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 7593.943343000003
+    }
+  },
+  {
+    "name": "clear-leaves-input",
+    "baselinePasses": true,
+    "independentRequirementViolated": true,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "input-controls-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"score-input\" 的可见状态\n   实际：true\n✓ 2. 检查 \"score-input\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"analyze-button\" 的可见状态\n   实际：true\n✓ 4. 检查 \"analyze-button\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "valid-rows-table",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四, 75 \\n王五,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 的可见状态\n   实际：true\n✓ 4. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 5. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"李四75\"\n✓ 6. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n✓ 7. 在 \"score-input\" 输入 \"甲,0\\n乙,100\\n丙,101\\n丁,-1\"\n✓ 8. 点击 \"analyze-button\"\n✓ 9. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"甲0\"\n✓ 10. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"乙100\"\n✓ 11. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n✓ 12. 在 \"score-input\" 输入 \"张三,90\\n\\n ,50\\n李四,80\"\n✓ 13. 点击 \"analyze-button\"\n✓ 14. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 15. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"李四80\"\n✓ 16. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "invalid-lines-listed",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\\n\\n ,50\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"invalid-list\" 的可见状态\n   实际：true\n✓ 4. 检查 \"invalid-item\" 的数量\n   实际：2\n✓ 5. 检查 第 1 个 \"invalid-item\" 的显示文字\n   实际：\"第 2 行：分数不是数字\"\n✓ 6. 检查 第 2 个 \"invalid-item\" 的显示文字\n   实际：\"第 4 行：姓名为空\"\n✓ 7. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：2\n✓ 8. 在 \"score-input\" 输入 \"甲,50\\n乙 60\\n丙,120\"\n✓ 9. 点击 \"analyze-button\"\n✓ 10. 检查 \"invalid-item\" 的数量\n   实际：2\n✓ 11. 检查 第 1 个 \"invalid-item\" 的显示文字\n   实际：\"第 2 行：缺少逗号分隔\"\n✓ 12. 检查 第 2 个 \"invalid-item\" 的显示文字\n   实际：\"第 3 行：分数超出 0 到 100\"\n✓ 13. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：2\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-values",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,80\\n王五,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"stat-count\" 的显示文字\n   实际：\"2\"\n✓ 4. 检查 \"stat-average\" 的显示文字\n   实际：\"85.00\"\n✓ 5. 检查 \"stat-max\" 的显示文字\n   实际：\"90\"\n✓ 6. 在 \"score-input\" 输入 \"甲,0\\n乙,100\\n甲,100\"\n✓ 7. 点击 \"analyze-button\"\n✓ 8. 检查 \"stat-count\" 的显示文字\n   实际：\"3\"\n✓ 9. 检查 \"stat-average\" 的显示文字\n   实际：\"66.67\"\n✓ 10. 检查 \"stat-max\" 的显示文字\n   实际：\"100\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-empty",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,abc\\n李四,120\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"stat-count\" 的显示文字\n   实际：\"0\"\n✓ 4. 检查 \"stat-average\" 的显示文字\n   实际：\"—\"\n✓ 5. 检查 \"stat-max\" 的显示文字\n   实际：\"—\"\n✓ 6. 在 \"score-input\" 输入 \"\\n   \\n\"\n✓ 7. 点击 \"analyze-button\"\n✓ 8. 检查 \"stat-count\" 的显示文字\n   实际：\"0\"\n✓ 9. 检查 \"stat-average\" 的显示文字\n   实际：\"—\"\n✓ 10. 检查 \"stat-max\" 的显示文字\n   实际：\"—\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reanalyze-replaces",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 4. 检查 \"invalid-item\" 的数量\n   实际：1\n✓ 5. 在 \"score-input\" 输入 \"赵六,60\\n钱七,70\"\n✓ 6. 点击 \"analyze-button\"\n✓ 7. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n✓ 8. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"赵六60\"\n✓ 9. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"钱七70\"\n✓ 10. 检查 \"stat-count\" 的显示文字\n   实际：\"2\"\n✓ 11. 检查 \"stat-average\" 的显示文字\n   实际：\"65.00\"\n✓ 12. 检查 \"stat-max\" 的显示文字\n   实际：\"70\"\n✓ 13. 检查 \"invalid-item\" 的数量\n   实际：0\n✓ 14. 在 \"score-input\" 输入 \"丙,abc\\n丁,80\"\n✓ 15. 点击 \"analyze-button\"\n✓ 16. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：2\n✓ 17. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"丁80\"\n✓ 18. 检查 \"invalid-item\" 的数量\n   实际：1\n✓ 19. 检查 第 1 个 \"invalid-item\" 的显示文字\n   实际：\"第 1 行：分数不是数字\"\n✓ 20. 检查 \"stat-count\" 的显示文字\n   实际：\"1\"\n✓ 21. 检查 \"stat-average\" 的显示文字\n   实际：\"80.00\"\n✓ 22. 检查 \"stat-max\" 的显示文字\n   实际：\"80\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "clear-resets",
+          "status": "failed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 的可见状态\n   实际：true\n✓ 4. 检查 \"stat-count\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"invalid-item\" 的数量\n   实际：1\n✓ 6. 点击 \"clear-button\"\n× 7. 检查 \"score-input\" 的输入值\n预期：\"\"\n实际：\"张三,90\\n李四,abc\""
+        }
+      ],
+      "durationMs": 4046.120884
+    }
+  },
+  {
+    "name": "invalid-line-number-off-by-one",
+    "baselinePasses": true,
+    "independentRequirementViolated": true,
+    "missedByGeneratedChecks": false,
+    "generated": {
+      "passed": false,
+      "results": [
+        {
+          "caseId": "input-controls-visible",
+          "status": "passed",
+          "message": "✓ 1. 检查 \"score-input\" 的可见状态\n   实际：true\n✓ 2. 检查 \"score-input\" 的可操作状态\n   实际：true\n✓ 3. 检查 \"analyze-button\" 的可见状态\n   实际：true\n✓ 4. 检查 \"analyze-button\" 的可操作状态\n   实际：true\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "valid-rows-table",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四, 75 \\n王五,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 的可见状态\n   实际：true\n✓ 4. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 5. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"李四75\"\n✓ 6. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n✓ 7. 在 \"score-input\" 输入 \"甲,0\\n乙,100\\n丙,101\\n丁,-1\"\n✓ 8. 点击 \"analyze-button\"\n✓ 9. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"甲0\"\n✓ 10. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"乙100\"\n✓ 11. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n✓ 12. 在 \"score-input\" 输入 \"张三,90\\n\\n ,50\\n李四,80\"\n✓ 13. 点击 \"analyze-button\"\n✓ 14. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 15. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"李四80\"\n✓ 16. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "invalid-lines-listed",
+          "status": "failed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\\n\\n ,50\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"invalid-list\" 的可见状态\n   实际：true\n✓ 4. 检查 \"invalid-item\" 的数量\n   实际：2\n× 5. 检查 第 1 个 \"invalid-item\" 的显示文字\n预期：\"第 2 行：分数不是数字\"\n实际：\"第 1 行：分数不是数字\""
+        },
+        {
+          "caseId": "stats-values",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,80\\n王五,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"stat-count\" 的显示文字\n   实际：\"2\"\n✓ 4. 检查 \"stat-average\" 的显示文字\n   实际：\"85.00\"\n✓ 5. 检查 \"stat-max\" 的显示文字\n   实际：\"90\"\n✓ 6. 在 \"score-input\" 输入 \"甲,0\\n乙,100\\n甲,100\"\n✓ 7. 点击 \"analyze-button\"\n✓ 8. 检查 \"stat-count\" 的显示文字\n   实际：\"3\"\n✓ 9. 检查 \"stat-average\" 的显示文字\n   实际：\"66.67\"\n✓ 10. 检查 \"stat-max\" 的显示文字\n   实际：\"100\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "stats-empty",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,abc\\n李四,120\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"stat-count\" 的显示文字\n   实际：\"0\"\n✓ 4. 检查 \"stat-average\" 的显示文字\n   实际：\"—\"\n✓ 5. 检查 \"stat-max\" 的显示文字\n   实际：\"—\"\n✓ 6. 在 \"score-input\" 输入 \"\\n   \\n\"\n✓ 7. 点击 \"analyze-button\"\n✓ 8. 检查 \"stat-count\" 的显示文字\n   实际：\"0\"\n✓ 9. 检查 \"stat-average\" 的显示文字\n   实际：\"—\"\n✓ 10. 检查 \"stat-max\" 的显示文字\n   实际：\"—\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "reanalyze-replaces",
+          "status": "failed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"张三90\"\n✓ 4. 检查 \"invalid-item\" 的数量\n   实际：1\n✓ 5. 在 \"score-input\" 输入 \"赵六,60\\n钱七,70\"\n✓ 6. 点击 \"analyze-button\"\n✓ 7. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：3\n✓ 8. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"赵六60\"\n✓ 9. 检查 \"valid-table\" 中的 第 3 个 \"row\" 的显示文字\n   实际：\"钱七70\"\n✓ 10. 检查 \"stat-count\" 的显示文字\n   实际：\"2\"\n✓ 11. 检查 \"stat-average\" 的显示文字\n   实际：\"65.00\"\n✓ 12. 检查 \"stat-max\" 的显示文字\n   实际：\"70\"\n✓ 13. 检查 \"invalid-item\" 的数量\n   实际：0\n✓ 14. 在 \"score-input\" 输入 \"丙,abc\\n丁,80\"\n✓ 15. 点击 \"analyze-button\"\n✓ 16. 检查 \"valid-table\" 中的 \"row\" 的数量\n   实际：2\n✓ 17. 检查 \"valid-table\" 中的 第 2 个 \"row\" 的显示文字\n   实际：\"丁80\"\n✓ 18. 检查 \"invalid-item\" 的数量\n   实际：1\n× 19. 检查 第 1 个 \"invalid-item\" 的显示文字\n预期：\"第 1 行：分数不是数字\"\n实际：\"第 0 行：分数不是数字\""
+        },
+        {
+          "caseId": "clear-resets",
+          "status": "passed",
+          "message": "✓ 1. 在 \"score-input\" 输入 \"张三,90\\n李四,abc\"\n✓ 2. 点击 \"analyze-button\"\n✓ 3. 检查 \"valid-table\" 的可见状态\n   实际：true\n✓ 4. 检查 \"stat-count\" 的显示文字\n   实际：\"1\"\n✓ 5. 检查 \"invalid-item\" 的数量\n   实际：1\n✓ 6. 点击 \"clear-button\"\n✓ 7. 检查 \"score-input\" 的输入值\n   实际：\"\"\n✓ 8. 检查 \"valid-table\" 的数量\n   实际：0\n✓ 9. 检查 \"stat-count\" 的数量\n   实际：0\n✓ 10. 检查 \"invalid-item\" 的数量\n   实际：0\n✓ 11. 在 \"score-input\" 输入 \"甲,50\\n乙,60\"\n✓ 12. 点击 \"analyze-button\"\n✓ 13. 检查 \"stat-count\" 的显示文字\n   实际：\"2\"\n✓ 14. 点击 \"clear-button\"\n✓ 15. 检查 \"score-input\" 的输入值\n   实际：\"\"\n✓ 16. 检查 \"valid-table\" 的数量\n   实际：0\n✓ 17. 检查 \"stat-average\" 的数量\n   实际：0\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 5225.336322000003
+    }
+  }
+]

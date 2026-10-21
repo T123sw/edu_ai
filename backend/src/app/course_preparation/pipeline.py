@@ -20,7 +20,9 @@ def build_pipeline(task_store):
     db=engine(); documents=DocumentStore(db,PersonalDocumentReader(PersonalKnowledgeService()))
     from .adapters.targets import TargetStore
     targets=TargetStore(db)
-    repo=LifecycleRepository(db,authorizer=PreparationReferenceAuthorizer(db,documents,targets=targets))
+    from .cancellation import cancel_preparation_tasks
+    repo=LifecycleRepository(db,authorizer=PreparationReferenceAuthorizer(db,documents,targets=targets),
+        retry_only=True, cancel_tasks=cancel_preparation_tasks)
     memory=PreparationMemory(repo); factory=research_factory(repo,documents,memory)
     def reviewer(context,checkpoint,state,node):
         request=repo.get(owner_user_id=context.owner_user_id,preparation_id=context.preparation_id).request
@@ -28,6 +30,8 @@ def build_pipeline(task_store):
     research=ResearchStages(repo,factory,documents,memory=memory,node_reviewer=reviewer)
     generation=GenerationAdapter(repo,task_store)
     production=ProductionStages(repo,generation,memory)
+    from .progressive_delivery import ProgressiveDelivery
+    production.publisher=ProgressiveDelivery(repo)
     quality=QualityStages(repo,generation,memory,factory)
     delivery=DeliveryService(repo)
     app=PreparationApplication(repo,task_store,{**research.handlers(),'produce':production.produce,

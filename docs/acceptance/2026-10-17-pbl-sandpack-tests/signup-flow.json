@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "steps": [
+    {
+      "stepId": "step-input",
+      "checks": 4,
+      "nativeChecks": 4,
+      "passed": true
+    },
+    {
+      "stepId": "step-result",
+      "checks": 6,
+      "nativeChecks": 6,
+      "passed": true
+    }
+  ],
+  "runs": 7,
+  "tested": [
+    "empty starter fails",
+    "cumulative server execution",
+    "native browser execution",
+    "modified source invalidates results",
+    "broken source fails both runtimes",
+    "restore and refresh",
+    "320/390/1440 widths"
+  ],
+  "backend": "isolated PostgreSQL with real API",
+  "generation": "actual model"
+}

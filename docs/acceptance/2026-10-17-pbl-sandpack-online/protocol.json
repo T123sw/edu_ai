@@ -1,0 +1,8 @@
+{
+  "unauthenticated": 401,
+  "staleRevision": 409,
+  "workspaceUnchanged": true,
+  "repeatedRunReusesEvidence": true,
+  "runsBefore": 5,
+  "runsAfter": 5
+}

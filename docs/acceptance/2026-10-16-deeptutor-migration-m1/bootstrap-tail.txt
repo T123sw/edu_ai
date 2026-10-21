@@ -1,0 +1,20 @@
+  Building editable for deeptutor (pyproject.toml): started
+  Building editable for deeptutor (pyproject.toml): finished with status 'done'
+  Created wheel for deeptutor: filename=deeptutor-1.6.14-0.editable-py3-none-any.whl size=45556 sha256=49f430b35aaa6fc43ea8ce0bebd78f643fdbcc997b1b0968b4c1f4060ba517a9
+  Stored in directory: /tmp/pip-ephem-wheel-cache-79nk8pd2/wheels/9f/2f/98/4b2f57962239b66dbb0988256281ab537e1f0fae38f1ba490b
+  Building editable for edu-deeptutor-bridge (pyproject.toml): started
+  Building editable for edu-deeptutor-bridge (pyproject.toml): finished with status 'done'
+  Created wheel for edu-deeptutor-bridge: filename=edu_deeptutor_bridge-0.1.0-0.editable-py3-none-any.whl size=1458 sha256=99fa9450c61f688ee7a4593ac57d9087f4f7c011690ef682c5ada14d3596c298
+  Stored in directory: /tmp/pip-ephem-wheel-cache-79nk8pd2/wheels/9b/3c/c7/e02780f590ceeb7c86d988544b5e37c84ba30b72aeab097410
+Successfully built deeptutor edu-deeptutor-bridge
+Installing collected packages: edu-deeptutor-bridge, deeptutor
+  Attempting uninstall: edu-deeptutor-bridge
+    Found existing installation: edu-deeptutor-bridge 0.1.0
+    Uninstalling edu-deeptutor-bridge-0.1.0:
+      Successfully uninstalled edu-deeptutor-bridge-0.1.0
+  Attempting uninstall: deeptutor
+    Found existing installation: deeptutor 1.6.14
+    Uninstalling deeptutor-1.6.14:
+      Successfully uninstalled deeptutor-1.6.14
+Successfully installed deeptutor-1.6.14 edu-deeptutor-bridge-0.1.0
+No broken requirements found.

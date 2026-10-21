@@ -1,0 +1,12 @@
+...........................................................              [100%]
+=============================== warnings summary ===============================
+tests/hyperframes/test_context_serving.py::test_expired_wrong_audience_and_digest
+  /home/zxqs_ep/Edu_AI/backend/src/core/auth.py:38: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expire = datetime.utcnow() + timedelta(hours=self.token_expire_hours)
+
+tests/hyperframes/test_context_serving.py::test_expired_wrong_audience_and_digest
+  /home/zxqs_ep/Edu_AI/backend/src/core/auth.py:43: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "iat": datetime.utcnow()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+59 passed, 2 warnings in 13.30s

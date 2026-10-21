@@ -1,0 +1,88 @@
+{
+  "_native_generation": {
+    "value": {
+      "state": {
+        "runtime": {
+          "pid": 2747087,
+          "history": [
+            {
+              "pid": 2747087,
+              "build_id": "25b83b0444ee7b5f1504",
+              "loaded_at": 1792428643.7058446,
+              "configuration": {
+                "TTS_REMOTE_CONCURRENCY": "8",
+                "HYPERFRAMES_RENDER_WORKERS": "4",
+                "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+                "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+                "TTS_REMOTE_REQUESTS_PER_SECOND": "4",
+                "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+                "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+                "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8"
+              },
+              "stage_limits_scope": "shared-host"
+            }
+          ],
+          "build_id": "25b83b0444ee7b5f1504",
+          "loaded_at": 1792428643.7058446,
+          "configuration": {
+            "TTS_REMOTE_CONCURRENCY": "8",
+            "HYPERFRAMES_RENDER_WORKERS": "4",
+            "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+            "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+            "TTS_REMOTE_REQUESTS_PER_SECOND": "4",
+            "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+            "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+            "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8"
+          },
+          "stage_limits_scope": "shared-host"
+        },
+        "workspace_key": "3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123",
+        "teaching_brief": {
+          "calls": 1,
+          "seconds": 13.649935722351074,
+          "decisions": {
+            "reason": "用户未提出任何视频时长要求（requested_video_minutes 为 null），显式配置与有效个人偏好均为空，故采用 defaults 的约 5 分钟目标（300s）。节点学习预算 10 分钟包含阅读与纸笔练习，不作为成片时长。用户未要求无配音，按 defaults 保留配音（narration=true）；画幅按 defaults 取 16:9。内容围绕本节点三个目标（定位与编码器-解码器分工、编码器/解码器骨架与子层差异、Add&Norm 位置）安排充分解释与分步结构图演示，不压缩为一分钟概述，也不为凑时长加入无关内容。自测与手绘练习留给习题，公式推导与延伸阅读留给报告。缺失信息假设：学习者背景未知，按零基础入门处理；语言按提问语言取中文。",
+            "narration": true,
+            "target_minutes": 5,
+            "duration_source": "default"
+          },
+          "started_at": 1792428753.2360377,
+          "brief_sha256": "239cb2940c790d7c721dc56cf7abfc1041ffa4cf25207194fffee4e1144457c7",
+          "brief_markdown": "---\nworkflow: general-video\nflow: automation\nstoryboard: no\nmessage: \"Transformer 由编码器与解码器两部分组成：编码器把输入符号序列映射为连续表示，解码器以自回归方式逐符号生成输出\"\ndestination: course-video\naspect: 16:9\nlanguage: zh\nlength: 300s\nangle: concept\n---\n\n## Intent\n\n面向希望系统学习 Transformer 的初学者（具体背景未知，按零基础入门处理）的一节入门原理课，主题是「Transformer 是什么：编码器-解码器整体结构」。用户原话：「我想学习一下transformer」。\n\n本视频只承担本节点（n1-overview）的教学目标：让学习者用自己的话说明 Transformer 是 2017 年 Google 团队提出、完全基于注意力机制的 Seq2Seq 模型，由编码器与解码器两部分组成；说明编码器把输入符号序列映射为连续表示 z、解码器以自回归方式逐符号生成输出；并能画出编码器/解码器各 6 层堆叠的骨架图，标出编码器 2 个子层、解码器 3 个子层的位置。\n\n语气：清晰、平实、结构化的中文讲解，像一位耐心的老师带着看结构图，而不是论文宣读。视觉上以结构示意图为主，避免堆砌公式。\n\n## Customizations\n\n- 视频必须覆盖的教师演示内容（来自本节点学习活动）：\n  1. 讲清提出背景与定位：2017 年 Google 团队提出，基于 Multi-Head Attention 的 Seq2Seq 模型，完全依赖自注意力计算输入与输出表示，不使用序列对齐的 RNN 或卷积。\n  2. 讲清编码器-解码器分工：编码器把符号表示的输入序列 (x1,…,xn) 映射为连续表示 z=(z1,…,zn)；解码器给定 z 后一次生成一个符号，得到输出序列 (y1,…,ym)，且是自回归的——生成下一个符号时把先前已生成的符号作为额外输入。\n  3. 演示编码器骨架：N=6 个相同层堆叠，每层两个子层——多头自注意力层、逐位置前馈网络；每个子层后接残差连接与层归一化，合称 Add&Norm；所有子层与嵌入层输出维度 d_model=512。\n  4. 演示解码器骨架：同样 N=6 层，每层三个子层——掩蔽自注意力层、编码器-解码器注意力层（对编码器堆叠输出做多头注意力）、逐位置前馈网络；每个子层后同样有 Add&Norm；掩蔽操作加上输出嵌入右移一位，保证位置 i 的预测只依赖小于 i 的已知输出。\n  5. 明确对比编码器 2 个子层与解码器 3 个子层的差异，并在图上标出 Add&Norm 的位置。\n- 结构图建议分步呈现（先整体两栏，再逐层展开子层，再补 Add&Norm），不要一次性塞满整张论文原图导致标签过小。\n- 画布与可读性遵循课程视觉约定：1920x1080，深色背景 #0f172a，前景 #f8fafc，强调色 #38bdf8，字体 Noto Sans SC，正文不小于 32px，图标签不小于 28px，标题不小于 48px。\n\n## Notes\n\n- 视频时长按默认约 5 分钟（300s）安排，围绕上述结构讲解给出充分解释与示例；用户未指定视频时长，也未指定画幅与配音，均按默认处理（16:9、有配音）。\n- 本节点学习预算 10 分钟包含阅读与动手画图练习，不等同于视频时长；视频只做教师演示部分。\n- 留给习题与报告的内容（不要塞进视频）：不看资料自测「编码器每层有哪两个子层、解码器每层多出哪个子层、解码器为何要自回归逐符号生成」；纸笔手绘骨架图并标注 Add&Norm 的完整练习；自注意力 QKV 计算细节、多头注意力投影公式、位置编码正弦/余弦公式的详细推导与阅读材料。视频中可在结构层面点到自注意力与位置编码的存在与作用，但不展开公式推导。\n- 必须讲清的深度边界：入门级原理讲解，不包含从零实现可运行 Transformer 的训练，代码仅作示意；不深入现代变体（RoPE、GQA/MQA、FlashAttention 等），位置编码演进最多一句带过。\n- 来源与依据：原始论文《Attention Is All You Need》(https://arxiv.org/abs/1706.03762) 的中文逐段解读、中文技术博客（kangshitao.github.io/2020/11/15/transformer、developer.volcengine.com 文章）与 CS336 学习笔记；未直接引用 arXiv 英文原文，公式细节（如位置编码常数 10000 与部分解读中 1000 的写法差异）以原始论文表述为准。\n- 排除项：用户未提出排除要求；不要引入与本节点结构目标无关的现代大模型工程细节。\n- 不写假素材路径；本节点无用户上传素材，视觉全部由视频工作流自行生成。\n- 后续讲稿、分镜、场景与渲染由 HyperFrames 原生工作流负责，本简报不固定场景数、不规划其他节点。\n",
+          "schema_version": 1,
+          "effective_preferences": {
+            "defaults": {
+              "aspect": "16:9",
+              "narration": true,
+              "duration_mode": "target",
+              "target_minutes": 5.0
+            },
+            "explicit": {}
+          }
+        },
+        "runtime_history": [
+          {
+            "pid": 2747087,
+            "build_id": "25b83b0444ee7b5f1504",
+            "loaded_at": 1792428643.7058446,
+            "configuration": {
+              "TTS_REMOTE_CONCURRENCY": "8",
+              "HYPERFRAMES_RENDER_WORKERS": "4",
+              "HYPERFRAMES_FRAME_CONCURRENCY": "6",
+              "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+              "TTS_REMOTE_REQUESTS_PER_SECOND": "4",
+              "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+              "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+              "COURSE_PREPARATION_RESOURCE_CONCURRENCY": "8"
+            },
+            "stage_limits_scope": "shared-host"
+          }
+        ]
+      },
+      "request_digest": "3ed60e753abf352bc2f9f082bf55dcfed92b083305f7e925e3f51a897c5a9123"
+    },
+    "artifact_id": "artifact_47e930b93999c919fc9b79abc9f8f5fa",
+    "spec_digest": "01156bcefd65edac6adc586e32a0d870249eece51d09a14842bed67a9e25696d",
+    "parent_attempt_no": 2
+  }
+}

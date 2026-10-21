@@ -1,0 +1,36 @@
+/* One scrolling page, with the same editor/preview instances in both positions. */
+.sl-app:has(>.pbl-workbench){display:block;height:100dvh;min-height:0;overflow:auto;overscroll-behavior-y:contain;scroll-behavior:smooth;overflow-anchor:none;scrollbar-gutter:stable}
+.sl-app:has(>.pbl-workbench)>.sl-header{flex:none;scroll-snap-align:none}
+.sl-app>.pbl-workbench.pbl-project{display:block;height:auto;min-height:0;overflow:visible;padding:0}
+.pbl-workbench>.pbl-project-heading{box-sizing:border-box;min-height:calc(50dvh - 68px);max-width:1168px;margin:0 auto;padding:28px 24px 30px;display:flex;flex-direction:column;justify-content:center}
+.pbl-workbench>.pbl-project-heading .pbl-project-task{margin-top:24px}
+.pbl-workbench>.pbl-project-heading .pbl-project-task h2{font-size:28px;line-height:1.45;white-space:normal;overflow-wrap:anywhere;margin:5px 0}
+.pbl-workbench>.pbl-project-heading .pbl-project-objective p{display:block;overflow:visible;line-height:1.8}
+.pbl-problem-reading{font-size:15px;line-height:1.85;margin-top:16px;overflow-wrap:anywhere}
+.pbl-problem-reading>:first-child{margin-top:0}.pbl-problem-reading>:last-child{margin-bottom:0}
+.pbl-problem-reading pre{overflow:auto;padding:14px;background:#edf2ee;border-radius:8px;font-size:13px}
+.pbl-problem-action{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;font-size:12px;color:#718176}
+.pbl-workbench .pbl-problem-action button{background:#285f45;border-color:#285f45;color:#fff;padding:9px 16px}
+.pbl-workbench-stage{position:relative;display:flex;flex-direction:column;gap:12px;box-sizing:border-box;height:100dvh;min-height:0;min-width:0;padding:12px 24px;scroll-snap-align:none;background:var(--sl-background,#f7f9f7);border-top:1px solid #dfe6e0}
+.pbl-stage-toolbar{position:relative;z-index:40;display:flex;flex-wrap:wrap;align-items:center;gap:16px;flex:none;min-height:32px;font-size:12px;color:#748179}
+.pbl-stage-toolbar>span{padding-left:16px;border-left:1px solid #d9e2dc}
+.pbl-workbench .pbl-stage-toolbar>button:first-child{background:transparent;border-color:transparent;padding:5px 0;color:#45664f}
+.pbl-stage-content{overflow:auto;overscroll-behavior-y:contain;display:flex;flex-direction:column;gap:12px;flex:1;min-width:0;min-height:0}
+.pbl-stage-content>.pbl-alert{flex:none;max-height:110px;overflow:auto}
+.pbl-workbench .pbl-stage-entry{position:absolute;z-index:30;inset:0;border:0;border-radius:12px;background:linear-gradient(transparent 0%,#f7f9f708 20%,#f7f9f744 100%);padding:0;display:flex;align-items:flex-start;justify-content:center;color:#285f45}
+.pbl-stage-entry>span{margin-top:32px;padding:10px 18px;border:1px solid #c6d9cb;border-radius:24px;background:#fffffff2;box-shadow:0 4px 18px #294b3312;font-size:12px}
+@media(max-width:760px){.pbl-workbench>.pbl-project-heading{min-height:calc(50dvh - 108px);padding:22px 16px}.pbl-workbench>.pbl-project-heading .pbl-project-task{margin-top:16px;align-items:flex-start}.pbl-workbench>.pbl-project-heading .pbl-project-task h2{font-size:22px}.pbl-workbench>.pbl-project-heading .pbl-project-objective{align-items:flex-start;flex-wrap:wrap}.pbl-problem-reading{font-size:14px;margin-top:12px}.pbl-problem-action{margin-top:18px;gap:8px}.pbl-problem-action>span{font-size:11px}.pbl-workbench-stage{padding:10px 12px;gap:8px}.pbl-stage-content{gap:8px}.pbl-stage-toolbar{gap:10px}.pbl-stage-toolbar>span{padding-left:10px}}
+@media(prefers-reduced-motion:reduce){.sl-app:has(>.pbl-workbench){scroll-behavior:auto}}
+
+.pbl-workbench-stage .cm-scroller{overscroll-behavior-y:contain}
+
+/* Cross-origin previews can chain wheel scrolling past their iframe boundary.
+   Keep the outer page parked; toolbar gestures/buttons still scroll it explicitly. */
+.sl-app:has(>.pbl-workbench .pbl-workbench-stage[data-focused=true]){overflow-y:hidden}
+
+.pbl-stage-main{position:relative;display:flex;flex:1;min-width:0;min-height:0}
+.pbl-stage-controls{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-left:auto;min-width:0}
+.pbl-stage-controls>button,.pbl-project-tools summary{white-space:nowrap}
+.pbl-save-feedback{font-size:11px;color:#805b30;overflow-wrap:anywhere}
+.pbl-workspace-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:760px){.pbl-stage-controls{flex-basis:100%;gap:6px}.pbl-workbench .pbl-stage-controls>button{font-size:11px;padding:6px 8px}.pbl-project-tools summary{font-size:11px;padding:6px}.pbl-save-feedback{flex-basis:100%;text-align:right}}

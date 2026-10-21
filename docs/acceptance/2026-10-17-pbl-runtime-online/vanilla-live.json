@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "runtime": {
+    "template": "vanilla",
+    "entry": "/index.js",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  },
+  "steps": [
+    {
+      "id": "convert-celsius",
+      "checks": 4,
+      "native": 1
+    },
+    {
+      "id": "reset-form",
+      "checks": 7,
+      "native": 1
+    }
+  ],
+  "runs": 5,
+  "files": [
+    "/index.html",
+    "/styles.css",
+    "/converter.js",
+    "/index.js"
+  ]
+}

@@ -1,0 +1,1402 @@
+{
+  "phase": "repair_step",
+  "data": {
+    "topic": "用 React 做本地记账表。输入备注、金额，选择餐饮或交通分类，添加一条支出。备注去首尾空格不能空白；金额必须是大于0且最多两位小数的数字，0、负数和超过两位小数要拒绝。列表能删除记录，按全部/餐饮/交通筛选。显示总支出和当前筛选支出，均保留两位小数；总支出不受筛选影响。0.10加0.20必须显示0.30。添加成功后清空备注金额，保留所选分类。无后台无持久化，分步实现。",
+    "plan": {
+      "schemaVersion": 1,
+      "title": "本地记账表",
+      "goal": "用 React 实现一个本地记账页面：可输入备注与金额并选择餐饮或交通分类添加支出；备注去首尾空格后不能为空，金额必须是大于 0 且最多两位小数的数字；列表可删除记录，可按全部/餐饮/交通筛选；显示总支出与当前筛选支出（均保留两位小数），总支出不受筛选影响，0.10 加 0.20 显示 0.30。",
+      "runtimeKind": "react_app",
+      "editableFiles": [
+        "/src/App.jsx",
+        "/src/styles.css"
+      ],
+      "requirements": [
+        {
+          "id": "add-expense",
+          "description": "输入备注、金额并选择餐饮或交通分类后，点击添加按钮可新增一条支出记录，记录出现在列表中并显示其备注、金额与分类。"
+        },
+        {
+          "id": "validate-note",
+          "description": "备注去除首尾空格后不能为空白；空白备注时拒绝添加，列表不新增记录，并给出可见的提示。"
+        },
+        {
+          "id": "validate-amount",
+          "description": "金额必须是大于 0 且最多两位小数的数字；0、负数、超过两位小数以及非数字输入都要拒绝添加，列表不新增记录，并给出可见的提示。"
+        },
+        {
+          "id": "reset-form",
+          "description": "添加成功后清空备注与金额输入框，保留当前所选分类。"
+        },
+        {
+          "id": "delete-record",
+          "description": "列表中的每条记录都能被删除，删除后该记录从列表消失，统计随之更新。"
+        },
+        {
+          "id": "filter-records",
+          "description": "可按全部/餐饮/交通筛选列表，只显示对应分类的记录；筛选不改变已有记录本身。"
+        },
+        {
+          "id": "totals",
+          "description": "显示总支出与当前筛选支出，均保留两位小数；总支出统计全部记录，不受筛选影响；当前筛选支出随筛选变化。0.10 加 0.20 显示 0.30。"
+        }
+      ],
+      "steps": [
+        {
+          "id": "add-and-list",
+          "title": "添加支出并显示列表",
+          "objective": "搭出记账页面骨架，能输入备注、金额、选择分类并添加记录，记录显示在列表中。",
+          "dependsOn": [],
+          "entryCondition": "从初始工程开始，App.jsx 中只有一个占位组件。",
+          "deliverable": "页面包含备注输入框、金额输入框、分类选择（餐饮/交通）、添加按钮和支出列表。填写后点击添加，列表中出现一条包含该备注、金额和分类的记录。",
+          "requirementIds": [
+            "add-expense"
+          ],
+          "focusFiles": [
+            "/src/App.jsx",
+            "/src/styles.css"
+          ],
+          "newCheckIds": [
+            "add-food-record",
+            "add-transport-record"
+          ]
+        },
+        {
+          "id": "validate-input",
+          "title": "校验备注与金额",
+          "objective": "为添加操作加上备注与金额校验，非法输入被拒绝并给出提示。",
+          "dependsOn": [
+            "add-and-list"
+          ],
+          "entryCondition": "上一步已能添加记录并显示在列表中。",
+          "deliverable": "备注去首尾空格后为空、金额为 0、负数、超过两位小数或非数字时，点击添加不会新增记录，并显示可见的错误提示；合法输入仍能正常添加。",
+          "requirementIds": [
+            "add-expense",
+            "validate-note",
+            "validate-amount"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "reject-blank-note",
+            "reject-zero-amount",
+            "reject-negative-amount",
+            "reject-three-decimals",
+            "reject-non-numeric-amount"
+          ]
+        },
+        {
+          "id": "reset-form",
+          "title": "添加成功后重置表单",
+          "objective": "添加成功后清空备注与金额，保留所选分类。",
+          "dependsOn": [
+            "validate-input"
+          ],
+          "entryCondition": "上一步已能校验输入并添加合法记录。",
+          "deliverable": "选择交通分类并成功添加一条记录后，备注与金额输入框为空，分类仍为交通；随后可直接输入下一条交通支出。",
+          "requirementIds": [
+            "add-expense",
+            "reset-form"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "reset-after-add-keeps-category"
+          ]
+        },
+        {
+          "id": "delete-record",
+          "title": "删除记录",
+          "objective": "列表中的每条记录都能删除，删除后列表与统计同步更新。",
+          "dependsOn": [
+            "reset-form"
+          ],
+          "entryCondition": "上一步已能添加记录并在成功后重置表单。",
+          "deliverable": "每条记录旁有删除按钮，点击后该记录从列表消失，其他记录保留。",
+          "requirementIds": [
+            "add-expense",
+            "delete-record"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "delete-one-of-two-records"
+          ]
+        },
+        {
+          "id": "filter-records",
+          "title": "按分类筛选",
+          "objective": "提供全部/餐饮/交通筛选，列表只显示对应分类的记录。",
+          "dependsOn": [
+            "delete-record"
+          ],
+          "entryCondition": "上一步已能添加与删除记录。",
+          "deliverable": "页面有全部/餐饮/交通三个筛选选项；选择餐饮只显示餐饮记录，选择交通只显示交通记录，选择全部显示所有记录。",
+          "requirementIds": [
+            "add-expense",
+            "filter-records"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "filter-food-only",
+            "filter-transport-only",
+            "filter-back-to-all"
+          ]
+        },
+        {
+          "id": "totals",
+          "title": "显示总支出与筛选支出",
+          "objective": "显示总支出与当前筛选支出，均保留两位小数，总支出不受筛选影响。",
+          "dependsOn": [
+            "filter-records"
+          ],
+          "entryCondition": "上一步已能按分类筛选列表。",
+          "deliverable": "页面显示总支出与当前筛选支出，均为两位小数；添加 0.10 与 0.20 后总支出显示 0.30；切换筛选时总支出不变，当前筛选支出随筛选变化。",
+          "requirementIds": [
+            "add-expense",
+            "filter-records",
+            "totals"
+          ],
+          "focusFiles": [
+            "/src/App.jsx"
+          ],
+          "newCheckIds": [
+            "total-two-decimals",
+            "total-unaffected-by-filter",
+            "filtered-total-follows-filter"
+          ]
+        }
+      ],
+      "checks": [
+        {
+          "id": "add-food-record",
+          "stepId": "add-and-list",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "add-expense"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“午餐”",
+            "在金额输入框填入“12.50”",
+            "在分类选择中选择“餐饮”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中出现一条备注为“午餐”、金额为 12.50、分类为餐饮的记录"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "add-transport-record",
+          "stepId": "add-and-list",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "add-expense"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“地铁”",
+            "在金额输入框填入“3”",
+            "在分类选择中选择“交通”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中出现一条备注为“地铁”、金额为 3.00、分类为交通的记录"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-blank-note",
+          "stepId": "validate-input",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "validate-note"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“   ”",
+            "在金额输入框填入“10”",
+            "在分类选择中选择“餐饮”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中没有新增记录",
+            "页面显示可见的错误提示"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-zero-amount",
+          "stepId": "validate-input",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "validate-amount"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“测试”",
+            "在金额输入框填入“0”",
+            "在分类选择中选择“餐饮”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中没有新增记录",
+            "页面显示可见的错误提示"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-negative-amount",
+          "stepId": "validate-input",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "validate-amount"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“测试”",
+            "在金额输入框填入“-5”",
+            "在分类选择中选择“交通”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中没有新增记录",
+            "页面显示可见的错误提示"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-three-decimals",
+          "stepId": "validate-input",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "validate-amount"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“测试”",
+            "在金额输入框填入“1.234”",
+            "在分类选择中选择“餐饮”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中没有新增记录",
+            "页面显示可见的错误提示"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-non-numeric-amount",
+          "stepId": "validate-input",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "validate-amount"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“测试”",
+            "在金额输入框填入“abc”",
+            "在分类选择中选择“餐饮”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "列表中没有新增记录",
+            "页面显示可见的错误提示"
+          ],
+          "requiredAssertions": [
+            "visible",
+            "text",
+            "count"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reset-after-add-keeps-category",
+          "stepId": "reset-form",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "reset-form"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "在备注输入框填入“打车”",
+            "在金额输入框填入“20”",
+            "在分类选择中选择“交通”",
+            "点击添加按钮"
+          ],
+          "expected": [
+            "备注输入框为空",
+            "金额输入框为空",
+            "分类选择仍为交通",
+            "列表中出现该记录"
+          ],
+          "requiredAssertions": [
+            "value",
+            "visible",
+            "text"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "delete-one-of-two-records",
+          "stepId": "delete-record",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "delete-record"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“早餐”金额“8”分类“餐饮”的记录",
+            "添加备注“公交”金额“2”分类“交通”的记录",
+            "点击“早餐”这条记录的删除按钮"
+          ],
+          "expected": [
+            "“早餐”记录从列表消失",
+            "“公交”记录仍在列表中"
+          ],
+          "requiredAssertions": [
+            "count",
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-food-only",
+          "stepId": "filter-records",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter-records"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“午餐”金额“15”分类“餐饮”的记录",
+            "添加备注“地铁”金额“3”分类“交通”的记录",
+            "点击“餐饮”筛选"
+          ],
+          "expected": [
+            "列表只显示“午餐”记录",
+            "“地铁”记录不显示"
+          ],
+          "requiredAssertions": [
+            "count",
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-transport-only",
+          "stepId": "filter-records",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter-records"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“午餐”金额“15”分类“餐饮”的记录",
+            "添加备注“地铁”金额“3”分类“交通”的记录",
+            "点击“交通”筛选"
+          ],
+          "expected": [
+            "列表只显示“地铁”记录",
+            "“午餐”记录不显示"
+          ],
+          "requiredAssertions": [
+            "count",
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filter-back-to-all",
+          "stepId": "filter-records",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "filter-records"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“午餐”金额“15”分类“餐饮”的记录",
+            "添加备注“地铁”金额“3”分类“交通”的记录",
+            "点击“餐饮”筛选",
+            "点击“全部”筛选"
+          ],
+          "expected": [
+            "列表同时显示“午餐”和“地铁”两条记录"
+          ],
+          "requiredAssertions": [
+            "count",
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "total-two-decimals",
+          "stepId": "totals",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "totals"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“a”金额“0.10”分类“餐饮”的记录",
+            "添加备注“b”金额“0.20”分类“交通”的记录"
+          ],
+          "expected": [
+            "总支出显示为 0.30",
+            "当前筛选支出显示为 0.30"
+          ],
+          "requiredAssertions": [
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "total-unaffected-by-filter",
+          "stepId": "totals",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "totals",
+            "filter-records"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“午餐”金额“15”分类“餐饮”的记录",
+            "添加备注“地铁”金额“3”分类“交通”的记录",
+            "点击“餐饮”筛选"
+          ],
+          "expected": [
+            "总支出仍显示 18.00",
+            "当前筛选支出显示 15.00"
+          ],
+          "requiredAssertions": [
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        },
+        {
+          "id": "filtered-total-follows-filter",
+          "stepId": "totals",
+          "kind": "ui_scenario",
+          "requirementIds": [
+            "totals",
+            "filter-records"
+          ],
+          "setup": "打开页面，列表为空。",
+          "actions": [
+            "添加备注“午餐”金额“15”分类“餐饮”的记录",
+            "添加备注“地铁”金额“3”分类“交通”的记录",
+            "点击“交通”筛选",
+            "点击“全部”筛选"
+          ],
+          "expected": [
+            "交通筛选下当前筛选支出显示 3.00",
+            "全部筛选下当前筛选支出显示 18.00",
+            "总支出始终显示 18.00"
+          ],
+          "requiredAssertions": [
+            "text",
+            "visible"
+          ],
+          "viewport": null
+        }
+      ]
+    },
+    "step": {
+      "id": "validate-input",
+      "title": "校验备注与金额",
+      "objective": "为添加操作加上备注与金额校验，非法输入被拒绝并给出提示。",
+      "dependsOn": [
+        "add-and-list"
+      ],
+      "entryCondition": "上一步已能添加记录并显示在列表中。",
+      "deliverable": "备注去首尾空格后为空、金额为 0、负数、超过两位小数或非数字时，点击添加不会新增记录，并显示可见的错误提示；合法输入仍能正常添加。",
+      "requirementIds": [
+        "add-expense",
+        "validate-note",
+        "validate-amount"
+      ],
+      "focusFiles": [
+        "/src/App.jsx"
+      ],
+      "newCheckIds": [
+        "reject-blank-note",
+        "reject-zero-amount",
+        "reject-negative-amount",
+        "reject-three-decimals",
+        "reject-non-numeric-amount"
+      ]
+    },
+    "requiredChecks": [
+      {
+        "id": "reject-blank-note",
+        "stepId": "validate-input",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "validate-note"
+        ],
+        "setup": "打开页面，列表为空。",
+        "actions": [
+          "在备注输入框填入“   ”",
+          "在金额输入框填入“10”",
+          "在分类选择中选择“餐饮”",
+          "点击添加按钮"
+        ],
+        "expected": [
+          "列表中没有新增记录",
+          "页面显示可见的错误提示"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text",
+          "count"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "reject-zero-amount",
+        "stepId": "validate-input",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "validate-amount"
+        ],
+        "setup": "打开页面，列表为空。",
+        "actions": [
+          "在备注输入框填入“测试”",
+          "在金额输入框填入“0”",
+          "在分类选择中选择“餐饮”",
+          "点击添加按钮"
+        ],
+        "expected": [
+          "列表中没有新增记录",
+          "页面显示可见的错误提示"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text",
+          "count"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "reject-negative-amount",
+        "stepId": "validate-input",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "validate-amount"
+        ],
+        "setup": "打开页面，列表为空。",
+        "actions": [
+          "在备注输入框填入“测试”",
+          "在金额输入框填入“-5”",
+          "在分类选择中选择“交通”",
+          "点击添加按钮"
+        ],
+        "expected": [
+          "列表中没有新增记录",
+          "页面显示可见的错误提示"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text",
+          "count"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "reject-three-decimals",
+        "stepId": "validate-input",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "validate-amount"
+        ],
+        "setup": "打开页面，列表为空。",
+        "actions": [
+          "在备注输入框填入“测试”",
+          "在金额输入框填入“1.234”",
+          "在分类选择中选择“餐饮”",
+          "点击添加按钮"
+        ],
+        "expected": [
+          "列表中没有新增记录",
+          "页面显示可见的错误提示"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text",
+          "count"
+        ],
+        "viewport": null
+      },
+      {
+        "id": "reject-non-numeric-amount",
+        "stepId": "validate-input",
+        "kind": "ui_scenario",
+        "requirementIds": [
+          "validate-amount"
+        ],
+        "setup": "打开页面，列表为空。",
+        "actions": [
+          "在备注输入框填入“测试”",
+          "在金额输入框填入“abc”",
+          "在分类选择中选择“餐饮”",
+          "点击添加按钮"
+        ],
+        "expected": [
+          "列表中没有新增记录",
+          "页面显示可见的错误提示"
+        ],
+        "requiredAssertions": [
+          "visible",
+          "text",
+          "count"
+        ],
+        "viewport": null
+      }
+    ],
+    "previousFiles": {
+      "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nlet nextId = 1;\n\nexport default function App() {\n  const [note, setNote] = useState('');\n  const [amount, setAmount] = useState('');\n  const [category, setCategory] = useState('餐饮');\n  const [expenses, setExpenses] = useState([]);\n\n  function handleAdd() {\n    const record = {\n      id: nextId++,\n      note: note.trim(),\n      amount: Number(amount),\n      category,\n    };\n    setExpenses([...expenses, record]);\n  }\n\n  return (\n    <main className=\"app\">\n      <h1>本地记账表</h1>\n      <div className=\"form\">\n        <label className=\"field\">\n          <span>备注</span>\n          <input\n            data-testid=\"note-input\"\n            value={note}\n            onChange={(e) => setNote(e.target.value)}\n            placeholder=\"例如：午餐\"\n          />\n        </label>\n        <label className=\"field\">\n          <span>金额</span>\n          <input\n            data-testid=\"amount-input\"\n            value={amount}\n            onChange={(e) => setAmount(e.target.value)}\n            placeholder=\"例如：12.50\"\n          />\n        </label>\n        <label className=\"field\">\n          <span>分类</span>\n          <select\n            data-testid=\"category-select\"\n            value={category}\n            onChange={(e) => setCategory(e.target.value)}\n          >\n            <option value=\"餐饮\">餐饮</option>\n            <option value=\"交通\">交通</option>\n          </select>\n        </label>\n        <button data-testid=\"add-button\" onClick={handleAdd}>添加</button>\n      </div>\n\n      <ul className=\"expense-list\" data-testid=\"expense-list\">\n        {expenses.map((item) => (\n          <li key={item.id} className=\"expense-item\" data-testid=\"expense-item\">\n            <span className=\"item-note\">{item.note}</span>\n            <span className=\"item-amount\">{item.amount.toFixed(2)}</span>\n            <span className=\"item-category\">{item.category}</span>\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+      "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\n.app { padding: 16px; max-width: 100%; }\nh1 { font-size: 20px; }\n.form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }\n.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }\n.field input, .field select { padding: 6px; font-size: 14px; width: 100%; }\nbutton { padding: 8px 12px; font-size: 14px; cursor: pointer; }\n.expense-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }\n.expense-item { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px; border: 1px solid #ddd; border-radius: 6px; }\n.item-note { flex: 1 1 auto; min-width: 0; }\n.item-amount { font-variant-numeric: tabular-nums; }\n.item-category { color: #666; }\n"
+    },
+    "previousChecks": [
+      {
+        "id": "add-food-record",
+        "label": "备注填“午餐”、金额填“12.50”、分类选“餐饮”并点击添加后，列表出现一条包含“午餐”“12.50”“餐饮”的记录",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "testId": "note-input"
+            },
+            "value": "午餐"
+          },
+          {
+            "type": "fill",
+            "target": {
+              "testId": "amount-input"
+            },
+            "value": "12.50"
+          },
+          {
+            "type": "click",
+            "target": {
+              "testId": "category-select"
+            }
+          },
+          {
+            "type": "press",
+            "target": {
+              "testId": "category-select"
+            },
+            "value": "ArrowDown"
+          },
+          {
+            "type": "press",
+            "target": {
+              "testId": "category-select"
+            },
+            "value": "ArrowUp"
+          },
+          {
+            "type": "press",
+            "target": {
+              "testId": "category-select"
+            },
+            "value": "Enter"
+          },
+          {
+            "type": "click",
+            "target": {
+              "testId": "add-button"
+            }
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "expense-item"
+            },
+            "assertion": "count",
+            "expected": 1
+          },
+          {
+            "type": "assert",
+            "target": {
+              "index": 0,
+              "testId": "expense-item"
+            },
+            "assertion": "text",
+            "expected": "午餐12.50餐饮"
+          }
+        ]
+      },
+      {
+        "id": "add-transport-record",
+        "label": "备注填“地铁”、金额填“3”、分类选“交通”并点击添加后，列表出现一条包含“地铁”“3.00”“交通”的记录",
+        "actions": [
+          {
+            "type": "fill",
+            "target": {
+              "testId": "note-input"
+            },
+            "value": "地铁"
+          },
+          {
+            "type": "fill",
+            "target": {
+              "testId": "amount-input"
+            },
+            "value": "3"
+          },
+          {
+            "type": "click",
+            "target": {
+              "testId": "category-select"
+            }
+          },
+          {
+            "type": "press",
+            "target": {
+              "testId": "category-select"
+            },
+            "value": "ArrowDown"
+          },
+          {
+            "type": "press",
+            "target": {
+              "testId": "category-select"
+            },
+            "value": "ArrowDown"
+          },
+          {
+            "type": "press",
+            "target": {
+              "testId": "category-select"
+            },
+            "value": "Enter"
+          },
+          {
+            "type": "click",
+            "target": {
+              "testId": "add-button"
+            }
+          },
+          {
+            "type": "assert",
+            "target": {
+              "testId": "expense-item"
+            },
+            "assertion": "count",
+            "expected": 1
+          },
+          {
+            "type": "assert",
+            "target": {
+              "index": 0,
+              "testId": "expense-item"
+            },
+            "assertion": "text",
+            "expected": "地铁3.00交通"
+          }
+        ]
+      }
+    ],
+    "issues": [
+      "reject-zero-amount 的实际断言 ['count', 'visible'] 与计划要求 ['count', 'text', 'visible'] 不一致"
+    ],
+    "priorCandidate": {
+      "unit": {
+        "stepId": "validate-input",
+        "title": "校验备注与金额",
+        "objective": "为添加操作加上备注与金额校验，非法输入被拒绝并给出提示。",
+        "instructionsMarkdown": "上一步已经能把备注、金额和分类添加成一条记录。这一步要让添加操作变得“挑剔”一些：只有合法的输入才能变成记录，不合法的输入会被拦下来，并告诉用户哪里不对。\n\n需要拦截的情况：\n\n- 备注去掉首尾空格后是空的（比如只输入了空格）。\n- 金额是 0。\n- 金额是负数。\n- 金额的小数位超过两位（比如 1.234）。\n- 金额不是数字（比如 abc）。\n\n被拦截时，列表里不能新增任何记录，页面上要出现一段看得见的错误提示文字，让用户知道这次没有添加成功。合法输入（比如备注“午餐”、金额“12.50”）仍然能正常添加，并像上一步一样出现在列表里。\n\n错误提示只要在页面上可见即可，具体措辞由你决定；建议针对不同原因给出不同提示，方便用户理解。\n\n### 代码约定\n\n为了让系统能识别页面部件，请沿用上一步已有的标记，不要改名：\n\n- 备注输入框：`data-testid=\"note-input\"`\n- 金额输入框：`data-testid=\"amount-input\"`\n- 分类选择：`data-testid=\"category-select\"`\n- 添加按钮：`data-testid=\"add-button\"`\n- 每条记录：`data-testid=\"expense-item\"`\n- 列表容器：`data-testid=\"expense-list\"`\n\n另外，请给错误提示元素加上 `data-testid=\"error-message\"`，它只在出现错误时显示。这些标记只是供系统识别，不会改变页面外观。",
+        "explanationMarkdown": "校验的核心是把“用户输入的原始字符串”和“可以保存的数据”分开处理。\n\n备注方面，先用 `trim()` 去掉首尾空格，再判断结果是否为空字符串。注意不要用 `if (!note)` 直接判断原始值，因为 `\"   \"` 在 JavaScript 里是真值，但去掉空格后其实是空的。\n\n金额方面，输入框拿到的是字符串。可以先用正则表达式检查格式，例如 `^\\d+(\\.\\d{1,2})?$` 能匹配“12”“12.5”“12.50”这类最多两位小数的非负数字，同时排除“abc”“1.234”“-5”。格式通过后再用 `Number()` 转成数字，并判断是否大于 0，这样就能同时挡住 0 和负数。\n\n校验失败时，用一个状态保存错误信息并渲染出来；校验通过时清空错误信息，再执行添加。把校验逻辑放在点击添加的处理函数里，先校验、后添加，顺序不要颠倒。",
+        "hints": [
+          "备注用 `note.trim()` 判断是否为空，而不是直接判断 `note`。",
+          "金额可以先用正则 `^\\d+(\\.\\d{1,2})?$` 检查格式，再转成数字判断是否大于 0。",
+          "用一个 `error` 状态保存提示文字，出错时设置它，成功时清空它。",
+          "错误提示元素加上 `data-testid=\"error-message\"`，并且只在有错误时渲染。"
+        ],
+        "focusFiles": [
+          "/src/App.jsx"
+        ],
+        "checkIds": [
+          "reject-blank-note",
+          "reject-zero-amount",
+          "reject-negative-amount",
+          "reject-three-decimals",
+          "reject-non-numeric-amount"
+        ]
+      },
+      "behaviorCases": [
+        {
+          "requirementId": "validate-note",
+          "setup": "列表为空，备注输入框只有空格“   ”，金额“10”，分类餐饮",
+          "action": "点击添加",
+          "expected": "列表仍为空（0 条记录），页面出现可见错误提示",
+          "checkId": "reject-blank-note"
+        },
+        {
+          "requirementId": "validate-amount",
+          "setup": "列表为空，备注“测试”，金额“0”，分类餐饮",
+          "action": "点击添加",
+          "expected": "列表仍为空，页面出现可见错误提示",
+          "checkId": "reject-zero-amount"
+        },
+        {
+          "requirementId": "validate-amount",
+          "setup": "列表为空，备注“测试”，金额“-5”，分类交通",
+          "action": "点击添加",
+          "expected": "列表仍为空，页面出现可见错误提示",
+          "checkId": "reject-negative-amount"
+        },
+        {
+          "requirementId": "validate-amount",
+          "setup": "列表为空，备注“测试”，金额“1.234”，分类餐饮",
+          "action": "点击添加",
+          "expected": "列表仍为空，页面出现可见错误提示",
+          "checkId": "reject-three-decimals"
+        },
+        {
+          "requirementId": "validate-amount",
+          "setup": "列表为空，备注“测试”，金额“abc”，分类餐饮",
+          "action": "点击添加",
+          "expected": "列表仍为空，页面出现可见错误提示",
+          "checkId": "reject-non-numeric-amount"
+        },
+        {
+          "requirementId": "add-expense",
+          "setup": "列表为空，备注“午餐”，金额“12.50”，分类餐饮",
+          "action": "点击添加",
+          "expected": "列表新增一条记录，错误提示不显示",
+          "checkId": "reject-blank-note"
+        }
+      ],
+      "checks": [
+        {
+          "id": "reject-blank-note",
+          "label": "备注只有空格时点击添加，列表不新增记录并显示可见错误提示；随后合法输入仍能正常添加",
+          "actions": [
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "note-input"
+              },
+              "value": "   ",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "amount-input"
+              },
+              "value": "10",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "add-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "expense-item"
+              },
+              "value": null,
+              "assertion": "count",
+              "expected": 0,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "error-message"
+              },
+              "value": null,
+              "assertion": "visible",
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "note-input"
+              },
+              "value": "午餐",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "amount-input"
+              },
+              "value": "12.50",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "add-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "expense-item"
+              },
+              "value": null,
+              "assertion": "count",
+              "expected": 1,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": 0,
+                "role": null,
+                "name": null,
+                "testId": "expense-item"
+              },
+              "value": null,
+              "assertion": "text",
+              "expected": "午餐12.50餐饮",
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-zero-amount",
+          "label": "金额填“0”时点击添加，列表不新增记录并显示可见错误提示",
+          "actions": [
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "note-input"
+              },
+              "value": "测试",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "amount-input"
+              },
+              "value": "0",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "add-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "expense-item"
+              },
+              "value": null,
+              "assertion": "count",
+              "expected": 0,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "error-message"
+              },
+              "value": null,
+              "assertion": "visible",
+              "expected": null,
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-negative-amount",
+          "label": "金额填“-5”时点击添加，列表不新增记录并显示可见错误提示",
+          "actions": [
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "note-input"
+              },
+              "value": "测试",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "amount-input"
+              },
+              "value": "-5",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "add-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "expense-item"
+              },
+              "value": null,
+              "assertion": "count",
+              "expected": 0,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "error-message"
+              },
+              "value": null,
+              "assertion": "visible",
+              "expected": null,
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-three-decimals",
+          "label": "金额填“1.234”时点击添加，列表不新增记录并显示可见错误提示",
+          "actions": [
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "note-input"
+              },
+              "value": "测试",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "amount-input"
+              },
+              "value": "1.234",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "add-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "expense-item"
+              },
+              "value": null,
+              "assertion": "count",
+              "expected": 0,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "error-message"
+              },
+              "value": null,
+              "assertion": "visible",
+              "expected": null,
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        },
+        {
+          "id": "reject-non-numeric-amount",
+          "label": "金额填“abc”时点击添加，列表不新增记录并显示可见错误提示",
+          "actions": [
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "note-input"
+              },
+              "value": "测试",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "fill",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "amount-input"
+              },
+              "value": "abc",
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "click",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "add-button"
+              },
+              "value": null,
+              "assertion": null,
+              "expected": null,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "expense-item"
+              },
+              "value": null,
+              "assertion": "count",
+              "expected": 0,
+              "relativeTo": null
+            },
+            {
+              "type": "assert",
+              "target": {
+                "within": null,
+                "index": null,
+                "role": null,
+                "name": null,
+                "testId": "error-message"
+              },
+              "value": null,
+              "assertion": "visible",
+              "expected": null,
+              "relativeTo": null
+            }
+          ],
+          "viewport": null
+        }
+      ],
+      "faultyFiles": {},
+      "faultyCheckId": null,
+      "referenceFiles": {
+        "/src/App.jsx": "import React, { useState } from 'react';\nimport './styles.css';\n\nlet nextId = 1;\n\nconst AMOUNT_PATTERN = /^\\d+(\\.\\d{1,2})?$/;\n\nexport default function App() {\n  const [note, setNote] = useState('');\n  const [amount, setAmount] = useState('');\n  const [category, setCategory] = useState('餐饮');\n  const [expenses, setExpenses] = useState([]);\n  const [error, setError] = useState('');\n\n  function handleAdd() {\n    const trimmedNote = note.trim();\n    if (!trimmedNote) {\n      setError('备注不能为空');\n      return;\n    }\n\n    const rawAmount = amount.trim();\n    if (!AMOUNT_PATTERN.test(rawAmount)) {\n      setError('金额必须是大于 0 且最多两位小数的数字');\n      return;\n    }\n\n    const numericAmount = Number(rawAmount);\n    if (!(numericAmount > 0)) {\n      setError('金额必须大于 0');\n      return;\n    }\n\n    setError('');\n    const record = {\n      id: nextId++,\n      note: trimmedNote,\n      amount: numericAmount,\n      category,\n    };\n    setExpenses([...expenses, record]);\n  }\n\n  return (\n    <main className=\"app\">\n      <h1>本地记账表</h1>\n      <div className=\"form\">\n        <label className=\"field\">\n          <span>备注</span>\n          <input\n            data-testid=\"note-input\"\n            value={note}\n            onChange={(e) => setNote(e.target.value)}\n            placeholder=\"例如：午餐\"\n          />\n        </label>\n        <label className=\"field\">\n          <span>金额</span>\n          <input\n            data-testid=\"amount-input\"\n            value={amount}\n            onChange={(e) => setAmount(e.target.value)}\n            placeholder=\"例如：12.50\"\n          />\n        </label>\n        <label className=\"field\">\n          <span>分类</span>\n          <select\n            data-testid=\"category-select\"\n            value={category}\n            onChange={(e) => setCategory(e.target.value)}\n          >\n            <option value=\"餐饮\">餐饮</option>\n            <option value=\"交通\">交通</option>\n          </select>\n        </label>\n        <button data-testid=\"add-button\" onClick={handleAdd}>添加</button>\n      </div>\n\n      {error && (\n        <p className=\"error\" data-testid=\"error-message\">{error}</p>\n      )}\n\n      <ul className=\"expense-list\" data-testid=\"expense-list\">\n        {expenses.map((item) => (\n          <li key={item.id} className=\"expense-item\" data-testid=\"expense-item\">\n            <span className=\"item-note\">{item.note}</span>\n            <span className=\"item-amount\">{item.amount.toFixed(2)}</span>\n            <span className=\"item-category\">{item.category}</span>\n          </li>\n        ))}\n      </ul>\n    </main>\n  );\n}\n",
+        "/src/styles.css": "* { box-sizing: border-box; }\nbody { margin: 0; font-family: sans-serif; }\n.app { padding: 16px; max-width: 100%; }\nh1 { font-size: 20px; }\n.form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }\n.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }\n.field input, .field select { padding: 6px; font-size: 14px; width: 100%; }\nbutton { padding: 8px 12px; font-size: 14px; cursor: pointer; }\n.error { color: #c0392b; margin: 0 0 12px; font-size: 14px; }\n.expense-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }\n.expense-item { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px; border: 1px solid #ddd; border-radius: 6px; }\n.item-note { flex: 1 1 auto; min-width: 0; }\n.item-amount { font-variant-numeric: tabular-nums; }\n.item-category { color: #666; }\n"
+      }
+    },
+    "previousCheckReport": {
+      "stepId": "validate-input",
+      "referenceHash": "9868aea28f977da9d324436f07681629e04a2672f56371a3009a83c20340ad8e",
+      "previousHash": "c196200e6cfa11a7d31c75e8f6f6981a4c9ead131ae96c81f6f805eab1276059",
+      "checkIds": [
+        "add-food-record",
+        "add-transport-record"
+      ],
+      "passed": true,
+      "results": [
+        {
+          "caseId": "add-food-record",
+          "status": "passed",
+          "message": "✓ 1. 在 \"note-input\" 输入 \"午餐\"\n✓ 2. 在 \"amount-input\" 输入 \"12.50\"\n✓ 3. 点击 \"category-select\"\n✓ 4. 在 \"category-select\" 按 \"ArrowDown\"\n✓ 5. 在 \"category-select\" 按 \"ArrowUp\"\n✓ 6. 在 \"category-select\" 按 \"Enter\"\n✓ 7. 点击 \"add-button\"\n✓ 8. 检查 \"expense-item\" 的数量\n   实际：1\n✓ 9. 检查 第 1 个 \"expense-item\" 的显示文字\n   实际：\"午餐12.50餐饮\"\n本项操作与预期全部通过。"
+        },
+        {
+          "caseId": "add-transport-record",
+          "status": "passed",
+          "message": "✓ 1. 在 \"note-input\" 输入 \"地铁\"\n✓ 2. 在 \"amount-input\" 输入 \"3\"\n✓ 3. 点击 \"category-select\"\n✓ 4. 在 \"category-select\" 按 \"ArrowDown\"\n✓ 5. 在 \"category-select\" 按 \"ArrowDown\"\n✓ 6. 在 \"category-select\" 按 \"Enter\"\n✓ 7. 点击 \"add-button\"\n✓ 8. 检查 \"expense-item\" 的数量\n   实际：1\n✓ 9. 检查 第 1 个 \"expense-item\" 的显示文字\n   实际：\"地铁3.00交通\"\n本项操作与预期全部通过。"
+        }
+      ],
+      "durationMs": 1144.73093
+    }
+  },
+  "startedAt": 1792228918.5049706
+}

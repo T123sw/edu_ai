@@ -1,0 +1,51 @@
+[
+  {
+    "ordinal": 14,
+    "passed": true,
+    "issues": [],
+    "seconds": 11.22
+  },
+  {
+    "ordinal": 12,
+    "passed": true,
+    "issues": [],
+    "seconds": 16.16
+  },
+  {
+    "ordinal": 26,
+    "passed": false,
+    "issues": [
+      "review_calculation_unverified",
+      "calculation_checks_invalid",
+      "tree_answer_unverified: q_8b9ac018b987840ee562",
+      "tree_answer_unverified: q_6f07f9dc0a2e8d47c1be",
+      "tree_answer_unverified: q_1547df775d7cc57ea1d9",
+      "Executed evidence: [{\"expression\": \"complete_tree_facts(500, 499, 0)\", \"actual\": {\"target\": 499, \"path\": [0, 2, 6, 14, 30, 61, 124, 249, 499], \"top_subtree_root\": 2, \"top_subtree_side\": \"right\", \"top_subtree_count\": 244, \"top_subtree_height\": 8, \"top_subtree_max_label\": 499, \"target_is_leaf\": true, \"leaves_before_by_label\": 121, \"leaves_to_left\": 116, \"top_subtree_leaf_count\": 122}, \"matches\": null, \"name\": \"facts\"}, {\"expression\": \"facts['path']\", \"actual\": [0, 2, 6, 14, 30, 61, 124, 249, 499], \"matches\": null, \"name\": \"path\"}, {\"expression\": \"facts['top_subtree_side']\", \"actual\": \"right\", \"matches\": null, \"name\": \"side\"}, {\"expression\": \"facts['top_subtree_count']\", \"actual\": 244, \"matches\": null, \"name\": \"sub_count\"}, {\"expression\": \"facts['top_subtree_leaf_count']\", \"actual\": 122, \"matches\": null, \"name\": \"sub_leaf_count\"}, {\"expression\": \"facts['leaves_before_by_label']\", \"actual\": 121, \"matches\": null, \"name\": \"leaves_before_by_label\"}, {\"expression\": \"facts['leaves_to_left']\", \"actual\": 116, \"matches\": null, \"name\": \"leaves_to_left\"}, {\"expression\": \"485+14\", \"actual\": 499, \"matches\": null, \"name\": \"max_desc\"}, {\"expression\": \"485+14 <= 499\", \"actual\": true, \"matches\": null, \"name\": \"fits\"}, {\"expression\": \"[485,486,487,488,489,490,491,492,493,494,495,496,497,498,499]\", \"actual\": [485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499], \"matches\": null, \"name\": \"subtree_nodes\"}, {\"expression\": \"all((i==0 or subtree_nodes[(i-1)//2] == 485 + ((subtree_nodes[i]-485-1)//2)) for i in range(1,15))\", \"actual\": true, \"matches\": null, \"name\": \"parent_child_ok\"}]"
+    ],
+    "seconds": 71.62
+  },
+  {
+    "ordinal": 27,
+    "passed": true,
+    "issues": [],
+    "seconds": 68.58
+  },
+  {
+    "ordinal": 29,
+    "passed": true,
+    "issues": [],
+    "seconds": 26.37
+  },
+  {
+    "ordinal": 30,
+    "passed": true,
+    "issues": [],
+    "seconds": 38.97
+  },
+  {
+    "ordinal": 32,
+    "passed": true,
+    "issues": [],
+    "seconds": 29.79
+  }
+]

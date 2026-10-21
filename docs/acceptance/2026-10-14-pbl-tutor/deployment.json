@@ -1,0 +1,57 @@
+{
+  "preparedAt": "20261014T041637Z",
+  "databaseBackup": "/data/edu_ai/backups/postgres/pbl-before-tutor-20261014T041637Z.dump",
+  "backupBytes": 12433,
+  "frontendBackup": "/tmp/edu-pbl-tutor-dist-backup-20261014T041637Z",
+  "release": "/tmp/edu-pbl-tutor-build",
+  "previousIndexSha256": "3bff87fce54436a0e0903c7d3bcdd0342400334148369dd9e622753741107956",
+  "releaseIndexSha256": "60608af1b714baa9e70bfe335a6d2b715e47b3caeb3c7599c80adf70c03440f1",
+  "databaseMigrationApplied": true,
+  "frontendPublished": true,
+  "backendRestarted": true,
+  "migration": "20261014_0039",
+  "frontendAssetsPrepared": true,
+  "backendPidBefore": 3691455,
+  "releaseBrowserChecks": {
+    "passed": 5,
+    "target": "built release on 127.0.0.1:5219",
+    "api": "mocked fixtures"
+  },
+  "oldBackendHealth": "ok",
+  "oldBackendTutorRoute": false,
+  "productionCountsAfterMigration": {
+    "pbl_exercises": 1,
+    "pbl_workspaces": 1,
+    "pbl_runs": 2,
+    "pbl_tutor_turns": 0
+  },
+  "backendPidAfter": 3727960,
+  "tutorRoutesLoaded": true,
+  "tutorUnauthenticatedStatus": 401,
+  "nginxIndexMatches": true,
+  "publishedAt": "2026-10-14T04:20:58.571612+00:00",
+  "productionMigrationVerified": "20261014_0039",
+  "productionCountsAfterPublish": {
+    "pbl_exercises": 1,
+    "pbl_workspaces": 1,
+    "pbl_runs": 2,
+    "pbl_tutor_turns": 0
+  },
+  "publishedBrowserChecks": {
+    "passed": 5,
+    "target": "Nginx port 80, published assets",
+    "api": "mocked fixtures; actual tutor route separately verified to require authentication"
+  },
+  "verificationLimits": "线上浏览器回归使用模拟业务响应；真实模型与完整问答保存链路已在隔离环境验收，本次未向真实用户项目写入问答或修改代码。",
+  "productionHealth": {
+    "status": "ok",
+    "documentCount": 11249,
+    "repeatResponseSeconds": 0.01,
+    "initialProbe": "First /health probe timed out at 20 seconds; subsequent health, OpenAPI and PBL auth probes passed."
+  },
+  "productionApiSmoke": {
+    "openapiStatus": 200,
+    "pblUnauthenticatedStatus": 401,
+    "tutorUnauthenticatedStatus": 401
+  }
+}

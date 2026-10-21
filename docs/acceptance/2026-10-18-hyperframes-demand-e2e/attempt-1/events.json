@@ -1,0 +1,32 @@
+[
+  {
+    "at": "2026-10-18T05:29:04.042Z",
+    "status": "accepted",
+    "stage": "normalize",
+    "error_code": null
+  },
+  {
+    "at": "2026-10-18T05:31:13.898Z",
+    "status": "running",
+    "stage": "normalize",
+    "error_code": null
+  },
+  {
+    "at": "2026-10-18T05:31:24.411Z",
+    "status": "running",
+    "stage": "research_scope",
+    "error_code": null
+  },
+  {
+    "at": "2026-10-18T05:32:17.054Z",
+    "status": "running",
+    "stage": "plan",
+    "error_code": null
+  },
+  {
+    "at": "2026-10-18T05:32:27.506Z",
+    "status": "failed",
+    "stage": "research_nodes",
+    "error_code": "STEP_FAILED"
+  }
+]

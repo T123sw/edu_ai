@@ -1,0 +1,50 @@
+{
+  "observed_at": "2026-10-20T05:18:47.688419+00:00",
+  "preparation_id": "prep_593ea484dc7c4247bacf13fcaddf8c5d",
+  "files": {
+    "authorizer.py": {
+      "matches_tested_fix": true,
+      "mtime": 1792429454.3954883
+    },
+    "repository.py": {
+      "matches_tested_fix": true,
+      "mtime": 1792429454.3954883
+    },
+    "lifecycle_repository.py": {
+      "matches_tested_fix": true,
+      "mtime": 1792429454.3994884
+    },
+    "artifact_store.py": {
+      "matches_tested_fix": true,
+      "mtime": 1792429454.3994884
+    },
+    "progressive_delivery.py": {
+      "matches_tested_fix": true,
+      "mtime": 1792429454.3994884
+    },
+    "adapters/document_store.py": {
+      "matches_tested_fix": true,
+      "mtime": 1792429454.3994884
+    },
+    "adapters/targets.py": {
+      "matches_tested_fix": true,
+      "mtime": 1792429733.6521206
+    }
+  },
+  "services": [
+    {
+      "MainPID": "2797413",
+      "ActiveState": "active",
+      "ActiveEnterTimestamp": "Tue 2026-10-20 05:17:12 UTC",
+      "cwd": "/home/zxqs_ep/Edu_AI/backend/src",
+      "service": "edu-ai-backend.service"
+    },
+    {
+      "MainPID": "2797423",
+      "ActiveState": "active",
+      "ActiveEnterTimestamp": "Tue 2026-10-20 05:17:13 UTC",
+      "cwd": "/home/zxqs_ep/Edu_AI/backend/src",
+      "service": "edu-ai-durable-workers.service"
+    }
+  ]
+}

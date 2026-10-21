@@ -1,0 +1,15 @@
+{
+  "focused": false,
+  "activeElement": "<button class=\"experiment-text-button\">回答或继续问</button>",
+  "textareaRect": {
+    "x": 996.5625,
+    "y": 1023.734375,
+    "width": 417.4375,
+    "height": 100,
+    "top": 1023.734375,
+    "right": 1414,
+    "bottom": 1123.734375,
+    "left": 996.5625
+  },
+  "viewport": 1000
+}

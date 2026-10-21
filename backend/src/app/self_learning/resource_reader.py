@@ -26,6 +26,10 @@ def exact_material(learning, owner, ref: ResourceRef):
 
 
 def material_text(material):
+    from .hyperframes_context import native_content
+    native = native_content(material)
+    if native:
+        return json.dumps(native, ensure_ascii=False, sort_keys=True)
     if material.get('material_type') == 'report':
         return report_markdown(material)
     content = material.get('content')
@@ -35,6 +39,26 @@ def material_text(material):
 
 
 def excerpt(material, *, selected_text='', locator=None, query='', max_chars=4000):
+    from .hyperframes_context import native_content, classroom_timeline_context
+    native = native_content(material)
+    if native:
+        context = classroom_timeline_context(material, locator)
+        if query and not locator:
+            matches = [s for s in native['timeline']['segments'] if query.casefold() in (s['title']+' '+s['narration']+' '+s['visual_description']).casefold()]
+            if matches:
+                context = classroom_timeline_context(material, {'kind':'hyperframes','seconds':matches[0]['start']})
+        resolved = None
+        if 'seconds' in context:
+            resolved = {'kind':'hyperframes','seconds':context['seconds'],'content_hash':native['project']['digest']}
+            if context.get('current_segment'):
+                resolved['segment_id'] = context['current_segment']['id']
+        from .hyperframes_context import compact_surroundings
+        body = json.dumps(context, ensure_ascii=False)
+        while len(body) > max_chars and compact_surroundings(context):
+            body = json.dumps(context, ensure_ascii=False)
+        truncated = bool(context.get('context_truncated')) or len(body) > max_chars
+        return {'excerpt':body[:max_chars], 'resolved_locator':resolved, 'content_hash':hashlib.sha256(material_text(material).encode()).hexdigest(),
+            'location_quality':context['location_quality'], 'truncated':truncated}
     text = material_text(material)
     content_hash = hashlib.sha256(text.encode()).hexdigest()
     quality, offset = 'approximate', 0

@@ -1,0 +1,29 @@
+{
+  "steps": [
+    {
+      "step": 1,
+      "filesUnchanged": true,
+      "rawChecksIdentical": false,
+      "normalizedChecksUnchanged": true
+    },
+    {
+      "step": 2,
+      "filesUnchanged": true,
+      "rawChecksIdentical": false,
+      "normalizedChecksUnchanged": true
+    },
+    {
+      "step": 3,
+      "filesUnchanged": true,
+      "rawChecksIdentical": false,
+      "normalizedChecksUnchanged": true
+    }
+  ],
+  "currentJobId": "job_9ba43a580d8a4c12",
+  "generationJobId": "job_9ba43a580d8a4c12",
+  "repairTotals": {
+    "filter-and-stats": 3
+  },
+  "currentBudgetUsed": {},
+  "normalizationNote": "旧检查序列化补齐 target.within=null 与 target.index=null；两侧按当前 UiCheck 归一化后逐项相同，未改动作、目标或期望值。"
+}

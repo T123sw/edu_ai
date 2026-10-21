@@ -109,7 +109,62 @@ def test_versioned_snapshot_reaches_model_and_preserves_full_current_page(agent_
     model = Model()
     LearningAgentRuntime(svc, svc.turn_repository, lambda _: model).run_once()
     result = svc.turns.get('alice', accepted['turn_id'])
-    assert result['status'] == 'succeeded', result
+    assert result['status'] == 'succeeded', json.dumps(result,ensure_ascii=False)
     assert '保留末尾' in model.messages[0]
     assert 'NEW_VERSION_MARKER' not in model.messages[0]
     assert result['result']['citations'][0]['resource_ref']['version'] == 1
+
+
+def test_native_accepted_question_freezes_real_25_second_context(agent_service):
+    from pathlib import Path
+    svc = agent_service
+    root = Path(__file__).resolve().parents[4]
+    original = json.loads((root / 'docs/acceptance/2026-10-17-hyperframes/content.json').read_text())
+    original = original.get('content', original)
+    assert original['timeline']['duration'] == 36.432
+    svc.manager.save_generated_material('course', 'classroom', 'native',
+        {**original, 'content': original, 'learning_course_resource': True},
+        owner_user_id='alice', visibility='course', scope_type='knowledge_point', scope_id='a')
+    req = AnswerRequest(request_id=uuid4(), question='这里的偏置为什么能让直线平移？', reading_context={
+        'resource_ref': {'course_id':'course','material_type':'classroom','material_id':'native','version':1},
+        'locator': {'kind':'hyperframes','seconds':25,'segment_id':'seg2','content_hash':original['project']['digest']},
+        'classroom': {'status':'paused','position':{'seconds':25,'segment_id':'seg2'}}})
+    accepted = svc.turns.accept('alice', 'course', 'a', req)
+    changed = copy.deepcopy(original)
+    changed['timeline']['segments'][1]['narration'] = 'NEW_VERSION_MARKER'
+    saved = svc.material('course','classroom','native','alice')
+    svc.manager.save_generated_material('course','classroom','native',
+        {**changed,'content':changed,'revision_history':{'1':saved}}, owner_user_id='alice',
+        visibility='course',scope_type='knowledge_point',scope_id='a')
+    model = Model()
+    LearningAgentRuntime(svc,svc.turn_repository,lambda _:model).run_once()
+    result = svc.turns.get('alice',accepted['turn_id'])
+    assert result['status'] == 'succeeded', json.dumps(result,ensure_ascii=False)
+    assert original['timeline']['segments'][1]['narration'] in model.messages[0]
+    assert 'NEW_VERSION_MARKER' not in model.messages[0]
+    citation = result['result']['citations'][0]
+    assert citation['resource_ref']['version'] == 1
+    assert citation['locator']['kind'] == 'hyperframes' and citation['locator']['seconds'] == 25
+
+
+def test_native_long_adjacent_narration_yields_to_current_segment(agent_service):
+    from tests.hyperframes.test_context_serving import lesson
+    svc = agent_service
+    content = lesson()
+    base = content['timeline']['segments'][0]
+    content['timeline'] = {'duration':180, 'segments':[{**copy.deepcopy(base),
+        'id':str(i),'start':i*60,'end':(i+1)*60,'events':[],
+        'narration':('当前完整讲稿' if i == 1 else '相邻章节说明') * 350 + str(i)} for i in range(3)]}
+    svc.manager.save_generated_material('course','classroom','long',
+        {**content,'content':content,'learning_course_resource':True},owner_user_id='alice',
+        visibility='course',scope_type='knowledge_point',scope_id='a')
+    req = AnswerRequest(request_id=uuid4(),question='这句话什么意思？',reading_context={
+        'resource_ref':{'course_id':'course','material_type':'classroom','material_id':'long','version':1},
+        'locator':{'kind':'hyperframes','seconds':90,'segment_id':'1'}})
+    accepted=svc.turns.accept('alice','course','a',req)
+    packet=ContextBuilder(svc).build(svc.turn_repository.get('alice',accepted['turn_id']))
+    data=json.loads(packet['messages'][1]['content'].split('\n',1)[1])
+    context=json.loads(data['reading']['excerpt'])
+    assert packet['input_bytes'] <= 24000 and data['reading']['truncated']
+    assert context['current_segment']['narration'] == content['timeline']['segments'][1]['narration']
+    assert context['seconds']==90 and packet['citations']['ctx_01']['locator']['seconds']==90

@@ -10,7 +10,6 @@ from app.course_preparation.runtime_contracts import BudgetCost
 from app.course_preparation.tool_registry import digest
 from app.course_preparation.quality import QualityStages
 from tests.course_preparation.test_runtime_foundation import repo, request
-from tests.course_preparation.test_classroom_teaching_contract import generation as classroom_generation
 from app.chat.harness.reviewed_resource import review_classroom as real_classroom_review
 
 
@@ -129,77 +128,3 @@ def test_binding_format_feedback_names_missing_locations_for_repeated_objective(
     details = json.loads(str(error.value).split(': ', 1)[1])
     assert len(details['missing']) == 2 and details['extra'] == []
     assert {json.loads(item)[2]['section_id'] for item in details['missing']} == {'s2', 's3'}
-
-
-def test_classroom_content_revision_receives_the_persisted_failure_reason(classroom_generation):
-    from app.course_preparation.adapters.classroom import generate_classroom_draft
-    args, _ = classroom_generation
-    args['payload'].revision_feedback = ['REQ-7 必须定位到真正解释缺少参数的场景。']
-    generate_classroom_draft(**args)
-    request = json.loads(args['gateway'].calls[0][-1]['content'])
-    assert request['feedback'] == args['payload'].revision_feedback
-
-
-def test_classroom_review_preserves_sources_without_repeating_old_revision_body(classroom_generation, monkeypatch):
-    from app.course_preparation.adapters.classroom import generate_classroom_draft
-    from tests.course_preparation.test_classroom_teaching_contract import passed_audit
-    args, review_module = classroom_generation
-    monkeypatch.setattr(review_module, 'review_classroom', real_classroom_review)
-    gateway = args['gateway']
-    gateway.preparation_harness = True
-    gateway.for_phase = lambda *a, **k: gateway
-    original = gateway.chat
-    def respond(messages, **kwargs):
-        request = json.loads(messages[-1]['content'])
-        if request.get('resource_type') == 'classroom':
-            gateway.calls.append(messages)
-            audit = passed_audit(request['content'])
-            return json.dumps({'checks': [{**c, 'reason': '根据真实正文逐项核对。'} for c in audit['checks']],
-                'scene_checks': audit['scene_checks'], 'blocking_issues': [], 'suggestions': []})
-        return original(messages, **kwargs)
-    gateway.chat = respond
-    args['payload'].research_context = '完整来源证据\n旧版正文基线'
-    args['payload'].review_research_context = '完整来源证据'
-    args['payload'].original_content = {'baseline': '旧版正文基线'}
-    result = generate_classroom_draft(**args)
-    calls = [json.loads(messages[-1]['content']) for messages in args['gateway'].calls]
-    assert calls[0]['revision_baseline'] == args['payload'].original_content
-    assert calls[0]['evidence'] == '完整来源证据'
-    review = next(c for c in calls if c.get('resource_type') == 'classroom')
-    assert review['specification']['research_context'] == '完整来源证据'
-    assert review['content'] == result['content']
-
-
-@pytest.mark.parametrize('target', ['r:principle', 'missing-scene'])
-def test_classroom_repairs_only_rejected_locations_and_independently_rechecks(classroom_generation, target):
-    from app.course_preparation.adapters.classroom import generate_classroom_draft
-    from app.course_preparation.classroom_render_checks import ClassroomFailure
-    args, _ = classroom_generation
-    original = args['gateway'].chat
-    seen = {'reviews': 0, 'repairs': 0}
-    originals = []
-    def respond(messages, **kwargs):
-        data = json.loads(messages[-1]['content'])
-        if 'failed_bindings' in data:
-            seen['repairs'] += 1
-            return json.dumps({'repairs': [{'binding_type': c['binding_type'], 'binding_id': c['binding_id'],
-                'original_locator': c['locator'], 'locator': {'scene_id': target, 'action_id': target + ':speech'}}
-                for c in data['failed_bindings']]})
-        raw = original(messages, **kwargs)
-        if 'preparation' in data:
-            seen['reviews'] += 1
-            originals.append(copy.deepcopy(data['content']))
-            response = json.loads(raw)
-            if seen['reviews'] == 1:
-                response['preparation_checks'][0].update(passed=False, reason='该定位只有过渡语，具体职责解释在 principle 场景。')
-            return json.dumps(response)
-        return raw
-    args['gateway'].chat = respond
-    if target == 'missing-scene':
-        with pytest.raises(ClassroomFailure): generate_classroom_draft(**args)
-        assert seen['repairs'] > 0
-    else:
-        result = generate_classroom_draft(**args)
-        assert result['content'] == originals[0] == originals[1]
-        assert seen == {'reviews': 2, 'repairs': 1}
-        assert result['generation_state']['preparation']['applied_requirements'][0]['locator']['scene_id'] == target

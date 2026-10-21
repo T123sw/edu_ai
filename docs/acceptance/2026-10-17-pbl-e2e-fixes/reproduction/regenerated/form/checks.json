@@ -1,0 +1,422 @@
+[
+  {
+    "id": "input-and-button-visible",
+    "label": "页面显示可用的姓名输入框和“报名”按钮",
+    "actions": [
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "name-input"
+        },
+        "value": null,
+        "assertion": "visible",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "name-input"
+        },
+        "value": null,
+        "assertion": "enabled",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "name-input"
+        },
+        "value": null,
+        "assertion": "value",
+        "expected": "",
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "submit-button"
+        },
+        "value": null,
+        "assertion": "visible",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "submit-button"
+        },
+        "value": null,
+        "assertion": "enabled",
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "submit-button"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "报名",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "empty-name-error",
+    "label": "姓名为空时点击报名显示“请输入姓名”",
+    "actions": [
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "submit-button"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "message"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "请输入姓名",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "whitespace-name-error",
+    "label": "姓名只含空格时点击报名显示“请输入姓名”",
+    "actions": [
+      {
+        "type": "fill",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "name-input"
+        },
+        "value": "   ",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "submit-button"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "message"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "请输入姓名",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "valid-name-success",
+    "label": "合法姓名提交后显示“报名成功：”加姓名",
+    "actions": [
+      {
+        "type": "fill",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "name-input"
+        },
+        "value": "张三",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "submit-button"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "message"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "报名成功：张三",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "trimmed-name-success",
+    "label": "姓名首尾空格被去掉后显示在成功提示中",
+    "actions": [
+      {
+        "type": "fill",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "name-input"
+        },
+        "value": "  李四  ",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "submit-button"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "message"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "报名成功：李四",
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  },
+  {
+    "id": "clear-message-on-edit",
+    "label": "修改姓名后旧的成功提示和旧的错误提示都被清除",
+    "actions": [
+      {
+        "type": "fill",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "name-input"
+        },
+        "value": "王五",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "submit-button"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "message"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "报名成功：王五",
+        "relativeTo": null
+      },
+      {
+        "type": "fill",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "name-input"
+        },
+        "value": "王五五",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "message"
+        },
+        "value": null,
+        "assertion": "count",
+        "expected": 0,
+        "relativeTo": null
+      },
+      {
+        "type": "fill",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "name-input"
+        },
+        "value": "",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "click",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "submit-button"
+        },
+        "value": null,
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "message"
+        },
+        "value": null,
+        "assertion": "text",
+        "expected": "请输入姓名",
+        "relativeTo": null
+      },
+      {
+        "type": "fill",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "name-input"
+        },
+        "value": "赵六",
+        "assertion": null,
+        "expected": null,
+        "relativeTo": null
+      },
+      {
+        "type": "assert",
+        "target": {
+          "within": null,
+          "index": null,
+          "role": null,
+          "name": null,
+          "testId": "message"
+        },
+        "value": null,
+        "assertion": "count",
+        "expected": 0,
+        "relativeTo": null
+      }
+    ],
+    "viewport": null
+  }
+]

@@ -1,0 +1,5 @@
+{
+  "message": "{\"status\":\"failed\",\"stage\":\"review\",\"error_code\":\"RESOURCE_LEASE_EXPIRED\",\"result_ref\":{\"course_id\":\"learn-f490a8326a334d33a472aa13e1f6c1c9\",\"manifest_id\":\"manifest_48386e242bab6af388c156777496cdb8\",\"course_ready\":false,\"course_available\":true,\"manifest_version\":1,\"planned_resources\":3,\"available_resources\":2}}\n+ actual - expected\n\n+ 'failed'\n- 'succeeded'\n",
+  "errors": [],
+  "failures": []
+}

@@ -1,0 +1,102 @@
+[
+  {
+    "case": "shop_a",
+    "exerciseId": "pbl_ead74be745a5f0cf9ed9eaa4a97be13f",
+    "steps": 4,
+    "checks": 17,
+    "browserPassed": true,
+    "previewViewports": [
+      {
+        "outerWidth": 390,
+        "width": 349,
+        "scrollWidth": 349
+      },
+      {
+        "outerWidth": 320,
+        "width": 279,
+        "scrollWidth": 279
+      }
+    ],
+    "recoveredAfterDeadlineFix": false
+  },
+  {
+    "case": "shop_b",
+    "exerciseId": "pbl_e74c597a1604ccbb88f3304f8b8d1439",
+    "steps": 4,
+    "checks": 17,
+    "browserPassed": true,
+    "previewViewports": [
+      {
+        "outerWidth": 390,
+        "width": 349,
+        "scrollWidth": 349
+      },
+      {
+        "outerWidth": 320,
+        "width": 279,
+        "scrollWidth": 279
+      }
+    ],
+    "recoveredAfterDeadlineFix": false
+  },
+  {
+    "case": "form",
+    "exerciseId": "pbl_71b51a688c434c1f0f87da315bacec7b",
+    "steps": 1,
+    "checks": 5,
+    "browserPassed": true,
+    "previewViewports": [
+      {
+        "outerWidth": 390,
+        "width": 349,
+        "scrollWidth": 349
+      },
+      {
+        "outerWidth": 320,
+        "width": 279,
+        "scrollWidth": 279
+      }
+    ],
+    "recoveredAfterDeadlineFix": false
+  },
+  {
+    "case": "layout",
+    "exerciseId": "pbl_4f6ee33f2ce560660e33ed674111db3f",
+    "steps": 1,
+    "checks": 7,
+    "browserPassed": true,
+    "previewViewports": [
+      {
+        "outerWidth": 390,
+        "width": 349,
+        "scrollWidth": 349
+      },
+      {
+        "outerWidth": 320,
+        "width": 279,
+        "scrollWidth": 279
+      }
+    ],
+    "recoveredAfterDeadlineFix": false
+  },
+  {
+    "case": "score",
+    "exerciseId": "pbl_30a7cbe3cae4183538dac3691a503e4b",
+    "steps": 4,
+    "checks": 14,
+    "browserPassed": true,
+    "previewViewports": [
+      {
+        "outerWidth": 390,
+        "width": 349,
+        "scrollWidth": 349
+      },
+      {
+        "outerWidth": 320,
+        "width": 279,
+        "scrollWidth": 279
+      }
+    ],
+    "recoveredAfterDeadlineFix": true
+  }
+]

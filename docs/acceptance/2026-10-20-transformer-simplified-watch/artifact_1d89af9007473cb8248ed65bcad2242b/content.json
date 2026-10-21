@@ -1,0 +1,341 @@
+{
+  "title": "自注意力与多头注意力：QKV 与多子空间",
+  "content": "# 自注意力与多头注意力：QKV 与多子空间\n\n上一节点已经建立了两个前提：Transformer 是编码器-解码器结构的 Seq2Seq 模型，而注意力的基本思路是\"用 Query 与 Key 算权重，再用权重对 Value 加权求和\"。本节点把这句话落到可以逐项计算的公式上，并说明为什么自注意力要拆成\"多头\"。\n\n## <a id=\"self-attention-flow\"></a>一、自注意力的计算流程\n\n设输入序列有 $n$ 个词，每个词已经表示为一个 $d$ 维向量。把它们按行排成矩阵 $X$，形状为 $n \\times d$（每一行是一个词）。自注意力对 $X$ 做五步运算。\n\n**第 1 步：三个线性映射。** 用三个可学习的参数矩阵 $W_Q$、$W_K$、$W_V$ 分别乘 $X$：\n\n$$Q = XW_Q,\\qquad K = XW_K,\\qquad V = XW_V$$\n\n若 $W_Q, W_K$ 的形状为 $d \\times d_k$，$W_V$ 为 $d \\times d_v$，则 $Q$、$K$ 是 $n \\times d_k$，$V$ 是 $n \\times d_v$。$Q$ 的第 $i$ 行是第 $i$ 个词的查询向量，$K$ 的第 $j$ 行是第 $j$ 个词的键向量，$V$ 的第 $j$ 行是第 $j$ 个词的值向量。\n\n**第 2 步：点积打分。** 用 $Q$ 乘 $K$ 的转置，得到 $n \\times n$ 的打分矩阵 $S = QK^\\top$。其中 $S_{ij} = q_i \\cdot k_j$，即第 $i$ 个词的查询与第 $j$ 个词的键的内积。内积越大，说明两者越\"匹配\"，第 $i$ 个词就越应该关注第 $j$ 个词。\n\n**第 3 步：缩放。** 把打分除以 $\\sqrt{d_k}$，得到 $S/\\sqrt{d_k}$。这一步是\"缩放点积\"中\"缩放\"二字的来源。\n\n**第 4 步：按行 softmax。** 对打分矩阵的**每一行**做 softmax，得到注意力权重矩阵 $A$：\n\n$$A = \\mathrm{softmax}\\left(\\frac{QK^\\top}{\\sqrt{d_k}}\\right),\\qquad A_{ij} = \\frac{\\exp(S_{ij}/\\sqrt{d_k})}{\\sum_{j'=1}^{n}\\exp(S_{ij'}/\\sqrt{d_k})}$$\n\n\"按行归一化\"意味着：分母只对同一行（同一个查询词 $i$ 对所有键 $j'$）求和。因此每一行都满足 $\\sum_j A_{ij} = 1$，且每个 $A_{ij} > 0$。第 $i$ 行就是第 $i$ 个词分配给全句各词的注意力分布。\n\n**第 5 步：加权求和。** 用权重矩阵乘 $V$：\n\n$$\\mathrm{Attention}(Q,K,V) = AV = \\mathrm{softmax}\\left(\\frac{QK^\\top}{\\sqrt{d_k}}\\right)V$$\n\n结果形状为 $n \\times d_v$，第 $i$ 行是 $o_i = \\sum_j A_{ij} v_j$，即第 $i$ 个词的新表示。\n\n把五步串起来就是完整公式：\n\n$$\\boxed{\\ \\mathrm{Attention}(Q,K,V) = \\mathrm{softmax}\\left(\\frac{QK^\\top}{\\sqrt{d_k}}\\right)V\\ }$$\n\n**关于 $\\sqrt{d_k}$ 的位置与作用。** 它作用在 softmax **之前**、点积**之后**，即先缩放打分再归一化。原因是：当 $d_k$ 较大时，随机向量的内积方差会随维度增大而变大，打分绝对值偏大；softmax 对大幅值输入会变得非常\"尖锐\"，几乎把全部权重压在一个位置上，梯度也随之变得很小，训练困难。除以 $\\sqrt{d_k}$ 把打分的量级拉回合适范围，使分布不至于过度极端。注意它不改变 softmax 的\"按行\"性质，也不改变输出是加权平均这一事实。\n\n**关于 softmax 的位置。** softmax 只出现在打分矩阵上，且按行进行；输出端没有 softmax，直接是权重与 $V$ 的乘积。这是初学者最容易记错的地方：softmax 归一化的是\"每个词如何分配注意力\"，不是\"输出向量的各维\"。\n\n## <a id=\"qkv-same-source\"></a>二、\"Q、K、V 同源\"是什么意思\n\n在一般的注意力里，Query 可以来自解码器当前状态，Key 和 Value 来自编码器输出，两者来源不同。自注意力的特殊之处在于：$Q$、$K$、$V$ **全部由同一个输入矩阵 $X$ 经线性映射得到**，不引入任何外部信息。这就是\"同源\"。\n\n同源带来两个直接后果。\n\n**第一，每个词都能与句中所有词（包括自己）计算注意力。** 因为 $Q$ 和 $K$ 都覆盖同一批位置，打分矩阵是 $n \\times n$ 的方阵，第 $i$ 行覆盖了全部 $n$ 个键。于是模型可以在序列内部寻找关系，而不是像 RNN 那样只能沿着时间步逐步传递信息。\n\n**第二，输出是输入向量的加权组合。** 由第 5 步，$o_i = \\sum_j A_{ij} v_j$，而每个 $v_j = x_j W_V$ 是第 $j$ 个输入向量经同一线性映射的结果。所以\n\n$$o_i = \\sum_j A_{ij}\\,(x_j W_V) = \\left(\\sum_j A_{ij} x_j\\right) W_V$$\n\n括号里正是输入向量 $x_j$ 以权重 $A_{ij}$ 的凸组合（权重非负且和为 1）。也就是说：**第 $i$ 个词的新表示，是\"按注意力权重混合后的输入向量\"再做一次线性变换**。权重和为 1 保证了这是一次加权平均而非任意缩放，输出落在输入向量张成的范围内，不会因为词数变多而数值爆炸。\n\n需要区分两个容易混淆的说法。资料中有一处表述为\"在 self attention 中 key=value=query\"，这是指三者**来源相同**（都来自 $X$），不是说三个矩阵数值相等——若 $W_Q=W_K=W_V$，打分就退化为 $x_i^\\top W^\\top W x_j$，模型就失去了\"用不同视角分别提问、被匹配、被取用\"的表达能力。准确的说法是：同源，但经不同参数映射。\n\n另外要提醒一个边界：由于权重只依赖 $q_i$ 与 $k_j$ 的相关性，自注意力本身**不含位置信息**——把输入序列打乱顺序，输出只是跟着打乱，权重模式不变。所以单独使用时需要加入位置编码修正，Transformer 正是这么做的。位置编码的具体方案属于后续节点，这里只需知道自注意力必须与它配合。\n\n## <a id=\"worked-example\"></a>三、手算演示：三个词的极小例子\n\n为了看清每一步，取一个可以手算的极小设定。句子是\"我 爱 你\"，$n=3$。为便于演示，假设每个词已被表示为 2 维向量（真实模型中维度远大于此，但流程完全相同）：\n\n$$x_1 = (1, 0)\\ (\\text{我}),\\qquad x_2 = (0, 1)\\ (\\text{爱}),\\qquad x_3 = (1, 1)\\ (\\text{你})$$\n\n$$X = \\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\\\ 1 & 1 \\end{pmatrix}$$\n\n取三个投影矩阵（数值为演示而设，真实模型由训练得到）：\n\n$$W_Q = \\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\end{pmatrix},\\quad W_K = \\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\end{pmatrix},\\quad W_V = \\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\end{pmatrix}$$\n\n即先取恒等映射，让 $Q=K=V=X$，这样打分就是原始向量的内积，便于核对。此时 $d_k = 2$，$\\sqrt{d_k} = \\sqrt{2} \\approx 1.414$。\n\n**第 1 步：得到 Q、K、V。**\n\n$$Q = K = V = X = \\begin{pmatrix} 1 & 0 \\\\ 0 & 1 \\\\ 1 & 1 \\end{pmatrix}$$\n\n**第 2 步：点积打分 $S = QK^\\top$。** 逐项算内积：\n\n- $S_{11} = (1,0)\\cdot(1,0) = 1$\n- $S_{12} = (1,0)\\cdot(0,1) = 0$\n- $S_{13} = (1,0)\\cdot(1,1) = 1$\n- $S_{21} = (0,1)\\cdot(1,0) = 0$\n- $S_{22} = (0,1)\\cdot(0,1) = 1$\n- $S_{23} = (0,1)\\cdot(1,1) = 1$\n- $S_{31} = (1,1)\\cdot(1,0) = 1$\n- $S_{32} = (1,1)\\cdot(0,1) = 1$\n- $S_{33} = (1,1)\\cdot(1,1) = 2$\n\n$$S = \\begin{pmatrix} 1 & 0 & 1 \\\\ 0 & 1 & 1 \\\\ 1 & 1 & 2 \\end{pmatrix}$$\n\n**第 3 步：缩放。** 全部除以 $\\sqrt{2} \\approx 1.414$：\n\n$$S/\\sqrt{d_k} \\approx \\begin{pmatrix} 0.707 & 0 & 0.707 \\\\ 0 & 0.707 & 0.707 \\\\ 0.707 & 0.707 & 1.414 \\end{pmatrix}$$\n\n**第 4 步：按行 softmax。** 逐行计算，注意每行的分母只含本行元素。\n\n第 1 行：$e^{0.707} \\approx 2.028$，$e^{0} = 1$，$e^{0.707} \\approx 2.028$，和为 $5.056$。\n$$A_{1\\cdot} \\approx (0.401,\\ 0.198,\\ 0.401)$$\n\n第 2 行：$e^{0} = 1$，$e^{0.707} \\approx 2.028$，$e^{0.707} \\approx 2.028$，和为 $5.056$。\n$$A_{2\\cdot} \\approx (0.198,\\ 0.401,\\ 0.401)$$\n\n第 3 行：$e^{0.707} \\approx 2.028$，$e^{0.707} \\approx 2.028$，$e^{1.414} \\approx 4.113$，和为 $8.169$。\n$$A_{3\\cdot} \\approx (0.248,\\ 0.248,\\ 0.503)$$\n\n$$A \\approx \\begin{pmatrix} 0.401 & 0.198 & 0.401 \\\\ 0.198 & 0.401 & 0.401 \\\\ 0.248 & 0.248 & 0.503 \\end{pmatrix}$$\n\n**核对按行归一化：** 第 1 行 $0.401+0.198+0.401 = 1.000$；第 2 行 $0.198+0.401+0.401 = 1.000$；第 3 行 $0.248+0.248+0.503 = 0.999 \\approx 1$（末位为四舍五入误差）。三行各自为 1，而**列和**分别是 $0.847$、$0.847$、$1.305$，并不为 1——这正说明归一化是按行而非按列。\n\n**第 5 步：加权求和 $AV$。** 因为 $V = X$：\n\n- $o_1 = 0.401\\cdot(1,0) + 0.198\\cdot(0,1) + 0.401\\cdot(1,1) = (0.802,\\ 0.599)$\n- $o_2 = 0.198\\cdot(1,0) + 0.401\\cdot(0,1) + 0.401\\cdot(1,1) = (0.599,\\ 0.802)$\n- $o_3 = 0.248\\cdot(1,0) + 0.248\\cdot(0,1) + 0.503\\cdot(1,1) = (0.751,\\ 0.751)$\n\n**从结果读出三件事。**\n\n1. **输出是输入的加权组合。** 例如 $o_1$ 的两个分量 $0.802$ 与 $0.599$，恰好等于 $A$ 第 1 行与三个输入向量第一、二分量的加权和；权重和为 1，所以 $o_1$ 落在 $x_1,x_2,x_3$ 的凸包内。\n2. **\"你\"（第 3 个词）获得了最高权重。** 第 1 行中 $A_{13}=0.401$ 与 $A_{11}=0.401$ 并列最高，因为 $x_3=(1,1)$ 与 $x_1=(1,0)$ 的内积为 1，与自身相同；第 3 行中 $A_{33}=0.503$ 最高，因为 $x_3$ 与自身内积为 2，明显大于与其他词的内积 1。这说明打分高（更\"匹配\"）的位置分到更大权重。\n3. **每个词都同时看到了全句。** 三行都非零地覆盖了三个位置，没有哪个位置被完全忽略——这就是自注意力\"在序列内部寻找关系\"的具体表现。\n\n**换一组投影矩阵看差别。** 若把 $W_Q$ 换成 $\\begin{pmatrix} 0 & 1 \\\\ 1 & 0 \\end{pmatrix}$（交换两维），则 $Q$ 变为 $\\begin{pmatrix} 0 & 1 \\\\ 1 & 0 \\\\ 1 & 1 \\end{pmatrix}$，$K$ 仍为 $X$。此时 $S_{11} = (0,1)\\cdot(1,0) = 0$，$S_{12} = (0,1)\\cdot(0,1) = 1$，$S_{13} = (0,1)\\cdot(1,1) = 1$，第 1 行的权重分布随之改变。可见**投影矩阵决定了\"用什么视角提问\"**，同一批输入在不同投影下会得到不同的注意力模式。这正是下一节多头注意力的出发点。\n\n## <a id=\"multi-head\"></a>四、多头注意力：在多个子空间分别做自注意力\n\n**先看单头缺什么。** 上面的例子里，一个 $W_Q$、一个 $W_K$ 只定义了一种\"匹配方式\"。但一句话里往往同时存在多种关系：语法上的主谓一致、指代关系、语义相似、位置邻近等。单头只能给出一个 $n \\times n$ 权重矩阵，相当于强迫模型用同一把尺子衡量所有关系，不同性质的关系会互相干扰、被平均掉。这就是\"如果只有一个头会缺什么\"的答案：缺的是**多种关系并存的表达能力**。\n\n**多头的做法。** 设头数为 $M$。为第 $m$ 个头准备一组独立的投影矩阵 $W_Q^{(m)}$、$W_K^{(m)}$、$W_V^{(m)}$，各自做一次完整的自注意力：\n\n$$\\mathrm{head}_m = \\mathrm{Attention}\\left(XW_Q^{(m)},\\ XW_K^{(m)},\\ XW_V^{(m)}\\right) = \\mathrm{softmax}\\left(\\frac{Q_mK_m^\\top}{\\sqrt{d_k}}\\right)V_m$$\n\n每个头在自己的投影子空间里独立算出一套权重和一个 $n \\times d_v$ 的输出。然后把 $M$ 个头的结果**按特征维拼接**：\n\n$$\\mathrm{MultiHead}(X) = \\mathrm{Concat}(\\mathrm{head}_1,\\ \\dots,\\ \\mathrm{head}_M)\\,W_O$$\n\n拼接后形状为 $n \\times (M d_v)$，再乘输出投影矩阵 $W_O$ 把它映射回 $n \\times d$，与输入维度对齐，便于接残差连接和后续层。\n\n**为什么这样能捕捉不同交互信息。** 关键在于各头的 $W_Q^{(m)}$、$W_K^{(m)}$ 互不相同，因此每个头对\"什么算匹配\"有各自的判断，得到不同的注意力权重矩阵；各头的 $W_V^{(m)}$ 也不同，因此即使权重相同，取出的信息侧重也不同。于是同一个词在头 1 里可能主要关注句法上的中心词，在头 2 里主要关注语义相近的词。拼接保留了这些并行的视角，$W_O$ 再把它们融合成一个统一表示。资料对此的表述是：多头自注意力\"在多个不同的投影空间中捕捉不同的交互信息\"，\"将多个不同参数的自注意力的结果进行拼接\"。\n\n**与单头的差别，从参数和输出两方面看。**\n\n- **参数**：单头有 $W_Q, W_K, W_V$ 三组矩阵；$M$ 头有 $3M$ 组（外加输出投影 $W_O$）。实践中常令每个头的维度 $d_k = d/M$，使总参数量与单头同量级——多头不是简单地把模型变大，而是把同样的表示宽度**切分**成多个子空间并行使用。\n- **输出**：单头输出一个 $n \\times d_v$ 矩阵，只有一套权重；多头输出 $M$ 套权重、$M$ 个 $n \\times d_v$ 结果，拼接并投影后仍回到 $n \\times d$。所以下游看到的维度不变，但内部已经融合了 $M$ 种不同的关注模式。\n\n**一个常见误解。** 多头不是\"把同一个注意力算 $M$ 遍再取平均\"。若各头参数相同，拼接再投影等价于单头（只是重复），毫无收益；多头的价值完全来自**参数不同**带来的子空间差异。也不是\"每个头看句子的一段\"——每个头都看全句，区别在于用什么投影去提问和匹配。\n\n## <a id=\"self-check\"></a>五、自检\n\n合上正文，试着完成下面几项，再对照检查。\n\n1. **默写公式。** 写出 $\\mathrm{Attention}(Q,K,V)$ 的完整表达式，并指出 $\\sqrt{d_k}$ 与 softmax 各自的位置。检查点：$\\sqrt{d_k}$ 在点积之后、softmax 之前；softmax 作用在打分矩阵上并按行归一化；输出端直接乘 $V$，没有额外 softmax。\n2. **解释按行。** 若打分矩阵是 $3\\times3$，按行 softmax 后有几行、每行和是多少？列和是否也为 1？检查点：3 行，每行和为 1；列和一般不为 1（见第三节的 $0.847, 0.847, 1.305$）。\n3. **解释同源。** 用自己的话说清\"$Q$、$K$、$V$ 同源\"指什么、不指什么。检查点：指都来自同一输入 $X$ 经线性映射；不指三个矩阵数值相等。\n4. **解释加权组合。** 为什么说输出向量是输入向量的加权组合？检查点：$o_i = \\sum_j A_{ij} x_j W_V$，权重非负且行和为 1，故括号内是输入的凸组合。\n5. **比较多头与单头。** 从参数和输出两方面说明差别。检查点：参数从 3 组变为 $3M$ 组（加 $W_O$），常令 $d_k=d/M$ 保持总量；输出从一套权重变为 $M$ 套权重，拼接投影后维度仍为 $d$。\n6. **说出多头的收益来源。** 检查点：来自各头投影矩阵不同，从而在不同子空间得到不同注意力模式；参数相同则无收益。\n\n若第 1、2 项能独立完成，说明计算流程已掌握；第 3、4 项能讲清，说明理解了自注意力的本质；第 5、6 项能讲清，说明理解了多头设计动机。\n\n## 六、本节点边界与依据说明\n\n本节点只讲自注意力与多头注意力的机制，不展开位置编码的具体公式、编码器-解码器的完整数据流、掩码细节与代码实现，这些由其他节点承担。文中公式与\"加权求和\"\"多子空间捕捉不同交互信息\"\"按行归一化\"\"自注意力忽略位置信息需加位置编码\"等结论，依据所给公开资料（微软 AI-System 教材第 2.9 节、kangshitao 的 Transformer 笔记、相关技术博客解读）；第三节的数值例子为便于手算而自行构造，用于演示流程，不代表任何真实模型的参数。资料中\"self attention 中 key=value=query\"一句已按\"来源相同\"理解，并在第二节说明了它与\"数值相等\"的区别。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 14.9
+      },
+      "sections": [
+        {
+          "section_id": "self-attention-flow",
+          "content_sha256": "ca147bf371e47dc19ec528e1b1c58e8f181869d70dcb53895f0ae38668d8eaba"
+        },
+        {
+          "section_id": "qkv-same-source",
+          "content_sha256": "188d3f403c0a0d1ea589feef5f3f67982088a01ee8006442c376aa7b45963c79"
+        },
+        {
+          "section_id": "worked-example",
+          "content_sha256": "87a4656b0e86770822386585af3b33a0db19f6dea70f966b5e9a1f3ceccc1a57"
+        },
+        {
+          "section_id": "multi-head",
+          "content_sha256": "b150419d225a7516ba2770433f14731e8a56ea173bc911447567041ba49a3bfe"
+        },
+        {
+          "section_id": "self-check",
+          "content_sha256": "36a6321d8164f8cb2db8bcb44894543305d35b22200aae687d4418b0c94d8799"
+        }
+      ],
+      "spec_digest": "58f293f65cf56580e419ce2c17048a7bd78a8537812031c6c54bc8438bb99b5a",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "self-attention-flow"
+          },
+          "objective_id": "n2-self-attention:o1"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "worked-example"
+          },
+          "objective_id": "n2-self-attention:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "qkv-same-source"
+          },
+          "objective_id": "n2-self-attention:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "worked-example"
+          },
+          "objective_id": "n2-self-attention:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "multi-head"
+          },
+          "objective_id": "n2-self-attention:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "objective_id": "n2-self-attention:o3"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "self-attention-flow"
+          },
+          "explanation": "本节完整讲授自注意力这一 Transformer 核心机制的计算流程（Q/K/V 线性映射、点积打分、缩放、按行 softmax、加权求和），落实整课要求中“自注意力”部分。",
+          "requirement_id": "req-transformer-learning"
+        },
+        {
+          "locator": {
+            "section_id": "multi-head"
+          },
+          "explanation": "本节讲授多头注意力：多组投影矩阵、多个子空间并行做自注意力、拼接后合并输出，落实整课要求中“多头注意力”部分。",
+          "requirement_id": "req-transformer-learning"
+        }
+      ],
+      "teaching_context_digest": "243284d5e0034c2eeb0b78a85b9fa0c07fd6f9a04e0643256c4b0c395aa314cb"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "正文第一节（self-attention-flow）完整给出 Q=XW_Q、K=XW_K、V=XW_V → QK^T → 除以 √d_k → 按行 softmax → 乘 V 的流程，并明确 softmax 按行归一化；第四节（multi-head）给出多组投影矩阵、各头独立自注意力、Concat 后乘 W_O 合并，落实本节点分工的三条目标；未越界讲授位置编码公式或编码器-解码器数据流（第六节明确划界）。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "公式 Attention(Q,K,V)=softmax(QK^T/√d_k)V 正确，A_ij 定义分母只对同一行求和，与“按行归一化”一致；第二节推导 o_i=Σ_j A_ij x_j W_V 成立；第三节手算逐项复核：S 矩阵、S/√2≈(0.707,0,0.707;0,0.707,0.707;0.707,0.707,1.414)、行 softmax 结果 (0.401,0.198,0.401)/(0.198,0.401,0.401)/(0.248,0.248,0.503)、列和 0.847/0.847/1.305 及 o_1=(0.802,0.599)、o_2=(0.599,0.802)、o_3=(0.751,0.751) 均正确；对“key=value=query”按“来源相同而非数值相等”的澄清准确；多头参数 3M 组、d_k=d/M 的说明正确。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第三节用“我 爱 你”三词、2 维向量、恒等投影的可手算例子走完五步，并显式核对每行和为 1、列和不为 1，标出四舍五入误差；还给出替换 W_Q 为交换矩阵后 S_11=0、S_12=1、S_13=1 的对照，说明投影矩阵改变注意力模式，与课堂活动“手算演示”和“只有一个头会缺什么”的讨论对应。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为：计算流程 → QKV 同源含义 → 手算演示 → 多头注意力 → 自检 → 边界说明，与节点活动顺序（推导→手算→讨论多头）一致，不是仅在开头声称；第一节先给维度约定再逐步推导，第二节先讲同源再讲加权组合，第四节先问“单头缺什么”再给多头做法，符合入门深度与中文语言要求。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "第六节说明结论依据微软 AI-System 教材 2.9 节、kangshitao 的 Transformer 笔记与相关技术博客，与 evidence 中 ev_80c33e5b5a0d727232f5b1c6、ev_81397b48eb6b00add2ed7bf0、ev_b3c04ac70003fc8b7c12586d 的原文一致（“多个不同的投影空间中捕捉不同的交互信息”“将多个不同参数的自注意力的结果进行拼接”“softmax 按行归一化”“忽略位置信息需加位置编码”）；并声明手算数值为自构造演示，未谎称核查原始论文全文。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三条目标均有对应内容：o1 由第一节公式与第三节手算覆盖，o2 由第二节同源与加权组合推导覆盖，o3 由第四节多头机制与参数/输出对比覆盖；第五节自检六项与节点 self_check（默写公式、√d_k 与按行 softmax 位置、多头与单头差别）对应；第六节明确本节点边界，未遗漏必需机制。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文第一节（self-attention-flow）完整给出 Q=XW_Q、K=XW_K、V=XW_V → QK^T → 除以 √d_k → 按行 softmax → 乘 V 的流程，并明确 softmax 按行归一化；第四节（multi-head）给出多组投影矩阵、各头独立自注意力、Concat 后乘 W_O 合并，落实本节点分工的三条目标；未越界讲授位置编码公式或编码器-解码器数据流（第六节明确划界）。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "公式 Attention(Q,K,V)=softmax(QK^T/√d_k)V 正确，A_ij 定义分母只对同一行求和，与“按行归一化”一致；第二节推导 o_i=Σ_j A_ij x_j W_V 成立；第三节手算逐项复核：S 矩阵、S/√2≈(0.707,0,0.707;0,0.707,0.707;0.707,0.707,1.414)、行 softmax 结果 (0.401,0.198,0.401)/(0.198,0.401,0.401)/(0.248,0.248,0.503)、列和 0.847/0.847/1.305 及 o_1=(0.802,0.599)、o_2=(0.599,0.802)、o_3=(0.751,0.751) 均正确；对“key=value=query”按“来源相同而非数值相等”的澄清准确；多头参数 3M 组、d_k=d/M 的说明正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第三节用“我 爱 你”三词、2 维向量、恒等投影的可手算例子走完五步，并显式核对每行和为 1、列和不为 1，标出四舍五入误差；还给出替换 W_Q 为交换矩阵后 S_11=0、S_12=1、S_13=1 的对照，说明投影矩阵改变注意力模式，与课堂活动“手算演示”和“只有一个头会缺什么”的讨论对应。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为：计算流程 → QKV 同源含义 → 手算演示 → 多头注意力 → 自检 → 边界说明，与节点活动顺序（推导→手算→讨论多头）一致，不是仅在开头声称；第一节先给维度约定再逐步推导，第二节先讲同源再讲加权组合，第四节先问“单头缺什么”再给多头做法，符合入门深度与中文语言要求。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "第六节说明结论依据微软 AI-System 教材 2.9 节、kangshitao 的 Transformer 笔记与相关技术博客，与 evidence 中 ev_80c33e5b5a0d727232f5b1c6、ev_81397b48eb6b00add2ed7bf0、ev_b3c04ac70003fc8b7c12586d 的原文一致（“多个不同的投影空间中捕捉不同的交互信息”“将多个不同参数的自注意力的结果进行拼接”“softmax 按行归一化”“忽略位置信息需加位置编码”）；并声明手算数值为自构造演示，未谎称核查原始论文全文。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三条目标均有对应内容：o1 由第一节公式与第三节手算覆盖，o2 由第二节同源与加权组合推导覆盖，o3 由第四节多头机制与参数/输出对比覆盖；第五节自检六项与节点 self_check（默写公式、√d_k 与按行 softmax 位置、多头与单头差别）对应；第六节明确本节点边界，未遗漏必需机制。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第三节“从结果读出三件事”第 2 点称“你”获得最高权重，但第 1 行中 A_13 与 A_11 并列 0.401，措辞可改为“第 3 行中‘你’权重最高，第 1 行中‘你’与‘我’并列最高”，避免读者误读。",
+              "第四节“参数”一条可补一句：W_O 的形状为 M d_v × d，使“拼接后映射回 n×d”的维度链条更完整。",
+              "第二节提到“位置编码的具体方案属于后续节点”，可顺带点明本节点公式中不含位置项，与第六节边界说明呼应更紧。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "self-attention-flow 节确实完整讲授自注意力计算流程（三个线性映射、点积打分、缩放、按行 softmax、加权求和），真实支持整课要求中“自注意力”部分，且未伪称已覆盖位置编码与编码器-解码器。",
+                "locator": {
+                  "section_id": "self-attention-flow"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "multi-head 节给出 M 组独立投影矩阵、各头独立自注意力、按特征维 Concat 后乘 W_O 合并，并解释多子空间捕捉不同交互信息，真实支持“多头注意力”部分。",
+                "locator": {
+                  "section_id": "multi-head"
+                },
+                "binding_id": "req-transformer-learning",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-attention-flow 节以五步推导给出 Q=XW_Q、K=XW_K、V=XW_V、S=QK^T、除以 √d_k、按行 softmax、AV，并写出完整公式，直接支持目标 o1。",
+                "locator": {
+                  "section_id": "self-attention-flow"
+                },
+                "binding_id": "n2-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "worked-example 节用三词例子逐步算出 S、缩放、行 softmax 与 AV，并核对每行和为 1，作为 o1 的练习性支撑成立。",
+                "locator": {
+                  "section_id": "worked-example"
+                },
+                "binding_id": "n2-self-attention:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "qkv-same-source 节说明 Q、K、V 全部由同一 X 经线性映射得到，并推导 o_i=Σ_j A_ij x_j W_V 说明输出是输入的加权（凸）组合，直接支持目标 o2。",
+                "locator": {
+                  "section_id": "qkv-same-source"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "worked-example 节第 1 点从 o_1=(0.802,0.599) 读出其为输入向量按行权重的加权和、落在凸包内，作为 o2 的练习性支撑成立。",
+                "locator": {
+                  "section_id": "worked-example"
+                },
+                "binding_id": "n2-self-attention:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "multi-head 节说明各头投影矩阵不同导致不同注意力模式、拼接后由 W_O 融合，并对比单头与多头的参数与输出，直接支持目标 o3。",
+                "locator": {
+                  "section_id": "multi-head"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "self-check 节第 5、6 项要求从参数与输出比较单头多头、并说出收益来自各头投影不同，作为 o3 的检查项成立。",
+                "locator": {
+                  "section_id": "self-check"
+                },
+                "binding_id": "n2-self-attention:o3",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "40ebe438bfcdc433457a54f7358e22dfcb01d45ccfa3e17f40b57441163434c5",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第三节“从结果读出三件事”第 2 点称“你”获得最高权重，但第 1 行中 A_13 与 A_11 并列 0.401，措辞可改为“第 3 行中‘你’权重最高，第 1 行中‘你’与‘我’并列最高”，避免读者误读。",
+        "第四节“参数”一条可补一句：W_O 的形状为 M d_v × d，使“拼接后映射回 n×d”的维度链条更完整。",
+        "第二节提到“位置编码的具体方案属于后续节点”，可顺带点明本节点公式中不含位置项，与第六节边界说明呼应更紧。"
+      ],
+      "content_sha256": "40ebe438bfcdc433457a54f7358e22dfcb01d45ccfa3e17f40b57441163434c5",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "self-attention-flow 节确实完整讲授自注意力计算流程（三个线性映射、点积打分、缩放、按行 softmax、加权求和），真实支持整课要求中“自注意力”部分，且未伪称已覆盖位置编码与编码器-解码器。",
+          "locator": {
+            "section_id": "self-attention-flow"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "multi-head 节给出 M 组独立投影矩阵、各头独立自注意力、按特征维 Concat 后乘 W_O 合并，并解释多子空间捕捉不同交互信息，真实支持“多头注意力”部分。",
+          "locator": {
+            "section_id": "multi-head"
+          },
+          "binding_id": "req-transformer-learning",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-attention-flow 节以五步推导给出 Q=XW_Q、K=XW_K、V=XW_V、S=QK^T、除以 √d_k、按行 softmax、AV，并写出完整公式，直接支持目标 o1。",
+          "locator": {
+            "section_id": "self-attention-flow"
+          },
+          "binding_id": "n2-self-attention:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "worked-example 节用三词例子逐步算出 S、缩放、行 softmax 与 AV，并核对每行和为 1，作为 o1 的练习性支撑成立。",
+          "locator": {
+            "section_id": "worked-example"
+          },
+          "binding_id": "n2-self-attention:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "qkv-same-source 节说明 Q、K、V 全部由同一 X 经线性映射得到，并推导 o_i=Σ_j A_ij x_j W_V 说明输出是输入的加权（凸）组合，直接支持目标 o2。",
+          "locator": {
+            "section_id": "qkv-same-source"
+          },
+          "binding_id": "n2-self-attention:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "worked-example 节第 1 点从 o_1=(0.802,0.599) 读出其为输入向量按行权重的加权和、落在凸包内，作为 o2 的练习性支撑成立。",
+          "locator": {
+            "section_id": "worked-example"
+          },
+          "binding_id": "n2-self-attention:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "multi-head 节说明各头投影矩阵不同导致不同注意力模式、拼接后由 W_O 融合，并对比单头与多头的参数与输出，直接支持目标 o3。",
+          "locator": {
+            "section_id": "multi-head"
+          },
+          "binding_id": "n2-self-attention:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "self-check 节第 5、6 项要求从参数与输出比较单头多头、并说出收益来自各头投影不同，作为 o3 的检查项成立。",
+          "locator": {
+            "section_id": "self-check"
+          },
+          "binding_id": "n2-self-attention:o3",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "2c6ffccb7eda5de99f6351dfc85e6a232c3d7fcdeefc3676340ee3c7ca761806"
+    }
+  }
+}

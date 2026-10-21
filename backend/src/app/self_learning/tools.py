@@ -283,12 +283,14 @@ class LearningTools:
         allowed = {t['id'] for t in self.room()['chapters']}
         if args.topic_ids:
             allowed &= set(args.topic_ids)
+        from sqlalchemy import func
+        message_topic = func.coalesce(ConversationMessage.raw_payload['topic_id'].as_string(), LearningTopicSession.topic_id)
         query_tokens = sorted(_tokens(args.query))[:32]
         with Session(self.learning.session_repository.engine) as db:
-            rows = db.execute(select(ConversationMessage, LearningTopicSession.topic_id).join(LearningTopicSession,
+            rows = db.execute(select(ConversationMessage, message_topic).join(LearningTopicSession,
                 LearningTopicSession.session_id == ConversationMessage.conversation_id).where(
                 LearningTopicSession.owner == self.turn['owner'], LearningTopicSession.course_id == self.turn['course_id'],
-                LearningTopicSession.topic_id.in_(allowed),
+                message_topic.in_(allowed),
                 or_(ConversationMessage.content.contains(args.query, autoescape=True),
                     *[ConversationMessage.content.contains(token, autoescape=True) for token in query_tokens])
             ).order_by(ConversationMessage.occurred_at.desc(), ConversationMessage.message_id)).all()

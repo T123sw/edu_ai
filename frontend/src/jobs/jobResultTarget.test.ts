@@ -94,3 +94,8 @@ test("revision jobs open the original material identity and read-only turns retu
   assert.equal(getJobResultHash(job), '#resources?course_id=course-a&material_type=report&material_id=report-1');
   assert.equal(getJobResultHash({...job,result_ref:{resource_type:'artifact_conversation',course_id:'course-a',conversation_id:'conv-1'}}), '#ai?course_id=course-a&conversation_id=conv-1');
 });
+
+test('PBL without a course opens its personal coding workspace', () => {
+  const job = makeJob({kind:'generate_pbl',result_ref:{resource_type:'pbl_exercise',exercise_id:'pbl_personal'}});
+  assert.equal(getJobResultHash(job),'#/practice/code/pbl_personal');
+});

@@ -1,0 +1,420 @@
+{
+  "title": "Transformer 是什么：编码器-解码器整体结构",
+  "content": "# Transformer 是什么：编码器-解码器整体结构\n\n<a id=\"sec-what-is-transformer\"></a>\n## 一、一句话定位：2017 年、完全基于注意力的序列转换模型\n\nTransformer 是 2017 年 Google 团队在论文《Attention Is All you Need》中提出的一个 **Seq2Seq（序列到序列）模型**，它的核心计算单元是**多头注意力（Multi-Head Attention）**，整个网络由**编码器（Encoder）**和**解码器（Decoder）**两部分组成。\n\n要理解这个定位，抓住三个关键词就够了：\n\n1. **序列转换（Seq2Seq）**：输入是一个符号序列（比如一句英文的单词序列），输出是另一个符号序列（比如对应的中文）。模型的任务是“把一条序列变成另一条序列”。\n2. **完全基于注意力**：在 Transformer 之前，主流的序列转换模型用循环神经网络（RNN）或卷积网络（CNN）来逐位置地传递信息。Transformer 是第一个**完全依赖自注意力来计算输入和输出表示**的转换模型，不使用序列对齐的 RNN，也不使用卷积。\n3. **编码器 + 解码器**：这是当时大多数有竞争力的神经序列转换模型共有的总体架构，Transformer 沿用了它，只是把内部的“积木”换成了堆叠的自注意力层和逐位置的全连接层。\n\n> 为什么“不用循环”值得单独强调？因为 RNN 必须一个词一个词地顺序处理，而自注意力可以让序列中所有位置**并行**地互相“看”。这一点在后面的结构讲解中会反复体现。\n\n<a id=\"sec-encoder-decoder-roles\"></a>\n## 二、编码器与解码器各自做什么\n\n### 2.1 编码器：把符号序列变成连续表示\n\n编码器接收一个由符号表示的输入序列 $(x_1, \\dots, x_n)$，把它映射成一系列**连续表示** $z = (z_1, \\dots, z_n)$。\n\n- 输入端的“符号”本身是离散的（词表里的编号），不能直接做向量运算，所以先经过**词嵌入**变成稠密向量，再加上**位置编码**补上顺序信息。\n- 经过若干层堆叠后，每个位置上的向量已经融合了整条输入序列的上下文信息，这就是“连续表示”的含义：它不再是孤立的词向量，而是“这个词在整句话里的意思”。\n- 编码器的输出 $z$ 会被送进解码器，供解码器在生成每个输出符号时“查阅”。\n\n### 2.2 解码器：以自回归方式逐符号生成输出\n\n给定编码器输出的 $z$，解码器**一次生成一个符号**，最终得到输出序列 $(y_1, \\dots, y_m)$。\n\n关键在于“**自回归（autoregressive）**”：在生成下一个符号时，模型会把**先前已经生成的符号**作为额外的输入。也就是说：\n\n- 生成 $y_1$ 时，输入只有起始符；\n- 生成 $y_2$ 时，输入是“起始符 + $y_1$”；\n- 生成 $y_3$ 时，输入是“起始符 + $y_1$ + $y_2$”；\n- ……直到生成结束符为止。\n\n这种“用自己刚生成的结果继续往下生成”的方式，就是自回归。它带来一个必须解决的技术问题：**训练时如果也一步一步来，太慢了**。Transformer 的解法是：训练时把整个目标序列**右移一位**后一次性喂给解码器，再用**掩码（mask）**挡住每个位置后面的信息，让位置 $i$ 的预测只能依赖小于 $i$ 的已知输出。这样既保留了自回归的因果约束，又能并行计算。\n\n<a id=\"sec-skeleton-diagram\"></a>\n## 三、骨架图：各 6 层堆叠，编码器 2 个子层、解码器 3 个子层\n\n原始论文中，编码器和解码器**各由 N = 6 个相同的层堆叠而成**。下面这张骨架图请对照着用纸笔画一遍：\n\n```text\n        输入符号序列 (x1 ... xn)                输出符号序列（右移一位）\n                 │                                        │\n          词嵌入 + 位置编码                        词嵌入 + 位置编码\n                 │                                        │\n     ┌───────────▼───────────┐              ┌─────────────▼─────────────┐\n     │  编码器层 1 / 6        │              │  解码器层 1 / 6            │\n     │ ┌───────────────────┐ │              │ ┌───────────────────────┐ │\n     │ │ ① 多头自注意力     │ │              │ │ ① 掩蔽多头自注意力     │ │\n     │ └─────────┬─────────┘ │              │ └──────────┬────────────┘ │\n     │      Add & Norm       │              │       Add & Norm          │\n     │ ┌─────────▼─────────┐ │              │ ┌──────────▼────────────┐ │\n     │ │ ② 逐位置前馈网络   │ │              │ │ ② 编码器-解码器注意力  │◄┼─── 来自编码器输出 z\n     │ └─────────┬─────────┘ │              │ └──────────┬────────────┘ │\n     │      Add & Norm       │              │       Add & Norm          │\n     └───────────┬───────────┘              │ ┌──────────▼────────────┐ │\n                 │                          │ │ ③ 逐位置前馈网络       │ │\n                 │                          │ └──────────┬────────────┘ │\n                 │                          │       Add & Norm          │\n                 │                          └─────────────┬─────────────┘\n                 │                                        │\n                 │                             线性层 + Softmax\n                 │                                        │\n                 │                              下一个符号的概率分布\n                 ▼                                        ▼\n        （重复堆叠至 6 层）                        （重复堆叠至 6 层）\n```\n\n对照这张图，把要点记成三句话：\n\n| 位置 | 子层数量 | 子层内容 |\n| --- | --- | --- |\n| 编码器每层 | **2 个** | ① 多头自注意力 → ② 逐位置前馈网络 |\n| 解码器每层 | **3 个** | ① 掩蔽多头自注意力 → ② 编码器-解码器注意力 → ③ 逐位置前馈网络 |\n\n- **每个子层后面都接一个 Add & Norm**，即 `LayerNorm(x + Sublayer(x))`，其中 `Sublayer(x)` 是子层本身的函数。残差连接（`x +`）让信息有一条直通的旁路，层归一化让数值尺度保持稳定。\n- 为了让残差连接能直接相加，模型里**所有子层和嵌入层的输出维度都统一为 $d_{model} = 512$**。\n- 解码器比编码器**多出的那一个子层**，就是中间的“编码器-解码器注意力”：它以解码器当前状态生成查询，从编码器输出的键值对中取信息。\n- 解码器的第一个子层是**掩蔽**自注意力，掩码保证位置 $i$ 看不到 $i$ 之后的位置，这正是自回归约束在结构上的体现。\n\n<a id=\"sec-substep-walkthrough\"></a>\n## 四、跟着一个具体例子走一遍\n\n假设任务是英译中，输入是 `I am a student`，目标输出是 `我是一个学生`。我们只看**生成第一个输出符号**这一步。\n\n**第 1 步：编码器处理输入。**\n\n1. `I / am / a / student` 四个词先查词嵌入表，各变成一个 512 维向量；\n2. 每个向量加上对应位置的**位置编码**（位置编码是预先定义好的固定向量，不参与训练），得到 4 个带顺序信息的向量；\n3. 进入编码器第 1 层：多头自注意力让 4 个位置互相“看”，每个位置的新向量都融合了其余三个位置的信息；随后 Add & Norm；\n4. 再进逐位置前馈网络（对每个位置独立地做同样的两层变换），随后 Add & Norm；\n5. 这一层的输出作为第 2 层的输入，重复 6 次，得到最终连续表示 $z = (z_1, z_2, z_3, z_4)$。\n\n**第 2 步：解码器生成第一个符号。**\n\n1. 解码器此刻的输入只有起始符（训练时表现为“右移一位的目标序列”的第一个位置）；\n2. 经过词嵌入 + 位置编码后进入解码器第 1 层；\n3. **掩蔽自注意力**：因为当前只有起始符可见，掩码把后面所有位置都挡住，所以这一步实际上只能看到起始符自己；\n4. **编码器-解码器注意力**：用上一步的结果生成查询，去和编码器输出的 $z$ 做注意力，从四个输入位置的表示里挑出此刻最相关的信息；\n5. **逐位置前馈网络** 综合信息，再经过 Add & Norm；\n6. 重复 6 层后，接一个线性层 + Softmax，得到词表上每个候选词的概率，概率最高的就是第一个输出符号，比如“我”。\n\n**第 3 步：自回归地继续。**\n\n把“我”接到输入后面，重新走一遍解码器，得到“是”；再得到“一”“个”“学”“生”，直到输出结束符。注意：**编码器只跑一次**，$z$ 在整个生成过程中被反复复用；而解码器每生成一个符号就要再跑一遍。\n\n这个例子也解释了为什么解码器需要掩蔽：如果生成“我”的时候就能看到“是”“一”等后续答案，模型就变成了“抄答案”，训练出来的模型在推理时（那时后面还没有词）会彻底失效。\n\n<a id=\"sec-why-attention\"></a>\n## 五、相比循环网络：并行计算与长距离依赖\n\n| 对比维度 | RNN 类模型 | Transformer |\n| --- | --- | --- |\n| 计算方式 | 按时间步顺序处理，第 $t$ 步依赖第 $t-1$ 步 | 序列内所有位置可同时计算 |\n| 长距离依赖 | 信息要沿时间步逐步传递，距离越远越难学 | 任意两个位置之间只需**恒定数量**的操作即可建立关联 |\n| 位置信息 | 顺序处理天然带位置 | 需要额外加入位置编码 |\n\n关于长距离依赖，原始论文的背景部分说得很直接：ConvS2S 这类卷积模型把两个任意位置关联起来所需的操作数随距离**线性**增长，ByteNet 是**对数**增长，而 Transformer 通过注意力把它减少到**恒定数量**——代价是注意力加权平均会降低有效分辨率，论文用**多头注意力**来抵消这一影响。\n\n另外，正因为自注意力本身**忽略位置**（把句子打乱也能得到类似结果），Transformer 必须在输入端加入位置编码来修正，这也是位置编码在结构中不可省略的原因。\n\n<a id=\"sec-self-check\"></a>\n## 六、自查\n\n不看上面的内容，试着回答：\n\n1. 编码器每层有哪两个子层？解码器每层多出的是哪个子层？\n2. 解码器为什么要自回归地逐符号生成？训练时又是怎么在保持这一约束的同时并行计算的？\n3. 每个子层后面的 Add & Norm 具体做了什么？为什么所有子层输出维度都要统一成 512？\n4. 如果去掉位置编码，模型会失去什么能力？\n\n如果第 1、2 题能顺畅说出来，本节的核心目标就达成了。\n\n> 说明：本节依据原始论文的中文逐段解读与中文技术博客整理，未直接引用 arXiv 英文原文；位置编码常数等细节以原始论文表述为准。本节只讲整体结构与各部件职责，自注意力的完整计算过程、多头注意力的投影细节、位置编码公式的推导将在后续节点展开。\n",
+  "artifact_type": "report",
+  "generation_state": {
+    "preparation": {
+      "duration": {
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+        "value_minutes": 8.4
+      },
+      "sections": [
+        {
+          "section_id": "sec-what-is-transformer",
+          "content_sha256": "db96c815ce812999e2bd35d4736baa077a9880c4be0555af353a73ac87360401"
+        },
+        {
+          "section_id": "sec-encoder-decoder-roles",
+          "content_sha256": "904e30ad758bf677ddedfa9e386e261343116f2dc833f48143c046c34955c6da"
+        },
+        {
+          "section_id": "sec-skeleton-diagram",
+          "content_sha256": "71a945b690abce81a06685aa90060789b6b7e018cf0e8191adf62aa7815c494f"
+        },
+        {
+          "section_id": "sec-substep-walkthrough",
+          "content_sha256": "fb9e13a05b682bcd49a61ee78bbbba3d3b0e1b9080e5040fa46e314793a54e9d"
+        },
+        {
+          "section_id": "sec-why-attention",
+          "content_sha256": "233bc03ad433b2804a8a0c5c4d54304dfef5fe990bdda4b373f0f7bc12b5ae59"
+        },
+        {
+          "section_id": "sec-self-check",
+          "content_sha256": "12275945ddad0b5de617a865dd35249c022b21f2d00d768f3405105a0b9b96d4"
+        }
+      ],
+      "spec_digest": "a6d6f87f1d1eb7b6e4a1f7474ee45712c287d84cf982c87598a4f3b634c02642",
+      "schema_version": 1,
+      "objective_bindings": [
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-what-is-transformer"
+          },
+          "objective_id": "n1-overview:o1"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-encoder-decoder-roles"
+          },
+          "objective_id": "n1-overview:o2"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-substep-walkthrough"
+          },
+          "objective_id": "n1-overview:o2"
+        },
+        {
+          "role": "practice",
+          "locator": {
+            "section_id": "sec-skeleton-diagram"
+          },
+          "objective_id": "n1-overview:o3"
+        },
+        {
+          "role": "check",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "objective_id": "n1-overview:o3"
+        },
+        {
+          "role": "explanation",
+          "locator": {
+            "section_id": "sec-why-attention"
+          },
+          "objective_id": "n1-overview:o1"
+        }
+      ],
+      "applied_requirements": [
+        {
+          "locator": {
+            "section_id": "sec-what-is-transformer"
+          },
+          "explanation": "交代 Transformer 的提出年份、完全基于注意力、编码器-解码器两部分的定位，并说明其摒弃循环与卷积的背景。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-encoder-decoder-roles"
+          },
+          "explanation": "分别说明编码器把符号序列映射为连续表示、解码器以自回归方式逐符号生成输出，并解释掩码与右移在其中的作用。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-skeleton-diagram"
+          },
+          "explanation": "给出编码器/解码器各 6 层堆叠的骨架图，标出编码器 2 个子层、解码器 3 个子层及每个子层后的 Add & Norm，并说明前馈网络、残差连接与层归一化的位置与作用。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-substep-walkthrough"
+          },
+          "explanation": "用英译中具体例子演示词嵌入+位置编码、多头自注意力、前馈网络、编码器-解码器注意力与自回归生成的实际流程。",
+          "requirement_id": "req-transformer-basics"
+        },
+        {
+          "locator": {
+            "section_id": "sec-why-attention"
+          },
+          "explanation": "对比循环网络，说明 Transformer 在并行计算与长距离依赖上的特点，并指出位置编码因此不可省略。",
+          "requirement_id": "req-transformer-basics"
+        }
+      ],
+      "teaching_context_digest": "a46320e5fc70601597652a681f503da00edf6a6eca39088881a7d37881976a04"
+    },
+    "report_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "本节点分工 req-transformer-basics 的核心结构要求在正文中真实落实：第一节给出 2017 年、完全基于注意力、编码器-解码器定位；第二节说明编码器映射为连续表示 z、解码器自回归逐符号生成；第三节骨架图与表格标出各 6 层、编码器 2 子层、解码器 3 子层及 Add&Norm；前馈网络、残差连接、层归一化在第三节均有位置与作用说明。自注意力计算过程与多头投影细节明确留待后续节点，属节点分工而非遗漏。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "关键事实与依据一致：N=6、d_model=512、LayerNorm(x+Sublayer(x))、解码器第三子层对编码器输出做多头注意力、掩码加右移保证位置 i 只依赖小于 i 的输出，均与 ev_7f07ada805f7ff3393abfa9b 原文相符；第五节 ConvS2S 线性、ByteNet 对数、Transformer 恒定操作数及多头注意力抵消分辨率下降的表述与背景段一致。位置编码为固定不参与训练的表述与 ev_cf807b1a738b6c6375a3ff43 一致。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "第四节用“I am a student → 我是一个学生”逐步推演：编码器四词嵌入加位置编码、6 层后得 z=(z1..z4)，解码器首步仅起始符可见、掩蔽自注意力、编码器-解码器注意力取 z、线性层+Softmax 得“我”，再自回归续生成至结束符，并说明编码器只跑一次而解码器每步重跑，边界（训练右移+掩码、推理无后续词）交代清楚，与结构描述自洽。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "实际章节顺序为定位→编码器/解码器职责→骨架图与子层表→具体例子→与 RNN 对比→自查，先整体后局部再实例，符合入门深度与节点活动（阅读定位、画骨架图、标注 Add&Norm 与子层差异）；自查第 1、2 题直接对应节点 self_check，未引入面试模板或超出本节点的实现细节。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "正文末尾说明依据原始论文中文逐段解读与中文技术博客整理、未直接引用 arXiv 英文原文，与 limitations 一致；所引事实均可在提供的 ev_cf807b1a738b6c6375a3ff43、ev_7f07ada805f7ff3393abfa9b 摘录中找到对应原文，未出现无依据的外部主张。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "三个节点目标均有落点：o1 见第一节与第五节，o2 见第二节与第四节，o3 见第三节骨架图与自查；语言为中文、深度入门、无排除项冲突，正文约 8.4 分钟估算在 10 分钟节点预算内，未越界讲授后续节点的自注意力公式推导。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "本节点分工 req-transformer-basics 的核心结构要求在正文中真实落实：第一节给出 2017 年、完全基于注意力、编码器-解码器定位；第二节说明编码器映射为连续表示 z、解码器自回归逐符号生成；第三节骨架图与表格标出各 6 层、编码器 2 子层、解码器 3 子层及 Add&Norm；前馈网络、残差连接、层归一化在第三节均有位置与作用说明。自注意力计算过程与多头投影细节明确留待后续节点，属节点分工而非遗漏。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "关键事实与依据一致：N=6、d_model=512、LayerNorm(x+Sublayer(x))、解码器第三子层对编码器输出做多头注意力、掩码加右移保证位置 i 只依赖小于 i 的输出，均与 ev_7f07ada805f7ff3393abfa9b 原文相符；第五节 ConvS2S 线性、ByteNet 对数、Transformer 恒定操作数及多头注意力抵消分辨率下降的表述与背景段一致。位置编码为固定不参与训练的表述与 ev_cf807b1a738b6c6375a3ff43 一致。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "第四节用“I am a student → 我是一个学生”逐步推演：编码器四词嵌入加位置编码、6 层后得 z=(z1..z4)，解码器首步仅起始符可见、掩蔽自注意力、编码器-解码器注意力取 z、线性层+Softmax 得“我”，再自回归续生成至结束符，并说明编码器只跑一次而解码器每步重跑，边界（训练右移+掩码、推理无后续词）交代清楚，与结构描述自洽。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "实际章节顺序为定位→编码器/解码器职责→骨架图与子层表→具体例子→与 RNN 对比→自查，先整体后局部再实例，符合入门深度与节点活动（阅读定位、画骨架图、标注 Add&Norm 与子层差异）；自查第 1、2 题直接对应节点 self_check，未引入面试模板或超出本节点的实现细节。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文末尾说明依据原始论文中文逐段解读与中文技术博客整理、未直接引用 arXiv 英文原文，与 limitations 一致；所引事实均可在提供的 ev_cf807b1a738b6c6375a3ff43、ev_7f07ada805f7ff3393abfa9b 摘录中找到对应原文，未出现无依据的外部主张。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "三个节点目标均有落点：o1 见第一节与第五节，o2 见第二节与第四节，o3 见第三节骨架图与自查；语言为中文、深度入门、无排除项冲突，正文约 8.4 分钟估算在 10 分钟节点预算内，未越界讲授后续节点的自注意力公式推导。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "第三节骨架图中“（重复堆叠至 6 层）”放在图底部，容易被读成第 1 层之后才重复，可改为在图旁标注“层 1…层 6 依次堆叠”，避免与“编码器层 1 / 6”的标注产生歧义。",
+              "第四节第 2 步第 3 点说掩蔽自注意力“只能看到起始符自己”，可补一句“训练时该位置对应右移序列的第一个真实目标词”，使训练与推理两种情形的对应更清楚。",
+              "自查第 3 题涉及 512 维度统一的原因，正文已给出，但可提示读者回看第三节表格，强化与骨架图的对应。"
+            ],
+            "blocking_issues": [],
+            "preparation_checks": [
+              {
+                "passed": true,
+                "reason": "sec-what-is-transformer 实际交代 2017 年 Google 团队、多头注意力为核心、编码器+解码器两部分，并说明完全依赖自注意力、不用 RNN 与卷积，真实支持该需求定位。",
+                "locator": {
+                  "section_id": "sec-what-is-transformer"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-encoder-decoder-roles 的 2.1 说明编码器把 (x1..xn) 映射为连续表示 z，2.2 说明解码器一次生成一个符号并解释自回归、右移与掩码，内容与所述贡献一致。",
+                "locator": {
+                  "section_id": "sec-encoder-decoder-roles"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-skeleton-diagram 给出编码器/解码器各 6 层骨架图与子层表格，标出编码器 2 子层、解码器 3 子层及每子层后的 Add & Norm，并说明前馈网络、残差连接、层归一化作用与 512 维度统一，支持该定位。",
+                "locator": {
+                  "section_id": "sec-skeleton-diagram"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-substep-walkthrough 以英译中例子实际演示词嵌入+位置编码、多头自注意力、前馈网络、编码器-解码器注意力与自回归续生成，非仅声称。",
+                "locator": {
+                  "section_id": "sec-substep-walkthrough"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-why-attention 用对比表说明并行计算与长距离依赖（恒定操作数），并指出自注意力忽略位置故位置编码不可省略，支持该定位。",
+                "locator": {
+                  "section_id": "sec-why-attention"
+                },
+                "binding_id": "req-transformer-basics",
+                "binding_type": "requirement_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-what-is-transformer 明确写出 2017 年提出、完全基于注意力、由编码器与解码器组成，直接支撑 o1。",
+                "locator": {
+                  "section_id": "sec-what-is-transformer"
+                },
+                "binding_id": "n1-overview:o1",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-encoder-decoder-roles 分别解释编码器映射为连续表示与解码器自回归逐符号生成，支撑 o2。",
+                "locator": {
+                  "section_id": "sec-encoder-decoder-roles"
+                },
+                "binding_id": "n1-overview:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-substep-walkthrough 以具体例子复现编码器一次编码、解码器逐符号自回归生成的过程，作为 o2 的补充解释有效。",
+                "locator": {
+                  "section_id": "sec-substep-walkthrough"
+                },
+                "binding_id": "n1-overview:o2",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-skeleton-diagram 提供可照画的骨架图与子层表，读者可据此画出 6 层堆叠并标出 2/3 子层位置，作为 o3 的练习落点成立。",
+                "locator": {
+                  "section_id": "sec-skeleton-diagram"
+                },
+                "binding_id": "n1-overview:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-self-check 第 1 题直接问编码器两子层与解码器多出的子层，第 2 题问自回归原因与并行训练方式，可检验 o3 与 o2，作为检查点成立。",
+                "locator": {
+                  "section_id": "sec-self-check"
+                },
+                "binding_id": "n1-overview:o3",
+                "binding_type": "objective_id"
+              },
+              {
+                "passed": true,
+                "reason": "sec-why-attention 通过 RNN 对比再次强化“完全基于注意力、并行、恒定操作数”的定位，对 o1 的解释有实质补充而非重复空话。",
+                "locator": {
+                  "section_id": "sec-why-attention"
+                },
+                "binding_id": "n1-overview:o1",
+                "binding_type": "objective_id"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "8c0c5334c1330145430a5f6212b7eef520b94da4122754f6394290ea1627ef06",
+          "structural_issues": []
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "limitation": "模型审阅，非人工审阅或全面事实核验",
+      "suggestions": [
+        "第三节骨架图中“（重复堆叠至 6 层）”放在图底部，容易被读成第 1 层之后才重复，可改为在图旁标注“层 1…层 6 依次堆叠”，避免与“编码器层 1 / 6”的标注产生歧义。",
+        "第四节第 2 步第 3 点说掩蔽自注意力“只能看到起始符自己”，可补一句“训练时该位置对应右移序列的第一个真实目标词”，使训练与推理两种情形的对应更清楚。",
+        "自查第 3 题涉及 512 维度统一的原因，正文已给出，但可提示读者回看第三节表格，强化与骨架图的对应。"
+      ],
+      "content_sha256": "8c0c5334c1330145430a5f6212b7eef520b94da4122754f6394290ea1627ef06",
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "passed": true,
+          "reason": "sec-what-is-transformer 实际交代 2017 年 Google 团队、多头注意力为核心、编码器+解码器两部分，并说明完全依赖自注意力、不用 RNN 与卷积，真实支持该需求定位。",
+          "locator": {
+            "section_id": "sec-what-is-transformer"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-encoder-decoder-roles 的 2.1 说明编码器把 (x1..xn) 映射为连续表示 z，2.2 说明解码器一次生成一个符号并解释自回归、右移与掩码，内容与所述贡献一致。",
+          "locator": {
+            "section_id": "sec-encoder-decoder-roles"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-skeleton-diagram 给出编码器/解码器各 6 层骨架图与子层表格，标出编码器 2 子层、解码器 3 子层及每子层后的 Add & Norm，并说明前馈网络、残差连接、层归一化作用与 512 维度统一，支持该定位。",
+          "locator": {
+            "section_id": "sec-skeleton-diagram"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-substep-walkthrough 以英译中例子实际演示词嵌入+位置编码、多头自注意力、前馈网络、编码器-解码器注意力与自回归续生成，非仅声称。",
+          "locator": {
+            "section_id": "sec-substep-walkthrough"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-why-attention 用对比表说明并行计算与长距离依赖（恒定操作数），并指出自注意力忽略位置故位置编码不可省略，支持该定位。",
+          "locator": {
+            "section_id": "sec-why-attention"
+          },
+          "binding_id": "req-transformer-basics",
+          "binding_type": "requirement_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-what-is-transformer 明确写出 2017 年提出、完全基于注意力、由编码器与解码器组成，直接支撑 o1。",
+          "locator": {
+            "section_id": "sec-what-is-transformer"
+          },
+          "binding_id": "n1-overview:o1",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-encoder-decoder-roles 分别解释编码器映射为连续表示与解码器自回归逐符号生成，支撑 o2。",
+          "locator": {
+            "section_id": "sec-encoder-decoder-roles"
+          },
+          "binding_id": "n1-overview:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-substep-walkthrough 以具体例子复现编码器一次编码、解码器逐符号自回归生成的过程，作为 o2 的补充解释有效。",
+          "locator": {
+            "section_id": "sec-substep-walkthrough"
+          },
+          "binding_id": "n1-overview:o2",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-skeleton-diagram 提供可照画的骨架图与子层表，读者可据此画出 6 层堆叠并标出 2/3 子层位置，作为 o3 的练习落点成立。",
+          "locator": {
+            "section_id": "sec-skeleton-diagram"
+          },
+          "binding_id": "n1-overview:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-self-check 第 1 题直接问编码器两子层与解码器多出的子层，第 2 题问自回归原因与并行训练方式，可检验 o3 与 o2，作为检查点成立。",
+          "locator": {
+            "section_id": "sec-self-check"
+          },
+          "binding_id": "n1-overview:o3",
+          "binding_type": "objective_id"
+        },
+        {
+          "passed": true,
+          "reason": "sec-why-attention 通过 RNN 对比再次强化“完全基于注意力、并行、恒定操作数”的定位，对 o1 的解释有实质补充而非重复空话。",
+          "locator": {
+            "section_id": "sec-why-attention"
+          },
+          "binding_id": "n1-overview:o1",
+          "binding_type": "objective_id"
+        }
+      ],
+      "preparation_sha256": "6f03a212b48c0cfb73ef8505881e5657c1f9f382d70efda47ac8a5f453059e70"
+    }
+  }
+}

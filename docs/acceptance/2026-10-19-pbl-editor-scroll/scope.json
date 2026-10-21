@@ -1,0 +1,11 @@
+{
+  "changedProductFiles": [
+    "pbl/projectWorkbench.css"
+  ],
+  "baselineSource": "/tmp/edu-hf-video-playback-source-v2",
+  "candidateSource": "/tmp/edu-pbl-scroll-fix-source",
+  "build": "passed",
+  "originalFailure": "CodeMirror grew to 3252px, same as scrollHeight, inside a 783px file container; scrollTop stayed 0.",
+  "fix": "Constrain the Sandpack editor stack inside the project file wrapper; style the editor scrollbar.",
+  "verificationScope": "Real Chromium UI with fixture APIs and blocked remote preview; no generated project data changed."
+}

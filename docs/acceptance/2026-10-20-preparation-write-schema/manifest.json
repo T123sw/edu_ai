@@ -1,0 +1,37 @@
+[
+  {
+    "path": "backend/src/app/chat/harness/preparation_content.py",
+    "before_sha256": "ea00662f29a881f7ccd4f30bccc3fcd0a70769a65b0dd4b0b94e0bd3507284d7",
+    "after_sha256": "4f7a55fc2bf21f49f0f398d582e6f17c4a83df24f0d936884929c558359b8c82"
+  },
+  {
+    "path": "backend/src/app/chat/harness/reviewed_report.py",
+    "before_sha256": "394bb271085e647abcc6d48ca4921c67c033a48a1d176512c4054fd028e58bc0",
+    "after_sha256": "971c292365bfe7bba4b2cb7d9197e73bfaf3e79c86d5be36516818d281ac2eb9"
+  },
+  {
+    "path": "backend/src/app/chat/harness/reviewed_resource.py",
+    "before_sha256": "87b4c3ab3b4f0b83a5f5cbfa677944df3d3e7e7d9f4eaf89d75ef358af4f70fa",
+    "after_sha256": "6d091647bab0606af87148da8696b8e6fabd552c7192c245e808194ce0a1bea1"
+  },
+  {
+    "path": "backend/src/app/course_preparation/harness_generation.py",
+    "before_sha256": "bee37ba94fe88eab5f1f042b7ec08d96c349eb4626601f2adb596965b70528c0",
+    "after_sha256": "6f6c089fb0a702c90de82d512ad329b42df45c08a0104293e9c363f0adc3c9e1"
+  },
+  {
+    "path": "backend/src/tests/course_preparation/test_native_structured_submission.py",
+    "before_sha256": "ddb3fe0bea5c7b22189fd4ebb115d4c6a77d9091c3d0f3ebccf30919932d6ca8",
+    "after_sha256": "aa2ae0bad0ddff591cc0c904e5e365fd90faa4775dfea451d333771a72d47de8"
+  },
+  {
+    "path": "backend/src/app/chat/harness/preparation_write_contract.py",
+    "before_sha256": null,
+    "after_sha256": "88ce93ba7355fcf2908612bd1a33676d760f106428203ab58ac9c7956b27525e"
+  },
+  {
+    "path": "backend/src/tests/course_preparation/test_preparation_write_schema.py",
+    "before_sha256": null,
+    "after_sha256": "b7274a8d2f9b5a4e1275f1c82e0eed3aa5f13b6bdb622868e7dfa09a51331f1b"
+  }
+]

@@ -1,0 +1,51 @@
+{
+  "scope": "Read-only sampled checks, not exhaustive content verification",
+  "quiz_n3": {
+    "expected_weights": [
+      [
+        0.4011120926797859,
+        0.1977758146404282,
+        0.4011120926797859
+      ],
+      [
+        0.1977758146404282,
+        0.4011120926797859,
+        0.4011120926797859
+      ],
+      [
+        0.24825507825772306,
+        0.24825507825772306,
+        0.5034898434845538
+      ]
+    ],
+    "expected_output": [
+      [
+        1.2033362780393577,
+        1.0
+      ],
+      [
+        1.0,
+        1.2033362780393577
+      ],
+      [
+        1.2552347652268308,
+        1.2552347652268308
+      ]
+    ],
+    "final_candidate_answer": "(1.203,1.000), (1.000,1.203), (1.255,1.255)",
+    "answer_matches_recalculation": true,
+    "remaining_defect": "Dot-product paragraph repeated twice",
+    "reviewer_feedback_defect": "Final review independently reports o1=1.204 / o2=1.204 and weights .4013; these disagree with deterministic recomputation, although its duplication objection is valid."
+  },
+  "quiz_n1": {
+    "defect": "Reviewer claimed 10000 for excerpt containing only 100×100 and 100; source-binding gate rejects the invented literal, then consumes content-repair rounds. This does not demonstrate wrong arithmetic in the question.",
+    "intermediate_review": "Second review also submits log(100) claimed 7 for prose without literal 7."
+  },
+  "quiz_n5": {
+    "defect": "Symbolic positional-encoding and complexity assertions submitted to numeric-only verification; content rewriting did not remove review-expression mismatch."
+  },
+  "report_samples": {
+    "n3": "Rounded softmax weights and arithmetic inspected; rounding propagation explicitly shown.",
+    "n5": "d_model=4 positional-encoding example and embedding additions inspected. Finite-dimension maximum wavelength is less than 10000×2π; report gives that limiting endpoint as the range."
+  }
+}

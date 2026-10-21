@@ -1,0 +1,86 @@
+{
+  "status": "published",
+  "published_at": "2026-10-19T06:51:13.974062+00:00",
+  "api": {
+    "MainPID": "2526129",
+    "ActiveState": "active",
+    "ActiveEnterTimestamp": "Mon 2026-10-19 06:49:44 UTC"
+  },
+  "tts": {
+    "MainPID": "2525319",
+    "ActiveState": "active",
+    "ActiveEnterTimestamp": "Mon 2026-10-19 06:48:21 UTC"
+  },
+  "worker": {
+    "MainPID": "2515822",
+    "ActiveState": "active",
+    "ActiveEnterTimestamp": "Mon 2026-10-19 06:36:23 UTC"
+  },
+  "safe_effective_config": {
+    "api": {
+      "TTS_API_BASE": "http://127.0.0.1:8191/v1",
+      "TTS_LOCAL_ONLY": "true",
+      "TTS_VOICE": "vivian",
+      "TTS_SPEED": "1.0"
+    },
+    "worker": {
+      "TTS_API_BASE": "http://127.0.0.1:8191/v1",
+      "TTS_LOCAL_ONLY": "true",
+      "TTS_VOICE": "vivian",
+      "TTS_SPEED": "1.0"
+    }
+  },
+  "api_health": {
+    "status": "ok",
+    "message": "service ready",
+    "knowledge_base_ready": true,
+    "document_count": 11249
+  },
+  "tts_health": {
+    "status": "ok",
+    "service": "local-tts",
+    "model_loaded": true,
+    "model": "qwen3-tts",
+    "device": "cuda:1",
+    "voice_profile": "stable-narration-v1",
+    "formats": [
+      "mp3",
+      "wav"
+    ]
+  },
+  "tts_stats": {
+    "batch_size": 4,
+    "voice_profile": "stable-narration-v1",
+    "cache_size": 256,
+    "cache_entries": 4,
+    "active_requests": 0,
+    "queued_requests": 0,
+    "requests": 4,
+    "cache_hits": 0,
+    "batch_calls": 1,
+    "fallback_calls": 0,
+    "sentences": 4,
+    "audio_ms": 79350,
+    "infer_ms": 71042,
+    "model_calls": 1,
+    "max_batch_observed": 4
+  },
+  "tests": 48,
+  "http_batch_contract": "passed",
+  "real_model_utterances": 8,
+  "online_real_parallel_utterances": 4,
+  "online_pitch_median_range_hz": [
+    239.49,
+    245.09
+  ],
+  "cache_version": "stable-narration-v1",
+  "rejected_candidate": "pure greedy main-talker, exceeded evaluation time gate; not published",
+  "scope": [
+    "Local Vivian narration has 240 Hz median pitch target, bounded to 3 semitones and formant-preserving processing.",
+    "Complete-text inference and parallel batches retained.",
+    "GPU numeric differences may produce different PCM across different batches despite independent seeded RNG streams.",
+    "Acoustic pitch tests do not establish perceptual speaker-identity similarity or word-by-word correctness.",
+    "Existing published media not rewritten; no active task killed; API restart snapshot had no leased tasks.",
+    "Legacy 8188 service remains unchanged; current API and worker route to 8191."
+  ]
+}

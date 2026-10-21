@@ -29,15 +29,24 @@ def execute(action):
     except PermissionError as exc:
         raise HTTPException(403, '当前资料或任务权限不可用') from exc
     except (IdempotencyConflict, RevisionConflict) as exc:
-        raise HTTPException(409, '请求标识或状态版本冲突') from exc
+        raise HTTPException(409, '任务状态已经更新，请刷新页面后再试。') from exc
     except BudgetExceeded as exc:
-        raise HTTPException(409, '任务预算或总时限已耗尽') from exc
+        from app.course_preparation.failure_explanation import explain
+        _, reason, action = explain(str(exc))
+        raise HTTPException(409, reason + action) from exc
     except ValueError as exc:
-        raise HTTPException(422, str(exc)) from exc
+        message = {'ONLY_TERMINAL_FAILURE_CAN_RETRY': '这条任务当前不能重试。请刷新页面查看最新进度，只有失败或取消的任务才能重新执行。'}.get(
+            str(exc), '本次操作未能完成，请刷新页面后再试；如果仍然失败，请联系维护人员查看这条任务。')
+        raise HTTPException(422, message) from exc
 
 
 class CancelRequest(BaseModel):
     expected_revision: int | None = Field(default=None, ge=1)
+    expected_attempt_no: int | None = Field(default=None, ge=1)
+
+
+class RetryRequest(BaseModel):
+    node_id: str | None = Field(default=None, min_length=1, max_length=200)
 
 
 @router.post('', status_code=202)
@@ -91,12 +100,13 @@ def get(preparation_id: str, actor=Depends(owner), svc=Depends(service)):
 
 @router.post('/{preparation_id}/cancel')
 def cancel(preparation_id: str, payload: CancelRequest, actor=Depends(owner), svc=Depends(service)):
-    return execute(lambda: svc.cancel(actor, preparation_id, payload.expected_revision))
+    return execute(lambda: svc.cancel(actor, preparation_id, payload.expected_revision,
+        **({'expected_attempt_no': payload.expected_attempt_no} if payload.expected_attempt_no is not None else {})))
 
 
 @router.post('/{preparation_id}/retry', status_code=202)
-def retry(preparation_id: str, actor=Depends(owner), svc=Depends(service)):
-    return execute(lambda: svc.retry(actor, preparation_id))
+def retry(preparation_id: str, payload: RetryRequest | None = None, actor=Depends(owner), svc=Depends(service)):
+    return execute(lambda: svc.retry(actor, preparation_id, **({'node_id': payload.node_id} if payload and payload.node_id else {})))
 
 
 @router.get('/{preparation_id}/events')

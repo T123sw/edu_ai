@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "cases": 6,
+  "runtime": {
+    "template": "vue",
+    "entry": "/src/main.js",
+    "dependencies": {},
+    "moduleType": "commonjs"
+  }
+}

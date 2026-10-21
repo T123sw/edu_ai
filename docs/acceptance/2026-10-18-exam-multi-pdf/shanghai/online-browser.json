@@ -1,0 +1,59 @@
+{
+  "boundary": "Production browser upload, real authentication, Nginx, durable worker, MinerU and DeepTutor",
+  "tag": "多PDF验收 shanghai 1792299392138",
+  "startedAt": "2026-10-18T04:56:32.138Z",
+  "calls": [
+    {
+      "path": "/backend/api/exam-generations/documents",
+      "status": 201
+    },
+    {
+      "path": "/backend/api/exam-generations",
+      "status": 202
+    }
+  ],
+  "transitions": [
+    {
+      "at": "2026-10-18T04:56:43.458Z",
+      "attempt": 0,
+      "generation_id": "examgen_0b2dd1ba43552aa58f39a63c5b58a743",
+      "job_id": "examgen_0b2dd1ba43552aa58f39a63c5b58a743",
+      "status": "running",
+      "progress": 5,
+      "message": "正在读取上传资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T04:57:58.334Z",
+      "attempt": 0,
+      "generation_id": "examgen_0b2dd1ba43552aa58f39a63c5b58a743",
+      "job_id": "examgen_0b2dd1ba43552aa58f39a63c5b58a743",
+      "status": "running",
+      "progress": 20,
+      "message": "正在整理资料",
+      "exam_ready": false,
+      "error_code": null
+    },
+    {
+      "at": "2026-10-18T04:58:27.263Z",
+      "attempt": 0,
+      "generation_id": "examgen_0b2dd1ba43552aa58f39a63c5b58a743",
+      "job_id": "examgen_0b2dd1ba43552aa58f39a63c5b58a743",
+      "status": "running",
+      "progress": 60,
+      "message": "正在生成题目",
+      "exam_ready": false,
+      "error_code": null
+    }
+  ],
+  "errors": [],
+  "generations": [
+    "examgen_0b2dd1ba43552aa58f39a63c5b58a743"
+  ],
+  "retries": 0,
+  "refresh_recovery": true,
+  "stopped_for_upgrade": true,
+  "completed": false,
+  "termination_reason": "Stopped the dedicated pre-fix run to deploy the validated compatibility patch and re-upload all three papers."
+}

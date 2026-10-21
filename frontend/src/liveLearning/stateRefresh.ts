@@ -17,6 +17,7 @@ export async function refreshLearningState(snapshot: LiveLearningState, activeId
   ]);
   return { ...snapshot, rooms: snapshot.rooms.map(previous => previous.id === activeId ? room : previous),
     serverJobs: jobs.items.map(job => ({ edu_job_id: job.edu_job_id, status: job.status, kind: job.kind,
+      created_at: job.created_at,
       progress: job.progress ?? undefined, message: job.message ?? undefined, course_id: job.course_id ?? undefined,
       retryable: job.retryable, error_message: job.error_message ?? undefined })) };
 }

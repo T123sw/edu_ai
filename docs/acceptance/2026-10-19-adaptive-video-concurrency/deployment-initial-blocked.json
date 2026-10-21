@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-19T15:04:25.515454+00:00",
+  "queue_empty": true,
+  "desired_configuration": {
+    "COURSE_PREPARATION_VIDEO_CONCURRENCY": "8",
+    "DURABLE_JOB_LIGHT_WORKERS": "2",
+    "HYPERFRAMES_GLOBAL_FRAME_CONCURRENCY": "16",
+    "HYPERFRAMES_RENDER_CONCURRENCY": "4",
+    "HYPERFRAMES_RENDER_MIN_FREE_MB": "2048",
+    "TTS_REMOTE_CONCURRENCY": "8",
+    "TTS_REMOTE_REQUESTS_PER_SECOND": "4"
+  },
+  "backend_restart": {
+    "returncode": 1,
+    "message": "Failed to restart edu-ai-backend.service: Interactive authentication required.\nSee system logs and 'systemctl status edu-ai-backend.service' for details."
+  },
+  "status": "blocked_by_service_permissions",
+  "production_environment_changed": false,
+  "services_restarted": false
+}

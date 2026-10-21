@@ -1,0 +1,31 @@
+[
+  {
+    "name": "quiz",
+    "skipped": true,
+    "reason": "generation failed"
+  },
+  {
+    "name": "expense",
+    "skipped": true,
+    "reason": "generation failed"
+  },
+  {
+    "name": "csv",
+    "passed": true
+  },
+  {
+    "name": "wizard",
+    "skipped": true,
+    "reason": "generation failed"
+  },
+  {
+    "name": "seats",
+    "skipped": true,
+    "reason": "generation failed"
+  },
+  {
+    "name": "kanban",
+    "skipped": true,
+    "reason": "generation failed"
+  }
+]

@@ -1,0 +1,6 @@
+import type { Command, Session } from './model';
+export type Saved = { session_id: string; revision: string; saved_seq: number; state: Session };
+export type Draft = Saved & { pending: Command[]; inflight?: { batch_id: string; revision: string; expected_seq: number; commands: Command[] } };
+function database(): Promise<IDBDatabase> { return new Promise((resolve, reject) => { const request = indexedDB.open('edu-practice-guidance', 1); request.onupgradeneeded = () => request.result.createObjectStore('drafts'); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); }); }
+export async function readDraft(key: string): Promise<Draft | undefined> { const db = await database(); try { return await new Promise((resolve, reject) => { const request = db.transaction('drafts').objectStore('drafts').get(key); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); }); } finally { db.close(); } }
+export async function writeDraft(key: string, value: Draft): Promise<void> { const db = await database(); try { await new Promise<void>((resolve, reject) => { const transaction = db.transaction('drafts', 'readwrite'); transaction.objectStore('drafts').put(value, key); transaction.oncomplete = () => resolve(); transaction.onerror = () => reject(transaction.error); }); } finally { db.close(); } }
